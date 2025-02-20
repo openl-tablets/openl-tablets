@@ -3,11 +3,11 @@ import { Tabs } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Users } from './Users'
 import { Groups } from './Groups'
-import { UserContext } from '../contexts/User'
+import { SystemContext } from '../contexts/System'
 
 export const GroupsAndUsers: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem } = useContext(UserContext)
+    const { isExternalAuthSystem } = useContext(SystemContext)
 
     const tabs = useMemo(() => {
         const tabs = []

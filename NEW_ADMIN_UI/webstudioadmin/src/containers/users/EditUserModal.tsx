@@ -5,13 +5,42 @@ import { DisplayUserName, RepositoryType } from 'constants/'
 import { UserDetailsTab } from './UserDatailsTab'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../../components/editRepositoriesTabs'
 import { apiCall } from '../../services'
-import { UserProfile } from '../../types/user'
+import {UserDetails} from '../../types/user'
+import {RepositoryRole} from "../../types/repositories";
+import {ProjectRole} from "../../types/projects";
 
 interface EditUserProps {
-    user: UserProfile
+    user: UserDetails
     updateUser: any // TODO add type
     closeModal: () => void;
     onAddUser: () => void;
+}
+
+interface FormValues {
+    username: string
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    displayName: string
+    displayNameSelect: DisplayUserName
+    designRepos: RepositoryRole[]
+    deployRepos: RepositoryRole[]
+    projects: ProjectRole[]
+}
+
+interface UpdatedUserRequest {
+    email: string
+    displayName: string
+    firstName: string
+    lastName: string
+    password: string
+    groups: string[]
+    // Attributes for new user
+    username?: string
+    internalPassword?: {
+        password: string
+    }
 }
 
 export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAddUser, closeModal }) => {
@@ -19,9 +48,9 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
     const [form] = Form.useForm()
     const [isNewUser, setIsNewUser] = useState(!user.username)
     const [userGroups, setUserGroups] = React.useState<string[]>([])
-    const [designRepos, setDesignRepos] = useState<Repository[]>([])
-    const [deployRepos, setDeployRepos] = useState<Repository[]>([])
-    const [projects, setProjects] = useState<Project[]>([])
+    const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
+    const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
+    const [projects, setProjects] = useState<ProjectRole[]>([])
     const [selectedRepositories, setSelectedRepositories] = useState<string[]>([])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [isReposLoaded, setIsReposLoaded] = useState(false)
@@ -29,7 +58,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
 
     const fetchReposRoles = async () => {
         if (!isNewUser) {
-            const response: Repository[] = await apiCall(`/acls/repositories?sid=${user.username}&principal=true`)
+            const response: RepositoryRole[] = await apiCall(`/acls/repositories?sid=${user.username}&principal=true`)
             setDesignRepos(response.filter(repo => repo.type === RepositoryType.DESIGN))
             setDeployRepos(response.filter(repo => repo.type === RepositoryType.PROD))
             setSelectedRepositories(response.map(repo => repo.id))
@@ -39,7 +68,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
 
     const fetchProjectRoles = async () => {
         if (!isNewUser) {
-            const response: Project[] = await apiCall(`/acls/projects?sid=${user.username}&principal=true`)
+            const response: ProjectRole[] = await apiCall(`/acls/projects?sid=${user.username}&principal=true`)
             setProjects(response)
             setSelectedProjects(response.map(project => project.id))
         }
@@ -81,7 +110,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
     }, [user, designRepos, deployRepos, projects])
 
     const onSubmitUserModal = async (userData: any) => {
-        const updatedUser: EditUserRequest = {
+        const updatedUser: UpdatedUserRequest = {
             email: userData.email,
             displayName: userData.displayName,
             firstName: userData.firstName,
@@ -132,7 +161,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
         return isNewUser ? 'Add User' : 'Edit User'
     }, [isNewUser])
 
-    const saveReposRoles = async (groupName: string, repositories, repoType: RepositoryType) => {
+    const saveReposRoles = async (groupName: string, repositories: RepositoryRole[], repoType: RepositoryType) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
 
         const addedRoles = repositories.filter((role: any) => !initialRoles.find((r: any) => r.id === role.id))
@@ -207,7 +236,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
         })
 
         updatedRoles.forEach((project: any) => {
-            apiCall(`/acls/projects/${project.id}?sid=${values.name}&principal=true`, {
+            apiCall(`/acls/projects/${project.id}?sid=${values.username}&principal=true`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ role: project.role })

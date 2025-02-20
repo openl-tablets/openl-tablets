@@ -2,21 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button, Checkbox, Form, Input, Row, Tabs, Typography } from 'antd'
 import { stringify } from 'querystring'
 import { apiCall } from '../../services'
-import { Group } from '../Groups'
+import { GroupTableItem } from '../../types/group'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../../components/editRepositoriesTabs'
 import { RepositoryType, Role } from '../../constants'
+import {RepositoryRole} from "../../types/repositories";
+import {ProjectRole} from "../../types/projects";
 
 interface EditGroupProps {
-    group: Group;
-    updateGroup: (updatedGroup: any) => void;
-    onAddGroup: () => void;
-    closeModal: () => void;
-}
-
-interface Repository {
-    id: string
-    name: string
-    type: string
+    group: GroupTableItem | undefined
+    updateGroup: (updatedGroup: any) => void
+    onAddGroup: () => void
+    closeModal: () => void
 }
 
 interface Project {
@@ -29,15 +25,15 @@ interface FormValues {
     name: string
     description: string
     admin: boolean
-    designRepos: Repository[]
-    deployRepos: Repository[]
-    projects: Project[]
+    designRepos: RepositoryRole[]
+    deployRepos: RepositoryRole[]
+    projects: ProjectRole[]
 }
 
 export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, onAddGroup, closeModal }) => {
-    const [isNewGroup, setIsNewGroup] = useState(!group.id)
-    const [designRepos, setDesignRepos] = useState<Repository[]>([])
-    const [deployRepos, setDeployRepos] = useState<Repository[]>([])
+    const [isNewGroup, setIsNewGroup] = useState(!group?.id)
+    const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
+    const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
     const [projects, setProjects] = useState<Project[]>([])
     const [isReposLoaded, setIsReposLoaded] = useState(false)
     const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
@@ -47,17 +43,17 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     const [form] = Form.useForm()
 
     const initialValues = useMemo(() => ({
-        name: group.name,
-        description: group.description,
-        admin: group.admin,
+        name: group?.name,
+        description: group?.description,
+        admin: group?.admin,
         designRepos,
         deployRepos,
         projects
     }), [group, designRepos, deployRepos, projects])
 
     const fetchReposRoles = async () => {
-        if (!isNewGroup) {
-            const response: Repository[] = await apiCall(`/acls/repositories?sid=${group.name}`)
+        if (!isNewGroup && group?.name) {
+            const response: RepositoryRole[] = await apiCall(`/acls/repositories?sid=${group.name}`)
             setDesignRepos(response.filter(repo => repo.type === RepositoryType.DESIGN))
             setDeployRepos(response.filter(repo => repo.type === RepositoryType.PROD))
             setSelectedRepositories(response.map(repo => repo.id))
@@ -66,7 +62,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     }
 
     const fetchProjectRoles = async () => {
-        if (!isNewGroup) {
+        if (!isNewGroup && group?.name) {
             const response: Project[] = await apiCall(`/acls/projects?sid=${group.name}`)
             setProjects(response)
             setSelectedProjects(response.map(project => project.id))
@@ -77,7 +73,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     useEffect(() => {
         fetchReposRoles()
         fetchProjectRoles()
-    }, [group.name])
+    }, [group?.name])
 
     const saveGroup = async (values: FormValues) => {
         const updatedGroup = {
@@ -88,7 +84,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         }
 
         if (!isNewGroup) {
-            updatedGroup.oldName = group.oldName || updatedGroup.name
+            updatedGroup.oldName = group?.oldName || updatedGroup.name
         }
 
         const encodedBody = stringify(updatedGroup)
@@ -120,7 +116,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         }
     }
 
-    const saveReposRoles = async (groupName: string, repositories, repoType: RepositoryType) => {
+    const saveReposRoles = async (groupName: string, repositories: RepositoryRole[], repoType: RepositoryType) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
 
         const addedRoles = repositories.filter((role: any) => !initialRoles.find((r: any) => r.id === role.id))

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Menu } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -13,11 +13,12 @@ import {
     UserOutlined,
 } from '@ant-design/icons'
 import './MainMenu.scss'
-import { PermissionContext } from '../contexts/Permission'
+import { PermissionContext, SystemContext } from '../contexts'
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const { hasAdminPermission } = useContext(PermissionContext)
+    const { systemSettings, isExternalAuthSystem } = useContext(SystemContext)
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -25,6 +26,16 @@ const MainMenu: React.FC = () => {
     useEffect(() => {
         setSelectedKeys([location.pathname])
     }, [location.pathname])
+
+    const groupsAndUsersMenuLabel = useMemo(() =>
+        isExternalAuthSystem
+            ? t('common:menu.groups_and_users')
+            : t('common:menu.users')
+    , [systemSettings, t])
+
+    const isUserManagementEnabled = useMemo(() =>
+        systemSettings?.supportedFeatures.userManagement
+    , [systemSettings])
 
     return (
         <div id="main-menu">
@@ -42,7 +53,8 @@ const MainMenu: React.FC = () => {
                     <>
                         <Menu.Item key="/administration/repository/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
                         <Menu.Item key="/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
-                        <Menu.Item key="/administration/admin/management/groups" icon={<TeamOutlined />}>{t('common:menu.groups_and_users')}</Menu.Item>
+                        { isUserManagementEnabled &&
+                            <Menu.Item key="/administration/admin/management/groups" icon={<TeamOutlined />}>{groupsAndUsersMenuLabel}</Menu.Item>}
                         <Menu.Item key="/administration/notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
                         <Menu.Item key="/administration/tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
                         <Menu.Item key="/administration/mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>

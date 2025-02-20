@@ -4,6 +4,5 @@ import { UserDetails, UserProfile } from '../types/user'
 export const UserContext = createContext({
     userProfile: {} as UserProfile,
     userDetails: {} as UserDetails,
-    isExternalAuthSystem: false,
     loadUserProfile: () => {}
 })

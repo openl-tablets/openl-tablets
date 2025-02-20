@@ -58,7 +58,6 @@ export const UserSettings: React.FC = () => {
                 body: JSON.stringify(body)
             })
             loadUserProfile()
-            console.log('response', response)
         } catch (error) {
             console.error('error', error)
         }

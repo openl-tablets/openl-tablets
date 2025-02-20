@@ -1,24 +1,23 @@
-import { Role } from '../constants'
+export interface GroupTableItem {
+    admin?: boolean
+    description?: string
+    id: number
+    name: string
+    numberOfMembers: number
+    oldName?: string
+}
 
 export interface Group {
-    oldName?: string;
-    name: string;
-    id: number;
-    description?: string;
-    designRole?: Role
-    prodRole?: Role
-    admin?: boolean;
+    id: number
+    description?: string
+    privileges?: string[]
+    numberOfMembers: {
+        external: number
+        internal: number
+        total: number
+    }
 }
 
 export interface GroupList {
-    [key: string]: {
-        id: number;
-        description?: string;
-        privileges?: string[];
-        numberOfMembers: {
-            external: number;
-            internal: number;
-            total: number;
-        }
-    }
+    [key: string]: Group
 }

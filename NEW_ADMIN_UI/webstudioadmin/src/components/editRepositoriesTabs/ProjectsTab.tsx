@@ -3,13 +3,15 @@ import { apiCall } from '../../services'
 import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
+import {Project} from "../../types/projects";
+import { SelectOption } from '../form/Select'
 
 export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedProjects }) => {
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 
     const fetchProjects = async () => {
-        const response = await apiCall('/projects')
-        setProjects(response.map(project => ({ label: project.name, value: project.id, disabled: true })))
+        const response: Project[] = await apiCall('/projects')
+        setProjects(response.map(project => ({ label: project.name, value: project.id })))
     }
     useEffect(() => {
         fetchProjects()
@@ -19,7 +21,7 @@ export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedPr
         return projects.map(project => ({
             label: project.label,
             value: project.value,
-            disabled: selectedProjects.includes(project.value)
+            disabled: selectedProjects.includes(project.value as string)
         }))
     }, [projects, selectedProjects])
 
@@ -40,6 +42,9 @@ export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedPr
                                     placeholder="Project"
                                     style={{ width: 250 }}
                                     filterOption={(input, option) => {
+                                        if (!option || !option.label || !(typeof option.label === 'string')) {
+                                            return false
+                                        }
                                         return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }}
                                     filterSort={(optionA, optionB) => {
