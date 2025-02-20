@@ -1,4 +1,4 @@
-import {SystemUserMode} from "../constants/system";
+import { SystemUserMode } from '../constants/system'
 
 export interface SystemSettings {
     entrypoint: {
@@ -9,5 +9,5 @@ export interface SystemSettings {
         groupsManagement: boolean
         userManagement: boolean
     },
-    "userMode": SystemUserMode
+    'userMode': SystemUserMode
 }

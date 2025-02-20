@@ -3,24 +3,14 @@ import { apiCall } from '../../services'
 import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
-
-export interface Repository {
-    aclId: string
-    id: string
-    name: string
-    type: string
-}
-
-interface SelectOption {
-    label: string,
-    value: string
-}
+import { SelectOption } from '../form/Select'
+import {Repository} from "../../types/repositories";
 
 export const DesignRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
     const [designRepositories, setDesignRepositories] = React.useState<SelectOption[]>([])
 
     const fetchDesignRepositories = async () => {
-        const response = await apiCall('/repos')
+        const response: Repository[] = await apiCall('/repos')
         setDesignRepositories(response.map(repo => ({ label: repo.name, value: repo.aclId })))
     }
     useEffect(() => {
@@ -31,7 +21,7 @@ export const DesignRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
         return designRepositories.map(repository => ({
             label: repository.label,
             value: repository.value,
-            disabled: selectedRepositories.includes(repository.value)
+            disabled: selectedRepositories.includes(repository.value as string)
         }))
     }, [designRepositories, selectedRepositories])
 
@@ -53,6 +43,9 @@ export const DesignRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
                                     placeholder="Design Repository"
                                     style={{ width: 250 }}
                                     filterOption={(input, option) => {
+                                        if (!option || !option.label || !(typeof option.label === 'string')) {
+                                            return false
+                                        }
                                         return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }}
                                     filterSort={(optionA, optionB) => {

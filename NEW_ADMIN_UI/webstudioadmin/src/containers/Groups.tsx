@@ -5,20 +5,20 @@ import { EditGroupModal } from 'containers/groups/EditGroupModal'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { UserGroupType } from '../constants'
-import { Group, GroupList } from '../types/group'
+import { GroupList, GroupTableItem } from '../types/group'
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [groupData, setGroupData] = useState<Group[]>([])
-    const [selectedGroup, setSelectedGroup] = useState<any>({})
+    const [groupData, setGroupData] = useState<GroupTableItem[]>([])
+    const [selectedGroup, setSelectedGroup] = useState<GroupTableItem | undefined>()
 
     const showEditGroupModal = () => {
         setIsModalOpen(true)
     }
 
     const hideEditGroupModal = () => {
-        setSelectedGroup({})
+        setSelectedGroup(undefined)
         setIsModalOpen(false)
     }
 
@@ -60,7 +60,7 @@ export const Groups: React.FC = () => {
         }
     }
 
-    const handleDoubleRowClick = (record: any) => {
+    const handleDoubleRowClick = (record: GroupTableItem) => {
         setSelectedGroup({ ...record })
         showEditGroupModal()
     }

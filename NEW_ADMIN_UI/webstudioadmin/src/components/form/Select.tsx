@@ -3,12 +3,14 @@ import { Select as AntdSelect, Form } from 'antd'
 import { Rule } from 'antd/es/form'
 import type { DefaultOptionType } from 'rc-select/lib/Select'
 
-export interface Option extends DefaultOptionType {}
+export interface SelectOption extends DefaultOptionType {
+    // label: string
+}
 
 type SelectProps = {
     name: string
     label?: string
-    options: Option[]
+    options: SelectOption[]
     disabled?: boolean,
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties

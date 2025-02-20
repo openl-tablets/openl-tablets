@@ -3,13 +3,14 @@ import { apiCall } from '../../services'
 import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
-import { Option } from '../../components/form/Select'
+import { SelectOption } from '../form/Select'
+import {Repository} from "../../types/repositories";
 
 export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
-    const [deployRepositories, setDeployRepositories] = React.useState<Option[]>([])
+    const [deployRepositories, setDeployRepositories] = React.useState<SelectOption[]>([])
 
     const fetchDeployRepositories = async () => {
-        const response: DesignRepository[] = await apiCall('/production-repos')
+        const response: Repository[] = await apiCall('/production-repos')
         setDeployRepositories(response.map(repo => ({ label: repo.name, value: repo.aclId })))
     }
     useEffect(() => {
@@ -20,7 +21,7 @@ export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
         return deployRepositories.map(repository => ({
             label: repository.label,
             value: repository.value,
-            disabled: selectedRepositories.includes(repository.value)
+            disabled: selectedRepositories.includes(repository.value as string)
         }))
     }, [deployRepositories, selectedRepositories])
 
@@ -41,6 +42,9 @@ export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
                                     placeholder="Deploy Repository"
                                     style={{ width: 250 }}
                                     filterOption={(input, option) => {
+                                        if (!option || !option.label || !(typeof option.label === 'string')) {
+                                            return false
+                                        }
                                         return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }}
                                     filterSort={(optionA, optionB) => {

@@ -15,6 +15,7 @@ i18next.addResourceBundle('en', 'common', {
         repositories: 'Repositories',
         system: 'System',
         groups_and_users: 'Groups & Users',
+        users: 'Users',
         notification: 'Notification',
         tags: 'Tags',
         mail: 'Mail',

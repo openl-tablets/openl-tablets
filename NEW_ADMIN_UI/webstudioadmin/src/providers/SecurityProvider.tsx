@@ -1,11 +1,8 @@
-import React, {FC, PropsWithChildren, useEffect, useMemo, useState} from 'react'
-import {UserContext} from '../contexts/User'
-import {PermissionContext} from '../contexts/Permission'
-import {apiCall} from '../services'
-import {UserGroupType} from '../constants'
-import {UserDetails, UserProfile} from '../types/user'
-import {SystemSettings} from "../types/system";
-import {SystemUserMode} from "../constants/system";
+import React, { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { UserContext, SystemContext, PermissionContext } from '../contexts'
+import { apiCall } from '../services'
+import { UserDetails, UserProfile } from '../types/user'
+import { SystemSettings } from '../types/system'
 
 export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const [userProfile, setUserProfile] = useState<UserProfile>()
@@ -13,9 +10,11 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const [systemSettings, setSystemSettings] = useState<SystemSettings>()
     const [isProfileLoaded, setIsProfileLoaded] = useState(false)
     const [isDetailsLoaded, setIsDetailsLoaded] = useState(false)
+    const [isSystemSettingsLoaded, setIsSystemSettingsLoaded] = useState(false)
 
     const fetchUserProfileAndDetails = async () => {
-        loadSystemSettings()
+        await loadSystemSettings()
+        setIsSystemSettingsLoaded(true)
         if (!userProfile) {
             await loadUserProfile()
             setIsProfileLoaded(true)
@@ -31,9 +30,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }, [userProfile])
 
     const hasAdminPermission = () => {
-        return userDetails && 'userGroups' in userDetails
-            ? userDetails.userGroups.some(group => group.type === UserGroupType.Admin)
-            : false
+        return !!(userProfile && userProfile.administrator)
     }
 
     const loadUserProfile = async () => {
@@ -49,29 +46,33 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const loadSystemSettings = async () => {
-        const settings = await apiCall('/settings')
+        const settings: SystemSettings = await apiCall('/settings')
+        // TODO: delete this line
+        // settings.supportedFeatures.groupsManagement = true
         setSystemSettings(settings)
     }
 
     const isExternalAuthSystem = useMemo(() => {
-        return systemSettings?.userMode === SystemUserMode.EXTERNAL
+        return !!(systemSettings?.supportedFeatures.groupsManagement)
     }, [systemSettings])
 
-    if (!isProfileLoaded || !isDetailsLoaded) {
+    if (!isProfileLoaded || !isDetailsLoaded || !isSystemSettingsLoaded) {
         return null
     }
 
-    if (!userProfile || !userDetails) {
-        console.log('User profile or details are not loaded')
+    if (!userProfile || !userDetails || !systemSettings) {
+        console.error('User profile or details are not loaded')
         // TODO: Redirect to login/logout page
         return null
     }
 
     return (
-        <UserContext.Provider value={{ userProfile, userDetails, isExternalAuthSystem, loadUserProfile }}>
-            <PermissionContext.Provider value={{ hasAdminPermission }}>
-                {children}
-            </PermissionContext.Provider>
-        </UserContext.Provider>
+        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem }}>
+            <UserContext.Provider value={{ userProfile, userDetails, loadUserProfile }}>
+                <PermissionContext.Provider value={{ hasAdminPermission }}>
+                    {children}
+                </PermissionContext.Provider>
+            </UserContext.Provider>
+        </SystemContext.Provider>
     )
 }
