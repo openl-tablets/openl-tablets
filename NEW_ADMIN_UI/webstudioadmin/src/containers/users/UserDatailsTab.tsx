@@ -6,7 +6,7 @@ import { DisplayUserName } from '../../constants'
 
 interface UserDetailsTabProps {
     isNewUser: boolean
-    displayPasswordField: boolean
+    displayPasswordField?: boolean
 }
 
 export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPasswordField = true }) => {
