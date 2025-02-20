@@ -1,6 +1,7 @@
 package org.openl.rules.ranges;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -10,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AContainsInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.element.Condition;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.resolving.ProjectResolvingException;
@@ -22,7 +26,7 @@ import org.openl.types.IOpenMethod;
 public class DecisionTableIndexCompilationTest {
 
     @Test
-    public void testDecisionTableCompilation_and_ConditionEvaluators() throws RulesInstantiationException,
+    void testDecisionTableCompilation_and_ConditionEvaluators() throws RulesInstantiationException,
             ProjectResolvingException {
 
         SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
@@ -55,6 +59,23 @@ public class DecisionTableIndexCompilationTest {
         dt = findDt("ContainsInArrayIndex_When_MethodExpr", openClass);
         assertConditionsNumber(dt);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
+
+        dt = findDt("ContainsInArrayIndex_WithStatic", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+
+        dt = findDt("EqualsIndex_WithStatic", openClass);
+        assertConditionsNumber(dt);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+
+        dt = findDt("RangeIndex_WithStatic", openClass);
+        assertEquals(2, dt.getConditionRows().length);
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], ARangeIndexEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertInstanceConditionEvaluatorClass(dt.getConditionRows()[1], ARangeIndexEvaluator.class);
+        assertNotNull(((Condition) dt.getConditionRows()[1]).getStaticMethod());
     }
 
     private <T extends IConditionEvaluator> void assertConditionEvaluatorClass(IBaseCondition condition,

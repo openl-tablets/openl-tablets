@@ -24,6 +24,8 @@ public interface ISyntaxNode {
 
     ILocation getSourceLocation();
 
+    IOpenSourceCodeModule getSourceCodeModule();
+
     String getType();
 
     default String getText() {
