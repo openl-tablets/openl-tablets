@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Button, Checkbox, Form, Input, Row, Tabs, Typography } from 'antd'
+import { Button, Form, Row, Tabs, Typography } from 'antd'
 import { stringify } from 'querystring'
 import { apiCall } from '../../services'
 import { GroupTableItem } from '../../types/group'
@@ -7,6 +7,7 @@ import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../..
 import { RepositoryType, Role } from '../../constants'
 import {RepositoryRole} from "../../types/repositories";
 import {ProjectRole} from "../../types/projects";
+import {Checkbox, Input, Select} from "../../components";
 
 interface EditGroupProps {
     group: GroupTableItem | undefined
@@ -39,6 +40,8 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
     const [selectedRepositories, setSelectedRepositories] = useState<string[]>([])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
+    const [searchString, setSearchString] = useState('')
+    const [externalGroups, setExternalGroups] = useState<string[]>([])
 
     const [form] = Form.useForm()
 
@@ -69,6 +72,17 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         }
         setIsProjectsLoaded(true)
     }
+
+    const fetchExternalGroups = async () => {
+        const response: string[] = await apiCall(`/admin/management/groups/external?search=${searchString}`)
+        setExternalGroups(response)
+    }
+
+    useEffect(() => {
+        if (searchString) {
+            fetchExternalGroups()
+        }
+    }, [searchString]);
 
     useEffect(() => {
         fetchReposRoles()
@@ -220,6 +234,30 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         }
     ]
 
+    const handleSearch = (newValue: string) => {
+        setSearchString(newValue)
+    };
+
+    const handleChange = (newValue: string) => {
+        if (newValue) {
+            setSearchString('')
+            form.setFieldsValue({ name: newValue })
+        }
+    };
+
+    const onBlurNameField = () => {
+        if (searchString) {
+            form.setFieldsValue({ name: searchString })
+        }
+    }
+
+    const groupOptions = useMemo(() => {
+        return externalGroups.map(group => ({
+            value: group,
+            label: group,
+        }))
+    }, [externalGroups])
+
     const groupTabs = [
         {
             label: 'Details',
@@ -227,23 +265,30 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
             forceRender: true,
             children: (
                 <>
-                    <Form.Item
-                        required
-                        label="Name"
+                    <Select
+                        showSearch
                         name="name"
+                        label="Name"
+                        style={{ width: '100%' }}
+                        defaultActiveFirstOption={false}
+                        suffixIcon={null}
+                        filterOption={false}
+                        onSearch={handleSearch}
+                        onChange={handleChange}
+                        onBlur={onBlurNameField}
+                        notFoundContent={null}
+                        options={groupOptions}
                         rules={[
                             { required: true, message: 'Enter Group Name' },
                             { max: 65, message: 'Group Name cannot be longer than 65 characters' }
                         ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Description" name="description" rules={[{ max: 200, message: 'Description cannot be longer than 200 characters' }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Admin" name="admin" valuePropName="checked">
-                        <Checkbox />
-                    </Form.Item>
+                    />
+                    <Input
+                        label="Description"
+                        name="description"
+                        rules={[{ max: 200, message: 'Description cannot be longer than 200 characters' }]}
+                    />
+                    <Checkbox label="Admin" name="admin" valuePropName="checked"/>
                 </>
             )
         },
