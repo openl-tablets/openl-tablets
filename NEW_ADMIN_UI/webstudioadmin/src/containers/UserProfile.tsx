@@ -3,7 +3,7 @@ import { Button, Divider, Form, Row } from 'antd'
 import { Input } from '../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from 'constants/'
-import { UserContext } from '../contexts/User'
+import { UserContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
@@ -69,7 +69,7 @@ export const UserProfile: React.FC = () => {
             initialValues={initialValues}
             onFinish={handleSubmit}
         >
-            <UserDetailsTab displayPasswordField={false} isNewUser={false} />
+            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile.externalFlags} isNewUser={false} />
             <Divider plain orientation="left">{t('user:profile.change_password')}</Divider>
             <Input label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} type="password" />
             <Input label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} type="password" />

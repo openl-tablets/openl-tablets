@@ -5,10 +5,10 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { SelectOption } from '../form/Select'
 import { Repository } from '../../types/repositories'
-import {useTranslation} from "react-i18next";
+import { useTranslation } from 'react-i18next'
 
 export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [deployRepositories, setDeployRepositories] = React.useState<SelectOption[]>([])
 
     const fetchDeployRepositories = async () => {
