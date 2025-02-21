@@ -5,10 +5,10 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { Project } from '../../types/projects'
 import { SelectOption } from '../form/Select'
-import {useTranslation} from "react-i18next";
+import { useTranslation } from 'react-i18next'
 
 export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedProjects }) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 
     const fetchProjects = async () => {
