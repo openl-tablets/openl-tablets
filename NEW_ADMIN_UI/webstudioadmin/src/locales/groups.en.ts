@@ -18,5 +18,17 @@ i18next.addResourceBundle('en', 'groups', {
         VIEWER: 'Viewer',
         CONTRIBUTOR: 'Contributor',
         MANAGER: 'Manager'
-    }
+    },
+    details: 'Details',
+    access_management: 'Access Management',
+    design_repositories: 'Design Repositories',
+    deploy_repositories: 'Deploy Repositories',
+    projects: 'Projects',
+    description: 'Description',
+    name: 'Name',
+    admin: 'Admin',
+    name_required: 'Name is required',
+    group_name_max_length: 'Group name must be at most 65 characters long',
+    description_max_length: 'Description must be at most 200 characters long',
+    edit_group: 'Edit Group',
 })
