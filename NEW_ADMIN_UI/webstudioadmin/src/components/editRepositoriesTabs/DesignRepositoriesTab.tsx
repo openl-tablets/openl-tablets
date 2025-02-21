@@ -4,7 +4,7 @@ import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { SelectOption } from '../form/Select'
-import {Repository} from "../../types/repositories";
+import { Repository } from '../../types/repositories'
 
 export const DesignRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
     const [designRepositories, setDesignRepositories] = React.useState<SelectOption[]>([])
