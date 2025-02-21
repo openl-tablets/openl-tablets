@@ -8,7 +8,7 @@ import { RepositoryType, Role } from '../../constants'
 import { RepositoryRole } from '../../types/repositories'
 import { ProjectRole } from '../../types/projects'
 import { Checkbox, Input, Select } from '../../components'
-import {useTranslation} from "react-i18next";
+import { useTranslation } from 'react-i18next'
 
 interface EditGroupProps {
     group: GroupTableItem | undefined
@@ -33,7 +33,7 @@ interface FormValues {
 }
 
 export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, onAddGroup, closeModal }) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [isNewGroup, setIsNewGroup] = useState(!group?.id)
     const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
     const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
