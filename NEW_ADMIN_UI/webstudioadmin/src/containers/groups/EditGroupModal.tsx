@@ -8,6 +8,7 @@ import { RepositoryType, Role } from '../../constants'
 import { RepositoryRole } from '../../types/repositories'
 import { ProjectRole } from '../../types/projects'
 import { Checkbox, Input, Select } from '../../components'
+import {useTranslation} from "react-i18next";
 
 interface EditGroupProps {
     group: GroupTableItem | undefined
@@ -32,6 +33,7 @@ interface FormValues {
 }
 
 export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, onAddGroup, closeModal }) => {
+    const {t} = useTranslation()
     const [isNewGroup, setIsNewGroup] = useState(!group?.id)
     const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
     const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
@@ -215,19 +217,19 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
 
     const accessTabs = [
         {
-            label: 'Design Repositories',
+            label: t('groups:design_repositories'),
             key: 'design_repositories',
             forceRender: true,
             children: <DesignRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
-            label: 'Deploy Repositories',
+            label: t('groups:deploy_repositories'),
             key: 'deploy_repositories',
             forceRender: true,
             children: <DeployRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
-            label: 'Projects',
+            label: t('groups:projects'),
             key: 'projects',
             forceRender: true,
             children: <ProjectsTab selectedProjects={selectedProjects} />
@@ -260,7 +262,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
 
     const groupTabs = [
         {
-            label: 'Details',
+            label: t('groups:details'),
             key: 'details',
             forceRender: true,
             children: (
@@ -269,7 +271,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                         showSearch
                         defaultActiveFirstOption={false}
                         filterOption={false}
-                        label="Name"
+                        label={t('groups:name')}
                         name="name"
                         notFoundContent={null}
                         onBlur={onBlurNameField}
@@ -279,21 +281,21 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                         style={{ width: '100%' }}
                         suffixIcon={null}
                         rules={[
-                            { required: true, message: 'Enter Group Name' },
-                            { max: 65, message: 'Group Name cannot be longer than 65 characters' }
+                            { required: true, message: t('groups:name_required') },
+                            { max: 65, message: t('groups:group_name_max_length') }
                         ]}
                     />
                     <Input
-                        label="Description"
+                        label={t('groups:description')}
                         name="description"
-                        rules={[{ max: 200, message: 'Description cannot be longer than 200 characters' }]}
+                        rules={[{ max: 200, message: t('groups:description_max_length') }]}
                     />
-                    <Checkbox label="Admin" name="admin" valuePropName="checked" />
+                    <Checkbox label={t('groups:admin')} name="admin" valuePropName="checked" />
                 </>
             )
         },
         {
-            label: 'Access Management',
+            label: t('groups:access_management'),
             key: 'access_management',
             disabled: isNewGroup,
             forceRender: true,
@@ -313,11 +315,11 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     }
 
     const title = useMemo(() => {
-        return isNewGroup ? 'Invite Group' : 'Edit Group'
+        return isNewGroup ? t('groups:invite_group') : t('groups:edit_group')
     }, [isNewGroup])
 
     if (!isReposLoaded || !isProjectsLoaded) {
-        return <Typography.Text>Loading...</Typography.Text>
+        return <Typography.Text>{t('common:loading')}</Typography.Text>
     }
 
     const onValuesChange = (_: any, allValues: FormValues) => {
@@ -338,13 +340,13 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
             <Tabs items={groupTabs} />
             <Row justify="end">
                 <Button key="back" onClick={closeModal} style={{ marginRight: 20 }}>
-                    Cancel
+                    {t('groups:cancel')}
                 </Button>
                 <Button
                     htmlType="submit"
                     type="primary"
                 >
-                    {isNewGroup ? 'Invite' : 'Save'}
+                    {isNewGroup ? t('groups:invite') : t('groups:invite')}
                 </Button>
             </Row>
         </Form>

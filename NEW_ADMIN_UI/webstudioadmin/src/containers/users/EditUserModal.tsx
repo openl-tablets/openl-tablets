@@ -158,7 +158,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
     }, [isNewUser, t])
 
     const title = useMemo(() => {
-        return isNewUser ? 'Add User' : 'Edit User'
+        return isNewUser ? t('users:add_user') : t('users:edit_user')
     }, [isNewUser])
 
     const saveReposRoles = async (groupName: string, repositories: RepositoryRole[], repoType: RepositoryType) => {
@@ -246,19 +246,19 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
 
     const accessTabs = [
         {
-            label: 'Design Repositories',
+            label: t('users:design_repositories'),
             key: 'design_repositories',
             forceRender: true,
             children: <DesignRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
-            label: 'Deploy Repositories',
+            label: t('users:deploy_repositories'),
             key: 'deploy_repositories',
             forceRender: true,
             children: <DeployRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
-            label: 'Projects',
+            label: t('users:projects'),
             key: 'projects',
             forceRender: true,
             children: <ProjectsTab selectedProjects={selectedProjects} />
@@ -267,13 +267,13 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
 
     const userTabs = [
         {
-            label: 'Details',
+            label: t('users:details'),
             key: 'details',
             forceRender: true,
             children: <UserDetailsTab externalFlags={user.externalFlags} isNewUser={isNewUser} />
         },
         {
-            label: 'Access Management',
+            label: t('users:access_management'),
             key: 'access_management',
             forceRender: true,
             children: <Tabs items={accessTabs} />
@@ -295,7 +295,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
     }
 
     if (!isReposLoaded || !isProjectsLoaded) {
-        return <Typography.Text>Loading...</Typography.Text>
+        return <Typography.Text>{t('common:loading')}</Typography.Text>
     }
 
     return (
