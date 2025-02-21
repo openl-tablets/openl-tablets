@@ -270,7 +270,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
             label: 'Details',
             key: 'details',
             forceRender: true,
-            children: <UserDetailsTab isNewUser={isNewUser} />
+            children: <UserDetailsTab externalFlags={user.externalFlags} isNewUser={isNewUser} />
         },
         {
             label: 'Access Management',
