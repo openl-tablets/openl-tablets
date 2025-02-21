@@ -5,9 +5,9 @@ import { apiCall } from '../../services'
 import { GroupTableItem } from '../../types/group'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../../components/editRepositoriesTabs'
 import { RepositoryType, Role } from '../../constants'
-import {RepositoryRole} from "../../types/repositories";
-import {ProjectRole} from "../../types/projects";
-import {Checkbox, Input, Select} from "../../components";
+import { RepositoryRole } from '../../types/repositories'
+import { ProjectRole } from '../../types/projects'
+import { Checkbox, Input, Select } from '../../components'
 
 interface EditGroupProps {
     group: GroupTableItem | undefined
@@ -82,7 +82,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         if (searchString) {
             fetchExternalGroups()
         }
-    }, [searchString]);
+    }, [searchString])
 
     useEffect(() => {
         fetchReposRoles()
@@ -236,14 +236,14 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
 
     const handleSearch = (newValue: string) => {
         setSearchString(newValue)
-    };
+    }
 
     const handleChange = (newValue: string) => {
         if (newValue) {
             setSearchString('')
             form.setFieldsValue({ name: newValue })
         }
-    };
+    }
 
     const onBlurNameField = () => {
         if (searchString) {
@@ -267,17 +267,17 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                 <>
                     <Select
                         showSearch
-                        name="name"
-                        label="Name"
-                        style={{ width: '100%' }}
                         defaultActiveFirstOption={false}
-                        suffixIcon={null}
                         filterOption={false}
-                        onSearch={handleSearch}
-                        onChange={handleChange}
-                        onBlur={onBlurNameField}
+                        label="Name"
+                        name="name"
                         notFoundContent={null}
+                        onBlur={onBlurNameField}
+                        onChange={handleChange}
+                        onSearch={handleSearch}
                         options={groupOptions}
+                        style={{ width: '100%' }}
+                        suffixIcon={null}
                         rules={[
                             { required: true, message: 'Enter Group Name' },
                             { max: 65, message: 'Group Name cannot be longer than 65 characters' }
@@ -288,7 +288,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                         name="description"
                         rules={[{ max: 200, message: 'Description cannot be longer than 200 characters' }]}
                     />
-                    <Checkbox label="Admin" name="admin" valuePropName="checked"/>
+                    <Checkbox label="Admin" name="admin" valuePropName="checked" />
                 </>
             )
         },

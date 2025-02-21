@@ -1,5 +1,5 @@
-import {ProjectStatus} from "../constants/project";
-import {Role} from "../constants";
+import { ProjectStatus } from '../constants/project'
+import { Role } from '../constants'
 
 export interface Project {
     branch: string

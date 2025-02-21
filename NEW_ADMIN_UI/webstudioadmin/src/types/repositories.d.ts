@@ -1,4 +1,4 @@
-import {RepositoryType, Role} from "../constants";
+import { RepositoryType, Role } from '../constants'
 
 export interface Repository {
     aclId: string

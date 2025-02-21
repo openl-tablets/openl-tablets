@@ -3,7 +3,7 @@ import { apiCall } from '../../services'
 import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
-import {Project} from "../../types/projects";
+import { Project } from '../../types/projects'
 import { SelectOption } from '../form/Select'
 
 export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedProjects }) => {
