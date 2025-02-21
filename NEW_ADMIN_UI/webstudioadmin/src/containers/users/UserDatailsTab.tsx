@@ -3,13 +3,15 @@ import { Divider, Form, Space } from 'antd'
 import { Input, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
+import { UserExternalFlags } from '../../types/user'
 
 interface UserDetailsTabProps {
     isNewUser: boolean
     displayPasswordField?: boolean
+    externalFlags?: UserExternalFlags | null
 }
 
-export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPasswordField = true }) => {
+export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true }) => {
     const { t } = useTranslation()
     const form = Form.useFormInstance()
     const firstName = Form.useWatch('firstName', form)
@@ -60,6 +62,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPass
                 }]}
             />
             <Input
+                disabled={externalFlags?.emailExternal}
                 label={t('users:edit_modal.email')}
                 name="email"
                 rules={[{
@@ -72,6 +75,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPass
             />
             {displayPasswordField && (
                 <Input
+                    disabled={externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"
                     type="password"
@@ -83,6 +87,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPass
             )}
             <Divider plain orientation="left">Name</Divider>
             <Input
+                disabled={externalFlags?.firstNameExternal}
                 label={t('users:edit_modal.first_name')}
                 name="firstName"
                 rules={[{
@@ -91,6 +96,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPass
                 }]}
             />
             <Input
+                disabled={externalFlags?.lastNameExternal}
                 label={t('users:edit_modal.last_name')}
                 name="lastName"
                 rules={[{
@@ -101,13 +107,14 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, displayPass
             <Form.Item label={t('users:edit_modal.display_name')}>
                 <Space.Compact>
                     <Select
+                        disabled={externalFlags?.displayNameExternal}
                         name="displayNameSelect"
                         options={displayNameOptions}
                         style={{ width: 120 }}
                     />
                     <Input
                         dependencies={['displayNameSelect']}
-                        disabled={isDisplayNameFieldDisabled}
+                        disabled={isDisplayNameFieldDisabled || externalFlags?.displayNameExternal}
                         name="displayName"
                         style={{ width: 248 }}
                         rules={[
