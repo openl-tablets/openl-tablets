@@ -5,6 +5,14 @@ export interface UserDetailsGroup {
     type: UserGroupType
 }
 
+export interface UserExternalFlags {
+    firstNameExternal: boolean
+    lastNameExternal: boolean
+    displayNameExternal: boolean
+    emailExternal: boolean
+    emailVerified: boolean
+}
+
 export interface UserDetails {
     email: string
     displayName: string
@@ -15,17 +23,11 @@ export interface UserDetails {
     username: string
     internalPassword: {
         password: string
-    };
+    }
     currentUser: boolean
     superUser: boolean
     unsafePassword: boolean
-    externalFlags: {
-        firstNameExternal: boolean
-        lastNameExternal: boolean
-        displayNameExternal: boolean
-        emailExternal: boolean
-        emailVerified: boolean
-    };
+    externalFlags: UserExternalFlags
     notMatchedExternalGroupsCount: number
     online: boolean
     userGroups: UserDetailsGroup[]
