@@ -5,8 +5,10 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { Project } from '../../types/projects'
 import { SelectOption } from '../form/Select'
+import {useTranslation} from "react-i18next";
 
 export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedProjects }) => {
+    const {t} = useTranslation()
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 
     const fetchProjects = async () => {
@@ -34,12 +36,12 @@ export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedPr
                             <Form.Item
                                 {...restField}
                                 name={[name, 'id']}
-                                rules={[{ required: true, message: 'Select Project' }]}
+                                rules={[{ required: true, message: t('common:select_project') }]}
                             >
                                 <Select
                                     showSearch
                                     options={projectsOptions}
-                                    placeholder="Project"
+                                    placeholder={t('common:project')}
                                     style={{ width: 250 }}
                                     filterOption={(input, option) => {
                                         if (!option || !option.label || !(typeof option.label === 'string')) {
@@ -55,16 +57,16 @@ export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedPr
                             <Form.Item
                                 {...restField}
                                 name={[name, 'role']}
-                                rules={[{ required: true, message: 'Select Role' }]}
+                                rules={[{ required: true, message: t('common:select_role') }]}
                             >
-                                <Select options={roleOptions} placeholder="Role" style={{ width: 250 }} />
+                                <Select options={roleOptions} placeholder={t('common:role_t')} style={{ width: 250 }} />
                             </Form.Item>
                             <MinusCircleOutlined onClick={() => remove(name)} />
                         </Space>
                     ))}
                     <Form.Item>
                         <Button block icon={<PlusOutlined />} onClick={() => add()} type="dashed">
-                            Add Role
+                            {t('common:add_role')}
                         </Button>
                     </Form.Item>
                 </>
