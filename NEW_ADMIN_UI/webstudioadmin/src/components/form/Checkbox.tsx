@@ -6,6 +6,7 @@ type InputProps = {
     checked?: boolean
     label?: string
     disabled?: boolean,
+    valuePropName?: string
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,
 };
@@ -15,9 +16,10 @@ const Checkbox: FC<InputProps> = ({
     label,
     disabled,
     style,
+    valuePropName = 'checked',
     formItemStyle,
 }) => (
-    <Form.Item label={label} name={name} style={formItemStyle} valuePropName="checked">
+    <Form.Item label={label} name={name} style={formItemStyle} valuePropName={valuePropName}>
         <AntdCheckbox disabled={disabled} style={style} />
     </Form.Item>
 )
