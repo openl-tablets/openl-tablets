@@ -4,14 +4,14 @@ import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { EditUserModal } from './users/EditUserModal'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
-import { UserContext } from '../contexts/User'
+import { SystemContext } from '../contexts'
 import { UserGroupType } from '../constants'
 import { UserDetails, UserProfile } from '../types/user'
 import { ColumnsType } from 'antd/es/table/interface'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem } = useContext(UserContext)
+    const { isExternalAuthSystem } = useContext(SystemContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedUser, setSelectedUser] = useState<any>({})
     const [usersData, setUsersData] = useState<any[]>([])

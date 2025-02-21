@@ -5,9 +5,9 @@ import { DisplayUserName, RepositoryType } from 'constants/'
 import { UserDetailsTab } from './UserDatailsTab'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../../components/editRepositoriesTabs'
 import { apiCall } from '../../services'
-import {UserDetails} from '../../types/user'
-import {RepositoryRole} from "../../types/repositories";
-import {ProjectRole} from "../../types/projects";
+import { UserDetails } from '../../types/user'
+import { RepositoryRole } from '../../types/repositories'
+import { ProjectRole } from '../../types/projects'
 
 interface EditUserProps {
     user: UserDetails

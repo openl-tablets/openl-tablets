@@ -45,18 +45,18 @@ const Select: FC<SelectProps> = ({
         {...rest}
     >
         <AntdSelect
-            showSearch={showSearch}
-            mode={mode}
+            defaultActiveFirstOption={defaultActiveFirstOption}
             disabled={disabled}
-            options={options}
-            style={style}
-            onChange={onChange}
-            onSearch={onSearch}
+            filterOption={filterOption}
+            mode={mode}
             notFoundContent={notFoundContent}
             onBlur={onBlur}
-            defaultActiveFirstOption={defaultActiveFirstOption}
+            onChange={onChange}
+            onSearch={onSearch}
+            options={options}
+            showSearch={showSearch}
+            style={style}
             suffixIcon={suffixIcon}
-            filterOption={filterOption}
         />
     </Form.Item>
 )
