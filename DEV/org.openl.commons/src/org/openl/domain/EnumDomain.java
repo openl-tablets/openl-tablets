@@ -86,8 +86,4 @@ public class EnumDomain<T> implements IDomain<T> {
         result = 31 * result + componentType.hashCode();
         return result;
     }
-
-    public Class<?> getComponentType() {
-        return componentType;
-    }
 }

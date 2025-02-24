@@ -58,7 +58,6 @@ import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
-import org.openl.util.OpenClassUtils;
 import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.TableNameChecker;
@@ -619,9 +618,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (defaultValue != null && !fieldDescription.hasDefaultKeyWord()) {
                 // Validate not null default value
                 // The null value is allowed for alias types
-                var validationMessage = OpenClassUtils.isValidValue(defaultValue, fieldType);
-                if (validationMessage != null) {
-                    BindHelper.processError(validationMessage, defaultValueCellSource, bindingContext);
+                try {
+                    RuleRowHelper.validateValue(defaultValue, fieldType);
+                } catch (Exception e) {
+                    BindHelper.processError(e, defaultValueCellSource, bindingContext);
                 }
             }
             fields.put(fieldName, fieldDescription);
