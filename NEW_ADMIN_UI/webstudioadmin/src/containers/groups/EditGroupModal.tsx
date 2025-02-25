@@ -346,7 +346,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                     htmlType="submit"
                     type="primary"
                 >
-                    {isNewGroup ? t('groups:invite') : t('groups:invite')}
+                    {isNewGroup ? t('common:btn.invite') : t('common:btn.save')}
                 </Button>
             </Row>
         </Form>
