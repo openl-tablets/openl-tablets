@@ -6,6 +6,7 @@ import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOu
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { UserContext } from '../../contexts/User'
+import {PermissionContext} from "../../contexts";
 
 interface UserMenuProps {
     isOpen: boolean
@@ -16,6 +17,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { userProfile } = useContext(UserContext)
+    const { hasAdminPermission } = useContext(PermissionContext)
 
     const Title = (
         <Row align="middle">
@@ -55,8 +57,12 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             >
                 <Menu.Item key="/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
                 <Menu.Item key="/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
-                <Menu.Divider />
-                <Menu.Item key="/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                {hasAdminPermission() && (
+                    <>
+                        <Menu.Divider />
+                        <Menu.Item key="/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                    </>
+                )}
                 <Menu.Divider />
                 <Menu.Item key="/help" icon={<QuestionOutlined />}>
                     TODO:
