@@ -142,6 +142,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
                 if (isNewUser) {
                     setIsNewUser(false)
                     onAddUser()
+                    closeModal()
                 } else {
                     closeModal()
                 }
@@ -153,7 +154,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
         }
     }
 
-    const updateButtonText = useMemo(() => {
+    const submitButtonText = useMemo(() => {
         return isNewUser ? t('common:btn.create') : t('common:btn.save')
     }, [isNewUser, t])
 
@@ -317,7 +318,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAdd
                     htmlType="submit"
                     type="primary"
                 >
-                    {updateButtonText}
+                    {submitButtonText}
                 </Button>
             </Row>
 
