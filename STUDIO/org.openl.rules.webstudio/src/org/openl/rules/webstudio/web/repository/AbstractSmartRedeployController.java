@@ -31,6 +31,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
@@ -42,7 +43,6 @@ import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
@@ -568,7 +568,12 @@ public abstract class AbstractSmartRedeployController {
         List<ADeploymentProject> selectedProjectsToDeploy = new ArrayList<>();
         for (DeploymentProjectItem item : projectItems) {
             if (item.isSelected() && item.isCanDeploy()) {
-                var deployConfiguration = userWorkspace.getLatestDeploymentConfiguration("random");
+                // create a temporary deploy config that is used only in validation. No need to trigger ACL checks
+                var deployConfiguration = userWorkspace.getDesignTimeRepository()
+                        .createDeploymentConfigurationBuilder("random")
+                        .user(userWorkspace.getUser())
+                        .lockEngine(new DummyLockEngine())
+                        .build();
                 var project = currentProject;
                 String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
                 deployConfiguration.addProjectDescriptor(project.getRepository()
