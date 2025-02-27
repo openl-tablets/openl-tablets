@@ -41,6 +41,7 @@ public class PropertyController {
     @GetMapping("/current")
     @Hidden
     @AdminPrivilege
+    @Deprecated(forRemoval = true)
     public Map<String, String> getProperties() {
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         Map<String, String> currentPropertyMap = new HashMap<>(propertyBean.getPropertyMap());
@@ -51,6 +52,7 @@ public class PropertyController {
     @GetMapping("/webStudio")
     @Hidden
     @AdminPrivilege
+    @Deprecated(forRemoval = true)
     public Map<String, String> getWebStudioProperties() {
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         return dynamicPropertySource.getProperties();
@@ -58,6 +60,7 @@ public class PropertyController {
 
     @GetMapping("/default")
     @Hidden
+    @Deprecated(forRemoval = true)
     public Map<String, String> getDefaultProperties() {
         return propertyBean.getDefaultPropertyMap();
     }
@@ -74,6 +77,7 @@ public class PropertyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminPrivilege
     @Hidden
+    @Deprecated(forRemoval = true)
     public void saveProperties(@RequestBody Map<String, String> properties) throws IOException {
         DynamicPropertySource.get().save(properties);
     }

@@ -9,7 +9,6 @@
     <context:property-placeholder/>
     <context:component-scan
             base-package="org.openl.rules.webstudio, org.openl.rules.rest, org.openl.rules.ui.tablewizard, org.openl.rules.webstudio.grpc"/>
-    <import resource="system-config-beans.xml"/>
     <import resource="repository-beans.xml"/>
     <import resource="security-beans.xml"/>
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
