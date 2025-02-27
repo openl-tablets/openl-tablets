@@ -42,6 +42,7 @@ import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
+import org.openl.rules.webstudio.web.admin.GroupManagementSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
@@ -176,7 +177,7 @@ public class InstallWizard implements Serializable {
                 readSamlProperties();
                 readOauth2Properties();
 
-                defaultGroup = propertyResolver.getProperty("security.default-group");
+                defaultGroup = propertyResolver.getProperty(GroupManagementSettings.SECURITY_DEF_GROUP_PROP);
                 externalAdmins = propertyResolver.getProperty("security.administrators");
 
             }
@@ -300,7 +301,7 @@ public class InstallWizard implements Serializable {
             productionRepositoryEditor.save();
 
             properties.setProperty("user.mode", userMode);
-            properties.setProperty("security.default-group", defaultGroup);
+            properties.setProperty(GroupManagementSettings.SECURITY_DEF_GROUP_PROP, defaultGroup);
             properties.setProperty("security.administrators", externalAdmins);
 
 

@@ -4,6 +4,7 @@ import javax.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
+@Deprecated(forRemoval = true)
 public class GroupSettingsModel {
 
     @Size(max = 65)
