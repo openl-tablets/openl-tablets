@@ -134,12 +134,11 @@ public class HttpClient implements AutoCloseable{
         }
     }
 
-    public void putForObject(String url, Object request, String... headers) {
-
+    public void postForObject(String url, Object request, String... headers) {
         try {
             var req = requestBuilder(url, headers)
                     .header("Content-Type", "application/json")
-                    .PUT(HttpRequest.BodyPublishers.ofString(HttpData.OBJECT_MAPPER.writeValueAsString(request)))
+                    .POST(HttpRequest.BodyPublishers.ofString(HttpData.OBJECT_MAPPER.writeValueAsString(request)))
                     .build();
 
             var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
