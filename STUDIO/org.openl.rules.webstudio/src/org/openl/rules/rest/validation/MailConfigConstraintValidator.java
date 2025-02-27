@@ -13,6 +13,7 @@ import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.util.StringUtils;
 
+@Deprecated(forRemoval = true)
 public class MailConfigConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailConfigModel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailConfigConstraintValidator.class);
 

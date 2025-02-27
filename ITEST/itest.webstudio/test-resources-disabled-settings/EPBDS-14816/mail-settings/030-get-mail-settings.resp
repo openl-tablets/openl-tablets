@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "url": {
+    "value": "smtp://127.0.0.1:#####",
+    "readOnly": true
+  },
+  "username": {
+    "value": "username@email",
+    "readOnly": true
+  }
+}
