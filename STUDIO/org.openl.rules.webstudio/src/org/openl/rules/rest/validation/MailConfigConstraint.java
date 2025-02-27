@@ -9,7 +9,10 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = MailConfigConstraintValidator.class)
+@Constraint(validatedBy = {
+        MailConfigConstraintValidator.class,
+        MailVerificationServerSettingsConstraintValidator.class
+})
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MailConfigConstraint {

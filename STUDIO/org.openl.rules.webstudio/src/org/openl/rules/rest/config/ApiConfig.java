@@ -64,7 +64,8 @@ public class ApiConfig implements WebMvcConfigurer {
         converters.add(new ResourceHttpMessageConverter());
         converters.add(new StringHttpMessageConverter());
         var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
-        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
+        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON,
+                new MediaType("application", "merge-patch+json")));
         converters.add(jacksonMessageConverter);
     }
 

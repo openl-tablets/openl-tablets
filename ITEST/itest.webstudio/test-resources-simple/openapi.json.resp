@@ -4,6 +4,147 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "GroupManagementSettings" : {
+        "type" : "object",
+        "properties" : {
+          "defaultGroup" : {
+            "type" : "object",
+            "description" : "*",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          }
+        }
+      },
+      "JsonNode" : {
+        "type" : "object"
+      },
+      "AdministrationSettings" : {
+        "type" : "object",
+        "properties" : {
+          "autoCompile" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "boolean"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "datePattern" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "dispatchingValidationEnabled" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "boolean"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "projectHistoryCount" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "integer",
+              "format" : "int32"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "testRunThreadCount" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "integer",
+              "format" : "int32"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "timeFormat" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "updateSystemProperties" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "boolean"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "userWorkspaceHome" : {
+            "type" : "object",
+            "description" : "***",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          }
+        },
+        "required" : [ "datePattern", "timeFormat" ]
+      },
+      "SettingValueWrapper" : {
+        "type" : "object",
+        "properties" : {
+          "readOnly" : {
+            "type" : "boolean",
+            "description" : "Is setting read-only. If true, the setting set by the system env and cannot be changed."
+          },
+          "value" : {
+            "type" : "object",
+            "description" : "Setting value"
+          }
+        }
+      },
+      "MailVerificationServerSettings" : {
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "writeOnly" : true
+          },
+          "url" : {
+            "type" : "object",
+            "description" : "***",
+            "example" : "***",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          },
+          "username" : {
+            "type" : "object",
+            "description" : "***",
+            "example" : "***",
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
+          }
+        }
+      },
       "EntrypointSettingsModel" : {
         "type" : "object",
         "properties" : {
@@ -2043,6 +2184,945 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/admin/settings/system" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: System" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdministrationSettings"
+                }
+              }
+            },
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: System" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "**",
+        "tags" : [ "Settings: System" ]
+      },
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdministrationSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: System" ]
+      }
+    },
+    "/admin/settings/mail" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Mail Verification Server" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MailVerificationServerSettings"
+                }
+              }
+            },
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Mail Verification Server" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Mail Verification Server" ]
+      },
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MailVerificationServerSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Mail Verification Server" ]
+      }
+    },
+    "/admin/settings/group-management" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Group Management" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GroupManagementSettings"
+                }
+              }
+            },
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Group Management" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Group Management" ]
+      },
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GroupManagementSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "204" : {
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Group Management" ]
+      }
+    },
     "/admin/management/groups": {
       "get": {
         "description": "***",
@@ -2349,6 +3429,7 @@ Content-Type: application/json
     },
     "/admin/management/groups/settings": {
       "get": {
+        "deprecated" : true,
         "description": "***",
         "operationId": "***",
         "responses": {
@@ -2429,6 +3510,7 @@ Content-Type: application/json
         ]
       },
       "post": {
+        "deprecated" : true,
         "description": "***",
         "operationId": "***",
         "requestBody": {
@@ -5948,6 +7030,7 @@ Content-Type: application/json
     },
     "/mail/settings": {
       "get": {
+        "deprecated" : true,
         "description": "***",
         "operationId": "***",
         "responses": {
@@ -6028,6 +7111,7 @@ Content-Type: application/json
         ]
       },
       "put": {
+        "deprecated" : true,
         "description": "***",
         "operationId": "***",
         "requestBody": {
@@ -11369,6 +12453,12 @@ Content-Type: application/json
       "description": "Experimental projects API"
     }, {
       "name" : "Settings"
+    }, {
+      "name" : "Settings: Group Management"
+    }, {
+      "name" : "Settings: Mail Verification Server"
+    }, {
+      "name" : "Settings: System"
     }, {
       "name": "Tags"
     }, {
