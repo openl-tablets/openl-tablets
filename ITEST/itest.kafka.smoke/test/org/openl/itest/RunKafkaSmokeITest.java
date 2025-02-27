@@ -31,8 +31,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -41,8 +40,8 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 public class RunKafkaSmokeITest {
     private static HttpClient client;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer("apache/kafka-native:latest")
+            .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
     public static void setUp() throws Exception {

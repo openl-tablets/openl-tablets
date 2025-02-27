@@ -38,9 +38,7 @@ import org.junitpioneer.jupiter.StdErr;
 import org.junitpioneer.jupiter.StdIo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -51,8 +49,8 @@ public class RunTracingITest {
 
     private static HttpClient client;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer("apache/kafka-native:latest")
+            .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
     public static void setUp() throws Exception {
@@ -172,14 +170,14 @@ public class RunTracingITest {
     }
 
     private static KafkaProducer<String, String> createKafkaProducer() {
-        return new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        return new KafkaProducer<>(Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 KAFKA_CONTAINER.getBootstrapServers(),
                 ProducerConfig.CLIENT_ID_CONFIG,
                 UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
     }
 
     private KafkaConsumer<String, String> createKafkaConsumer() {
-        return new KafkaConsumer<>(ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        return new KafkaConsumer<>(Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 KAFKA_CONTAINER.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG,
                 "tc-" + UUID.randomUUID(),

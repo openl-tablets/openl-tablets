@@ -46,8 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.CassandraContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.KafkaContainer;
 
 import org.openl.itest.cassandra.CassandraFields;
 import org.openl.itest.cassandra.HelloEntity1;
@@ -87,8 +86,8 @@ public class RunStoreLogDataITest {
     private static final CassandraContainer<?> CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:5");
     private static CqlSession cassandraSession;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer("apache/kafka-native:latest")
+            .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
     public static void setUp() throws Exception {
