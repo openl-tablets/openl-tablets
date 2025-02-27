@@ -1,0 +1,37 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userWorkspaceHome": {
+    "value": "openl-repository/workspace",
+    "readOnly": true
+  },
+  "projectHistoryCount": {
+    "value": 99,
+    "readOnly": true
+  },
+  "updateSystemProperties": {
+    "value": true,
+    "readOnly": true
+  },
+  "datePattern": {
+    "value": "MM/dd/yyyy",
+    "readOnly": true
+  },
+  "timeFormat": {
+    "value": "hh:mm:ss a",
+    "readOnly": true
+  },
+  "testRunThreadCount": {
+    "value": 3,
+    "readOnly": true
+  },
+  "dispatchingValidationEnabled": {
+    "value": false,
+    "readOnly": true
+  },
+  "autoCompile": {
+    "value": false,
+    "readOnly": true
+  }
+}

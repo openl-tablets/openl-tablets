@@ -34,6 +34,7 @@ import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.spring.env.DynamicPropertySource;
 
 @RestController
@@ -42,9 +43,6 @@ import org.openl.spring.env.DynamicPropertySource;
 public class MailController {
 
     public static final String MAIL_VERIFY_TOKEN = "mail.verify.token";
-    public static final String MAIL_URL = "mail.url";
-    public static final String MAIL_USERNAME = "mail.username";
-    public static final String MAIL_PASSWORD = "mail.password";
 
     private final MailSender mailSender;
     private final UserSettingManagementService userSettingManagementService;
@@ -105,22 +103,24 @@ public class MailController {
 
     @Operation(summary = "mail.mail-config.summary", description = "mail.mail-config.desc")
     @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Deprecated(forRemoval = true)
     public MailConfigModel getMailConfig() {
-        return new MailConfigModel().setUrl(propertyResolver.getProperty(MAIL_URL))
-                .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
-                .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
+        return new MailConfigModel().setUrl(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_URL))
+                .setUsername(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_USERNAME))
+                .setPassword(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_PASSWORD));
     }
 
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
     @PutMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminPrivilege
+    @Deprecated(forRemoval = true)
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
         validationProvider.validate(mailConfig);
         Map<String, String> mailConfigMap = new HashMap<>();
-        mailConfigMap.put(MAIL_URL, mailConfig.getUrl());
-        mailConfigMap.put(MAIL_USERNAME, mailConfig.getUsername());
-        mailConfigMap.put(MAIL_PASSWORD, mailConfig.getPassword());
+        mailConfigMap.put(MailVerificationServerSettings.MAIL_URL, mailConfig.getUrl());
+        mailConfigMap.put(MailVerificationServerSettings.MAIL_USERNAME, mailConfig.getUsername());
+        mailConfigMap.put(MailVerificationServerSettings.MAIL_PASSWORD, mailConfig.getPassword());
         DynamicPropertySource.get().save(mailConfigMap);
     }
 }
