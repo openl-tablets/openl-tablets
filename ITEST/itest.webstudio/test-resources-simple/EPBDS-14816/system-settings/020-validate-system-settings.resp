@@ -1,0 +1,29 @@
+HTTP/1.1 400 OK
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.DatePatternConstraint",
+      "message": "Invalid date pattern",
+      "field": "datePattern",
+      "rejectedValue": "string"
+    }, {
+      "code": "openl.error.Min",
+      "message": "must be greater than or equal to 0",
+      "field": "projectHistoryCount",
+      "rejectedValue": -1
+    }, {
+      "code": "openl.error.Min",
+      "message": "must be greater than or equal to 1",
+      "field": "testRunThreadCount",
+      "rejectedValue": -1
+    }, {
+      "code": "openl.error.TimePatternConstraint",
+      "message": "Invalid time pattern",
+      "field": "timeFormat",
+      "rejectedValue": "string"
+    }
+  ]
+}

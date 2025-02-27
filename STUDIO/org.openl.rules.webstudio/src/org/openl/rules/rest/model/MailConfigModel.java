@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.openl.rules.rest.validation.MailConfigConstraint;
 
 @MailConfigConstraint
+@Deprecated(forRemoval = true)
 public class MailConfigModel {
 
     @Parameter(description = "Mail server url", example = "smtps://mail.example.com:1587")

@@ -41,9 +41,12 @@ import org.openl.util.StringUtils;
  * TODO Remove property getters/setters when migrating to EL 2.2
  *
  * @author Andrei Astrouski
+ *
+ * @deprecated Should be removed after migration to React Admin UI
  */
 @Service
 @SessionScope
+@Deprecated(forRemoval = true)
 public class SystemSettingsBean {
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 

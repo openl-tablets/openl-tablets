@@ -1,6 +1,7 @@
 package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -144,18 +145,16 @@ public class UsersRestTest {
     @Test
     public void testMail() throws IOException, MessagingException {
         client.send("users-service/mail/users-mail-config-1.get");
-        client.send("users-service/mail/users-mail-config-update-2.put");
-        client.send("users-service/mail/users-mail-config-1.get");
 
         MailConfig newMailConfig = new MailConfig();
         newMailConfig.password = "password";
         newMailConfig.url = mailUrl;
         newMailConfig.username = "username@email";
-        client.putForObject("/web/mail/settings", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        client.postForObject("/web/admin/settings/mail", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
         client.send("users-service/mail/studio-settings");
 
-        MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
-        assertEquals("password", mailConfig.password);
+        MailConfig mailConfig = client.getForObject("/web/admin/settings/mail", MailConfig.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        assertNull(mailConfig.password); // password must not be exposed to the user due to security reasons
         assertEquals("username@email", mailConfig.username);
         assertEquals(mailUrl, mailConfig.url);
 
@@ -200,7 +199,7 @@ public class UsersRestTest {
 
         client.send("users-service/mail/users-mail-verified.get");
 
-        client.send("users-service/mail/users-mail-config-update-2.put");
+        client.send("users-service/mail/reset-mail-config");
         client.send("users-service/mail/users-mail-config-1.get");
     }
 
