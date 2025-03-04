@@ -110,7 +110,7 @@
 
         <!-- REST -->
         <jackson.version>2.18.2</jackson.version>
-        <cxf.version>3.6.5</cxf.version>
+        <cxf.version>3.6.6</cxf.version>
 
         <!-- gRPC -->
         <grpc.version>1.70.0</grpc.version>
