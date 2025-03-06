@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -166,7 +167,8 @@ public class OpenAPIProjectCreatorTest {
                                 MOCK_MODEL_PATH,
                                 MOCK_ALGORITHM_PATH,
                                 MOCK_MODEL_NAME,
-                                MOCK_ALGORITHM_NAME);
+                                MOCK_ALGORITHM_NAME, 
+                                Collections.emptyMap());
                         projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
