@@ -95,11 +95,11 @@
         <objenesis.version>3.4</objenesis.version>
 
         <!-- Kafka -->
-        <kafka.version>3.9.0</kafka.version>
+        <kafka.version>4.0.0</kafka.version>
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.14.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.15.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
         <!-- Casandra -->
@@ -1505,11 +1505,6 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>${kafka.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-log4j-appender</artifactId>
                 <version>${kafka.version}</version>
             </dependency>
             <dependency>
