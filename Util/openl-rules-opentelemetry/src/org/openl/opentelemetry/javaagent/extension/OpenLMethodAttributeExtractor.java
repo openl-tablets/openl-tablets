@@ -2,8 +2,6 @@ package org.openl.opentelemetry.javaagent.extension;
 
 import static io.opentelemetry.api.common.AttributeKey.stringKey;
 
-import javax.annotation.Nullable;
-
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.context.Context;
@@ -31,7 +29,7 @@ public class OpenLMethodAttributeExtractor implements AttributesExtractor<Execut
     }
 
     @Override
-    public void onEnd(AttributesBuilder attributes, Context context, ExecutableRulesMethod request, @Nullable Object response, @Nullable Throwable error) {
+    public void onEnd(AttributesBuilder attributes, Context context, ExecutableRulesMethod request, Object response, Throwable error) {
 
     }
 }
