@@ -194,7 +194,7 @@
         <poi.version>5.4.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
-        <guava.version>33.4.0-jre</guava.version>
+        <guava.version>33.4.7-jre</guava.version>
         <xmlsec.version>2.3.5</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
