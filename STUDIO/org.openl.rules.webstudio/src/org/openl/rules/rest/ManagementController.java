@@ -93,7 +93,7 @@ public class ManagementController {
 
     private void buildnumberOfMembers(Group group, UIGroup uiGroup) {
         long internal = groupManagementService.countUsersInGroup(group.getName());
-        long external = extGroupService.countAllForUser(group.getName());
+        long external = extGroupService.countUsersInGroup(group.getName());
         uiGroup.numberOfMembers = new NumberOfMembers(internal, external);
     }
 
