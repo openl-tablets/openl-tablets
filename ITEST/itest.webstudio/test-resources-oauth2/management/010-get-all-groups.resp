@@ -41,8 +41,8 @@ Content-Type: application/json
     "privileges": ["ADMIN"],
     "numberOfMembers": {
       "internal": 0,
-      "external": 0,
-      "total": 0
+      "external": 1,
+      "total": 1
     }
   },
   "openl-ba": {
@@ -50,8 +50,8 @@ Content-Type: application/json
     "description": "External Group",
     "numberOfMembers": {
       "internal": 0,
-      "external": 0,
-      "total": 0
+      "external": 1,
+      "total": 1
     }
   },
   "Testers": {
