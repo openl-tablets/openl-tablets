@@ -31,6 +31,8 @@ import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
@@ -64,6 +66,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -131,6 +134,7 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -728,6 +732,7 @@ public class RepositoryTreeController {
                 userWorkspace,
                 comment,
                 zipFilter,
+                projectTagsBean.saveTagsTypesAndGetTags(),
                 templateFiles);
         try {
             try {
@@ -748,8 +753,6 @@ public class RepositoryTreeController {
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
 
                     resetStudioModel();
-
-                    saveTags(createdProject);
 
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                     /* Clear the load form */
@@ -1968,6 +1971,32 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
+    
+    public void loadTagsFromUploadedFile() throws IOException {
+        boolean tagsAreReadFromProject = false;
+        ProjectFile file = getLastUploadedFile();
+        if (file != null && FileTypeHelper.isZipFile(file.getName())) {
+            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInput())) {
+                for (ZipEntry entry = zipInputStream.getNextEntry(); entry != null; entry = zipInputStream.getNextEntry()) {
+                    if (RulesProjectTags.TAGS_FILE_NAME.equals(entry.getName())) {
+                        var readTags = new HashMap<String, String>();
+                        try {
+                            PropertiesUtils.load(zipInputStream, readTags::put);
+                        } catch (IOException e) {
+                            log.error(e.getMessage(), e);
+                        }
+                        projectTagsBean.initTagsFromPreexisting(readTags);
+                        tagsAreReadFromProject = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (! tagsAreReadFromProject) {
+            projectTagsBean.clearTags();
+        }
+        
+    }
 
     /**
      * Remove uploaded files.
@@ -2138,7 +2167,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(createdProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
@@ -2169,6 +2197,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage(errorMessage);
                 return errorMessage;
             }
+            Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
             final ProjectUploader uploader = new ProjectUploader(repositoryId,
                     uploadedFiles,
                     projectName,
@@ -2181,7 +2210,8 @@ public class RepositoryTreeController {
                     modelsPath,
                     algorithmsPath,
                     modelsModuleName,
-                    algorithmsModuleName);
+                    algorithmsModuleName,
+                    tags);
             RulesProject uploadedProject;
             try {
                 uploadedProject = uploader.uploadProject();
@@ -2193,7 +2223,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(uploadedProject);
                 selectProject(uploadedProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(uploadedProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
                 return null;
             } catch (Exception e) {
@@ -2373,6 +2402,7 @@ public class RepositoryTreeController {
                 }
                 String pathForModels = extractPath(editModelsPath, modelsPath, OpenAPIModule.MODEL);
                 String pathForAlgorithms = extractPath(editAlgorithmsPath, algorithmsPath, OpenAPIModule.ALGORITHM);
+                Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
                 ProjectUploader projectUploader = new ProjectUploader(repositoryId,
                         uploadedItem,
                         projectName,
@@ -2385,7 +2415,8 @@ public class RepositoryTreeController {
                         pathForModels,
                         pathForAlgorithms,
                         modelsModuleName,
-                        algorithmsModuleName);
+                        algorithmsModuleName,
+                        tags);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     try {
@@ -2980,6 +3011,7 @@ public class RepositoryTreeController {
 
     public void openNewProjectDialog() {
         clearUploadedFiles();
+        projectTagsBean.clearTags();
 
         List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
         if (repositories.size() == 1) {
@@ -2998,7 +3030,53 @@ public class RepositoryTreeController {
             importFromRepo();
         }
     }
+    private FolderMapper findAndValidateMappedRepository() throws IOException {
+        Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+        if (!mappedRepo.supports().mappedFolders()) {
+            throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
+        }
+        Repository repository = ((FolderMapper) mappedRepo).getDelegate();
+        FileData fileData = repository.check(projectFolder);
+        if (fileData == null) {
+            WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
+            clearForm();
+            return null;
+        }
 
+        return (FolderMapper) mappedRepo;
+    }
+
+    public void readTagsFromImportedProject() {
+        try {
+            var mappedRepo = findAndValidateMappedRepository();
+            if (mappedRepo == null) {
+                return;
+            }
+            Repository repository = mappedRepo.getDelegate();
+            
+            var tagsFileNameBuilder = new StringBuilder(projectFolder);
+            if (! projectFolder.endsWith("/")) {
+                tagsFileNameBuilder.append("/");
+            }
+            tagsFileNameBuilder.append(RulesProjectTags.TAGS_FILE_NAME);
+            
+            var tagsFile = repository.read(tagsFileNameBuilder.toString());
+            if (tagsFile != null) {
+                Map<String, String> existingTags = new HashMap<>();
+                try (InputStream projectTagsFileStream = tagsFile.getStream()) {
+                    PropertiesUtils.load(projectTagsFileStream, existingTags::put);
+                }
+                projectTagsBean.initTagsFromPreexisting(existingTags);
+            } else {
+                projectTagsBean.clearTags();
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Cannot read the project: " + e.getMessage());
+            clearForm();
+        }
+    }
+    
     public void importFromRepo() {
         String msg = validateImportFromRepoParams();
         if (msg != null) {
@@ -3008,28 +3086,27 @@ public class RepositoryTreeController {
         }
 
         try {
-            Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
-            if (!mappedRepo.supports().mappedFolders()) {
-                throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
-            }
-            Repository repository = ((FolderMapper) mappedRepo).getDelegate();
-            FileData fileData = repository.check(projectFolder);
-            if (fileData == null) {
-                WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
-                clearForm();
+            var mappedRepo = findAndValidateMappedRepository();
+            if (mappedRepo == null) {
                 return;
             }
-
-            ((FolderMapper) mappedRepo).addMapping(projectFolder);
+            mappedRepo.addMapping(projectFolder);
 
             workspaceManager.refreshWorkspaces();
             repositoryTreeState.invalidateTree();
             Optional<RulesProject> importedProject = userWorkspace.getProjectByPath(repositoryId, projectFolder);
-            importedProject
-                    .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
+            if (importedProject.isPresent()) {
+                var project = importedProject.get();
+                var tags = projectTagsBean.saveTagsTypesAndGetTags();
+                var existingTags = project.getLocalTags();
+                if (!existingTags.equals(tags)) {
+                    project.saveTags(tags);
+                }
+
+                selectProject(project.getName(), repositoryTreeState.getRulesRepository());
+            }
 
             resetStudioModel();
-            importedProject.ifPresent(this::saveTags);
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {
@@ -3189,12 +3266,8 @@ public class RepositoryTreeController {
         return hasPermissionsForArtefactsInProject(project);
     }
 
-    public boolean isHasTags() {
+    public boolean isTagsAreConfigured() {
         return !tagTypeService.getAllTagTypes().isEmpty();
-    }
-
-    private void saveTags(RulesProject project) {
-        projectTagsBean.saveTags(project);
     }
 
     public void forceUpdateVersionsBean() {
