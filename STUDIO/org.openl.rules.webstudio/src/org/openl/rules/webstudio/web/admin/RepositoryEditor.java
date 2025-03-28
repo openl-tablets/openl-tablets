@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -69,6 +70,12 @@ public class RepositoryEditor {
 
     public List<RepositoryConfiguration> getRepositoryConfigurations() {
         return repositoryConfigurations;
+    }
+
+    public Optional<RepositoryConfiguration> getRepositoryConfiguration(String id) {
+        return repositoryConfigurations.stream()
+            .filter(config -> config.getConfigName().equalsIgnoreCase(id))
+            .findFirst();
     }
 
     public void reload() {
@@ -171,6 +178,21 @@ public class RepositoryEditor {
         }
 
         return config;
+    }
+
+    public RepositoryConfiguration initializeConfiguration(RepositoryType type) {
+        RepositoryMode repositoryMode = switch (repositoryFactoryProxy.getRepoListConfig()) {
+            case AdministrationSettings.DESIGN_REPOSITORY_CONFIGS -> RepositoryMode.DESIGN;
+            case AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS -> RepositoryMode.PRODUCTION;
+            default -> throw new IllegalArgumentException("Unknown repository mode");
+        };
+        String configName = getNewConfigName(repositoryConfigurations, repositoryMode);
+        return new RepositoryConfiguration(configName, properties, type.getFactoryId(), repositoryConfigurations, repositoryMode);
+    }
+
+    public void validate(RepositoryConfiguration config) throws RepositoryValidationException {
+        RepositoryValidators.validate(config, repositoryConfigurations);
+        RepositoryValidators.validateConnection(config);
     }
 
     private String[] split(String s) {

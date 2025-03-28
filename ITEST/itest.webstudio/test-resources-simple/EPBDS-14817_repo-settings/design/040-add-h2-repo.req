@@ -1,0 +1,11 @@
+POST /rest/admin/settings/repos/design HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "name": "H2",
+  "settings": {
+    "uri": "jdbc:h2:mem:design-repo;DB_CLOSE_DELAY=-1"
+  },
+  "type": "repo-jdbc"
+}

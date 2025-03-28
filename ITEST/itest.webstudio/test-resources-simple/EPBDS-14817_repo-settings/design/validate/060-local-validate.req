@@ -1,0 +1,25 @@
+POST /rest/admin/settings/repos/design/validate HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "name": "Design1",
+  "settings": {
+    "useCustomComments": false,
+    "commentValidationPattern": "",
+    "invalidCommentMessage": "Invalid comment: Comment doesn't match validation pattern",
+    "commentTemplate": "{user-message} Type: {commit-type}.",
+    "defaultCommentSave": "Project {project-name} is saved.",
+    "defaultCommentCreate": "Project {project-name} is created.",
+    "defaultCommentArchive": "Project {project-name} is archived.",
+    "defaultCommentRestore": "Project {project-name} is restored.",
+    "defaultCommentErase": "Project {project-name} is erased.",
+    "defaultCommentCopiedFrom": "Copied from: {project-name}.",
+    "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime}.",
+    "flatFolderStructure": false,
+    "basePath": "DESIGN/rules/",
+    "uri": ""
+  },
+  "type": "repo-file",
+  "id": "design1"
+}

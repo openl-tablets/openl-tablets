@@ -106,11 +106,15 @@ Content-Type: application/json
         "properties" : {
           "readOnly" : {
             "type" : "boolean",
-            "description" : "Is setting read-only. If true, the setting set by the system env and cannot be changed."
+            "description" : "***"
           },
           "value" : {
             "type" : "object",
-            "description" : "Setting value"
+            "description" : "***"
+          },
+          "secret" : {
+            "type" : "boolean",
+            "description" : "***"
           }
         }
       },
@@ -118,10 +122,15 @@ Content-Type: application/json
         "type" : "object",
         "properties" : {
           "password" : {
-            "type" : "string",
+            "type" : "object",
             "description" : "***",
             "example" : "***",
-            "writeOnly" : true
+            "writeOnly" : true,
+            "oneOf" : [ {
+              "type" : "string"
+            }, {
+              "$ref" : "#/components/schemas/SettingValueWrapper"
+            } ]
           },
           "url" : {
             "type" : "object",
