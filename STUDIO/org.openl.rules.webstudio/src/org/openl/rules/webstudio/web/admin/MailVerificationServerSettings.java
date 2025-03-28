@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -26,7 +25,8 @@ public class MailVerificationServerSettings implements SettingsHolder {
     private String username;
 
     @Parameter(description = "Password for authentication on mail server", example = "qwerty")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Schema(oneOf = {String.class, SettingValueWrapper.class}, accessMode = Schema.AccessMode.WRITE_ONLY)
+    @SettingPropertyName(value = MAIL_PASSWORD, secret = true)
     private String password;
 
     public String getUrl() {

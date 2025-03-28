@@ -7,10 +7,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -22,6 +28,7 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.StringUtils;
 
 public class RepositoryConfiguration {
@@ -31,22 +38,36 @@ public class RepositoryConfiguration {
     private String name;
     private String repoType;
 
+    @JsonIgnore
     private String oldName = null;
 
+    @JsonIgnore
     private final String configName;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_REF;
     private final String REPOSITORY_NAME;
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
+    @Valid
     private RepositorySettings settings;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String errorMessage;
+
+    @JsonIgnore
     private final PropertiesHolder properties;
+
+    @JsonIgnore
     private final String nameWithPrefix;
 
-    private FreeValueFinder valueFinder;
+    private BiFunction<String, String, String> valueFinder;
+
     private RepositoryMode repoMode;
+
+    @JsonView(RepositorySettings.Views.DeployConfig.class)
+    @SettingPropertyName(value = DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG)
+    private String useDesignRepositoryForDeployConfig;
 
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
         this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
@@ -84,7 +105,7 @@ public class RepositoryConfiguration {
         }
 
         String defValue = properties.getProperty(defaultSettingsPrefix + ".name");
-        setName(valueFinder.find("name", defValue));
+        setName(valueFinder.apply("name", defValue));
         oldName = name;
 
         repoType = ""; // To force "type is changed" event in the next step
@@ -111,36 +132,31 @@ public class RepositoryConfiguration {
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;
         settings = createSettings(repositoryType, properties, nameWithPrefix);
+
+        if (isDeployConfig()) {
+            useDesignRepositoryForDeployConfig = properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+        }
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
                                               PropertiesHolder properties,
                                               String configPrefix) {
-        RepositorySettings newSettings;
-        switch (repositoryType) {
-            case AWS_S3:
-                newSettings = new AWSS3RepositorySettings(properties, configPrefix);
-                break;
-            case AZURE:
-                newSettings = new AzureBlobRepositorySettings(properties, configPrefix);
-                break;
-            case GIT:
+        // Generate a unique path for a just created GIT configuration
+
+        return switch (repositoryType) {
+            case AWS_S3 -> new AWSS3RepositorySettings(properties, configPrefix);
+            case AZURE -> new AzureBlobRepositorySettings(properties, configPrefix);
+            case GIT -> {
                 if (repoMode != null) {
                     // Generate a unique path for a just created GIT configuration
                     String defValue = properties.getProperty("repo-default." + repoMode.getId() + ".local-repository-path");
-                    properties.setProperty(nameWithPrefix + ".local-repository-path", valueFinder.find("local-repository-path", defValue));
+                    properties.setProperty(nameWithPrefix + ".local-repository-path", valueFinder.apply("local-repository-path", defValue));
                 }
-                newSettings = new GitRepositorySettings(properties, configPrefix);
-                break;
-            case LOCAL:
-                newSettings = new LocalRepositorySettings(properties, configPrefix);
-                break;
-            default:
-                newSettings = new CommonRepositorySettings(properties, configPrefix);
-                break;
-        }
-
-        return newSettings;
+                yield new GitRepositorySettings(properties, configPrefix);
+            }
+            case LOCAL -> new LocalRepositorySettings(properties, configPrefix);
+            default -> new CommonRepositorySettings(properties, configPrefix);
+        };
     }
 
     private void store(PropertiesHolder propertiesHolder) {
@@ -149,15 +165,26 @@ public class RepositoryConfiguration {
         String factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
         propertiesHolder.setProperty(REPOSITORY_REF, factoryId);
 
+        if (isDeployConfig()) {
+            propertiesHolder.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepositoryForDeployConfig);
+        }
+
         settings.store(propertiesHolder);
     }
 
     public void revert() {
-        properties.revertProperties(REPOSITORY_NAME, REPOSITORY_REF);
+        properties.revertProperties(REPOSITORY_NAME,
+                REPOSITORY_REF,
+                DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
         load();
         settings.revert(properties);
     }
 
+    private boolean isDeployConfig() {
+        return configName.equalsIgnoreCase(RepositoryMode.DEPLOY_CONFIG.getId());
+    }
+
+    @JsonIgnore
     public PropertiesHolder getPropertiesToValidate() {
         InMemoryProperties tempProps = new InMemoryProperties(getProperties().getPropertyResolver());
         store(tempProps);
@@ -180,6 +207,7 @@ public class RepositoryConfiguration {
         this.name = name;
     }
 
+    @JsonIgnore
     public boolean isFolderRepository() {
         return RepositoryType.GIT.factoryId.equals(repoType);
     }
@@ -188,6 +216,7 @@ public class RepositoryConfiguration {
         return repoType;
     }
 
+    @JsonIgnore
     public RepositoryType getRepositoryType() {
         return RepositoryType.findByFactory(repoType);
     }
@@ -210,6 +239,7 @@ public class RepositoryConfiguration {
         }
     }
 
+    @JsonView({RepositorySettings.Views.Design.class, RepositorySettings.Views.Production.class})
     public String getId() {
         return getConfigName();
     }
@@ -224,6 +254,14 @@ public class RepositoryConfiguration {
 
     public RepositorySettings getSettings() {
         return settings;
+    }
+
+    public String getUseDesignRepositoryForDeployConfig() {
+        return useDesignRepositoryForDeployConfig;
+    }
+
+    public void setUseDesignRepositoryForDeployConfig(String useDesignRepositoryForDeployConfig) {
+        this.useDesignRepositoryForDeployConfig = useDesignRepositoryForDeployConfig;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {
@@ -265,7 +303,7 @@ public class RepositoryConfiguration {
         }
     }
 
-    private static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
+    private static BiFunction<String, String, String> createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
         return (paramNameSuffix, defValue) -> {
             AtomicInteger max = new AtomicInteger(-1);
             String configName = repoMode.getId();

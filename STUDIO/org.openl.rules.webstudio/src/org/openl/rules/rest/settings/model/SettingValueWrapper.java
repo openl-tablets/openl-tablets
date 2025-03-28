@@ -10,4 +10,7 @@ public class SettingValueWrapper {
     @Parameter(description = "Is setting read-only. If true, the setting set by the system env and cannot be changed.")
     public boolean readOnly;
 
+    @Parameter(description = "Is setting secret. If true, the setting value is not shown in the UI.")
+    public boolean secret;
+
 }

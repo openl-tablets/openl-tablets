@@ -13,9 +13,13 @@ import org.openl.util.StringUtils;
 
 public class PathConstraintValidator implements ConstraintValidator<PathConstraint, String> {
 
+    private boolean allowTrailingSlash;
+    private boolean allowLeadingSlash;
+
     @Override
     public void initialize(PathConstraint constraintAnnotation) {
-
+        allowTrailingSlash = constraintAnnotation.allowTrailingSlash();
+        allowLeadingSlash = constraintAnnotation.allowLeadingSlash();
     }
 
     @Override
@@ -25,11 +29,11 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return true;
         }
         boolean basicCheck = true;
-        if (value.startsWith("/")) {
+        if (!allowLeadingSlash && value.startsWith("/")) {
             context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}").addConstraintViolation();
             basicCheck = false;
         }
-        if (value.endsWith("/")) {
+        if (!allowTrailingSlash && value.endsWith("/")) {
             context.buildConstraintViolationWithTemplate("{openl.constraints.path.2.message}").addConstraintViolation();
             basicCheck = false;
         }
@@ -37,8 +41,15 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return false;
         }
         try {
+            var path = value;
+            if (allowLeadingSlash && value.startsWith("/")) {
+                path = path.substring(1);
+            }
+            if (allowTrailingSlash && value.endsWith("/")) {
+                path = path.substring(0, value.length() - 1);
+            }
             // Cross-platform path check
-            NameChecker.validatePath(value);
+            NameChecker.validatePath(path);
         } catch (IOException e) {
             context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
             return false;

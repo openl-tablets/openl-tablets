@@ -9,5 +9,9 @@ Content-Type: application/json
   "username": {
     "value": "username@email",
     "readOnly": true
+  },
+  "password": {
+    "secret": true,
+    "readOnly": true
   }
 }

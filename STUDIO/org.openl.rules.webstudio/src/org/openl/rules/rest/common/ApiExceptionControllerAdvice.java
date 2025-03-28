@@ -113,8 +113,15 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
-        LOG.error(e.getMessage(), e);
-        return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
+                .map(ResponseStatus::code)
+                .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (code == HttpStatus.INTERNAL_SERVER_ERROR) {
+            LOG.error(e.getMessage(), e);
+        } else {
+            LOG.debug(e.getMessage(), e);
+        }
+        return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), code, request);
     }
 
     @ExceptionHandler(ConversionFailedException.class)
