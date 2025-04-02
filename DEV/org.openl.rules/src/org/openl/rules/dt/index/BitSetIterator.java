@@ -2,6 +2,7 @@ package org.openl.rules.dt.index;
 
 import java.util.BitSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.openl.domain.AIntIterator;
 
@@ -11,7 +12,7 @@ public class BitSetIterator extends AIntIterator {
     private int currentIndex;
 
     public BitSetIterator(BitSet bitSet) {
-        this.bitSet = bitSet;
+        this.bitSet = Objects.requireNonNull(bitSet);
         this.currentIndex = bitSet.nextSetBit(0);
     }
 
