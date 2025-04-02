@@ -63,6 +63,22 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         this.parent = parent;
     }
 
+    /**
+     * Computes and returns the source location of this node.
+     * 
+     * <p>If the node's location is explicitly set, this location is returned. Otherwise, the location is determined
+     * using the node's children as follows:
+     * <ul>
+     *   <li>If there are no children, returns {@code null}.</li>
+     *   <li>If there is a single child, returns the child's source location.</li>
+     *   <li>If there are multiple children, attempts to create a composite location spanning from the start of the
+     *       first child's location to the end of the last child's location. Returns {@code null} if either the first
+     *       or last child's location is undefined.</li>
+     * </ul>
+     * </p>
+     *
+     * @return the computed source location or {@code null} if the location cannot be determined.
+     */
     @Override
     public ILocation getSourceLocation() {
         if (location == null) {
@@ -87,6 +103,16 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         return location;
     }
 
+    /**
+     * Returns a source code module representing the syntax node's code segment.
+     *
+     * <p>This method obtains the original module associated with the node, calculates the absolute start
+     * and end positions from the node's source location, and creates a new {@link SubTextSourceCodeModule}
+     * that encapsulates the segment of code for this node. The end position is incremented by one to cover
+     * the entire range.
+     *
+     * @return a source code module covering the node's specific code segment
+     */
     @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
         var module = getModule();

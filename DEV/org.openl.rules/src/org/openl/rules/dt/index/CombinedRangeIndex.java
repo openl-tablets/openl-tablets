@@ -18,6 +18,14 @@ public class CombinedRangeIndex implements IRuleIndex {
 
     private final IOpenCast castToConditionType;
 
+    /**
+     * Constructs a CombinedRangeIndex using the provided range indexes, decision table rule node, and type conversion utility.
+     *
+     * @param minIndex the index for handling ascending range conditions
+     * @param maxIndex the index for handling descending range conditions
+     * @param nextNode the subsequent decision table rule node in the composite index
+     * @param expressionToParamOpenCast the utility for converting input values to the appropriate condition type
+     */
     public CombinedRangeIndex(RangeAscIndex minIndex,
                               RangeDescIndex maxIndex,
                               DecisionTableRuleNode nextNode,
@@ -28,6 +36,19 @@ public class CombinedRangeIndex implements IRuleIndex {
         this.castToConditionType = expressionToParamOpenCast;
     }
 
+    /**
+     * Retrieves the decision table rule node corresponding to the specified value by performing a two-stage range lookup.
+     *
+     * <p>If an implicit cast is applicable, converts the input value before evaluation. The method first queries the
+     * ascending range index to collect initial matching rules, then refines the results using the descending range index.
+     * Providing a non-null static decision triggers an UnsupportedOperationException as static decisions are not supported.</p>
+     *
+     * @param value the value used for evaluating range conditions
+     * @param staticDecision an indicator for static decision-making; must be null since static decisions are not supported
+     * @param prevResult the context node used to guide the range lookup process
+     * @return a decision table rule node encapsulating the combined results from both range indexes
+     * @throws UnsupportedOperationException if staticDecision is non-null
+     */
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
         if (staticDecision != null) {

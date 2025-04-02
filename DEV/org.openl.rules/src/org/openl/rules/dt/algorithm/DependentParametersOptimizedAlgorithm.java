@@ -115,6 +115,24 @@ class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
+    /**
+     * Creates a one-parameter condition evaluator based on the provided condition and evaluator factory.
+     *
+     * <p>This method selects an appropriate evaluator for conditions with a single parameter. It first checks
+     * whether the evaluator factory defines a valid expression type. For “contains” evaluators, if the condition
+     * parameter is an aggregate type, the method ensures that the component type does not represent a range (as
+     * range arrays are not supported) and verifies valid type conversions. Depending on whether the condition has
+     * multiple empty rules or a static method, a V2 or standard evaluator variant is returned. For “equals” evaluators,
+     * it confirms that both the condition parameter and expression types are non-array types and selects the evaluator
+     * variant similarly. Otherwise, it attempts to create a single range index evaluator using an appropriate range adaptor.
+     * If necessary type conversions are unavailable or any preconditions are not met, the method processes an error and
+     * returns null.</p>
+     *
+     * @param condition the condition definition containing the parameter to be evaluated
+     * @param bindingContext the context used for type conversion and error reporting
+     * @param evaluatorFactory the factory that provides evaluator specifics and the expected expression type
+     * @return an instance of IConditionEvaluator if a suitable evaluator is created; otherwise, null
+     */
     private static IConditionEvaluator makeOneParamEvaluator(ICondition condition,
                                                              IBindingContext bindingContext,
                                                              EvaluatorFactory evaluatorFactory) {
@@ -351,6 +369,19 @@ class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
+    /**
+     * Parses a one-parameter condition expression to extract its evaluation components.
+     *
+     * <p>This method retrieves the bound node from the condition's index method and expects a nested block
+     * structure that ultimately contains a single expression. Based on the expression type, it delegates to the
+     * appropriate parser—either for a binary operation or a method-bound expression—and returns a Triple
+     * with the parsed left operand, relation type, and right operand.
+     *
+     * @param condition the condition containing the expression to parse
+     * @param bindingContext the context for binding used during expression parsing
+     * @return a Triple containing the parsed expression components, or null if the expression structure is not as expected
+     * @throws IllegalStateException if the condition does not have an index method
+     */
     private static Triple<String, RelationType, String> oneParameterExpressionParse(ICondition condition,
                                                                                     IBindingContext bindingContext) {
         if (condition.getIndexMethod() != null) {
@@ -377,6 +408,19 @@ class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
     }
 
+    /**
+     * Parses a composite two-parameter condition expression into its constituent binary operation expressions.
+     *
+     * <p>This method expects the condition's index method to supply a composite expression structured as an AND-combined
+     * pair of binary operations. Each binary operation is parsed into a triple that contains a field name, a relation type,
+     * and a literal value. If either parsed expression is absent or uses an equality relation, the method returns {@code null}.
+     *
+     * @param condition the condition containing the composite expression to parse
+     * @param bindingContext the binding context used for resolving the expression components
+     * @return a pair of triples representing the parsed binary operations, or {@code null} if parsing fails or an equality
+     *         relation is encountered
+     * @throws IllegalStateException if the condition does not have a valid index method (i.e., is not a composite method)
+     */
     private static Pair<Triple<String, RelationType, String>, Triple<String, RelationType, String>> twoParameterExpressionParse(
             ICondition condition,
             IBindingContext bindingContext) {
@@ -415,6 +459,21 @@ class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
     }
 
+    /**
+     * Determines and returns an optimized evaluator factory for the specified condition based on its parameter count and expression details.
+     * <p>
+     * This method retrieves the source code from the condition's index source code module and, depending on whether the condition
+     * has one or two parameters, parses the corresponding expression(s). For a single-parameter condition, the relation type in the
+     * parsed expression is used to select an evaluator factory for equality, containment, or range evaluations. For a two-parameter
+     * condition, the parsed expressions are used to create a two-parameter range evaluator factory. If the source code is missing
+     * or expression parsing fails, the method returns null.
+     * </p>
+     *
+     * @param condition the condition containing parameters and source code for evaluation
+     * @param signature the method signature associated with the condition's evaluation
+     * @param bindingContext the binding context used for parsing expressions
+     * @return an optimized EvaluatorFactory corresponding to the condition's evaluation strategy, or null if evaluation cannot be optimized
+     */
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,
                                                                         IMethodSignature signature,
                                                                         IBindingContext bindingContext) {
@@ -788,6 +847,15 @@ class DependentParametersOptimizedAlgorithm {
             return oneParameterContainsInFactory.getExpression();
         }
 
+        /**
+         * Retrieves the formal source code module for the specified condition.
+         *
+         * <p>If the condition is an instance of {@code ICondition}, the method returns the indexed source code module;
+         * otherwise, it returns the default source code module provided by the condition.</p>
+         *
+         * @param condition the condition from which to obtain the source code module
+         * @return the formal source code module corresponding to the given condition
+         */
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
@@ -809,6 +877,16 @@ class DependentParametersOptimizedAlgorithm {
             return oneParameterContainsInFactory.getExpression();
         }
 
+        /**
+         * Retrieves the formal source code module for the specified condition.
+         * <p>
+         * If the condition is an instance of ICondition, its index source code module is returned;
+         * otherwise, the condition's general source code module is returned.
+         * </p>
+         *
+         * @param condition the condition from which the source code module is obtained
+         * @return the formal source code module associated with the condition
+         */
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
@@ -830,6 +908,15 @@ class DependentParametersOptimizedAlgorithm {
             return oneParameterEqualsFactory.getExpression();
         }
 
+        /**
+         * Retrieves the formal source code module for the given condition.
+         *
+         * <p>If the condition is an instance of ICondition, this method returns its index-based source code module;
+         * otherwise, it returns the default source code module.</p>
+         *
+         * @param condition the condition to retrieve the source code module from
+         * @return the formal source code module associated with the condition
+         */
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
@@ -851,6 +938,15 @@ class DependentParametersOptimizedAlgorithm {
             return oneParameterEqualsFactory.getExpression();
         }
 
+        /**
+         * Retrieves the formal source code module for the specified condition.
+         * 
+         * <p>If the condition is an instance of {@code ICondition}, this method returns the associated index
+         * source code module. Otherwise, it returns the standard source code module from the condition.</p>
+         *
+         * @param condition the base condition for which to obtain the source code module
+         * @return the formal source code module corresponding to the condition
+         */
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
             return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
