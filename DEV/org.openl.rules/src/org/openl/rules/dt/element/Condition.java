@@ -67,6 +67,14 @@ public class Condition extends FunctionalRow implements ICondition {
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
 
+    /**
+     * Constructs a new Condition with the specified name, row index, logical table, and row scale.
+     *
+     * @param name  the condition name
+     * @param row   the row index where the condition is defined in the decision table
+     * @param table the logical table associated with the condition
+     * @param scale the row scale for adjusting the condition's layout within the decision table
+     */
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
     }
@@ -366,10 +374,31 @@ public class Condition extends FunctionalRow implements ICondition {
         return dependentOnOtherColumnsParams;
     }
 
+    /**
+     * Sets whether this condition is dependent on parameters from other columns.
+     *
+     * @param dependentOnOtherColumnsParams true if the condition depends on other columns' parameters; false otherwise.
+     */
     public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
         this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
     }
 
+    /**
+     * Compiles an expression source into a composite method and applies optimization if no binding errors are found.
+     *
+     * <p>
+     * This method delegates the compilation of the expression to the superclass using the provided source, method type,
+     * and signature. If the binding context reports no errors, it optimizes the expression by processing its bound node.
+     * The compiled composite method is then returned.
+     * </p>
+     *
+     * @param source the source code module containing the expression to compile
+     * @param methodType the expected type of the resulting method
+     * @param signature the signature defining the method's parameters and return type
+     * @param openl the OpenL instance providing runtime context and utilities
+     * @param bindingContext the binding context used for error tracking and optimizations during compilation
+     * @return the compiled composite method representing the expression
+     */
     @Override
     protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
                                            IOpenClass methodType,
@@ -383,6 +412,20 @@ public class Condition extends FunctionalRow implements ICondition {
         return originalExpr;
     }
 
+    /**
+     * Optimizes the compiled expression by decomposing a logical OR operation into specialized static and index methods.
+     *
+     * <p>This method inspects the bound method node representing the original expression and, if the node structure
+     * consists of a single nested child that is a logical OR operation, it attempts to compile two variants of the expression:
+     * a static method and an indexed method. If both compilations succeed, the corresponding fields are updated for
+     * optimized condition evaluation.</p>
+     *
+     * @param originalExprBoundNode the bound method node holding the original expression to be optimized
+     * @param methodType the expected return type of the expression
+     * @param signature the signature of the method encapsulated by the expression
+     * @param openl the OpenL engine used for compiling expressions
+     * @param bindingContext the context for binding and error reporting during compilation
+     */
     private void optimizeExpression(IBoundMethodNode originalExprBoundNode,
                                  IOpenClass methodType,
                                  IMethodSignature signature,
@@ -403,6 +446,24 @@ public class Condition extends FunctionalRow implements ICondition {
         }
     }
 
+    /**
+     * Compiles an index expression from the right operand of a binary OR node.
+     *
+     * <p>
+     * This method extracts a source code module from the right side of the given binary OR node. If the right operand
+     * is a binary operation node, it creates a submodule starting just after the operand's source location. If the operand
+     * is a method, literal, or field bound node, it uses the node's own source code module. The method then delegates
+     * compilation to the superclass's expression compiler. If any errors are encountered during compilation, or if the
+     * right operand's type is unsupported, this method returns null.
+     * </p>
+     *
+     * @param binaryOpNodeOr the binary OR node that encapsulates the index expression as its right operand
+     * @param methodType the expected return type of the compiled index expression
+     * @param signature the method signature to be used during compilation
+     * @param openl the OpenL engine context for expression compilation
+     * @param bindingContext the context for binding, used to capture any compilation errors and messages
+     * @return the compiled index expression as a CompositeMethod if compilation is successful and error-free; otherwise, null
+     */
     private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IOpenClass methodType, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
         var rightBoundNode = binaryOpNodeOr.getRight();
         IOpenSourceCodeModule indexSourceCodeModule;
@@ -437,6 +498,20 @@ public class Condition extends FunctionalRow implements ICondition {
         return errors.isEmpty() ? indexMethod : null;
     }
 
+    /**
+     * Compiles a static Boolean expression extracted from the left child of a binary 'or' operation node.
+     *
+     * <p>This method extracts source code from the left-hand node of a binary 'or' operator. If the left node is 
+     * a BinaryOpNode, a subtext module is created based on the syntax node's starting position; if it is a 
+     * MethodBoundNode, LiteralBoundNode, or FieldBoundNode, its source code module is used directly. The method 
+     * then compiles this source into a static method (named "run") with a Boolean return type. If any compilation 
+     * errors occur, the method returns null.</p>
+     *
+     * @param binaryOpNodeOr the binary 'or' operation node whose left child contains the static expression
+     * @param signature the method signature used during compilation of the static expression
+     * @param openl the OpenL instance providing compilation context and a binder for method creation
+     * @return a CompositeMethod representing the compiled static expression, or null if compilation fails
+     */
     private CompositeMethod compileStaticExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl) {
         var rightBoundNode = binaryOpNodeOr.getLeft();
         IOpenSourceCodeModule staticSourceCodeModule;
@@ -465,11 +540,24 @@ public class Condition extends FunctionalRow implements ICondition {
         return staticExprCtx.getErrors().length == 0 ? compiledMethod : null;
     }
 
+    /**
+     * Returns the compiled static method used in evaluating static expressions.
+     *
+     * @return the compiled static method as a CompositeMethod, or null if it has not been compiled
+     */
     @Override
     public CompositeMethod getStaticMethod() {
         return staticMethod;
     }
 
+    /**
+     * Retrieves the index source code module.
+     *
+     * <p>If an index method is defined, its associated source code module is returned; otherwise,
+     * the default source code module is provided.
+     *
+     * @return the source code module for the index expression, or the default module if the index method is not set
+     */
     @Override
     public IOpenSourceCodeModule getIndexSourceCodeModule() {
         return Optional.ofNullable(indexMethod)
@@ -477,6 +565,13 @@ public class Condition extends FunctionalRow implements ICondition {
                 .orElseGet(this::getSourceCodeModule);
     }
 
+    /**
+     * Retrieves the compiled index method used for evaluating condition expressions.
+     *
+     * <p>If the index method is not explicitly set, this method returns the default compiled method provided by {@link #getMethod()}.
+     *
+     * @return the {@link CompositeMethod} representing the index expression evaluation logic.
+     */
     @Override
     public CompositeMethod getIndexMethod() {
         return Optional.ofNullable(indexMethod)

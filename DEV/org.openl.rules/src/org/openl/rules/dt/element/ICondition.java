@@ -35,13 +35,38 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     boolean isDependentOnOtherColumnsParams();
 
-    void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams);
+    /**
+ * Sets a flag that indicates whether the condition depends on parameters from other columns.
+ *
+ * @param dependentOnOtherColumnsParams true if the condition depends on other columns' parameters; false otherwise
+ */
+void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams);
 
-    void setComparisonCast(IOpenCast comparisonCast);
+    /**
+ * Sets the comparison cast used for type conversion during the evaluation of the condition.
+ *
+ * @param comparisonCast the cast mechanism applied to convert values for comparison
+ */
+void setComparisonCast(IOpenCast comparisonCast);
 
-    CompositeMethod getStaticMethod();
+    /**
+ * Retrieves the composite static method associated with the condition.
+ *
+ * @return the CompositeMethod representing the condition's static method.
+ */
+CompositeMethod getStaticMethod();
 
-    IOpenSourceCodeModule getIndexSourceCodeModule();
+    /**
+ * Returns the source code module for the index.
+ *
+ * @return the index source code module
+ */
+IOpenSourceCodeModule getIndexSourceCodeModule();
 
-    CompositeMethod getIndexMethod();
+    /**
+ * Retrieves the composite method that represents the index method associated with the condition.
+ *
+ * @return the CompositeMethod for the condition's index method
+ */
+CompositeMethod getIndexMethod();
 }

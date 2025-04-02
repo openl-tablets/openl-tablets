@@ -127,11 +127,28 @@ public abstract class FunctionalRow implements IDecisionRow {
         storage = null;
     }
 
+    /**
+     * Retrieves the source code module associated with the current composite method.
+     * <p>
+     * This method delegates to {@link #getSourceCodeModule(CompositeMethod)} using the internal method instance.
+     * </p>
+     *
+     * @return the source code module for the current composite method
+     */
     @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
         return getSourceCodeModule(method);
     }
 
+    /**
+     * Retrieves the source code module associated with the given composite method.
+     *
+     * <p>This method traverses the composite method's bound node and syntax node hierarchy to extract the associated
+     * source code module. It returns {@code null} if the composite method or any element in its chain is unavailable.
+     *
+     * @param method the composite method from which to retrieve the source module
+     * @return the source code module, or {@code null} if not found
+     */
     protected IOpenSourceCodeModule getSourceCodeModule(CompositeMethod method) {
         return Optional.ofNullable(method)
                 .map(CompositeMethod::getMethodBodyBoundNode)
@@ -217,6 +234,26 @@ public abstract class FunctionalRow implements IDecisionRow {
         return res;
     }
 
+    /**
+     * Prepares the functional row by initializing parameters, compiling its associated expression,
+     * and setting up the method header for rule evaluation.
+     *
+     * <p>This method configures the row using the specified decision table and rule-specific information.
+     * It prepares parameter metadata, retrieves the expression source, compiles it into a composite method,
+     * and loads the parameter values required for rule execution. Additionally, it creates an OpenL adaptor
+     * to set the method header and initializes the expression evaluator. If the system is running in execution
+     * mode, redundant auxiliary tables are cleared.
+     *
+     * @param table the decision table containing the rule
+     * @param methodType the type of the method used for decision logic
+     * @param signature the signature of the method to be used for evaluation
+     * @param openl the OpenL configuration used for compilation and evaluation
+     * @param bindingContext the context for binding variables and compiling expressions
+     * @param ruleRow the rule row providing the parameter values
+     * @param ruleExecutionType the type defining how the rule is executed
+     * @param tableSyntaxNode the syntax node representing the decision table definition
+     * @throws Exception if an error occurs during the preparation of the functional row
+     */
     @Override
     public void prepare(DecisionTable table,
                         IOpenClass methodType,
@@ -254,6 +291,17 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
+    /**
+     * Compiles the given source code module into a {@link CompositeMethod} by merging the provided method signature
+     * with the instance's parameter declarations and compiling all types in the signature.
+     *
+     * @param source the source code module containing the method's expression definition
+     * @param methodType the expected type defining the method's return type and associated type information
+     * @param signature the original method signature to merge with the declared parameters
+     * @param openl the OpenL instance used for compiling the expression
+     * @param bindingContext the binding context for resolving and compiling types in the signature
+     * @return a composite method representing the compiled method with the merged signature and compiled types
+     */
     protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
                                            IOpenClass methodType,
                                            IMethodSignature signature,
@@ -265,6 +313,11 @@ public abstract class FunctionalRow implements IDecisionRow {
         return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
     }
 
+    /**
+     * Retrieves the expression used to evaluate this functional row.
+     *
+     * @return the expression associated with this row
+     */
     @Override
     public Expr getExpr() {
         return expr;

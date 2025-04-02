@@ -275,7 +275,20 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
     }
 
-    // TODO to do - fix _NO_PARAM_ issue
+    /**
+     * Creates an optimized condition evaluator for the specified condition.
+     *
+     * <p>This method analyzes the condition’s parameter declarations and type casts to select a specialized evaluator.
+     * For single-parameter conditions, it determines whether to use an equality-based evaluator, an aggregate evaluator,
+     * or a range-based evaluator, taking into account the number of empty rules and the presence of a static method.
+     * For two-parameter conditions, it selects evaluators optimized for numeric comparisons or aggregate checks.
+     * If the condition parameters are invalid or no specialized evaluator applies (including when the expected type is boolean),
+     * the default evaluator is returned after processing an error message.</p>
+     *
+     * @param condition the condition to evaluate
+     * @param conditionMethodType the expected type for the condition evaluation
+     * @return the optimized condition evaluator, or the default evaluator if no specialized implementation is applicable
+     */
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
                                                     IOpenClass conditionMethodType,
@@ -371,6 +384,20 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return DefaultConditionEvaluator.INSTANCE;
     }
 
+    /**
+     * Initializes condition-to-evaluator holders for a range of conditions in the decision table.
+     * <p>
+     * For each condition indexed from {@code info.fromCondition} to {@code info.toCondition}, this method
+     * pairs the condition (retrieved from the table) with its corresponding evaluator. If an evaluator is an
+     * instance of {@code ContainsInArrayIndexedEvaluatorV2}, it is replaced with an optimized version
+     * (via {@code toV1()}) if the condition's maximum array length is greater than one and it does not have a static method.
+     * </p>
+     *
+     * @param evaluators an array of evaluators for the decision table's conditions
+     * @param table the decision table providing condition objects
+     * @param info metadata that specifies the valid condition index range and supports rule iteration
+     * @return a sorted array of condition-to-evaluator holders; returns an empty array if the index range is invalid
+     */
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,
                                                         DecisionTable table,
                                                         IndexInfo info) {
@@ -475,21 +502,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     /**
-     * This method produces the iterator over the set of rules in DT. It has to retain the order of the rules.
-     * <p>
-     * An optimized algorithm has 2 distinct steps:
-     * <p>
-     * 1) Create initial discriminate rules set using indexing in initial conditions.
-     * <p>
-     * 2) Iterate over the initial set using remaining conditions as selectors; not-optimized algorithm has the whole
-     * rules set as initial.
-     * <p>
-     * Performance. From the algorithm definition it is clear, that step 1 of algorithm is performed with constant or
-     * near constant speed with regard to the number of the rules. The performance of the part 2 is largely dependent
-     * the size of the resulting rules set. The order of initial indexed conditions does not seem to affect performance
-     * much (//TODO this statement needs verification)
+     * Returns an iterator over rule indexes for decision table evaluation while retaining their original order.
      *
-     * @return iterator over <b>rule indexes</b> - integer iterator.
+     * <p>This method first narrows down the candidate rules using indexed conditions for near constant-time
+     * filtering. It then sequentially applies additional condition selectors to refine the result set. If a condition
+     * defines a static method, its evaluation result is used to further adjust the candidate set. If no index is available,
+     * all rules are considered.
+     *
+     * @param target the object to be evaluated against decision table conditions
+     * @param params the parameter values provided for evaluation
+     * @param env the runtime environment supplying contextual data for condition evaluation
+     * @return an iterator over integer rule indexes that satisfy the evaluated conditions
      */
     @Override
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {

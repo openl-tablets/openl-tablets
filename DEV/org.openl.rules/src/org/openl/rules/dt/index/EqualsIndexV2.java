@@ -27,6 +27,20 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
     private final Map<Object, int[]> index;
     private final ConditionCasts conditionCasts;
 
+    /**
+     * Constructs an EqualsIndexV2 instance by initializing immutable rule indexing,
+     * condition casts, and the complete set of rule indices.
+     * <p>
+     * The provided index is stored as an unmodifiable map and each rule index from its arrays is
+     * added to the internal rule set. The condition casts parameter is validated to be non-null.
+     * This constructor also passes the next decision table rule node and empty rules array to the superclass.
+     * </p>
+     *
+     * @param nextNode       the subsequent decision table rule node in the evaluation chain.
+     * @param index          a map associating condition values with sorted arrays of rule indices.
+     * @param emptyRules     a sorted array of rule indices representing empty or default rules.
+     * @param conditionCasts the converter for condition types; must not be null.
+     */
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
                          Map<Object, int[]> index,
                          int[] emptyRules,
@@ -42,6 +56,17 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         }
     }
 
+    /**
+     * Retrieves the rule indices associated with the given condition value.
+     * <p>
+     * If the specified value is non-null, it is first cast to the appropriate condition type and then used
+     * to fetch the corresponding indices from the internal index map. If the value is null or no indices are found,
+     * an empty array is returned.
+     * </p>
+     *
+     * @param value the condition value for which the rule indices are to be found; may be null
+     * @return an array of rule indices if found; otherwise, an empty array
+     */
     private int[] findIndex(Object value) {
         int[] result = null;
         if (value != null) {
@@ -51,6 +76,19 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         return result == null ? EMPTY_ARRAY : result;
     }
 
+    /**
+     * Creates a new decision table rule node for the specified value.
+     * 
+     * <p>
+     * This method computes the applicable rules by intersecting the rules retrieved for the given
+     * value with those from the previous result, then returns an {@code EqualsIndexDecisionTableRuleNode}
+     * with these rules and the next node index.
+     * </p>
+     *
+     * @param value the condition value used to locate matching rules in the index
+     * @param prevResult the previous decision table rule node whose rule set is intersected with the current findings
+     * @return a new decision table rule node encapsulating the merged rule set and the next node index
+     */
     @Override
     protected DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
         return new EqualsIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
@@ -65,6 +103,18 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         return getResultAndIntersect(value, (IDecisionTableRuleNodeV2) prevResult);
     }
 
+    /**
+     * Intersects the rule indices derived from the given value with the rule indices from the previous result.
+     *
+     * <p>If the previous result contains no rules, this method returns an empty array immediately. Otherwise, it
+     * retrieves the current rule indices for the specified value, merges them with a predefined empty rule set,
+     * and returns the intersection between these combined indices and the indices from the previous decision
+     * table node.</p>
+     *
+     * @param value the value used to retrieve the current rule indices
+     * @param prevResult the decision table rule node containing the previous set of rule indices
+     * @return an array of rule indices representing the intersection of the current and previous rule sets
+     */
     private int[] getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
         int[] prevRes = prevResult.getRules();
         if (prevRes.length == 0) {
@@ -76,11 +126,15 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
     }
 
     /**
-     * Combine two sorted arrays into one. Time Complexity: O(a.length + b.length)
+     * Merges two sorted int arrays into a single sorted array.
+     * <p>
+     * If one of the arrays is empty, this method returns the non-empty array directly.
+     * The merge operation runs in O(a.length + b.length) time.
+     * </p>
      *
-     * @param a first array.
-     * @param b second array.
-     * @return a new array instance. If first argument is empty, it returns second argument. If second is empty - first.
+     * @param a the first sorted array
+     * @param b the second sorted array
+     * @return a sorted array containing all elements from both input arrays; if one array is empty, returns the other array
      */
     private static int[] combineSortedArrays(int[] a, int[] b) {
         if (a.length == 0) {
