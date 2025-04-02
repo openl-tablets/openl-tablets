@@ -372,10 +372,10 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
-                                           IOpenClass methodType,
-                                           IMethodSignature signature,
-                                           OpenL openl,
-                                           IBindingContext bindingContext) {
+                                                      IOpenClass methodType,
+                                                      IMethodSignature signature,
+                                                      OpenL openl,
+                                                      IBindingContext bindingContext) {
         var originalExpr = super.compileExpressionSource(source, methodType, signature, openl, bindingContext);
         if (bindingContext.getErrors().length == 0) {
             optimizeExpression(originalExpr.getMethodBodyBoundNode(), methodType, signature, openl, bindingContext);
@@ -384,17 +384,23 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private void optimizeExpression(IBoundMethodNode originalExprBoundNode,
-                                 IOpenClass methodType,
-                                 IMethodSignature signature,
-                                 OpenL openl,
-                                 IBindingContext bindingContext) {
+                                    IOpenClass methodType,
+                                    IMethodSignature signature,
+                                    OpenL openl,
+                                    IBindingContext bindingContext) {
+        if (originalExprBoundNode == null) {
+            return;
+        }
         var children = originalExprBoundNode.getChildren();
-        if (children.length == 1 && children[0].getChildren().length == 1 && children[0].getChildren()[0] instanceof BinaryOpNodeOr) {
+        if (children != null && children.length == 1 &&
+                children[0] != null && children[0].getChildren() != null &&
+                children[0].getChildren().length == 1 &&
+                children[0].getChildren()[0] instanceof BinaryOpNodeOr) {
             var binaryOpNodeOr = (BinaryOpNodeOr) children[0].getChildren()[0];
 
             var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
             if (staticMethod != null) {
-                var indexMethod = compileIndexExpression(binaryOpNodeOr,methodType, signature, openl, bindingContext);
+                var indexMethod = compileIndexExpression(binaryOpNodeOr, methodType, signature, openl, bindingContext);
                 if (indexMethod != null) {
                     this.staticMethod = staticMethod;
                     this.indexMethod = indexMethod;
@@ -412,9 +418,7 @@ public class Condition extends FunctionalRow implements ICondition {
             var sourceCode = module.getCode();
             indexSourceCodeModule = new SubTextSourceCodeModule(module,
                     location.getEnd().getAbsolutePosition(new TextInfo(sourceCode)) + 1);
-        } else if (rightBoundNode instanceof MethodBoundNode
-                || rightBoundNode instanceof LiteralBoundNode
-                || rightBoundNode instanceof FieldBoundNode)  {
+        } else if (rightBoundNode instanceof MethodBoundNode) {
             indexSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
         } else {
             return null;
@@ -449,7 +453,7 @@ public class Condition extends FunctionalRow implements ICondition {
                     location.getStart().getAbsolutePosition(new TextInfo(sourceCode)));
         } else if (rightBoundNode instanceof MethodBoundNode
                 || rightBoundNode instanceof LiteralBoundNode
-                || rightBoundNode instanceof FieldBoundNode)  {
+                || rightBoundNode instanceof FieldBoundNode) {
             staticSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
         } else {
             return null;
