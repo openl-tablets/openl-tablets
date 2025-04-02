@@ -265,6 +265,15 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return getName();
     }
 
+    /**
+     * Updates the binding dependencies for the decision table's condition and action rows.
+     *
+     * <p>This method iterates over each condition and action row to update their associated composite method
+     * dependencies. For conditions that implement the extended interface with an index method, the dependency
+     * of the index method is updated as well. Additionally, the value dependencies for each row are refreshed.</p>
+     *
+     * @param dependencies the binding dependencies container to be updated with dependency information from condition and action methods
+     */
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {

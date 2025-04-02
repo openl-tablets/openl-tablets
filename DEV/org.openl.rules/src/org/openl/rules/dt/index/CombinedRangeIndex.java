@@ -18,6 +18,15 @@ public class CombinedRangeIndex implements IRuleIndex {
 
     private final IOpenCast castToConditionType;
 
+    /**
+     * Constructs a CombinedRangeIndex with the specified range indices, next decision node, and
+     * condition type converter.
+     *
+     * @param minIndex the ascending range index used to retrieve rules based on minimum values
+     * @param maxIndex the descending range index used to retrieve rules based on maximum values
+     * @param nextNode the next decision table rule node in the evaluation chain
+     * @param expressionToParamOpenCast the converter for casting input values to the appropriate condition type
+     */
     public CombinedRangeIndex(RangeAscIndex minIndex,
                               RangeDescIndex maxIndex,
                               DecisionTableRuleNode nextNode,
@@ -28,6 +37,22 @@ public class CombinedRangeIndex implements IRuleIndex {
         this.castToConditionType = expressionToParamOpenCast;
     }
 
+    /**
+     * Finds the decision table rule node corresponding to a given range value.
+     *
+     * <p>This method first checks whether a static decision is provided. If so, it throws an
+     * UnsupportedOperationException since static decisions are not supported. Otherwise, if an implicit
+     * conversion is available via a type converter, the input value is converted. Matching rule indices
+     * are then determined using a minimum range index, and the result is refined using a maximum range index.
+     * The final decision table rule node is constructed using these results and the index of the next node.
+     * </p>
+     *
+     * @param value the input value for matching rules.
+     * @param staticDecision must be null; a non-null value triggers an UnsupportedOperationException.
+     * @param prevResult the previous decision table rule node used for context in the matching process.
+     * @return the decision table rule node corresponding to the matching range criteria.
+     * @throws UnsupportedOperationException if staticDecision is not null.
+     */
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
         if (staticDecision != null) {

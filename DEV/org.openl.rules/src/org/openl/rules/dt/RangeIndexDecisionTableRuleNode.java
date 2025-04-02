@@ -42,11 +42,24 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode imple
         return nextIndex;
     }
 
+    /**
+     * Determines if a subsequent rule index is available.
+     *
+     * @return {@code true} if the next index exists; {@code false} otherwise.
+     */
     @Override
     public boolean hasIndex() {
         return nextIndex != null;
     }
 
+    /**
+     * Returns an iterator for efficiently traversing the active rule indices in the rule set.
+     *
+     * <p>This method instantiates a BitSetIterator to iterate through the set bits without converting the BitSet to an array,
+     * thereby optimizing performance.</p>
+     *
+     * @return an IIntIterator over the active rule indices.
+     */
     @Override
     public IIntIterator getRulesIterator() {
         // use efficient iterator for BitSet to avoid converting to array

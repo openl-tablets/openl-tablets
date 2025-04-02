@@ -35,13 +35,41 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     boolean isDependentOnOtherColumnsParams();
 
-    void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams);
+    /**
+ * Sets a flag indicating whether the condition depends on parameters from other columns.
+ *
+ * @param dependentOnOtherColumnsParams true if the condition relies on parameters from other columns, false otherwise
+ */
+void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams);
 
-    void setComparisonCast(IOpenCast comparisonCast);
+    /**
+ * Sets the casting mechanism used for comparison operations in condition evaluation.
+ *
+ * @param comparisonCast the instance of IOpenCast used to cast operands during comparisons
+ */
+void setComparisonCast(IOpenCast comparisonCast);
 
-    CompositeMethod getStaticMethod();
+    /**
+ * Retrieves the static method associated with this condition.
+ *
+ * @return the CompositeMethod representing the static method used in condition evaluation.
+ */
+CompositeMethod getStaticMethod();
 
-    IOpenSourceCodeModule getIndexSourceCodeModule();
+    /**
+ * Retrieves the source code module associated with the index.
+ *
+ * @return the index source code module
+ */
+IOpenSourceCodeModule getIndexSourceCodeModule();
 
-    CompositeMethod getIndexMethod();
+    /**
+ * Retrieves the composite method representing the index functionality.
+ *
+ * <p>This method provides access to the composite method that encapsulates
+ * the logic for handling index-related operations in the decision table framework.</p>
+ *
+ * @return the composite method for index evaluation.
+ */
+CompositeMethod getIndexMethod();
 }

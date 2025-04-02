@@ -275,7 +275,35 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
     }
 
-    // TODO to do - fix _NO_PARAM_ issue
+    /**
+     * Constructs an appropriate condition evaluator based on the condition's parameters and the expected method parameter type.
+     *
+     * <p>This method determines the evaluator by examining the condition's parameter declarations and type compatibility:
+     * <ul>
+     *   <li>If any parameter is null, a default evaluator is returned.</li>
+     *   <li>For a single parameter:
+     *     <ul>
+     *       <li>If the parameter can be cast to the expected input type, an equals evaluator is returned.</li>
+     *       <li>If the parameter represents an aggregate type, an evaluator handling array containment is returned.</li>
+     *       <li>If a range adaptor is available for the parameter, a combined range index evaluator is used.</li>
+     *       <li>If the parameter satisfies a condition type cast, an equals evaluator is selected.</li>
+     *     </ul>
+     *     In each case, if the condition contains more than one empty rule or a static method is defined, an optimized (V2) evaluator is chosen.</li>
+     *   <li>For two parameters:
+     *     <ul>
+     *       <li>If a valid cast exists and both parameters share the same type, a combined range index evaluator is returned for numeric types.</li>
+     *       <li>If the second parameter is an aggregate with a matching component type and the first parameter supports Boolean adaptation, a specialized evaluator is used.</li>
+     *     </ul>
+     *   </li>
+     *   <li>If the expected method parameter type is Boolean, a default evaluator is returned.</li>
+     * </ul>
+     * If no matching evaluator can be constructed, an error is processed and a default evaluator is returned.
+     *
+     * @param condition the condition to be evaluated
+     * @param conditionMethodType the expected type of the condition's method parameter
+     * @param bindingContext the context for type casting and error handling
+     * @return a condition evaluator tailored to the condition's configuration, or a default evaluator if construction fails
+     */
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
                                                     IOpenClass conditionMethodType,
@@ -371,6 +399,21 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return DefaultConditionEvaluator.INSTANCE;
     }
 
+    /**
+     * Initializes and returns an array of condition-to-evaluator mappings for the decision table.
+     *
+     * <p>This method creates mappings for conditions within the index range specified by the provided
+     * {@code IndexInfo}. If the decision table does not contain enough conditions or if the designated
+     * range is invalid, an empty array is returned. For evaluators of type
+     * {@code ContainsInArrayIndexedEvaluatorV2}, if the maximum array length is greater than one and
+     * the condition does not define a static method, the evaluator is replaced with an optimized version.
+     * The mappings are then sorted before being returned.
+     *
+     * @param evaluators an array of condition evaluators corresponding to the decision table's conditions
+     * @param table      the decision table containing the conditions
+     * @param info       index information specifying the range of conditions to process and additional context
+     * @return a sorted array of condition-to-evaluator mappings, or an empty array if no valid conditions exist
+     */
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,
                                                         DecisionTable table,
                                                         IndexInfo info) {
@@ -475,21 +518,20 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     /**
-     * This method produces the iterator over the set of rules in DT. It has to retain the order of the rules.
-     * <p>
-     * An optimized algorithm has 2 distinct steps:
-     * <p>
-     * 1) Create initial discriminate rules set using indexing in initial conditions.
-     * <p>
-     * 2) Iterate over the initial set using remaining conditions as selectors; not-optimized algorithm has the whole
-     * rules set as initial.
-     * <p>
-     * Performance. From the algorithm definition it is clear, that step 1 of algorithm is performed with constant or
-     * near constant speed with regard to the number of the rules. The performance of the part 2 is largely dependent
-     * the size of the resulting rules set. The order of initial indexed conditions does not seem to affect performance
-     * much (//TODO this statement needs verification)
+     * Returns an iterator over the rule indexes for the decision table while preserving their evaluation order.
      *
-     * @return iterator over <b>rule indexes</b> - integer iterator.
+     * <p>This method performs a two-step evaluation:
+     * <ol>
+     *   <li>Creates an initial candidate set of rule indexes using available indexing for early conditions.
+     *       If no index is present, it uses all the decision table rules.</li>
+     *   <li>Refines the candidate set by applying condition selectors for the remaining conditions, including
+     *       evaluation using any static method defined on the condition.</li>
+     * </ol>
+     *
+     * @param target the object instance against which the decision table is evaluated
+     * @param params the array of parameters used during evaluation
+     * @param env the runtime environment for rule evaluation
+     * @return an iterator over rule indexes
      */
     @Override
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
