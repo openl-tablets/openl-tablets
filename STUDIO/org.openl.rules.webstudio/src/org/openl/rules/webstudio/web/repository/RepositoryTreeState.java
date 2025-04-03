@@ -199,10 +199,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         }
                     }
                 } else {
-                    final Set<String> tagValues = rulesProjects.stream().map(RulesProject::getDesignTags)
+                    final List<String> tagValues = rulesProjects.stream().map(RulesProject::getDesignTags)
                             .filter(projectTags -> projectTags.containsKey(group1))
                             .map(projectTags -> projectTags.get(group1))
-                            .collect(Collectors.toSet());
+                            .sorted()
+                            .collect(Collectors.toList());
                     List<RulesProject> withoutTags = new ArrayList<>(rulesProjects);
 
                     tagValues.forEach(name -> {

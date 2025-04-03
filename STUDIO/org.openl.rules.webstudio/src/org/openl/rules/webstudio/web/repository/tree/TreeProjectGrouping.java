@@ -117,9 +117,11 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                         });
                     } else {
 
-                        final Set<String> tagValues = projects.stream().map(RulesProject::getDesignTags)
+                        final List<String> tagValues = projects.stream().map(RulesProject::getDesignTags)
                                 .filter(designTags -> designTags.containsKey(nextGroupingType))
-                                .map(designTags -> designTags.get(nextGroupingType)).collect(Collectors.toSet());
+                                .map(designTags -> designTags.get(nextGroupingType))
+                                .sorted()
+                                .collect(Collectors.toList());
                         tagValues.forEach(name -> {
                             final String id = RepositoryUtils.getTreeNodeId(name);
 
