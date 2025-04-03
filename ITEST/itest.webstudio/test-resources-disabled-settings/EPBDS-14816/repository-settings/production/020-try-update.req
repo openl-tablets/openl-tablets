@@ -1,0 +1,13 @@
+PATCH /rest/admin/settings/repos/production HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "name": "Prod GG",
+  "settings": {
+    "uri": "jdbc:h2:mem:prod-repo1;DB_CLOSE_DELAY=-1",
+    "mainBranchOnly": true
+  },
+  "type": "repo-jdbc",
+  "id": "production"
+}

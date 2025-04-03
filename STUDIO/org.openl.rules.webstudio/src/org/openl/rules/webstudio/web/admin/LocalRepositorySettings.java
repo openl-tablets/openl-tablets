@@ -1,10 +1,21 @@
 package org.openl.rules.webstudio.web.admin;
 
+import javax.validation.constraints.NotBlank;
+
+import io.swagger.v3.oas.annotations.Parameter;
+
 import org.openl.config.PropertiesHolder;
 import org.openl.util.StringUtils;
 
 public class LocalRepositorySettings extends RepositorySettings {
 
+    private final static String URI_SUFFIX = ".uri";
+    private final static String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
+    private final static String SUPPORT_DEPLOYMENTS_SUFFIX = ".support-deployments";
+
+    @Parameter(description = "Local path")
+    @SettingPropertyName(URI_SUFFIX)
+    @NotBlank
     private String uri;
 
     private final String uriProperty;
@@ -13,9 +24,9 @@ public class LocalRepositorySettings extends RepositorySettings {
 
     public LocalRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        this.uriProperty = configPrefix + ".uri";
-        this.baseDeployPathProperty = configPrefix + ".base.path";
-        this.supportDeploymentsProperty = configPrefix + ".support-deployments";
+        this.uriProperty = configPrefix + URI_SUFFIX;
+        this.baseDeployPathProperty = configPrefix + BASE_DEPLOY_PATH_SUFFIX;
+        this.supportDeploymentsProperty = configPrefix + SUPPORT_DEPLOYMENTS_SUFFIX;
 
         load(properties);
     }

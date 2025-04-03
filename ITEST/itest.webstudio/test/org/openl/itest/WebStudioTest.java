@@ -63,6 +63,19 @@ public class WebStudioTest {
                     .withInitParam("mail.password", "password")
                     // group settings
                     .withInitParam("security.default-group", "Viewers")
+                    // design repository settings
+                    .withInitParam("design-repository-configs", "design")
+                    .withInitParam("repository.design.factory", "repo-jdbc")
+                    .withInitParam("repository.design.name", "H2 Design")
+                    .withInitParam("repository.design.uri", "jdbc:h2:mem:design-repo;DB_CLOSE_DELAY=-1")
+                    // production repository settings
+                    .withInitParam("production-repository-configs", "production")
+                    .withInitParam("repository.production.$ref", "repo-jdbc")
+                    .withInitParam("repository.production.name", "H2 Production")
+                    .withInitParam("repository.production.uri", "jdbc:h2:mem:production-repo;DB_CLOSE_DELAY=-1")
+                    .withInitParam("repository.production.base.path.$ref", "repo-default.production.base.path")
+                    // deploy configuration repository settings
+                    .withInitParam("repository.deploy-config.use-repository", "design")
                     .test();
         } finally {
             smtpServer.stop();

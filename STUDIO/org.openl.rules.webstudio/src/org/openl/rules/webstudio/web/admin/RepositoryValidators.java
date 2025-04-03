@@ -93,7 +93,7 @@ public final class RepositoryValidators {
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
                                                  List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
-        String path = settings.getPath();
+        String path = settings.getUri();
         if (StringUtils.isEmpty(path)) {
             String msg = "Repository path is empty. Please, enter repository path.";
             throw new RepositoryValidationException(msg);
@@ -110,7 +110,7 @@ public final class RepositoryValidators {
 
                 if (other.getSettings() instanceof CommonRepositorySettings) {
                     CommonRepositorySettings otherSettings = (CommonRepositorySettings) other.getSettings();
-                    if (path.equals(otherSettings.getPath()) && settings.isSecure() == otherSettings.isSecure()) {
+                    if (path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
                         // Different users can access different schemas
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
@@ -128,7 +128,7 @@ public final class RepositoryValidators {
         validateConnection(repoConfig, null);
     }
 
-    static void validateConnection(RepositoryConfiguration repoConfig,
+    public static void validateConnection(RepositoryConfiguration repoConfig,
                                    RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
             if (repositoryFactoryProxy != null) {

@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Deployment",
+  "settings": {
+    "basePath": "deploy/",
+    "mainBranchOnly": false,
+    "login": "",
+    "password": "",
+    "uri": "**/repositories/db/db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=20",
+    "secure": false
+  },
+  "type": "repo-jdbc",
+  "id": "**"
+}
