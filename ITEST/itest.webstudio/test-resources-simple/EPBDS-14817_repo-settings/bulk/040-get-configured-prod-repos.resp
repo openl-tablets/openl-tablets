@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "aclId": "UFJPRDpwcm9kdWN0aW9uMQ==",
+    "id": "production1",
+    "name": "H2_2"
+  }
+]

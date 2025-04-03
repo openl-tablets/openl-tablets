@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Deploy Configuration",
+  "settings": {
+    "basePath": "DESIGN/deployments/",
+    "uri": "**/repositories/local"
+  },
+  "useDesignRepositoryForDeployConfig": "",
+  "type": "repo-file"
+}

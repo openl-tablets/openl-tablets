@@ -18,6 +18,7 @@ public class FolderStructureValidators {
         validatePathInRepository(path);
     }
 
+    // replaced with PathConstraint
     public static void validatePathInRepository(String path) {
         if (StringUtils.isEmpty(path)) {
             return;

@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "name": "H2_2",
+    "settings": {
+      "basePath": "deploy/",
+      "mainBranchOnly": false,
+      "login": "",
+      "password": "",
+      "uri": "jdbc:h2:mem:prod-repo;DB_CLOSE_DELAY=-1",
+      "secure": false
+    },
+    "type": "repo-jdbc",
+    "id": "production1"
+  }
+]

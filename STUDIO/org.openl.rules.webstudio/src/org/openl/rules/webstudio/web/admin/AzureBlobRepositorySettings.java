@@ -1,13 +1,43 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.Optional;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
 
 public class AzureBlobRepositorySettings extends RepositorySettings {
+
+    private static final String URI_PROPERTY_SUFFIX = ".uri";
+    private static final String ACCOUNT_NAME_PROPERTY_SUFFIX = ".account-name";
+    private static final String ACCOUNT_KEY_PROPERTY_SUFFIX = ".account-key";
+    private static final String LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX = ".listener-timer-period";
+
+    @Parameter(description = "URL")
+    @SettingPropertyName(suffix = URI_PROPERTY_SUFFIX)
+    @NotBlank
+    @JsonView(Views.Base.class)
     private String uri;
+
+    @Parameter(description = "Account name")
+    @SettingPropertyName(suffix = ACCOUNT_NAME_PROPERTY_SUFFIX)
+    @JsonView(Views.Base.class)
     private String accountName;
+
+    @Parameter(description = "Account key")
+    @SettingPropertyName(suffix = ACCOUNT_KEY_PROPERTY_SUFFIX, secret = true)
+    @JsonView(Views.Base.class)
     private String accountKey;
+
+    @Parameter(description = "Repository changes check interval. Must be greater than 0.")
+    @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX)
+    @JsonView(Views.Base.class)
+    @Min(1)
+    @NotNull
     private Integer listenerTimerPeriod;
 
     private final String uriProperty;
@@ -17,10 +47,10 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
 
     AzureBlobRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        uriProperty = configPrefix + ".uri";
-        accountNameProperty = configPrefix + ".account-name";
-        accountKeyProperty = configPrefix + ".account-key";
-        listenerTimerPeriodProperty = configPrefix + ".listener-timer-period";
+        uriProperty = configPrefix + URI_PROPERTY_SUFFIX;
+        accountNameProperty = configPrefix + ACCOUNT_NAME_PROPERTY_SUFFIX;
+        accountKeyProperty = configPrefix + ACCOUNT_KEY_PROPERTY_SUFFIX;
+        listenerTimerPeriodProperty = configPrefix + LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX;
 
         load(properties);
     }
