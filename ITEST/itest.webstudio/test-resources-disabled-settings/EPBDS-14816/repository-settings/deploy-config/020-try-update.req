@@ -1,0 +1,16 @@
+PATCH /rest/admin/settings/repos/deploy-config HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "name": "Deploy Configuration GG",
+  "settings": {
+    "basePath": "DESIGN/deployments/",
+    "remoteRepository": false,
+    "listenerTimerPeriod": 10,
+    "connectionTimeout": 60,
+    "failedAuthenticationSeconds": 300
+  },
+  "useDesignRepositoryForDeployConfig": "",
+  "type": "repo-git"
+}

@@ -1,0 +1,28 @@
+POST /rest/admin/settings/repos/design/validate HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "name": "Design1",
+  "settings": {
+    "useCustomComments": false,
+    "commentValidationPattern": "",
+    "invalidCommentMessage": "",
+    "commentTemplate": "",
+    "defaultCommentSave": "",
+    "defaultCommentCreate": "",
+    "defaultCommentArchive": "",
+    "defaultCommentRestore": "",
+    "defaultCommentErase": "",
+    "defaultCommentCopiedFrom": "",
+    "defaultCommentRestoredFrom": "",
+    "flatFolderStructure": false,
+    "basePath": "",
+    "login": "",
+    "password": "",
+    "uri": "",
+    "secure": false
+  },
+  "type": "repo-jndi",
+  "id": "design1"
+}

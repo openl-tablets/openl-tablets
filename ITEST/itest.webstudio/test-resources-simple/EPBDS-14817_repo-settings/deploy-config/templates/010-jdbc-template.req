@@ -1,0 +1,7 @@
+POST /rest/admin/settings/repos/deploy-config/template HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "type": "repo-jdbc"
+}

@@ -1,0 +1,65 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Git Flat",
+    "settings": {
+      "useCustomComments": false,
+      "commentValidationPattern": "",
+      "invalidCommentMessage": "'Invalid comment'",
+      "commentTemplate": "{user-message} Type: {commit-type}.",
+      "defaultCommentSave": "Project {project-name} is saved.",
+      "defaultCommentCreate": "Project {project-name} is created.",
+      "defaultCommentArchive": "Project {project-name} is archived.",
+      "defaultCommentRestore": "Project {project-name} is restored.",
+      "defaultCommentErase": "Project {project-name} is erased.",
+      "defaultCommentCopiedFrom": "Copied from: {project-name}.",
+      "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime}.",
+      "flatFolderStructure": true,
+      "remoteRepository": false,
+      "uri": "",
+      "login": "",
+      "password": "",
+      "localRepositoryPath": "**/repositories/design-flat-dtr",
+      "branch": "",
+      "tagPrefix": "",
+      "listenerTimerPeriod": 10,
+      "connectionTimeout": 60,
+      "failedAuthenticationSeconds": 300,
+      "protectedBranches": ""
+    },
+    "type": "repo-git",
+    "id": "design-flat"
+  },
+  {
+    "name": "Git Non Flat",
+    "settings": {
+      "useCustomComments": true,
+      "commentValidationPattern": "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}",
+      "invalidCommentMessage": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'",
+      "commentTemplate": "{user-message} Type: {commit-type}.",
+      "defaultCommentSave": "Project {project-name} is saved.",
+      "defaultCommentCreate": "Project {project-name} is created.",
+      "defaultCommentArchive": "Project {project-name} is archived.",
+      "defaultCommentRestore": "Project {project-name} is restored.",
+      "defaultCommentErase": "Project {project-name} is erased.",
+      "defaultCommentCopiedFrom": "Copied from: {project-name}.",
+      "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime}.",
+      "flatFolderStructure": false,
+      "remoteRepository": false,
+      "uri": "",
+      "login": "",
+      "password": "",
+      "localRepositoryPath": "**/repositories/design-non-flat-dtr",
+      "branch": "",
+      "tagPrefix": "",
+      "listenerTimerPeriod": 10,
+      "connectionTimeout": 60,
+      "failedAuthenticationSeconds": 300,
+      "protectedBranches": ""
+    },
+    "type": "repo-git",
+    "id": "design-non-flat"
+  }
+]
