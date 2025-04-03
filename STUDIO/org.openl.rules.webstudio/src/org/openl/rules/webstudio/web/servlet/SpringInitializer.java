@@ -102,6 +102,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
 
+        // Run migration which require context to be initialized
+        Migrator.migrateAfterContentInitialized(applicationContext);
         // Experimental settings
         HTMLRenderer.MAX_NUM_CELLS = Props.integer("experimental.MAX_NUM_CELLS");
 

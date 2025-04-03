@@ -1,93 +1,86 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 
 @Service
 @RequestScope
 public class EditProjectTagsBean {
-    private static final long NONE_ID = -1L;
     private static final String NONE_NAME = "[None]";
     private final TagTypeService tagTypeService;
     private final TagService tagService;
-    private final OpenLProjectService projectService;
 
-    private OpenLProject openlProject;
-    private List<Tag> tags;
+    private List<TagInfo> tags;
 
     private String repoId;
     private String realPath;
 
-    private Long typeId;
+    private String typeName;
     private String tagName;
     private String errorMessage;
+    
+    private boolean shouldAskForConfirmation;
 
     public EditProjectTagsBean(TagTypeService tagTypeService,
-                               TagService tagService,
-                               OpenLProjectService projectService) {
+                               TagService tagService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
-        this.projectService = projectService;
     }
 
     public void init(TreeNode selectedNode) {
         TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
 
-        if (selectedProject == null) {
-            openlProject = null;
-        } else {
+        if (selectedProject != null) {
             RulesProject project = (RulesProject) selectedProject.getData();
-            final String repoId = project.getRepository().getId();
-            final String realPath = project.getRealPath();
+            
+            this.repoId = project.getRepository().getId();
+            this.realPath = project.getRealPath();
+            this.shouldAskForConfirmation = project.isOpenedOtherVersion() && !project.isModified();
 
-            this.repoId = repoId;
-            this.realPath = realPath;
-
-            this.openlProject = projectService.getProject(repoId, realPath);
+            tags = project.getLocalTags().entrySet().stream()
+                    .map(entry -> {
+                        Tag tag = tagService.getByTypeNameAndName(entry.getKey(), entry.getValue());
+                        TagType tagType = tagTypeService.getByName(entry.getKey());
+                        return new TagInfo(entry.getKey(), entry.getValue(), tag, tagType);
+                    }).collect(Collectors.toList());
         }
 
-        if (openlProject != null) {
-            tags = new ArrayList<>(openlProject.getTags());
-        } else {
-            tags = new ArrayList<>();
-        }
         fillAbsentTags();
         if (StringUtils.isNotEmpty(errorMessage)) {
             tags.stream()
-                    .filter(tag1 -> tag1.getType().getId().equals(typeId))
+                    .filter(tagInfo -> tagInfo.getTypeName().equals(typeName))
                     .findFirst()
                     .ifPresent(tag -> tag.setName(tagName));
         }
-        tags.sort(Comparator.comparing((Tag tag) -> tag.getType().getName()).thenComparing(Tag::getName));
+        tags.sort(Comparator.comparing(TagInfo::getTypeName).thenComparing(TagInfo::getName));
     }
 
     private void fillAbsentTags() {
         final List<TagType> tagTypes = getTagTypes();
         tagTypes.forEach(type -> {
-            final Long typeId = type.getId();
-            if (tags.stream().noneMatch(tag -> tag.getType().getId().equals(typeId))) {
-                final Tag t = new Tag();
-                t.setId(NONE_ID);
-                t.setName(NONE_NAME);
-                t.setType(type);
+            if (tags.stream().noneMatch(tag -> tag.getTypeName().equals(type.getName()))) {
+                final TagInfo t = new TagInfo(type.getName(), NONE_NAME, null, type);
                 tags.add(t);
             }
         });
@@ -97,7 +90,7 @@ public class EditProjectTagsBean {
         return tagTypeService.getAllTagTypes();
     }
 
-    public List<Tag> getTags() {
+    public List<TagInfo> getTags() {
         return tags;
     }
 
@@ -110,55 +103,59 @@ public class EditProjectTagsBean {
             // Validate
             WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Cannot be empty");
 
-            final TagType type = tagTypeService.getById(typeId);
-
-            final Tag existed;
-            if (tagName.equals(NONE_NAME)) {
-                WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
-                existed = null;
-            } else {
-                WebStudioUtils.validate(NameChecker.checkName(tagName), NameChecker.BAD_NAME_MSG);
-                existed = tagService.getByName(typeId, tagName);
-                if (existed == null) {
-                    WebStudioUtils.validate(type != null, "Tag type with id '" + typeId + "' does not exist.");
-                    WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
-                            String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
-                }
-            }
-
+            final TagType type = tagTypeService.getByName(typeName);
+            
             if (repoId != null && realPath != null) {
-                boolean create = false;
-                this.openlProject = projectService.getProject(repoId, realPath);
+                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
+                UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+                Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repoId, realPath);
+                
+                if (rulesProjectOptional.isPresent()) {
+                    Tag existed = null;
+                    String newTagName = tagName.equals(NONE_NAME) ? null : tagName;
+                    RulesProject rulesProject = rulesProjectOptional.get();
+                    Map<String, String> localTags = rulesProject.getLocalTags();
+                    var currentTags = new HashMap<>(localTags);
+                    
+                    if (newTagName == null) {
+                        if (type != null) {
+                            WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
+                        }
+                    } else {
+                        WebStudioUtils.validate(NameChecker.checkName(newTagName), NameChecker.BAD_NAME_MSG);
+                        if (type != null) {
+                            existed = tagService.getByTypeNameAndName(typeName, newTagName);
+                            if (existed == null) {
+                                WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
+                                        String.format("'%s' is not allowed value for tag type '%s'.", newTagName, type.getName()));
+                            }
+                        } else {
+                            WebStudioUtils.validate(newTagName.equals(currentTags.get(typeName)),
+                                    String.format("Tag %s could be changed to %s only, since it is not configured", typeName, NONE_NAME));
+                        }
+                    }
 
-                if (openlProject == null) {
-                    create = true;
-
-                    openlProject = new OpenLProject();
-                    openlProject.setRepositoryId(repoId);
-                    openlProject.setProjectPath(realPath);
-                    openlProject.setTags(new ArrayList<>());
-                }
-
-                final List<Tag> currentTags = openlProject.getTags();
-                currentTags.removeIf(tag -> tag.getType().getId().equals(typeId));
-                if (existed == null) {
-                    // If none - remove
-                    if (!tagName.equals(NONE_NAME)) {
-                        // Ignore id because we can enter our new value in editable combobox.
-                        Tag newTag = new Tag();
-                        newTag.setType(type);
-                        newTag.setName(tagName);
-                        tagService.save(newTag);
-                        currentTags.add(tagService.getByName(typeId, tagName));
+                    var changed = ! Objects.equals(currentTags.get(typeName), newTagName);
+                    if (changed) {
+                        if (newTagName != null) {
+                            if (existed == null && type != null) {
+                                // Ignore id because we can enter our new value in editable combobox.
+                                Tag newTag = new Tag();
+                                newTag.setType(type);
+                                newTag.setName(newTagName);
+                                tagService.save(newTag);
+                                currentTags.put(type.getName(), newTagName);
+                            } else {
+                                currentTags.put(typeName, newTagName);
+                            }
+                        } else {
+                            currentTags.remove(typeName);
+                        }
+                        rulesProject.saveTags(currentTags);
+                        userWorkspace.refresh();
                     }
                 } else {
-                    currentTags.add(existed);
-                }
-
-                if (create) {
-                    projectService.save(openlProject);
-                } else {
-                    projectService.update(openlProject);
+                    throw new IllegalStateException("Project is not found");
                 }
             }
         } catch (Exception e) {
@@ -182,12 +179,12 @@ public class EditProjectTagsBean {
         this.realPath = realPath;
     }
 
-    public Long getTypeId() {
-        return typeId;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setTypeId(Long typeId) {
-        this.typeId = typeId;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public String getTagName() {
@@ -200,5 +197,9 @@ public class EditProjectTagsBean {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public boolean isShouldAskForConfirmation() {
+        return shouldAskForConfirmation;
     }
 }

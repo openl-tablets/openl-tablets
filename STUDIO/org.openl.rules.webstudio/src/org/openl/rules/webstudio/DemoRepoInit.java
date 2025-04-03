@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ public class DemoRepoInit {
                 userWorkspace,
                 "Project " + projectName + " is created.",
                 zipFilter,
+                Collections.emptyMap(),
                 templateFiles);
         try {
             try {

@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ public class RulesProject extends UserWorkspaceProject {
     private Repository designRepository;
     private String designFolderName;
     private final LockEngine lockEngine;
+    private final RulesProjectTags localTags;
+    private final ProjectTags designTags;
 
     public RulesProject(WorkspaceUser user,
                         LocalRepository localRepository,
@@ -81,6 +84,12 @@ public class RulesProject extends UserWorkspaceProject {
 
         if (designFileData != null) {
             setLastHistoryVersion(designFileData.getVersion());
+        }
+        localTags = new RulesProjectTags(this);
+        if (designFileData != null) {
+            designTags = new ProjectTags(new AProject(designRepository, designFileData));
+        } else {
+            designTags = localTags;
         }
     }
 
@@ -594,4 +603,16 @@ public class RulesProject extends UserWorkspaceProject {
         }
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
+    
+    public Map<String, String> getLocalTags() {
+        return localTags.getTags();
+    }
+
+    public void saveTags(Map<String, String> tags) throws ProjectException {
+        localTags.saveTags(tags);
+    }
+    
+    public Map<String, String> getDesignTags() {
+        return designTags.getTags();
+    } 
 }
