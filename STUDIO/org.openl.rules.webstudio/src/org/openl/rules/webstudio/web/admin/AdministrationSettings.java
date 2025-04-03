@@ -12,11 +12,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.rest.settings.model.SettingValueWrapper;
 import org.openl.rules.rest.settings.model.validation.DatePatternConstraint;
 import org.openl.rules.rest.settings.model.validation.TimePatternConstraint;
 import org.openl.rules.rest.settings.model.validation.WriteDirectoryConstraint;
@@ -42,49 +40,41 @@ public final class AdministrationSettings implements SettingsHolder {
     public static final String AUTO_COMPILE = "compile.auto";
 
     @Parameter(description = "User Workspace Home.")
-    @Schema(oneOf = {String.class, SettingValueWrapper.class})
     @WriteDirectoryConstraint(directoryType = "Workspace Directory")
     @SettingPropertyName(USER_WORKSPACE_HOME)
     private String userWorkspaceHome;
 
     @Parameter(description = "The maximum count of saved changes for each project per user.")
-    @Schema(oneOf = {Integer.class, SettingValueWrapper.class})
     @Min(0)
     @SettingPropertyName(PROJECT_HISTORY_COUNT)
     private Integer projectHistoryCount;
 
     @Parameter(description = "Update table properties ('createdOn', 'modifiedBy' etc.) on editing.")
-    @Schema(oneOf = {Boolean.class, SettingValueWrapper.class})
     @SettingPropertyName(UPDATE_SYSTEM_PROPERTIES)
     private Boolean updateSystemProperties;
 
     @Parameter(description = "Date Format.")
-    @Schema(oneOf = {String.class, SettingValueWrapper.class})
     @NotBlank
     @DatePatternConstraint
     @SettingPropertyName(DATE_PATTERN)
     private String datePattern;
 
     @Parameter(description = "Time Format.")
-    @Schema(oneOf = {String.class, SettingValueWrapper.class})
     @NotBlank
     @TimePatternConstraint
     @SettingPropertyName(TIME_PATTERN)
     private String timeFormat;
 
     @Parameter(description = "Thread number for tests.")
-    @Schema(oneOf = {Integer.class, SettingValueWrapper.class})
     @Min(1)
     @SettingPropertyName(TEST_RUN_THREAD_COUNT_PROPERTY)
     private Integer testRunThreadCount;
 
     @Parameter(description = "Turn on/off the Dispatching Validation feature.")
-    @Schema(oneOf = {Boolean.class, SettingValueWrapper.class})
     @SettingPropertyName(OpenLSystemProperties.DISPATCHING_VALIDATION)
     private Boolean dispatchingValidationEnabled;
 
     @Parameter(description = "Turn on/off verification on edit.")
-    @Schema(oneOf = {Boolean.class, SettingValueWrapper.class})
     @SettingPropertyName(AUTO_COMPILE)
     private Boolean autoCompile;
 

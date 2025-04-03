@@ -4,17 +4,691 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "RepositoriesBatchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "deployConfig" : {
+            "$ref" : "#/components/schemas/DeployConfigRepositoryConfigurationModel"
+          },
+          "design" : {
+            "$ref" : "#/components/schemas/RepositoriesBatchModel"
+          },
+          "production" : {
+            "$ref" : "#/components/schemas/RepositoriesBatchModel"
+          }
+        }
+      },
+      "RepositoriesBatchModel" : {
+        "type" : "object",
+        "properties" : {
+          "createOrUpdate" : {
+            "type" : "array",
+            "description" : "***",
+            "items" : {
+              "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+            }
+          },
+          "delete" : {
+            "type" : "array",
+            "description" : "***",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "CreateRepositoryTemplateModel" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
+          }
+        },
+        "required" : [ "type" ]
+      },
+      "RepositoryConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "errorMessage" : {
+            "type" : "string",
+            "readOnly" : true
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "settings" : {
+            "$ref" : "#/components/schemas/RepositorySettings"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "useDesignRepositoryForDeployConfig" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RepositorySettings" : {
+        "description" : "***",
+        "type" : "object",
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/AWSS3RepositorySettings"
+        }, {
+          "$ref" : "#/components/schemas/AzureBlobRepositorySettings"
+        }, {
+          "$ref" : "#/components/schemas/CommonRepositorySettings"
+        }, {
+          "$ref" : "#/components/schemas/GitRepositorySettings"
+        }, {
+          "$ref" : "#/components/schemas/LocalRepositorySettings"
+        } ],
+        "properties" : {
+          "basePath" : {
+            "description" : "***",
+            "type": "string"
+          },
+          "commentTemplate" : {
+            "description" : "***",
+            "type": "string"
+          },
+          "commentTemplateOld" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "commentValidationPattern" : {
+            "description" : "***",
+            "type": "string"
+          },
+          "defaultCommentArchive" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentCopiedFrom" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentCreate" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentErase" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentRestore" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentRestoredFrom" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "defaultCommentSave" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "flatFolderStructure" : {
+            "type": "boolean",
+            "description" : "***"
+          },
+          "invalidCommentMessage" : {
+            "type": "string",
+            "description" : "***"
+          },
+          "mainBranchOnly" : {
+            "type": "boolean",
+            "description" : "***"
+          },
+          "useCustomComments" : {
+            "type": "boolean",
+            "description" : "***"
+          }
+        },
+        "required" : [ "commentTemplate", "invalidCommentMessage" ]
+      },
+      "AWSS3Region" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AWSS3RepositorySettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "accessKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "allAllowedRegions" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/AWSS3Region"
+              }
+            },
+            "allSseAlgorithms" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string",
+                "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+              },
+              "uniqueItems" : true
+            },
+            "bucketName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "regionName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "secretKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "serviceEndpoint" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "sseAlgorithm" : {
+              "type" : "string",
+              "description" : "***",
+              "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+            }
+          }
+        } ],
+        "required" : [ "bucketName", "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "regionName" ]
+      },
+      "AzureBlobRepositorySettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "accountKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "accountName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "uri" ]
+      },
+      "CommonRepositorySettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "login" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "password" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "secure" : {
+              "type": "boolean",
+              "description" : "***"
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
+      },
+      "GitRepositorySettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "branch" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "connectionTimeout" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "failedAuthenticationSeconds" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "localRepositoryPath" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "login" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "maxAuthenticationAttempts" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***"
+            },
+            "newBranchRegex" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "newBranchRegexError" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "newBranchTemplate" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "password" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "protectedBranches" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "remoteRepository" : {
+              "type": "boolean",
+              "description" : "***",
+              "readOnly": true
+            },
+            "tagPrefix" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "commentTemplate", "connectionTimeout", "failedAuthenticationSeconds", "invalidCommentMessage", "listenerTimerPeriod", "localRepositoryPath" ]
+      },
+      "LocalRepositorySettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
+      },
+      "CURepositoryConfigurationModel" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "settings" : {
+            "$ref" : "#/components/schemas/RepositorySettings"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "***",
+            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
+          }
+        },
+        "required" : [ "name", "settings", "type" ]
+      },
+      "DeployConfigRepositoryConfigurationModel" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "settings" : {
+            "$ref" : "#/components/schemas/RepositorySettings"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "***",
+            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
+          },
+          "useDesignRepositoryForDeployConfig" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        },
+        "required" : [ "name", "settings" ]
+      },
+      "CreateRepositoryTemplateModel_DeployConfig" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
+          }
+        },
+        "required" : [ "type" ]
+      },
+      "RepositoryConfiguration_DeployConfig" : {
+        "type" : "object",
+        "properties" : {
+          "errorMessage" : {
+            "type" : "string",
+            "readOnly" : true
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "settings" : {
+            "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "useDesignRepositoryForDeployConfig" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RepositorySettings_DeployConfig" : {
+        "description": "***",
+        "type" : "object",
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/AWSS3RepositorySettings_DeployConfig"
+        }, {
+          "$ref" : "#/components/schemas/AzureBlobRepositorySettings_DeployConfig"
+        }, {
+          "$ref" : "#/components/schemas/CommonRepositorySettings_DeployConfig"
+        }, {
+          "$ref" : "#/components/schemas/GitRepositorySettings_DeployConfig"
+        }, {
+          "$ref" : "#/components/schemas/LocalRepositorySettings_DeployConfig"
+        } ],
+        "properties" : {
+          "basePath" : {
+            "description" : "***",
+            "type": "string"
+          }
+        }
+      },
+      "AzureBlobRepositorySettings_DeployConfig" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "accountKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "accountName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "listenerTimerPeriod", "uri" ]
+      },
+      "CommonRepositorySettings_DeployConfig" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "login" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "password" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "secure" : {
+              "type": "boolean",
+              "description" : "***"
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "uri" ]
+      },
+      "GitRepositorySettings_DeployConfig" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "branch" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "connectionTimeout" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "failedAuthenticationSeconds" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "localRepositoryPath" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "login" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "maxAuthenticationAttempts" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***"
+            },
+            "password" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "protectedBranches" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "remoteRepository" : {
+              "type": "boolean",
+              "description" : "***",
+              "readOnly": true
+            },
+            "tagPrefix" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "connectionTimeout", "failedAuthenticationSeconds", "listenerTimerPeriod", "localRepositoryPath" ]
+      },
+      "LocalRepositorySettings_DeployConfig" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "uri" : {
+              "type": "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "uri" ]
+      },
+      "AWSS3RepositorySettings_DeployConfig" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/RepositorySettings_DeployConfig"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "accessKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "allAllowedRegions" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/AWSS3Region_DeployConfig"
+              }
+            },
+            "allSseAlgorithms" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string",
+                "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+              },
+              "uniqueItems" : true
+            },
+            "bucketName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "listenerTimerPeriod" : {
+              "type" : "integer",
+              "format" : "int32",
+              "description" : "***",
+              "minimum" : 1
+            },
+            "regionName" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "secretKey" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "serviceEndpoint" : {
+              "type": "string",
+              "description" : "***"
+            },
+            "sseAlgorithm" : {
+              "type" : "string",
+              "description" : "***",
+              "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+            }
+          }
+        } ],
+        "required" : [ "bucketName", "listenerTimerPeriod", "regionName" ]
+      },
+      "AWSS3Region_DeployConfig" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "FilterProvider" : {
+        "type" : "object"
+      },
+      "MappingJacksonValue" : {
+        "type" : "object",
+        "properties" : {
+          "filters" : {
+            "$ref" : "#/components/schemas/FilterProvider"
+          },
+          "value" : {
+            "type" : "object"
+          }
+        }
+      },
       "GroupManagementSettings" : {
         "type" : "object",
         "properties" : {
           "defaultGroup" : {
-            "type" : "object",
-            "description" : "*",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "string",
+            "description" : "***",
+            "maxLength": 65,
+            "minLength": 0
           }
         }
       },
@@ -25,123 +699,61 @@ Content-Type: application/json
         "type" : "object",
         "properties" : {
           "autoCompile" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "boolean"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "boolean",
+            "description" : "***"
           },
           "datePattern" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "string",
+            "description" : "***"
           },
           "dispatchingValidationEnabled" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "boolean"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "boolean",
+            "description" : "***"
           },
           "projectHistoryCount" : {
-            "type" : "object",
+            "type" : "integer",
+            "format" : "int32",
             "description" : "***",
-            "oneOf" : [ {
-              "type" : "integer",
-              "format" : "int32"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "minimum": 0
           },
           "testRunThreadCount" : {
-            "type" : "object",
+            "type" : "integer",
+            "format" : "int32",
             "description" : "***",
-            "oneOf" : [ {
-              "type" : "integer",
-              "format" : "int32"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "minimum": 1
           },
           "timeFormat" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "string",
+            "description" : "***"
           },
           "updateSystemProperties" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "boolean"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "boolean",
+            "description" : "***"
           },
           "userWorkspaceHome" : {
-            "type" : "object",
-            "description" : "***",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "type": "string",
+            "description" : "***"
           }
         },
         "required" : [ "datePattern", "timeFormat" ]
-      },
-      "SettingValueWrapper" : {
-        "type" : "object",
-        "properties" : {
-          "readOnly" : {
-            "type" : "boolean",
-            "description" : "Is setting read-only. If true, the setting set by the system env and cannot be changed."
-          },
-          "value" : {
-            "type" : "object",
-            "description" : "Setting value"
-          }
-        }
       },
       "MailVerificationServerSettings" : {
         "type" : "object",
         "properties" : {
           "password" : {
-            "type" : "string",
+            "type": "string",
             "description" : "***",
-            "example" : "***",
-            "writeOnly" : true
+            "example": "qwerty"
           },
           "url" : {
-            "type" : "object",
+            "type": "string",
             "description" : "***",
-            "example" : "***",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "example": "smtps://mail.example.com:1587"
           },
           "username" : {
-            "type" : "object",
+            "type": "string",
             "description" : "***",
-            "example" : "***",
-            "oneOf" : [ {
-              "type" : "string"
-            }, {
-              "$ref" : "#/components/schemas/SettingValueWrapper"
-            } ]
+            "example": "jhon@mail.example.com"
           }
         }
       },
@@ -2175,6 +2787,1541 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/admin/settings/repos/deploy-config/template" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateRepositoryTemplateModel_DeployConfig"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RepositoryConfiguration_DeployConfig"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Deploy Configuration Repository" ]
+      }
+    },
+    "/admin/settings/repos/deploy-config/validate" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeployConfigRepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Deploy Configuration Repository" ]
+      }
+    },
+    "/admin/settings/repos/deploy-config" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Deploy Configuration Repository" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RepositoryConfiguration_DeployConfig"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Deploy Configuration Repository" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeployConfigRepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Deploy Configuration Repository" ]
+      }
+    },
+    "/admin/settings/repos/design/{repo-id}" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "repo-id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      }
+    },
+    "/admin/settings/repos/design" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RepositoryConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      }
+    },
+    "/admin/settings/repos/design/validate" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      }
+    },
+    "/admin/settings/repos/design/template" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateRepositoryTemplateModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RepositoryConfiguration"
+                }
+              }
+            }
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Design Repository" ]
+      }
+    },
+    "/admin/settings/repos/production" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RepositoryConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      }
+    },
+    "/admin/settings/repos/production/validate" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      }
+    },
+    "/admin/settings/repos/production/template" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateRepositoryTemplateModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RepositoryConfiguration"
+                }
+              }
+            }
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      }
+    },
+    "/admin/settings/repos/production/{repo-id}" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "repo-id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Production Repository" ]
+      }
+    },
+    "/admin/settings/repos" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Repositories" ]
+      }
+    },
+    "/admin/settings/repos/batch" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RepositoriesBatchRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Repositories" ]
+      }
+    },
     "/admin/settings/system" : {
       "delete" : {
         "description" : "***",
@@ -12358,9 +14505,17 @@ Content-Type: application/json
     }, {
       "name" : "Settings"
     }, {
+      "name" : "Settings: Deploy Configuration Repository"
+    }, {
+      "name" : "Settings: Design Repository"
+    }, {
       "name" : "Settings: Group Management"
     }, {
       "name" : "Settings: Mail Verification Server"
+    }, {
+      "name" : "Settings: Production Repository"
+    }, {
+      "name" : "Settings: Repositories"
     }, {
       "name" : "Settings: System"
     }, {
