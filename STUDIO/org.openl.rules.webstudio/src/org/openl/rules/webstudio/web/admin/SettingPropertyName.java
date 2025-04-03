@@ -14,10 +14,14 @@ import org.openl.rules.rest.settings.model.converter.SettingValueWrapperSerializ
 @JacksonAnnotationsInside
 @JacksonAnnotation
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @JsonSerialize(using = SettingValueWrapperSerializer.class)
 public @interface SettingPropertyName {
 
-    String value();
+    String value() default "";
+
+    String suffix() default "";
+
+    boolean secret() default false;
 
 }

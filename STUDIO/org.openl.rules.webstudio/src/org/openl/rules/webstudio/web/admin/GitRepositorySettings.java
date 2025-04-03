@@ -1,27 +1,121 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.Optional;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.rest.settings.model.validation.NewBranchNamePatternConstraint;
+import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
+import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
+
+    private final static String URI_SUFFIX = ".uri";
+    private final static String LOGIN_SUFFIX = ".login";
+    private final static String PASSWORD_SUFFIX = ".password";
+    private final static String LOCAL_REPOSITORY_PATH_SUFFIX = ".local-repository-path";
+    private final static String BRANCH_SUFFIX = ".branch";
+    private final static String NEW_BRANCH_TEMPLATE_SUFFIX = ".new-branch.pattern";
+    private final static String NEW_BRANCH_REGEX_SUFFIX = ".new-branch.regex";
+    private final static String NEW_BRANCH_REGEX_ERROR_SUFFIX = ".new-branch.regex-error";
+    private final static String TAG_PREFIX_SUFFIX = ".tag-prefix";
+    private final static String LISTENER_TIMER_PERIOD_SUFFIX = ".listener-timer-period";
+    private final static String CONNECTION_TIMEOUT_SUFFIX = ".connection-timeout";
+    private final static String FAILED_AUTHENTICATION_SECONDS_SUFFIX = ".failed-authentication-seconds";
+    private final static String MAX_AUTHENTICATION_ATTEMPTS_SUFFIX = ".max-authentication-attempts";
+    private final static String PROTECTED_BRANCHES_SUFFIX = ".protected-branches";
+
+    @Parameter(description = "Remote repository")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Base.class)
     private boolean remoteRepository;
 
+    @Parameter(description = "URL")
+    @SettingPropertyName(suffix = URI_SUFFIX)
+    @JsonView(Views.Base.class)
     private String uri;
+
+    @Parameter(description = "Login")
+    @SettingPropertyName(suffix = LOGIN_SUFFIX)
+    @JsonView(Views.Base.class)
     private String login;
+
+    @Parameter(description = "Password")
+    @SettingPropertyName(suffix = PASSWORD_SUFFIX, secret = true)
+    @JsonView(Views.Base.class)
     private String password;
+
+    @Parameter(description = "Local path to directory for Git repository")
+    @SettingPropertyName(suffix = LOCAL_REPOSITORY_PATH_SUFFIX)
+    @JsonView(Views.Base.class)
+    @NotBlank
+    @PathConstraint(allowLeadingSlash = true)
     private String localRepositoryPath;
+
+    @Parameter(description = "The main branch to commit changes")
+    @SettingPropertyName(suffix = BRANCH_SUFFIX)
+    @JsonView(Views.Base.class)
     private String branch;
+
+    @Parameter(description = "This pattern is used for new branches")
+    @SettingPropertyName(suffix = NEW_BRANCH_TEMPLATE_SUFFIX)
+    @JsonView(Views.Design.class)
+    @NewBranchNamePatternConstraint
     private String newBranchTemplate;
+
+    @Parameter(description = "Additional regex for new branches")
+    @SettingPropertyName(suffix = NEW_BRANCH_REGEX_SUFFIX)
+    @JsonView(Views.Design.class)
+    @RegexpConstraint
     private String newBranchRegex;
+
+    @Parameter(description = "Error message for regex validation")
+    @SettingPropertyName(suffix = NEW_BRANCH_REGEX_ERROR_SUFFIX)
+    @JsonView(Views.Design.class)
     private String newBranchRegexError;
+
+    @Parameter(description = "Prefix for the automatically generated tag added to every commit")
+    @SettingPropertyName(suffix = TAG_PREFIX_SUFFIX)
+    @JsonView(Views.Base.class)
     private String tagPrefix;
+
+    @Parameter(description = "Changes check interval (sec)")
+    @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_SUFFIX)
+    @JsonView(Views.Base.class)
+    @Min(1)
+    @NotNull
     private Integer listenerTimerPeriod;
+
+    @Parameter(description = "Connection timeout (sec)")
+    @SettingPropertyName(suffix = CONNECTION_TIMEOUT_SUFFIX)
+    @JsonView(Views.Base.class)
+    @Min(1)
+    @NotNull
     private Integer connectionTimeout;
+
+    @Parameter(description = "Time to wait between the failed authentication attempt and the next attempt (sec)")
+    @SettingPropertyName(suffix = FAILED_AUTHENTICATION_SECONDS_SUFFIX)
+    @JsonView(Views.Base.class)
+    @Min(1)
+    @NotNull
     private Integer failedAuthenticationSeconds;
+
+    @Parameter(description = "Maximum number of authentication attempts")
+    @SettingPropertyName(suffix = MAX_AUTHENTICATION_ATTEMPTS_SUFFIX)
+    @JsonView(Views.Base.class)
     private Integer maxAuthenticationAttempts;
+
+    @Parameter(description = "Comma separated list of protected branches.")
+    @SettingPropertyName(suffix = PROTECTED_BRANCHES_SUFFIX)
+    @JsonView(Views.Base.class)
     private String protectedBranches;
 
     private final String URI;
@@ -35,35 +129,33 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String CONNECTION_TIMEOUT;
-    private final String CONFIG_PREFIX;
     private final String FAILED_AUTHENTICATION_SECONDS;
     private final String MAX_AUTHENTICATION_ATTEMPTS;
     private final String PROTECTED_BRANCHES;
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        CONFIG_PREFIX = configPrefix;
-        URI = configPrefix + ".uri";
-        LOGIN = configPrefix + ".login";
-        PASSWORD = configPrefix + ".password";
-        LOCAL_REPOSITORY_PATH = configPrefix + ".local-repository-path";
-        BRANCH = configPrefix + ".branch";
-        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch.pattern";
-        NEW_BRANCH_REGEX = configPrefix + ".new-branch.regex";
-        NEW_BRANCH_REGEX_ERROR = configPrefix + ".new-branch.regex-error";
-        TAG_PREFIX = configPrefix + ".tag-prefix";
-        LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
-        CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
-        FAILED_AUTHENTICATION_SECONDS = configPrefix + ".failed-authentication-seconds";
-        MAX_AUTHENTICATION_ATTEMPTS = configPrefix + ".max-authentication-attempts";
-        PROTECTED_BRANCHES = configPrefix + ".protected-branches";
+        URI = configPrefix + URI_SUFFIX;
+        LOGIN = configPrefix + LOGIN_SUFFIX;
+        PASSWORD = configPrefix + PASSWORD_SUFFIX;
+        LOCAL_REPOSITORY_PATH = configPrefix + LOCAL_REPOSITORY_PATH_SUFFIX;
+        BRANCH = configPrefix + BRANCH_SUFFIX;
+        NEW_BRANCH_TEMPLATE = configPrefix + NEW_BRANCH_TEMPLATE_SUFFIX;
+        NEW_BRANCH_REGEX = configPrefix + NEW_BRANCH_REGEX_SUFFIX;
+        NEW_BRANCH_REGEX_ERROR = configPrefix + NEW_BRANCH_REGEX_ERROR_SUFFIX;
+        TAG_PREFIX = configPrefix + TAG_PREFIX_SUFFIX;
+        LISTENER_TIMER_PERIOD = configPrefix + LISTENER_TIMER_PERIOD_SUFFIX;
+        CONNECTION_TIMEOUT = configPrefix + CONNECTION_TIMEOUT_SUFFIX;
+        FAILED_AUTHENTICATION_SECONDS = configPrefix + FAILED_AUTHENTICATION_SECONDS_SUFFIX;
+        MAX_AUTHENTICATION_ATTEMPTS = configPrefix + MAX_AUTHENTICATION_ATTEMPTS_SUFFIX;
+        PROTECTED_BRANCHES = configPrefix + PROTECTED_BRANCHES_SUFFIX;
 
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
-        String[] prefixParts = CONFIG_PREFIX.split("\\.");
+        String[] prefixParts = getConfigPrefix().split("\\.");
         String id = prefixParts.length > 1 ? prefixParts[1] : "repository";
         // prefixParts.length must be always > 1
         String defaultLocalPath = localPath != null ? localPath

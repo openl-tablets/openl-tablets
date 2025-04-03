@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Deployment",
+  "settings": {
+    "basePath": "deploy/",
+    "mainBranchOnly": false,
+    "login": "",
+    "password": "",
+    "uri": "java:comp/env/jdbc/DB",
+    "secure": false
+  },
+  "type": "repo-jndi",
+  "id": "**"
+}

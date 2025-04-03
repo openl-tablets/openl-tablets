@@ -19,10 +19,13 @@ import org.openl.rules.rest.exception.ValidationException;
  */
 public class BeanValidationProvider {
 
+    private static final Validator[] EMPTY_VALIDATORS = new Validator[0];
+    public static final Class<?>[] EMPTY_GROUPS = new Class<?>[0];
+
     private final Validator[] commonValidators;
 
     public BeanValidationProvider(List<Validator> commonValidators) {
-        this.commonValidators = commonValidators.toArray(new Validator[0]);
+        this.commonValidators = commonValidators.toArray(EMPTY_VALIDATORS);
     }
 
     /**
@@ -32,12 +35,24 @@ public class BeanValidationProvider {
      * @param validators additional validators
      */
     public void validate(Object bean, Validator... validators) {
-        DataBinder binder = new CustomDataBinder(bean);
+        validate(bean, validators, EMPTY_GROUPS);
+    }
+
+    public void validate(Object bean, Class<?>[] groups) {
+        validate(bean, EMPTY_VALIDATORS, groups);
+    }
+
+    private void validate(Object bean, Validator[] validators, Class<?>[] groups) {
+        var binder = new CustomDataBinder(bean);
         binder.addValidators(commonValidators);
         binder.addValidators(validators);
-        binder.validate();
+        if (groups != null && groups.length > 0) {
+            binder.validate((Object[]) groups);
+        } else {
+            binder.validate();
+        }
 
-        BindingResult bindingResult = binder.getBindingResult();
+        var bindingResult = binder.getBindingResult();
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
         }

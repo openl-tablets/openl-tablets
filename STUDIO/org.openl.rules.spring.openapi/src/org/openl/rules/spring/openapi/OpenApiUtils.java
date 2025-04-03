@@ -102,6 +102,10 @@ public final class OpenApiUtils {
                 Hidden.class) != null || isHidden(method.getDeclaringClass());
     }
 
+    public static boolean isHiddenApiMethod(Method method, Class<?> handlerType) {
+        return isHiddenApiMethod(method) || isHidden(handlerType);
+    }
+
     public static boolean isHidden(Class<?> cl) {
         return AnnotationUtils.findAnnotation(cl, Hidden.class) != null;
     }

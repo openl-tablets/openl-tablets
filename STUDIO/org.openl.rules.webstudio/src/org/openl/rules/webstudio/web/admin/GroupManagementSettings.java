@@ -3,10 +3,8 @@ package org.openl.rules.webstudio.web.admin;
 import javax.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.rest.settings.model.SettingValueWrapper;
 
 public class GroupManagementSettings implements SettingsHolder {
 
@@ -14,7 +12,6 @@ public class GroupManagementSettings implements SettingsHolder {
 
     @Size(max = 65)
     @Parameter(description = "Default user group")
-    @Schema(oneOf = {String.class, SettingValueWrapper.class})
     @SettingPropertyName(SECURITY_DEF_GROUP_PROP)
     private String defaultGroup;
 
