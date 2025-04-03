@@ -1,9 +1,53 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.PropertiesHolder;
+import javax.validation.constraints.NotBlank;
+import javax.validation.groups.Default;
 
-public abstract class RepositorySettings {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.config.PropertiesHolder;
+import org.openl.rules.rest.settings.model.validation.CommentMessageTemplateConstraint;
+import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
+import org.openl.rules.rest.validation.PathConstraint;
+
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AWSS3RepositorySettings.class, name = "repo-aws-s3"),
+        @JsonSubTypes.Type(value = AzureBlobRepositorySettings.class, name = "repo-azure-blob"),
+        @JsonSubTypes.Type(value = CommonRepositorySettings.class, names = {"repo-jdbc", "repo-jndi"}),
+        @JsonSubTypes.Type(value = GitRepositorySettings.class, name = "repo-git"),
+        @JsonSubTypes.Type(value = LocalRepositorySettings.class, name = "repo-file")
+})
+@Schema(description = "Repository settings", oneOf = {
+        AWSS3RepositorySettings.class,
+        AzureBlobRepositorySettings.class,
+        CommonRepositorySettings.class,
+        GitRepositorySettings.class,
+        LocalRepositorySettings.class
+})
+public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
+
+    private static final String USE_CUSTOM_COMMENTS_SUFFIX = ".comment-template.use-custom-comments";
+    private static final String COMMENT_VALIDATION_PATTERN_SUFFIX = ".comment-template.comment-validation-pattern";
+    private static final String INVALID_COMMENT_MESSAGE_SUFFIX = ".comment-template.invalid-comment-message";
+    private static final String COMMENT_TEMPLATE_SUFFIX = ".comment-template";
+    private static final String COMMENT_TEMPLATE_OLD_SUFFIX = ".comment-template-old";
+    private static final String DEFAULT_COMMENT_SAVE_SUFFIX = ".comment-template.user-message.default.save";
+    private static final String DEFAULT_COMMENT_CREATE_SUFFIX = ".comment-template.user-message.default.create";
+    private static final String DEFAULT_COMMENT_ARCHIVE_SUFFIX = ".comment-template.user-message.default.archive";
+    private static final String DEFAULT_COMMENT_RESTORE_SUFFIX = ".comment-template.user-message.default.restore";
+    private static final String DEFAULT_COMMENT_ERASE_SUFFIX = ".comment-template.user-message.default.erase";
+    private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
+    private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
+    private static final String FLAT_FOLDER_STRUCTURE_SUFFIX = ".folder-structure.flat";
+    private static final String BASE_PATH_SUFFIX = ".base.path";
+    private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
+
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
+    private final String FLAT_FOLDER_STRUCTURE;
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
@@ -19,40 +63,106 @@ public abstract class RepositorySettings {
     private final String BASE_PATH;
     private final String DEPLOY_FROM_MAIN_BRANCH;
 
-    private String commentValidationPattern;
-    private String invalidCommentMessage;
-    private String commentTemplate;
-    private String commentTemplateOld;
-    private String defaultCommentSave;
-    private String defaultCommentCreate;
-    private String defaultCommentArchive;
-    private String defaultCommentRestore;
-    private String defaultCommentErase;
-    private String defaultCommentCopiedFrom;
-    private String defaultCommentRestoredFrom;
-
-    private String basePath;
-
+    @Parameter(description = "Customize comments")
+    @SettingPropertyName(suffix = USE_CUSTOM_COMMENTS_SUFFIX)
+    @JsonView(Views.Design.class)
     private boolean useCustomComments;
 
+    @Parameter(description = "A regular expression that is used to validate user message.")
+    @SettingPropertyName(suffix = COMMENT_VALIDATION_PATTERN_SUFFIX)
+    @RegexpConstraint(groups = Validation.Design.class)
+    @JsonView(Views.Design.class)
+    private String commentValidationPattern;
+
+    @Parameter(description = "This message is shown to the user if the user's message does not match the regular expression used in the validation pattern.")
+    @NotBlank(message = "Invalid user message hint cannot be empty.", groups = Validation.Design.class)
+    @SettingPropertyName(suffix = INVALID_COMMENT_MESSAGE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String invalidCommentMessage;
+
+    @Parameter(description = "Comment message template for commits.")
+    @SettingPropertyName(suffix = COMMENT_TEMPLATE_SUFFIX)
+    @NotBlank(message = "Comment message template cannot be empty.", groups = Validation.Design.class)
+    @CommentMessageTemplateConstraint(groups = Validation.Design.class)
+    @JsonView(Views.Design.class)
+    private String commentTemplate;
+
+    @Parameter(description = "Comment message template for commits from old version.")
+    @SettingPropertyName(suffix = COMMENT_TEMPLATE_OLD_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String commentTemplateOld;
+
+    @Parameter(description = "Default message for 'Save project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_SAVE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentSave;
+
+    @Parameter(description = "Default message for 'Create project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_CREATE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentCreate;
+
+    @Parameter(description = "Default message for 'Archive project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_ARCHIVE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentArchive;
+
+    @Parameter(description = "Default message for 'Restore project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_RESTORE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentRestore;
+
+    @Parameter(description = "Default message for 'Erase project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_ERASE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentErase;
+
+    @Parameter(description = "Default message for 'Copy project'.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_COPIED_FROM_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentCopiedFrom;
+
+    @Parameter(description = "Default message when restore from old version.")
+    @SettingPropertyName(suffix = DEFAULT_COMMENT_RESTORED_FROM_SUFFIX)
+    @JsonView(Views.Design.class)
+    private String defaultCommentRestoredFrom;
+
+    @Parameter(description = "Flat folder structure.")
+    @SettingPropertyName(suffix = FLAT_FOLDER_STRUCTURE_SUFFIX)
+    @JsonView(Views.Design.class)
+    private boolean flatFolderStructure;
+
+    @Parameter(description = "Path")
+    @PathConstraint(allowTrailingSlash = true)
+    @SettingPropertyName(suffix = BASE_PATH_SUFFIX)
+    @JsonView(Views.Base.class)
+    private String basePath;
+
+    @Parameter(description = "Deployment Branch")
+    @SettingPropertyName(suffix = DEPLOY_FROM_MAIN_BRANCH_SUFFIX)
+    @JsonView(Views.Production.class)
     private boolean mainBranchOnly;
 
-    RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
-        USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
-        COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-template.comment-validation-pattern";
-        INVALID_COMMENT_MESSAGE = configPrefix + ".comment-template.invalid-comment-message";
-        COMMENT_TEMPLATE = configPrefix + ".comment-template";
-        COMMENT_TEMPLATE_OLD = configPrefix + ".comment-template-old";
-        DEFAULT_COMMENT_SAVE = configPrefix + ".comment-template.user-message.default.save";
-        DEFAULT_COMMENT_CREATE = configPrefix + ".comment-template.user-message.default.create";
-        DEFAULT_COMMENT_ARCHIVE = configPrefix + ".comment-template.user-message.default.archive";
-        DEFAULT_COMMENT_RESTORE = configPrefix + ".comment-template.user-message.default.restore";
-        DEFAULT_COMMENT_ERASE = configPrefix + ".comment-template.user-message.default.erase";
-        DEFAULT_COMMENT_COPIED_FROM = configPrefix + ".comment-template.user-message.default.copied-from";
-        DEFAULT_COMMENT_RESTORED_FROM = configPrefix + ".comment-template.user-message.default.restored-from";
-        BASE_PATH = configPrefix + ".base.path";
+    @JsonIgnore
+    private final String configPrefix;
 
-        DEPLOY_FROM_MAIN_BRANCH = configPrefix + ".deploy-from-branch";
+    RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
+        this.configPrefix = configPrefix;
+        USE_CUSTOM_COMMENTS = configPrefix + USE_CUSTOM_COMMENTS_SUFFIX;
+        COMMENT_VALIDATION_PATTERN = configPrefix + COMMENT_VALIDATION_PATTERN_SUFFIX;
+        INVALID_COMMENT_MESSAGE = configPrefix + INVALID_COMMENT_MESSAGE_SUFFIX;
+        COMMENT_TEMPLATE = configPrefix + COMMENT_TEMPLATE_SUFFIX;
+        COMMENT_TEMPLATE_OLD = configPrefix + COMMENT_TEMPLATE_OLD_SUFFIX;
+        DEFAULT_COMMENT_SAVE = configPrefix + DEFAULT_COMMENT_SAVE_SUFFIX;
+        DEFAULT_COMMENT_CREATE = configPrefix + DEFAULT_COMMENT_CREATE_SUFFIX;
+        DEFAULT_COMMENT_ARCHIVE = configPrefix + DEFAULT_COMMENT_ARCHIVE_SUFFIX;
+        DEFAULT_COMMENT_RESTORE = configPrefix + DEFAULT_COMMENT_RESTORE_SUFFIX;
+        DEFAULT_COMMENT_ERASE = configPrefix + DEFAULT_COMMENT_ERASE_SUFFIX;
+        DEFAULT_COMMENT_COPIED_FROM = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
+        DEFAULT_COMMENT_RESTORED_FROM = configPrefix + DEFAULT_COMMENT_RESTORED_FROM_SUFFIX;
+        FLAT_FOLDER_STRUCTURE = configPrefix + FLAT_FOLDER_STRUCTURE_SUFFIX;
+        BASE_PATH = configPrefix + BASE_PATH_SUFFIX;
+        DEPLOY_FROM_MAIN_BRANCH = configPrefix + DEPLOY_FROM_MAIN_BRANCH_SUFFIX;
 
         load(propertyResolver);
     }
@@ -167,7 +277,16 @@ public abstract class RepositorySettings {
     }
 
     public void setBasePath(String basePath) {
-        this.basePath = basePath;
+        this.basePath = basePath.isEmpty() || basePath.endsWith("/") ? basePath : (basePath + "/");
+        ;
+    }
+
+    public boolean isFlatFolderStructure() {
+        return flatFolderStructure;
+    }
+
+    public void setFlatFolderStructure(boolean flatFolderStructure) {
+        this.flatFolderStructure = flatFolderStructure;
     }
 
     private void load(PropertiesHolder properties) {
@@ -183,6 +302,7 @@ public abstract class RepositorySettings {
         defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
+        flatFolderStructure = Boolean.parseBoolean(properties.getProperty(FLAT_FOLDER_STRUCTURE));
 
         mainBranchOnly = MAIN_BRANCH.equals(properties.getProperty(DEPLOY_FROM_MAIN_BRANCH));
 
@@ -204,6 +324,7 @@ public abstract class RepositorySettings {
         propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
         propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
         propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
+        propertiesHolder.setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
 
         propertiesHolder.setProperty(DEPLOY_FROM_MAIN_BRANCH, mainBranchOnly ? MAIN_BRANCH : null);
     }
@@ -221,11 +342,42 @@ public abstract class RepositorySettings {
                 DEFAULT_COMMENT_ERASE,
                 DEFAULT_COMMENT_COPIED_FROM,
                 DEFAULT_COMMENT_RESTORED_FROM,
-                BASE_PATH);
+                BASE_PATH,
+                FLAT_FOLDER_STRUCTURE,
+                DEPLOY_FROM_MAIN_BRANCH);
         load(properties);
     }
 
+    @Override
+    public String getConfigPropertyKey(String configSuffix) {
+        return configPrefix + configSuffix;
+    }
+
+    public String getConfigPrefix() {
+        return configPrefix;
+    }
+
+    @JsonIgnore
     public RepositorySettingsValidators getValidators() {
         return new RepositorySettingsValidators();
+    }
+
+    public static class Views {
+        public interface Base {
+        }
+
+        public interface Design extends Base {
+        }
+
+        public interface DeployConfig extends Base {
+        }
+
+        public interface Production extends Base {
+        }
+    }
+
+    public static class Validation {
+        public interface Design extends Default {
+        }
     }
 }

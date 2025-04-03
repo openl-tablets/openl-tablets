@@ -32,7 +32,6 @@ import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
@@ -176,19 +175,19 @@ public class SystemSettingsBean {
             String repo = getDesignRepoForDeployConfig();
             if (StringUtils.isBlank(repo)) {
                 String firstRepo = designTimeRepository.getRepositories().get(0).getId();
-                properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, firstRepo);
+                deployConfigRepositoryConfiguration.setUseDesignRepositoryForDeployConfig(firstRepo);
             }
         } else {
-            properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, "");
+            deployConfigRepositoryConfiguration.setUseDesignRepositoryForDeployConfig(null);
         }
     }
 
     public String getDesignRepoForDeployConfig() {
-        return properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+        return deployConfigRepositoryConfiguration.getUseDesignRepositoryForDeployConfig();
     }
 
     public void setDesignRepoForDeployConfig(String repoId) {
-        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, repoId);
+        deployConfigRepositoryConfiguration.setUseDesignRepositoryForDeployConfig(repoId);
     }
 
     public FolderStructureSettings getFolderStructure(RepositoryConfiguration config) {
@@ -283,7 +282,6 @@ public class SystemSettingsBean {
     public void restoreDefaults() {
         try {
             designRepositoryEditor.revertChanges();
-            properties.revertProperties(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
             deployConfigRepositoryConfiguration.revert();
 
             productionRepositoryEditor.revertChanges();

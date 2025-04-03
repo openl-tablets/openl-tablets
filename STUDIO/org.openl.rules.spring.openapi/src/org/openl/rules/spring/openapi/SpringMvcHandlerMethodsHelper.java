@@ -43,7 +43,10 @@ public class SpringMvcHandlerMethodsHelper {
                             .map(AbstractHandlerMethodMapping::getHandlerMethods)
                             .map(Map::entrySet)
                             .flatMap(Collection::stream)
-                            .filter(e -> !OpenApiUtils.isHiddenApiMethod(e.getValue().getMethod()))
+                            .filter(e -> {
+                                var handler = e.getValue();
+                                return !OpenApiUtils.isHiddenApiMethod(handler.getMethod(), handler.getBeanType());
+                            })
                             .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
                 }
             }

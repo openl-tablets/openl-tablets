@@ -16,6 +16,10 @@ public @interface PathConstraint {
 
     String message() default "{openl.constraints.path.message}";
 
+    boolean allowLeadingSlash() default false;
+
+    boolean allowTrailingSlash() default false;
+
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};

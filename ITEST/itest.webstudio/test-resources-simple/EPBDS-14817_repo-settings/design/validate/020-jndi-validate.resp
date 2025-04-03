@@ -1,0 +1,21 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.NotBlank",
+      "message": "Comment message template cannot be empty.",
+      "field": "settings.commentTemplate"
+    }, {
+      "code": "openl.error.NotBlank",
+      "message": "Invalid user message hint cannot be empty.",
+      "field": "settings.invalidCommentMessage"
+    }, {
+      "code": "openl.error.NotBlank",
+      "message": "URL is required",
+      "field": "settings.uri"
+    }
+  ]
+}

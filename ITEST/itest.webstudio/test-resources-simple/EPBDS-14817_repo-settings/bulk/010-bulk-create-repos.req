@@ -1,0 +1,34 @@
+POST /rest/admin/settings/repos/batch HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "deployConfig": {
+    "name": "Deploy Configuration GG",
+    "settings": {
+    },
+    "useDesignRepositoryForDeployConfig": "design1"
+  },
+  "design": {
+    "createOrUpdate": [
+      {
+        "name": "H2",
+        "settings": {
+          "uri": "jdbc:h2:mem:design-repo;DB_CLOSE_DELAY=-1"
+        },
+        "type": "repo-jdbc"
+      }
+    ]
+  },
+  "production": {
+    "createOrUpdate": [
+      {
+        "name": "H2_2",
+        "settings": {
+          "uri": "jdbc:h2:mem:prod-repo;DB_CLOSE_DELAY=-1"
+        },
+        "type": "repo-jdbc"
+      }
+    ]
+  }
+}
