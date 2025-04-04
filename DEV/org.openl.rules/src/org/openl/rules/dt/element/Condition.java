@@ -3,12 +3,10 @@ package org.openl.rules.dt.element;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.BinaryOpNode;
 import org.openl.binding.impl.BinaryOpNodeOr;
@@ -46,6 +44,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.OpenMethodHeader;
@@ -164,10 +163,14 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     public boolean isDependentOnInputParams() {
+        return isDependentOnInputParams(getMethod());
+    }
+
+    private boolean isDependentOnInputParams(CompositeMethod method) {
         IParameterDeclaration[] params = getParams();
 
         BindingDependencies dependencies = new RulesBindingDependencies();
-        getMethod().updateDependency(dependencies);
+        method.updateDependency(dependencies);
 
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             field = getLocalField(field);
@@ -371,25 +374,12 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
-                                                      IOpenClass methodType,
-                                                      IMethodSignature signature,
-                                                      OpenL openl,
-                                                      IBindingContext bindingContext) {
-        var originalExpr = super.compileExpressionSource(source, methodType, signature, openl, bindingContext);
-        if (bindingContext.getErrors().length == 0) {
-            optimizeExpression(originalExpr.getMethodBodyBoundNode(), methodType, signature, openl, bindingContext);
-        }
-        return originalExpr;
-    }
-
-    private void optimizeExpression(IBoundMethodNode originalExprBoundNode,
-                                    IOpenClass methodType,
-                                    IMethodSignature signature,
-                                    OpenL openl,
-                                    IBindingContext bindingContext) {
+    public boolean optimizeExpression(IMethodSignature signature,
+                                      OpenL openl,
+                                      IBindingContext bindingContext) {
+        var originalExprBoundNode = getMethod().getMethodBodyBoundNode();
         if (originalExprBoundNode == null) {
-            return;
+            return false;
         }
         var children = originalExprBoundNode.getChildren();
         if (children != null && children.length == 1 &&
@@ -399,17 +389,19 @@ public class Condition extends FunctionalRow implements ICondition {
             var binaryOpNodeOr = (BinaryOpNodeOr) children[0].getChildren()[0];
 
             var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
-            if (staticMethod != null) {
-                var indexMethod = compileIndexExpression(binaryOpNodeOr, methodType, signature, openl, bindingContext);
-                if (indexMethod != null) {
+            if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
+                var indexMethod = compileIndexExpression(binaryOpNodeOr, signature, openl, bindingContext);
+                if (indexMethod != null && isDependentOnInputParams(indexMethod)) {
                     this.staticMethod = staticMethod;
                     this.indexMethod = indexMethod;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
-    private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IOpenClass methodType, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
+    private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
         var rightBoundNode = binaryOpNodeOr.getRight();
         IOpenSourceCodeModule indexSourceCodeModule;
         if (rightBoundNode instanceof BinaryOpNode) {
@@ -430,7 +422,7 @@ public class Condition extends FunctionalRow implements ICondition {
             bindingContext.pushErrors();
             bindingContext.pushMessages();
             indexMethod = super.compileExpressionSource(indexSourceCodeModule,
-                    methodType,
+                    NullOpenClass.the,
                     signature,
                     openl,
                     bindingContext);
@@ -476,14 +468,22 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     public IOpenSourceCodeModule getIndexSourceCodeModule() {
-        return Optional.ofNullable(indexMethod)
-                .map(this::getSourceCodeModule)
-                .orElseGet(this::getSourceCodeModule);
+        return getSourceCodeModule(isOptimizedExpression() ? indexMethod : getMethod());
     }
 
     @Override
     public CompositeMethod getIndexMethod() {
-        return Optional.ofNullable(indexMethod)
-                .orElseGet(this::getMethod);
+        return isOptimizedExpression() ? indexMethod : getMethod();
+    }
+
+    @Override
+    public void resetOptimizedExpression() {
+        this.staticMethod = null;
+        this.indexMethod = null;
+    }
+
+    @Override
+    public boolean isOptimizedExpression() {
+        return staticMethod != null && indexMethod != null;
     }
 }

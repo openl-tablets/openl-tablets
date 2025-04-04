@@ -64,18 +64,22 @@ public class DecisionTableIndexCompilationTest {
         assertConditionsNumber(dt);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], AContainsInArrayIndexedEvaluator.class);
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
         dt = findDt("EqualsIndex_WithStatic", openClass);
         assertConditionsNumber(dt);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluatorV2.class);
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
 
         dt = findDt("RangeIndex_WithStatic", openClass);
         assertEquals(2, dt.getConditionRows().length);
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[0], ARangeIndexEvaluator.class);
         assertNotNull(((Condition) dt.getConditionRows()[0]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[0]).isOptimizedExpression());
         assertInstanceConditionEvaluatorClass(dt.getConditionRows()[1], ARangeIndexEvaluator.class);
         assertNotNull(((Condition) dt.getConditionRows()[1]).getStaticMethod());
+        assertTrue(((Condition) dt.getConditionRows()[1]).isOptimizedExpression());
     }
 
     private <T extends IConditionEvaluator> void assertConditionEvaluatorClass(IBaseCondition condition,
