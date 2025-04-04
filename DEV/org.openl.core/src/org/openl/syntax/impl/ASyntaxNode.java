@@ -7,8 +7,10 @@
 package org.openl.syntax.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -83,6 +85,16 @@ public abstract class ASyntaxNode implements ISyntaxNode {
             }
         }
         return location;
+    }
+
+    @Override
+    public IOpenSourceCodeModule getSourceCodeModule() {
+        var module = getModule();
+        var info = new TextInfo(module.getCode());
+        var location = getSourceLocation();
+        return new SubTextSourceCodeModule(module,
+                location.getStart().getAbsolutePosition(info),
+                location.getEnd().getAbsolutePosition(info) + 1);
     }
 
     /*

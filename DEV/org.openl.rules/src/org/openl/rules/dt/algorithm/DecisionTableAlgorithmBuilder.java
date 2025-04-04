@@ -343,7 +343,26 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                             signature,
                             conditionEvaluator.getOptimizedSourceCode()));
                 }
-            } else {
+            } else if (condition.optimizeExpression(signature, openl, bindingContext)) {
+                // try to optimize expression and create index
+                conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(condition, signature, bindingContext);
+                if (conditionEvaluator != null) {
+                    condition.setConditionEvaluator(conditionEvaluator);
+                    IMethodCaller evaluator = makeOptimizedConditionMethodEvaluator(condition,
+                            signature,
+                            conditionEvaluator.getOptimizedSourceCode());
+                    if (evaluator == null) {
+                        evaluator = makeDependentParamsIndexedConditionMethodEvaluator(condition,
+                                signature,
+                                conditionEvaluator.getOptimizedSourceCode());
+                    }
+                    condition.setEvaluator(evaluator);
+                } else {
+                    condition.resetOptimizedExpression();
+                }
+            }
+            if (conditionEvaluator == null) {
+                // fallback to default evaluator
                 conditionEvaluator = DefaultConditionEvaluator.INSTANCE;
                 condition.setConditionEvaluator(conditionEvaluator);
             }
