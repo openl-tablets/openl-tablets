@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  *
  * @author Yury Molchan
  */
-public class HttpClient implements AutoCloseable{
+public class HttpClient implements AutoCloseable {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK_BOLD = "\u001B[2;36m";
