@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,9 +35,12 @@ import org.openl.util.StringUtils;
 public class NotificationController {
 
     private final Path NOTIFICATION_FILE;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationController(@Value("${admin.notification-file}") String notificationFile) {
+    public NotificationController(@Value("${admin.notification-file}") String notificationFile,
+                                  SimpMessagingTemplate messagingTemplate) {
         this.NOTIFICATION_FILE = Paths.get(notificationFile);
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Operation(summary = "notif.get-notif.summary", description = "notif.get-notif.desc")
@@ -61,6 +65,11 @@ public class NotificationController {
         } else {
             Files.write(NOTIFICATION_FILE, notification.getBytes(StandardCharsets.UTF_8));
         }
+        notifyAll(notification);
+    }
+
+    private void notifyAll(String message) {
+        messagingTemplate.convertAndSend("/public/queue/notification", message == null ? "" : message);
     }
 
     @Operation(summary = "module.is-module-modified.summary", description = "module.is-module-modified.desc")
