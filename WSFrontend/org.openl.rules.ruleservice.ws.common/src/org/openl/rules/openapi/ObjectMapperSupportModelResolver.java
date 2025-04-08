@@ -4,6 +4,8 @@ import static io.swagger.v3.core.util.RefUtils.constructRef;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,12 +15,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
@@ -166,4 +171,77 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         }
     }
 
+    @Override
+    public Schema resolve(AnnotatedType annotatedType, ModelConverterContext context, Iterator<ModelConverter> next) {
+        if (annotatedType == null) {
+            return null;
+        }
+        if (this.shouldIgnoreClass(annotatedType.getType())) {
+            return null;
+        }
+
+        var name = resolveSchemaName(annotatedType);
+        if (name != null && context.getDefinedModels().containsKey(name)) {
+            return context.getDefinedModels().get(name);
+        } else {
+            return super.resolve(annotatedType, context, next);
+        }
+    }
+
+    /**
+     * Resolves the schema name for the given annotated type.
+     *
+     * @param annotatedType the annotated type
+     * @return the resolved schema name
+     * @see ModelResolver#resolve(AnnotatedType, ModelConverterContext, Iterator)
+     */
+    private String resolveSchemaName(AnnotatedType annotatedType) {
+        final JavaType type;
+        if (annotatedType.getType() instanceof JavaType) {
+            type = (JavaType) annotatedType.getType();
+        } else {
+            type = _mapper.constructType(annotatedType.getType());
+        }
+
+        final Annotation resolvedSchemaOrArrayAnnotation = AnnotationsUtils.mergeSchemaAnnotations(annotatedType.getCtxAnnotations(), type);
+        final io.swagger.v3.oas.annotations.media.Schema resolvedSchemaAnnotation =
+                resolvedSchemaOrArrayAnnotation == null ?
+                        null :
+                        resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema ?
+                                ((io.swagger.v3.oas.annotations.media.ArraySchema) resolvedSchemaOrArrayAnnotation).schema() :
+                                (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
+
+        final BeanDescription beanDesc;
+        {
+            BeanDescription recurBeanDesc = _mapper.getSerializationConfig().introspect(type);
+
+            HashSet<String> visited = new HashSet<>();
+            JsonSerialize jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
+            while (jsonSerialize != null && !Void.class.equals(jsonSerialize.as())) {
+                String asName = jsonSerialize.as().getName();
+                if (visited.contains(asName)) break;
+                visited.add(asName);
+
+                recurBeanDesc = _mapper.getSerializationConfig().introspect(
+                        _mapper.constructType(jsonSerialize.as())
+                );
+                jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
+            }
+            beanDesc = recurBeanDesc;
+        }
+
+
+        String name = annotatedType.getName();
+        if (StringUtils.isBlank(name)) {
+            // allow override of name from annotation
+            if (!annotatedType.isSkipSchemaName() && resolvedSchemaAnnotation != null && !resolvedSchemaAnnotation.name().isEmpty()) {
+                name = resolvedSchemaAnnotation.name();
+            }
+            if (StringUtils.isBlank(name) && (type.isEnumType() || !ReflectionUtils.isSystemType(type))) {
+                name = _typeName(type, beanDesc);
+            }
+        }
+
+        return decorateModelName(annotatedType, name);
+    }
 }
