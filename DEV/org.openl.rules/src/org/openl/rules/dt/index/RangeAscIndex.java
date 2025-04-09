@@ -1,5 +1,6 @@
 package org.openl.rules.dt.index;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
@@ -22,12 +23,6 @@ public class RangeAscIndex extends ARuleIndexV2 {
         super(nextNode, emptyRules);
         this.index = Collections.unmodifiableList(index);
         this.adaptor = adaptor;
-
-        for (var node : index) {
-            for (int ruleN : node.getRules()) {
-                allRules.set(ruleN);
-            }
-        }
     }
 
     private IndexRange findIndexRange(Object value) {
@@ -103,6 +98,22 @@ public class RangeAscIndex extends ARuleIndexV2 {
                 }
             }
         }
+        return result;
+    }
+
+    @Override
+    public int[] collectRules() {
+        int[] result = new int[rulesTotalSize];
+        int k = 0;
+        for (IndexNode indexNode : index) {
+            for (int ruleN : indexNode.getRules()) {
+                result[k++] = ruleN;
+            }
+        }
+        for (int ruleN : emptyRules) {
+            result[k++] = ruleN;
+        }
+        Arrays.sort(result);
         return result;
     }
 

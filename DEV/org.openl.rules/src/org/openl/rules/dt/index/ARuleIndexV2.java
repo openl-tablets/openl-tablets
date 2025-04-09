@@ -6,39 +6,43 @@ import java.util.Collections;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
+import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
 
 public abstract class ARuleIndexV2 implements IRuleIndex {
 
+    static final int[] EMPTY_ARRAY = new int[0];
+
     protected final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
     protected final DecisionTableRuleNode nextNode;
     protected final int[] emptyRules;
     protected final int rulesTotalSize;
-    protected final BitSet allRules;
 
     protected ARuleIndexV2(DecisionTableRuleNode nextNode, int[] emptyRules) {
         this.nextNode = nextNode;
         this.emptyRules = emptyRules;
         this.rulesTotalSize = nextNode.getRules().length;
-        this.allRules = new BitSet();
-        populateAllRules(allRules, emptyRules);
     }
 
     @Override
     public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
         if (Boolean.TRUE.equals(staticDecision)) {
-            BitSet rules = new BitSet();
             if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
-                rules.or(allRules);
+                return new EqualsIndexDecisionTableRuleNode(collectRules(), nextNode.getNextIndex());
             } else {
                 var prevRes = ((IDecisionTableRuleNodeV2) prevResult).getRuleSet();
-                if (!prevRes.isEmpty()) {
-                    rules.or(prevRes);
-                    rules.and(allRules);
+                if (prevRes.isEmpty()) {
+                    return new EqualsIndexDecisionTableRuleNode(EMPTY_ARRAY, nextNode.getNextIndex());
+                } else {
+                    var rules = new BitSet();
+                    for (int ruleN : collectRules()) {
+                        rules.set(ruleN);
+                    }
+                    rules.and(prevRes);
+                    return new RangeIndexDecisionTableRuleNode(rules, nextNode.getNextIndex());
                 }
             }
-            return new RangeIndexDecisionTableRuleNode(rules, nextNode.getNextIndex());
         }
         return findNode(value, prevResult);
     }
@@ -53,22 +57,6 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     @Override
     public DecisionTableRuleNode getEmptyOrFormulaNodes() {
         return emptyNodeStub;
-    }
-
-    protected void populateAllRules(BitSet allRules, int[] rules) {
-        for (int ruleN : rules) {
-            allRules.set(ruleN);
-        }
-    }
-
-    @Override
-    public int[] collectRules() {
-        int[] result = new int[allRules.cardinality()];
-        int index = 0;
-        for (int i = allRules.nextSetBit(0); i >= 0; i = allRules.nextSetBit(i + 1)) {
-            result[index++] = i;
-        }
-        return result;
     }
 
 }
