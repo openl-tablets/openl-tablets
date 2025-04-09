@@ -1,6 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +23,6 @@ import org.openl.rules.helpers.NumberUtils;
  */
 public class EqualsIndexV2 extends ARuleIndexV2 {
 
-    static final int[] EMPTY_ARRAY = new int[0];
-
     private final Map<Object, int[]> index;
     private final ConditionCasts conditionCasts;
 
@@ -34,12 +33,6 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         super(nextNode, emptyRules);
         this.index = Collections.unmodifiableMap(index);
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
-
-        for (var arr : index.values()) {
-            for (int ruleN : arr) {
-                allRules.set(ruleN);
-            }
-        }
     }
 
     private int[] findIndex(Object value) {
@@ -73,6 +66,22 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         int[] rules = findIndex(value);
         rules = combineSortedArrays(rules, emptyRules);
         return intersectionSortedArrays(rules, prevRes);
+    }
+
+    @Override
+    public int[] collectRules() {
+        int[] result = new int[rulesTotalSize];
+        int k = 0;
+        for (int[] arr : index.values()) {
+            for (int ruleN : arr) {
+                result[k++] = ruleN;
+            }
+        }
+        for (int ruleN : emptyRules) {
+            result[k++] = ruleN;
+        }
+        Arrays.sort(result);
+        return result;
     }
 
     /**
