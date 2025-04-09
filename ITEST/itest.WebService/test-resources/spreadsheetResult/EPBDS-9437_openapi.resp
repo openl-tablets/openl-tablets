@@ -214,21 +214,11 @@ Content-Type: application/json
     "schemas" : {
       "AnySpreadsheetResult" : {
         "type" : "object",
-        "properties" : {
-          "Driver_Forms" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/AnySpreadsheetResult"
-            }
-          },
-          "INT" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "String" : {
-            "type" : "string"
-          }
-        }
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/EPBDS_9437"
+        }, {
+          "$ref" : "#/components/schemas/Tiktak"
+        } ]
       },
       "EPBDS_9437" : {
         "type" : "object",

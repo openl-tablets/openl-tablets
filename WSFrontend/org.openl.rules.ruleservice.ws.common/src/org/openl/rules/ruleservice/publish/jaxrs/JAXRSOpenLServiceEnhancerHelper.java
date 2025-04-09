@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.ws.rs.BeanParam;
@@ -167,8 +168,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String getOpenApiComponentName(Class<?> clazz) {
-            Schema schema = clazz.getAnnotation(Schema.class);
-            return schema == null ? clazz.getSimpleName() : schema.name();
+            return Optional.ofNullable(clazz.getAnnotation(Schema.class))
+                    .map(Schema::name)
+                    .map(StringUtils::trimToNull)
+                    .orElseGet(clazz::getSimpleName);
         }
 
         private Set<String> getUsedOpenApiComponentNamesWithRequestParameterSuffix() {

@@ -901,35 +901,21 @@ Content-Type: application/json
       },
       "Spr1Spr2Spr3" : {
         "type" : "object",
-        "properties" : {
-          "paramCalc" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Step7" : {
-            "type" : "object"
-          },
-          "Step4" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          },
-          "Step1" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          }
-        }
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Spr1"
+        }, {
+          "$ref" : "#/components/schemas/Spr2"
+        }, {
+          "$ref" : "#/components/schemas/Spr3"
+        } ]
       },
       "Spr1Spr3" : {
         "type" : "object",
-        "properties" : {
-          "Step4" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          },
-          "Step1" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          },
-          "Step7" : {
-            "type" : "string"
-          }
-        }
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Spr1"
+        }, {
+          "$ref" : "#/components/schemas/Spr3"
+        } ]
       },
       "Spr2" : {
         "type" : "object",

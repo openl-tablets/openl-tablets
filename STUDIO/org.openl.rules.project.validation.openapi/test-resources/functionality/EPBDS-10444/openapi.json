@@ -832,87 +832,19 @@
           }
         }
       },
-      "AnySpreadsheetResult": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "type": "object"
-          },
-          "Bla2": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "Bla3": {
-            "type": "number",
-            "format": "double"
-          },
-          "Bla4": {
-            "type": "object"
-          },
-          "Bla5": {
-            "$ref": "#/components/schemas/SomeAnotherSprSomeSpr"
-          },
-          "Bla6": {
-            "$ref": "#/components/schemas/SomeSpr"
-          },
-          "Bla7": {
-            "$ref": "#/components/schemas/MyDatatype1"
-          },
-          "Bla8": {
-            "type": "object"
-          },
-          "Bla9": {
-            "type": "string"
-          },
-          "Bla10": {
-            "type": "string"
-          },
-          "Step2": {
-            "type": "array",
-            "items": {
-              "type": "number",
-              "format": "double"
-            }
-          },
-          "Step3": {
-            "$ref": "#/components/schemas/AnySpreadsheetResult"
-          },
-          "Step4": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "Step5": {
-            "type": "number",
-            "format": "double"
-          },
-          "Step6": {
-            "type": "object"
-          },
-          "Step7": {
-            "$ref": "#/components/schemas/SomeAnotherSprSomeSpr"
-          },
-          "Step8": {
-            "$ref": "#/components/schemas/SomeSpr"
-          },
-          "Step9": {
-            "$ref": "#/components/schemas/MyDatatype1"
-          },
-          "Step10": {
-            "type": "object"
-          },
-          "Step11": {
-            "type": "string"
-          },
-          "Step12": {
-            "type": "string"
-          }
-        }
+      "AnySpreadsheetResult" : {
+        "type" : "object",
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/MainSpr"
+        }, {
+          "$ref" : "#/components/schemas/SomeAnotherSpr"
+        }, {
+          "$ref" : "#/components/schemas/SomeSpr"
+        }, {
+          "$ref" : "#/components/schemas/TestSrp"
+        }, {
+          "$ref" : "#/components/schemas/TestSrp2"
+        } ]
       },
       "SomeAnotherSprSomeSpr": {
         "type": "object",

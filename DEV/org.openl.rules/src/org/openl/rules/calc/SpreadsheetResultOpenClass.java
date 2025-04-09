@@ -175,7 +175,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                 .anyMatch(t -> t.getName()
                                         .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
                     }
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomAnySpreadsheetResultOpenClass(
                             anySpreadsheetResultName,
                             this.module,
                             null,
