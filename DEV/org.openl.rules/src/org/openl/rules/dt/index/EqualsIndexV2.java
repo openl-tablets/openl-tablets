@@ -21,26 +21,17 @@ import org.openl.rules.helpers.NumberUtils;
  *
  * @author Vladyslav Pikus
  */
-public class EqualsIndexV2 implements IRuleIndex {
-
-    static final int[] EMPTY_ARRAY = new int[0];
-
-    private final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
+public class EqualsIndexV2 extends ARuleIndexV2 {
 
     private final Map<Object, int[]> index;
-    private final int[] emptyRules;
-    private final DecisionTableRuleNode nextNode;
-    private final int rulesTotalSize;
     private final ConditionCasts conditionCasts;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
                          Map<Object, int[]> index,
                          int[] emptyRules,
                          ConditionCasts conditionCasts) {
+        super(nextNode, emptyRules);
         this.index = Collections.unmodifiableMap(index);
-        this.emptyRules = emptyRules;
-        this.nextNode = nextNode;
-        this.rulesTotalSize = nextNode.getRules().length;
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 
@@ -54,7 +45,7 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+    protected DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
         return new EqualsIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
     }
 
@@ -78,11 +69,6 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     @Override
-    public Iterable<? extends DecisionTableRuleNode> nodes() {
-        return Collections.singletonList(nextNode);
-    }
-
-    @Override
     public int[] collectRules() {
         int[] result = new int[rulesTotalSize];
         int k = 0;
@@ -96,11 +82,6 @@ public class EqualsIndexV2 implements IRuleIndex {
         }
         Arrays.sort(result);
         return result;
-    }
-
-    @Override
-    public DecisionTableRuleNode getEmptyOrFormulaNodes() {
-        return emptyNodeStub;
     }
 
     /**
@@ -122,11 +103,11 @@ public class EqualsIndexV2 implements IRuleIndex {
         while (i < a.length && j < b.length) {
             result[k++] = a[i] < b[j] ? a[i++] : b[j++];
         }
-        while (i < a.length) {
-            result[k++] = a[i++];
+        if (i < a.length) {
+            System.arraycopy(a, i, result, k, a.length - i);
         }
-        while (j < b.length) {
-            result[k++] = b[j++];
+        if (j < b.length) {
+            System.arraycopy(b, j, result, k, b.length - j);
         }
         return result;
     }
