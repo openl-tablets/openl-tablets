@@ -556,7 +556,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, false, fieldsMap, cache);
 
                         final String beanClassName = getBeanClassName();
-                        byte[] bc = SpreadsheetResultBeanByteCodeGenerator.byteCode(beanClassName, beanFields);
+                        byte[] bc = generateBytecode(beanClassName, beanFields);
                         getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
 
                         beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
@@ -568,6 +568,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
         }
+    }
+
+    protected byte[] generateBytecode(String beanClassName, List<FieldDescription> beanFields) {
+        return SpreadsheetResultBeanByteCodeGenerator.byteCode(beanClassName, beanFields);
     }
 
     private List<Pair<Point, IOpenField>> getListOfFields() {

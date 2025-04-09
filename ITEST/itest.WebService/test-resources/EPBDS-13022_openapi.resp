@@ -213,32 +213,31 @@ Content-Type: application/json
     "schemas" : {
       "AnySpreadsheetResult" : {
         "type" : "object",
-        "properties" : {
-          "Step1" : {
-            "type" : "object"
-          },
-          "Step4" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/M2X2X5"
-            }
-          },
-          "Step2" : {
-            "type" : "object"
-          },
-          "Step3" : {
-            "$ref" : "#/components/schemas/M1X1X6"
-          },
-          "Step5" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/M3X3"
-            }
-          },
-          "Step6" : {
-            "$ref" : "#/components/schemas/AnySpreadsheetResult"
-          }
-        }
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/M1"
+        }, {
+          "$ref" : "#/components/schemas/M2"
+        }, {
+          "$ref" : "#/components/schemas/M3"
+        }, {
+          "$ref" : "#/components/schemas/M4"
+        }, {
+          "$ref" : "#/components/schemas/Main1"
+        }, {
+          "$ref" : "#/components/schemas/Main2"
+        }, {
+          "$ref" : "#/components/schemas/X1"
+        }, {
+          "$ref" : "#/components/schemas/X2"
+        }, {
+          "$ref" : "#/components/schemas/X3"
+        }, {
+          "$ref" : "#/components/schemas/X4"
+        }, {
+          "$ref" : "#/components/schemas/X5"
+        }, {
+          "$ref" : "#/components/schemas/X6"
+        } ]
       },
       "DefaultRulesRuntimeContext" : {
         "type" : "object",
@@ -325,14 +324,6 @@ Content-Type: application/json
           }
         }
       },
-      "M1X1X6" : {
-        "type" : "object",
-        "properties" : {
-          "Step1" : {
-            "type" : "string"
-          }
-        }
-      },
       "M2" : {
         "type" : "object",
         "properties" : {
@@ -345,18 +336,6 @@ Content-Type: application/json
           }
         }
       },
-      "M2X2X5" : {
-        "type" : "object",
-        "properties" : {
-          "Step2" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Step3" : {
-            "$ref" : "#/components/schemas/M1X1X6"
-          }
-        }
-      },
       "M3" : {
         "type" : "object",
         "properties" : {
@@ -364,17 +343,6 @@ Content-Type: application/json
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/M2"
-            }
-          }
-        }
-      },
-      "M3X3" : {
-        "type" : "object",
-        "properties" : {
-          "Step4" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/M2X2X5"
             }
           }
         }
@@ -446,25 +414,13 @@ Content-Type: application/json
           }
         }
       },
-      "X1X6" : {
-        "type" : "object",
-        "properties" : {
-          "Step1" : {
-            "type" : "string"
-          }
-        }
-      },
       "X2X5" : {
         "type" : "object",
-        "properties" : {
-          "Step2" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Step3" : {
-            "$ref" : "#/components/schemas/X1X6"
-          }
-        }
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/X2"
+        }, {
+          "$ref" : "#/components/schemas/X5"
+        } ]
       },
       "X3" : {
         "type" : "object",
@@ -488,6 +444,46 @@ Content-Type: application/json
           },
           "Step6" : {
             "$ref" : "#/components/schemas/AnySpreadsheetResult"
+          }
+        }
+      },
+      "X1" : {
+        "type" : "object",
+        "properties" : {
+          "Step1" : {
+            "type" : "string"
+          }
+        }
+      },
+      "X2" : {
+        "type" : "object",
+        "properties" : {
+          "Step2" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "Step3" : {
+            "$ref" : "#/components/schemas/X1"
+          }
+        }
+      },
+      "X5" : {
+        "type" : "object",
+        "properties" : {
+          "Step2" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "Step3" : {
+            "$ref" : "#/components/schemas/X6"
+          }
+        }
+      },
+      "X6" : {
+        "type" : "object",
+        "properties" : {
+          "Step1" : {
+            "type" : "string"
           }
         }
       }

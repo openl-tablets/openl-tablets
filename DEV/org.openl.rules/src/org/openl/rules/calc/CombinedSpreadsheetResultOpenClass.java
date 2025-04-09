@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.calc.SpreadsheetResultBeanByteCodeGenerator.FieldDescription;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 
@@ -45,6 +46,15 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             combinedOpenClasses.add(customSpreadsheetResultOpenClass);
             customSpreadsheetResultOpenClass.addEventOnUpdateWithType(this::notifyChanges);
         }
+    }
+
+    @Override
+    protected byte[] generateBytecode(String beanClassName, List<FieldDescription> beanFields) {
+        var classBytes = super.generateBytecode(beanClassName, beanFields);
+        if (!combinedOpenClasses.isEmpty()) {
+            classBytes = new SwaggerSchemaSprBeanByteCodeDecorator(true, combinedOpenClasses).decorate(classBytes);
+        }
+        return classBytes;
     }
 
     @Override
