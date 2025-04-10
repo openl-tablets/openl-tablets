@@ -4,6 +4,7 @@
 package org.openl.rules.tbasic.runtime;
 
 import org.openl.IOpenRunner;
+import org.openl.rules.cloner.Cloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
@@ -129,6 +130,16 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 
     @Override
     public IRuntimeEnv copy() {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        Object[] copiedParams = tbasicParams;
+        try {
+            copiedParams = Cloner.clone(tbasicParams);
+        } catch (Exception ignored) {
+            // ignore
+        }
+        return new TBasicContextHolderEnv(env.copy(),
+                tbasicTarget,
+                copiedParams,
+                tbasicVm
+        );
     }
 }

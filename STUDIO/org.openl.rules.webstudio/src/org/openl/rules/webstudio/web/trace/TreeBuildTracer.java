@@ -87,7 +87,12 @@ public final class TreeBuildTracer extends Tracer {
 
         ITracerObject trObj;
         if (canBeLazyNode(source)) {
-            trObj = new LazyTracerNodeObject(executor, target, params, env, source, Thread.currentThread().getContextClassLoader());
+            try {
+                trObj = new LazyTracerNodeObject(executor, target, params, env, source, Thread.currentThread().getContextClassLoader());
+            } catch (Exception e) {
+                LOG.warn("Error during lazy node creation. Fallback to normal tracing.", e);
+                trObj = TracedObjectFactory.getTracedObject(source, executor, target, params, env);
+            }
         } else {
             trObj = TracedObjectFactory.getTracedObject(source, executor, target, params, env);
         }
