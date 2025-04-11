@@ -3,6 +3,7 @@ package org.openl.rules.rest.config;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -64,7 +65,8 @@ public class ApiConfig implements WebMvcConfigurer {
         converters.add(new ResourceHttpMessageConverter());
         converters.add(new StringHttpMessageConverter());
         var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
-        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
+        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON,
+                new MediaType("application", "merge-patch+json")));
         converters.add(jacksonMessageConverter);
     }
 
@@ -101,8 +103,9 @@ public class ApiConfig implements WebMvcConfigurer {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule())
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+        mapper.setDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").withLenient(false));
         return mapper;
     }
 

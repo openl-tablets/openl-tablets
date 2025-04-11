@@ -1,0 +1,13 @@
+PATCH /web/admin/settings/system HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "projectHistoryCount": 10,
+  "updateSystemProperties": true,
+  "datePattern": "yyyy-MM-dd",
+  "timeFormat": "ss:mm:hh a",
+  "testRunThreadCount": 2,
+  "dispatchingValidationEnabled": false,
+  "autoCompile": false
+}

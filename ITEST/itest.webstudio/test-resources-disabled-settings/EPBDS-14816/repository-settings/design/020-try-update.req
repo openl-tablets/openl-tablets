@@ -1,0 +1,15 @@
+PATCH /rest/admin/settings/repos/design HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "name": "Design GG",
+  "settings": {
+    "uri": "jdbc:h2:mem:design-repo1;DB_CLOSE_DELAY=-1",
+    "useCustomComments": true,
+    "commentValidationPattern": "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}",
+    "invalidCommentMessage": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'"
+  },
+  "type": "repo-jdbc",
+  "id": "design"
+}

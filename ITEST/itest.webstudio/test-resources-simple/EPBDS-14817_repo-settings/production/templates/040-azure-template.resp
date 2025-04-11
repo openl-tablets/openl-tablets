@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Deployment",
+  "settings": {
+    "basePath": "deploy/",
+    "mainBranchOnly": false,
+    "uri": "",
+    "accountName": "",
+    "accountKey": "",
+    "listenerTimerPeriod": 10
+  },
+  "type": "repo-azure-blob",
+  "id": "**"
+}

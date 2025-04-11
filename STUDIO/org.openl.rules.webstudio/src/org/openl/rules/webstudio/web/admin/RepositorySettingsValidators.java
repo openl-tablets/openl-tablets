@@ -8,10 +8,14 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 public class RepositorySettingsValidators {
+
+    @Deprecated(forRemoval = true)
     public void url(FacesContext context, UIComponent toValidate, Object value) {
         validateNotBlank((String) value, "URL");
     }
 
+    // replaced with RegexpConstraintValidator
+    @Deprecated(forRemoval = true)
     public void commentValidationPattern(FacesContext context, UIComponent toValidate, Object value) {
         String regex = (String) value;
         if (StringUtils.isBlank(regex)) {
@@ -25,10 +29,13 @@ public class RepositorySettingsValidators {
         }
     }
 
+    @Deprecated(forRemoval = true)
     public void ivalidCommentMessage(FacesContext context, UIComponent toValidate, Object value) {
         validateNotBlank((String) value, "Invalid user message hint");
     }
 
+    // replaced with CommentMessageTemplateConstraintValidator
+    @Deprecated(forRemoval = true)
     public void commentTemplate(FacesContext context, UIComponent toValidate, Object value) {
         String template = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(template), "Comment message template cannot be empty");
@@ -38,6 +45,8 @@ public class RepositorySettingsValidators {
                 "Comment message template must contain '{user-message}'");
     }
 
+    // replaced with NewBranchNamePatternConstraintValidator
+    @Deprecated(forRemoval = true)
     public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
         String newBranchName = StringUtils.trim((String) value);
         if (StringUtils.isNotBlank(newBranchName)) {
