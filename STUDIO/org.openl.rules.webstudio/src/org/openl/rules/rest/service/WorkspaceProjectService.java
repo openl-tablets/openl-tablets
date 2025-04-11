@@ -364,6 +364,55 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Get project branches
+     *
+     * @param project project
+     * @return project branches
+     * @throws ProjectException if failed to get branches
+     */
+    public List<String> getBranches(RulesProject project) throws ProjectException {
+        if (!project.isSupportsBranches()) {
+            throw new ConflictException("project.branch.unsupported.message");
+        }
+        var repository = (BranchRepository) project.getDesignRepository();
+        try {
+            return repository.getBranches(project.getFolderPath());
+        } catch (IOException e) {
+            throw new ProjectException("Failed to get branches for project", e);
+        }
+    }
+
+    /**
+     * Update project branches.
+     *
+     * @param project   project
+     * @param branches  new branches
+     * @throws ProjectException if failed to update branches
+     */
+    public void updateBranches(RulesProject project, Collection<String> branches) throws ProjectException {
+        if (!project.isSupportsBranches()) {
+            throw new ConflictException("project.branch.unsupported.message");
+        }
+        var repository = (BranchRepository) project.getDesignRepository();
+        try {
+            var existingBranches = getBranches(project);
+            for (String branch : branches) {
+                if (!existingBranches.contains(branch)) {
+                    repository.createBranch(project.getFolderPath(), branch);
+                }
+            }
+
+            for (String branch : existingBranches) {
+                if (!branches.contains(branch)) {
+                    repository.deleteBranch(project.getFolderPath(), branch);
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to update branches for project", e);
+        }
+    }
+
+    /**
      * Create a new branch
      *
      * @param project project

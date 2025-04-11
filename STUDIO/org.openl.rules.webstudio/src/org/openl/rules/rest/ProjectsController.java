@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,6 +150,21 @@ public class ProjectsController {
         } catch (ProjectException e) {
             throw new ConflictException("project.branch.create.failed.message");
         }
+    }
+
+    @PatchMapping("/{projectId}/branches")
+    public void updateBranches(@ProjectId @PathVariable("projectId") RulesProject project, @RequestBody Set<String> branches) throws ProjectException {
+        if (branches.isEmpty()) {
+            branches = Collections.singleton(project.getBranch());
+        }
+        projectService.updateBranches(project, branches);
+    }
+
+    @GetMapping("/{projectId}/branches")
+    public List<String> listBranches(@ProjectId @PathVariable("projectId") RulesProject project) throws ProjectException {
+        var branches = projectService.getBranches(project);
+        branches.sort(String.CASE_INSENSITIVE_ORDER);
+        return branches;
     }
 
     @GetMapping("/{projectId}/tables")
