@@ -11,7 +11,8 @@ Content-Type: application/json
     "id": "ZGVzaWduLWZsYXQ6UHJvamVjdA==",
     "status": "CLOSED",
     "comment": "Project Project is created.",
-    "repository": "design-flat"
+    "repository": "design-flat",
+    "selectedBranches": ["master"]
   },
   {
     "name": "Project2",
@@ -22,6 +23,7 @@ Content-Type: application/json
     "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI=",
     "status": "CLOSED",
     "comment": "Project is created.",
-    "repository": "design-flat"
+    "repository": "design-flat",
+    "selectedBranches": ["master"]
   }
 ]

@@ -24,50 +24,74 @@
 
         <h:form id="editBranchesForm">
             <h:panelGroup id="modalEditBranchesData">
-                <p>
-                    <h:outputText value="Branches where the project #{branchesBean.businessName} is used:"/>
-                </p>
+                <p>Branches where the project <span id="projectBusinessName"/> is used:</p>
 
-                <div id="projectBranchesList">
-                    <h:selectManyCheckbox value="#{branchesBean.branches}" layout="pageDirection">
-                        <f:selectItems value="#{branchesBean.availableBranches}"/>
-                    </h:selectManyCheckbox>
-                </div>
+                <div id="projectBranchesList"></div>
             </h:panelGroup>
 
             <footer>
-                <h:commandButton id="save" value="Save" onclick="setDisabledAttributeForCurrentBranch('#{branchesBean.currentBranch}', false)"
-                                 action="#{branchesBean.save}" styleClass="button-primary"/>
+                <input type="button"  id="saveBranches" value="Save" class="button-primary"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalEditBranches').hide();"/>
             </footer>
-
-            <a4j:jsFunction name="renderEditBranchesForm" render="editBranchesForm"
-                            oncomplete="showEditBranchesDialog('#{branchesBean.currentBranch}')">
-                <a4j:param name="repositoryId" assignTo="#{branchesBean.currentRepositoryId}"/>
-                <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
-                <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
-            </a4j:jsFunction>
-
         </h:form>
-
     </rich:popupPanel>
+
+    <a4j:jsFunction name="rerenderNodeView" render="nodeView"></a4j:jsFunction>
 
     <script>
         //<![CDATA[
 
         function openEditBranchesDialog(repositoryId, projectName) {
-            renderEditBranchesForm(repositoryId, projectName, false);
-        }
+            const projectId = btoa(repositoryId + ":" + projectName);
 
-        function showEditBranchesDialog(currentBranchName) {
-            setDisabledAttributeForCurrentBranch(currentBranchName, true);
-            RichFaces.$("modalEditBranches").show();
-        }
+            const availableBranchesRequest = $j.get("#{contextPath}/web/repos/" + repositoryId + "/branches");
+            const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
 
-        function setDisabledAttributeForCurrentBranch(currentBranchName, disabled) {
-            if (currentBranchName) {
-                $j("#projectBranchesList :input[value='" + currentBranchName + "']").prop("disabled", disabled);
-            }
+            $j.when(availableBranchesRequest, projectDataRequest).done((availableRes, projectDataRes) => {
+                const availableBranches = availableRes[0];
+                const projectData = projectDataRes[0];
+
+                $j("#projectBusinessName").text(projectData.name);
+
+                const container = $j("#projectBranchesList");
+                container.empty();
+
+                availableBranches.forEach(branch => {
+                    const checkbox = $j('<input type="checkbox">')
+                        .attr("value", branch)
+                        .attr("name", "branches")
+                        .prop("checked", projectData.selectedBranches.includes(branch));
+
+                    if (branch === projectData.branch) {
+                        checkbox.prop("disabled", true);
+                    }
+
+                    const label = $j('<label>').append(checkbox).append(" " + branch);
+                    container.append(label).append("<br>");
+                });
+
+                RichFaces.$('modalEditBranches').show();
+            }).fail(() => {
+                alert("Failed to load branch information.");
+            });
+
+            $j("#saveBranches").off("click").on("click", () => {
+                const selected = $j("#projectBranchesList input:checked")
+                    .map((i, checkbox) => checkbox.value)
+                    .get();
+
+                $j.ajax({
+                    url: "#{contextPath}/web/projects/" + projectId,
+                    method: "PATCH",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        selectedBranches: selected
+                    }),
+                }).done(() => {
+                    RichFaces.$('modalEditBranches').hide();
+                    rerenderNodeView();
+                })
+            });
         }
 
         //]]>

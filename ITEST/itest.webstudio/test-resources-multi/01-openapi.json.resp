@@ -444,6 +444,13 @@ Content-Type: application/json
           "repository": {
             "type": "string",
             "description": "Source Repository"
+          },
+          "selectedBranches" : {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -1210,6 +1217,14 @@ Content-Type: application/json
           },
           "comment": {
             "type": "string"
+          },
+          "selectedBranches" : {
+            "type" : "array",
+            "description" : "***",
+            "items" : {
+              "type" : "string"
+            },
+            "uniqueItems" : true
           }
         }
       },
@@ -7422,6 +7437,98 @@ Content-Type: application/json
         "tags": [
           "Design Repository"
         ]
+      }
+    },
+    "/repos/{repo-name}/branches" : {
+      "get" : {
+        "operationId" : "***",
+        "description": "***",
+        "summary": "***",
+        "parameters" : [ {
+          "description" : "***",
+          "in" : "path",
+          "name" : "repo-name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "tags" : [ "Design Repository" ]
       }
     },
     "/repos/{repo-name}/features": {

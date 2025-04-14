@@ -179,6 +179,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
+        // FIXME: This method has performance issues and should be optimized.
+        //  Currently, it refreshes all projects in the workspace every time it is called,
+        //  which results in significant performance degradation.
+        //  Ideally, the workspace should only be refreshed when necessary.
         return getProject(repositoryId, name, true);
     }
 
@@ -204,6 +208,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Collection<RulesProject> getProjects() {
+        // FIXME: This method has performance issues and should be optimized.
+        //  Currently, it refreshes all projects in the workspace every time it is called,
+        //  which results in significant performance degradation.
+        //  Ideally, the workspace should only be refreshed when necessary.
         return getProjects(true);
     }
 

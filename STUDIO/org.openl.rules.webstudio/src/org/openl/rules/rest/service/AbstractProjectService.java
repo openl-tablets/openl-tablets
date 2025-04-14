@@ -54,6 +54,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         return getProjects0(query).filter(criteriaFilter)
                 .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
                 .map(this::mapProjectResponse)
+                .map(ProjectViewModel.Builder::build)
                 .collect(Collectors.toList());
     }
 
@@ -74,7 +75,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     protected abstract Stream<T> getProjects0(ProjectCriteriaQuery query);
 
-    protected ProjectViewModel mapProjectResponse(T src) {
+    protected ProjectViewModel.Builder mapProjectResponse(T src) {
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
@@ -119,7 +120,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             tags.forEach(tag -> builder.addTag(tag.getType().getName(), tag.getName()));
         }
 
-        return builder.build();
+        return builder;
     }
 
     private String buildProjectId(String repositoryId, String projectName) {

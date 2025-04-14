@@ -36,10 +36,6 @@ public class BranchesBean {
 
     private String currentProjectName;
 
-    private String businessName;
-
-    private List<String> branches;
-
     private String currentRepositoryId;
 
     private String currentBranch;
@@ -47,37 +43,6 @@ public class BranchesBean {
     private String branchToMerge;
 
     private boolean editorMode;
-
-    public String getCurrentProjectName() {
-        return currentProjectName;
-    }
-
-    public String getBusinessName() {
-        return businessName;
-    }
-
-    public List<String> getBranches() {
-        return branches;
-    }
-
-    public void setBranches(List<String> branches) {
-        this.branches = branches;
-    }
-
-    public List<String> getAvailableBranches() {
-        RulesProject project = getProject(currentProjectName);
-        if (project != null) {
-            Repository repository = project.getDesignRepository();
-            if (repository.supports().branches()) {
-                try {
-                    return new ArrayList<>(((BranchRepository) repository).getBranches(null));
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
-        }
-        return Collections.emptyList();
-    }
 
     public List<SelectItem> getBranchesToMerge() {
         RulesProject project = getProject(currentProjectName);
@@ -251,35 +216,6 @@ public class BranchesBean {
         }
     }
 
-    public void save() {
-        if (branches == null || branches.isEmpty()) {
-            showErrorMessage("At least one branch must be selected.");
-            return;
-        }
-        try {
-            RulesProject project = getProject(currentProjectName);
-            if (project != null) {
-                BranchRepository repository = (BranchRepository) project.getDesignRepository();
-
-                List<String> existingBranches = getBranches(project);
-                for (String branch : branches) {
-                    if (!existingBranches.contains(branch)) {
-                        repository.createBranch(project.getDesignFolderName(), branch);
-                    }
-                }
-
-                for (String branch : existingBranches) {
-                    if (!branches.contains(branch)) {
-                        repository.deleteBranch(project.getDesignFolderName(), branch);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            showErrorMessage("Cannot save the branches: " + e.getMessage());
-        }
-    }
-
     public void setCurrentRepositoryId(String currentRepositoryId) {
         this.currentRepositoryId = currentRepositoryId;
     }
@@ -290,7 +226,6 @@ public class BranchesBean {
 
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
-                this.businessName = project.getBusinessName();
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
                     try {
@@ -301,7 +236,6 @@ public class BranchesBean {
                         WebStudioUtils.addErrorMessage(e.getMessage());
                     }
                 }
-                branches = getBranches(project);
                 currentBranch = project.getBranch();
                 initBranchToMerge(project, (BranchRepository) repository);
             } else {

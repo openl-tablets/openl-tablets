@@ -125,7 +125,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectViewModel getProject(RulesProject project) {
-        return mapProjectResponse(project);
+        return mapProjectResponse(project).build();
+    }
+
+    @Override
+    protected ProjectViewModel.Builder mapProjectResponse(RulesProject src) {
+        var builder = super.mapProjectResponse(src);
+        if (src.isSupportsBranches()) {
+            try {
+                var selectedBranches = src.getSelectedBranches();
+                selectedBranches.sort(String.CASE_INSENSITIVE_ORDER);
+                builder.selectedBranches(selectedBranches);
+            } catch (ProjectException e) {
+                LOG.warn("Failed to retrieve project branches", e);
+            }
+        }
+        return builder;
     }
 
     @Override
@@ -174,6 +189,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             if (model.getBranch().isPresent()) {
                 switchToBranch(project, model.getBranch().get());
             }
+        }
+        if (CollectionUtils.isNotEmpty(model.getSelectedBranches())) {
+            project.setSelectedBranches(model.getSelectedBranches());
         }
     }
 
@@ -379,7 +397,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var repository = (BranchRepository) project.getDesignRepository();
         try {
-            repository.createBranch(project.getFolderPath(), model.getBranch(), model.getRevision());
+            repository.createBranch(project.getDesignFolderName(), model.getBranch(), model.getRevision());
         } catch (IOException e) {
             throw new ProjectException("Failed to create branch", e);
         }

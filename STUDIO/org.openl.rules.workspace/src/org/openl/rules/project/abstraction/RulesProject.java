@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -593,5 +594,39 @@ public class RulesProject extends UserWorkspaceProject {
             folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
         }
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
+    }
+
+    public List<String> getSelectedBranches() throws ProjectException {
+        if (isSupportsBranches()) {
+            try {
+                return ((BranchRepository) getDesignRepository()).getBranches(designFolderName);
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    public void setSelectedBranches(Collection<String> branches) throws ProjectException {
+        if (!isSupportsBranches()) {
+            return;
+        }
+        try {
+            var branchRepository = (BranchRepository) getDesignRepository();
+            var selectedBranches = getSelectedBranches();
+            for (String branch : branches) {
+                if (!selectedBranches.contains(branch)) {
+                    branchRepository.createBranch(designFolderName, branch);
+                }
+            }
+
+            for (String branch : selectedBranches) {
+                if (!branches.contains(branch)) {
+                    branchRepository.deleteBranch(designFolderName, branch);
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to update branches for project", e);
+        }
     }
 }

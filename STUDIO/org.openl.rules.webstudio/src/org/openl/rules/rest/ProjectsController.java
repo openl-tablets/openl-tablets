@@ -126,7 +126,12 @@ public class ProjectsController {
                                     @RequestBody ProjectStatusUpdateModel request) {
         try {
             projectService.updateProjectStatus(project, request);
-            getWebStudio().reset();
+            if (request.getStatus() != null
+                    || request.getBranch().isPresent()
+                    || request.getComment().isPresent()
+                    || request.getRevision().isPresent()) {
+                getWebStudio().reset();
+            }
         } catch (ProjectException e) {
             throw new ConflictException("project.status.update.failed.message");
         }

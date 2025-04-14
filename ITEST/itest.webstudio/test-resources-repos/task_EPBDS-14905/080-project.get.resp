@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-14905",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQ5MDU=",
+  "status": "CLOSED",
+  "comment": "Project EPBDS-14905 is created.",
+  "repository": "design-flat",
+  "selectedBranches": ["EPBDS-14905", "master"]
+}

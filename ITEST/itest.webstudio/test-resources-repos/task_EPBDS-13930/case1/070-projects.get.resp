@@ -12,7 +12,8 @@ Content-Type: application/json
     "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
     "status": "OPENED",
     "comment": "EPBDS-10682 Create project via rest",
-    "repository": "design-non-flat"
+    "repository": "design-non-flat",
+    "selectedBranches": ["master"]
   },
   {
     "name": "Project2",
@@ -23,6 +24,7 @@ Content-Type: application/json
     "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI=",
     "status": "OPENED",
     "comment": "Project is created.",
-    "repository": "design-flat"
+    "repository": "design-flat",
+    "selectedBranches": ["EPBDS-13930_Project2", "master"]
   }
 ]
