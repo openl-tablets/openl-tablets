@@ -10,5 +10,6 @@ Content-Type: application/json
   "id": "ZGVzaWduLWZsYXQ6UHJvamVjdA==",
   "status": "OPENED",
   "comment": "Project Project is created.",
-  "repository": "design-flat"
+  "repository": "design-flat",
+  "selectedBranches": ["admin/feature-1", "master"]
 }

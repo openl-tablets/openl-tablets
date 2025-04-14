@@ -11,6 +11,7 @@ Content-Type: application/json
     "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=",
     "status": "OPENED",
     "comment": "Save changes",
-    "repository": "design-flat"
+    "repository": "design-flat",
+    "selectedBranches": ["EPBDS-13931_1", "master"]
   }
 ]

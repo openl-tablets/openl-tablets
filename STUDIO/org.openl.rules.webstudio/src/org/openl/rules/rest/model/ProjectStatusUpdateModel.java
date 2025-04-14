@@ -1,6 +1,7 @@
 package org.openl.rules.rest.model;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +27,9 @@ public class ProjectStatusUpdateModel {
     private String revision;
 
     private String comment;
+
+    @Parameter(description = "The list of selected branches")
+    private Set<String> selectedBranches;
 
     public ProjectStatus getStatus() {
         return status;
@@ -57,5 +61,13 @@ public class ProjectStatusUpdateModel {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public Set<String> getSelectedBranches() {
+        return selectedBranches;
+    }
+
+    public void setSelectedBranches(Set<String> selectedBranches) {
+        this.selectedBranches = selectedBranches;
     }
 }

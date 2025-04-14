@@ -45,6 +45,7 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
@@ -141,6 +142,20 @@ public class DesignTimeRepositoryController {
         }
         return projectService.getProjects(
                 ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
+    }
+
+    @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")
+    @GetMapping("/{repo-name}/branches")
+    public List<String> listBranches(@DesignRepository("repo-name") Repository repository) throws IOException {
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+            throw new SecurityException();
+        }
+        if (!repository.supports().branches()) {
+            throw new ConflictException("repository.branch.unsupported.message");
+        }
+        var branches = ((BranchRepository) repository).getBranches(null);
+        branches.sort(String.CASE_INSENSITIVE_ORDER);
+        return branches;
     }
 
     @GetMapping({"/{repo-name}/projects/{project-name}/history",

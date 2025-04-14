@@ -2,6 +2,7 @@ package org.openl.rules.rest.model;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -70,6 +71,10 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String repository;
 
+    @Parameter(description = "The list of selected branches")
+    @JsonView(GenericView.Full.class)
+    public final List<String> selectedBranches;
+
     private ProjectViewModel(Builder from) {
         this.name = from.name;
         this.modifiedBy = from.modifiedBy;
@@ -83,6 +88,7 @@ public class ProjectViewModel {
         this.comment = from.comment;
         this.repository = from.repository;
         this.lockInfo = from.lockInfo;
+        this.selectedBranches = from.selectedBranches;
     }
 
     public static Builder builder() {
@@ -102,6 +108,7 @@ public class ProjectViewModel {
         private String comment;
         private String repository;
         private ProjectLockInfo lockInfo;
+        private List<String> selectedBranches;
 
         public Builder name(String name) {
             this.name = name;
@@ -160,6 +167,11 @@ public class ProjectViewModel {
 
         public Builder repository(String repository) {
             this.repository = repository;
+            return this;
+        }
+
+        public Builder selectedBranches(List<String> selectedBranches) {
+            this.selectedBranches = selectedBranches;
             return this;
         }
 
