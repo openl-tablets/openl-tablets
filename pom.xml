@@ -109,11 +109,11 @@
         <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
         <!-- REST -->
-        <jackson.version>2.18.3</jackson.version>
+        <jackson.version>2.19.0</jackson.version>
         <cxf.version>3.6.6</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.71.0</grpc.version>
+        <grpc.version>1.72.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.28</swagger.core.version>
@@ -132,7 +132,7 @@
         <jetty.version>10.0.25</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.31.17</amazonaws.version>
+        <amazonaws.version>2.31.35</amazonaws.version>
         <azure.version>12.30.0</azure.version>
         <netty.version>4.2.0.Final</netty.version>
         <jgit.version>7.2.0.202503040940-openl</jgit.version>
@@ -145,13 +145,13 @@
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.12.1</junit.version>
+        <junit.version>5.12.2</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
         <mockito.version>5.17.0</mockito.version>
         <datasource-proxy.version>1.10.1</datasource-proxy.version>
         <xmlunit.version>2.10.0</xmlunit.version>
-        <testcontainers.version>1.20.6</testcontainers.version>
+        <testcontainers.version>1.21.0</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.17</minio.version>
         <oracle.version>23.7.0.25.01</oracle.version>
@@ -180,21 +180,21 @@
         <!-- Commons and utils -->
         <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
-        <commons.collections4.version>4.4</commons.collections4.version>
-        <commons.io.version>2.18.0</commons.io.version>
-        <commons.jxpath.version>1.3</commons.jxpath.version>
+        <commons.collections4.version>4.5.0</commons.collections4.version>
+        <commons.io.version>2.19.0</commons.io.version>
+        <commons.jxpath.version>1.4.0</commons.jxpath.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
 
         <!-- protocols -->
         <hessian.version>4.0.66</hessian.version>
-        <gson.version>2.12.1</gson.version>
+        <gson.version>2.13.1</gson.version>
 
         <bouncycastle.version>1.80</bouncycastle.version>
         <groovy.version>4.0.26</groovy.version>
         <poi.version>5.4.1</poi.version>
-        <aspectj.version>1.9.23</aspectj.version>
+        <aspectj.version>1.9.24</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
-        <guava.version>33.4.7-jre</guava.version>
+        <guava.version>33.4.8-jre</guava.version>
         <xmlsec.version>2.3.5</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
