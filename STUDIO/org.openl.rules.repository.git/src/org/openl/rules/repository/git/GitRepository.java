@@ -1294,6 +1294,26 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                         }
                     }
                     break;
+                case REJECTED:
+                    if (refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
+                        // Force update for branch
+                        git.fetch()
+                                .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
+                                .setForceUpdate(true)
+                                .setRefSpecs(refUpdate.getRemoteName() + ":" + refUpdate.getLocalName())
+                                .call();
+
+                        checkoutForced(refUpdate.getRemoteName());
+                        // Reset local branch to match remote
+                        git.reset().setMode(ResetCommand.ResetType.HARD)
+                                .setRef(refUpdate.getLocalName())
+                                .call();
+
+                        if (!(Constants.R_HEADS + branch).equals(refUpdate.getRemoteName())) {
+                            branchesChanged = true;
+                        }
+                    }
+                    break;
                 case NO_CHANGE:
                     // Do nothing
                     break;
