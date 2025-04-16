@@ -4,7 +4,7 @@
     <parent>
         <artifactId>itest.spring-boot</artifactId>
         <groupId>org.openl.itest</groupId>
-        <version>5.27.11</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.spring-boot-web-app</artifactId>
