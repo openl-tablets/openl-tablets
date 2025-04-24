@@ -1,0 +1,2 @@
+GET /rest/users/profile HTTP/1.1
+
