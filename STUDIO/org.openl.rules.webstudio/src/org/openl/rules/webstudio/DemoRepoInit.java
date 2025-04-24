@@ -34,15 +34,21 @@ public class DemoRepoInit {
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
-    @Autowired
-    @Qualifier("zipFilter")
-    private PathFilter zipFilter;
+    private final PathFilter zipFilter;
+    private final MultiUserWorkspaceManager workspaceManager;
+    private final DeploymentManager deploymentManager;
+    private final SingleUserModeInit singleUserModeInit;
 
     @Autowired
-    private MultiUserWorkspaceManager workspaceManager;
-
-    @Autowired
-    private DeploymentManager deploymentManager;
+    public DemoRepoInit(@Qualifier("zipFilter") PathFilter zipFilter,
+                        MultiUserWorkspaceManager workspaceManager,
+                        DeploymentManager deploymentManager,
+                        SingleUserModeInit singleUserModeInit) {
+        this.zipFilter = zipFilter;
+        this.workspaceManager = workspaceManager;
+        this.deploymentManager = deploymentManager;
+        this.singleUserModeInit = singleUserModeInit;
+    }
 
     public void init() {
         if (!Props.bool("demo.init")) {
@@ -57,7 +63,10 @@ public class DemoRepoInit {
             LOG.error("Could not clean demo.init property", ex);
         }
 
-        WorkspaceUserImpl user = new WorkspaceUserImpl("DEFAULT", (x) -> new UserInfo(x, "default@example.com", x));
+        WorkspaceUserImpl user = new WorkspaceUserImpl(singleUserModeInit.getUsername(),
+                (x) -> new UserInfo(singleUserModeInit.getUsername(),
+                        singleUserModeInit.getEmail(),
+                        singleUserModeInit.getDisplayName()));
         UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
         createProject(userWorkspace, "examples", "Example 1 - Bank Rating", true, false);
