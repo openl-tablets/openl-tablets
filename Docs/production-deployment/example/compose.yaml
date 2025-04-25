@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  example-app:
+    build:
+      context: applications/example-app
+    container_name: example-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - openl-data:/opt/openl/local
+      - openl-shared:/opt/openl/shared
+    restart: unless-stopped
+    
+volumes:
+  openl-data:
+  openl-shared:

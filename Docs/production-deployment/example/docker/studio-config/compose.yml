@@ -1,0 +1,183 @@
+version: '3.8'
+
+services:
+  gitea:
+    image: gitea/gitea:1.21 # Using a specific version is often safer than latest
+    container_name: gitea-server
+    environment:
+      # Basic Gitea settings
+      - DB_TYPE=sqlite3
+      - USER_UID=1000 # Match host user if needed for permissions later
+      - USER_GID=1000
+      # Disable SSH server as we'll use HTTP
+      - DISABLE_SSH=true
+      # IMPORTANT: Disable initial install page - init container handles setup
+      - RUN_MODE=prod # Disables install page if config exists
+      - INSTALL_LOCK=true # Prevent install page access
+      - SECRET_KEY=aVeryRandomSecretKeyChangeMe # Change this!
+      - ROOT_URL=http://localhost:3000
+      - APP_NAME="OpenL Gitea (Auto Setup)"
+      # Default admin user/pass - init container will create this
+      - GITEA_ADMIN_USER=admin_user # Define desired admin username
+      - GITEA_ADMIN_PASSWORD=admin_password # Define desired admin password
+      - GITEA_ADMIN_EMAIL=admin@example.com # Define desired admin email
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist Gitea data (repositories, database, config)
+      - gitea-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  gitea-init:
+    # Use the *same* Gitea image to get access to 'gitea' CLI
+    image: gitea/gitea:1.21
+    container_name: gitea-init-auto
+    depends_on:
+      gitea:
+        # Wait for Gitea to be healthy before starting
+        condition: service_healthy
+    volumes:
+      # Mount the same volume to access config and data
+      - gitea-data:/data
+      - ../../:/source_projects:ro # Mount read-only
+    environment:
+      # Credentials MUST match those defined in the 'gitea' service environment
+      - GITEA_ADMIN_USER=admin_user
+      - GITEA_ADMIN_PASSWORD=admin_password
+      - GITEA_ADMIN_EMAIL=admin@example.com
+      - GITEA_REPO_NAME=design # Target repository name
+      - GITEA_INTERNAL_URL=http://gitea:3000 # Internal URL for API calls
+      # Define the target user Gitea runs as (usually 'git' in the image)
+      - GITEA_RUN_USER=git
+    command: >
+      sh -c '
+        echo "Waiting for Gitea configuration and service...";
+        while [ ! -f /data/gitea/conf/app.ini ]; do echo "Waiting for app.ini..."; sleep 1; done;
+
+        echo "Installing tools (curl, git)...";
+        # Install curl for API calls and git for repo operations
+        apk add --no-cache curl git;
+
+        echo "Waiting for Gitea service...";
+        until curl -sf $${GITEA_INTERNAL_URL}/api/v1/version > /dev/null; do
+            echo "Gitea service not ready yet...";
+            sleep 2;
+        done;
+        echo "Gitea is up!";
+
+        echo "Attempting to create admin user $${GITEA_ADMIN_USER} as user $${GITEA_RUN_USER}...";
+        su-exec $${GITEA_RUN_USER} gitea admin user create \
+          --admin \
+          --username "$${GITEA_ADMIN_USER}" \
+          --password "$${GITEA_ADMIN_PASSWORD}" \
+          --email "$${GITEA_ADMIN_EMAIL}" \
+          --config /data/gitea/conf/app.ini || echo "Admin user creation failed (maybe user already exists?)";
+
+        echo "Attempting to create repository $${GITEA_REPO_NAME} for user $${GITEA_ADMIN_USER}...";
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+          -H "Content-Type: application/json" \
+          -u "$${GITEA_ADMIN_USER}:$${GITEA_ADMIN_PASSWORD}" \
+          -d "{\"name\": \"$${GITEA_REPO_NAME}\", \"auto_init\": true, \"default_branch\": \"main\"}" \
+          "$${GITEA_INTERNAL_URL}/api/v1/user/repos");
+
+        echo "Gitea API for repo creation returned status code: $${STATUS_CODE}";
+
+        REPO_CREATED=false
+        if [ "$${STATUS_CODE}" -eq 201 ]; then
+          echo "Repository $${GITEA_REPO_NAME} created successfully.";
+          REPO_CREATED=true
+        elif [ "$${STATUS_CODE}" -eq 409 ]; then
+          echo "Repository $${GITEA_REPO_NAME} already exists.";
+        elif [ "$${STATUS_CODE}" -eq 401 ] || [ "$${STATUS_CODE}" -eq 403 ]; then
+          echo "Error: Authentication/Authorization failed creating repo. Check GITEA_ADMIN credentials or user creation step.";
+          exit 1;
+        else
+          echo "Error: Failed to create repository (Status code: $${STATUS_CODE})";
+          # Decide if we should proceed if repo creation failed but it might exist
+        fi;
+
+        # Only proceed if the repo was newly created by this script run
+        if [ "$${REPO_CREATED}" = true ] ; then
+          echo "Cloning the new repository...";
+          # Clone URL with embedded credentials (simple for demo, less secure)
+          CLONE_URL="http://$${GITEA_ADMIN_USER}:$${GITEA_ADMIN_PASSWORD}@gitea:3000/$${GITEA_ADMIN_USER}/$${GITEA_REPO_NAME}.git"
+          git clone "$${CLONE_URL}" /tmp/gitea_repo
+
+          if [ $? -ne 0 ]; then
+              echo "Error: Failed to clone repository $${GITEA_REPO_NAME}";
+              exit 1;
+          fi
+
+          cd /tmp/gitea_repo
+
+          echo "Configuring git user...";
+          git config --global user.email "$${GITEA_ADMIN_EMAIL}"
+          git config --global user.name "$${GITEA_ADMIN_USER} (init script)"
+          # Disable prompts for credentials if needed (URL embedding should handle it)
+          git config --global credential.helper store
+
+          echo "Copying project files from /source_projects...";
+          # Copy specific project folders (adjust as needed)
+          cp -r /source_projects/example-1 .
+          cp -r /source_projects/example-2 .
+          # Add other projects if necessary: cp -r /source_projects/some_other_project .
+
+          echo "Adding, committing, and pushing initial project files...";
+          git add .
+          # Check if there are changes to commit
+          if git diff-index --quiet HEAD --; then
+              echo "No changes detected to commit.";
+          else
+              git commit -m "Initial commit of projects from init script"
+              git push origin main
+              if [ $? -ne 0 ]; then
+                  echo "Error: Failed to push initial commit to repository $${GITEA_REPO_NAME}";
+                  # Dont exit fatally, maybe WebStudio can handle empty repo?
+              else
+                  echo "Successfully pushed initial projects.";
+              fi
+          fi
+
+          echo "Cleaning up temporary clone...";
+          cd / # Change out of the directory before removing it
+          rm -rf /tmp/gitea_repo
+        else
+          echo "Skipping initial project commit because repository was not newly created by this script."
+        fi
+        # --- End of New Steps ---
+
+        echo "Gitea initialization script finished.";
+        exit 0;
+      ' # End of sh -c script string
+    # This init container runs once and exits. No restart needed.
+
+  webstudio:
+    image: openltablets/webstudio:latest
+    ports:
+      - "8085:8080"
+    depends_on:
+      gitea:
+        # Wait for Gitea to be healthy before starting
+        condition: service_healthy
+    environment:
+      USER_MODE: multi
+      SECURITY_ADMINISTRATORS: qa
+      WEBSTUDIO_CONFIGURED: "true"
+      REPOSITORY_EXAMPLE_DESIGN__REF_: repo-git
+      REPOSITORY_EXAMPLE_DESIGN_URI: http://gitea:3000/admin_user/design.git
+      REPOSITORY_EXAMPLE-GIT_LOGIN: admin_user
+      REPOSITORY_EXAMPLE-GIT_PASSWORD: admin_password
+      DESIGN-REPOSITORY-CONFIGS: example
+      DESIGN_REPO-GIT_BRANCH: main
+      REPO-DEFAULT_DESIGN_NEW-BRANCH_PATTERN: JIRA_TICKET_KEY-
+      DESIGN_REPO-GIT_FOLDER-STRUCTURE_FLAT: false
+      REPO-DEFAULT_DESIGN_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
+      REPO-DEFAULT_DESIGN_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like JIRA_TICKET_KEY-0000"
+      
+volumes:
+  gitea-data:
