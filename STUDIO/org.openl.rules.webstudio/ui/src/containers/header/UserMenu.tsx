@@ -1,11 +1,11 @@
-import React, { FC, useContext } from 'react'
-import { Col, Drawer, Menu, Row, Typography } from 'antd'
+import React, {FC, useContext} from 'react'
+import {Col, Drawer, Menu, Row, Typography} from 'antd'
 import './UserMenu.scss'
-import { UserLogo } from '../../components/UserLogo'
-import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { UserContext } from '../../contexts/User'
+import {UserLogo} from '../../components/UserLogo'
+import {LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined} from '@ant-design/icons'
+import {useNavigate} from 'react-router-dom'
+import {useTranslation} from 'react-i18next'
+import {UserContext} from '../../contexts/User'
 import {PermissionContext} from "../../contexts";
 
 interface UserMenuProps {
@@ -51,16 +51,15 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             <Menu
                 selectedKeys={[]}
                 onClick={({ key }) => {
-                    navigate(key)
-                    onClose()
+                    window.location.href = key
                 }}
             >
-                <Menu.Item key="/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
-                <Menu.Item key="/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
+                <Menu.Item key="/web/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
+                <Menu.Item key="/web/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 {hasAdminPermission() && (
                     <>
                         <Menu.Divider />
-                        <Menu.Item key="/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                        <Menu.Item key="/web/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                     </>
                 )}
                 <Menu.Divider />

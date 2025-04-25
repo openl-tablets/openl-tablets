@@ -1,10 +1,11 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
 <!doctype html> <!-- Important: must specify -->
 <html lang="en">
 <head>
     <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
     <title>OpenL Studio API UI</title>
-    <link href="../favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-    <script type="module" src="../javascript/vendor/rapidoc-min.js"></script>
+    <link href="${pageContext.request.contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+    <script type="module" src="${pageContext.request.contextPath}/javascript/vendor/rapidoc-min.js"></script>
 </head>
 <body>
 <rapi-doc

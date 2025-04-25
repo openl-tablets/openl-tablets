@@ -8,7 +8,7 @@ module.exports = {
     mode: 'development',
     entry: './src/index',
     output: {
-        publicPath: 'http://localhost:3100/',
+        publicPath: '/javascript/ui/',
     },
     devServer: {
         static: {

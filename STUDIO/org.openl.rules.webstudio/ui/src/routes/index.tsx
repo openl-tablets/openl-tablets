@@ -1,22 +1,22 @@
 import React from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import { Notification } from 'containers/notification'
-import { System } from 'containers/System'
-import { Email } from 'containers/Email'
-import { Tags } from 'containers/Tags'
-import { RepoDesignPage } from 'pages/RepoDesignPage'
-import { RepoDeploymentPage } from 'pages/RepoDeploymentPage'
-import { RepoDeployConfPage } from 'pages/RepoDeployConfPage'
-import { GroupsAndUsers } from '../containers/GroupsAndUsers'
-import { UserPage } from 'pages/UserPage'
-import { UserProfile } from 'containers/UserProfile'
-import { UserSettings } from 'containers/UserSettings'
-import { DefaultLayout } from '../layouts/DefaultLayout'
-import { AdministrationLayout } from '../layouts/AdministrationLayout'
-import { RedirectToDefaultPage } from './RedirectToDefaultPage'
-import { HeaderLayout } from '../layouts/HeaderLayout'
-import { claimsRoutes } from '../plugins'
-import { RedirectRoute } from './RedirectRoute'
+import {createBrowserRouter} from 'react-router-dom'
+import {Notification} from 'containers/notification'
+import {System} from 'containers/System'
+import {Email} from 'containers/Email'
+import {Tags} from 'containers/Tags'
+import {RepoDesignPage} from 'pages/RepoDesignPage'
+import {RepoDeploymentPage} from 'pages/RepoDeploymentPage'
+import {RepoDeployConfPage} from 'pages/RepoDeployConfPage'
+import {GroupsAndUsers} from '../containers/GroupsAndUsers'
+import {UserPage} from 'pages/UserPage'
+import {UserProfile} from 'containers/UserProfile'
+import {UserSettings} from 'containers/UserSettings'
+import {DefaultLayout} from '../layouts/DefaultLayout'
+import {AdministrationLayout} from '../layouts/AdministrationLayout'
+import {RedirectToDefaultPage} from './RedirectToDefaultPage'
+import {HeaderLayout} from '../layouts/HeaderLayout'
+import {claimsRoutes} from '../plugins'
+import {RedirectRoute} from './RedirectRoute'
 
 const basePath = process.env.BASE_PATH || ''
 
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
         element: <HeaderLayout />,
     },
     {
-        path: '/',
+        path: 'web',
         element: <DefaultLayout />,
         children: [
             {
@@ -97,7 +97,7 @@ const router = createBrowserRouter([
         element: <RedirectRoute to="logout" />,
     },
     {
-        path: '/faces/pages/admin.xhtml',
+        path: '/web/administration',
         element: <RedirectToDefaultPage />,
     },
 ], {
