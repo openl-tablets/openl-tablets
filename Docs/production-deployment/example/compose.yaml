@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  example-app:
+    build:
+      context: applications/example-app
+    container_name: example-app
+    ports:
+      - "8080:8080"
+      - "1177:1077"
+    restart: unless-stopped
+    environment:
+      EXAMPLE_AUTH_USERNAME: openl_user
+      EXAMPLE_AUTH_PASSWORD: openl_password
+      # Extensive logging, can cause performance issues in production.
+      # Therefore, it is recommended to set it as true only on dev environments for troubleshooting purposes.
+      RULESERVICE_LOGGING_ENABLED: false
+      JAVA_OPTS: '-XX:NativeMemoryTracking=summary -Xmx1000m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:1077'

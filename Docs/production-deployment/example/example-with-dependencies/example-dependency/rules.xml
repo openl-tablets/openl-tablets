@@ -1,0 +1,14 @@
+<project>
+    <name>Dependency Example</name>
+    <commend>This project doesn't expose any endpoints, but is used in a different project as a dependency</commend>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.*</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+</project>

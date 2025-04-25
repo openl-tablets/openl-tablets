@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  webstudio:
+    environment:
+      USER_MODE: ad
+      SECURITY_AD_DOMAIN: example.com
+      SECURITY_AD_SERVER_URL: ldap://ad-server:389
+      SECURITY_AD_SEARCH_FILTER: (&(objectClass=user)(userPrincipalName={0}))
+      SECURITY_AD_GROUP_FILTER: (&(objectClass=group)(member:1.2.840.113556.1.4.1941:={2}))
+volumes:
+  samba_data:
+
+
+  

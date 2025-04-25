@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>openl-example-proto-parent-pom</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Example Prototype Parent</name>
+    <description>Example Prototype Parent Module</description>
+
+    <properties>
+        <org.openl.version>5.27.12</org.openl.version>
+    </properties>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>openl-maven-plugin</artifactId>
+                    <version>${org.openl.version}</version>
+                    <configuration>
+                        <sourceDirectory>./</sourceDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <modules>
+        <module>example-with-dependencies</module>
+        <module>example-simple</module>
+        <module>auth-extension</module>
+        <module>applications</module>
+    </modules>
+
+</project>
