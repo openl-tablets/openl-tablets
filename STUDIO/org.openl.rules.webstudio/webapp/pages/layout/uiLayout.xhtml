@@ -2,9 +2,8 @@
 <!DOCTYPE html>
 <html
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j">
+>
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
@@ -27,6 +26,6 @@
     <h:body>
         <div id="appRoot" style="height: 48.5px"></div>
 
-        <script src="http://localhost:3100/main.js"></script>
+        <script src="#{contextPath}/javascript/ui/main.js"></script>
     </h:body>
 </html>
