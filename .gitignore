@@ -30,3 +30,7 @@ target
 # Logs
 logs
 *.log
+
+# node.js
+node_modules
+dist
