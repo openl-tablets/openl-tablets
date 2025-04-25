@@ -1,0 +1,27 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>example-1</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>example-1</url>
+<configuration>
+    <entry>
+      <string>jackson.serializationInclusion</string>
+      <string>NON_NULL</string>
+    </entry>
+    <entry>
+      <string>jackson.defaultTypingMode</string>
+      <string>DISABLED</string>
+    </entry>
+    <entry>
+      <string>jackson.defaultDateFormat</string>
+      <string>yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS&apos;Z&apos;</string>
+    </entry>
+    <entry>
+      <string>jackson.caseInsensitiveProperties</string>
+      <string>true</string>
+    </entry>
+  </configuration>
+</rules-deploy>

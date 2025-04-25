@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  example-app:
+    build:
+      context: applications/example-app
+    container_name: example-app
+    ports:
+      - "8080:8080"
+      - "1177:1077"
+    restart: unless-stopped
+    environment:
+      AUTH_CLIENT_ID: client_name
+      AUTH_CLIENT_SECRET: client_secret
+      AUTH_OPENAPI_USERNAME: openapi_user
+      AUTH_OPENAPI_PASSWORD: openapi_password
+      JAVA_OPTS: '-XX:NativeMemoryTracking=summary -Xmx1000m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=*:1077'
