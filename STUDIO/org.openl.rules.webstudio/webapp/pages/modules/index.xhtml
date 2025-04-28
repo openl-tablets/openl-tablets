@@ -1120,6 +1120,9 @@
                     setTimeout(checkModification, 5000)
                 });
         }
+        window.OPENL_ENV = {
+            "BASE_PATH": "#{contextPath}"
+        }
 
     //]]>
     </script>
@@ -1129,7 +1132,7 @@
 
 <h:body style="visibility: hidden">
     <div id="appRoot" style="height: 48.5px"></div>
-    <script src="#{contextPath}/javascript/ui/main.js"></script>
+    <script src="#{reactUiRoot.get()}/main.js"></script>
 
     <script src="#{contextPath}/webresource/js/prototype/prototype-1.7.3.js"></script>
     <script src="#{contextPath}/webresource/js/tableeditor.min.js?1"></script>
