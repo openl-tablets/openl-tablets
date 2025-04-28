@@ -26,6 +26,8 @@ services:
       DB_PASSWORD: s3cr3t
       SECURITY_ADMINISTRATORS: admin
       JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
+      #"spring.profiles.active": "dev"
+      #"webstudio.dev.external.ui.uri": "http://localhost:3100"
     depends_on:
       postgres:
         condition: service_healthy

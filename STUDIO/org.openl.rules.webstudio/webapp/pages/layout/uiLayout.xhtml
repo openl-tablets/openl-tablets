@@ -20,12 +20,18 @@
 
         <h:outputScript name="jsf.js" library="javax.faces" />
 
+        <script>
+            window.OPENL_ENV = {
+                "BASE_PATH": "#{contextPath}"
+            }
+        </script>
+
         <title>OpenL Studio</title>
     </h:head>
 
     <h:body>
         <div id="appRoot" style="height: 48.5px"></div>
 
-        <script src="#{contextPath}/javascript/ui/main.js"></script>
+        <script src="#{reactUiRoot.get()}/main.js"></script>
     </h:body>
 </html>
