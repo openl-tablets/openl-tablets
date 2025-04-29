@@ -37,31 +37,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.1</version> <!-- Using a recent version -->
+                <version>3.6.1</version>
                 <executions>
                     <execution>
-                        <id>unpack-zip-dependencies</id> <!-- Clearer ID -->
-                        <phase>prepare-package</phase> <!-- Run before packaging -->
+                        <id>copy-zip-dependencies</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal> <!-- Goal to unpack -->
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <!-- Target directory for unpacking -->
-                            <outputDirectory>${project.build.directory}/projects</outputDirectory>
-                            <!-- Include only dependencies of type zip -->
                             <includeTypes>zip</includeTypes>
-                            <!-- Optional: If you only want zips with a specific classifier -->
                             <includeClassifiers>deployment</includeClassifiers>
-                            <!-- Optional: Control the unpacked directory names -->
-                            <stripVersion>true</stripVersion> <!-- Removes version -->
-                            <stripClassifier>true</stripClassifier> <!-- Removes classifier -->
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <outputDirectory>${project.build.directory}/zips</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <stripClassifier>true</stripClassifier>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- The maven-resources-plugin execution is removed as it's no longer needed for this -->
         </plugins>
     </build>
 </project>

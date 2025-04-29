@@ -124,7 +124,7 @@ services:
           echo "Copying project files from /source_projects...";
           # Copy specific project folders (adjust as needed)
           cp -r /source_projects .
-
+          find . -type d -name target -exec rm -rf {} +
           echo "Adding, committing, and pushing initial project files...";
           git add .
           # Check if there are changes to commit
@@ -155,6 +155,7 @@ services:
     # This init container runs once and exits. No restart needed.
 
   webstudio:
+    container_name: webstudio
     image: openltablets/webstudio:latest
     ports:
       - "8085:8080"
@@ -172,15 +173,24 @@ services:
       REPOSITORY_EXAMPLE_NAME: Example
       REPOSITORY_EXAMPLE_LOGIN: admin_user
       REPOSITORY_EXAMPLE_PASSWORD: admin_password
-      REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: local/example
+      REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
       REPOSITORY_EXAMPLE_BRANCH: main
       REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT: 60
       REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD: 10
+      REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
       DESIGN-REPOSITORY-CONFIGS: example
-      REPO-DEFAULT_DESIGN_NEW-BRANCH_PATTERN: JIRA_TICKET_KEY-
-      DESIGN_REPO-GIT_FOLDER-STRUCTURE_FLAT: true
-      REPO-DEFAULT_DESIGN_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
-      REPO-DEFAULT_DESIGN_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like JIRA_TICKET_KEY-0000"
-      
+      REPOSITORY_EXAMPLE_NEW-BRANCH_PATTERN: JIRA_TICKET_KEY-
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like JIRA_TICKET_KEY-0000"
+      ### User message default settings
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USE-CUSTOM-COMMENTS: false
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_SAVE: "Deploy configuration {project-name} is saved."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_CREATE: "Deploy configuration {project-name} is created."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ARCHIVE: "Deploy configuration {project-name} is archived."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORE: "Deploy configuration {project-name} is restored."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ERASE: "Deploy configuration {project-name} is erased."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_COPIED-FROM: "Copied from: { project-name }."
+#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORED-FROM: "Restored from revision of {author} on {datetime}."
+
 volumes:
   gitea-data:
