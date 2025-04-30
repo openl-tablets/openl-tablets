@@ -156,19 +156,26 @@ services:
 
   webstudio:
     container_name: webstudio
-    image: openltablets/webstudio:latest
+    build:
+      context: .
     ports:
       - "8085:8080"
     depends_on:
       gitea:
-        # Wait for Gitea to be healthy before starting
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     environment:
       USER_MODE: multi
       SECURITY_ADMINISTRATORS: qa
       WEBSTUDIO_CONFIGURED: "true"
+      #DB
+      DB_URL: jdbc:postgresql://postgres-db:5432/webstudio
+      DB_USER: openl_user
+      DB_PASSWORD: openl_password
       #Repository config
-      REPOSITORY_EXAMPLE_FACTORY: repo-git
+      repository.example.$ref: repo-git
+      repository.example.comment-template.$ref: repo-default.design.comment-template
       REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
       REPOSITORY_EXAMPLE_NAME: Example
       REPOSITORY_EXAMPLE_LOGIN: admin_user
@@ -182,15 +189,24 @@ services:
       REPOSITORY_EXAMPLE_NEW-BRANCH_PATTERN: JIRA_TICKET_KEY-
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like JIRA_TICKET_KEY-0000"
-      ### User message default settings
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USE-CUSTOM-COMMENTS: false
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_SAVE: "Deploy configuration {project-name} is saved."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_CREATE: "Deploy configuration {project-name} is created."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ARCHIVE: "Deploy configuration {project-name} is archived."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORE: "Deploy configuration {project-name} is restored."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ERASE: "Deploy configuration {project-name} is erased."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_COPIED-FROM: "Copied from: { project-name }."
-#      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORED-FROM: "Restored from revision of {author} on {datetime}."
-
+      
+  postgres:
+    image: postgres:17 
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: webstudio # Database name to create
+      POSTGRES_USER: openl_user # Replace with your desired username
+      POSTGRES_PASSWORD: openl_password # Replace with a strong password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # Persist database data
+    ports:
+      - "5432:5432" # Expose PostgreSQL port (optional, for external access/debugging)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 volumes:
   gitea-data:
+  postgres-data:
