@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.jar.Manifest;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 
 /**
@@ -36,6 +37,7 @@ public final class ServiceDescription {
     private final ResourceLoader resourceLoader;
     private final Manifest manifest;
     private final RulesDeploy rulesDeploy;
+    private final ProjectDescriptor projectDescriptor;
 
     /**
      * Main constructor.
@@ -62,7 +64,8 @@ public final class ServiceDescription {
                        String[] publishers,
                        ResourceLoader resourceLoader,
                        Manifest manifest,
-                       RulesDeploy rulesDeploy) {
+                       RulesDeploy rulesDeploy,
+                       ProjectDescriptor projectDescriptor) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
@@ -88,6 +91,7 @@ public final class ServiceDescription {
         this.publishers = publishers;
         this.deployment = deployment;
         this.manifest = manifest;
+        this.projectDescriptor = projectDescriptor;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
@@ -106,7 +110,8 @@ public final class ServiceDescription {
                 builder.publishers.toArray(new String[]{}),
                 builder.resourceLoader,
                 builder.manifest,
-                builder.rulesDeploy);
+                builder.rulesDeploy,
+                builder.projectDescriptor);
     }
 
     public RulesDeploy getRulesDeploy() {
@@ -237,6 +242,10 @@ public final class ServiceDescription {
         return publishers;
     }
 
+    public ProjectDescriptor getProjectDescriptor() {
+        return projectDescriptor;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -274,6 +283,7 @@ public final class ServiceDescription {
         private ResourceLoader resourceLoader;
         private Manifest manifest;
         private RulesDeploy rulesDeploy;
+        private ProjectDescriptor projectDescriptor;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
             this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
@@ -457,6 +467,11 @@ public final class ServiceDescription {
 
         public ServiceDescriptionBuilder setManifest(Manifest manifest) {
             this.manifest = manifest;
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setProjectDescriptor(ProjectDescriptor projectDescriptor) {
+            this.projectDescriptor = projectDescriptor;
             return this;
         }
 

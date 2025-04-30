@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
@@ -27,6 +28,8 @@ import org.openl.rules.project.abstraction.IProjectArtefact;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ResourceLoader;
@@ -47,6 +50,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
 
     private IRulesDeploySerializer rulesDeploySerializer;
+    private IProjectDescriptorSerializer projectDescriptorSerializer;
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
     private String supportedGroups = null;
@@ -145,6 +149,17 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                     serviceDescriptionBuilder.setAnnotationTemplateClassName(
                                             rulesDeploy.getAnnotationTemplateClassName().trim());
                                 }
+                            }
+                        }
+                    } catch (ProjectException ignored) {
+                    }
+
+                    try {
+                        var artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        if (artefact instanceof IProjectResource) {
+                            IProjectResource resource = (IProjectResource) artefact;
+                            try (InputStream content = resource.getContent()) {
+                                serviceDescriptionBuilder.setProjectDescriptor(getProjectDescriptorSerializer().deserialize(content));
                             }
                         }
                     } catch (ProjectException ignored) {
@@ -269,6 +284,18 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
         this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer,
                 "rulesDeploySerializer cannot be null");
+    }
+
+    public final IProjectDescriptorSerializer getProjectDescriptorSerializer() {
+        if (projectDescriptorSerializer == null) {
+            projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
+        }
+        return projectDescriptorSerializer;
+    }
+
+    public final void setProjectDescriptorSerializer(IProjectDescriptorSerializer projectDescriptorSerializer) {
+        this.projectDescriptorSerializer = Objects.requireNonNull(projectDescriptorSerializer,
+                "projectDescriptorSerializer cannot be null");
     }
 
     public boolean isProvideRuntimeContext() {
