@@ -35,8 +35,7 @@ public interface ServiceInvocationAdviceListener {
     }
 
     @FunctionalInterface
-    static interface Instantiator {
+    interface Instantiator {
         <T> T instantiate(Class<T> clazz);
-
     }
 }

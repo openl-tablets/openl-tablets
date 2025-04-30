@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -128,7 +129,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     classLoader,
                     getListServiceInvocationAdviceListeners(),
                     applicationContext,
-                    serviceManager != null ? serviceManager.getRulesDeployInProcess() : null);
+                    getServiceManagerIfAvailable().map(ServiceManagerImpl::getRulesDeployInProcess),
+                    getServiceManagerIfAvailable().map(ServiceManagerImpl::getProjectDescriptorInProcess));
             Object proxyServiceBean = ASMProxyFactory
                     .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
@@ -136,6 +138,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
         }
+    }
+
+    private Optional<ServiceManagerImpl> getServiceManagerIfAvailable() {
+        return Optional.ofNullable(serviceManager);
     }
 
     private Pair<Object, Map<Method, Method>> resolveInterfaceAndClassLoader(OpenLService service,
