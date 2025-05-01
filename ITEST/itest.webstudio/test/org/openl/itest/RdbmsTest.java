@@ -8,6 +8,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.oracle.OracleContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -44,7 +45,11 @@ public class RdbmsTest {
 
     @Test
     public void postgresql() throws Exception {
-        testDB(() -> new PostgreSQLContainer("postgres:alpine"));
+        testDB(() -> {
+            var db = new PostgreSQLContainer("postgres:alpine");
+            db.waitingFor(new HostPortWaitStrategy());
+            return db;
+        });
     }
 
     private static void testDB(Supplier<JdbcDatabaseContainer<?>> containerSupplier) throws Exception {
