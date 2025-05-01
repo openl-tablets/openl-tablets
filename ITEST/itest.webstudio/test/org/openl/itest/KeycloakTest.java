@@ -28,7 +28,7 @@ public class KeycloakTest {
 
     @Test
     public void smoke() throws Exception {
-        try (var keycloack = new KeycloakContainer("quay.io/keycloak/keycloak:25.0")) {
+        try (var keycloack = new KeycloakContainer("quay.io/keycloak/keycloak:latest")) {
             keycloack
                     .withRealmImportFile("/openlstudio-realm.json")
                     .start();
