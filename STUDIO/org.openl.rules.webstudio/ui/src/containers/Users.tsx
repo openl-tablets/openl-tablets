@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Badge, Button, Modal, Row, Table } from 'antd'
+import {Badge, Button, Modal, Row, Table, Typography} from 'antd'
 import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { EditUserModal } from './users/EditUserModal'
 import { apiCall } from 'services'
@@ -68,12 +68,16 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.username'),
                 key: 'username',
-                render: ({ username, userGroups }) => {
-                    if (Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)) {
-                        return <Badge dot color="blue">{username}</Badge>
+                render: ({ username, online, userGroups }) => {
+                    const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
+                        ? <Typography.Text strong>{username}</Typography.Text>
+                        : username
+
+                    if (online) {
+                        return <Badge dot color="green">{userNameComponent}</Badge>
                     }
 
-                    return username
+                    return userNameComponent
                 },
             },
             {
