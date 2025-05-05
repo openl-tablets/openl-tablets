@@ -174,10 +174,16 @@ services:
       DB_USER: openl_user
       DB_PASSWORD: openl_password
       #Repository config
-      repository.example.$ref: repo-git
-      repository.example.comment-template.$ref: repo-default.design.comment-template
+      DESIGN-REPOSITORY-CONFIGS: example
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USE-CUSTOM-COMMENTS: true
+      REPOSITORY_EXAMPLE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
+      REPOSITORY_EXAMPLE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like 'JIRATICKETKEY-0000' and followed by short description"
       REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
-      REPOSITORY_EXAMPLE_NAME: Example
+      REPOSITORY_EXAMPLE_USER-DISPLAY-NAME: "OpenL webstudio"
+      REPOSITORY_EXAMPLE_USER-EMAIL: "openl-webstudio@example.com"
+      REPOSITORY_EXAMPLE_FAILED-AUTHENTICATION-SECONDS: 300
+      REPOSITORY_EXAMPLE_FACTORY: "repo-git"
+      REPOSITORY_EXAMPLE_NAME: "Example"
       REPOSITORY_EXAMPLE_LOGIN: admin_user
       REPOSITORY_EXAMPLE_PASSWORD: admin_password
       REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
@@ -185,10 +191,17 @@ services:
       REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT: 60
       REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD: 10
       REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
-      DESIGN-REPOSITORY-CONFIGS: example
-      REPOSITORY_EXAMPLE_NEW-BRANCH_PATTERN: JIRA_TICKET_KEY-
+      REPOSITORY_EXAMPLE_NEW-BRANCH_PATTERN: JIRATICKETKEY-
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
-      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like JIRA_TICKET_KEY-0000"
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like 'JIRATICKETKEY-0000'  and followed by short description"
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE: "{user-message}"
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_SAVE: "Project {project-name} is saved."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_CREATE: "Project {project-name} is created."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ARCHIVE: "Project {project-name} is archived."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORE: "Project {project-name} is restored."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ERASE: "Project {project-name} is erased."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_COPIED-FROM: "Copied from: {project-name}."
+      REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORED-FROM: "Restored from revision of {author} on {datetime}."
       
   postgres:
     image: postgres:17 
