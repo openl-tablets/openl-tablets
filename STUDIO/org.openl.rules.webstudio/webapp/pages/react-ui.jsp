@@ -9,11 +9,6 @@
     <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg?v=studio" sizes="any" type="image/svg+xml"/>
     <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/icons/apple-touch-icon.png?v=studio"/>
     <link rel="manifest" href="${pageContext.request.contextPath}/icons/site.webmanifest?v=studio" />
-    <script>
-        window.OPENL_ENV = {
-            "BASE_PATH": "${pageContext.request.contextPath}"
-        }
-    </script>
 </head>
 <body>
     <div id="appRoot" style="height: 48.5px"></div>

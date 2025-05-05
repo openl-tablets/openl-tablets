@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react'
-import {useLocation, useNavigate} from 'react-router-dom'
-import {Button, Menu, Row} from 'antd'
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Button, Menu, Row } from 'antd'
 
 export const RepositoryPage: React.FC = () => {
     const location = useLocation()
@@ -22,9 +22,9 @@ export const RepositoryPage: React.FC = () => {
                         navigate(key)
                     }}
                 >
-                    <Menu.Item key="/web/administration/repository/design">Design repositories</Menu.Item>
-                    <Menu.Item key="/web/administration/repository/config">Deploy Configuration repository</Menu.Item>
-                    <Menu.Item key="/web/administration/repository/deployment">Deployment repositories</Menu.Item>
+                    <Menu.Item key="/administration/repository/design">Design repositories</Menu.Item>
+                    <Menu.Item key="/administration/repository/config">Deploy Configuration repository</Menu.Item>
+                    <Menu.Item key="/administration/repository/deployment">Deployment repositories</Menu.Item>
                     <Menu.Item>
                         <Button style={{ color: 'green', borderColor: 'green' }}>Apply All and Restart</Button>
                     </Menu.Item>
