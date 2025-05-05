@@ -1,12 +1,13 @@
-import React, {FC, useContext} from 'react'
-import {Col, Drawer, Menu, Row, Typography} from 'antd'
+import React, { FC, useContext } from 'react'
+import { Col, Drawer, Menu, Row, Typography } from 'antd'
 import './UserMenu.scss'
-import {UserLogo} from '../../components/UserLogo'
-import {LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined} from '@ant-design/icons'
-import {useNavigate} from 'react-router-dom'
-import {useTranslation} from 'react-i18next'
-import {UserContext} from '../../contexts/User'
-import {PermissionContext} from "../../contexts";
+import { UserLogo } from '../../components/UserLogo'
+import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { useLocation} from 'react-router'
+import { useTranslation } from 'react-i18next'
+import { UserContext } from '../../contexts'
+import { PermissionContext } from '../../contexts'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -16,6 +17,7 @@ interface UserMenuProps {
 export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
+    const { pathname } = useLocation()
     const { userProfile } = useContext(UserContext)
     const { hasAdminPermission } = useContext(PermissionContext)
 
@@ -39,6 +41,15 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
         </Row>
     )
 
+    const onClick = ({ key }) => {
+        if (pathname.startsWith('/web/')) {
+            navigate(key)
+            onClose()
+        } else {
+            window.location.href = key
+        }
+    }
+
     return (
         <Drawer
             closable
@@ -50,16 +61,14 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
         >
             <Menu
                 selectedKeys={[]}
-                onClick={({ key }) => {
-                    window.location.href = key
-                }}
+                onClick={onClick}
             >
                 <Menu.Item key="/web/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
                 <Menu.Item key="/web/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 {hasAdminPermission() && (
                     <>
                         <Menu.Divider />
-                        <Menu.Item key="/web/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                        <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                     </>
                 )}
                 <Menu.Divider />

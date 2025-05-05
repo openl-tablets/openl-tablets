@@ -1,33 +1,12 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const ModuleFederationPlugin = require('@module-federation/enhanced').ModuleFederationPlugin
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     entry: './src/index',
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'main.js',
-        publicPath: 'http://localhost:3100/',
-    },
-    devServer: {
-        static: {
-            directory: path.join(__dirname, 'dist'),
-        },
-        port: 3100,
-        historyApiFallback: true,
-        hot: true,
-        client: {
-            overlay: false,
-        },
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-        },
-        proxy: {
-            '/': 'http://localhost:3100',
-        }
+        publicPath: '/javascript/ui/',
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
@@ -73,9 +52,6 @@ module.exports = {
                 './config': './src/services/config',
                 './store': './src/store',
             },
-        }),
-        new HtmlWebpackPlugin({
-            template: './public/index.html',
-        }),
+        })
     ],
 }

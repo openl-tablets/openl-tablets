@@ -1,7 +1,7 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react'
-import {Menu} from 'antd'
-import {useLocation, useNavigate} from 'react-router-dom'
-import {useTranslation} from 'react-i18next'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { Menu } from 'antd'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
     DatabaseOutlined,
     MailOutlined,
@@ -13,7 +13,7 @@ import {
     UserOutlined,
 } from '@ant-design/icons'
 import './MainMenu.scss'
-import {PermissionContext, SystemContext} from '../contexts'
+import { PermissionContext, SystemContext } from '../contexts'
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()

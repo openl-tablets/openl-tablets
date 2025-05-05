@@ -17,11 +17,26 @@
 ### Installing dependencies.
 
 ```bash
-    npm install
+  npm install
 ```
 
 ### Running the development server.
 
 ```bash
-    npm run start
+  npm run start
+```
+
+### Docker configuration for development mode
+
+1. Open `compose.yaml` 
+2. Uncomment next lines
+```dockerfile
+"spring.profiles.active": "dev"
+"webstudio.dev.external.ui.uri": "http://localhost:3100"
+```
+
+### Run docker compose
+
+```bash
+  docker compose up
 ```
