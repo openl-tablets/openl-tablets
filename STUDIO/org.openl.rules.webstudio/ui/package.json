@@ -64,7 +64,7 @@
   },
   "scripts": {
     "start": "webpack-cli serve --stats-error-details",
-    "build": "webpack --mode production",
+    "build": "NODE_ENV=production && webpack --mode production --config webpack.production.config.js",
     "serve": "serve dist -p 3002",
     "clean": "rm -rf dist",
     "lint": "eslint ./src && stylelint '**/*.scss'",
