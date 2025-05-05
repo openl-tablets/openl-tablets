@@ -1,0 +1,13 @@
+<project>
+    <name>Example 1 - Simple project</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+Ping.+</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+</project>
