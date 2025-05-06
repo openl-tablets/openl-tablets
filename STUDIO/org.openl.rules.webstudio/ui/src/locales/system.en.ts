@@ -19,4 +19,11 @@ i18next.addResourceBundle('en', 'system', {
     date_format: 'Date Format',
     time_format: 'Time Format',
     apply_all: 'Apply',
+    confirm_delete_all_history: 'Are you sure you want to delete all history?',
+    confirm_delete_all_history_message: 'Do you really want to clear all local changes between revisions for all users and all projects?',
+    delete_all_history_success: 'All history was deleted successfully',
+    confirm_apply_settings: 'Are you sure you want to apply the settings?',
+    confirm_apply_settings_message: 'All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply these settings now?',
+    confirm_restore_defaults: 'Are you sure you want to restore defaults?',
+    confirm_restore_defaults_message: 'All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to restore defaults now?',
 })
