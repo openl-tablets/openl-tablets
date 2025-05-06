@@ -37,6 +37,20 @@
 
 ### Run docker compose
 
-```bash
+```
+  docker compose up
+```
+
+### Rebuild maven artifacts
+
+```
+  mvn clean install -DskipTests
+```
+
+### Rebuild docker containers
+
+```
+  docker compose down --volumes --remove-orphans
+  docker compose build --no-cache    
   docker compose up
 ```
