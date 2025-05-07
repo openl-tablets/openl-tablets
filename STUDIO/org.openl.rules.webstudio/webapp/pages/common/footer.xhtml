@@ -43,19 +43,9 @@
             float: right;
         }
 
-        #footerX .ask_help {
-            float: left;
-        }
     </style>
     <div id="notificationPanel" style="display: none;"/>
     <div id="footerX" class="invisible">
-        <!-- TODO: Yury Molchan please refactor this -->
-        <c:if test="#{not (request.requestURI.endsWith('login.xhtml') or
-                   request.requestURI.matches('.*/install/.*\\.xhtml')) and aiService.enabled}">
-            <span class="ask_help">
-                <ui:include src="/pages/modules/smartAssistant.xhtml"/>
-            </span>
-        </c:if>
         <span class="copyright">© {year}</span>
         <a class="site" href="{url}" target="_blank">OpenL Tablets</a>
         <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a
