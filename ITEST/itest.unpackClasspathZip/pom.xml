@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.27.11</version>
+        <version>5.27.11-jakarta-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.unpackClasspathZip</artifactId>
