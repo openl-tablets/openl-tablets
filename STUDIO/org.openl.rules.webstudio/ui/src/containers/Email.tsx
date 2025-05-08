@@ -1,47 +1,124 @@
-import React, { useState } from 'react'
-import { Button, Checkbox, Form, Input, Typography, Row } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { Button, Form, Typography, Row, notification, Modal } from 'antd'
+import { Input, InputPassword, Checkbox } from '../components'
 import { useTranslation } from 'react-i18next'
+import { WIDTH_OF_FROM_LABEL } from '../constants'
+import { apiCall } from '../services'
+
+interface EmailSettings {
+    password: string // empty string
+    url: string
+    username: string
+}
 
 export const Email: React.FC = () => {
     const { t } = useTranslation()
     const [active, setActive] = useState(true)
+    const [form] = Form.useForm()
+
+    const fetchEmailSettings = async () => {
+        const response: EmailSettings = await apiCall('/admin/settings/mail')
+        form.setFieldsValue(response)
+        if (response.url || response.username) {
+            setActive(false)
+        }
+    }
+
+    const onFinish = async (values: EmailSettings & { isActive: boolean }) => {
+        const { isActive, ...restValues } = values
+        if (!isActive) {
+            await apiCall('/admin/settings/mail', {
+                method: 'DELETE'
+            }).then(() => {
+                notification.success({
+                    message: t('email:email_server_configuration'),
+                    description: t('email:email_server_configuration_deleted'),
+                })
+            })
+        } else {
+            await apiCall('/admin/settings/mail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(restValues)
+            }).then(() => {
+                notification.success({
+                    message: t('email:email_server_configuration'),
+                    description: t('email:email_server_configuration_saved'),
+                })
+            })
+        }
+
+    }
+
+    const showChangeEmailConfirm = () => {
+        Modal.confirm({
+            title: t('email:confirm_change_email_settings'),
+            content: t('email:confirm_change_email_settings_message'),
+            onOk:  () => {
+                form.submit()
+            }
+        })
+    }
+
+    useEffect(() => {
+        fetchEmailSettings()
+    }, [])
 
     return (
-        <>
+        <Form
+            labelWrap
+            form={form}
+            labelAlign="right"
+            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            onFinish={onFinish}
+            wrapperCol={{ flex: 1 }}
+        >
             <Typography.Title level={4} style={{ marginTop: 0 }}>
                 {t('email:email_server_configuration')}
             </Typography.Title>
-            <Form
-                labelAlign="left"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-            >
-                <Form.Item label={t('email:enable_verification')}>
-                    <Checkbox onChange={() => setActive(!active)} />
-                </Form.Item>
-            </Form>
+            <Checkbox
+                label={t('email:enable_verification')}
+                name="isActive"
+                onChange={() => setActive(!active)}
+            />
             {!active && (
-                <Form
-                    labelAlign="left"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                >
-                    <Form.Item label={t('email:url')}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label={t('email:username')}>
-                        <Input defaultValue="admin" />
-                    </Form.Item>
-                    <Form.Item label={t('email:password')}>
-                        <Input.Password />
-                    </Form.Item>
-                </Form>
+                <>
+                    <Input
+                        label={t('email:url')}
+                        name="url"
+                        rules={[{
+                            required: true,
+                            message: t('common:validation.required')
+                        }]}
+                    />
+                    <Input
+                        label={t('email:username')}
+                        name="username"
+                        rules={[{
+                            required: true,
+                            message: t('common:validation.required')
+                        }]}
+                    />
+                    <InputPassword
+                        label={t('email:password')}
+                        name="password"
+                        rules={[{
+                            required: true,
+                            message: t('common:validation.required')
+                        }]}
+                    />
+                </>
             )}
             <Row justify="end">
-                <Button style={{ marginTop: 20, marginRight: 20 }} type="primary">
-                    {t('email:apply')}
+                <Button
+                    onClick={showChangeEmailConfirm}
+                    type="primary"
+                >
+                    {t('common:btn.apply')}
                 </Button>
             </Row>
-        </>
+        </Form>
     )
 }

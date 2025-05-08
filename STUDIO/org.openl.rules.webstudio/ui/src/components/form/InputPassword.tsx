@@ -13,7 +13,7 @@ type InputProps = {
     rules?: Rule[]
 };
 
-const Input: FC<InputProps> = ({
+const InputPassword: FC<InputProps> = ({
     name,
     label,
     disabled,
@@ -23,8 +23,8 @@ const Input: FC<InputProps> = ({
     ...rest
 }) => (
     <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
-        <AntdInput disabled={disabled} placeholder={placeholder} style={style} />
+        <AntdInput.Password disabled={disabled} placeholder={placeholder} style={style} />
     </Form.Item>
 )
 
-export default Input
+export default InputPassword

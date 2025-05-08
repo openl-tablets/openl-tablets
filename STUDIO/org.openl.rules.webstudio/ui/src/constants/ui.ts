@@ -1,0 +1,1 @@
+export const WIDTH_OF_FROM_LABEL = '300px'

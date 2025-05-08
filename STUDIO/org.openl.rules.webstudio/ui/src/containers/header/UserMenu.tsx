@@ -4,7 +4,7 @@ import './UserMenu.scss'
 import { UserLogo } from '../../components/UserLogo'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { useLocation} from 'react-router'
+import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { UserContext } from '../../contexts'
 import { PermissionContext } from '../../contexts'
@@ -41,7 +41,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
         </Row>
     )
 
-    const onClick = ({ key }) => {
+    const onClick = ({ key }: { key: string }) => {
         if (pathname.startsWith('/web/')) {
             navigate(key)
             onClose()
@@ -60,8 +60,8 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             title={Title}
         >
             <Menu
-                selectedKeys={[]}
                 onClick={onClick}
+                selectedKeys={[]}
             >
                 <Menu.Item key="/web/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
                 <Menu.Item key="/web/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
