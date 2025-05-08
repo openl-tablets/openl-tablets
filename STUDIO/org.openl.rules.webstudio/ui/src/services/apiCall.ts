@@ -30,7 +30,7 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
             } else {
                 await response.json().then((data: any) => {
                     if (data.fields) {
-                        const errors = data.fields.map(({ message }) => message)
+                        const errors = data.fields.map(({ message }: { message: any }) => message)
                         throw new Error(errors)
                     } else {
                         throw new Error(data.message)

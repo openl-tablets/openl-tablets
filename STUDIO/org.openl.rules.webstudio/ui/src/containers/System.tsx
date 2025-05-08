@@ -4,6 +4,7 @@ import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
 import { Input, InputNumber, Checkbox } from '../components'
+import { WIDTH_OF_FROM_LABEL } from '../constants'
 
 type ValueWrapper<T> = {
     value: T
@@ -161,7 +162,7 @@ export const System: React.FC = () => {
             form={form}
             initialValues={systemSettings}
             labelAlign="right"
-            labelCol={{ flex: '310px' }}
+            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >

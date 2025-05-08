@@ -1,8 +1,8 @@
 import React, { useContext, useMemo } from 'react'
 import { Button, Divider, Form, Row } from 'antd'
-import { Input } from '../components'
+import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
-import { DisplayUserName } from 'constants/'
+import { DisplayUserName, WIDTH_OF_FROM_LABEL } from 'constants/'
 import { UserContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
@@ -28,7 +28,7 @@ export const UserProfile: React.FC = () => {
                 }
             }
 
-            const response = await apiCall('/users/profile', {
+            await apiCall('/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,14 +66,18 @@ export const UserProfile: React.FC = () => {
 
     return (
         <Form
+            labelWrap
             initialValues={initialValues}
+            labelAlign="right"
+            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
             onFinish={handleSubmit}
+            wrapperCol={{ flex: 1 }}
         >
             <UserDetailsTab displayPasswordField={false} externalFlags={userProfile.externalFlags} isNewUser={false} />
             <Divider plain orientation="left">{t('user:profile.change_password')}</Divider>
-            <Input label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} type="password" />
-            <Input label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} type="password" />
-            <Input label={t('user:profile.confirm_password')} name={['changePassword', 'confirmPassword']} type="password" />
+            <InputPassword label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} />
+            <InputPassword label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} />
+            <InputPassword label={t('user:profile.confirm_password')} name={['changePassword', 'confirmPassword']} />
             <Row justify="end">
                 <Button
                     key="submit"

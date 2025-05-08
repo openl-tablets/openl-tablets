@@ -2,9 +2,10 @@ import React, { useContext, useMemo } from 'react'
 import { Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
-import { UserContext } from '../contexts/User'
+import { UserContext } from '../contexts'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
+import { WIDTH_OF_FROM_LABEL } from '../constants'
 
 export const UserSettings: React.FC = () => {
     const { t } = useTranslation()
@@ -50,7 +51,7 @@ export const UserSettings: React.FC = () => {
                     confirmPassword: '',
                 }
             }
-            const response = await apiCall('/users/profile', {
+            await apiCall('/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,8 +66,12 @@ export const UserSettings: React.FC = () => {
 
     return (
         <Form
+            labelWrap
             initialValues={userProfile}
+            labelAlign="right"
+            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
             onFinish={handleSubmit}
+            wrapperCol={{ flex: 1 }}
         >
             <Divider plain orientation="left">{t('user:settings.table_settings')}</Divider>
             <Checkbox label={t('user:settings.show_header')} name="showHeader" />

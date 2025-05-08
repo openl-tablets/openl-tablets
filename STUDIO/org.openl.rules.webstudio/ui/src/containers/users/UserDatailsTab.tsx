@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react'
 import { Divider, Form, Space } from 'antd'
-import { Input, Select } from '../../components'
+import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
 import { UserExternalFlags } from '../../types/user'
@@ -74,11 +74,10 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 }]}
             />
             {displayPasswordField && (
-                <Input
+                <InputPassword
                     disabled={externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"
-                    type="password"
                     rules={[{
                         required: isNewUser,
                         message: t('users:edit_modal.password_required')

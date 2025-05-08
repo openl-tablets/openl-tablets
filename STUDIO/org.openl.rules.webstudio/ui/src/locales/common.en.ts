@@ -44,6 +44,16 @@ i18next.addResourceBundle('en', 'common', {
         create: 'Create',
         invite: 'Invite',
     },
+    validation: {
+        required: 'Required',
+        invalid_email: 'Invalid email address',
+        invalid_username: 'Invalid username',
+        invalid_password: 'Invalid password',
+        invalid_url: 'Invalid URL',
+        invalid_date: 'Invalid date',
+        invalid_time: 'Invalid time',
+        invalid_number: 'Invalid number',
+    },
     plugin: {
         loading_plugin: 'Loading Plugin',
         no_plugin_specified: 'No plugin specified',
