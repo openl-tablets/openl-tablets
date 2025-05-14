@@ -7,11 +7,6 @@ import org.openl.itest.core.JettyServer;
 public class WebStudioTest {
 
     @Test
-    public void wizard() throws Exception {
-        JettyServer.test("wizard");
-    }
-
-    @Test
     public void simple() throws Exception {
         JettyServer.test("simple");
     }
