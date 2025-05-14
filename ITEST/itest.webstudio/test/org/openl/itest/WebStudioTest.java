@@ -9,11 +9,6 @@ import org.openl.itest.core.JettyServer;
 public class WebStudioTest {
 
     @Test
-    public void wizard() throws Exception {
-        JettyServer.test("wizard");
-    }
-
-    @Test
     public void simple() throws Exception {
         JettyServer.test("simple");
     }
@@ -46,7 +41,6 @@ public class WebStudioTest {
             smtpServer.start();
             var smtp = smtpServer.getSmtp();
             JettyServer.get()
-                    .withInitParam("webstudio.configured", "true")
                     .withProfile("disabled-settings")
                     // system settings
                     .withInitParam("user.workspace.home", "openl-repository/workspace")
