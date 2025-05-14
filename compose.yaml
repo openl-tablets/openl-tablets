@@ -131,7 +131,6 @@ services:
         " > /initdb/init.sql
 
         [ -e /openl-home/.properties ] && echo /openl-home/.properties exists || echo '.version=LATEST
-        webstudio.configured=true
         demo.init=true
         user.mode=single
         #user.mode=multi
