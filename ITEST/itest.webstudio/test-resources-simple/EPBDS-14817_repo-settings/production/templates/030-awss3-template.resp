@@ -51,6 +51,9 @@ Content-Type: application/json
         "id": "us-iso-west-1",
         "description": "US ISO WEST"
       }, {
+        "id": "eusc-de-east-1",
+        "description": "EU (Germany)"
+      }, {
         "id": "eu-central-2",
         "description": "Europe (Zurich)"
       }, {
