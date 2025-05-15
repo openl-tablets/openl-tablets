@@ -177,7 +177,6 @@
         <commons.lang3.version>3.17.0</commons.lang3.version>
 
         <!-- protocols -->
-        <hessian.version>4.0.66</hessian.version>
         <gson.version>2.13.1</gson.version>
 
         <bouncycastle.version>1.80</bouncycastle.version>
