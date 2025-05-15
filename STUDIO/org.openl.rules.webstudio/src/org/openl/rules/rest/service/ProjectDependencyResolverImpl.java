@@ -98,7 +98,8 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
                 dependentProject = projects.get(Boolean.TRUE)
                         .stream()
                         .filter(
-                                p -> p.getBusinessName().equals(dependencyName) && p.getBranch().equals(project.getBranch()))
+                                // businessName same and branch is the same, if branch is not null - typically when repository does not support branches
+                                p -> p.getBusinessName().equals(dependencyName) && (null == p.getBranch() || p.getBranch().equals(project.getBranch())))
                         .findFirst();
             }
             if (dependentProject.isEmpty() && !projects.get(Boolean.FALSE).isEmpty()) {
