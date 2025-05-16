@@ -3,7 +3,8 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
     <f:view transient="true">
     <rich:popupPanel id="updateProject" minWidth="500" autosized="true">
@@ -19,7 +20,7 @@
         <h:form id="updateProjectForm">
             <h:panelGrid id="updateProjectFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="projectUpload" styleClass="required" value="File:" />
-                <rich:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
+                <oh:fileUpload id="projectUpload" fileUploadListener="#{studio.uploadListener}"
                                  immediateUpload="true"
                                  render="structureChangedFormData"
                                  onfilesubmit="ws.ui.showLoader();"
