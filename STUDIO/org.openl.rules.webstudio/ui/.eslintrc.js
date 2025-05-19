@@ -41,7 +41,7 @@ module.exports = {
         '@stylistic/jsx/jsx-indent-props': ['error', 4],
         '@stylistic/jsx/jsx-max-props-per-line': ['error', { 'maximum': 1, 'when': 'multiline' }],
         '@stylistic/jsx/jsx-newline': ['error', { 'prevent': true }],
-        '@stylistic/jsx/jsx-one-expression-per-line': ['error', { 'allow': 'single-child' }],
+        '@stylistic/jsx/jsx-one-expression-per-line': ['warn', { 'allow': 'single-child' }],
         '@stylistic/jsx/jsx-props-no-multi-spaces': 'error',
         '@stylistic/jsx/jsx-self-closing-comp': ['error', { 'component': true, 'html': true }],
         '@stylistic/jsx/jsx-sort-props': ['warn', {

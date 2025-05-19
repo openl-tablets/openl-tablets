@@ -15,9 +15,9 @@ i18next.addResourceBundle('en', 'common', {
     deploy_repository: 'Deploy Repository',
     design_repository: 'Design Repository',
     project: 'Project',
+    details: 'Details',
     menu: {
         editor: 'Editor',
-        advanced_editor: 'Advanced Editor',
         repository: 'Repository',
         my_profile: 'My Profile',
         my_settings: 'My Settings',
