@@ -13,14 +13,14 @@ interface EmailSettings {
 
 export const Email: React.FC = () => {
     const { t } = useTranslation()
-    const [active, setActive] = useState(true)
     const [form] = Form.useForm()
+    const isActive = Form.useWatch('isActive', form)
 
     const fetchEmailSettings = async () => {
         const response: EmailSettings = await apiCall('/admin/settings/mail')
         form.setFieldsValue(response)
         if (response.url || response.username) {
-            setActive(false)
+            form.setFieldValue('isActive', true)
         }
     }
 
@@ -49,7 +49,9 @@ export const Email: React.FC = () => {
                 })
             })
         }
-
+        setTimeout(() => {
+            window.location.reload()
+        }, 1000)
     }
 
     const showChangeEmailConfirm = () => {
@@ -81,9 +83,8 @@ export const Email: React.FC = () => {
             <Checkbox
                 label={t('email:enable_verification')}
                 name="isActive"
-                onChange={() => setActive(!active)}
             />
-            {!active && (
+            {isActive && (
                 <>
                     <Input
                         label={t('email:url')}
