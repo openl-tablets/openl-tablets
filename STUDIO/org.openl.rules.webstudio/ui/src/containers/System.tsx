@@ -166,9 +166,7 @@ export const System: React.FC = () => {
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >
-            <Typography.Title level={4} style={{ marginTop: 0 }}>
-                {t('system:core')}
-            </Typography.Title>
+            <Divider orientation="left">{t('system:core')}</Divider>
             <Checkbox
                 disabled={readOnlyFields['dispatchingValidationEnabled']}
                 label={t('system:dispatching_validation')}
@@ -179,28 +177,19 @@ export const System: React.FC = () => {
                 label={t('system:verify_on_edit')}
                 name="autoCompile"
             />
-            <Divider />
-            <Typography.Title level={4}>
-                {t('system:testing')}
-            </Typography.Title>
+            <Divider orientation="left">{t('system:testing')}</Divider>
             <InputNumber
                 disabled={readOnlyFields['testRunThreadCount']}
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
             />
-            <Divider />
-            <Typography.Title level={4}>
-                {t('system:user_workspace')}
-            </Typography.Title>
+            <Divider orientation="left">{t('system:user_workspace')}</Divider>
             <Input
                 disabled={readOnlyFields['userWorkspaceHome']}
                 label={t('system:workspace_directory')}
                 name="userWorkspaceHome"
             />
-            <Divider />
-            <Typography.Title level={4}>
-                {t('system:history')}
-            </Typography.Title>
+            <Divider orientation="left">{t('system:history')}</Divider>
             <InputNumber
                 disabled={readOnlyFields['projectHistoryCount']}
                 label={t('system:maximum_count_of_changes')}
@@ -209,10 +198,7 @@ export const System: React.FC = () => {
             <Row justify="end">
                 <Button onClick={showDeleteAllHistoryConfirm}>{t('system:clear_all_history')}</Button>
             </Row>
-            <Divider />
-            <Typography.Title level={4}>
-                {t('system:other')}
-            </Typography.Title>
+            <Divider orientation="left">{t('system:other')}</Divider>
             <Checkbox
                 disabled={readOnlyFields['updateSystemProperties']}
                 label={t('system:update_table_properties')}

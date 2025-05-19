@@ -3,10 +3,14 @@ import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd
 import { Rule } from 'antd/es/form'
 import type { DefaultOptionType } from 'rc-select/lib/Select'
 
-export interface SelectOption extends DefaultOptionType {}
+// @ts-ignore
+export interface SelectOption extends DefaultOptionType {
+    value: string | number | boolean | null;
+}
 
+// @ts-ignore
 interface SelectProps extends AntdSelectProps {
-    name: string
+    name: string | string[]
     label?: string
     options: SelectOption[]
     disabled?: boolean
@@ -53,6 +57,7 @@ const Select: FC<SelectProps> = ({
             onBlur={onBlur}
             onChange={onChange}
             onSearch={onSearch}
+            // @ts-ignore
             options={options}
             showSearch={showSearch}
             style={style}
