@@ -51,7 +51,7 @@ const MainMenu: React.FC = () => {
                 <Menu.Divider />
                 {hasAdminPermission() && (
                     <>
-                        <Menu.Item key="/web/administration/repository/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
+                        <Menu.Item key="/web/administration/repositories/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
                         <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
                         { isUserManagementEnabled &&
                             <Menu.Item key="/web/administration/admin/management/groups" icon={<TeamOutlined />}>{groupsAndUsersMenuLabel}</Menu.Item>}

@@ -73,15 +73,15 @@ export const UserSettings: React.FC = () => {
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >
-            <Divider plain orientation="left">{t('user:settings.table_settings')}</Divider>
+            <Divider orientation="left">{t('user:settings.table_settings')}</Divider>
             <Checkbox label={t('user:settings.show_header')} name="showHeader" />
             <Checkbox label={t('user:settings.show_formulas')} name="showFormulas" />
             <Select label={t('user:settings.default_order')} name="treeView" options={treeViewOptions} />
-            <Divider plain orientation="left">{t('user:settings.testing_settings')}</Divider>
+            <Divider orientation="left">{t('user:settings.testing_settings')}</Divider>
             <Select label={t('user:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
             <Checkbox label={t('user:settings.failures_only')} name="testsFailuresOnly" />
             <Checkbox label={t('user:settings.compound_result')} name="showComplexResult" />
-            <Divider plain orientation="left">{t('user:settings.trace_settings')}</Divider>
+            <Divider orientation="left">{t('user:settings.trace_settings')}</Divider>
             <Checkbox label={t('user:settings.show_numbers_without_formatting')} name="showRealNumbers" />
             <Row justify="end">
                 <Button

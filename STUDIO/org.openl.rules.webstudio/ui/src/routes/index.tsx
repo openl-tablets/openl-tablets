@@ -4,11 +4,8 @@ import { Notification } from 'containers/notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
-import { RepoDesignPage } from 'pages/RepoDesignPage'
-import { RepoDeploymentPage } from 'pages/RepoDeploymentPage'
-import { RepoDeployConfPage } from 'pages/RepoDeployConfPage'
 import { GroupsAndUsers } from '../containers/GroupsAndUsers'
-import { UserPage } from 'pages/UserPage'
+import { Repositories } from '../containers/Repositories'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
@@ -62,20 +59,11 @@ const router = createBrowserRouter([
                         element: <Email />,
                     },
                     {
-                        path: 'repository/design',
-                        element: <RepoDesignPage />,
-                    },
-                    {
-                        path: 'repository/config',
-                        element: <RepoDeployConfPage />,
-                    },
-                    {
-                        path: 'repository/deployment',
-                        element: <RepoDeploymentPage />,
+                        path: 'repositories/:repositoryTab',
+                        element: <Repositories />,
                     },
                     {
                         path: 'user',
-                        element: <UserPage />,
                         children: [
                             {
                                 path: 'profile',

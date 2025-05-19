@@ -22,6 +22,8 @@ i18next.addResourceBundle('en', 'users', {
     design_repositories: 'Design Repositories',
     deploy_repositories: 'Deploy Repositories',
     projects: 'Projects',
+    account: 'Account',
+    name: 'Name',
     edit_modal: {
         username: 'Username',
         email: 'Email',

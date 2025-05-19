@@ -48,7 +48,7 @@ export const Header = () => {
         const defaultMenuItems = [
             {
                 key: basePath + '/',
-                label: t('common:menu.advanced_editor'),
+                label: t('common:menu.editor'),
             },
             {
                 key: basePath + '/faces/pages/modules/repository/index.xhtml',

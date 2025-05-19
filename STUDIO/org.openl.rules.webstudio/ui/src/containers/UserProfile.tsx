@@ -74,7 +74,7 @@ export const UserProfile: React.FC = () => {
             wrapperCol={{ flex: 1 }}
         >
             <UserDetailsTab displayPasswordField={false} externalFlags={userProfile.externalFlags} isNewUser={false} />
-            <Divider plain orientation="left">{t('user:profile.change_password')}</Divider>
+            <Divider orientation="left">{t('user:profile.change_password')}</Divider>
             <InputPassword label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} />
             <InputPassword label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} />
             <InputPassword label={t('user:profile.confirm_password')} name={['changePassword', 'confirmPassword']} />
