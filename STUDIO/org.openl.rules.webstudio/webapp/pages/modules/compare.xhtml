@@ -2,6 +2,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/pages/layout/simpleLayout.xhtml"
@@ -31,7 +32,7 @@
                 <h:panelGrid columns="2">
                     <h:outputText value="#{msg['ws.compare.select']}:" />
 
-                    <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
+                    <oh:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
                         maxFilesQuantity="2"
                         noDuplicate="true"
@@ -40,7 +41,7 @@
                         ontyperejected="showMessagePopup('Only xls and xlsx files are accepted');"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
-                    </rich:fileUpload>
+                    </oh:fileUpload>
 
                     <h:outputText value="#{msg['ws.compare.equals']}:" />
                     <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualElements}" />
