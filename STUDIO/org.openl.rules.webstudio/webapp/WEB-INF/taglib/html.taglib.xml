@@ -23,6 +23,7 @@
         <component>
             <component-type>openl.UIFileUpload</component-type>
             <handler-class>org.richfaces.view.facelets.FileUploadHandler</handler-class>
+            <renderer-type>org.richfaces.FileUploadRenderer</renderer-type>
         </component>
     </tag>
 </facelet-taglib>
