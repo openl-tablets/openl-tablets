@@ -38,8 +38,7 @@ export const UserSettings: React.FC = () => {
     ]
 
     const handleSubmit = async (values: UserProfileFormFields) => {
-        const { profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
-        // const { profiles, externalFlags, username, ...requestBody } = { ...values }
+        const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
 
         try {
             const body = {
