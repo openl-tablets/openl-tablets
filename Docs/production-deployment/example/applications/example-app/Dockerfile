@@ -17,5 +17,6 @@ FROM openltablets/ws:latest
 
 COPY --from=unpacker /tmp/projects /opt/openl/openl-repository
 COPY src/main/resources/application.properties /opt/openl/application.properties
+COPY target/lib/ /opt/openl/app/webapps/ROOT/WEB-INF/lib
 # Use the default script from the base image to start the application
 CMD ["/opt/openl/start.sh"]

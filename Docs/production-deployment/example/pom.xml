@@ -33,6 +33,7 @@
     <modules>
         <module>example-1</module>
         <module>example-2</module>
+        <module>auth-extension</module>
         <module>applications</module>
     </modules>
 

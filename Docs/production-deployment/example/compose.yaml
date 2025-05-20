@@ -7,5 +7,11 @@ services:
     container_name: example-app
     ports:
       - "8080:8080"
+      - "1177:1077"
     restart: unless-stopped
+    environment:
+      AUTH_CLIENT_ID: client_qa
+      AUTH_CLIENT_SECRET: client_secret
+      JAVA_OPTS: '-XX:NativeMemoryTracking=summary -Xmx1000m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:1077'
+      
     

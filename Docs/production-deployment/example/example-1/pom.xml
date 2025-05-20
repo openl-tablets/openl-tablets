@@ -26,5 +26,13 @@
             </plugin>
         </plugins>
     </build>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.eisgroup.openl.example</groupId>
+            <artifactId>auth-extension</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

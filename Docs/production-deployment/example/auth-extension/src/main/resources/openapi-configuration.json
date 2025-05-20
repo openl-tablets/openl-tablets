@@ -1,0 +1,24 @@
+{
+  "openAPI": {
+    "components": {
+      "securitySchemes": {
+        "ClientHeaderAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "client-id"
+        },
+        "ClientSecretAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "client-secret"
+        }
+      }
+    },
+    "security": [
+      {
+        "ClientHeaderAuth": [],
+        "ClientSecretAuth": []
+      }
+    ]
+  }
+}

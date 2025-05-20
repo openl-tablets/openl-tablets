@@ -30,6 +30,11 @@
             <classifier>deployment</classifier>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>com.eisgroup.openl.example</groupId>
+            <artifactId>auth-extension</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,6 +56,17 @@
                             <outputDirectory>${project.build.directory}/zips</outputDirectory>
                             <stripVersion>true</stripVersion>
                             <stripClassifier>true</stripClassifier>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-libs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeTypes>jar</includeTypes>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
