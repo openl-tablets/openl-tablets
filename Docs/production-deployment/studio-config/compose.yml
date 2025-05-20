@@ -173,34 +173,70 @@ services:
       DB_URL: jdbc:postgresql://postgres-db:5432/webstudio
       DB_USER: openl_user
       DB_PASSWORD: openl_password
-      #Repository config
+      ## Repository config
+      # This is a list of unique IDs for design repositories. Settings for this repository are going to look like 
+      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPL_<property-name> 
       DESIGN-REPOSITORY-CONFIGS: example
+      # "Customize comments" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USE-CUSTOM-COMMENTS: true
+      # "User message pattern" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
+      # "Invalid user message hint " as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like 'JIRATICKETKEY-0000' and followed by short description"
+      # "URL" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
+      # Display name of the studio's git user (set in Git settings)
       REPOSITORY_EXAMPLE_USER-DISPLAY-NAME: "OpenL webstudio"
+      # Email of the studio's git user (set in Git settings)
       REPOSITORY_EXAMPLE_USER-EMAIL: "openl-webstudio@example.com"
+      # "repo-git.failed-authentication-seconds" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_FAILED-AUTHENTICATION-SECONDS: 300
+      # Fixed value indicating remote git repository type. Equates to "git" in "Type" field in settings.
       REPOSITORY_EXAMPLE_FACTORY: "repo-git"
+      # "Name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_NAME: "Example"
+      # "Login" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LOGIN: admin_user
+      # "Password" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PASSWORD: admin_password
+      # "Local path" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
+      # "Default branch name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_BRANCH: main
+      # "Protected branches" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
+      # "Connection timeout" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT: 60
+      # "Changes check interval" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD: 10
+      # "Flat folder structure" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
+      # "Default branch name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_NEW-BRANCH_PATTERN: JIRATICKETKEY-
+      # "Branch name pattern" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_NEW-BRANCH_REGEX: 
+      # "Invalid branch name message hint" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_NEW-BRANCH_REGEX-ERROR: 
+      # "User message pattern" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_COMMENT-VALIDATION-PATTERN: "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}"
+      # "Invalid user message hint" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_INVALID-COMMENT-MESSAGE: "Invalid comment: Comment must be started with ticket number like 'JIRATICKETKEY-0000'  and followed by short description"
+      # "Message template" field in the dialog
+      # Comment message template for Git commits.
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE: "{user-message}"
+      # "Save project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_SAVE: "Project {project-name} is saved."
+      # "Create project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_CREATE: "Project {project-name} is created."
+      # "Archive project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ARCHIVE: "Project {project-name} is archived."
+      # "Restore project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORE: "Project {project-name} is restored."
+      # "Erase project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_ERASE: "Project {project-name} is erased."
+      # "Copy project" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_COPIED-FROM: "Copied from: {project-name}."
+      # "Restore from old version" default value as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_COMMENT-TEMPLATE_USER-MESSAGE_DEFAULT_RESTORED-FROM: "Restored from revision of {author} on {datetime}."
       
   postgres:
