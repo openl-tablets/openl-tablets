@@ -13,7 +13,7 @@ export const UserProfile: React.FC = () => {
     const { userProfile, loadUserProfile } = useContext(UserContext)
 
     const handleSubmit = async (values: UserProfileFormFields) => {
-        const { profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
+        const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
         const { username: _, displayNameSelect, changePassword, ...restFormValues } = values
         const { newPassword = '', currentPassword = '', confirmPassword = '' }  = changePassword || {}
 
