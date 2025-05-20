@@ -143,8 +143,10 @@ export const System: React.FC = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(values),
-        }).then(() => {
+        }, true).then(() => {
             window.location.reload()
+        }).catch(e => {
+            notification.error({ message: e.toString() })
         })
     }
 

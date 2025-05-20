@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
 import { Checkbox, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { Button, Form, Row } from 'antd'
@@ -12,7 +12,9 @@ import { FormRefProps } from './index'
 export const DeployConfiguration = forwardRef<FormRefProps>((_, ref) => {
     const { t } = useTranslation()
     const { configuration,
-        handleApplyConfiguration } = useRepositoryConfiguration(RepositoryDataType.DEPLOY_CONFIGURATION)
+        handleApplyConfiguration,
+        fetchRepositoryConfigurationTemplate } = useRepositoryConfiguration(RepositoryDataType.DEPLOY_CONFIGURATION)
+    const [defaultConfiguration, setDefaultConfiguration] = React.useState(null)
     const [designRepositoryOptions, setDesignRepositoryOptions] = React.useState([])
     const [form] = Form.useForm()
     const useDesignRepository = Form.useWatch(['useDesignRepository'], { form, preserve: true })
@@ -21,6 +23,12 @@ export const DeployConfiguration = forwardRef<FormRefProps>((_, ref) => {
     useImperativeHandle(ref, () => ({
         getForm: () => form,
     }))
+
+    const fetchDefaultConfiguration = async (type: string) => {
+        const { id, name, ...defaultConfig } = await fetchRepositoryConfigurationTemplate(type)
+        setDefaultConfiguration(defaultConfig)
+        form.setFieldsValue(defaultConfig)
+    }
 
     const fetchDesignRepositories = async () => {
         const options = await apiCall('/repos').then(response => {
@@ -40,6 +48,26 @@ export const DeployConfiguration = forwardRef<FormRefProps>((_, ref) => {
         const { name, settings } = configuration || {}
 
         handleApplyConfiguration({ name, settings, ...rest })
+    }
+
+    const configurationData = useMemo(() => {
+        // @ts-ignore
+        if (repositoryType === configuration?.type) {
+            return configuration
+        }
+        return defaultConfiguration
+    }, [repositoryType, defaultConfiguration, configuration])
+
+    const onChangeType = (value: any) => {
+        if (configuration
+            && repositoryType
+            // @ts-ignore
+            && configuration.type !== value)
+        {
+            fetchDefaultConfiguration(value)
+        } else {
+            form.setFieldsValue(configuration)
+        }
     }
 
     useEffect(() => {
@@ -77,7 +105,7 @@ export const DeployConfiguration = forwardRef<FormRefProps>((_, ref) => {
             {useDesignRepository ? (
                 <Select label={t('repository:repository')} name="useDesignRepositoryForDeployConfig" options={designRepositoryOptions} />
             ) : (
-                <RepositoryConfigurationComponent configuration={configuration} repositoryDataType={RepositoryDataType.DEPLOY_CONFIGURATION} repositoryType={repositoryType} />
+                <RepositoryConfigurationComponent configuration={configurationData} onChangeType={onChangeType} repositoryDataType={RepositoryDataType.DEPLOY_CONFIGURATION} repositoryType={repositoryType} />
             )}
             <Row justify="end">
                 <Button htmlType="submit" type="primary">Apply Changes</Button>

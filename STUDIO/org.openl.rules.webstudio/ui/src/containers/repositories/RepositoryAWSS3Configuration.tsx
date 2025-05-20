@@ -41,13 +41,13 @@ export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps>
     
     return (
         <>
-            <Input name={['settings', 'serviceEndpoint']} label={t('repository:service_endpoint')} />
-            <Input name={['settings', 'bucketName']} label={t('repository:bucket_name')} rules={[{ required: true, message: t('common:validation.required') }]} />
-            <Select name={['settings', 'regionName']} options={regionOptions} label={t('repository:region_name')} rules={[{ required: true, message: t('common:validation.required') }]} />
-            <Input name={['settings', 'accessKey']} label={t('repository:access_key')} />
-            <Input name={['settings', 'secretKey']} label={t('repository:secret_key')} />
-            <InputNumber name={['settings', 'listenerTimerPeriod']} label={t('repository:listener_timer_period_sec')} />
-            <Select name={['settings', 'sseAlgorithm']} options={sseAlgorithmOptions} label={t('repository:sse_algorithm')} />
+            <Input label={t('repository:service_endpoint')} name={['settings', 'serviceEndpoint']} />
+            <Input label={t('repository:bucket_name')} name={['settings', 'bucketName']} rules={[{ required: true, message: t('common:validation.required') }]} />
+            <Select label={t('repository:region_name')} name={['settings', 'regionName']} options={regionOptions} rules={[{ required: true, message: t('common:validation.required') }]} />
+            <Input label={t('repository:access_key')} name={['settings', 'accessKey']} />
+            <Input label={t('repository:secret_key')} name={['settings', 'secretKey']} />
+            <InputNumber label={t('repository:listener_timer_period_sec')} name={['settings', 'listenerTimerPeriod']} />
+            <Select label={t('repository:sse_algorithm')} name={['settings', 'sseAlgorithm']} options={sseAlgorithmOptions} />
         </>
     )
 }
