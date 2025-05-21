@@ -134,7 +134,7 @@ public abstract class WebStudioUtils {
     }
 
     public static void throwValidationError(String message) {
-        throw new ValidatorException(new FacesMessage(message));
+        throw new ValidatorException(new FacesMessage(message, ""));
     }
 
     public static void validate(boolean condition, String message) {

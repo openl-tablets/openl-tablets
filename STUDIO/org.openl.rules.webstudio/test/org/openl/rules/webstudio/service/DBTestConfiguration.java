@@ -9,7 +9,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;

@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import jakarta.security.auth.login.FailedLoginException;
+import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.env.PropertyResolver;

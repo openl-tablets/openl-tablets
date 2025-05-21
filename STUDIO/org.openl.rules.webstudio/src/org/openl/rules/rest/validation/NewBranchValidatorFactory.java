@@ -1,7 +1,7 @@
 package org.openl.rules.rest.validation;
 
 import java.util.function.Function;
-import jakarta.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;

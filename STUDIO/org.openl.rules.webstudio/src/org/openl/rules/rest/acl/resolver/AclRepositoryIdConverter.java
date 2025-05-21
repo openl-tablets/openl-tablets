@@ -1,6 +1,6 @@
 package org.openl.rules.rest.acl.resolver;
 
-import jakarta.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.core.convert.converter.Converter;
 

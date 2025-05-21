@@ -7,7 +7,7 @@ import static org.openl.rules.webstudio.web.admin.RepositoryValidators.getMostSp
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-import jakarta.security.auth.login.FailedLoginException;
+import javax.security.auth.login.FailedLoginException;
 
 import org.junit.jupiter.api.Test;
 
