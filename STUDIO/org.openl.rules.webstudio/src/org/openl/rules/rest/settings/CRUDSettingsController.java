@@ -24,7 +24,7 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
 
     private final ObjectMapper objectMapper;
     private final BeanValidationProvider validationProvider;
-    private final SettingsService settingsService;
+    protected final SettingsService settingsService;
     private final Supplier<E> settingsFactory;
 
     protected CRUDSettingsController(ObjectMapper objectMapper, BeanValidationProvider validationProvider,
@@ -63,10 +63,14 @@ public abstract class CRUDSettingsController<E extends SettingsHolder> {
     @Operation(summary = "msg.settings.patch-merge.summary", description = "msg.settings.patch-merge.desc")
     public void mergePatchSettings(@RequestBody JsonNode patch) throws IOException {
         var originalSettings = loadSettings();
-        var updatedSettings = objectMapper.readerForUpdating(originalSettings).<E>readValue(patch);
+        var updatedSettings = mergeSettings(originalSettings, patch);
         validationProvider.validate(updatedSettings);
         settingsService.store(updatedSettings);
         settingsService.commit();
+    }
+
+    protected E mergeSettings(E originalSettings, JsonNode patch) throws IOException {
+        return objectMapper.readerForUpdating(originalSettings).<E>readValue(patch);
     }
 
     @AdminPrivilege
