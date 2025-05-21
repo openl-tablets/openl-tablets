@@ -3,6 +3,7 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
+  xmlns:oh="http://openl-tablets.sf.net/jsf/html"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <rich:popupPanel id="modalUpdateFile" minWidth="500" autosized="true">
@@ -18,7 +19,7 @@
     <h:form id="updateFileForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File:" />
-        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+        <oh:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                          maxFilesQuantity="1"
                          immediateUpload="true"
                          render="fileChangedFormData"

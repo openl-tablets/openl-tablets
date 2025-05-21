@@ -3,6 +3,7 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
+        xmlns:oh="http://openl-tablets.sf.net/jsf/html"
         xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
@@ -201,7 +202,7 @@
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
 
-                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                        <oh:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                                          onfilesubmit="showLoader();"
                                          oncomplete="excelFileUploaded=true; hideLoader(); checkCreateOnExcelPanel();"
                                          immediateUpload="true"
@@ -271,7 +272,7 @@
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
 
-                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                        <oh:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                                          onfilesubmit="showLoader();"
                                          oncomplete="zipFileUploaded = true; uploadProjectFormCommentHandler.isEdited = false; checkCreateOnZipPanel(); hideLoader();"
                                          onclear="zipFileUploaded = false; onClearFile(event); checkCreateOnZipPanel();"
@@ -343,7 +344,7 @@
                 <h:form id="openAPIProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
-                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                        <oh:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                                          onfilesubmit="showLoader();"
                                          oncomplete="openApiFileUploaded=true; hideLoader(); checkCreateOnOpenApiPanel();"
                                          immediateUpload="true"
