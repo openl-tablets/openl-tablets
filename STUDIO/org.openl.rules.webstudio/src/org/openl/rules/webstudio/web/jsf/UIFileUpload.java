@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.jsf;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.faces.component.FacesComponent;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ListenerFor;
-import javax.faces.event.PostAddToViewEvent;
+import jakarta.faces.component.FacesComponent;
+import jakarta.faces.event.AbortProcessingException;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.event.ListenerFor;
+import jakarta.faces.event.PostAddToViewEvent;
 
 /**
  * Workaround: fixed issue with file upload component on EDITOR page. For some reason,

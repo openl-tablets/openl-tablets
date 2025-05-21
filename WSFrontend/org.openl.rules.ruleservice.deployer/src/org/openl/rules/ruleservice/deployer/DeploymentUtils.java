@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.InputStream;
-import jakarta.xml.xpath.XPath;
-import jakarta.xml.xpath.XPathExpression;
-import jakarta.xml.xpath.XPathExpressionException;
-import jakarta.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.xml.sax.InputSource;
 

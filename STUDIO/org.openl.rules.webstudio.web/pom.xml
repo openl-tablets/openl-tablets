@@ -32,8 +32,8 @@
             <artifactId>richfaces</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.faces</artifactId>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
         </dependency>
 
         <!-- OpenL dependencies -->
