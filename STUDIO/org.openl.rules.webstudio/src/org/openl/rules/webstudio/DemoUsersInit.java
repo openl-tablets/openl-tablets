@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.web.Props;
 
 /**
  * Creates users for demo mode.
@@ -31,6 +32,10 @@ public class DemoUsersInit {
     public void init() {
         if (initialized) {
             // Demo users are created already.
+            return;
+        }
+
+        if (!Props.bool("demo.init")) {
             return;
         }
 

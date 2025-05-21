@@ -14,6 +14,8 @@
     <!-- Init DEFAULT user -->
     <bean class="org.openl.rules.webstudio.SingleUserModeInit" init-method="init" lazy-init="false"/>
 
+    <bean class="org.openl.rules.webstudio.DemoUsersInit" lazy-init="false" init-method="init"/>
+
     <!-- Fill repository for the DEFAULT user -->
     <bean class="org.openl.rules.webstudio.DemoRepoInit" init-method="init" lazy-init="false"/>
 
