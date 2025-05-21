@@ -11,7 +11,6 @@
 
     <import resource="common-authentication.xml"/>
     <import resource="authorization.xml"/>
-    <import resource="db-services.xml"/>
 
     <!-- Scan for auto-wiring classes in spring saml packages -->
     <context:component-scan base-package="org.springframework.security.saml2"/>

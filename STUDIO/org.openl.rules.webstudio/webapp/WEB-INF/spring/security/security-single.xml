@@ -5,19 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
-    <import resource="db-services.xml"/>
-
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
         <constructor-arg type="boolean" value="false"/>
     </bean>
-
-    <!-- Init DEFAULT user -->
-    <bean class="org.openl.rules.webstudio.SingleUserModeInit" init-method="init" lazy-init="false"/>
-
-    <bean class="org.openl.rules.webstudio.DemoUsersInit" lazy-init="false" init-method="init"/>
-
-    <!-- Fill repository for the DEFAULT user -->
-    <bean class="org.openl.rules.webstudio.DemoRepoInit" init-method="init" lazy-init="false"/>
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <property name="requestRejectedHandler" ref="requestRejectedHandler"/>

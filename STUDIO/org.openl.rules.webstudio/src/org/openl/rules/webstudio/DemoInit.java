@@ -1,19 +1,25 @@
 package org.openl.rules.webstudio;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -30,35 +36,35 @@ import org.openl.spring.env.DynamicPropertySource;
  *
  * @author Yury Molchan
  */
-public class DemoRepoInit {
-    private static final Logger LOG = LoggerFactory.getLogger(DemoRepoInit.class);
+@Component
+@ConditionalOnProperty(name = "demo.init", havingValue = "true")
+@DependsOn("singleUserModeInit")
+public class DemoInit {
+    private static final Logger LOG = LoggerFactory.getLogger(DemoInit.class);
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
     private final PathFilter zipFilter;
     private final MultiUserWorkspaceManager workspaceManager;
     private final DeploymentManager deploymentManager;
-    private final SingleUserModeInit singleUserModeInit;
+    private final UserManagementService userManagementService;
+    private final AclProjectsHelper aclProjectsHelper;
 
     @Autowired
-    public DemoRepoInit(@Qualifier("zipFilter") PathFilter zipFilter,
-                        MultiUserWorkspaceManager workspaceManager,
-                        DeploymentManager deploymentManager,
-                        SingleUserModeInit singleUserModeInit) {
+    public DemoInit(@Qualifier("zipFilter") PathFilter zipFilter,
+                    MultiUserWorkspaceManager workspaceManager,
+                    DeploymentManager deploymentManager,
+                    UserManagementService userManagementService,
+                    AclProjectsHelper aclProjectsHelper) {
         this.zipFilter = zipFilter;
         this.workspaceManager = workspaceManager;
         this.deploymentManager = deploymentManager;
-        this.singleUserModeInit = singleUserModeInit;
+        this.userManagementService = userManagementService;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
-    @Autowired
-    private AclProjectsHelper aclProjectsHelper;
-
+    @PostConstruct
     public void init() {
-        if (!Props.bool("demo.init")) {
-            return;
-        }
-
         try {
             var config = new HashMap<String, String>();
             config.put("demo.init", null);
@@ -67,10 +73,21 @@ public class DemoRepoInit {
             LOG.error("Could not clean demo.init property", ex);
         }
 
-        WorkspaceUserImpl user = new WorkspaceUserImpl(singleUserModeInit.getUsername(),
-                (x) -> new UserInfo(singleUserModeInit.getUsername(),
-                        singleUserModeInit.getEmail(),
-                        singleUserModeInit.getDisplayName()));
+        var usr = userManagementService.getAllUsers().getFirst();
+
+        initUser("admin", "admin@example.com", "Admin", "Administrators");
+        initUser("a1", "a1@example.com", "A1", "Administrators");
+        initUser("u0", "u0@example.com", "U0", "Testers");
+        initUser("u1", "u1@example.com", "U1", "Developers", "Analysts");
+        initUser("u2", "u2@example.com", "U2", "Viewers");
+        initUser("u3", "u3@example.com", "U3", "Viewers");
+        initUser("u4", "u4@example.com", "U4", "Deployers");
+        initUser("user", "user@example.com", "User", "Viewers");
+
+        WorkspaceUserImpl user = new WorkspaceUserImpl(usr.getUsername(),
+                (x) -> new UserInfo(usr.getUsername(),
+                        usr.getEmail(),
+                        usr.getDisplayName()));
         UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
         createProject(userWorkspace, "examples", "Example 1 - Bank Rating", true, false);
@@ -84,6 +101,18 @@ public class DemoRepoInit {
         createProject(userWorkspace, "tutorials", "Tutorial 6 - Introduction to Spreadsheet Tables", false, false);
         createProject(userWorkspace, "tutorials", "Tutorial 7 - Introduction to Table Properties", false, false);
         createProject(userWorkspace, "tutorials", "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", true, false);
+    }
+
+    private void initUser(String user, String email, String displayName, String... groups) {
+        userManagementService.addUser(user,
+                null,
+                null,
+                user,
+                email,
+                displayName
+        );
+        userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
+
     }
 
     private void createProject(UserWorkspace userWorkspace, String part, String projectName, boolean open, boolean deploy) {
