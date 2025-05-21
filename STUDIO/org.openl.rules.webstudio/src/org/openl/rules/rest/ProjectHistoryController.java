@@ -3,7 +3,7 @@ package org.openl.rules.rest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

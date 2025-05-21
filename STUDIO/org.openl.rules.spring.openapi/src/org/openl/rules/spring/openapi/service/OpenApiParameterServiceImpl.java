@@ -12,11 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.converter.AnnotatedType;
@@ -255,7 +255,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     }
 
     /**
-     * Applies javax validation annotations from method parameter to provided schema
+     * Applies jakarta validation annotations from method parameter to provided schema
      *
      * @param paramInfo method parameter
      * @param schema    schema to apply validation annotations

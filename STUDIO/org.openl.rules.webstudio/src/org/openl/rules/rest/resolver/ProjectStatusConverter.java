@@ -1,6 +1,6 @@
 package org.openl.rules.rest.resolver;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

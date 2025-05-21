@@ -15,7 +15,7 @@ In case when the default security does not meet the requirements, a custom imple
 ```java
 package org.openl.rules.ruleservice.spring;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -43,8 +43,8 @@ A custom access denied handler can be registered to be called when no checkers r
 ```java
 package org.openl.rules.ruleservice.spring;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

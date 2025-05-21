@@ -2,7 +2,7 @@ package org.openl.rules.rest.resolver;
 
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;

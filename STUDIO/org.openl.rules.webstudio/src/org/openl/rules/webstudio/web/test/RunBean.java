@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;

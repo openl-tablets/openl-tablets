@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
 import java.util.Map;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpSession;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 

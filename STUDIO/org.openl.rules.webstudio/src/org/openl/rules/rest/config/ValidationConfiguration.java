@@ -1,7 +1,7 @@
 package org.openl.rules.rest.config;
 
 import java.util.List;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

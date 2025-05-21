@@ -1,8 +1,8 @@
 package org.openl.rules.rest.settings.model.validation;
 
-import javax.faces.validator.ValidatorException;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.faces.validator.ValidatorException;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 

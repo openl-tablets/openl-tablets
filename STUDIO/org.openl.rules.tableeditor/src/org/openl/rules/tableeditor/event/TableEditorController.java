@@ -2,9 +2,9 @@ package org.openl.rules.tableeditor.event;
 
 import java.io.IOException;
 import java.util.Date;
-import javax.el.ELContext;
-import javax.el.MethodExpression;
-import javax.faces.context.FacesContext;
+import jakarta.el.ELContext;
+import jakarta.el.MethodExpression;
+import jakarta.faces.context.FacesContext;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;

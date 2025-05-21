@@ -4,9 +4,9 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

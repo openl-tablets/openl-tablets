@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.Arrays;
 import java.util.List;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;

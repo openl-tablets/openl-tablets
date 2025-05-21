@@ -19,11 +19,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.xpath.XPath;
+import jakarta.xml.xpath.XPathExpression;
+import jakarta.xml.xpath.XPathExpressionException;
+import jakarta.xml.xpath.XPathFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

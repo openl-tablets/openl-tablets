@@ -1,7 +1,7 @@
 package org.openl.rules.rest.settings.model.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import org.openl.util.StringUtils;
 

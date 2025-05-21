@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.grpc;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

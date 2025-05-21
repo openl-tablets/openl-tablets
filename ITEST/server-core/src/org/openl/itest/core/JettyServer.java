@@ -42,7 +42,7 @@ public class JettyServer {
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
-                "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
+                "|.*jakarta\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
 
         var server = new Server(0);
         server.setStopAtShutdown(true);
