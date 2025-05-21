@@ -27,6 +27,10 @@
             <artifactId>jetty-ee10-webapp</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty.ee10.websocket</groupId>
+            <artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-annotations</artifactId>
         </dependency>
