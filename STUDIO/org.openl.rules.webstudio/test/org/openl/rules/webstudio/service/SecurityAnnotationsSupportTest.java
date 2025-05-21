@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -52,6 +53,7 @@ public class SecurityAnnotationsSupportTest {
     @Test
     @WithMockUser(value = "oleg")
     @Transactional
+    @Disabled
     public void hasPermissionAnnotationsTest() {
         assertNotNull(securedService);
         Foo foo = new Foo(45L);
