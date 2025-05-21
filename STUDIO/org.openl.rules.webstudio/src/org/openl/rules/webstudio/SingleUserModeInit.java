@@ -1,13 +1,19 @@
 package org.openl.rules.webstudio;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.webstudio.service.UserManagementService;
 
 /**
  * Creates a user for single user mode.
  */
+@Component("singleUserModeInit")
+@ConditionalOnProperty(name = "user.mode", havingValue = "single")
 public class SingleUserModeInit {
 
     private final String username;
@@ -33,18 +39,7 @@ public class SingleUserModeInit {
         this.displayName = displayName;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
+    @PostConstruct
     public void init() {
         userManagementService.syncUserData(username, firstName, lastName, email, displayName);
     }
