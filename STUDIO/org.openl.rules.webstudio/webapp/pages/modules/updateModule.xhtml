@@ -3,6 +3,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <f:view transient="true">
@@ -19,7 +20,7 @@
         <h:form id="updateModuleForm">
             <h:panelGrid id="updateModuleFormData" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="moduleUpload" styleClass="required" value="File" />
-                <rich:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
+                <oh:fileUpload id="moduleUpload" fileUploadListener="#{studio.uploadListener}"
                                  immediateUpload="true"
                                  render="moduleChangedFormData"
                                  onfilesubmit="ws.ui.showLoader();"

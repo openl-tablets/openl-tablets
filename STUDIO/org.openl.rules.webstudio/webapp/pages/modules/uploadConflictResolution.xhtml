@@ -4,6 +4,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
@@ -18,7 +19,7 @@
     </f:facet>
 
     <h:form id="uploadFileForm">
-      <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}"
+      <oh:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}"
                        maxFilesQuantity="1"
                        immediateUpload="true"
                        onfilesubmit="ws.ui.showLoader();" oncomplete="ws.ui.hideLoader();"
