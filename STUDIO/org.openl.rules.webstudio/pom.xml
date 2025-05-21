@@ -268,10 +268,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.security.cas</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
         </dependency>
         <dependency>
