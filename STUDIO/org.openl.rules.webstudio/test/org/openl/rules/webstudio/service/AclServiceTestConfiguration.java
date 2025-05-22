@@ -6,10 +6,11 @@ import org.springframework.context.annotation.Import;
 
 import org.openl.rules.security.config.MethodSecurityConfig;
 import org.openl.rules.webstudio.config.SpringCachingConfig;
+import org.openl.security.acl.config.EnabledAclConfiguration;
 import org.openl.security.acl.config.OpenLAclConfiguration;
 
 @Configuration
-@Import({OpenLAclConfiguration.class, SpringCachingConfig.class, MethodSecurityConfig.class})
+@Import({EnabledAclConfiguration.class, OpenLAclConfiguration.class, SpringCachingConfig.class, MethodSecurityConfig.class})
 public class AclServiceTestConfiguration {
 
     @Bean

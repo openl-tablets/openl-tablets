@@ -3,6 +3,7 @@ package org.openl.security.acl.config;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +35,9 @@ import org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl;
 
 /**
  * Configuration for ACL services that are enabled.
- * Imported by {@link AclImportSelector}.
  */
 @Configuration
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
 public class EnabledAclConfiguration {
 

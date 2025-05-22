@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,9 +15,9 @@ import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
 /**
  * Configuration for ACL services that are disabled.
- * Imported by {@link AclImportSelector}.
  */
 @Configuration
+@ConditionalOnProperty(name = "user.mode", havingValue = "single")
 public class DisabledAclConfiguration {
 
     @Bean
