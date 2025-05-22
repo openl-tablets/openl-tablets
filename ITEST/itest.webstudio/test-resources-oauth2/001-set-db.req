@@ -1,0 +1,9 @@
+PATCH /rest/admin/settings/system HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/merge-patch+json
+
+{
+  "db": {
+    "url": "jdbc:h2:mem:oauth2;DB_CLOSE_DELAY=-1"
+  }
+}

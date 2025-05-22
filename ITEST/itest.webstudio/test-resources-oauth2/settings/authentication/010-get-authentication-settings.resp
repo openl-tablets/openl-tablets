@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "userMode": "oauth2",
+  "administrators": ["admin"],
+  "defaultGroup": "Viewers",
+  "allowProjectCreateDelete": true,
+  "clientId": "openlstudio",
+  "clientSecret": {
+    "secret": true
+  },
+  "issuerUri": "*/realms/openlstudio",
+  "scope": "openid,profile,email",
+  "grantType": "authorization_code",
+  "attributes": {
+    "username": "preferred_username",
+    "firstName": "given_name",
+    "lastName": "family_name",
+    "displayName": "name",
+    "email": "email",
+    "groups": "groups"
+  }
+}
