@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.admin.security;
+package org.openl.rules.webstudio.web.admin;
 
 import java.util.Optional;
 import javax.validation.constraints.Min;
@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.DBConnectionConstraint;
-import org.openl.rules.webstudio.web.admin.SettingPropertyName;
-import org.openl.rules.webstudio.web.admin.SettingsHolder;
 
 @DBConnectionConstraint
 public class DBSettings implements SettingsHolder {

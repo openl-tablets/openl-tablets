@@ -722,6 +722,9 @@ Content-Type: application/json
             "description" : "***",
             "minimum": 1
           },
+          "db": {
+            "$ref": "#/components/schemas/DBSettings"
+          },
           "timeFormat" : {
             "type": "string",
             "description" : "***"
@@ -735,7 +738,37 @@ Content-Type: application/json
             "description" : "***"
           }
         },
-        "required" : [ "datePattern", "timeFormat" ]
+        "required": ["datePattern", "db", "timeFormat"]
+      },
+      "DBSettings": {
+        "type": "object",
+        "properties": {
+          "maximumPoolSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "example": 10,
+            "minimum": 1
+          },
+          "password": {
+            "type": "string",
+            "description": "***",
+            "example": "***"
+          },
+          "url": {
+            "type": "string",
+            "description": "***",
+            "example": "***"
+          },
+          "user": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        },
+        "required": ["url"]
       },
       "MailVerificationServerSettings" : {
         "type" : "object",

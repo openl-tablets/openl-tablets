@@ -9,5 +9,11 @@ Content-Type: application/json
   "timeFormat": "hh:mm:ss a",
   "testRunThreadCount": 4,
   "dispatchingValidationEnabled": true,
-  "autoCompile": true
+  "autoCompile": true,
+  "db": {
+    "url": "jdbc:h2:mem:users-db;DB_CLOSE_DELAY=-1",
+    "user": "",
+    "password": "",
+    "maximumPoolSize": 50
+  }
 }

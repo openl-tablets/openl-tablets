@@ -8,7 +8,7 @@ import java.util.Optional;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.openl.rules.webstudio.web.admin.security.DBSettings;
+import org.openl.rules.webstudio.web.admin.DBSettings;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
