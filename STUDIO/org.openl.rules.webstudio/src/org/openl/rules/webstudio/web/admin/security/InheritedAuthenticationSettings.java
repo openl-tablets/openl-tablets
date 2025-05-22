@@ -21,7 +21,7 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     private static final String SEP = ",";
 
     private static final String ADMINISTRATORS = "security.administrators";
-    private static final String DEFAULT_GROUP = "security.default-group";
+    public static final String DEFAULT_GROUP = "security.default-group";
     private static final String ALLOW_PROJECT_CREATE_DELETE = "security.allow-project-create-delete";
 
     @Parameter(description = "List of users with administrator privileges")
@@ -32,6 +32,7 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
 
     @Parameter(description = "Default group for any authenticated user")
     @SettingPropertyName(DEFAULT_GROUP)
+    @Size(max = 65)
     private String defaultGroup;
 
     @Parameter(description = "Global permission to create and delete projects")
