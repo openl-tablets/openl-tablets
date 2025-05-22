@@ -42,6 +42,10 @@ public class WebStudioTest {
             var smtp = smtpServer.getSmtp();
             JettyServer.get()
                     .withProfile("disabled-settings")
+                    // auth
+                    .withInitParam("user.mode", "multi")
+                    .withInitParam("security.administrators", "admin")
+                    .withInitParam("security.default-group", "Viewers")
                     // system settings
                     .withInitParam("user.workspace.home", "openl-repository/workspace")
                     .withInitParam("project.history.count", "99")
@@ -57,8 +61,6 @@ public class WebStudioTest {
                     .withInitParam("mail.url", smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort())
                     .withInitParam("mail.username", "username@email")
                     .withInitParam("mail.password", "password")
-                    // group settings
-                    .withInitParam("security.default-group", "Viewers")
                     // design repository settings
                     .withInitParam("design-repository-configs", "design")
                     .withInitParam("repository.design.factory", "repo-jdbc")
