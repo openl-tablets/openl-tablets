@@ -1,0 +1,2 @@
+DELETE /web/admin/settings/authentication HTTP/1.1
+

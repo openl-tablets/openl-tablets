@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userMode": "ad",
+  "defaultGroup": "",
+  "allowProjectCreateDelete": true,
+  "domain": "",
+  "serverUrl": "ldap://ldap.example.com:3268",
+  "searchFilter": "(&(objectClass=user)(userPrincipalName={0}))",
+  "groupFilter": "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={2}))"
+}

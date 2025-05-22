@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
@@ -48,6 +49,7 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
     @Parameter(description = "SAML attributes settings.")
     @Valid
     @NotNull
+    @JsonMerge
     private SAMLAttributesSettings attributes;
 
     public SAMLAuthenticationSettings() {

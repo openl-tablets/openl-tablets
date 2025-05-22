@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userMode": "oauth2",
+  "defaultGroup": "",
+  "allowProjectCreateDelete": true,
+  "clientId": "webstudio",
+  "clientSecret": "",
+  "issuerUri": "",
+  "scope": "openid,profile,email",
+  "grantType": "authorization_code",
+  "attributes": {
+    "username": "preferred_username",
+    "firstName": "given_name",
+    "lastName": "family_name",
+    "displayName": "name",
+    "email": "email",
+    "groups": "groups"
+  }
+}

@@ -1,0 +1,9 @@
+PATCH /web/admin/settings/authentication HTTP/1.1
+Content-Type: application/merge-patch+json
+
+{
+  "userMode": "single",
+  "user": {
+    "email": "foo@example.com"
+  }
+}
