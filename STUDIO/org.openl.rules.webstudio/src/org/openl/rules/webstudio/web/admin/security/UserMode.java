@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum UserMode {
 
-    DEMO("demo"),
     SINGLE("single"),
     MULTI("multi"),
     AD("ad"),
-    CAS("cas"),
     SAML("saml"),
     OAUTH2("oauth2");
 

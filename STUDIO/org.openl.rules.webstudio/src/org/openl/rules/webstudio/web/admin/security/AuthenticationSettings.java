@@ -11,24 +11,21 @@ import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "userMode", visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "userMode", visible = true, include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = AuthenticationSettings.class, name = "demo"),
         @JsonSubTypes.Type(value = NOPAuthenticationSettings.class, name = "single"),
         @JsonSubTypes.Type(value = InheritedAuthenticationSettings.class, name = "multi"),
         @JsonSubTypes.Type(value = ADAuthenticationSettings.class, name = "ad"),
-        @JsonSubTypes.Type(value = CASAuthenticationSettings.class, name = "cas"),
         @JsonSubTypes.Type(value = SAMLAuthenticationSettings.class, name = "saml"),
         @JsonSubTypes.Type(value = OAuth2AuthenticationSettings.class, name = "oauth2")
 })
 @Schema(oneOf = {
-        AuthenticationSettings.class,
         InheritedAuthenticationSettings.class,
         ADAuthenticationSettings.class,
-        CASAuthenticationSettings.class,
         SAMLAuthenticationSettings.class,
-        OAuth2AuthenticationSettings.class})
-public class AuthenticationSettings implements SettingsHolder {
+        OAuth2AuthenticationSettings.class
+})
+public abstract class AuthenticationSettings implements SettingsHolder {
 
     public static final String USER_MODE = "user.mode";
 

@@ -4,7 +4,6 @@ import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.settings.service.AuthenticationSettingsFactory;
 import org.openl.rules.webstudio.web.admin.security.ADAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.AuthenticationSettings;
-import org.openl.rules.webstudio.web.admin.security.CASAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.NOPAuthenticationSettings;
 import org.openl.rules.webstudio.web.admin.security.OAuth2AuthenticationSettings;
@@ -28,11 +27,9 @@ public class AuthenticationSettingsFactoryImpl implements AuthenticationSettings
     @Override
     public AuthenticationSettings create(UserMode userMode) {
         return switch (userMode) {
-            case DEMO -> new AuthenticationSettings();
             case SINGLE -> new NOPAuthenticationSettings();
             case MULTI -> new InheritedAuthenticationSettings();
             case AD -> new ADAuthenticationSettings();
-            case CAS -> new CASAuthenticationSettings();
             case SAML -> new SAMLAuthenticationSettings();
             case OAUTH2 -> new OAuth2AuthenticationSettings();
         };
