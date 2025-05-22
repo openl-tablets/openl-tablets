@@ -3,18 +3,24 @@ package org.openl.rules.webstudio.web.admin.security;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
+
 import org.openl.config.PropertiesHolder;
 
 public class NOPAuthenticationSettings extends AuthenticationSettings {
 
     @NotNull
     @Valid
+    @JsonMerge
     private NOPUserSettings user;
+
+    public NOPAuthenticationSettings() {
+        user = new NOPUserSettings();
+    }
 
     @Override
     public void load(PropertiesHolder properties) {
         super.load(properties);
-        user = new NOPUserSettings();
         user.load(properties);
     }
 

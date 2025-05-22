@@ -4,6 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
@@ -44,6 +45,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     @Parameter(description = "OAuth2 attributes settings.")
     @Valid
     @NotNull
+    @JsonMerge
     private OAuth2AttributesSettings attributes;
 
     public OAuth2AuthenticationSettings() {

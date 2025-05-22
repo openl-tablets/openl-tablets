@@ -13,6 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
@@ -82,6 +83,7 @@ public final class AdministrationSettings implements SettingsHolder {
 
     @Valid
     @NotNull
+    @JsonMerge
     private DBSettings db;
 
     static {
