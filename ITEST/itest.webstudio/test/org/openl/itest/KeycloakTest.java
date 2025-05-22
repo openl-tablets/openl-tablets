@@ -10,6 +10,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import org.openl.itest.core.JettyServer;
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
 public class KeycloakTest {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final String CLIENT_ID = "openlstudio";
     private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
 
@@ -29,20 +32,23 @@ public class KeycloakTest {
     @Test
     public void smoke() throws Exception {
         try (var keycloack = new KeycloakContainer("quay.io/keycloak/keycloak:latest")) {
-            keycloack
-                    .withRealmImportFile("/openlstudio-realm.json")
+            keycloack.withRealmImportFile("/openlstudio-realm.json")
                     .start();
             var authServerUrl = keycloack.getAuthServerUrl();
             try (var httpClient = JettyServer.get()
                         .withProfile("oauth2")
-                        .withInitParam("security.oauth2.client-id", CLIENT_ID)
-                        .withInitParam("security.oauth2.client-secret", CLIENT_SECRET)
-                        .withInitParam("security.oauth2.issuer-uri", authServerUrl + "realms/openlstudio")
                         .start()) {
                 httpClient.localEnv.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
                 httpClient.localEnv.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
                 httpClient.localEnv.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
                 httpClient.localEnv.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+
+                var oauth2Config = (ObjectNode) httpClient.readTree("test-resources-oauth2/set-authentication-template.json");
+                oauth2Config.put("issuerUri", authServerUrl + "realms/openlstudio");
+                oauth2Config.put("clientSecret", CLIENT_SECRET);
+                oauth2Config.put("clientId", CLIENT_ID);
+                httpClient.postForObject("/rest/admin/settings/authentication", oauth2Config);
+
                 httpClient.test("test-resources-oauth2");
 
                 // stop Keycloak to simulate the lag

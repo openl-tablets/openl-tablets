@@ -4,7 +4,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
@@ -24,8 +23,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     private String clientId;
 
     @Parameter(description = "Client secret used for authenticating to the OAuth2 server.")
-    @SettingPropertyName(CLIENT_SECRET)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @SettingPropertyName(value = CLIENT_SECRET, secret = true)
     @NotBlank
     private String clientSecret;
 
