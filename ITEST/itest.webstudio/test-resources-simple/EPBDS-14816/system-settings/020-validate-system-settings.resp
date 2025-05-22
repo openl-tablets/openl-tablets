@@ -10,6 +10,10 @@ Content-Type: application/json
       "field": "datePattern",
       "rejectedValue": "string"
     }, {
+      "code": "openl.error.NotBlank",
+      "message": "Database URL cannot be blank.",
+      "field": "db.url"
+    }, {
       "code": "openl.error.Min",
       "message": "must be greater than or equal to 0",
       "field": "projectHistoryCount",

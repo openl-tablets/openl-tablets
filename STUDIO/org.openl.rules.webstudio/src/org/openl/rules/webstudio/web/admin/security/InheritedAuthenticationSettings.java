@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,10 +23,6 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     private static final String ADMINISTRATORS = "security.administrators";
     private static final String DEFAULT_GROUP = "security.default-group";
     private static final String ALLOW_PROJECT_CREATE_DELETE = "security.allow-project-create-delete";
-
-    @Valid
-    @NotNull
-    private DBSettings db;
 
     @Parameter(description = "List of users with administrator privileges")
     @SettingPropertyName(ADMINISTRATORS)
@@ -46,8 +41,6 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     @Override
     public void load(PropertiesHolder properties) {
         super.load(properties);
-        db = new DBSettings();
-        db.load(properties);
         administrators = Optional.ofNullable(properties.getProperty(ADMINISTRATORS))
                 .map(s -> Stream.of(s.split(SEP))
                         .map(String::trim)
@@ -64,7 +57,6 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     @Override
     public void store(PropertiesHolder properties) {
         super.store(properties);
-        db.store(properties);
         properties.setProperty(ADMINISTRATORS, String.join(SEP, administrators));
         properties.setProperty(DEFAULT_GROUP, defaultGroup);
         properties.setProperty(ALLOW_PROJECT_CREATE_DELETE, allowProjectCreateDelete);
@@ -72,17 +64,8 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
 
     @Override
     public void revert(PropertiesHolder properties) {
-        db.revert(properties);
         properties.revertProperties(ADMINISTRATORS, DEFAULT_GROUP, ALLOW_PROJECT_CREATE_DELETE);
         super.revert(properties);
-    }
-
-    public DBSettings getDb() {
-        return db;
-    }
-
-    public void setDb(DBSettings db) {
-        this.db = db;
     }
 
     public Set<String> getAdministrators() {
