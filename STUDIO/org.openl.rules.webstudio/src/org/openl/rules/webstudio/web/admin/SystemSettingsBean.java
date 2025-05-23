@@ -65,8 +65,8 @@ public class SystemSettingsBean {
     private final RepositoryAclService designRepositoryAclService;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-                              RepositoryFactoryProxy designRepositoryFactoryProxy,
-                              RepositoryFactoryProxy productionRepositoryFactoryProxy,
+                              @Qualifier("designRepositoryFactoryProxy") RepositoryFactoryProxy designRepositoryFactoryProxy,
+                              @Qualifier("productionRepositoryFactoryProxy") RepositoryFactoryProxy productionRepositoryFactoryProxy,
                               DeploymentManager deploymentManager,
                               DesignTimeRepository designTimeRepository,
                               RepositoryTreeState repositoryTreeState,

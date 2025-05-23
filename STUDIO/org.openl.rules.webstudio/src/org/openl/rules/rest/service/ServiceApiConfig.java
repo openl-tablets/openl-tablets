@@ -1,6 +1,7 @@
 package org.openl.rules.rest.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +55,7 @@ public class ServiceApiConfig {
                                              TestSuiteExecutor testSuiteExecutor,
                                              UserSettingManagementService userSettingManagementService,
                                              RepositoryAclService designRepositoryAclService,
-                                             SimpleRepositoryAclService productionRepositoryAclService,
+                                             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                                              PathFilter zipFilter,
                                              ZipCharsetDetector zipCharsetDetector,
