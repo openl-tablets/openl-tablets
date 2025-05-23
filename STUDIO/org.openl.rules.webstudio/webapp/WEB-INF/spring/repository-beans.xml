@@ -23,7 +23,6 @@
     </bean>
 
     <bean id="designTimeRepository" class="org.openl.rules.webstudio.security.SecureDesignTimeRepositoryImpl">
-        <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
         <constructor-arg name="designTimeRepository">
             <bean class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init"
                   destroy-method="destroy">
@@ -31,6 +30,7 @@
                 <constructor-arg name="repositorySettings" ref="repositorySettings"/>
             </bean>
         </constructor-arg>
+        <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
