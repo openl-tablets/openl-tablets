@@ -1,16 +1,21 @@
 package org.openl.rules.webstudio.mail.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
+
 import org.openl.util.StringUtils;
 
+@ConstructorBinding
+@ConfigurationProperties(prefix = "mail")
 public class MailSenderProperties {
 
     private final String url;
-    private final String user;
+    private final String username;
     private final String password;
 
-    public MailSenderProperties(String url, String user, String password) {
+    public MailSenderProperties(String url, String username, String password) {
         this.url = url;
-        this.user = user;
+        this.username = username;
         this.password = password;
     }
 
@@ -18,8 +23,8 @@ public class MailSenderProperties {
         return url;
     }
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
     public String getPassword() {
@@ -27,6 +32,6 @@ public class MailSenderProperties {
     }
 
     public boolean isValidEmailSettings() {
-        return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password);
+        return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password);
     }
 }

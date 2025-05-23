@@ -11,12 +11,14 @@ import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,6 +56,7 @@ public class UserProfileController {
     private final UserManagementService userManagementService;
     private final UserSettingManagementService userSettingsManager;
     private final CurrentUserInfo currentUserInfo;
+    private final BooleanSupplier mailSenderFeature;
     private final MailSender mailSender;
     private final PropertyResolver environment;
     private final Boolean canCreateInternalUsers;
@@ -61,12 +64,14 @@ public class UserProfileController {
     public UserProfileController(UserManagementService userManagementService,
                                  UserSettingManagementService userSettingsManager,
                                  CurrentUserInfo currentUserInfo,
+                                 @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature,
                                  MailSender mailSender,
                                  PropertyResolver environment,
                                  Boolean canCreateInternalUsers) {
         this.userManagementService = userManagementService;
         this.userSettingsManager = userSettingsManager;
         this.currentUserInfo = currentUserInfo;
+        this.mailSenderFeature = mailSenderFeature;
         this.mailSender = mailSender;
         this.environment = environment;
         this.canCreateInternalUsers = canCreateInternalUsers;
@@ -187,7 +192,7 @@ public class UserProfileController {
         return UserOptions.builder()
                 .canCreateInternalUsers(canCreateInternalUsers)
                 .userMode(environment.getProperty("user.mode"))
-                .emailVerification(mailSender.isValidEmailSettings())
+                .emailVerification(mailSenderFeature.getAsBoolean())
                 .build();
     }
 
