@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.validation.MailConfigConstraint;
@@ -21,6 +22,7 @@ public class MailVerificationServerSettings implements SettingsHolder {
     private String username;
 
     @Parameter(description = "Password for authentication on mail server", example = "qwerty")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(value = MAIL_PASSWORD, secret = true)
     private String password;
 

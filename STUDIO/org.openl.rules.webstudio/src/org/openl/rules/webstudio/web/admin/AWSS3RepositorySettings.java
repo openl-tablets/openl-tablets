@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
@@ -43,11 +44,13 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private String regionName;
 
     @Parameter(description = "Alphanumeric text string that identifies the account owner.")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(suffix = ACCESS_KEY_PATH_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String accessKey;
 
     @Parameter(description = "Plays the role of a password.")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(suffix = SECRET_KEY_PATH_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String secretKey;

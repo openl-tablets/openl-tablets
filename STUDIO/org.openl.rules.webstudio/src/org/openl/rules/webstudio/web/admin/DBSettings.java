@@ -6,6 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.DBConnectionConstraint;
@@ -29,6 +30,7 @@ public class DBSettings implements SettingsHolder {
     private String user;
 
     @Parameter(description = "Database password", example = "password")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(value = DB_PASSWORD, secret = true)
     private String password;
 

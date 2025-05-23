@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 
@@ -29,6 +30,7 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
     private String accountName;
 
     @Parameter(description = "Account key")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(suffix = ACCOUNT_KEY_PROPERTY_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String accountKey;

@@ -3,10 +3,15 @@ package org.openl.rules.rest.settings.model.validation;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.webstudio.web.admin.DBSettings;
 import org.openl.util.PropertiesUtils;
@@ -14,7 +19,20 @@ import org.openl.util.StringUtils;
 
 public class DBConnectionConstraintValidator implements ConstraintValidator<DBConnectionConstraint, DBSettings> {
 
-    private static final String SQL_ERRORS_FILE_PATH = "/sql-errors.properties";
+    private static final Logger LOG = LoggerFactory.getLogger(DBConnectionConstraintValidator.class);
+
+    private static final Map<String, String> SQL_ERROR_MESSAGES;
+
+    static {
+        var properties = new HashMap<String, String>();
+        try {
+            var sqlErrorsFile = DBConnectionConstraintValidator.class.getResource("/sql-errors.properties");
+            PropertiesUtils.load(sqlErrorsFile, properties::put);
+        } catch (Exception e) {
+            LOG.warn("Failed to load SQL error messages", e);
+        }
+        SQL_ERROR_MESSAGES = Collections.unmodifiableMap(properties);
+    }
 
     @Override
     public boolean isValid(DBSettings settings, ConstraintValidatorContext ctx) {
@@ -46,13 +64,6 @@ public class DBConnectionConstraintValidator implements ConstraintValidator<DBCo
     }
 
     private String explainSqlError(int errorCode) {
-        String errorMessage = null;
-        try {
-            var properties = new HashMap<String, String>();
-            PropertiesUtils.load(getClass().getResource(SQL_ERRORS_FILE_PATH), properties::put);
-            errorMessage = properties.get(Integer.toString(errorCode));
-        } catch (Exception ignored) {
-        }
-        return errorMessage;
+        return SQL_ERROR_MESSAGES.get(Integer.toString(errorCode));
     }
 }

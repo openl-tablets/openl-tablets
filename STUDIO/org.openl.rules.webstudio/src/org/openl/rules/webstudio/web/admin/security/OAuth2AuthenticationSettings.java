@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
@@ -24,6 +25,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     private String clientId;
 
     @Parameter(description = "Client secret used for authenticating to the OAuth2 server.")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(value = CLIENT_SECRET, secret = true)
     @NotBlank
     private String clientSecret;

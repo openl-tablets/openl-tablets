@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(implementation = String.class)
+@Schema(implementation = String.class, format = "password")
 public class Credentials {
 
     @Parameter(description = "Login to check the connection to the LDAP server. It will not be saved anywhere.", example = "admin")

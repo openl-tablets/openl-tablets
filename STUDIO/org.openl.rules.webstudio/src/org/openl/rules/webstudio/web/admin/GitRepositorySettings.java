@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.NewBranchNamePatternConstraint;
@@ -49,6 +50,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private String login;
 
     @Parameter(description = "Password")
+    @Schema(implementation = String.class, format = "password")
     @SettingPropertyName(suffix = PASSWORD_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String password;
