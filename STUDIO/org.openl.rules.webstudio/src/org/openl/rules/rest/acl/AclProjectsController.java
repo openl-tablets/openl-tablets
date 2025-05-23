@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.model.Sid;
@@ -48,6 +49,7 @@ import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 @Validated
 @RestController
 @RequestMapping(value = "/acls/projects", produces = MediaType.APPLICATION_JSON_VALUE)
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 @Tag(name = "ACL Management: Projects", description = "ACL Management API for Projects")
 public class AclProjectsController {
 

@@ -1,33 +1,24 @@
 package org.openl.rules.rest.acl.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.openl.rules.rest.acl.resolver.AclRepositoryIdConverter;
 import org.openl.rules.rest.acl.resolver.AlcSidValueArgumentResolver;
-import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.acl.service.AclProjectsHelperImpl;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelper;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelperImpl;
-import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @Configuration
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 public class AclManagementConfig {
 
     @Bean
     public AclRepositoriesHelper aclRepositoriesHelper(RepositoryAclServiceProvider aclServiceProvider) {
         return new AclRepositoriesHelperImpl(aclServiceProvider);
-    }
-
-    @Bean
-    public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider,
-                                               SecureDeploymentRepositoryService deploymentRepositoryService,
-                                               @Value("${security.allow-project-create-delete}") boolean allowProjectCreateDelete) {
-        return new AclProjectsHelperImpl(aclServiceProvider, deploymentRepositoryService, allowProjectCreateDelete);
     }
 
     @Bean
