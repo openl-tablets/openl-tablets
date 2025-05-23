@@ -21,8 +21,6 @@ import org.openl.itest.core.JettyServer;
 @DisabledIfSystemProperty(named = "noDocker", matches = ".*")
 public class KeycloakTest {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private static final String CLIENT_ID = "openlstudio";
     private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
 
