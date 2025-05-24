@@ -8,9 +8,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
@@ -78,6 +81,11 @@ public final class AdministrationSettings implements SettingsHolder {
     @SettingPropertyName(AUTO_COMPILE)
     private Boolean autoCompile;
 
+    @Valid
+    @NotNull
+    @JsonMerge
+    private DBSettings db;
+
     static {
         List<String> settingNames = new ArrayList<>();
 
@@ -110,6 +118,7 @@ public final class AdministrationSettings implements SettingsHolder {
     }
 
     public AdministrationSettings() {
+        db = new DBSettings();
     }
 
 
@@ -177,6 +186,14 @@ public final class AdministrationSettings implements SettingsHolder {
         this.autoCompile = autoCompile;
     }
 
+    public DBSettings getDb() {
+        return db;
+    }
+
+    public void setDb(DBSettings db) {
+        this.db = db;
+    }
+
     @Override
     public void load(PropertiesHolder properties) {
         userWorkspaceHome = properties.getProperty(USER_WORKSPACE_HOME);
@@ -197,6 +214,7 @@ public final class AdministrationSettings implements SettingsHolder {
         autoCompile = Optional.ofNullable(properties.getProperty(AUTO_COMPILE))
                 .map(Boolean::parseBoolean)
                 .orElse(null);
+        db.load(properties);
     }
 
     @Override
@@ -209,6 +227,7 @@ public final class AdministrationSettings implements SettingsHolder {
         properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
         properties.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
         properties.setProperty(AUTO_COMPILE, autoCompile);
+        db.store(properties);
     }
 
     @Override
@@ -221,7 +240,7 @@ public final class AdministrationSettings implements SettingsHolder {
                 TEST_RUN_THREAD_COUNT_PROPERTY,
                 OpenLSystemProperties.DISPATCHING_VALIDATION,
                 AUTO_COMPILE);
-
+        db.revert(properties);
         load(properties);
     }
 }

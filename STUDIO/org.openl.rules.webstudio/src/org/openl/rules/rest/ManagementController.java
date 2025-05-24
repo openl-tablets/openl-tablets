@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,7 +38,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.rules.webstudio.web.admin.GroupManagementSettings;
+import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -51,6 +52,7 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 @RestController
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 @RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Management")
 public class ManagementController {
@@ -208,7 +210,7 @@ public class ManagementController {
     @Deprecated(forRemoval = true)
     public void saveSettings(@RequestBody GroupSettingsModel request) throws IOException {
         validationProvider.validate(request);
-        DynamicPropertySource.get().save(Map.of(GroupManagementSettings.SECURITY_DEF_GROUP_PROP, request.getDefaultGroup()));
+        DynamicPropertySource.get().save(Map.of(InheritedAuthenticationSettings.DEFAULT_GROUP, request.getDefaultGroup()));
     }
 
     @Operation(description = "mgmt.get-settings.desc", summary = "mgmt.get-settings.summary")
@@ -216,7 +218,7 @@ public class ManagementController {
     @Deprecated(forRemoval = true)
     public GroupSettingsModel getSettings() {
         GroupSettingsModel model = new GroupSettingsModel();
-        model.setDefaultGroup(environment.getProperty(GroupManagementSettings.SECURITY_DEF_GROUP_PROP));
+        model.setDefaultGroup(environment.getProperty(InheritedAuthenticationSettings.DEFAULT_GROUP));
         return model;
     }
 

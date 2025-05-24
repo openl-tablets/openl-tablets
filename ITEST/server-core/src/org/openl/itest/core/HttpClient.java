@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
  *
@@ -206,6 +208,14 @@ public class HttpClient implements AutoCloseable{
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public JsonNode readTree(String file) {
+        try {
+            return HttpData.OBJECT_MAPPER.readTree(Paths.get(file).toFile());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

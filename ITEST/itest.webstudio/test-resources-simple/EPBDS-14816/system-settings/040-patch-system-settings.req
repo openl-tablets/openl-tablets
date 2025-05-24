@@ -9,5 +9,9 @@ Content-Type: application/merge-patch+json
   "timeFormat": "ss:mm:hh a",
   "testRunThreadCount": 2,
   "dispatchingValidationEnabled": false,
-  "autoCompile": false
+  "autoCompile": false,
+  "db": {
+    "url": "jdbc:h2:mem:EPBDS-14816;DB_CLOSE_DELAY=-1",
+    "maximumPoolSize": 10
+  }
 }

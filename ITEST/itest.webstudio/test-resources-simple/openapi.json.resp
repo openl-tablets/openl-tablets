@@ -4,6 +4,349 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "AuthenticationSettings" : {
+        "type" : "object",
+        "discriminator" : {
+          "propertyName" : "userMode"
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/InheritedAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/ADAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/SAMLAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/OAuth2AuthenticationSettings"
+        } ],
+        "properties" : {
+          "userMode" : {
+            "type" : "string",
+            "description" : "***",
+            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ],
+            "example" : "***"
+          }
+        },
+        "required" : [ "userMode" ]
+      },
+      "ADAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "credentials" : {
+              "type" : "string",
+              "description" : "***",
+              "writeOnly" : true
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "domain" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "groupFilter" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "searchFilter" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "serverUrl" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "domain", "searchFilter", "serverUrl", "userMode" ]
+      },
+      "InheritedAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            }
+          }
+        } ],
+        "required" : [ "administrators", "userMode" ]
+      },
+      "NOPAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "user" : {
+              "$ref" : "#/components/schemas/NOPUserSettings"
+            }
+          }
+        } ],
+        "required" : [ "user", "userMode" ]
+      },
+      "NOPUserSettings" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 255,
+            "minLength" : 1
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          }
+        },
+        "required" : [ "displayName", "firstName", "lastName", "username" ]
+      },
+      "OAuth2AttributesSettings" : {
+        "type" : "object",
+        "description" : "***",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "groups" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        }
+      },
+      "OAuth2AuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "attributes" : {
+              "$ref" : "#/components/schemas/OAuth2AttributesSettings"
+            },
+            "clientId" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "clientSecret" : {
+              "type" : "string",
+              "format" : "password",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "grantType" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "issuerUri" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "scope" : {
+              "type" : "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "attributes", "clientId", "clientSecret", "issuerUri", "scope", "userMode" ]
+      },
+      "SAMLAttributesSettings" : {
+        "type" : "object",
+        "description" : "***",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "groups" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        }
+      },
+      "SAMLAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "attributes" : {
+              "$ref" : "#/components/schemas/SAMLAttributesSettings"
+            },
+            "binding" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "entityId" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "forceAuthN" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "metadataUrl" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "serverCertificate" : {
+              "type" : "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "attributes", "entityId", "metadataUrl", "userMode" ]
+      },
+      "CreateAuthenticationTemplateModel" : {
+        "type" : "object",
+        "properties" : {
+          "userMode" : {
+            "type" : "string",
+            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ]
+          }
+        },
+        "required" : [ "userMode" ]
+      },
       "RepositoriesBatchRequest" : {
         "type" : "object",
         "properties" : {
@@ -169,6 +512,7 @@ Content-Type: application/json
           "properties" : {
             "accessKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "allAllowedRegions" : {
@@ -201,6 +545,7 @@ Content-Type: application/json
             },
             "secretKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "serviceEndpoint" : {
@@ -225,6 +570,7 @@ Content-Type: application/json
           "properties" : {
             "accountKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "accountName" : {
@@ -258,6 +604,7 @@ Content-Type: application/json
             },
             "password" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "secure" : {
@@ -328,6 +675,7 @@ Content-Type: application/json
             },
             "password" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "protectedBranches" : {
@@ -471,6 +819,7 @@ Content-Type: application/json
           "properties" : {
             "accountKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "accountName" : {
@@ -504,6 +853,7 @@ Content-Type: application/json
             },
             "password" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "secure" : {
@@ -562,6 +912,7 @@ Content-Type: application/json
             },
             "password" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "protectedBranches" : {
@@ -609,6 +960,7 @@ Content-Type: application/json
           "properties" : {
             "accessKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "allAllowedRegions" : {
@@ -641,6 +993,7 @@ Content-Type: application/json
             },
             "secretKey" : {
               "type": "string",
+              "format" : "password",
               "description" : "***"
             },
             "serviceEndpoint" : {
@@ -678,17 +1031,6 @@ Content-Type: application/json
           },
           "value" : {
             "type" : "object"
-          }
-        }
-      },
-      "GroupManagementSettings" : {
-        "type" : "object",
-        "properties" : {
-          "defaultGroup" : {
-            "type": "string",
-            "description" : "***",
-            "maxLength": 65,
-            "minLength": 0
           }
         }
       },
@@ -733,15 +1075,50 @@ Content-Type: application/json
           "userWorkspaceHome" : {
             "type": "string",
             "description" : "***"
+          },
+          "db" : {
+            "$ref": "#/components/schemas/DBSettings"
           }
         },
-        "required" : [ "datePattern", "timeFormat" ]
+        "required": [ "datePattern", "db", "timeFormat" ]
+      },
+      "DBSettings": {
+        "type": "object",
+        "properties": {
+          "maximumPoolSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "example": 10,
+            "minimum": 1
+          },
+          "password": {
+            "type": "string",
+            "format" : "password",
+            "description": "***",
+            "example": "***"
+          },
+          "url": {
+            "type": "string",
+            "description": "***",
+            "example": "***"
+          },
+          "user": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        },
+        "required": ["url"]
       },
       "MailVerificationServerSettings" : {
         "type" : "object",
         "properties" : {
           "password" : {
             "type": "string",
+            "format" : "password",
             "description" : "***",
             "example": "qwerty"
           },
@@ -799,142 +1176,6 @@ Content-Type: application/json
             "description" : "***"
           }
         }
-      },
-      "AclRepositoryModel_Sid": {
-        "type": "object",
-        "description": "ACL Repository Model",
-        "properties": {
-          "role": {
-            "type": "string",
-            "description": "Role",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          },
-          "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
-          }
-        },
-        "required": ["role"]
-      },
-      "AclRepositoryModel_Repository": {
-        "type": "object",
-        "description": "ACL Repository Model",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Repository ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Repository Name"
-          },
-          "role": {
-            "type": "string",
-            "description": "Role",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          },
-          "type": {
-            "type": "string",
-            "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
-          }
-        },
-        "required": ["role"]
-      },
-      "AclRepositoryModel_Root": {
-        "type": "object",
-        "description": "ACL Repository Model",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Repository ID"
-          },
-          "role": {
-            "type": "string",
-            "description": "Role",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          },
-          "type": {
-            "type": "string",
-            "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
-          }
-        },
-        "required": ["role"]
-      },
-      "AclProjectModel_Project": {
-        "type": "object",
-        "description": "ACL Project Model",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Project ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Project Name"
-          },
-          "role": {
-            "type": "string",
-            "description": "Role",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          }
-        },
-        "required": ["role"]
-      },
-      "AclProjectModel_Sid": {
-        "type": "object",
-        "description": "ACL Project Model",
-        "properties": {
-          "role": {
-            "type": "string",
-            "description": "Role",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          },
-          "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
-          }
-        },
-        "required": ["role"]
-      },
-      "AclSidModel_Sid": {
-        "type": "object",
-        "properties": {
-          "principal": {
-            "type": "boolean",
-            "description": "Is principal"
-          },
-          "sid": {
-            "type": "string",
-            "description": "SID name"
-          }
-        }
-      },
-      "SetAclRoleModel": {
-        "type": "object",
-        "properties": {
-          "role": {
-            "type": "string",
-            "description": "Role to set",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          }
-        },
-        "required": ["role"]
-      },
-      "AclRoleModel": {
-        "type": "object",
-        "description": "ACL Role Model",
-        "properties": {
-          "code": {
-            "type": "string",
-            "description": "Code",
-            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-          },
-          "description": {
-            "type": "string",
-            "description": "Description"
-          }
-        },
-        "required": ["code", "description"]
       },
       "ProjectLockInfo" : {
         "type" : "object",
@@ -1039,39 +1280,6 @@ Content-Type: application/json
           "rejectedValue": {
             "description": "***",
             "type": "object"
-          }
-        },
-        "type": "object"
-      },
-      "GroupModel": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "ADMIN", "DEFAULT", "EXTERNAL"
-            ],
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "GroupSettingsModel": {
-        "properties": {
-          "defaultGroup": {
-            "description": "***",
-            "maxLength": 65,
-            "minLength": 0,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "InternalPasswordModel": {
-        "properties": {
-          "password": {
-            "type": "string"
           }
         },
         "type": "object"
@@ -1626,167 +1834,6 @@ Content-Type: application/json
         },
         "type": "object"
       },
-      "NumberOfMembers" : {
-        "type" : "object",
-        "properties" : {
-          "external" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
-          },
-          "internal" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
-          },
-          "total" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
-          }
-        }
-      },
-      "UIGroup": {
-        "properties": {
-          "description": {
-            "description": "***",
-            "type": "string"
-          },
-          "id": {
-            "description": "***",
-            "format": "int64",
-            "type": "integer"
-          },
-          "privileges": {
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "repositoryTypeToRole" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string",
-              "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
-            }
-          },
-          "numberOfMembers" : {
-            "$ref" : "#/components/schemas/NumberOfMembers"
-          }
-        },
-        "type": "object"
-      },
-      "UserCreateModel": {
-        "properties": {
-          "displayName": {
-            "description": "***",
-            "example": "John Doe",
-            "maxLength": 64,
-            "minLength": 0,
-            "type": "string"
-          },
-          "email": {
-            "description": "***",
-            "example": "test@test",
-            "maxLength": 254,
-            "minLength": 0,
-            "type": "string"
-          },
-          "firstName": {
-            "description": "***",
-            "example": "John",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "groups": {
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "internalPassword": {
-            "$ref": "#/components/schemas/InternalPasswordModel"
-          },
-          "lastName": {
-            "description": "***",
-            "example": "Doe",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "password": {
-            "description": "***",
-            "example": "qwerty",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "username": {
-            "description": "***",
-            "example": "jdoe",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          }
-        },
-        "required": [
-          "username"
-        ],
-        "type": "object"
-      },
-      "UserEditModel": {
-        "properties": {
-          "displayName": {
-            "description": "***",
-            "example": "John Doe",
-            "maxLength": 64,
-            "minLength": 0,
-            "type": "string"
-          },
-          "email": {
-            "description": "***",
-            "example": "test@test",
-            "maxLength": 254,
-            "minLength": 0,
-            "type": "string"
-          },
-          "firstName": {
-            "description": "***",
-            "example": "John",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "groups": {
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "lastName": {
-            "description": "***",
-            "example": "Doe",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "password": {
-            "description": "***",
-            "example": "qwerty",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "UserExternalFlags": {
         "properties": {
           "displayNameExternal": {
@@ -1862,98 +1909,6 @@ Content-Type: application/json
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "UserModel": {
-        "properties": {
-          "currentUser": {
-            "description": "***",
-            "type": "boolean"
-          },
-          "displayName": {
-            "description": "***",
-            "example": "John Doe",
-            "maxLength": 64,
-            "minLength": 0,
-            "type": "string"
-          },
-          "email": {
-            "description": "***",
-            "example": "test@test",
-            "maxLength": 254,
-            "minLength": 0,
-            "type": "string"
-          },
-          "externalFlags": {
-            "$ref": "#/components/schemas/UserExternalFlags"
-          },
-          "firstName": {
-            "description": "***",
-            "example": "John",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "groups": {
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "internalPassword": {
-            "$ref": "#/components/schemas/InternalPasswordModel"
-          },
-          "lastName": {
-            "description": "***",
-            "example": "Doe",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "notMatchedExternalGroupsCount": {
-            "description": "***",
-            "format": "int64",
-            "type": "integer"
-          },
-          "online": {
-            "description": "***",
-            "type": "boolean"
-          },
-          "password": {
-            "description": "***",
-            "example": "qwerty",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          },
-          "superUser": {
-            "description": "***",
-            "type": "boolean"
-          },
-          "unsafePassword": {
-            "description": "***",
-            "type": "boolean"
-          },
-          "userGroups": {
-            "items": {
-              "$ref": "#/components/schemas/GroupModel"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "username": {
-            "description": "***",
-            "example": "jdoe",
-            "maxLength": 25,
-            "minLength": 0,
-            "type": "string"
-          }
-        },
-        "required": [
-          "username"
-        ],
         "type": "object"
       },
       "UserOptions": {
@@ -2796,6 +2751,409 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/admin/settings/authentication/template" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateAuthenticationTemplateModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationSettings"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      }
+    },
+    "/admin/settings/authentication" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationSettings"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthenticationSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      }
+    },
     "/admin/settings/repos/deploy-config/template" : {
       "post" : {
         "description" : "***",
@@ -4957,963 +5315,6 @@ Content-Type: application/json
         "tags" : [ "Settings: Mail Verification Server" ]
       }
     },
-    "/admin/settings/group-management" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GroupManagementSettings"
-                }
-              }
-            },
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/GroupManagementSettings"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      }
-    },
-    "/admin/management/groups": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "$ref": "#/components/schemas/UIGroup"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      },
-      "post": {
-        "description": "***",
-        "operationId": "***",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "properties": {
-                  "description": {
-                    "description": "***",
-                    "type": "string"
-                  },
-                  "name": {
-                    "description": "***",
-                    "type": "string"
-                  },
-                  "oldName": {
-                    "description": "***",
-                    "type": "string"
-                  },
-                  "designRole" : {
-                    "type" : "string",
-                    "description" : "***",
-                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
-                  },
-                  "prodRole" : {
-                    "type" : "string",
-                    "description" : "***",
-                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
-                  },
-                  "admin" : {
-                    "type" : "boolean",
-                    "description" : "***."
-                  }
-                },
-                "required": [
-                  "name"
-                ],
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      }
-    },
-    "/admin/management/groups/external": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "query",
-            "name": "search",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "description": "***",
-            "in": "query",
-            "name": "pageSize",
-            "schema": {
-              "default": 10,
-              "format": "int32",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "uniqueItems": true
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      }
-    },
-    "/admin/management/groups/settings": {
-      "get": {
-        "deprecated" : true,
-        "description": "***",
-        "operationId": "***",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupSettingsModel"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      },
-      "post": {
-        "deprecated" : true,
-        "description": "***",
-        "operationId": "***",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GroupSettingsModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      }
-    },
-    "/admin/management/groups/{id}": {
-      "delete": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "format": "int64",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      }
-    },
-    "/admin/management/roles": {
-      "get": {
-        "description": "Get all roles.",
-        "operationId": "roles",
-        "deprecated" : true,
-        "responses": {
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Management"
-        ]
-      }
-    },
     "/admin/notification.txt": {
       "post": {
         "description": "***",
@@ -6664,1067 +6065,6 @@ Content-Type: application/json
         "tags": [
           "Tags"
         ]
-      }
-    },
-    "/acls/repositories/{repo-id}": {
-      "delete": {
-        "operationId": "deleteAclRepositoryRulesForSid",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }, {
-            "in": "path",
-            "name": "repo-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "204": {
-            "description": "default response"
-          }
-        },
-        "summary": "Delete an ACL rule for the repository by the requested criteria",
-        "tags": ["ACL Management: Repositories"]
-      },
-      "get": {
-        "operationId": "getAclRepositoryRulesForSid",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "repo-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclRepositoryModel_Sid"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get a list of ALC rules for a single repository",
-        "tags": ["ACL Management: Repositories"]
-      },
-      "put": {
-        "operationId": "updateAclRepositoryRulesForSid",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }, {
-            "in": "path",
-            "name": "repo-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAclRoleModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "204": {
-            "description": "default response"
-          }
-        },
-        "summary": "Update existing ACL rule for a single repository",
-        "tags": ["ACL Management: Repositories"]
-      }
-    },
-    "/acls/roles": {
-      "get": {
-        "description": "Get all roles.",
-        "operationId": "getRoles",
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclRoleModel"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get all roles",
-        "tags": ["ACL Management: Roles"]
-      }
-    },
-    "/acls/projects/{project-id}": {
-      "delete": {
-        "operationId": "deleteAclProjectRulesForSid",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }, {
-            "description": "Project ID",
-            "in": "path",
-            "name": "project-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "204": {
-            "description": "default response"
-          }
-        },
-        "summary": "Delete an ACL rule for the project by the requested criteria",
-        "tags": ["ACL Management: Projects"]
-      },
-      "get": {
-        "operationId": "getAclProjectRulesForSid",
-        "parameters": [
-          {
-            "description": "Project ID",
-            "in": "path",
-            "name": "project-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclProjectModel_Sid"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get a list of ACL rules for a single project",
-        "tags": ["ACL Management: Projects"]
-      },
-      "put": {
-        "operationId": "updateAclProjectRulesForSid",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }, {
-            "description": "Project ID",
-            "in": "path",
-            "name": "project-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAclRoleModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "204": {
-            "description": "default response"
-          }
-        },
-        "summary": "Update existing ACL rule for a single project",
-        "tags": ["ACL Management: Projects"]
-      }
-    },
-    "/acls/projects": {
-      "get": {
-        "operationId": "getAclProjectRules",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclProjectModel_Project"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get a list of ACL rules for all projects by criteria",
-        "tags": ["ACL Management: Projects"]
-      }
-    },
-    "/acls/repositories/roots/{root-id}": {
-      "put": {
-        "operationId": "updateAclRepositoryRulesForRoot",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }, {
-            "in": "path",
-            "name": "root-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAclRoleModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "204": {
-            "description": "default response"
-          }
-        },
-        "summary": "Update ACL rule for a repository root",
-        "tags": ["ACL Management: Repositories"]
-      }
-    },
-    "/acls/repositories/roots": {
-      "get": {
-        "operationId": "getAclRepositoryRulesForRoot",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclRepositoryModel_Root"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get ACL rules for all repository roots",
-        "tags": ["ACL Management: Repositories"]
-      }
-    },
-    "/acls/repositories": {
-      "get": {
-        "operationId": "getAclRepositoryRules",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "in": "query",
-            "name": "principal",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Locked"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "Conflict"
-          },
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AclRepositoryModel_Repository"
-                  }
-                }
-              }
-            },
-            "description": "default response"
-          }
-        },
-        "summary": "Get a list of ACL rules for all repositories by criteria",
-        "tags": ["ACL Management: Repositories"]
       }
     },
     "/compile/progress/{messageId}/{messageIndex}": {
@@ -12779,174 +11119,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/users": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserModel"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      },
-      "put": {
-        "description": "***",
-        "operationId": "***",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserCreateModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      }
-    },
     "/users/info": {
       "put": {
         "description": "***",
@@ -13211,381 +11383,6 @@ Content-Type: application/json
         },
         "responses": {
           "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      }
-    },
-    "/users/{username}": {
-      "delete": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "username",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      },
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "username",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserModel"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      },
-      "put": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "username",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserEditModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Users"
-        ]
-      }
-    },
-    "/users/{username}/groups/external": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "username",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }, {
-            "description": "***",
-            "in": "query",
-            "name": "matched",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "uniqueItems": true
-                }
-              }
-            },
             "description": "***"
           },
           "400": {
@@ -14561,15 +12358,6 @@ Content-Type: application/json
   ],
   "tags": [
     {
-      "description" : "ACL Management API for Projects",
-      "name" : "ACL Management: Projects"
-    }, {
-      "description" : "ACL Management API for Repositories",
-      "name" : "ACL Management: Repositories"
-    }, {
-      "description" : "ACL Management API for Roles",
-      "name" : "ACL Management: Roles"
-    }, {
       "name": "Compare"
     }, {
       "name": "Conflict"
@@ -14583,8 +12371,6 @@ Content-Type: application/json
       "name": "Info"
     }, {
       "name": "Mail"
-    }, {
-      "name": "Management"
     }, {
       "name": "Message"
     }, {
@@ -14601,11 +12387,11 @@ Content-Type: application/json
     }, {
       "name" : "Settings"
     }, {
+      "name" : "Settings: Authentication"
+    }, {
       "name" : "Settings: Deploy Configuration Repository"
     }, {
       "name" : "Settings: Design Repository"
-    }, {
-      "name" : "Settings: Group Management"
     }, {
       "name" : "Settings: Mail Verification Server"
     }, {

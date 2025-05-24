@@ -21,7 +21,7 @@ import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.admin.GroupManagementSettings;
+import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
@@ -42,7 +42,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
                              RepositoryAclServiceProvider aclServiceProvider) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
-        this.defaultGroup = Props.text(GroupManagementSettings.SECURITY_DEF_GROUP_PROP);
+        this.defaultGroup = Props.text(InheritedAuthenticationSettings.DEFAULT_GROUP);
         this.aclServiceProvider = aclServiceProvider;
         this.relevantSystemWideGrantedAuthority = relevantSystemWideGrantedAuthority;
     }

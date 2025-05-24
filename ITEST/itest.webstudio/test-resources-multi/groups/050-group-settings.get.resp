@@ -2,5 +2,8 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "defaultGroup": "Analysts"
+  "userMode": "multi",
+  "administrators": ["admin"],
+  "defaultGroup": "Analysts",
+  "allowProjectCreateDelete": true
 }

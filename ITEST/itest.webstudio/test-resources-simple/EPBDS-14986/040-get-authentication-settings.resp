@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userMode": "single",
+  "user": {
+    "username": "jdoe",
+    "email": "foo@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "displayName": "John Doe"
+  }
+}
