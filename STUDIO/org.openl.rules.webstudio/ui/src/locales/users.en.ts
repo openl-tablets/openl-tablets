@@ -2,7 +2,7 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'users', {
     add_user: 'Add User',
-    edit_user: 'Edit User',
+    edit_user_details: 'Edit User Details',
     users_table: {
         username: 'Username',
         first_name: 'First Name',
@@ -43,4 +43,9 @@ i18next.addResourceBundle('en', 'users', {
         email_max_length: 'Email must be at most 254 characters long',
         username_required: 'Username is required',
     },
+    action: {
+        edit_details: 'Edit Details',
+        edit_access_rights: 'Edit Access Rights',
+        delete_user: 'Delete User',
+    }
 })

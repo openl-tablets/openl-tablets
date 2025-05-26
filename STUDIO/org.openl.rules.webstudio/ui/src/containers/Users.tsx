@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import {Badge, Button, Modal, Row, Table, Typography} from 'antd'
-import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
+import { Badge, Button, Dropdown, Modal, Row, Table, Typography } from 'antd'
+import { CloseCircleOutlined, EditOutlined, EllipsisOutlined, FolderViewOutlined } from '@ant-design/icons'
 import { EditUserModal } from './users/EditUserModal'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -8,21 +8,32 @@ import { SystemContext } from '../contexts'
 import { UserGroupType } from '../constants'
 import { UserDetails, UserProfile } from '../types/user'
 import { ColumnsType } from 'antd/es/table/interface'
+import { AccessManagementModal } from '../components/accessManagement'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(SystemContext)
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isEditDetailsModalOpen, setIsEditDetailsModalOpen] = useState(false)
+    const [isEditAccessRightsModalOpen, setIsEditAccessRightsModalOpen] = useState(false)
     const [selectedUser, setSelectedUser] = useState<any>({})
     const [usersData, setUsersData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
     const showEditUserModal = () => {
-        setIsModalOpen(true)
+        setIsEditDetailsModalOpen(true)
     }
 
     const hideEditUserModal = () => {
-        setIsModalOpen(false)
+        setIsEditDetailsModalOpen(false)
+        setSelectedUser({})
+    }
+
+    const showEditAccessRightsModal = () => {
+        setIsEditAccessRightsModalOpen(true)
+    }
+
+    const hideEditAccessRightsModal = () => {
+        setIsEditAccessRightsModalOpen(false)
         setSelectedUser({})
     }
 
@@ -52,9 +63,14 @@ export const Users: React.FC = () => {
         })
     }
 
-    const handleDoubleRowClick = (record: any) => {
+    const onEditUser = (record: any) => {
         setSelectedUser({ ...record })
         showEditUserModal()
+    }
+
+    const onEditAccessRights = (record: any) => {
+        setSelectedUser({ ...record })
+        showEditAccessRightsModal()
     }
 
     const updateUser = (updatedUser: UserProfile) => {
@@ -62,6 +78,45 @@ export const Users: React.FC = () => {
             setUsersData((userData) => userData.map((user) => (user.username === updatedUser.username ? { ...user, ...updatedUser } : user)))
         }
     }
+
+    const actionItems = (record: any) => [
+        {
+            key: 'edit',
+            label: (
+                <Button
+                    icon={<EditOutlined />}
+                    onClick={() => onEditUser(record)}
+                    type="text"
+                >
+                    {t('users:action.edit_details')}
+                </Button>
+            ),
+        },
+        {
+            key : 'access',
+            label : (
+                <Button
+                    icon={<FolderViewOutlined />}
+                    onClick={() => onEditAccessRights(record)}
+                    type="text"
+                >
+                    {t('users:action.edit_access_rights')}
+                </Button>
+            )
+        },
+        {
+            key: 'delete',
+            label: (
+                <Button
+                    icon={<CloseCircleOutlined />}
+                    onClick={() => removeUser(record.username)}
+                    type="text"
+                >
+                    {t('users:action.delete_user')}
+                </Button>
+            ),
+        }
+    ]
 
     const columns = useMemo(() => {
         const columns: ColumnsType<UserProfile> = [
@@ -106,18 +161,11 @@ export const Users: React.FC = () => {
                 title: t('users:users_table.actions'),
                 width: 100,
                 render: (_: string, record: any) => (
-                    <>
-                        <Button
-                            icon={<EditOutlined />}
-                            onClick={() => handleDoubleRowClick(record)}
-                            type="text"
-                        />
-                        <Button
-                            icon={<CloseCircleOutlined />}
-                            onClick={() => removeUser(record.username)}
-                            type="text"
-                        />
-                    </>
+                    <Dropdown menu={{ items: actionItems(record) }} overlayClassName="table-actions-dropdown">
+                        <Button type="text">
+                            <EllipsisOutlined />
+                        </Button>
+                    </Dropdown>
                 ),
             },
         ]
@@ -127,7 +175,7 @@ export const Users: React.FC = () => {
         }
 
         return columns
-    }, [t, isExternalAuthSystem, handleDoubleRowClick, removeUser])
+    }, [t, isExternalAuthSystem, onEditUser, removeUser])
 
     return (
         <>
@@ -138,7 +186,7 @@ export const Users: React.FC = () => {
                 pagination={{ hideOnSinglePage: true }}
                 rowKey={(record) => record.username}
                 onRow={(record) => ({
-                    onDoubleClick: () => handleDoubleRowClick(record),
+                    onDoubleClick: () => onEditUser(record),
                 })}
             />
             {!isExternalAuthSystem && (
@@ -156,10 +204,10 @@ export const Users: React.FC = () => {
                 destroyOnClose
                 footer={null}
                 onCancel={hideEditUserModal}
-                open={isModalOpen}
+                open={isEditDetailsModalOpen}
                 width={600}
             >
-                {isModalOpen && (
+                {isEditDetailsModalOpen && (
                     <EditUserModal
                         closeModal={hideEditUserModal}
                         onAddUser={fetchUsers}
@@ -168,6 +216,14 @@ export const Users: React.FC = () => {
                     />
                 )}
             </Modal>
+            {isEditAccessRightsModalOpen && (
+                <AccessManagementModal
+                    isOpen={isEditAccessRightsModalOpen}
+                    isPrincipal={true}
+                    onCloseModal={hideEditAccessRightsModal}
+                    sid={selectedUser.username}
+                />
+            )}
         </>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Menu } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +18,7 @@ import { PermissionContext, SystemContext } from '../contexts'
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const { hasAdminPermission } = useContext(PermissionContext)
-    const { systemSettings, isExternalAuthSystem } = useContext(SystemContext)
+    const { isUserManagementEnabled, isGroupsManagementEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -26,16 +26,6 @@ const MainMenu: React.FC = () => {
     useEffect(() => {
         setSelectedKeys([location.pathname])
     }, [location.pathname])
-
-    const groupsAndUsersMenuLabel = useMemo(() =>
-        isExternalAuthSystem
-            ? t('common:menu.groups_and_users')
-            : t('common:menu.users')
-    , [systemSettings, t])
-
-    const isUserManagementEnabled = useMemo(() =>
-        systemSettings?.supportedFeatures.userManagement
-    , [systemSettings])
 
     return (
         <div id="main-menu">
@@ -54,7 +44,9 @@ const MainMenu: React.FC = () => {
                         <Menu.Item key="/web/administration/repositories/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
                         <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
                         { isUserManagementEnabled &&
-                            <Menu.Item key="/web/administration/admin/management/groups" icon={<TeamOutlined />}>{groupsAndUsersMenuLabel}</Menu.Item>}
+                            <Menu.Item key="/web/administration/admin/management/users" icon={<UserOutlined />}>{t('common:menu.users')}</Menu.Item>}
+                        { isGroupsManagementEnabled &&
+                            <Menu.Item key="/web/administration/admin/management/groups" icon={<TeamOutlined />}>{t('common:menu.groups')}</Menu.Item>}
                         <Menu.Item key="/web/administration/notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
                         <Menu.Item key="/web/administration/tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
                         <Menu.Item key="/web/administration/mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>

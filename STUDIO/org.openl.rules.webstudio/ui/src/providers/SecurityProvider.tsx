@@ -57,6 +57,14 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         return systemSettings?.userMode === SystemUserMode.EXTERNAL
     }, [systemSettings])
 
+    const isUserManagementEnabled = useMemo(() => {
+        return systemSettings?.supportedFeatures.userManagement || false
+    }, [systemSettings])
+
+    const isGroupsManagementEnabled = useMemo(() => {
+        return systemSettings?.supportedFeatures.groupsManagement || false
+    }, [systemSettings])
+
     if (!isProfileLoaded || !isDetailsLoaded || !isSystemSettingsLoaded) {
         return null
     }
@@ -68,7 +76,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     return (
-        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem }}>
+        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled }}>
             <UserContext.Provider value={{ userProfile, userDetails, loadUserProfile }}>
                 <PermissionContext.Provider value={{ hasAdminPermission }}>
                     {children}
