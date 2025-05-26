@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useEffect } from 'react'
+import React, { FC, ReactNode, useEffect, useRef } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { Rule } from 'antd/es/form'
 
@@ -25,16 +25,23 @@ const InputPassword: FC<InputProps> = ({
 }) => {
     const form = Form.useFormInstance()
     const value = Form.useWatch(name, form)
+    const isDisabled = useRef(disabled)
 
     useEffect(() => {
-        if (typeof value === 'object') {
-            form.setFieldValue(name, '')
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                isDisabled.current = true
+                form.setFieldValue(name, value.value)
+            }
+            if (value.secret) {
+                form.setFieldValue(name, '')
+            }
         }
     }, [value])
 
     return (
         <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
-            <AntdInput.Password disabled={disabled} placeholder={placeholder} style={style}/>
+            <AntdInput.Password disabled={isDisabled.current} placeholder={placeholder} style={style} />
         </Form.Item>
     )
 }

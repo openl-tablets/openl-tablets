@@ -141,15 +141,17 @@ export const Users: React.FC = () => {
                     onDoubleClick: () => handleDoubleRowClick(record),
                 })}
             />
-            <Row justify="end">
-                <Button
-                    onClick={showEditUserModal}
-                    style={{ marginTop: 20 }}
-                    type="primary"
-                >
-                    {t('users:add_user')}
-                </Button>
-            </Row>
+            {!isExternalAuthSystem && (
+                <Row justify="end">
+                    <Button
+                        onClick={showEditUserModal}
+                        style={{ marginTop: 20 }}
+                        type="primary"
+                    >
+                        {t('users:add_user')}
+                    </Button>
+                </Row>
+            )}
             <Modal
                 destroyOnClose
                 footer={null}

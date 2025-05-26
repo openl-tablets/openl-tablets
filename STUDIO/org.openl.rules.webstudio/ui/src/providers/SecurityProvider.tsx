@@ -3,6 +3,7 @@ import { UserContext, SystemContext, PermissionContext } from '../contexts'
 import { apiCall } from '../services'
 import { UserDetails, UserProfile } from '../types/user'
 import { SystemSettings } from '../types/system'
+import { SystemUserMode } from '../constants/system'
 
 export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const [userProfile, setUserProfile] = useState<UserProfile>()
@@ -48,12 +49,12 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const loadSystemSettings = async () => {
         const settings: SystemSettings = await apiCall('/settings')
         // TODO: delete this line
-        // settings.supportedFeatures.groupsManagement = true
+        // settings.userMode = SystemUserMode.EXTERNAL
         setSystemSettings(settings)
     }
 
     const isExternalAuthSystem = useMemo(() => {
-        return !!(systemSettings?.supportedFeatures.groupsManagement)
+        return systemSettings?.userMode === SystemUserMode.EXTERNAL
     }, [systemSettings])
 
     if (!isProfileLoaded || !isDetailsLoaded || !isSystemSettingsLoaded) {
