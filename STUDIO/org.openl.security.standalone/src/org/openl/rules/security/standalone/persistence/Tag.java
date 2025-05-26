@@ -22,8 +22,7 @@ public class Tag implements Serializable {
     private TagType type;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "OpenL_Tags_ID_SEQ")
-    @SequenceGenerator(sequenceName = "OpenL_Tags_ID_SEQ", name = "OpenL_Tags_ID_SEQ")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     public Long getId() {
         return id;
