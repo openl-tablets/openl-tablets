@@ -19,6 +19,11 @@ i18next.addResourceBundle('en', 'groups', {
         CONTRIBUTOR: 'Contributor',
         MANAGER: 'Manager'
     },
+    action: {
+        edit_details: 'Edit Details',
+        edit_access_rights: 'Edit Access Rights',
+        delete_group: 'Delete Group',
+    },
     details: 'Details',
     access_management: 'Access Management',
     design_repositories: 'Design Repositories',
@@ -30,5 +35,5 @@ i18next.addResourceBundle('en', 'groups', {
     name_required: 'Name is required',
     group_name_max_length: 'Group name must be at most 65 characters long',
     description_max_length: 'Description must be at most 200 characters long',
-    edit_group: 'Edit Group',
+    edit_group_details: 'Edit Group Details',
 })

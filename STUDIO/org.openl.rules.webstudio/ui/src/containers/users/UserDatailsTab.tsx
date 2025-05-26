@@ -51,6 +51,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
         form.validateFields(['displayName'])
     }, [firstName, lastName])
 
+    console.log(isDisplayNameFieldDisabled,  externalFlags?.displayNameExternal)
+
     return (
         <>
             <Divider orientation="left">{t('users:account')}</Divider>

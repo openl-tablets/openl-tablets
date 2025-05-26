@@ -22,3 +22,16 @@ html, body {
     }
   }
 }
+
+// Ant Design Table
+.ant-dropdown.table-actions-dropdown {
+  .ant-dropdown-menu-item {
+    padding: 0;
+
+    button {
+      width: 100%;
+      // margin: 5px 12px;
+      justify-content: left;
+    }
+  }
+}

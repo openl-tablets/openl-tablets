@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, CSSProperties, useRef, useEffect } from 'react'
+import React, { FC, ReactNode, CSSProperties, useRef, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
 import { Rule } from 'antd/es/form'
 import type { DefaultOptionType } from 'rc-select/lib/Select'
@@ -44,12 +44,18 @@ const Select: FC<SelectProps> = ({
 }) => {
     const form = Form.useFormInstance()
     const value = Form.useWatch(name, form)
-    const isDisabled = useRef(disabled)
+    const [isDisabled, setIsDisabled] = useState(disabled)
+
+    useEffect(() => {
+        if (disabled !== undefined) {
+            setIsDisabled(disabled)
+        }
+    }, [disabled])
 
     useEffect(() => {
         if (value !== null && typeof value === 'object') {
             if (value.readOnly) {
-                isDisabled.current = true
+                setIsDisabled(true)
             }
             form.setFieldValue(name, value.value)
         }
@@ -64,7 +70,7 @@ const Select: FC<SelectProps> = ({
         >
             <AntdSelect
                 defaultActiveFirstOption={defaultActiveFirstOption}
-                disabled={isDisabled.current}
+                disabled={isDisabled}
                 filterOption={filterOption}
                 mode={mode}
                 notFoundContent={notFoundContent}

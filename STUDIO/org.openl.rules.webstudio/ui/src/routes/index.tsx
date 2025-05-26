@@ -4,7 +4,6 @@ import { Notification } from 'containers/notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
-import { GroupsAndUsers } from '../containers/GroupsAndUsers'
 import { Repositories } from '../containers/Repositories'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
@@ -12,8 +11,10 @@ import { DefaultLayout } from '../layouts/DefaultLayout'
 import { AdministrationLayout } from '../layouts/AdministrationLayout'
 import { RedirectToDefaultPage } from './RedirectToDefaultPage'
 import { HeaderLayout } from '../layouts/HeaderLayout'
-import { claimsRoutes } from '../plugins'
 import { RedirectRoute } from './RedirectRoute'
+import { Groups } from '../containers/Groups'
+import { Users } from '../containers/Users'
+import { claimsRoutes } from '../plugins'
 
 const basePath = process.env.BASE_PATH || ''
 
@@ -43,8 +44,12 @@ const router = createBrowserRouter([
                         element: <System />,
                     },
                     {
+                        path: 'admin/management/users',
+                        element: <Users />,
+                    },
+                    {
                         path: 'admin/management/groups',
-                        element: <GroupsAndUsers />,
+                        element: <Groups />,
                     },
                     {
                         path: 'notification',
