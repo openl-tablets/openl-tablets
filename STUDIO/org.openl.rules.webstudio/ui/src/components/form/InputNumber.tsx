@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useMemo } from 'react'
+import React, { FC, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { InputNumber as AntdInputNumber, Form, TooltipProps } from 'antd'
 import { Rule } from 'antd/es/form'
 
@@ -23,6 +23,19 @@ const InputNumber: FC<InputNumberProps> = ({
     placeholder,
     ...rest
 }) => {
+    const form = Form.useFormInstance()
+    const value = Form.useWatch(name, form)
+    const isDisabled = useRef(disabled)
+
+    useEffect(() => {
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                isDisabled.current = true
+            }
+            form.setFieldValue(name, value.value)
+        }
+    }, [])
+
     const inputStyle = useMemo(() => ({
         width: '100%',
         ...style,
@@ -30,7 +43,7 @@ const InputNumber: FC<InputNumberProps> = ({
 
     return (
         <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
-            <AntdInputNumber disabled={disabled} placeholder={placeholder} style={inputStyle} />
+            <AntdInputNumber disabled={isDisabled.current} placeholder={placeholder} style={inputStyle} />
         </Form.Item>
     )
 }

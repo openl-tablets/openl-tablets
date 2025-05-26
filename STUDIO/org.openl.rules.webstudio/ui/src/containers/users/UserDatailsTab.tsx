@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react'
+import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Divider, Form, Space } from 'antd'
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
 import { UserExternalFlags } from '../../types/user'
+import { SystemContext } from '../../contexts'
 
 interface UserDetailsTabProps {
     isNewUser: boolean
@@ -14,6 +15,7 @@ interface UserDetailsTabProps {
 export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true }) => {
     const { t } = useTranslation()
     const form = Form.useFormInstance()
+    const { isExternalAuthSystem } = useContext(SystemContext)
     const firstName = Form.useWatch('firstName', form)
     const lastName = Form.useWatch('lastName', form)
     const [isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled] = useState<boolean>(true)
@@ -73,7 +75,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     message: t('users:edit_modal.email_max_length')
                 }]}
             />
-            {displayPasswordField && (
+            {displayPasswordField && !isExternalAuthSystem && (
                 <InputPassword
                     disabled={externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, CSSProperties } from 'react'
+import React, { FC, ReactNode, CSSProperties, useRef, useEffect } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
 import { Rule } from 'antd/es/form'
 import type { DefaultOptionType } from 'rc-select/lib/Select'
@@ -41,29 +41,44 @@ const Select: FC<SelectProps> = ({
     suffixIcon,
     filterOption = true,
     ...rest
-}) => (
-    <Form.Item
-        label={label}
-        name={name}
-        style={formItemStyle}
-        {...rest}
-    >
-        <AntdSelect
-            defaultActiveFirstOption={defaultActiveFirstOption}
-            disabled={disabled}
-            filterOption={filterOption}
-            mode={mode}
-            notFoundContent={notFoundContent}
-            onBlur={onBlur}
-            onChange={onChange}
-            onSearch={onSearch}
-            // @ts-ignore
-            options={options}
-            showSearch={showSearch}
-            style={style}
-            suffixIcon={suffixIcon}
-        />
-    </Form.Item>
-)
+}) => {
+    const form = Form.useFormInstance()
+    const value = Form.useWatch(name, form)
+    const isDisabled = useRef(disabled)
+
+    useEffect(() => {
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                isDisabled.current = true
+            }
+            form.setFieldValue(name, value.value)
+        }
+    }, [])
+
+    return (
+        <Form.Item
+            label={label}
+            name={name}
+            style={formItemStyle}
+            {...rest}
+        >
+            <AntdSelect
+                defaultActiveFirstOption={defaultActiveFirstOption}
+                disabled={isDisabled.current}
+                filterOption={filterOption}
+                mode={mode}
+                notFoundContent={notFoundContent}
+                onBlur={onBlur}
+                onChange={onChange}
+                onSearch={onSearch}
+                // @ts-ignore
+                options={options}
+                showSearch={showSearch}
+                style={style}
+                suffixIcon={suffixIcon}
+            />
+        </Form.Item>
+    )
+}
 
 export default Select

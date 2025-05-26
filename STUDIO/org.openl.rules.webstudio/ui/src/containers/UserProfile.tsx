@@ -3,13 +3,14 @@ import { Button, Divider, Form, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, WIDTH_OF_FROM_LABEL } from 'constants/'
-import { UserContext } from '../contexts'
+import { SystemContext, UserContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
 
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
+    const { isExternalAuthSystem } = useContext(SystemContext)
     const { userProfile, loadUserProfile } = useContext(UserContext)
 
     const handleSubmit = async (values: UserProfileFormFields) => {
@@ -74,10 +75,14 @@ export const UserProfile: React.FC = () => {
             wrapperCol={{ flex: 1 }}
         >
             <UserDetailsTab displayPasswordField={false} externalFlags={userProfile.externalFlags} isNewUser={false} />
-            <Divider orientation="left">{t('user:profile.change_password')}</Divider>
-            <InputPassword label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} />
-            <InputPassword label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} />
-            <InputPassword label={t('user:profile.confirm_password')} name={['changePassword', 'confirmPassword']} />
+            {!isExternalAuthSystem && (
+                <>
+                    <Divider orientation="left">{t('user:profile.change_password')}</Divider>
+                    <InputPassword label={t('user:profile.current_password')} name={['changePassword', 'currentPassword']} />
+                    <InputPassword label={t('user:profile.new_password')} name={['changePassword', 'newPassword']} />
+                    <InputPassword label={t('user:profile.confirm_password')} name={['changePassword', 'confirmPassword']} />
+                </>
+            )}
             <Row justify="end">
                 <Button
                     key="submit"

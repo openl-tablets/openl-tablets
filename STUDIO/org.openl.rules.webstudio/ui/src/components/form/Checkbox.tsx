@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useEffect, useRef } from 'react'
 import { Checkbox as AntdCheckbox, Form, TooltipProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 
@@ -23,10 +23,25 @@ const Checkbox: FC<InputProps> = ({
     valuePropName = 'checked',
     formItemStyle,
     ...rest
-}) => (
-    <Form.Item label={label} name={name} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
-        <AntdCheckbox disabled={disabled} style={style} {...rest} />
-    </Form.Item>
-)
+}) => {
+    const form = Form.useFormInstance()
+    const value = Form.useWatch(name, form)
+    const isDisabled = useRef(disabled)
+
+    useEffect(() => {
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                isDisabled.current = true
+            }
+            form.setFieldValue(name, value.value)
+        }
+    }, [])
+
+    return (
+        <Form.Item label={label} name={name} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
+            <AntdCheckbox disabled={isDisabled.current} style={style} {...rest} />
+        </Form.Item>
+    )
+}
 
 export default Checkbox

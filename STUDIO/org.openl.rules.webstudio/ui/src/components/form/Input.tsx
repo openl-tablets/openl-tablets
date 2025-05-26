@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useEffect, useRef } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { Rule } from 'antd/es/form'
 
@@ -23,10 +23,25 @@ const Input: FC<InputProps> = ({
     formItemStyle,
     placeholder,
     ...rest
-}) => (
-    <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
-        <AntdInput disabled={disabled} placeholder={placeholder} style={style} />
-    </Form.Item>
-)
+}) => {
+    const form = Form.useFormInstance()
+    const value = Form.useWatch(name, form)
+    const isDisabled = useRef(disabled)
+
+    useEffect(() => {
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                isDisabled.current = true
+            }
+            form.setFieldValue(name, value.value)
+        }
+    }, [])
+
+    return (
+        <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
+            <AntdInput disabled={isDisabled.current} placeholder={placeholder} style={style} />
+        </Form.Item>
+    )
+}
 
 export default Input
