@@ -1,29 +1,24 @@
-import React, { useEffect, useMemo } from 'react'
-import { apiCall } from '../../services'
+import React, { useMemo } from 'react'
 import { Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
+import { useTranslation } from 'react-i18next'
 import { SelectOption } from '../form/Select'
 import { Repository } from '../../types/repositories'
-import { useTranslation } from 'react-i18next'
 
-export const DesignRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
+interface DesignRepositoriesTabProps {
+    designRepositories: Repository[]
+    selectedRepositories: string[]
+}
+
+export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ designRepositories, selectedRepositories }) => {
     const { t } = useTranslation()
-    const [designRepositories, setDesignRepositories] = React.useState<SelectOption[]>([])
 
-    const fetchDesignRepositories = async () => {
-        const response: Repository[] = await apiCall('/repos')
-        setDesignRepositories(response.map(repo => ({ label: repo.name, value: repo.aclId })))
-    }
-    useEffect(() => {
-        fetchDesignRepositories()
-    }, [])
-
-    const repositoryOptions = useMemo(() => {
+    const repositoryOptions: SelectOption[] = useMemo(() => {
         return designRepositories.map(repository => ({
-            label: repository.label,
-            value: repository.value,
-            disabled: selectedRepositories.includes(repository.value as string)
+            label: repository.name,
+            value: repository.aclId,
+            disabled: selectedRepositories.includes(repository.aclId)
         }))
     }, [designRepositories, selectedRepositories])
 
