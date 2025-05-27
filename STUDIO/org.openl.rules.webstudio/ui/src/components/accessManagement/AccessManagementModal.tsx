@@ -1,11 +1,12 @@
 import React, { useMemo, useEffect, useState } from 'react'
-import { Button, Row, Form, Typography, Tabs, Modal } from 'antd'
+import { Button, Row, Form, Typography, Tabs, Modal, TabsProps, notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RepositoryType } from 'constants/'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from './'
 import { apiCall } from '../../services'
 import { Repository, RepositoryRole } from '../../types/repositories'
 import { ProjectRole } from '../../types/projects'
+import { WarningOutlined } from '@ant-design/icons'
 
 interface AccessManagementModalProps {
     isOpen: boolean
@@ -20,6 +21,12 @@ interface FormValues {
     projects: ProjectRole[]
 }
 
+enum TabKeys {
+    DESIGN_REPOSITORIES = 'designRepos',
+    DEPLOY_REPOSITORIES = 'deployRepos',
+    PROJECTS = 'projects'
+}
+
 export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ isOpen, sid, isPrincipal, onCloseModal }) => {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -31,6 +38,7 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
     const [isReposLoaded, setIsReposLoaded] = useState(false)
     const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
     const [designRepositories, setDesignRepositories] = React.useState<Repository[]>([])
+    const [hasErrorOnTab, setHasErrorOnTab] = useState<Record<any, boolean>>({})
 
     const fetchReposRoles = async () => {
         const response: RepositoryRole[] = await apiCall(`/acls/repositories?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
@@ -164,26 +172,29 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
         })
     }
 
-    const accessTabs = [
+    const accessTabs = useMemo(() => [
         {
             label: t('users:design_repositories'),
-            key: 'design_repositories',
+            key: TabKeys.DESIGN_REPOSITORIES,
             forceRender: true,
+            icon: hasErrorOnTab[TabKeys.DESIGN_REPOSITORIES] ? <WarningOutlined style={{ color: 'red' }} /> : null,
             children: <DesignRepositoriesTab designRepositories={designRepositories} selectedRepositories={selectedRepositories} />
         },
         {
             label: t('users:deploy_repositories'),
-            key: 'deploy_repositories',
+            key: TabKeys.DEPLOY_REPOSITORIES,
             forceRender: true,
+            icon: hasErrorOnTab[TabKeys.DEPLOY_REPOSITORIES] ? <WarningOutlined style={{ color: 'red' }} /> : null,
             children: <DeployRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
             label: t('users:projects'),
-            key: 'projects',
+            key: TabKeys.PROJECTS,
             forceRender: true,
+            icon: hasErrorOnTab[TabKeys.PROJECTS] ? <WarningOutlined style={{ color: 'red' }} /> : null,
             children: <ProjectsTab designRepositories={designRepositories} selectedProjects={selectedProjects} />
         }
-    ]
+    ], [hasErrorOnTab, selectedRepositories, selectedProjects, designRepositories, t])
 
     const onFinish = async (values: FormValues) => {
         saveDesignRepositoriesRoles(values)
@@ -192,9 +203,35 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
         onCloseModal()
     }
 
-    const onValuesChange = (_: any, allValues: FormValues) => {
-        setSelectedRepositories(allValues.designRepos.map(repo => repo.id).concat(allValues.deployRepos.map(repo => repo.id)))
-        setSelectedProjects(allValues.projects.map(project => project ? project.id || '' : ''))
+    const onFinishFailed = (errorInfo: any) => {
+        const tabsWithErrors = errorInfo.errorFields.reduce((acc: any, field: any) => {
+            const tabKey = field.name[0] as TabKeys
+            if (!acc[tabKey]) {
+                acc[tabKey] = true
+            }
+            return acc
+        }, {} as TabKeys[])
+        setHasErrorOnTab(tabsWithErrors)
+        notification.error({ message: t('common:please_fix_errors_on_highlighted_tabs_before_saving') })
+    }
+
+    const onValuesChange = (changedValues: any, allValues: FormValues) => {
+        const selectedDesignRepos = allValues.designRepos.filter(repo => repo).map(repo => repo.id)
+        const selectedDeployRepos = allValues.deployRepos.filter(repo => repo).map(repo => repo.id)
+
+        setSelectedRepositories([...selectedDesignRepos, ...selectedDeployRepos])
+        setSelectedProjects(allValues.projects.filter(project => project).map(project => project.id))
+
+        if (Object.keys(hasErrorOnTab).length) {
+            const changedTab = Object.keys(changedValues)[0] as TabKeys
+            if (hasErrorOnTab[changedTab]) {
+                setHasErrorOnTab(prev => ({ ...prev, [changedTab]: false }))
+            }
+        }
+    }
+
+    const renderTabBar: TabsProps['renderTabBar'] = (props, DefaultTabBar) => {
+        return <DefaultTabBar {...props} />
     }
 
     if (!isReposLoaded || !isProjectsLoaded) {
@@ -214,10 +251,11 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
                 initialValues={initialValues}
                 labelCol={{ sm: { span: 8 } }}
                 onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
                 onValuesChange={onValuesChange}
             >
                 <Typography.Title level={4} style={{ marginTop: 0 }}>{t('common:edit_access_rights')}</Typography.Title>
-                <Tabs items={accessTabs} />
+                <Tabs items={accessTabs} renderTabBar={renderTabBar} />
                 <Row justify="end">
                     <Button key="back" onClick={onCloseModal} style={{ marginRight: 20 }}>
                         {t('common:btn.cancel')}
