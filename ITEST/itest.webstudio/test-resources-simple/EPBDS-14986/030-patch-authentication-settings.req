@@ -1,0 +1,10 @@
+PATCH /web/admin/settings/authentication HTTP/1.1
+Content-Type: application/merge-patch+json
+
+{
+  "userMode": "single",
+  "allowProjectCreateDelete": false,
+  "user": {
+    "email": "foo@example.com"
+  }
+}

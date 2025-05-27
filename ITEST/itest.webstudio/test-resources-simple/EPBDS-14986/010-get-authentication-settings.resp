@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userMode": "single",
+  "allowProjectCreateDelete": true,
+  "user": {
+    "username": "jdoe",
+    "email": "jdoe@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "displayName": "John Doe"
+  }
+}

@@ -1,3 +1,0 @@
-GET /web/admin/settings/group-management HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-

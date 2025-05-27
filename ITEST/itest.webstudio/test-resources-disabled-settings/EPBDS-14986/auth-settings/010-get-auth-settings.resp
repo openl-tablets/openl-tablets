@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "userMode": {
+    "value": "multi",
+    "readOnly": true
+  },
+  "administrators": {
+    "value": ["admin"],
+    "readOnly": true
+  },
+  "defaultGroup": {
+    "value": "Viewers",
+    "readOnly": true
+  },
+  "allowProjectCreateDelete": {
+    "value": false,
+    "readOnly": true
+  }
+}

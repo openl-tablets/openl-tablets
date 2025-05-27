@@ -1,0 +1,10 @@
+PATCH /web/admin/settings/authentication HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/merge-patch+json
+
+{
+  "userMode": "multi",
+  "administrators": ["user1"],
+  "defaultGroup": "",
+  "allowProjectCreateDelete": true
+}
