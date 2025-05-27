@@ -1,7 +1,8 @@
-POST /web/admin/settings/group-management HTTP/1.1
-Content-Type: application/json
+PATCH /web/admin/settings/authentication HTTP/1.1
+Content-Type: application/merge-patch+json
 Authorization: Basic YWRtaW46YWRtaW4=
 
 {
+  "userMode": "multi",
   "defaultGroup": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus."
 }

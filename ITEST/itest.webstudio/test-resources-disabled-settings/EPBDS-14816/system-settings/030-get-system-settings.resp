@@ -33,5 +33,14 @@ Content-Type: application/json
   "autoCompile": {
     "value": false,
     "readOnly": true
+  },
+  "db": {
+    "url": {
+      "value": "jdbc:h2:mem:studio;DB_CLOSE_DELAY=-1",
+      "readOnly": true
+    },
+    "user": "",
+    "password": "",
+    "maximumPoolSize": 50
   }
 }

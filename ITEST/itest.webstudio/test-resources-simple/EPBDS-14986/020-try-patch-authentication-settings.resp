@@ -1,0 +1,7 @@
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.invalid.settings.authentication.user-mode.not-match.message",
+  "message": "The user mode 'multi' does not match the current authentication mode 'single'."
+}

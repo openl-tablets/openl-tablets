@@ -4,6 +4,348 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "AuthenticationSettings" : {
+        "type" : "object",
+        "discriminator" : {
+          "propertyName" : "userMode"
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/InheritedAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/ADAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/SAMLAuthenticationSettings"
+        }, {
+          "$ref" : "#/components/schemas/OAuth2AuthenticationSettings"
+        } ],
+        "properties" : {
+          "userMode" : {
+            "type" : "string",
+            "description" : "***",
+            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ],
+            "example" : "***"
+          }
+        },
+        "required" : [ "userMode" ]
+      },
+      "ADAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "credentials" : {
+              "type" : "string",
+              "description" : "***",
+              "writeOnly" : true
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "domain" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "groupFilter" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "searchFilter" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            },
+            "serverUrl" : {
+              "type" : "string",
+              "description" : "***",
+              "example" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "domain", "searchFilter", "serverUrl", "userMode" ]
+      },
+      "InheritedAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            }
+          }
+        } ],
+        "required" : [ "administrators", "userMode" ]
+      },
+      "NOPAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "user" : {
+              "$ref" : "#/components/schemas/NOPUserSettings"
+            }
+          }
+        } ],
+        "required" : [ "user", "userMode" ]
+      },
+      "NOPUserSettings" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 255,
+            "minLength" : 1
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***",
+            "example" : "***",
+            "maxLength" : 125,
+            "minLength" : 1
+          }
+        },
+        "required" : [ "displayName", "firstName", "lastName", "username" ]
+      },
+      "OAuth2AttributesSettings" : {
+        "type" : "object",
+        "description" : "***",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "groups" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        }
+      },
+      "OAuth2AuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "attributes" : {
+              "$ref" : "#/components/schemas/OAuth2AttributesSettings"
+            },
+            "clientId" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "clientSecret" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "grantType" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "issuerUri" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "scope" : {
+              "type" : "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "attributes", "clientId", "clientSecret", "issuerUri", "scope", "userMode" ]
+      },
+      "SAMLAttributesSettings" : {
+        "type" : "object",
+        "description" : "***",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "groups" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "***"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        }
+      },
+      "SAMLAuthenticationSettings" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AuthenticationSettings"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "administrators" : {
+              "type" : "array",
+              "description" : "***",
+              "items" : {
+                "type" : "string",
+                "maxLength" : 50,
+                "minLength" : 0
+              },
+              "uniqueItems" : true
+            },
+            "allowProjectCreateDelete" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "attributes" : {
+              "$ref" : "#/components/schemas/SAMLAttributesSettings"
+            },
+            "binding" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "defaultGroup" : {
+              "type" : "string",
+              "description" : "***",
+              "maxLength" : 65,
+              "minLength" : 0
+            },
+            "entityId" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "forceAuthN" : {
+              "type" : "boolean",
+              "description" : "***"
+            },
+            "metadataUrl" : {
+              "type" : "string",
+              "description" : "***"
+            },
+            "serverCertificate" : {
+              "type" : "string",
+              "description" : "***"
+            }
+          }
+        } ],
+        "required" : [ "administrators", "attributes", "entityId", "metadataUrl", "userMode" ]
+      },
+      "CreateAuthenticationTemplateModel" : {
+        "type" : "object",
+        "properties" : {
+          "userMode" : {
+            "type" : "string",
+            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ]
+          }
+        },
+        "required" : [ "userMode" ]
+      },
       "RepositoriesBatchRequest" : {
         "type" : "object",
         "properties" : {
@@ -681,17 +1023,6 @@ Content-Type: application/json
           }
         }
       },
-      "GroupManagementSettings" : {
-        "type" : "object",
-        "properties" : {
-          "defaultGroup" : {
-            "type": "string",
-            "description" : "***",
-            "maxLength": 65,
-            "minLength": 0
-          }
-        }
-      },
       "JsonNode" : {
         "type" : "object"
       },
@@ -722,6 +1053,9 @@ Content-Type: application/json
             "description" : "***",
             "minimum": 1
           },
+          "db": {
+            "$ref": "#/components/schemas/DBSettings"
+          },
           "timeFormat" : {
             "type": "string",
             "description" : "***"
@@ -735,7 +1069,37 @@ Content-Type: application/json
             "description" : "***"
           }
         },
-        "required" : [ "datePattern", "timeFormat" ]
+        "required": ["datePattern", "db", "timeFormat"]
+      },
+      "DBSettings": {
+        "type": "object",
+        "properties": {
+          "maximumPoolSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "example": 10,
+            "minimum": 1
+          },
+          "password": {
+            "type": "string",
+            "description": "***",
+            "example": "***"
+          },
+          "url": {
+            "type": "string",
+            "description": "***",
+            "example": "***"
+          },
+          "user": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        },
+        "required": ["url"]
       },
       "MailVerificationServerSettings" : {
         "type" : "object",
@@ -2802,6 +3166,409 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/admin/settings/authentication/template" : {
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateAuthenticationTemplateModel"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationSettings"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      }
+    },
+    "/admin/settings/authentication" : {
+      "delete" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationSettings"
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "patch" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/merge-patch+json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      },
+      "post" : {
+        "description" : "***",
+        "operationId" : "***",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthenticationSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "***"
+          },
+          "204" : {
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings: Authentication" ]
+      }
+    },
     "/admin/settings/repos/deploy-config/template" : {
       "post" : {
         "description" : "***",
@@ -4961,319 +5728,6 @@ Content-Type: application/json
         },
         "summary" : "***",
         "tags" : [ "Settings: Mail Verification Server" ]
-      }
-    },
-    "/admin/settings/group-management" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GroupManagementSettings"
-                }
-              }
-            },
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
-      },
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/GroupManagementSettings"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Locked"
-          },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Internal Server Error"
-          },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Forbidden"
-          },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Not Found"
-          },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description" : "Conflict"
-          },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description" : "Bad Request"
-          },
-          "204" : {
-            "description" : "default response"
-          }
-        },
-        "summary" : "***",
-        "tags" : [ "Settings: Group Management" ]
       }
     },
     "/admin/management/groups": {
@@ -14612,11 +15066,11 @@ Content-Type: application/json
     }, {
       "name" : "Settings"
     }, {
+      "name" : "Settings: Authentication"
+    }, {
       "name" : "Settings: Deploy Configuration Repository"
     }, {
       "name" : "Settings: Design Repository"
-    }, {
-      "name" : "Settings: Group Management"
     }, {
       "name" : "Settings: Mail Verification Server"
     }, {
