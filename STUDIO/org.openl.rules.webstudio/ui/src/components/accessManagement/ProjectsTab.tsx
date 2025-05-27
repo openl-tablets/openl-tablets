@@ -72,6 +72,12 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                                     options={projectsOptions}
                                     placeholder={t('common:project')}
                                     style={{ width: 250 }}
+                                    filterOption={(input, option) => {
+                                        if (!option || !option.label || !(typeof option.label === 'string')) {
+                                            return false
+                                        }
+                                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }}
                                 />
                             </Form.Item>
                             <Form.Item
