@@ -6,25 +6,54 @@ import { roleOptions } from './utils'
 import { Project } from '../../types/projects'
 import { SelectOption } from '../form/Select'
 import { useTranslation } from 'react-i18next'
+import { Repository } from '../../types/repositories'
 
-export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedProjects }) => {
+interface ProjectsTabProps {
+    designRepositories: Repository[]
+    selectedProjects: string[]
+}
+
+export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, selectedProjects }) => {
     const { t } = useTranslation()
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 
     const fetchProjects = async () => {
         const response: Project[] = await apiCall('/projects')
-        setProjects(response.map(project => ({ label: project.name, value: project.id })))
+        const projectsWithDesignRepositoriesOptions = response.reduce((acc, project) => {
+            let indexOfOption = acc.findIndex(option => option.title === project.repository)
+            if (indexOfOption === -1) {
+                const designRepository = designRepositories.find(option => option.id === project.repository)
+                if (designRepository) {
+                    indexOfOption = acc.push({
+                        label: designRepository.name,
+                        title: designRepository.id,
+                        value: null,
+                        options: [] as SelectOption[] }) - 1
+                }
+            }
+            if (indexOfOption !== -1) {
+                acc[indexOfOption].options.push({ label: project.name, value: project.id })
+            }
+            return acc
+        }, [] as SelectOption[])
+        setProjects(projectsWithDesignRepositoriesOptions)
     }
     useEffect(() => {
         fetchProjects()
     }, [])
 
     const projectsOptions = useMemo(() => {
-        return projects.map(project => ({
-            label: project.label,
-            value: project.value,
-            disabled: selectedProjects.includes(project.value as string)
-        }))
+        return projects.map(project => {
+            return {
+                label: project.label,
+                title: project.title,
+                options: project.options.map((option: SelectOption) => ({
+                    label: option.label,
+                    value: option.value,
+                    disabled: selectedProjects.includes(option.value as string)
+                })),
+            }
+        })
     }, [projects, selectedProjects])
 
     return (
@@ -43,15 +72,6 @@ export const ProjectsTab: React.FC<{selectedProjects: string[]}> = ({ selectedPr
                                     options={projectsOptions}
                                     placeholder={t('common:project')}
                                     style={{ width: 250 }}
-                                    filterOption={(input, option) => {
-                                        if (!option || !option.label || !(typeof option.label === 'string')) {
-                                            return false
-                                        }
-                                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                    }}
-                                    filterSort={(optionA, optionB) => {
-                                        return optionA.disabled === optionB.disabled ? 0 : optionA.disabled ? 1 : -1
-                                    }}
                                 />
                             </Form.Item>
                             <Form.Item

@@ -17,6 +17,7 @@ export interface Project {
     revision: string
     status: ProjectStatus
     tags?: Record<string, string>
+    selectedBranches?: string[]
 }
 
 export interface ProjectRole {

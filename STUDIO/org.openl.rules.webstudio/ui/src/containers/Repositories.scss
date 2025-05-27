@@ -13,6 +13,12 @@
 
     .ant-tabs-nav-add {
       text-transform: capitalize;
+      text-align: left;
+      font-weight: bold;
+
+      > span.anticon {
+        font-size: 16px;
+      }
     }
 
     .ant-tabs-tab.ant-tabs-tab-with-remove {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { RepositoryType } from 'constants/'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from './'
 import { apiCall } from '../../services'
-import { RepositoryRole } from '../../types/repositories'
+import { Repository, RepositoryRole } from '../../types/repositories'
 import { ProjectRole } from '../../types/projects'
 
 interface AccessManagementModalProps {
@@ -30,6 +30,7 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [isReposLoaded, setIsReposLoaded] = useState(false)
     const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
+    const [designRepositories, setDesignRepositories] = React.useState<Repository[]>([])
 
     const fetchReposRoles = async () => {
         const response: RepositoryRole[] = await apiCall(`/acls/repositories?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
@@ -46,7 +47,13 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
         setIsProjectsLoaded(true)
     }
 
+    const fetchDesignRepositories = async () => {
+        const response: Repository[] = await apiCall('/repos')
+        setDesignRepositories(response)
+    }
+
     useEffect(() => {
+        fetchDesignRepositories()
         fetchReposRoles()
         fetchProjectRoles()
     }, [sid])
@@ -162,7 +169,7 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
             label: t('users:design_repositories'),
             key: 'design_repositories',
             forceRender: true,
-            children: <DesignRepositoriesTab selectedRepositories={selectedRepositories} />
+            children: <DesignRepositoriesTab designRepositories={designRepositories} selectedRepositories={selectedRepositories} />
         },
         {
             label: t('users:deploy_repositories'),
@@ -174,7 +181,7 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ is
             label: t('users:projects'),
             key: 'projects',
             forceRender: true,
-            children: <ProjectsTab selectedProjects={selectedProjects} />
+            children: <ProjectsTab designRepositories={designRepositories} selectedProjects={selectedProjects} />
         }
     ]
 

@@ -1,5 +1,5 @@
-import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
-import { Button, Divider, Form, FormInstance, Modal, Row, Tabs } from 'antd'
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
+import { Button, Divider, Form, Modal, Row, Tabs } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { RepositoryDataType, RepositoryType } from './constants'
 import { WIDTH_OF_FROM_LABEL } from '../../constants'
