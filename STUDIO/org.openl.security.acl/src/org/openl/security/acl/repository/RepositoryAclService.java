@@ -32,6 +32,8 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     void removePermissions(AProjectArtefact projectArtefact, Sid sid);
 
+    void removePermissions(AProjectArtefact projectArtefact);
+
     void addPermissions(AProjectArtefact projectArtefact, Sid sid, Permission... permissions);
 
     /**

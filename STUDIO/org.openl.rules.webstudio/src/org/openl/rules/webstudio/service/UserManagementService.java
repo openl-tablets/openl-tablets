@@ -203,14 +203,13 @@ public class UserManagementService {
      * @return {@code true} if action session found, otherwise {@code false}
      */
     public boolean isUserOnline(String username) {
-        return sessionRegistry.getAllPrincipals().stream().map(principal -> {
-                    if (principal instanceof UserDetails) {
-                        UserDetails userDetails = (UserDetails) principal;
+        return sessionRegistry.getAllPrincipals().stream()
+                .map(principal -> {
+                    if (principal instanceof UserDetails userDetails) {
                         if (Objects.equals(username, userDetails.getUsername())) {
                             return principal;
                         }
-                    } else if (principal instanceof AuthenticatedPrincipal) {
-                        AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
+                    } else if (principal instanceof AuthenticatedPrincipal authPrincipal) {
                         if (Objects.equals(username, authPrincipal.getName())) {
                             return principal;
                         }
@@ -234,5 +233,10 @@ public class UserManagementService {
                 .setDisplayName(user.getDisplayName())
                 .setExternalFlags(user.getUserExternalFlags())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Set<String> getUserNames() {
+        return userDao.getUserNames();
     }
 }

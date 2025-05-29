@@ -1,11 +1,15 @@
 package org.openl.rules.rest.acl.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
 
-public class AclSidModel {
+@JsonDeserialize(builder = AclSubject.Builder.class)
+public class AclSubject {
 
     @Parameter(description = "SID name")
     private final String sid;
@@ -13,8 +17,7 @@ public class AclSidModel {
     @Parameter(description = "Is principal")
     private final Boolean principal;
 
-
-    private AclSidModel(Builder builder) {
+    private AclSubject(Builder builder) {
         this.sid = builder.sid;
         this.principal = builder.principal;
     }
@@ -27,23 +30,30 @@ public class AclSidModel {
         return principal;
     }
 
-    public static AclSidModel of(Sid sid) {
+    public static AclSubject of(Sid sid) {
         var builder = builder();
-        if (sid instanceof PrincipalSid) {
-            builder.principal(true)
-                    .sid(((PrincipalSid) sid).getPrincipal());
-        } else if (sid instanceof GrantedAuthoritySid) {
-            builder.sid(((GrantedAuthoritySid) sid).getGrantedAuthority());
-        } else {
-            throw new IllegalArgumentException("Unsupported Sid type: " + sid.getClass());
+        switch (sid) {
+            case PrincipalSid user -> builder.principal(true).sid(user.getPrincipal());
+            case GrantedAuthoritySid group -> builder.sid(group.getGrantedAuthority());
+            default -> throw new IllegalArgumentException("Unsupported Sid type: " + sid.getClass());
         }
         return builder.build();
     }
 
+    public Sid toSid() {
+        if (Boolean.TRUE.equals(principal)) {
+            return new PrincipalSid(sid);
+        } else {
+            return new GrantedAuthoritySid(sid);
+        }
+    }
+
+    @JsonCreator
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private String sid;
         private Boolean principal;
@@ -61,8 +71,8 @@ public class AclSidModel {
             return this;
         }
 
-        public AclSidModel build() {
-            return new AclSidModel(this);
+        public AclSubject build() {
+            return new AclSubject(this);
         }
     }
 

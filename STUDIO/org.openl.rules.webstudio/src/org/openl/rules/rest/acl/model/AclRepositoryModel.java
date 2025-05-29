@@ -27,7 +27,7 @@ public class AclRepositoryModel {
 
     @JsonView(AclView.Sid.class)
     @Parameter(description = "SID")
-    private final AclSidModel sid;
+    private final AclSubject sid;
 
     @NotNull
     @JsonView({AclView.Repository.class, AclView.Root.class, AclView.Sid.class})
@@ -74,7 +74,7 @@ public class AclRepositoryModel {
         return role;
     }
 
-    public AclSidModel getSid() {
+    public AclSubject getSid() {
         return sid;
     }
 
@@ -156,12 +156,12 @@ public class AclRepositoryModel {
     }
 
     public static class SidRepositoryBuilder extends ABuilder<SidRepositoryBuilder> {
-        private AclSidModel sid;
+        private AclSubject sid;
 
         private SidRepositoryBuilder() {
         }
 
-        public SidRepositoryBuilder sid(AclSidModel sid) {
+        public SidRepositoryBuilder sid(AclSubject sid) {
             this.sid = sid;
             return this;
         }

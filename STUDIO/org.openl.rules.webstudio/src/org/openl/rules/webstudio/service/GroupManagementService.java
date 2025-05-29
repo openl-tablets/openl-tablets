@@ -79,4 +79,9 @@ public class GroupManagementService {
     public long countUsersInGroup(String groupName) {
         return groupDao.countUsersInGroup(groupName);
     }
+
+    @Transactional(readOnly = true)
+    public Set<String> getGroupNames() {
+        return groupDao.getGroupNames();
+    }
 }

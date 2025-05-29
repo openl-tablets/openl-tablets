@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.rest.acl.model.AclProjectModel;
-import org.openl.rules.rest.acl.model.AclSidModel;
+import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
@@ -136,7 +136,7 @@ public class AclProjectsController {
     private Stream<AclProjectModel> mapAclProjectModelForSid(AProject project) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         return aclService.listPermissions(project).entrySet().stream()
-                .map(entry -> Pair.of(AclSidModel.of(entry.getKey()), entry.getValue()))
+                .map(entry -> Pair.of(AclSubject.of(entry.getKey()), entry.getValue()))
                 .flatMap(entry -> entry.getValue().stream()
                         .map(permission -> AclProjectModel.builder()
                                 .sid(entry.getKey())

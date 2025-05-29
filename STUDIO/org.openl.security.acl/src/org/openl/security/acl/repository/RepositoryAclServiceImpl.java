@@ -139,6 +139,12 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     }
 
     @Override
+    public void removePermissions(AProjectArtefact projectArtefact) {
+        var oi = oidProvider.getArtifactOid(projectArtefact);
+        removePermissions(oi);
+    }
+
+    @Override
     @Transactional
     public void addPermissions(AProjectArtefact projectArtefact, Sid sid, Permission... permissions) {
         var oi = oidProvider.getArtifactOid(projectArtefact);
