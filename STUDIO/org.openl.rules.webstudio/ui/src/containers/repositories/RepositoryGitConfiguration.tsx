@@ -25,7 +25,7 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
 
     return (
         <>
-            <Checkbox label={t('repository:remote_repository')} name={['settings', 'remoteRepository']} tooltip={{ icon: RemoteRepositoryModal }}/>
+            <Checkbox label={t('repository:remote_repository')} name={['settings', 'remoteRepository']} tooltip={{ icon: RemoteRepositoryModal }} />
             {isRemoteRepository && (
                 <>
                     <Input
@@ -51,18 +51,18 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
             <Input label={t('repository:protected_branches')} name={['settings', 'protectedBranches']} tooltip={{ icon: ProtectedBranchesModal }} />
             {isRemoteRepository && (
                 <>
-                    <InputNumber name={['settings', 'listenerTimerPeriod']} label={t('repository:changes_check_interval')} />
-                    <InputNumber name={['settings', 'connectionTimeout']} label={t('repository:connection_timeout')} />
+                    <InputNumber label={t('repository:changes_check_interval')} name={['settings', 'listenerTimerPeriod']} />
+                    <InputNumber label={t('repository:connection_timeout')} name={['settings', 'connectionTimeout']} />
                 </>
             )}
             {repositoryDataType === RepositoryDataType.DESIGN && (
                 <>
                     <Divider orientation="left">{t('repository:new_branch')}</Divider>
-                    <Input name={['settings', 'newBranchTemplate']} label={t('repository:default_branch_name')} tooltip={{ icon: DefaultBranchModal }} />
-                    <Input name={['settings', 'newBranchRegex']} label={t('repository:branch_name_pattern')} tooltip={{ icon: NewBranchRegexModal }} />
-                    <Input name={['settings', 'newBranchRegexError']} label={t('repository:invalid_branch_name_message_hint')} tooltip={{ icon: MewBranchRegexErrorModal }} />
+                    <Input label={t('repository:default_branch_name')} name={['settings', 'newBranchTemplate']} tooltip={{ icon: DefaultBranchModal }} />
+                    <Input label={t('repository:branch_name_pattern')} name={['settings', 'newBranchRegex']} tooltip={{ icon: NewBranchRegexModal }} />
+                    <Input label={t('repository:invalid_branch_name_message_hint')} name={['settings', 'newBranchRegexError']} tooltip={{ icon: MewBranchRegexErrorModal }} />
                     <Divider orientation="left">{t('repository:folder_structure')}</Divider>
-                    <Checkbox name={['settings', 'flatFolderStructure']} label={t('repository:flat_folder_structure')} tooltip={{ icon: FlatFolderStructureModal }} />
+                    <Checkbox label={t('repository:flat_folder_structure')} name={['settings', 'flatFolderStructure']} tooltip={{ icon: FlatFolderStructureModal }} />
                     {isFlatFolderStructure && (
                         <Input label={t('repository:path')} name={['settings', 'basePath']} />
                     )}

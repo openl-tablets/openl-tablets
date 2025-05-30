@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import { Button, Divider, Form, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
-import { DisplayUserName, WIDTH_OF_FROM_LABEL } from 'constants/'
+import { DisplayUserName, WIDTH_OF_FORM_LABEL } from 'constants/'
 import { SystemContext, UserContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
@@ -70,7 +70,7 @@ export const UserProfile: React.FC = () => {
             labelWrap
             initialValues={initialValues}
             labelAlign="right"
-            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >

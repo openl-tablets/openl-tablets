@@ -7,6 +7,7 @@ import {
     MailOutlined,
     NotificationOutlined,
     NumberOutlined,
+    SafetyOutlined,
     SettingOutlined,
     TeamOutlined,
     ToolOutlined,
@@ -43,6 +44,7 @@ const MainMenu: React.FC = () => {
                     <>
                         <Menu.Item key="/web/administration/repositories/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
                         <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
+                        <Menu.Item key="/web/administration/security" icon={<SafetyOutlined />}>{t('common:menu.security')}</Menu.Item>
                         { isUserManagementEnabled &&
                             <Menu.Item key="/web/administration/admin/management/users" icon={<UserOutlined />}>{t('common:menu.users')}</Menu.Item>}
                         { isGroupsManagementEnabled &&

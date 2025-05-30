@@ -17,6 +17,9 @@ i18next.addResourceBundle('en', 'common', {
     project: 'Project',
     details: 'Details',
     edit_access_rights: 'Edit Access Rights',
+    none: 'None',
+    login: 'Login',
+    password: 'Password',
     menu: {
         editor: 'Editor',
         repository: 'Repository',
@@ -24,6 +27,7 @@ i18next.addResourceBundle('en', 'common', {
         my_settings: 'My Settings',
         repositories: 'Repositories',
         system: 'System',
+        security: 'Security',
         groups: 'Groups',
         users: 'Users',
         notification: 'Notification',

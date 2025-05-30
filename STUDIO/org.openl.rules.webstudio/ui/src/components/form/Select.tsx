@@ -1,7 +1,8 @@
-import React, { FC, ReactNode, CSSProperties, useRef, useEffect, useState } from 'react'
+import React, { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
-import { Rule } from 'antd/es/form'
 import type { DefaultOptionType } from 'rc-select/lib/Select'
+import { useRules } from './hooks'
+import { RuleObject } from 'rc-field-form/lib/interface'
 
 // @ts-ignore
 export interface SelectOption extends DefaultOptionType {
@@ -17,11 +18,12 @@ interface SelectProps extends AntdSelectProps {
     style?: CSSProperties
     formItemStyle?: CSSProperties
     defaultValue?: string
-    rules?: Rule[]
+    rules?: RuleObject[]
     mode?: 'multiple' | 'tags'
     showSearch?: boolean
     defaultActiveFirstOption?: boolean
     suffixIcon?: ReactNode
+    required?: boolean
 }
 
 const Select: FC<SelectProps> = ({
@@ -40,11 +42,17 @@ const Select: FC<SelectProps> = ({
     defaultActiveFirstOption = true,
     suffixIcon,
     filterOption = true,
+    open,
+    tokenSeparators,
+    required,
+    rules = [],
     ...rest
 }) => {
     const form = Form.useFormInstance()
     const value = Form.useWatch(name, form)
     const [isDisabled, setIsDisabled] = useState(disabled)
+    const [predefinedOptions, setPredefinedOptions] = useState<SelectOption[] | null>(null)
+    const { allRules } = useRules({ required, rules })
 
     useEffect(() => {
         if (disabled !== undefined) {
@@ -53,18 +61,28 @@ const Select: FC<SelectProps> = ({
     }, [disabled])
 
     useEffect(() => {
-        if (value !== null && typeof value === 'object') {
+        if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
             if (value.readOnly) {
                 setIsDisabled(true)
             }
             form.setFieldValue(name, value.value)
         }
-    }, [])
+    }, [value])
+
+    useEffect(() => {
+        if (Array.isArray(value) && !open && mode === 'tags') {
+            setPredefinedOptions(value.map(option => ({
+                value: option,
+                label: option,
+            })))
+        }
+    }, [value, open, mode])
 
     return (
         <Form.Item
             label={label}
             name={name}
+            rules={allRules}
             style={formItemStyle}
             {...rest}
         >
@@ -77,11 +95,13 @@ const Select: FC<SelectProps> = ({
                 onBlur={onBlur}
                 onChange={onChange}
                 onSearch={onSearch}
+                open={open}
                 // @ts-ignore
-                options={options}
+                options={predefinedOptions || options}
                 showSearch={showSearch}
                 style={style}
                 suffixIcon={suffixIcon}
+                tokenSeparators={tokenSeparators}
             />
         </Form.Item>
     )

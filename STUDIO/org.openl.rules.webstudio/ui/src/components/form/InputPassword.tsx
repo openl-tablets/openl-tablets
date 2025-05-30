@@ -1,6 +1,7 @@
-import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
+import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
-import { Rule } from 'antd/es/form'
+import { useRules } from './hooks'
+import { RuleObject } from 'rc-field-form/lib/interface'
 
 type InputProps = {
     name: string | (string | number)[]
@@ -11,7 +12,8 @@ type InputProps = {
     formItemStyle?: React.CSSProperties,
     placeholder?: string
     defaultValue?: string
-    rules?: Rule[]
+    rules?: RuleObject[]
+    required?: boolean
 };
 
 const InputPassword: FC<InputProps> = ({
@@ -21,11 +23,14 @@ const InputPassword: FC<InputProps> = ({
     style,
     formItemStyle,
     placeholder,
+    required,
+    rules = [],
     ...rest
 }) => {
     const form = Form.useFormInstance()
     const value = Form.useWatch(name, form)
     const [isDisabled, setIsDisabled] = useState(disabled)
+    const { allRules } = useRules({ required, rules })
 
     useEffect(() => {
         if (disabled !== undefined) {
@@ -40,13 +45,13 @@ const InputPassword: FC<InputProps> = ({
                 form.setFieldValue(name, value.value)
             }
             if (value.secret) {
-                form.setFieldValue(name, '')
+                form.setFieldValue(name, undefined)
             }
         }
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
+        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
             <AntdInput.Password disabled={isDisabled} placeholder={placeholder} style={style} />
         </Form.Item>
     )

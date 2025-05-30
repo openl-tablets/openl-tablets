@@ -139,7 +139,7 @@ export const Groups: React.FC = () => {
         {
             title: t('groups:table.actions'),
             key: 'Action',
-            width: 80,
+            width: 150,
             render: (_: string, record: any) => (
                 <Dropdown menu={{ items: actionItems(record) }} overlayClassName="table-actions-dropdown">
                     <Button type="text">
