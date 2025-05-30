@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'reac
 import { Checkbox, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { Button, Form, Row } from 'antd'
-import { WIDTH_OF_FROM_LABEL } from '../../constants'
+import { WIDTH_OF_FORM_LABEL } from '../../constants'
 import { apiCall } from '../../services'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { RepositoryDataType } from './constants'
@@ -97,7 +97,7 @@ export const DeployConfiguration = forwardRef<FormRefProps>((_, ref) => {
             form={form}
             initialValues={configuration || undefined}
             labelAlign="right"
-            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >

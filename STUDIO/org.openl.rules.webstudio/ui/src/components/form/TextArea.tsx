@@ -1,9 +1,11 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
-import { Input as AntdInput, Form, TooltipProps } from 'antd'
+import { Form, Input, TooltipProps } from 'antd'
 import { useRules } from './hooks'
 import { RuleObject } from 'rc-field-form/lib/interface'
 
-type InputProps = {
+const { TextArea: AntdTextArea } = Input
+
+type TextAreaProps = {
     name: string | (string | number)[]
     label?: string
     disabled?: boolean,
@@ -15,9 +17,10 @@ type InputProps = {
     hidden?: boolean
     rules?: RuleObject[]
     required?: boolean
+    rows?: number
 }
 
-const Input: FC<InputProps> = ({
+const TextArea: FC<TextAreaProps> = ({
     name,
     label,
     disabled,
@@ -26,6 +29,7 @@ const Input: FC<InputProps> = ({
     placeholder,
     required,
     rules = [],
+    rows = 4,
     ...rest
 }) => {
     const form = Form.useFormInstance()
@@ -50,9 +54,9 @@ const Input: FC<InputProps> = ({
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdInput disabled={isDisabled} placeholder={placeholder} style={style} />
+            <AntdTextArea disabled={isDisabled} placeholder={placeholder} rows={rows} style={style} />
         </Form.Item>
     )
 }
 
-export default Input
+export default TextArea

@@ -159,7 +159,7 @@ export const Users: React.FC = () => {
             },
             {
                 title: t('users:users_table.actions'),
-                width: 100,
+                width: 150,
                 render: (_: string, record: any) => (
                     <Dropdown menu={{ items: actionItems(record) }} overlayClassName="table-actions-dropdown">
                         <Button type="text">

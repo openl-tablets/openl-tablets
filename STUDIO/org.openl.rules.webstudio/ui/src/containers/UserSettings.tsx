@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { UserContext } from '../contexts'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
-import { WIDTH_OF_FROM_LABEL } from '../constants'
+import { WIDTH_OF_FORM_LABEL } from '../constants'
 
 export const UserSettings: React.FC = () => {
     const { t } = useTranslation()
@@ -68,7 +68,7 @@ export const UserSettings: React.FC = () => {
             labelWrap
             initialValues={userProfile}
             labelAlign="right"
-            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >

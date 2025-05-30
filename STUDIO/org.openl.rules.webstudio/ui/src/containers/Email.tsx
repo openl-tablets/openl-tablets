@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Button, Form, Typography, Row, notification, Modal } from 'antd'
 import { Input, InputPassword, Checkbox } from '../components'
 import { useTranslation } from 'react-i18next'
-import { WIDTH_OF_FROM_LABEL } from '../constants'
+import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { apiCall } from '../services'
 
 interface EmailSettings {
@@ -73,7 +73,7 @@ export const Email: React.FC = () => {
             labelWrap
             form={form}
             labelAlign="right"
-            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >

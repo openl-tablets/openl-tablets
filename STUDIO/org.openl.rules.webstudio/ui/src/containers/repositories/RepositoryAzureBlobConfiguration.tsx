@@ -7,8 +7,8 @@ export const RepositoryAzureBlobConfiguration = () => {
 
     return (
         <>
-            <Input name={['settings', 'uri']} label={t('repository:url')} rules={[{ required: true, message: t('common:validation.required') }]} />
-            <InputNumber name={['settings', 'listenerTimerPeriod']} label={t('repository:listener_timer_period_sec')} />
+            <Input label={t('repository:url')} name={['settings', 'uri']} rules={[{ required: true, message: t('common:validation.required') }]} />
+            <InputNumber label={t('repository:listener_timer_period_sec')} name={['settings', 'listenerTimerPeriod']} />
         </>
     )
 }

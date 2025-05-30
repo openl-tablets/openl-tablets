@@ -1,6 +1,8 @@
-import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
+import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Checkbox as AntdCheckbox, Form, TooltipProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
+import { useRules } from './hooks'
+import { RuleObject } from 'rc-field-form/lib/interface'
 
 type InputProps = {
     name: string | string[]
@@ -12,6 +14,8 @@ type InputProps = {
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,
     onChange?: (e: CheckboxChangeEvent) => void
+    required?: boolean
+    rules?: RuleObject[]
 };
 
 const Checkbox: FC<InputProps> = ({
@@ -22,11 +26,14 @@ const Checkbox: FC<InputProps> = ({
     style,
     valuePropName = 'checked',
     formItemStyle,
+    required,
+    rules = [],
     ...rest
 }) => {
     const form = Form.useFormInstance()
     const value = Form.useWatch(name, form)
     const [isDisabled, setIsDisabled] = useState(disabled)
+    const { allRules } = useRules({ required, rules })
 
     useEffect(() => {
         if (disabled !== undefined) {
@@ -44,7 +51,7 @@ const Checkbox: FC<InputProps> = ({
     }, [])
 
     return (
-        <Form.Item label={label} name={name} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
+        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
             <AntdCheckbox disabled={isDisabled} style={style} {...rest} />
         </Form.Item>
     )

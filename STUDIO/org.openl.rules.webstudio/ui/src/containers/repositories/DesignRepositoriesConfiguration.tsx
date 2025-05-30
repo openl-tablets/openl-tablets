@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'reac
 import { Button, Divider, Form, Modal, Row, Tabs } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { RepositoryDataType, RepositoryType } from './constants'
-import { WIDTH_OF_FROM_LABEL } from '../../constants'
+import { WIDTH_OF_FORM_LABEL } from '../../constants'
 import { Input, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
@@ -165,7 +165,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                         form={form}
                         initialValues={defaultConfiguration || activeRepository || undefined}
                         labelAlign="right"
-                        labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+                        labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
                         onFinish={onFinish}
                         wrapperCol={{ flex: 1 }}
                     >

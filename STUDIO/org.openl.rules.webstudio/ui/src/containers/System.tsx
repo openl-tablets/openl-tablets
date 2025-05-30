@@ -3,24 +3,8 @@ import React, { useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
-import { Input, InputNumber, Checkbox } from '../components'
-import { WIDTH_OF_FROM_LABEL } from '../constants'
-
-type ValueWrapper<T> = {
-    value: T
-    readonly: boolean
-} | T
-
-interface SystemSettingsResponse {
-    autoCompile: ValueWrapper<boolean>
-    datePattern: ValueWrapper<string>
-    dispatchingValidationEnabled: ValueWrapper<boolean>
-    projectHistoryCount: ValueWrapper<number>
-    testRunThreadCount: ValueWrapper<number>
-    timeFormat: ValueWrapper<string>
-    updateSystemProperties: ValueWrapper<boolean>
-    userWorkspaceHome: ValueWrapper<string>
-}
+import { Input, InputNumber, Checkbox, InputPassword } from '../components'
+import { WIDTH_OF_FORM_LABEL } from '../constants'
 
 interface SystemSettings {
     autoCompile: boolean
@@ -31,63 +15,23 @@ interface SystemSettings {
     timeFormat: string
     updateSystemProperties: boolean
     userWorkspaceHome: string
-}
-
-const unwrapValue = <T, >(value: ValueWrapper<T>): T => {
-    if (value !== null && typeof value === 'object' && 'value' in value) {
-        return value.value
+    db: {
+        maximumPoolSize: number
+        password: string
+        url: string
+        user: string
     }
-    return value
-}
-
-const getValues = (settings: SystemSettingsResponse): SystemSettings => {
-    const values = {} as SystemSettings
-
-    values['autoCompile'] = unwrapValue(settings.autoCompile)
-    values['datePattern'] = unwrapValue(settings.datePattern)
-    values['dispatchingValidationEnabled'] = unwrapValue(settings.dispatchingValidationEnabled)
-    values['projectHistoryCount'] = unwrapValue(settings.projectHistoryCount)
-    values['testRunThreadCount'] = unwrapValue(settings.testRunThreadCount)
-    values['timeFormat'] = unwrapValue(settings.timeFormat)
-    values['updateSystemProperties'] = unwrapValue(settings.updateSystemProperties)
-    values['userWorkspaceHome'] = unwrapValue(settings.userWorkspaceHome)
-
-    return values
-}
-
-const unwrapReadOnly = (value: ValueWrapper<any>): boolean => {
-    if (value !== null && typeof value === 'object' && 'readonly' in value) {
-        return value.readonly
-    }
-    return false
-}
-
-const getReadOnlyFields = (settings: SystemSettingsResponse): Record<string, boolean> => {
-    const readOnlyFields: Record<string, boolean> = {}
-
-    readOnlyFields['autoCompile'] = unwrapReadOnly(settings.autoCompile)
-    readOnlyFields['datePattern'] = unwrapReadOnly(settings.datePattern)
-    readOnlyFields['dispatchingValidationEnabled'] = unwrapReadOnly(settings.dispatchingValidationEnabled)
-    readOnlyFields['projectHistoryCount'] = unwrapReadOnly(settings.projectHistoryCount)
-    readOnlyFields['testRunThreadCount'] = unwrapReadOnly(settings.testRunThreadCount)
-    readOnlyFields['timeFormat'] = unwrapReadOnly(settings.timeFormat)
-    readOnlyFields['updateSystemProperties'] = unwrapReadOnly(settings.updateSystemProperties)
-    readOnlyFields['userWorkspaceHome'] = unwrapReadOnly(settings.userWorkspaceHome)
-
-    return readOnlyFields
 }
 
 export const System: React.FC = () => {
     const { t } = useTranslation()
     const [systemSettings, setSystemSettings] = React.useState<SystemSettings | undefined>()
-    const [readOnlyFields, setReadOnlyFields] = React.useState<Record<string, boolean>>({})
     const [form] = Form.useForm()
 
     const fetchSystemSettings = async () => {
         // Fetch system settings from the server
-        const response: SystemSettingsResponse = await apiCall('/admin/settings/system')
-        setSystemSettings(getValues(response))
-        setReadOnlyFields(getReadOnlyFields(response))
+        const response = await apiCall('/admin/settings/system')
+        setSystemSettings(response)
     }
 
     const deleteAllHistory = async () => {
@@ -138,9 +82,11 @@ export const System: React.FC = () => {
     const onFinish = async (values: SystemSettings) => {
         // Apply the changes to the system settings
         await apiCall('/admin/settings/system', {
-            method: 'POST',
+            method: 'PATCH',
+            // method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/merge-patch+json',
+                // 'Content-Type': 'application/json',
             },
             body: JSON.stringify(values),
         }, true).then(() => {
@@ -164,36 +110,31 @@ export const System: React.FC = () => {
             form={form}
             initialValues={systemSettings}
             labelAlign="right"
-            labelCol={{ flex: WIDTH_OF_FROM_LABEL }}
+            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >
             <Divider orientation="left">{t('system:core')}</Divider>
             <Checkbox
-                disabled={readOnlyFields['dispatchingValidationEnabled']}
                 label={t('system:dispatching_validation')}
                 name="dispatchingValidationEnabled"
             />
             <Checkbox
-                disabled={readOnlyFields['autoCompile']}
                 label={t('system:verify_on_edit')}
                 name="autoCompile"
             />
             <Divider orientation="left">{t('system:testing')}</Divider>
             <InputNumber
-                disabled={readOnlyFields['testRunThreadCount']}
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
             />
             <Divider orientation="left">{t('system:user_workspace')}</Divider>
             <Input
-                disabled={readOnlyFields['userWorkspaceHome']}
                 label={t('system:workspace_directory')}
                 name="userWorkspaceHome"
             />
             <Divider orientation="left">{t('system:history')}</Divider>
             <InputNumber
-                disabled={readOnlyFields['projectHistoryCount']}
                 label={t('system:maximum_count_of_changes')}
                 name="projectHistoryCount"
             />
@@ -202,29 +143,31 @@ export const System: React.FC = () => {
             </Row>
             <Divider orientation="left">{t('system:other')}</Divider>
             <Checkbox
-                disabled={readOnlyFields['updateSystemProperties']}
                 label={t('system:update_table_properties')}
                 name="updateSystemProperties"
             />
             <Input
-                disabled={readOnlyFields['datePattern']}
                 label={t('system:date_format')}
                 name="datePattern"
             />
             <Input
-                disabled={readOnlyFields['timeFormat']}
                 label={t('system:time_format')}
                 name="timeFormat"
             />
+            <Divider orientation="left">{t('system:database_configuration')}</Divider>
+            <Typography.Paragraph>
+                {t('system:database_configuration_info')}
+            </Typography.Paragraph>
+            <Input label={t('system:db_url')} name={['db', 'url']} />
+            <Input label={t('system:login')} name={['db', 'user']} />
+            <InputPassword label={t('system:password')} name={['db', 'password']} />
+            <InputNumber label={t('system:maximum_pool_size')} name={['db', 'maximumPoolSize']} />
             <Row justify="end">
                 <Button onClick={showApplyConfirm} type="primary">
                     {t('common:btn.apply')}
                 </Button>
             </Row>
-            <Divider />
-            <Typography.Title level={4} style={{ color: 'red' }}>
-                {t('system:reset_settings')}
-            </Typography.Title>
+            <Divider orientation="left" style={{ color: 'red' }}>{t('system:reset_settings')}</Divider>
             <p>
                 <WarningFilled style={{ color: 'red' }} />
                 <Trans components={[<b style={{ color: 'red' }} />]} i18nKey="system:restore_defaults_warning" />

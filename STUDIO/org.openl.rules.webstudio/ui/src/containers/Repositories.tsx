@@ -37,15 +37,15 @@ export const Repositories = () => {
     }
 
     return (
-        <Tabs activeKey={repositoryTab} onChange={onChangeTab} destroyInactiveTabPane >
+        <Tabs destroyInactiveTabPane activeKey={repositoryTab} onChange={onChangeTab} >
             <Tabs.TabPane key={RepositoryDataType.DESIGN} tab={t('repository:tabs.design_repositories')}>
-                <DesignRepositoriesConfiguration repositoryDataType={RepositoryDataType.DESIGN} ref={formRef} />
+                <DesignRepositoriesConfiguration ref={formRef} repositoryDataType={RepositoryDataType.DESIGN} />
             </Tabs.TabPane>
             <Tabs.TabPane key={RepositoryDataType.DEPLOY_CONFIGURATION} tab={t('repository:tabs.deploy_configuration_repository')}>
                 <DeployConfiguration ref={formRef} />
             </Tabs.TabPane>
             <Tabs.TabPane key={RepositoryDataType.DEPLOYMENT} tab={t('repository:tabs.deployment_repositories')}>
-                <DesignRepositoriesConfiguration repositoryDataType={RepositoryDataType.DEPLOYMENT} ref={formRef} />
+                <DesignRepositoriesConfiguration ref={formRef} repositoryDataType={RepositoryDataType.DEPLOYMENT} />
             </Tabs.TabPane>
         </Tabs>
     )
