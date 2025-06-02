@@ -1,5 +1,8 @@
 package org.openl.rules.rest.acl.model;
 
+import java.util.Comparator;
+import javax.validation.constraints.NotEmpty;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -11,7 +14,10 @@ import org.springframework.security.acls.model.Sid;
 @JsonDeserialize(builder = AclSubject.Builder.class)
 public class AclSubject {
 
+    public static final Comparator<AclSubject> COMPARATOR = Comparator.comparing(AclSubject::getSid);
+
     @Parameter(description = "SID name")
+    @NotEmpty
     private final String sid;
 
     @Parameter(description = "Is principal")

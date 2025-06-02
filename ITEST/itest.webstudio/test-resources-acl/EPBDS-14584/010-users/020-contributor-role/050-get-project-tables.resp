@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "2ce864d3310586e54d851a47e8428304",
+    "tableType": "SmartRules",
+    "kind": "Rules",
+    "name": "Hello",
+    "returnType": "String",
+    "signature": "Hello (Integer hour)",
+    "file": "EPBDS_14584_Project/Main.xlsx",
+    "pos": "B3:D8"
+  }
+]

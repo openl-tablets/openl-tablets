@@ -6,6 +6,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -35,6 +40,8 @@ import org.openl.util.CollectionUtils;
 @Validated
 @RestController
 @RequestMapping("/acls")
+@Tag(name = "ACL Management", description = "ACL Management Bulk API")
+@ConditionalOnExpression("'${user.mode}' != 'single'")
 public class AclController {
 
     private final RepositoryAclServiceProvider aclServiceProvider;
@@ -54,6 +61,7 @@ public class AclController {
 
     @GetMapping
     @AdminPrivilege
+    @Operation(summary = "Get ACL configuration for all resources")
     public List<AclResourceAccess> getAclResourceAccess() {
         var roots = Stream.of(convertRootToResourceAccess(AclRepositoryType.DESIGN),
                 convertRootToResourceAccess(AclRepositoryType.PROD));
@@ -76,6 +84,7 @@ public class AclController {
         var aclService = aclServiceProvider.getProdRepoAclService();
         var aces = aclService.listPermissions(deployRepository.getId(), null).entrySet().stream()
                 .flatMap(entry -> convertToAce(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(AccessControlEntry::getSub, AclSubject.COMPARATOR))
                 .toList();
         return resourceAccess
                 .aces(aces)
@@ -92,6 +101,7 @@ public class AclController {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         var aces = aclService.listPermissions(project).entrySet().stream()
                 .flatMap(entry -> convertToAce(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(AccessControlEntry::getSub, AclSubject.COMPARATOR))
                 .toList();
         return resourceAccess
                 .aces(aces)
@@ -107,6 +117,7 @@ public class AclController {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         var aces = aclService.listPermissions(repository.getId(), null).entrySet().stream()
                 .flatMap(entry -> convertToAce(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(AccessControlEntry::getSub, AclSubject.COMPARATOR))
                 .toList();
         return resourceAccess
                 .aces(aces)
@@ -121,6 +132,7 @@ public class AclController {
         var aclService = aclServiceProvider.getAclService(type.getType());
         var aces = aclService.listRootPermissions().entrySet().stream()
                 .flatMap(entry -> convertToAce(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(AccessControlEntry::getSub, AclSubject.COMPARATOR))
                 .toList();
         return resourceAccess
                 .aces(aces)
@@ -138,6 +150,8 @@ public class AclController {
 
     @PostMapping
     @AdminPrivilege
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Overwrite ACL configuration for resources in bulk")
     public void overwriteAcl(@Valid @RequestBody BulkAclOverwriteRequest request) {
         bulkAclOverwriteService.process(request);
     }

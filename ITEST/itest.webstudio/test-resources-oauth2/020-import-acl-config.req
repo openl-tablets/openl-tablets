@@ -1,0 +1,48 @@
+POST /rest/acls HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "resources": [
+    {
+      "resourceRef": {
+        "repositoryType": "DESIGN"
+      },
+      "aces": [
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Viewers"
+          }
+        }
+      ]
+    },
+    {
+      "resourceRef": {
+        "repositoryType": "DESIGN",
+        "repositoryId": "design-flat"
+      },
+      "aces": [
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "openl-ba"
+          }
+        }
+      ]
+    },
+    {
+      "resourceRef": {
+        "repositoryType": "PROD"
+      },
+      "aces": [
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "openl-ba"
+          }
+        }
+      ]
+    }
+  ]
+}

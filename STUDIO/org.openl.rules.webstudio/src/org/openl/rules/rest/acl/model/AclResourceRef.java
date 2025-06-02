@@ -21,8 +21,8 @@ import org.openl.security.acl.repository.AclRepositoryType;
 public class AclResourceRef {
 
     public static final Comparator<AclResourceRef> COMPARATOR = Comparator.comparing(AclResourceRef::getRepositoryType)
-            .thenComparing(AclResourceRef::getRepositoryId, Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(AclResourceRef::getProjectName, Comparator.nullsLast(Comparator.naturalOrder()));
+            .thenComparing(AclResourceRef::getRepositoryId, Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(AclResourceRef::getProjectName, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     @Parameter(description = "Type of the repository (e.g., DESIGN, PROD)")
     @NotNull
