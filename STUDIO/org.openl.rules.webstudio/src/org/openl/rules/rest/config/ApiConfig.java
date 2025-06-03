@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -82,19 +84,16 @@ public class ApiConfig implements WebMvcConfigurer {
         return validator;
     }
 
-    @Bean
-    public static LocalValidatorFactoryBean localValidatorFactoryBean() {
-        return new LocalValidatorFactoryBean();
-    }
-
     /**
      * This bean must be static, to be instantiated before the other post processors.
      * Otherwise, some are not instantiated.
      */
     @Bean
-    public static MethodValidationPostProcessor getMethodValidationPostProcessor(LocalValidatorFactoryBean validator) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static MethodValidationPostProcessor getMethodValidationPostProcessor(ApplicationContext context) {
         MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
-        processor.setValidator(validator);
+        ObjectProvider validatorBeanProvider = context.getBeanProvider(LocalValidatorFactoryBean.class);
+        processor.setValidatorProvider((ObjectProvider<jakarta.validation.Validator>) validatorBeanProvider);
         return processor;
     }
 
