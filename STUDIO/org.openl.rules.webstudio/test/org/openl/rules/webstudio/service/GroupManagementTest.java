@@ -23,7 +23,6 @@ import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,7 +41,6 @@ import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
-@Disabled
 public class GroupManagementTest {
 
     private static final String RND_GROUP = "GROUP_%s";
