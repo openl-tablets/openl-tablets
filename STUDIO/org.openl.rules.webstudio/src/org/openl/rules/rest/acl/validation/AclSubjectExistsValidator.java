@@ -15,6 +15,9 @@ public class AclSubjectExistsValidator extends ASidExistsValidator implements Co
 
     @Override
     public boolean isValid(AclSubject subject, ConstraintValidatorContext ctx) {
+        if (subject == null) {
+            return true;
+        }
         return super.isValid(subject.toSid(), ctx);
     }
 }

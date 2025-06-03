@@ -1,6 +1,7 @@
 package org.openl.rules.rest.acl.model;
 
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -29,7 +30,9 @@ public class AclResourceAccess {
 
     private AclResourceAccess(Builder builder) {
         this.resourceRef = builder.resourceRef;
-        this.aces = builder.aces;
+        this.aces = Optional.ofNullable(builder.aces)
+                .map(List::copyOf)
+                .orElse(null);
     }
 
     public AclResourceRef getResourceRef() {
