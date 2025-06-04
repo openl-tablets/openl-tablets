@@ -21,8 +21,8 @@
                    <h:outputText value="#{exportBean.fileName}" />
                    <h:outputLabel for="fileFileToExport" styleClass="required" value="File Revision:" />
                    <h:selectOneMenu id="fileFileToExport" value="#{exportBean.version}" required="true" >
-                       <f:ajax event="change" execute="projectVersionToExport" />
-                       <f:ajax event="focus" execute="projectVersionToExport" />
+                       <f:ajax event="change" execute="fileFileToExport" />
+                       <f:ajax event="focus" execute="fileFileToExport" />
                        <f:selectItems value="#{exportBean.selectedProjectVersions}" />
                    </h:selectOneMenu>
                </h:panelGrid>
