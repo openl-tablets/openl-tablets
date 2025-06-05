@@ -1,4 +1,4 @@
-export interface GroupTableItem {
+export interface GroupItem {
     admin?: boolean
     description?: string
     id: number

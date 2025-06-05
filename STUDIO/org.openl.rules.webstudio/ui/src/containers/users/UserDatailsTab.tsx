@@ -7,7 +7,7 @@ import { UserExternalFlags } from '../../types/user'
 import { SystemContext } from '../../contexts'
 
 interface UserDetailsTabProps {
-    isNewUser: boolean
+    isNewUser?: boolean
     displayPasswordField?: boolean
     externalFlags?: UserExternalFlags | null
 }
@@ -115,7 +115,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     />
                     <Input
                         dependencies={['displayNameSelect']}
-                        disabled={isDisplayNameFieldDisabled || externalFlags?.displayNameExternal}
+                        disabled={isDisplayNameFieldDisabled || !!externalFlags?.displayNameExternal}
                         name="displayName"
                         style={{ width: 248 }}
                         rules={[

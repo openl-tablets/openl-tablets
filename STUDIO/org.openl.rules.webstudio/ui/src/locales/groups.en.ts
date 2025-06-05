@@ -35,5 +35,5 @@ i18next.addResourceBundle('en', 'groups', {
     name_required: 'Name is required',
     group_name_max_length: 'Group name must be at most 65 characters long',
     description_max_length: 'Description must be at most 200 characters long',
-    edit_group_details: 'Edit Group Details',
+    edit_group: 'Edit Group',
 })

@@ -16,10 +16,10 @@ i18next.addResourceBundle('en', 'common', {
     design_repository: 'Design Repository',
     project: 'Project',
     details: 'Details',
-    edit_access_rights: 'Edit Access Rights',
     none: 'None',
     login: 'Login',
     password: 'Password',
+    access_rights: 'Access Rights',
     menu: {
         editor: 'Editor',
         repository: 'Repository',

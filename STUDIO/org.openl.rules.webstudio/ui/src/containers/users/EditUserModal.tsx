@@ -23,7 +23,7 @@ interface FormValues {
     displayNameSelect: DisplayUserName
 }
 
-interface UpdatedUserRequest {
+export interface UpdatedUserRequest {
     email: string
     displayName: string
     firstName: string
