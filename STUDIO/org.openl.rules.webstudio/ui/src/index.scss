@@ -12,17 +12,6 @@ html, body {
   overflow: auto;
 }
 
-// Ant Drawer
-.ant-drawer {
-  .ant-drawer-header {
-    padding-right: 0;
-
-    .ant-drawer-header-title {
-      flex-direction: row-reverse;
-    }
-  }
-}
-
 // Ant Design Table
 .ant-dropdown.table-actions-dropdown {
   .ant-dropdown-menu-item {

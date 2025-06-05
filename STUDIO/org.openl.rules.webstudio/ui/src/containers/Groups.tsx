@@ -1,59 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { Button, Table, Modal, Row, Dropdown } from 'antd'
-import { CloseCircleOutlined, EditOutlined, EllipsisOutlined, FolderViewOutlined } from '@ant-design/icons'
-import { EditGroupModal } from 'containers/groups/EditGroupModal'
+import React, { useState } from 'react'
+import { Button, Table, Modal, Row } from 'antd'
+import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
-import { UserGroupType } from '../constants'
-import { GroupList, GroupTableItem } from '../types/group'
-import { AccessManagementModal } from '../components/accessManagement'
+import { GroupItem } from '../types/group'
+import { useGroups } from './groups/useGroups'
+import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
-    const [isEditDetailsModalOpen, setIsEditDetailsModalOpen] = useState(false)
-    const [isEditAccessRightsModalOpen, setIsEditAccessRightsModalOpen] = useState(false)
-    const [groupData, setGroupData] = useState<GroupTableItem[]>([])
-    const [selectedGroup, setSelectedGroup] = useState<GroupTableItem | undefined>()
+    const [selectedGroup, setSelectedGroup] = useState<GroupItem | undefined>()
+    const { groups, reloadGroups } = useGroups()
+    const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
-    const showEditGroupModal = () => {
-        setIsEditDetailsModalOpen(true)
+    const showEditGroupDrawer = () => {
+        setIsEditDrawerOpen(true)
     }
 
-    const hideEditGroupModal = () => {
-        setSelectedGroup(undefined)
-        setIsEditDetailsModalOpen(false)
-    }
-
-    const showEditAccessRightsModal = () => {
-        setIsEditAccessRightsModalOpen(true)
-    }
-
-    const hideEditAccessRightsModal = () => {
-        setIsEditAccessRightsModalOpen(false)
+    const hideEditGroupDrawer = () => {
+        setIsEditDrawerOpen(false)
         setSelectedGroup(undefined)
     }
-
-    const onEditAccessRights = (record: GroupTableItem) => {
-        setSelectedGroup({ ...record })
-        showEditAccessRightsModal()
-    }
-
-    const fetchGroups = async () => {
-        const response: GroupList = await apiCall('/admin/management/groups')
-        const groups = Object.entries(response).map(([name, group]) => ({
-            name,
-            oldName: name,
-            admin: group.privileges?.includes(UserGroupType.Admin),
-            id: group.id,
-            description: group.description,
-            numberOfMembers: group.numberOfMembers.total,
-        }))
-        setGroupData(groups)
-    }
-
-    useEffect(() => {
-        fetchGroups()
-    }, [])
 
     const removeGroup = (id: number) => {
         Modal.confirm({
@@ -64,61 +31,16 @@ export const Groups: React.FC = () => {
                 apiCall(`/admin/management/groups/${id}`, {
                     method: 'DELETE'
                 })
-                    .then(fetchGroups)
+                    .then(reloadGroups)
             },
             onCancel: () => {},
         })
     }
 
-    const updateGroup = (updatedGroup: any) => {
-        if (updatedGroup.id) {
-            setGroupData((groupData) => groupData.map((group: any) => (group.id === updatedGroup.id ? updatedGroup : group)))
-        }
-    }
-
-    const handleDoubleRowClick = (record: GroupTableItem) => {
+    const onEditGroup = (record: GroupItem) => {
+        showEditGroupDrawer()
         setSelectedGroup({ ...record })
-        showEditGroupModal()
     }
-
-    const actionItems = (record: GroupTableItem) => [
-        {
-            key: 'edit',
-            label: (
-                <Button
-                    icon={<EditOutlined />}
-                    onClick={() => handleDoubleRowClick(record)}
-                    type="text"
-                >
-                    {t('groups:action.edit_details')}
-                </Button>
-            ),
-        },
-        {
-            key : 'access',
-            label : (
-                <Button
-                    icon={<FolderViewOutlined />}
-                    onClick={() => onEditAccessRights(record)}
-                    type="text"
-                >
-                    {t('groups:action.edit_access_rights')}
-                </Button>
-            )
-        },
-        {
-            key: 'delete',
-            label: (
-                <Button
-                    icon={<CloseCircleOutlined />}
-                    onClick={() => removeGroup(record!.id)}
-                    type="text"
-                >
-                    {t('groups:action.delete_group')}
-                </Button>
-            ),
-        },
-    ]
 
     const columns = [
         {
@@ -141,11 +63,18 @@ export const Groups: React.FC = () => {
             key: 'Action',
             width: 150,
             render: (_: string, record: any) => (
-                <Dropdown menu={{ items: actionItems(record) }} overlayClassName="table-actions-dropdown">
-                    <Button type="text">
-                        <EllipsisOutlined />
-                    </Button>
-                </Dropdown>
+                <>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => onEditGroup(record)}
+                        type="text"
+                    />
+                    <Button
+                        icon={<CloseCircleOutlined />}
+                        onClick={() => removeGroup(record.id)}
+                        type="text"
+                    />
+                </>
             ),
         },
     ]
@@ -154,41 +83,24 @@ export const Groups: React.FC = () => {
         <>
             <Table
                 columns={columns}
-                dataSource={groupData}
+                dataSource={groups}
                 pagination={{ hideOnSinglePage: true }}
                 onRow={(record) => ({
-                    onDoubleClick: () => handleDoubleRowClick(record),
+                    onDoubleClick: () => onEditGroup(record),
                 })}
             />
             <Row justify="end">
-                <Button onClick={showEditGroupModal} style={{ marginTop: 20 }} type="primary">
+                <Button onClick={showEditGroupDrawer} style={{ marginTop: 20 }} type="primary">
                     {t('groups:invite_group')}
                 </Button>
             </Row>
-            <Modal
-                destroyOnClose
-                footer={null}
-                onCancel={hideEditGroupModal}
-                open={isEditDetailsModalOpen}
-                width={600}
-            >
-                {isEditDetailsModalOpen && (
-                    <EditGroupModal
-                        closeModal={hideEditGroupModal}
-                        group={selectedGroup}
-                        onAddGroup={fetchGroups}
-                        updateGroup={updateGroup}
-                    />
-                )}
-            </Modal>
-            {isEditAccessRightsModalOpen && selectedGroup && (
-                <AccessManagementModal
-                    isOpen={isEditAccessRightsModalOpen}
-                    isPrincipal={false}
-                    onCloseModal={hideEditAccessRightsModal}
-                    sid={selectedGroup.name}
-                />
-            )}
+            <EditUserGroupDetailsWithAccessRights
+                group={selectedGroup}
+                isOpenFromParent={isEditDrawerOpen}
+                onClose={hideEditGroupDrawer}
+                reloadGroups={reloadGroups}
+                sid={selectedGroup?.name}
+            />
         </>
     )
 }

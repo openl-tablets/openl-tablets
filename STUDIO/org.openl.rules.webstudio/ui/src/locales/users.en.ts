@@ -2,7 +2,7 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'users', {
     add_user: 'Add User',
-    edit_user_details: 'Edit User Details',
+    edit_user: 'Edit User',
     users_table: {
         username: 'Username',
         first_name: 'First Name',
