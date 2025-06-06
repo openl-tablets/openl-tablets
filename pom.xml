@@ -835,6 +835,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-cdi</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-apache-jsp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
@@ -993,14 +998,19 @@
             <!-- BEGIN of JSF, JSP, Servlets, RichFaces -->
             <!-- JSF -->
             <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
-                <version>4.0.3</version>
+                <groupId>org.glassfish</groupId>
+                <artifactId>jakarta.faces</artifactId>
+                <version>4.0.11</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.enterprise</groupId>
                 <artifactId>jakarta.enterprise.cdi-api</artifactId>
-                <version>4.1.0</version>
+                <version>4.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet-core</artifactId>
+                <version>5.1.6.Final</version>
             </dependency>
             <!-- RichFaces -->
             <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
@@ -1009,6 +1019,16 @@
                 <groupId>com.github.albfernandez.richfaces</groupId>
                 <artifactId>richfaces</artifactId>
                 <version>10.0.0-openl</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.myfaces.core</groupId>
+                        <artifactId>myfaces-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.myfaces.core</groupId>
+                        <artifactId>myfaces-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Servlets -->
             <dependency>
@@ -1027,7 +1047,6 @@
                 <groupId>jakarta.servlet.jsp.jstl</groupId>
                 <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
                 <version>3.0.2</version>
-                <scope>provided</scope>
             </dependency>
             <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
             <dependency>

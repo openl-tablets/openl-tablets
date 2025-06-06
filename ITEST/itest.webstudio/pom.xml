@@ -26,6 +26,11 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-cdi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-apache-jsp</artifactId>
             <scope>test</scope>
         </dependency>
