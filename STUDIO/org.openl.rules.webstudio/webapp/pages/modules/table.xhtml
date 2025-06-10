@@ -1219,7 +1219,7 @@
             }
         }
 
-        var $jq = jQuery.noConflict();
+        var $jq = jQuery;
 
         $jq('#tableTestsPanel').bind('refresh', function () {
             $jq.ajax({
@@ -1383,7 +1383,7 @@
         $jq('#tableTestsPanel').trigger('refresh');
 
         function toggleStacktrace(arrowBlock) {
-            var $j = jQuery.noConflict();
+            var $j = jQuery;
             const arrow = $j(arrowBlock).find("div");
             const isHidden = arrow.hasClass("stacktrace-hidden")
             const messageBox = $j(arrowBlock).parent().parent();

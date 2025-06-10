@@ -53,7 +53,7 @@
         <span class="version" title="Built on {buildDate}">v{version}</span>
     </div>
     <script>
-        var $jq = jQuery.noConflict();
+        var $jq = jQuery;
         $jq('#notificationPanel').bind('refresh', function (e) {
             $jq.ajax({
                 url: "#{contextPath}/web/public/notification.txt",

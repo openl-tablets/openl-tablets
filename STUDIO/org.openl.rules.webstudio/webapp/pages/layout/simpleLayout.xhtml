@@ -19,13 +19,13 @@
         <link href="#{contextPath}/css/common.css?10" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/simple.css" rel="stylesheet" />
         <script src="#{contextPath}/javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
-        <script src="#{contextPath}/javascript/vendor/jquery-3.7.1.min.js"></script>
+        <h:outputScript name="jquery.js" library="org.richfaces" />
         <script src="#{contextPath}/javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery-back-compat.js"></script>
 
         <script>
             //<![CDATA[
-            var $j = $.noConflict();
+            var $j = $;
 
             var loadingPanel;
 

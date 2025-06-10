@@ -28,14 +28,14 @@
     <link href="#{contextPath}/webresource/css/tableeditor.min.css" rel="stylesheet" />
 
     <script src="#{contextPath}/javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
-    <script src="#{contextPath}/javascript/vendor/jquery-3.7.1.min.js"></script>
+    <h:outputScript name="jquery.js" library="org.richfaces" />
     <script src="#{contextPath}/javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery-back-compat.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
     <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/signals.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/crossroads.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery-ui-1.13.2.min.js"></script>
+    <h:outputScript name="jquery-ui.js" library="com.jqueryui" />
     <script src="#{contextPath}/javascript/vendor/jquery.layout.js?1"></script>
     <script src="#{contextPath}/javascript/jquery.popup.js"></script>
     <script src="#{contextPath}/javascript/jquery.multiselect.js?1"></script>
@@ -47,7 +47,7 @@
 
     <script>
         //<![CDATA[
-        var $j = $.noConflict();
+        var $j = $;
 
         // TODO Move to external file
         // TODO Remove contextPath dependency
@@ -461,6 +461,9 @@
                     },
                     showLoader: function () {
                         if (reqs++ == 0) {
+                            if (!loadingPanel) {
+                                loadingPanel = $("#loadingPanel");
+                            }
                             showAnimatedPanel(loadingPanel);
                         }
                     },
@@ -534,8 +537,6 @@
                         onclose: changePanelState
                     });
                     centerLayout.addCloseBtn("#south-closer", "south");
-
-                    loadingPanel = $("#loadingPanel");
 
                     var panelState = ws.storage.get(WS_PANEL_STATE_VAR);
                     if (!panelState) {
@@ -1105,7 +1106,7 @@
         });
 
         function checkModification() {
-            var $jq1 = jQuery.noConflict();
+            var $jq1 = jQuery;
             $jq1.ajax({
                 url: "#{contextPath}/web/module/isModified",
                 datatype: "text",

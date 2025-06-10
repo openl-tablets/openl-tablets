@@ -86,7 +86,7 @@
 
         <script>
             //<![CDATA[
-                var $jq = jQuery.noConflict();
+                var $jq = jQuery;
                 var messageId = -1;
                 var messageIndex = -1;
 
@@ -187,7 +187,7 @@
                 }
 
                 function navigateProblem(problemBlock) {
-                    var $j = jQuery.noConflict();
+                    var $j = jQuery;
                     const problem = $j(problemBlock);
                     $j.ajax({
                         url: "#{contextPath}/web/message/" + problem.attr("data-message-id") + "/url",

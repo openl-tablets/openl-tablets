@@ -24,9 +24,9 @@
     <script src="#{contextPath}/javascript/common.js?12" />
 
     <link href="#{contextPath}/css/ui.fancytree.min.css" rel="stylesheet" />
-    <script src="#{contextPath}/javascript/vendor/jquery-3.7.1.min.js" />
+    <h:outputScript name="jquery.js" library="org.richfaces" />
 
-    <script src="#{contextPath}/javascript/vendor/jquery-ui-1.13.2.min.js" />
+    <h:outputScript name="jquery-ui.js" library="com.jqueryui" />
     <script src="#{contextPath}/javascript/vendor/jquery.fancytree-2.38.3.min.js" />
 
     <style>
@@ -214,7 +214,7 @@
 
             }
         };
-        const $j = $.noConflict();
+        const $j = $;
         $j(function () {
             loadingPanel = $j("#loadingPanel");
 
