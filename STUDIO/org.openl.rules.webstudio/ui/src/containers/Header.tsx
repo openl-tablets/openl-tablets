@@ -47,11 +47,11 @@ export const Header = () => {
     const menuItems = () => {
         const defaultMenuItems = [
             {
-                key: basePath + '/',
+                key: '/',
                 label: t('common:menu.editor'),
             },
             {
-                key: basePath + '/faces/pages/modules/repository/index.xhtml',
+                key: '/faces/pages/modules/repository/index.xhtml',
                 label: t('common:menu.repository'),
             }
         ]
@@ -67,6 +67,10 @@ export const Header = () => {
         ] as MenuItem[]
     }
 
+    const goTo = (key = '/') => {
+        window.location.href = basePath + key
+    }
+
     return (
         <AntHeader>
             <Row justify="space-between" style={{ width: '100%' }}>
@@ -79,7 +83,7 @@ export const Header = () => {
                         </Col>
                         <Col>
                             <div className="header-title">
-                                <Link style={titleStyle} to="/" >{t('common:openl_studio')}</Link>
+                                <Link onClick={() => goTo()} style={titleStyle} to="">{t('common:openl_studio')}</Link>
                             </div>
                         </Col>
                     </Row>
@@ -89,9 +93,7 @@ export const Header = () => {
                         activeKey={activeKey}
                         items={menuItems()}
                         mode="horizontal"
-                        onClick={({ key }) => {
-                            window.location.href = key
-                        }}
+                        onClick={({ key }) => goTo(key)}
                         style={{
                             flex: 1,
                             minWidth: 0,

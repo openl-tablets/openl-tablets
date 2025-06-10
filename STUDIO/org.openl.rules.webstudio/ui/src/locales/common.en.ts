@@ -20,6 +20,12 @@ i18next.addResourceBundle('en', 'common', {
     login: 'Login',
     password: 'Password',
     access_rights: 'Access Rights',
+    help: {
+        openl_tablets_documentation: 'OpenL Tablets Documentation',
+        openl_tablets_on_the_internet: 'OpenL Tablets on the Internet',
+        additional_information: 'Additional Information',
+        openl_tablets_issues: 'OpenL Tablets Issues',
+    },
     menu: {
         editor: 'Editor',
         repository: 'Repository',
@@ -40,6 +46,7 @@ i18next.addResourceBundle('en', 'common', {
         administration: 'Administration',
         help: 'Help',
         sign_out: 'Sign Out',
+        version: 'Version: {{version}}',
     },
     btn: {
         ok: 'OK',

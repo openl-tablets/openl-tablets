@@ -11,3 +11,12 @@ export interface SystemSettings {
     },
     userMode: SystemUserMode
 }
+
+export interface OpenlInfo {
+    'openl.site': string
+    'openl.start.milli': string,
+    'openl.version': string,
+    'openl.build.date': string,
+    'openl.start.time': string,
+    'openl.start.hash': string
+}
