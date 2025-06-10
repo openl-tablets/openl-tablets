@@ -6,8 +6,7 @@ import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOu
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { UserContext } from '../../contexts'
-import { PermissionContext } from '../../contexts'
+import { PermissionContext, SystemContext, UserContext } from '../../contexts'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -20,6 +19,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { pathname } = useLocation()
     const { userProfile } = useContext(UserContext)
     const { hasAdminPermission } = useContext(PermissionContext)
+    const { openlInfo } = useContext(SystemContext)
 
     const Title = (
         <Row align="middle">
@@ -58,6 +58,15 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             open={isOpen}
             placement="right"
             title={Title}
+            footer={(
+                <Row justify="end">
+                    {openlInfo && (
+                        <Typography.Text type="secondary">
+                            {t('common:user_menu.version', { version: openlInfo['openl.version'] })}
+                        </Typography.Text>
+                    )}
+                </Row>
+            )}
         >
             <Menu
                 onClick={onClick}
@@ -72,9 +81,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                     </>
                 )}
                 <Menu.Divider />
-                <Menu.Item key="/help" icon={<QuestionOutlined />}>
-                    TODO:
-                    {' '}
+                <Menu.Item key="/web/help" icon={<QuestionOutlined />}>
                     {t('common:user_menu.help')}
                 </Menu.Item>
                 <Menu.Item key="/logout" icon={<LogoutOutlined />}>

@@ -15,6 +15,7 @@ import { RedirectRoute } from './RedirectRoute'
 import { Groups } from '../containers/Groups'
 import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
+import { Help } from '../containers/Help'
 import { claimsRoutes } from '../plugins'
 
 const basePath = process.env.BASE_PATH || ''
@@ -86,6 +87,10 @@ const router = createBrowserRouter([
                         ],
                     },
                 ],
+            },
+            {
+                path: 'help',
+                element: <Help />,
             },
             ...claimsRoutes
         ],

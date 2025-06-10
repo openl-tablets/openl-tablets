@@ -4,5 +4,5 @@ import { UserDetails, UserProfile } from '../types/user'
 export const UserContext = createContext({
     userProfile: {} as UserProfile,
     userDetails: {} as UserDetails,
-    loadUserProfile: () => {}
+    fetchUserProfile: () => {}
 })
