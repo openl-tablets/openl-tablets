@@ -473,7 +473,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                     onValuesChange={onValuesChange}
                 >
                     {isUser ? (
-                        <UserDetailsTab isNewUser={!!newUser} />
+                        <UserDetailsTab externalFlags={user?.externalFlags} isNewUser={!!newUser} />
                     ) : (
                         <EditGroupDetails />
                     )}
