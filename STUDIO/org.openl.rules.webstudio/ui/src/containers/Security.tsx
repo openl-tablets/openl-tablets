@@ -114,9 +114,9 @@ export const Security = () => {
     }, [])
 
     useEffect(() => {
-        if (userMode && userMode !== securitySettings?.userMode) {
+        if (typeof userMode !== 'object' && (userMode !== securitySettings?.userMode && userMode !== securitySettings?.userMode?.value)) {
             fetchSecuritySettingsTemplate()
-        } else {
+        } else if (!securitySettings?.userMode?.readOnly) {
             form.resetFields()
         }
     }, [userMode])
