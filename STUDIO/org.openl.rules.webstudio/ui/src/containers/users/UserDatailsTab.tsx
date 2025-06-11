@@ -9,7 +9,7 @@ import { SystemContext } from '../../contexts'
 interface UserDetailsTabProps {
     isNewUser?: boolean
     displayPasswordField?: boolean
-    externalFlags?: UserExternalFlags | null
+    externalFlags?: UserExternalFlags
 }
 
 export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true }) => {
