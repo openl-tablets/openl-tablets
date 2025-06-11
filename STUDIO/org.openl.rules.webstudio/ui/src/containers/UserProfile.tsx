@@ -11,7 +11,7 @@ import { UserProfileFormFields } from '../types/user'
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(SystemContext)
-    const { userProfile, loadUserProfile } = useContext(UserContext)
+    const { userProfile, fetchUserProfile } = useContext(UserContext)
 
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
@@ -36,7 +36,7 @@ export const UserProfile: React.FC = () => {
                 },
                 body: JSON.stringify(body)
             })
-            loadUserProfile()
+            fetchUserProfile()
         } catch (error) {
             console.error('error', error)
         }

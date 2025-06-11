@@ -28,6 +28,8 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
     rules = [],
     ...rest
 }) => {
+    const form = Form.useFormInstance()
+    const value = Form.useWatch(name, form)
     const [isDisabled, setIsDisabled] = useState(disabled)
     const { allRules } = useRules({ required, rules })
 
@@ -36,6 +38,15 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
             setIsDisabled(disabled)
         }
     }, [disabled])
+
+    useEffect(() => {
+        if (value !== null && typeof value === 'object') {
+            if (value.readOnly) {
+                setIsDisabled(true)
+            }
+            form.setFieldValue(name, value.value)
+        }
+    }, [value])
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
