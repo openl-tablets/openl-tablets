@@ -1,0 +1,78 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      },
+      {
+        "role": "MANAGER",
+        "sub": {
+          "sid": "openl_mnt"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "EPBDS_14584",
+          "principal": true
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "EPBDS_14584_2",
+          "principal": true
+        }
+      },
+      {
+        "role": "MANAGER",
+        "sub": {
+          "sid": "EPBDS_14584_3",
+          "principal": true
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "openl_r"
+        }
+      },
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl_rw"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "PROD"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=/tables HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ1ODQ6RVBCRFNfMTQ1ODQ=
+

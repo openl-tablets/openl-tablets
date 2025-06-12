@@ -22,7 +22,7 @@ public class AclProjectModel {
 
     @JsonView(AclView.Sid.class)
     @Parameter(description = "SID")
-    private final AclSidModel sid;
+    private final AclSubject sid;
 
     @NotNull
     @JsonView({AclView.Project.class, AclView.Sid.class})
@@ -44,7 +44,7 @@ public class AclProjectModel {
         return name;
     }
 
-    public AclSidModel getSid() {
+    public AclSubject getSid() {
         return sid;
     }
 
@@ -59,7 +59,7 @@ public class AclProjectModel {
     public static class Builder {
         private ProjectIdModel id;
         private String name;
-        private AclSidModel sid;
+        private AclSubject sid;
         private AclRole role;
 
         private Builder() {
@@ -75,7 +75,7 @@ public class AclProjectModel {
             return this;
         }
 
-        public Builder sid(AclSidModel sid) {
+        public Builder sid(AclSubject sid) {
             this.sid = sid;
             return this;
         }

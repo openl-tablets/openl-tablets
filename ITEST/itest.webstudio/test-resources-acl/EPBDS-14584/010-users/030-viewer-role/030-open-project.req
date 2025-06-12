@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q= HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ1ODRfMjpFUEJEU18xNDU4NF8y
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "status": "OPENED"
+}

@@ -47,7 +47,6 @@ Content-Type: application/json
   },
   "openl-ba": {
     "id": 8,
-    "description": "External Group",
     "numberOfMembers": {
       "internal": 0,
       "external": 1,

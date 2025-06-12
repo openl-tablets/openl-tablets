@@ -1,6 +1,7 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.security.standalone.persistence.User;
 
@@ -23,4 +24,6 @@ public interface UserDao extends Dao<User> {
     void deleteUserByName(String name);
 
     List<User> getAllUsers();
+
+    Set<String> getUserNames();
 }

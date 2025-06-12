@@ -1,0 +1,45 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design-flat"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl-ba"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "PROD"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl-ba"
+        }
+      }
+    ]
+  }
+]

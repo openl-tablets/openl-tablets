@@ -4,6 +4,88 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "BulkAclOverwriteRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "resources": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/AclResourceAccess"
+            }
+          }
+        },
+        "required": ["resources"]
+      },
+      "AccessControlEntry": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "***",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "sub": {
+            "$ref": "#/components/schemas/AclSubject"
+          }
+        },
+        "required": ["role", "sub"]
+      },
+      "AclResourceAccess": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "aces": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/AccessControlEntry"
+            },
+            "maxItems": 2147483647,
+            "minItems": 1
+          },
+          "resourceRef": {
+            "$ref": "#/components/schemas/AclResourceRef"
+          }
+        },
+        "required": ["aces", "resourceRef"]
+      },
+      "AclResourceRef": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "projectName": {
+            "type": "string",
+            "description": "***"
+          },
+          "repositoryId": {
+            "type": "string",
+            "description": "***"
+          },
+          "repositoryType": {
+            "type": "string",
+            "description": "***",
+            "enum": ["DESIGN", "PROD"]
+          }
+        },
+        "required": ["repositoryType"]
+      },
+      "AclSubject": {
+        "type": "object",
+        "properties": {
+          "principal": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "sid": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": ["sid"]
+      },
       "AuthenticationSettings" : {
         "type" : "object",
         "discriminator" : {
@@ -1172,7 +1254,7 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+            "enum": ["DESIGN", "PROD"]
           }
         },
         "required": ["role"]
@@ -1193,7 +1275,7 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+            "enum": ["DESIGN", "PROD"]
           }
         },
         "required": ["role"]
@@ -1228,12 +1310,12 @@ Content-Type: application/json
             "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
           },
           "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
+            "$ref": "#/components/schemas/AclSubject_Sid"
           }
         },
         "required": ["role"]
       },
-      "AclSidModel_Sid": {
+      "AclSubject_Sid": {
         "type": "object",
         "properties": {
           "principal": {
@@ -1244,7 +1326,8 @@ Content-Type: application/json
             "type": "string",
             "description": "SID name"
           }
-        }
+        },
+        "required": ["sid"]
       },
       "SetAclRoleModel": {
         "type": "object",
@@ -1283,7 +1366,7 @@ Content-Type: application/json
             "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
           },
           "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
+            "$ref": "#/components/schemas/AclSubject_Sid"
           }
         },
         "required": ["role"]
@@ -3154,6 +3237,168 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/acls": {
+      "get": {
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclResourceAccess"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["ACL Management"]
+      },
+      "post": {
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAclOverwriteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "204": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["ACL Management"]
+      }
+    },
     "/admin/settings/authentication/template" : {
       "post" : {
         "description" : "***",
@@ -15013,6 +15258,10 @@ Content-Type: application/json
     }
   ],
   "tags": [
+    {
+      "description" : "ACL Management Bulk API",
+      "name" : "ACL Management"
+    },
     {
       "description" : "ACL Management API for Projects",
       "name" : "ACL Management: Projects"
