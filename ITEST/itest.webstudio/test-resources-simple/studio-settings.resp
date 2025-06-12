@@ -3,6 +3,9 @@ Content-Type: application/json
 
 {
   "entrypoint": {},
+  "scripts": [
+    "https://example.com/gtag.js"
+  ],
   "supportedFeatures": {
     "groupsManagement": false,
     "userManagement": false,

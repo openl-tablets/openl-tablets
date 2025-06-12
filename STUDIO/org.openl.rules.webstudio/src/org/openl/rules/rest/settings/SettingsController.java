@@ -3,6 +3,7 @@ package org.openl.rules.rest.settings;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import org.openl.rules.rest.settings.model.EntrypointSettingsModel;
 import org.openl.rules.rest.settings.model.SettingsModel;
 import org.openl.rules.rest.settings.model.SupportedFeaturesModel;
 import org.openl.rules.rest.settings.model.UserManagementMode;
+import org.openl.util.StringUtils;
 
 @RestController
 @Validated
@@ -51,6 +53,9 @@ public class SettingsController {
                         .userManagement(userManagementMode != null)
                         .emailVerification(mailSenderFeature.getAsBoolean())
                         .build())
+                .scripts(Stream.of(environment.getProperty("webstudio.javascript.url"))
+                        .filter(StringUtils::isNotBlank)
+                        .toList())
                 .build();
     }
 
