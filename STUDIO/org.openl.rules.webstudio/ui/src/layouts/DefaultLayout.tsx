@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { Alert, Layout } from 'antd'
 import { Header } from 'containers/Header'
 import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
+import { useScript } from '../hooks'
+import { SystemContext } from '../contexts'
 
 const { Content: AntContent } = Layout
 
@@ -12,6 +14,8 @@ const layoutStyle: React.CSSProperties = {
 }
 
 export const DefaultLayout = () => {
+    const { systemSettings } = useContext(SystemContext)
+    useScript(systemSettings?.scripts)
 
     const notificationMessage = useSelector((state: RootState) => state.notification.notification)
 
@@ -35,7 +39,6 @@ export const DefaultLayout = () => {
                 {Notify}
                 <Outlet />
             </AntContent>
-            {/*<Footer />*/}
         </Layout>
     )
 }

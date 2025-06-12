@@ -9,7 +9,8 @@ export interface SystemSettings {
         groupsManagement: boolean
         userManagement: boolean
     },
-    userMode: SystemUserMode
+    userMode: SystemUserMode,
+    scripts?: string | string[]
 }
 
 export interface OpenlInfo {
