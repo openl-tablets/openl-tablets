@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
 import org.openl.rules.rest.acl.model.AclRepositoryModel;
-import org.openl.rules.rest.acl.model.AclSidModel;
+import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
@@ -166,7 +166,7 @@ public class AclRepositoriesController {
 
     private Stream<AclRepositoryModel> mapAclRepositoryModelForSid(AclRepositoryType type, @Nonnull String repoId) {
         return aclServiceProvider.getAclService(type.getType()).listPermissions(repoId, null).entrySet().stream()
-                .map(entry -> Pair.of(AclSidModel.of(entry.getKey()), entry.getValue()))
+                .map(entry -> Pair.of(AclSubject.of(entry.getKey()), entry.getValue()))
                 .flatMap(entry -> entry.getValue().stream()
                         .map(permission -> AclRepositoryModel.sidRepositoryBuilder()
                                 .sid(entry.getKey())

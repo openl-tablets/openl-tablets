@@ -1,0 +1,45 @@
+PUT /rest/projects/ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=/tables/2ce864d3310586e54d851a47e8428304 HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ1ODQ6RVBCRFNfMTQ1ODQ=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "Hello",
+  "returnType": "String",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Rule"
+    }, {
+      "title": "Hour"
+    }, {
+      "title": "Greeting"
+    }
+  ],
+  "rules": [
+    {
+      "Rule": "R10",
+      "Hour": "[0..12)",
+      "Greeting": "Good Morning!"
+    }, {
+      "Rule": "R20",
+      "Hour": "[12..18)",
+      "Greeting": "Good Afternoon!"
+    }, {
+      "Rule": "R30",
+      "Hour": "[18..22)",
+      "Greeting": "Good Evening!"
+    }, {
+      "Rule": "R40",
+      "Hour": "[22..24)",
+      "Greeting": "Good Night!"
+    }
+  ]
+}

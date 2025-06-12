@@ -1,6 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -79,5 +81,24 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
                 .where(builder.equal(userRoot.join("groups").get("name"), groupName));
 
         return getSession().createQuery(criteria).getSingleResult();
+    }
+
+    @Override
+    public Set<String> getGroupNames() {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(Group.class);
+        criteria.select(root.get("name")).distinct(true);
+        return getSession().createQuery(criteria).getResultStream()
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void deleteGroupByName(String name) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createCriteriaDelete(Group.class);
+        var root = criteria.from(Group.class);
+        criteria.where(builder.equal(root.get("name"), name));
+        getSession().createQuery(criteria).executeUpdate();
     }
 }

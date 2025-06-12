@@ -1,0 +1,121 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Analysts"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Deployers"
+        }
+      },
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Developers"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Testers"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      },
+      {
+        "role": "MANAGER",
+        "sub": {
+          "sid": "openl_mnt"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "openl_r"
+        }
+      },
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "openl_rw"
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design",
+      "projectName": "EPBDS_14670_Project"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "jsmith",
+          "principal": true
+        }
+      }
+    ]
+  },
+  {
+    "resourceRef": {
+      "repositoryType": "PROD"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Analysts"
+        }
+      },
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Deployers"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Developers"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Testers"
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      }
+    ]
+  }
+]

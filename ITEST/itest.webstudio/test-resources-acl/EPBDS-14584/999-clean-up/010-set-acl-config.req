@@ -1,0 +1,82 @@
+POST /rest/acls HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "resources": [
+    {
+      "resourceRef": {
+        "repositoryType": "DESIGN"
+      },
+      "aces": [
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Deployers"
+          }
+        },
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "Developers"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Viewers"
+          }
+        },
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "Analysts"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Testers"
+          }
+        }
+      ]
+    },
+    {
+      "resourceRef": {
+        "repositoryType": "PROD"
+      },
+      "aces": [
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "Deployers"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Developers"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Viewers"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Analysts"
+          }
+        },
+        {
+          "role": "VIEWER",
+          "sub": {
+            "sid": "Testers"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1174,7 +1174,7 @@ Content-Type: application/json
             "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
           },
           "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
+            "$ref": "#/components/schemas/AclSubject_Sid"
           }
         },
         "required": ["role"]
@@ -1199,7 +1199,7 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+            "enum": ["DESIGN", "PROD"]
           }
         },
         "required": ["role"]
@@ -1220,7 +1220,7 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "description": "Repository Type",
-            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+            "enum": ["DESIGN", "PROD"]
           }
         },
         "required": ["role"]
@@ -1255,12 +1255,12 @@ Content-Type: application/json
             "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
           },
           "sid": {
-            "$ref": "#/components/schemas/AclSidModel_Sid"
+            "$ref": "#/components/schemas/AclSubject_Sid"
           }
         },
         "required": ["role"]
       },
-      "AclSidModel_Sid": {
+      "AclSubject_Sid": {
         "type": "object",
         "properties": {
           "principal": {
@@ -1271,7 +1271,8 @@ Content-Type: application/json
             "type": "string",
             "description": "SID name"
           }
-        }
+        },
+        "required": ["sid"]
       },
       "SetAclRoleModel": {
         "type": "object",

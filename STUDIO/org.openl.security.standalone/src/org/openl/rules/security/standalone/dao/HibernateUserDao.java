@@ -1,6 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -56,5 +58,16 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         Root<User> root = criteria.from(User.class);
         criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
         return getSession().createQuery(criteria).getResultList();
+    }
+
+    @Override
+    public Set<String> getUserNames() {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(User.class);
+        criteria.select(root.get("loginName"));
+        criteria.orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        return getSession().createQuery(criteria).getResultStream()
+                .collect(Collectors.toSet());
     }
 }

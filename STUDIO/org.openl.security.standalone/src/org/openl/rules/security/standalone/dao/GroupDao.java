@@ -1,6 +1,7 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.security.standalone.persistence.Group;
 
@@ -19,7 +20,11 @@ public interface GroupDao extends Dao<Group> {
 
     void deleteGroupById(Long id);
 
+    void deleteGroupByName(String name);
+
     List<Group> getAllGroups();
 
     long countUsersInGroup(String groupName);
+
+    Set<String> getGroupNames();
 }
