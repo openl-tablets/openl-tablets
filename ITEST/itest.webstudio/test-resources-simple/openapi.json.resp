@@ -1131,6 +1131,13 @@ Content-Type: application/json
             "type" : "string",
             "description" : "***",
             "enum" : [ "INTERNAL", "EXTERNAL" ]
+          },
+          "scripts" : {
+            "type" : "array",
+            "description" : "***",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
         "required" : [ "entrypoint", "supportedFeatures" ]
