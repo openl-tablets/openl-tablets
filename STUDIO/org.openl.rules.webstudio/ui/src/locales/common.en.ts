@@ -21,10 +21,12 @@ i18next.addResourceBundle('en', 'common', {
     password: 'Password',
     access_rights: 'Access Rights',
     help: {
-        openl_tablets_documentation: 'OpenL Tablets Documentation',
-        openl_tablets_on_the_internet: 'OpenL Tablets on the Internet',
+        openl_tablets_help_title: 'Welcome to OpenL Tablets Help Center',
+        openl_tablets_help_description: 'Here you can find documentation, guides, and resources to help you use OpenL Tablets effectively.',
+        documentation: 'Documentation',
+        on_the_internet: 'On the Internet',
         additional_information: 'Additional Information',
-        openl_tablets_issues: 'OpenL Tablets Issues',
+        support: 'Support',
     },
     menu: {
         editor: 'Editor',
