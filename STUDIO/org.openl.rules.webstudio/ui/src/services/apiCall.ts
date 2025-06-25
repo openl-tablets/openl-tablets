@@ -1,6 +1,5 @@
 import { notification } from 'antd'
-
-const baseURL = process.env.API_URL || ''
+import CONFIG from './config'
 
 const fetchInitialConfig = {
     method: 'GET',
@@ -13,7 +12,7 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
         ...params,
     }
 
-    return fetch(`${baseURL}${url}`, responseParams)
+    return fetch(`${CONFIG.BASE_PATH}${url}`, responseParams)
         .then(async response => {
             const { status } = response
             if (status === 200) {

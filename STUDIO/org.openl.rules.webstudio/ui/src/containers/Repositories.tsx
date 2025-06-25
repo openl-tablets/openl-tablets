@@ -7,6 +7,7 @@ import './Repositories.scss'
 import { RepositoryDataType } from './repositories/constants'
 import { useTranslation } from 'react-i18next'
 import { FormRefProps } from './repositories/index'
+import CONFIG from '../services/config'
 
 export const Repositories = () => {
     const { t } = useTranslation()

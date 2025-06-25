@@ -17,8 +17,7 @@ import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { claimsRoutes } from '../plugins'
-
-const basePath = process.env.BASE_PATH || ''
+import CONFIG from '../services/config'
 
 const router = createBrowserRouter([
     {
@@ -104,7 +103,7 @@ const router = createBrowserRouter([
         element: <RedirectToDefaultPage />,
     },
 ], {
-    basename: basePath,
+    basename: CONFIG.CONTEXT,
 })
 
 export {

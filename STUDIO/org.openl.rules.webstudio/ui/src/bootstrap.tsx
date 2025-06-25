@@ -1,3 +1,4 @@
+import './setPublicPath'
 import React from 'react'
 
 // Uncomment the following line to enable the runtime import of remote plugins

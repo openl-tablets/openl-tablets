@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { PermissionContext, SystemContext, UserContext } from '../../contexts'
+import CONFIG from '../../services/config'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -72,19 +73,19 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                 onClick={onClick}
                 selectedKeys={[]}
             >
-                <Menu.Item key="/web/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
-                <Menu.Item key="/web/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
+                <Menu.Item key={`${CONFIG.BASE_PATH}/administration/user/profile`} icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
+                <Menu.Item key={`${CONFIG.BASE_PATH}/administration/user/settings`} icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 {hasAdminPermission() && (
                     <>
                         <Menu.Divider />
-                        <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                        <Menu.Item key={`${CONFIG.BASE_PATH}/administration/system`} icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                     </>
                 )}
                 <Menu.Divider />
-                <Menu.Item key="/web/help" icon={<QuestionOutlined />}>
+                <Menu.Item key={`${CONFIG.BASE_PATH}/help`} icon={<QuestionOutlined />}>
                     {t('common:user_menu.help')}
                 </Menu.Item>
-                <Menu.Item key="/logout" icon={<LogoutOutlined />}>
+                <Menu.Item key={`${CONFIG.BASE_PATH}/logout`} icon={<LogoutOutlined />}>
                     {t('common:user_menu.sign_out')}
                 </Menu.Item>
             </Menu>

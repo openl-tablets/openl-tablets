@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
 import { claimMenu } from '../plugins'
+import CONFIG from '../services/config'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -47,11 +48,11 @@ export const Header = () => {
     const menuItems = () => {
         const defaultMenuItems = [
             {
-                key: '/',
+                key: `${CONFIG.CONTEXT}/`,
                 label: t('common:menu.editor'),
             },
             {
-                key: '/faces/pages/modules/repository/index.xhtml',
+                key: `${CONFIG.CONTEXT}/faces/pages/modules/repository/index.xhtml`,
                 label: t('common:menu.repository'),
             }
         ]

@@ -12,6 +12,10 @@
 </head>
 <body>
     <div id="appRoot" style="height: 48.5px"></div>
+    <script>
+        window.__APP_SOURCE_PATH__ = "${pageContext.request.contextPath}/javascript/ui";
+        window.__APP_PUBLIC_PATH__ = "${pageContext.request.contextPath}/web";
+    </script>
     <script type="module" src="${reactUiRoot}/main.js"></script>
 </body>
 </html>

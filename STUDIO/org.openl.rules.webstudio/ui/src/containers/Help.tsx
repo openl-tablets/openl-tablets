@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
-import { Card, Col, Divider, List, Row, Typography } from 'antd'
+import { Card, Col, List, Row, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
 import { Link } from 'react-router-dom'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import CONFIG from '../services/config'
 
 const documentationItems = [
     'Installation Guide',
@@ -66,9 +67,9 @@ export const Help: React.FC = () => {
                             </>
                         )}
                     >
-                        <Link rel="noopener noreferrer" target="_blank" to="/web/config/application.properties">application.properties example</Link>
+                        <Link rel="noopener noreferrer" target="_blank" to={`${CONFIG.BASE_PATH}/config/application.properties`}>application.properties example</Link>
                         <br />
-                        <Link rel="noopener noreferrer" target="_blank" to="/rest/api-docs">Internal REST API Documentation</Link>
+                        <Link rel="noopener noreferrer" target="_blank" to={`${CONFIG.CONTEXT}/rest/api-docs`}>Internal REST API Documentation</Link>
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>

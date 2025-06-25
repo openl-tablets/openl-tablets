@@ -15,6 +15,7 @@ import {
 } from '@ant-design/icons'
 import './MainMenu.scss'
 import { PermissionContext, SystemContext } from '../contexts'
+import CONFIG from '../services/config'
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()

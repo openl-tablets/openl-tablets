@@ -1,12 +1,15 @@
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const path = require('path')
 const ModuleFederationPlugin = require('@module-federation/enhanced').ModuleFederationPlugin
 
 module.exports = {
     mode: 'production',
     entry: './src/index',
     output: {
-        publicPath: '/javascript/ui/',
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'main.js',
+        publicPath: 'auto',
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
