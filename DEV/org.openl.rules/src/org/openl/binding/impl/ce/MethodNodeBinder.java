@@ -4,7 +4,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.FieldBoundNode;
-import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.binding.impl.method.MultiCallOpenMethod;
 import org.openl.binding.impl.method.MultiCallOpenMethodMT;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -18,20 +17,12 @@ import org.openl.types.IOpenMethod;
 
 public class MethodNodeBinder extends org.openl.binding.impl.MethodNodeBinder {
 
-    private IOpenMethod extractMethod(IOpenMethod openMethod) {
-        if (openMethod instanceof AOpenMethodDelegator) {
-            return extractMethod(((AOpenMethodDelegator) openMethod).getDelegate());
-        }
-        return openMethod;
-    }
-
     @Override
     protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
         if (methodCaller instanceof MultiCallOpenMethod) {
-            IOpenMethod openMethod = extractMethod(methodCaller.getMethod());
-            if (isParallel(openMethod)) {
-                MultiCallOpenMethod multiCallOpenMethod = (MultiCallOpenMethod) methodCaller;
-                return new MultiCallOpenMethodMT((multiCallOpenMethod));
+            MultiCallOpenMethod multiCallOpenMethod = (MultiCallOpenMethod) methodCaller;
+            if (isParallel(multiCallOpenMethod.getSourceMethod())) {
+                return new MultiCallOpenMethodMT(multiCallOpenMethod);
             }
         }
         return methodCaller;
