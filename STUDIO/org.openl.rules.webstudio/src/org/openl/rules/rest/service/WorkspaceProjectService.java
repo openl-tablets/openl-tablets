@@ -462,7 +462,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return selectors;
     }
 
-    private ProjectModel getProjectModel(RulesProject project) {
+    public ProjectModel getProjectModel(RulesProject project) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }

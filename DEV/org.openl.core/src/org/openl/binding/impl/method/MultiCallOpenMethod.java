@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.util.OpenClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -132,5 +133,17 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
     @Override
     public IOpenClass getType() {
         return type;
+    }
+
+    public IOpenMethod getSourceMethod() {
+        return extractMethod(this);
+    }
+
+    private IOpenMethod extractMethod(IOpenMethod openMethod) {
+        if (openMethod instanceof AOpenMethodDelegator) {
+            var delegator = (AOpenMethodDelegator) openMethod;
+            return extractMethod(delegator.getDelegate());
+        }
+        return openMethod;
     }
 }
