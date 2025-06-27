@@ -22,9 +22,9 @@ public class BindingDependencies {
     /**
      * Dependencies to executable Openl rules.
      */
-    private final HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
+    private final Map<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
 
-    private final HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
+    private final Map<IBoundNode, IOpenField> fields = new HashMap<>();
 
     public void addAssign(IBoundNode target, IBoundNode node) {
         target.updateAssignFieldDependency(this);
