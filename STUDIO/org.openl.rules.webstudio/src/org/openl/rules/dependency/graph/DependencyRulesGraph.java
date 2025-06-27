@@ -1,8 +1,9 @@
 package org.openl.rules.dependency.graph;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import org.jgrapht.DirectedGraph;
@@ -11,6 +12,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 
@@ -24,7 +26,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     private DirectedGraph<ExecutableMethod, DirectedEdge<ExecutableMethod>> graph;
 
-    public DependencyRulesGraph(List<ExecutableMethod> rulesMethods) {
+    public DependencyRulesGraph(Set<ExecutableMethod> rulesMethods) {
         createGraph();
         fill(rulesMethods);
     }
@@ -39,7 +41,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
         graph = new DefaultDirectedGraph<>(edgeFactory);
     }
 
-    private void fill(List<ExecutableMethod> rulesMethods) {
+    private void fill(Set<ExecutableMethod> rulesMethods) {
         if (rulesMethods != null && !rulesMethods.isEmpty()) {
             for (ExecutableMethod method : rulesMethods) {
                 graph.addVertex(method);
@@ -193,11 +195,15 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
      * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods.
      */
     public static DependencyRulesGraph filterAndCreateGraph(Collection<IOpenMethod> methods) {
-        List<ExecutableMethod> rulesMethods = new ArrayList<>();
+        Set<ExecutableMethod> rulesMethods = new HashSet<>();
         if (methods != null && !methods.isEmpty()) {
-            for (IOpenMethod method : methods) {
-                if (method instanceof ExecutableMethod) {
-                    rulesMethods.add((ExecutableMethod) method);
+            Queue<IOpenMethod> queue = new LinkedList<>(methods);
+            while (!queue.isEmpty()) {
+                var method = queue.poll();
+                if (method instanceof ExecutableMethod executable) {
+                    rulesMethods.add(executable);
+                } else if (method instanceof OpenMethodDispatcher dispatcher) {
+                    queue.addAll(dispatcher.getCandidates());
                 }
             }
             return new DependencyRulesGraph(rulesMethods);

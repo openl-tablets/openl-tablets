@@ -2,6 +2,7 @@ package org.openl.rules.rest.dependency;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -17,12 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.types.impl.ExecutableMethod;
 
 @RestController
@@ -64,11 +69,17 @@ public class RulesDependenciesController {
         List<Table> tables = new ArrayList<>();
         DependencyRulesGraph graph = projectModel.getDependencyGraph();
 
+        var methodNodesDictionary = projectModel.getMethodNodesDictionary();
+        var formats = WebStudioFormats.getInstance();
         var levelIterator = new TopologicalOrderIterator<>(graph);
         while (levelIterator.hasNext()) {
             ExecutableMethod rulesMethod = levelIterator.next();
             Table table = new Table();
-            table.setName(rulesMethod.getName());
+            var displayNames = TableSyntaxNodeUtils.getTableDisplayValue((TableSyntaxNode) rulesMethod.getInfo().getSyntaxNode(),
+                    0,
+                    methodNodesDictionary,
+                    formats);
+            table.setName(displayNames[INamedThing.SHORT]);
             String tableUri = rulesMethod.getSourceUrl();
             table.setId(TableUtils.makeTableId(tableUri));
             table.setUrl(webStudio.url("table", tableUri));
@@ -82,6 +93,7 @@ public class RulesDependenciesController {
             tables.add(table);
         }
 
+        tables.sort(Comparator.comparing(Table::getName, String.CASE_INSENSITIVE_ORDER));
         return tables;
     }
 
