@@ -1,0 +1,18 @@
+HTTP/1.1 501 Not Implemented
+Content-Type: application/json
+
+[
+  {
+    "name": "theCall",
+    "id": "395575d70541ba84ae2abca44050ef59",
+    "url": "#local/EPBDS-14621/DependencyArrayCall/table",
+    "dependencies": [
+      "688f02b40edd1784db7d348bc77ee299"
+    ]
+  },
+  {
+    "name": "mySPR",
+    "id": "688f02b40edd1784db7d348bc77ee299",
+    "url": "#local/EPBDS-14621/DependencyArrayCall/table"
+  }
+]
