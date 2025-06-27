@@ -1072,6 +1072,11 @@ public class ProjectModel {
         return methodNodesDictionary;
     }
 
+    public OverloadedMethodsDictionary getMethodNodesDictionary() {
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+        return makeMethodNodesDictionary(tableSyntaxNodes);
+    }
+
     private ProjectTreeNode makeProjectTreeRoot() {
         return new ProjectTreeNode(new String[]{null, null, null}, "root", null);
     }
