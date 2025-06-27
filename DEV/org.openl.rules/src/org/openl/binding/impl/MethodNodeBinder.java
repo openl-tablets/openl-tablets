@@ -11,7 +11,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.binding.impl.method.MultiCallOpenMethod;
 import org.openl.binding.impl.method.MultiCallOpenMethodMT;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
@@ -37,20 +36,9 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
-    private IOpenMethod extractMethod(IOpenMethod openMethod) {
-        if (openMethod instanceof AOpenMethodDelegator) {
-            return extractMethod(((AOpenMethodDelegator) openMethod).getDelegate());
-        }
-        return openMethod;
-    }
-
     protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
-        if (methodCaller instanceof MultiCallOpenMethod) {
-            IOpenMethod openMethod = extractMethod(methodCaller.getMethod());
-            if (isParallel(openMethod)) {
-                MultiCallOpenMethod multiCallOpenMethod = (MultiCallOpenMethod) methodCaller;
-                return new MultiCallOpenMethodMT((multiCallOpenMethod));
-            }
+        if (methodCaller instanceof MultiCallOpenMethod multiCall && isParallel(multiCall.getSourceMethod())) {
+            return new MultiCallOpenMethodMT(multiCall);
         }
         return methodCaller;
     }
@@ -152,12 +140,10 @@ public class MethodNodeBinder extends ANodeBinder {
                 parallel = true;
             }
         }
-        if (openMethod instanceof OpenMethodDispatcher) {
-            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+        if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
             boolean f = true;
             for (IOpenMethod method : openMethodDispatcher.getCandidates()) {
-                if (method instanceof ITablePropertiesMethod) {
-                    ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) method;
+                if (method instanceof ITablePropertiesMethod tablePropertiesMethod) {
                     if (!Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
                         f = false;
                         break;
