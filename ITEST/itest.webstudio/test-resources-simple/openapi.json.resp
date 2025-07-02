@@ -511,7 +511,7 @@ Content-Type: application/json
               "type" : "array",
               "items" : {
                 "type" : "string",
-                "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+                "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
               },
               "uniqueItems" : true
             },
@@ -540,7 +540,7 @@ Content-Type: application/json
             "sseAlgorithm" : {
               "type" : "string",
               "description" : "***",
-              "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+              "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
             }
           }
         } ],
@@ -951,7 +951,7 @@ Content-Type: application/json
               "type" : "array",
               "items" : {
                 "type" : "string",
-                "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+                "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
               },
               "uniqueItems" : true
             },
@@ -980,7 +980,7 @@ Content-Type: application/json
             "sseAlgorithm" : {
               "type" : "string",
               "description" : "***",
-              "enum" : [ "AES256", "aws:kms", "aws:kms:dsse", "null" ]
+              "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
             }
           }
         } ],
