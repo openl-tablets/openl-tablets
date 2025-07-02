@@ -2,7 +2,7 @@
 
 FROM alpine as otel
 
-ENV OTEL_VER 2.15.0
+ENV OTEL_VER 2.18.0
 
 RUN <<EOT
 set -euxv
