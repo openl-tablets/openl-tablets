@@ -85,37 +85,37 @@
         <spring.security.version>5.8.16</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>10.2</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.3.1</nimbus-jose-jwt.version>
         <json-smart.version>2.5.2</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.8</asm.version>
-        <byte-buddy.version>1.17.5</byte-buddy.version>
+        <byte-buddy.version>1.17.6</byte-buddy.version>
 
         <!-- Kafka -->
         <kafka.version>4.0.0</kafka.version>
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.15.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.18.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- REST -->
-        <jackson.version>2.19.0</jackson.version>
-        <cxf.version>3.6.6</cxf.version>
+        <jackson.version>2.19.2</jackson.version>
+        <cxf.version>3.6.7</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.72.0</grpc.version>
+        <grpc.version>1.73.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.28</swagger.core.version>
         <swagger.parser.version>2.1.25</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.24.3</log4j.version>
+        <log4j.version>2.25.1</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
-        <maven.api.version>3.9.9</maven.api.version>
+        <maven.api.version>3.9.11</maven.api.version>
         <maven.plugin.version>3.15.1</maven.plugin.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
@@ -123,9 +123,9 @@
         <jetty.version>10.0.25</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.31.35</amazonaws.version>
-        <azure.version>12.30.0</azure.version>
-        <netty.version>4.2.0.Final</netty.version>
+        <amazonaws.version>2.32.4</amazonaws.version>
+        <azure.version>12.31.0</azure.version>
+        <netty.version>4.2.3.Final</netty.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
@@ -135,19 +135,19 @@
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.12.2</junit.version>
+        <junit.version>5.13.3</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <mockito.version>5.17.0</mockito.version>
-        <datasource-proxy.version>1.10.1</datasource-proxy.version>
-        <xmlunit.version>2.10.0</xmlunit.version>
-        <testcontainers.version>1.21.0</testcontainers.version>
+        <mockito.version>5.18.0</mockito.version>
+        <datasource-proxy.version>1.11.0</datasource-proxy.version>
+        <xmlunit.version>2.10.3</xmlunit.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.17</minio.version>
-        <oracle.version>23.7.0.25.01</oracle.version>
-        <postgresql.version>42.7.5</postgresql.version>
+        <ojdbc11.version>23.8.0.25.04</ojdbc11.version>
+        <postgresql.version>42.7.7</postgresql.version>
         <mariadb.version>2.7.12</mariadb.version>
-        <mssql.version>12.10.0.jre11</mssql.version>
+        <mssql.version>12.10.1.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- javax & Jakarta APIs -->
@@ -169,17 +169,17 @@
         <greenmail.version>1.6.15</greenmail.version>
 
         <!-- Commons and utils -->
-        <commons.codec.version>1.18.0</commons.codec.version>
-        <commons.compress.version>1.27.1</commons.compress.version>
-        <commons.collections4.version>4.5.0</commons.collections4.version>
-        <commons.io.version>2.19.0</commons.io.version>
-        <commons.lang3.version>3.17.0</commons.lang3.version>
+        <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-compress.version>1.27.1</commons-compress.version>
+        <commons-collections4.version>4.5.0</commons-collections4.version>
+        <commons-io.version>2.20.0</commons-io.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
 
         <!-- protocols -->
         <gson.version>2.13.1</gson.version>
 
-        <bouncycastle.version>1.80</bouncycastle.version>
-        <groovy.version>4.0.26</groovy.version>
+        <bouncycastle.version>1.81</bouncycastle.version>
+        <groovy.version>4.0.27</groovy.version>
         <poi.version>5.4.1</poi.version>
         <aspectj.version>1.9.24</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
@@ -243,12 +243,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>javacc-maven-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -263,22 +263,22 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.3</version>
+                    <version>3.1.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.5.0</version>
+                    <version>2.6.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -288,7 +288,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.0</version>
                     <configuration>
                         <release>21</release>
                         <compilerArgs>
@@ -302,7 +302,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.3</version>
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
@@ -379,7 +379,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.9.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -390,40 +390,16 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-maven-plugin</artifactId>
-                    <version>${jetty.version}</version>
-                    <configuration>
-                        <systemProperties>
-                            <systemProperty>
-                                <name>openl.home</name>
-                                <value>${project.build.directory}/openl-jetty-${openl.start.milli}</value>
-                            </systemProperty>
-                            <systemProperty>
-                                <name>java.io.tmpdir</name>
-                                <value>${java.io.tmpdir}</value>
-                            </systemProperty>
-                        </systemProperties>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.h2database</groupId>
-                            <artifactId>h2</artifactId>
-                            <version>${h2.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>11.1.1</version>
+                    <version>12.1.3</version>
                 </plugin>
                 <plugin>
                     <!-- See https://docs.openrewrite.org/recipes/java -->
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.46.3</version>
+                    <version>6.13.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
@@ -781,7 +757,7 @@
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc11</artifactId>
-                <version>${oracle.version}</version>
+                <version>${ojdbc11.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -869,26 +845,26 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>${commons.lang3.version}</version>
+                <version>${commons-lang3.version}</version>
             </dependency>
             <!-- The Apache Commons Collections package contains types that extend and augment the Java Collections Framework. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>${commons.collections4.version}</version>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <!-- contains simple encoder and decoders for various formats such as Base64 and Hexadecimal. -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>${commons.codec.version}</version>
+                <version>${commons-codec.version}</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>${commons.io.version}</version>
+                <version>${commons-io.version}</version>
             </dependency>
             <!-- Spring Framework -->
             <dependency>
@@ -1159,7 +1135,7 @@
                 <!-- used in POI -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>${commons.compress.version}</version>
+                <version>${commons-compress.version}</version>
             </dependency>
             <!-- http://download.java.net/java/jdk9/docs/api/java.xml.bind-summary.html -->
             <!-- Required for Java11 -->

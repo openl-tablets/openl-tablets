@@ -26,50 +26,17 @@ Content-Type: application/json
     "listenerTimerPeriod": 10,
     "allAllowedRegions": [
       {
-        "id": "ap-south-2",
-        "description": "Asia Pacific (Hyderabad)"
-      }, {
-        "id": "ap-south-1",
-        "description": "Asia Pacific (Mumbai)"
-      }, {
-        "id": "eu-south-1",
-        "description": "Europe (Milan)"
-      }, {
-        "id": "eu-south-2",
-        "description": "Europe (Spain)"
-      }, {
-        "id": "us-gov-east-1",
-        "description": "AWS GovCloud (US-East)"
-      }, {
         "id": "me-central-1",
         "description": "Middle East (UAE)"
       }, {
-        "id": "il-central-1",
-        "description": "Israel (Tel Aviv)"
+        "id": "aws-cn-global",
+        "description": "AWS China global region"
       }, {
         "id": "us-isof-south-1",
         "description": "US ISOF SOUTH"
       }, {
-        "id": "ca-central-1",
-        "description": "Canada (Central)"
-      }, {
-        "id": "mx-central-1",
-        "description": "Mexico (Central)"
-      }, {
-        "id": "eu-central-1",
-        "description": "Europe (Frankfurt)"
-      }, {
-        "id": "us-iso-west-1",
-        "description": "US ISO WEST"
-      }, {
-        "id": "eusc-de-east-1",
-        "description": "EU (Germany)"
-      }, {
-        "id": "eu-central-2",
-        "description": "Europe (Zurich)"
-      }, {
-        "id": "eu-isoe-west-1",
-        "description": "EU ISOE West"
+        "id": "ap-east-2",
+        "description": "Asia Pacific (Taipei)"
       }, {
         "id": "us-west-1",
         "description": "US West (N. California)"
@@ -79,18 +46,6 @@ Content-Type: application/json
       }, {
         "id": "af-south-1",
         "description": "Africa (Cape Town)"
-      }, {
-        "id": "eu-north-1",
-        "description": "Europe (Stockholm)"
-      }, {
-        "id": "eu-west-3",
-        "description": "Europe (Paris)"
-      }, {
-        "id": "eu-west-2",
-        "description": "Europe (London)"
-      }, {
-        "id": "eu-west-1",
-        "description": "Europe (Ireland)"
       }, {
         "id": "ap-northeast-3",
         "description": "Asia Pacific (Osaka)"
@@ -107,26 +62,14 @@ Content-Type: application/json
         "id": "sa-east-1",
         "description": "South America (Sao Paulo)"
       }, {
-        "id": "ap-east-1",
-        "description": "Asia Pacific (Hong Kong)"
-      }, {
         "id": "cn-north-1",
         "description": "China (Beijing)"
-      }, {
-        "id": "ca-west-1",
-        "description": "Canada West (Calgary)"
-      }, {
-        "id": "us-gov-west-1",
-        "description": "AWS GovCloud (US-West)"
       }, {
         "id": "ap-southeast-1",
         "description": "Asia Pacific (Singapore)"
       }, {
         "id": "ap-southeast-2",
         "description": "Asia Pacific (Sydney)"
-      }, {
-        "id": "us-iso-east-1",
-        "description": "US ISO East"
       }, {
         "id": "ap-southeast-3",
         "description": "Asia Pacific (Jakarta)"
@@ -149,30 +92,96 @@ Content-Type: application/json
         "id": "cn-northwest-1",
         "description": "China (Ningxia)"
       }, {
+        "id": "aws-iso-e-global",
+        "description": "AWS ISOE (Europe) global region"
+      }, {
+        "id": "ap-south-2",
+        "description": "Asia Pacific (Hyderabad)"
+      }, {
+        "id": "ap-south-1",
+        "description": "Asia Pacific (Mumbai)"
+      }, {
+        "id": "eu-south-1",
+        "description": "Europe (Milan)"
+      }, {
+        "id": "eu-south-2",
+        "description": "Europe (Spain)"
+      }, {
+        "id": "us-gov-east-1",
+        "description": "AWS GovCloud (US-East)"
+      }, {
+        "id": "il-central-1",
+        "description": "Israel (Tel Aviv)"
+      }, {
+        "id": "ca-central-1",
+        "description": "Canada (Central)"
+      }, {
+        "id": "mx-central-1",
+        "description": "Mexico (Central)"
+      }, {
+        "id": "eu-central-1",
+        "description": "Europe (Frankfurt)"
+      }, {
+        "id": "us-iso-west-1",
+        "description": "US ISO WEST"
+      }, {
+        "id": "eusc-de-east-1",
+        "description": "EU (Germany)"
+      }, {
+        "id": "eu-central-2",
+        "description": "Europe (Zurich)"
+      }, {
+        "id": "eu-isoe-west-1",
+        "description": "EU ISOE West"
+      }, {
+        "id": "aws-global",
+        "description": "AWS Standard global region"
+      }, {
+        "id": "eu-north-1",
+        "description": "Europe (Stockholm)"
+      }, {
+        "id": "eu-west-3",
+        "description": "Europe (Paris)"
+      }, {
+        "id": "eu-west-2",
+        "description": "Europe (London)"
+      }, {
+        "id": "eu-west-1",
+        "description": "Europe (Ireland)"
+      }, {
+        "id": "aws-iso-global",
+        "description": "AWS ISO (US) global region"
+      }, {
+        "id": "ap-east-1",
+        "description": "Asia Pacific (Hong Kong)"
+      }, {
+        "id": "ca-west-1",
+        "description": "Canada West (Calgary)"
+      }, {
+        "id": "us-gov-west-1",
+        "description": "AWS GovCloud (US-West)"
+      }, {
+        "id": "us-iso-east-1",
+        "description": "US ISO East"
+      }, {
+        "id": "aws-iso-b-global",
+        "description": "AWS ISOB (US) global region"
+      }, {
+        "id": "aws-iso-f-global",
+        "description": "AWS ISOF global region"
+      }, {
+        "id": "aws-us-gov-global",
+        "description": "AWS GovCloud (US) global region"
+      }, {
         "id": "us-isob-east-1",
         "description": "US ISOB East (Ohio)"
       }, {
         "id": "us-isof-east-1",
         "description": "US ISOF EAST"
-      }, {
-        "id": "aws-global",
-        "description": "aws-global"
-      }, {
-        "id": "aws-cn-global",
-        "description": "aws-cn-global"
-      }, {
-        "id": "aws-us-gov-global",
-        "description": "aws-us-gov-global"
-      }, {
-        "id": "aws-iso-global",
-        "description": "aws-iso-global"
-      }, {
-        "id": "aws-iso-b-global",
-        "description": "aws-iso-b-global"
       }
     ],
-    "allSseAlgorithms": ["AES256", "AWS_KMS", "AWS_KMS_DSSE"]
+    "allSseAlgorithms": ["AES256", "AWS_FSX", "AWS_KMS", "AWS_KMS_DSSE"]
   },
   "type": "repo-aws-s3",
-  "id": "**"
+  "id": "design1"
 }
