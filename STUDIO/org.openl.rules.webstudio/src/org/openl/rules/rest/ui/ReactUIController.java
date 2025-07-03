@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping({"/administration", "/claim", "/help"})
+@RequestMapping({"/administration", "/help"})
 public class ReactUIController {
 
     @Lookup("reactUiRoot")

@@ -29,10 +29,10 @@
 ### Docker configuration for development mode
 
 1. Open `compose.yaml` 
-2. Uncomment next lines
-```dockerfile
-"spring.profiles.active": "dev"
-"webstudio.dev.external.ui.uri": "http://localhost:3100"
+2. Add next lines in the environment section of OpenL Studio
+```yaml
+spring.profiles.active: "dev"
+webstudio.dev.external.ui.uri: "http://localhost:3100"
 ```
 
 ### Run docker compose
