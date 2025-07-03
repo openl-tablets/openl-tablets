@@ -47,6 +47,9 @@
 
     <script>
         //<![CDATA[
+        window.__APP_SOURCE_PATH__ = '#{contextPath}/javascript/ui';
+        window.__APP_PUBLIC_PATH__ = '#{contextPath}/web';
+
         var $j = $.noConflict();
 
         // TODO Move to external file
@@ -1097,7 +1100,7 @@
 
         $j(function () {
             fixRichFaces();
-            const needRedirect = #{studio.needRedirect};
+            const needRedirect = "#{studio.needRedirect}" === "true";
             if (needRedirect) {
                 ws.nav.go("#{studio.url()}", true);
             }
@@ -1128,14 +1131,17 @@
 </h:head>
 
 <h:body style="visibility: hidden">
+    <div id="appRoot" style="height: 48.5px"></div>
+    <script src="#{reactUiRoot.get()}/main.js"></script>
+
     <script src="#{contextPath}/webresource/js/prototype/prototype-1.7.3.js"></script>
     <script src="#{contextPath}/webresource/js/tableeditor.min.js?1"></script>
 
-    <div id="header">
-        <ui:include src="/pages/common/header.xhtml">
-            <ui:param name="menu" value="rules" />
-        </ui:include>
-    </div>
+<!--    <div id="header">-->
+<!--        <ui:include src="/pages/common/header.xhtml">-->
+<!--            <ui:param name="menu" value="rules" />-->
+<!--        </ui:include>-->
+<!--    </div>-->
 
     <div id="top"></div>
 

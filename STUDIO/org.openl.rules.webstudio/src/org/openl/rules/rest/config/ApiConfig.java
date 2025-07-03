@@ -118,7 +118,7 @@ public class ApiConfig implements WebMvcConfigurer {
     public ViewResolver internalResourceViewResolver() {
         InternalResourceViewResolver bean = new InternalResourceViewResolver();
         bean.setPrefix("/pages/");
-        bean.setSuffix(".html");
+        bean.setSuffix(".jsp");
         return bean;
     }
 
