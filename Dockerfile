@@ -22,7 +22,7 @@ gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
 apk del wget gnupg
 EOT
 
-FROM eclipse-temurin:21-jre-alpine as openl
+FROM eclipse-temurin:24-jre-alpine as openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"

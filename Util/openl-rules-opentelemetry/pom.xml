@@ -30,11 +30,6 @@
             <artifactId>opentelemetry-javaagent-extension-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
             <scope>provided</scope>
