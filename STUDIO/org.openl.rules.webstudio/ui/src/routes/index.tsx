@@ -16,7 +16,6 @@ import { Groups } from '../containers/Groups'
 import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
-import { claimsRoutes } from '../plugins'
 import CONFIG from '../services/config'
 
 const router = createBrowserRouter([
@@ -90,8 +89,7 @@ const router = createBrowserRouter([
             {
                 path: 'help',
                 element: <Help />,
-            },
-            ...claimsRoutes
+            }
         ],
     },
     {

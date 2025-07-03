@@ -6,7 +6,6 @@ import { UserMenu } from './header/UserMenu'
 import { Link } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
-import { claimMenu } from '../plugins'
 import CONFIG from '../services/config'
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -36,37 +35,16 @@ export const Header = () => {
         setIsUserMenuOpen(false)
     }, [])
 
-    const editorMenuItems = claimMenu.map((item: any) => {
-        if (item.parent === EDITOR) {
-            return {
-                key: basePath + item.path,
-                label: t(item.label),
-            } as MenuItem
-        }
-    })
-
-    const menuItems = () => {
-        const defaultMenuItems = [
-            {
-                key: `${CONFIG.CONTEXT}/`,
-                label: t('common:menu.editor'),
-            },
-            {
-                key: `${CONFIG.CONTEXT}/faces/pages/modules/repository/index.xhtml`,
-                label: t('common:menu.repository'),
-            }
-        ]
-
-        const additionalMenuItems = editorMenuItems.length ? [{
+    const menuItems: MenuItem[] = [
+        {
+            key: `${CONFIG.CONTEXT}/`,
             label: t('common:menu.editor'),
-            children: [...editorMenuItems]
-        }] : []
-
-        return [
-            ...defaultMenuItems,
-            ...additionalMenuItems
-        ] as MenuItem[]
-    }
+        },
+        {
+            key: `${CONFIG.CONTEXT}/faces/pages/modules/repository/index.xhtml`,
+            label: t('common:menu.repository'),
+        }
+    ]
 
     const goTo = (key = '/') => {
         window.location.href = basePath + key
@@ -92,7 +70,7 @@ export const Header = () => {
                 <Col span={10}>
                     <Menu
                         activeKey={activeKey}
-                        items={menuItems()}
+                        items={menuItems}
                         mode="horizontal"
                         onClick={({ key }) => goTo(key)}
                         style={{
