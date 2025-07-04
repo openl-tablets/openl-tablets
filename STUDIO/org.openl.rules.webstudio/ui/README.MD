@@ -30,9 +30,8 @@
 
 1. Open `compose.yaml` 
 2. Uncomment next lines
-```dockerfile
-"spring.profiles.active": "dev"
-"webstudio.dev.external.ui.uri": "http://localhost:3100"
+```yaml
+_REACT_UI_ROOT_: http://localhost:3100
 ```
 
 ### Run docker compose
