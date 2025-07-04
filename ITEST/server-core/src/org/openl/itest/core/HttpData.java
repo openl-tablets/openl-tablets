@@ -169,6 +169,7 @@ class HttpData {
                 case "text/javascript":
                 case "text/html":
                 case "text/plain":
+                case "image/svg+xml":
                     Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 case "application/xml":

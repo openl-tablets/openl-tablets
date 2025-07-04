@@ -2,9 +2,7 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         version="3.0" metadata-complete="true">
-    <!-- metadata-complete="true" parameter is used for decrease startup time.
-    All servlet 3.0 annotation will be skipped -->
+         version="3.0">
 
     <session-config>
         <session-timeout>30</session-timeout>
@@ -50,11 +48,6 @@
     </context-param>
 
     <context-param>
-        <param-name>org.eclipse.jetty.servlet.Default.welcomeServlets</param-name>
-        <param-value>true</param-value>
-    </context-param>
-
-    <context-param>
         <param-name>org.richfaces.skin</param-name>
         <param-value>classic</param-value>
     </context-param>
@@ -62,12 +55,6 @@
     <context-param>
         <param-name>org.richfaces.enableControlSkinning</param-name>
         <param-value>false</param-value>
-    </context-param>
-
-    <!-- Disable the built-in JBoss AS JSF -->
-    <context-param>
-        <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
-        <param-value>true</param-value>
     </context-param>
 
     <filter>
@@ -178,10 +165,6 @@
         <servlet-name>TablePropertyValues</servlet-name>
         <url-pattern>/action/prop_values</url-pattern>
     </servlet-mapping>
-
-    <welcome-file-list>
-        <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
-    </welcome-file-list>
 
     <error-page>
         <error-code>403</error-code>

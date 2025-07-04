@@ -98,12 +98,7 @@ final class Comparators {
     }
 
     private static String getRegExp(String text) {
-        return trimExtraSpaces(text).replaceAll("\\\\", "\\\\\\\\")
-                .replaceAll("#+", "\\\\d+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*")
-                .replace("(", "\\(")
-                .replace(")", "\\)");
+        return patternToRegexp(trimExtraSpaces(text));
     }
 
     static void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
@@ -114,12 +109,7 @@ final class Comparators {
             failDiff(expectedJson, actualJson, path);
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
-            String regExp = expectedJson.asText()
-                    .replaceAll("\\[", "\\\\[")
-                    .replaceAll("]", "\\\\]")
-                    .replaceAll("#+", "[#\\\\d]+")
-                    .replaceAll("@+", "[@\\\\w]+")
-                    .replaceAll("\\*+", "[^\uFFFF]*");
+            String regExp = patternToRegexp(expectedJson.asText());
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
             try {
                 if (!Pattern.compile(regExp).matcher(actualText).matches()) {
@@ -143,6 +133,25 @@ final class Comparators {
         } else {
             failDiff(expectedJson, actualJson, path);
         }
+    }
+
+    static String patternToRegexp(String pattern) {
+        return pattern
+                .replace("\\", "\\\\")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+                .replace("{", "\\{")
+                .replace("}", "\\}")
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+                .replace("$", "\\$")
+                .replace("^", "\\^")
+                .replace(".", "\\.")
+                .replace("+", "\\+")
+                .replace("?", "\\?")
+                .replaceAll("#+", "[#\\\\d]+")
+                .replaceAll("@+", "[@\\\\w]+")
+                .replaceAll("\\*+", "[^\uFFFF]*");
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
