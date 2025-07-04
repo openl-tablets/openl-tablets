@@ -1,9 +1,8 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import { NoMatch } from './NoMatch'
-import { SystemContext } from '../contexts/System'
-
-const baseRoot = process.env.BASE_PATH || ''
+import { SystemContext } from '../contexts'
+import { CONFIG } from '../services'
 
 interface RedirectRouteProps {
     to?: string
@@ -14,13 +13,13 @@ export const RedirectRoute: React.FC<RedirectRouteProps> = ({ to }) => {
     const { systemSettings } = useContext(SystemContext)
 
     if (page === 'editor') {
-        window.location.href = baseRoot + '/'
+        window.location.href = CONFIG.CONTEXT + '/'
         return null
     } else if (page === 'login') {
-        window.location.href = baseRoot + '/faces/pages/login.xhtml'
+        window.location.href = CONFIG.CONTEXT  + '/faces/pages/login.xhtml'
         return null
     } else if (to === 'logout') {
-        window.location.href = baseRoot + systemSettings.entrypoint.logoutUrl
+        window.location.href = CONFIG.CONTEXT  + systemSettings.entrypoint.logoutUrl
         return null
 
     } else {
