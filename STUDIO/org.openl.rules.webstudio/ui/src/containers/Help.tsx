@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
 import { Link } from 'react-router-dom'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import CONFIG from '../services/config'
+import { CONFIG } from '../services'
 
 const documentationItems = [
     'Installation Guide',

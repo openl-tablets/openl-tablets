@@ -16,7 +16,7 @@ import { Groups } from '../containers/Groups'
 import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
-import CONFIG from '../services/config'
+import { CONFIG } from '../services'
 
 const router = createBrowserRouter([
     {
@@ -33,10 +33,6 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <System />,
-                    },
-                    {
-                        path: 'index.xhtml',
                         element: <System />,
                     },
                     {
@@ -93,7 +89,7 @@ const router = createBrowserRouter([
         ],
     },
     {
-        path: '/logout',
+        path: '/web/logout',
         element: <RedirectRoute to="logout" />,
     },
     {

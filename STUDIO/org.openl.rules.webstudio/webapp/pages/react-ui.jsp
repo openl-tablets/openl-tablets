@@ -11,7 +11,7 @@
     <link rel="manifest" href="${pageContext.request.contextPath}/icons/site.webmanifest?v=studio" />
 </head>
 <body>
-    <div id="appRoot" style="height: 48.5px"></div>
+    <div id="appRoot" style="min-height: 48.5px"></div>
     <script>
         window.__APP_SOURCE_PATH__ = "${pageContext.request.contextPath}/javascript/ui";
         window.__APP_PUBLIC_PATH__ = "${pageContext.request.contextPath}/web";

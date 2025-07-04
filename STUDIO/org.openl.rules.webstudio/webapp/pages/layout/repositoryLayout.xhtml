@@ -219,7 +219,7 @@
     </h:head>
 
     <h:body style="visibility: hidden">
-        <div id="appRoot" style="height: 48.5px"></div>
+        <div id="appRoot" style="min-height: 48.5px"></div>
         <script src="#{reactUiRoot.get()}/main.js"></script>
 
         <h:form id="mainForm" prependId="false">
@@ -245,12 +245,6 @@
                 </div>
             </div>
         </h:form>
-
-<!--        <div id="footer">-->
-<!--            <ui:insert name="footer">-->
-<!--                <ui:include src="/pages/common/footer.xhtml" />-->
-<!--            </ui:insert>-->
-<!--        </div>-->
 
         <ui:insert name="special" />
 

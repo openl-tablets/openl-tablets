@@ -1,12 +1,6 @@
 import './setPublicPath'
 import React from 'react'
 
-// Uncomment the following line to enable the runtime import of remote plugins
-// define list of default plugins
-// import './plugins.config'
-// runtime import of remote plugins
-// import './initRemotePlugins'
-
 import './i18n'
 import './locales'
 

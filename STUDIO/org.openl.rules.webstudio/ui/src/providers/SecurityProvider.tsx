@@ -10,6 +10,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const [userDetails, setUserDetails] = useState<UserDetails>()
     const [systemSettings, setSystemSettings] = useState<SystemSettings>()
     const [openlInfo, setOpenlInfo] = useState<OpenlInfo>()
+    const [appVersion, setAppVersion] = useState<string>('')
     const [isProfileLoaded, setIsProfileLoaded] = useState(false)
     const [isDetailsLoaded, setIsDetailsLoaded] = useState(false)
     const [isSystemSettingsLoaded, setIsSystemSettingsLoaded] = useState(false)
@@ -56,6 +57,19 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         loadUserProfileAndDetails()
     }, [userProfile])
 
+    useEffect(() => {
+        const version = openlInfo?.['openl.version'] || ''
+        const buildNumber = openlInfo?.['openl.build.number'] || ''
+        const snapshotRE = /-SNAPSHOT/
+        // If the version ends with -SNAPSHOT, we don't want to show it in the UI. Replace it with the build number.
+        if (snapshotRE.test(version)) {
+            setAppVersion(`${version.replace(snapshotRE, '')}-${buildNumber}`)
+        } else {
+            setAppVersion(version)
+        }
+
+    }, [openlInfo])
+
     const hasAdminPermission = () => {
         return !!(userProfile && userProfile.administrator)
     }
@@ -83,7 +97,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     return (
-        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo }}>
+        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo, appVersion }}>
             <UserContext.Provider value={{ userProfile, userDetails, fetchUserProfile }}>
                 <PermissionContext.Provider value={{ hasAdminPermission }}>
                     {children}

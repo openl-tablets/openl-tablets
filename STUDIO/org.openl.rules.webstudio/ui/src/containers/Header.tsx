@@ -1,12 +1,16 @@
-import React, { useState, CSSProperties, useCallback } from 'react'
+import React, { useState, CSSProperties, useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Layout, Row, Col, Menu, MenuProps } from 'antd'
+import { Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
 import { Link } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
-import CONFIG from '../services/config'
+import { CONFIG } from '../services'
+import { SystemContext } from '../contexts'
+import { useScript } from '../hooks'
+import { useSelector } from 'react-redux'
+import { RootState } from '../store'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -26,6 +30,8 @@ export const Header = () => {
     const { t } = useTranslation()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [activeKey, setActiveKey] = useState(window.location.pathname)
+    const { systemSettings } = useContext(SystemContext)
+    useScript(systemSettings?.scripts)
 
     const onOpenUserMenu = useCallback(() => {
         setIsUserMenuOpen(true)
@@ -50,40 +56,58 @@ export const Header = () => {
         window.location.href = basePath + key
     }
 
+    const notificationMessage = useSelector((state: RootState) => state.notification.notification)
+
+    const Notify = useMemo(() => {
+        if (notificationMessage) {
+            return (<Alert
+                key={notificationMessage}
+                banner
+                closable
+                message={notificationMessage}
+                type="error"
+            />)
+        }
+        return null
+    }, [notificationMessage])
+
     return (
-        <AntHeader>
-            <Row justify="space-between" style={{ width: '100%' }}>
-                <Col span={6}>
-                    <Row align="middle">
-                        <Col>
-                            <div className="header-logo">
-                                <Logo />
-                            </div>
-                        </Col>
-                        <Col>
-                            <div className="header-title">
-                                <Link onClick={() => goTo()} style={titleStyle} to="">{t('common:openl_studio')}</Link>
-                            </div>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={10}>
-                    <Menu
-                        activeKey={activeKey}
-                        items={menuItems}
-                        mode="horizontal"
-                        onClick={({ key }) => goTo(key)}
-                        style={{
-                            flex: 1,
-                            minWidth: 0,
-                        }}
-                    />
-                </Col>
-                <Col>
-                    <UserLogo onClick={onOpenUserMenu} />
-                </Col>
-            </Row>
-            <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />
-        </AntHeader>
+        <>
+            <AntHeader>
+                <Row justify="space-between" style={{ width: '100%' }}>
+                    <Col span={6}>
+                        <Row align="middle">
+                            <Col>
+                                <div className="header-logo">
+                                    <Logo />
+                                </div>
+                            </Col>
+                            <Col>
+                                <div className="header-title">
+                                    <Link onClick={() => goTo()} style={titleStyle} to="">{t('common:openl_studio')}</Link>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col span={10}>
+                        <Menu
+                            activeKey={activeKey}
+                            items={menuItems}
+                            mode="horizontal"
+                            onClick={({ key }) => goTo(key)}
+                            style={{
+                                flex: 1,
+                                minWidth: 0,
+                            }}
+                        />
+                    </Col>
+                    <Col>
+                        <UserLogo onClick={onOpenUserMenu} />
+                    </Col>
+                </Row>
+                <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />
+            </AntHeader>
+            {Notify}
+        </>
     )
 }

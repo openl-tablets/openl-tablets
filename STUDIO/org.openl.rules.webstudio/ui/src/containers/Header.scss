@@ -26,3 +26,8 @@ header.ant-layout-header {
     border: none;
   }
 }
+
+.ant-alert-banner .ant-alert-close-icon {
+  // Fix for rewrite default JSF style
+  background-image: none;
+}

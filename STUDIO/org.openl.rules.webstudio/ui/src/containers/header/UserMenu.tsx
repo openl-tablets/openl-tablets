@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { PermissionContext, SystemContext, UserContext } from '../../contexts'
-import CONFIG from '../../services/config'
+import { CONFIG } from '../../services'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -20,7 +20,9 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { pathname } = useLocation()
     const { userProfile } = useContext(UserContext)
     const { hasAdminPermission } = useContext(PermissionContext)
-    const { openlInfo } = useContext(SystemContext)
+    const { appVersion, systemSettings } = useContext(SystemContext)
+
+    const logoutURL = systemSettings?.entrypoint?.logoutUrl || null
 
     const Title = (
         <Row align="middle">
@@ -43,11 +45,11 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     )
 
     const onClick = ({ key }: { key: string }) => {
-        if (pathname.startsWith('/web/')) {
+        if (pathname.startsWith('/faces/') || pathname === '/') {
+            window.location.href = CONFIG.CONTEXT + key
+        } else {
             navigate(key)
             onClose()
-        } else {
-            window.location.href = key
         }
     }
 
@@ -61,11 +63,9 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             title={Title}
             footer={(
                 <Row justify="end">
-                    {openlInfo && (
-                        <Typography.Text type="secondary">
-                            {t('common:user_menu.version', { version: openlInfo['openl.version'] })}
-                        </Typography.Text>
-                    )}
+                    <Typography.Text type="secondary">
+                        {t('common:user_menu.version', { version: appVersion })}
+                    </Typography.Text>
                 </Row>
             )}
         >
@@ -73,21 +73,23 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                 onClick={onClick}
                 selectedKeys={[]}
             >
-                <Menu.Item key={`${CONFIG.BASE_PATH}/administration/user/profile`} icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
-                <Menu.Item key={`${CONFIG.BASE_PATH}/administration/user/settings`} icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
+                <Menu.Item key="/web/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
+                <Menu.Item key="/web/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 {hasAdminPermission() && (
                     <>
                         <Menu.Divider />
-                        <Menu.Item key={`${CONFIG.BASE_PATH}/administration/system`} icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                        <Menu.Item key="/web/administration/system" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                     </>
                 )}
                 <Menu.Divider />
-                <Menu.Item key={`${CONFIG.BASE_PATH}/help`} icon={<QuestionOutlined />}>
+                <Menu.Item key="/web/help" icon={<QuestionOutlined />}>
                     {t('common:user_menu.help')}
                 </Menu.Item>
-                <Menu.Item key={`${CONFIG.BASE_PATH}/logout`} icon={<LogoutOutlined />}>
-                    {t('common:user_menu.sign_out')}
-                </Menu.Item>
+                {logoutURL && (
+                    <Menu.Item key="/web/logout" icon={<LogoutOutlined />}>
+                        {t('common:user_menu.sign_out')}
+                    </Menu.Item>
+                )}
             </Menu>
         </Drawer>
     )

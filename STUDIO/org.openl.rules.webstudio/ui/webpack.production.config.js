@@ -1,7 +1,6 @@
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const path = require('path')
-const ModuleFederationPlugin = require('@module-federation/enhanced').ModuleFederationPlugin
 
 module.exports = {
     mode: 'production',
@@ -37,24 +36,5 @@ module.exports = {
     },
     plugins: [
         new Dotenv(),
-        new ModuleFederationPlugin({
-            name: 'webstudio_ui',
-            filename: 'webstudio.js',
-            shared: {
-                '@ant-design/icons': { singleton: true },
-                'antd': { singleton: true },
-                'i18next': { singleton: true },
-                'react': { singleton: true },
-                'react-dom': { singleton: true },
-                'react-final-form': { singleton: true },
-                'react-i18next': { singleton: true },
-            },
-            exposes: {
-                './apiCall': './src/services/apiCall',
-                './form': './src/components/form',
-                './config': './src/services/config',
-                './store': './src/store',
-            },
-        })
     ],
 }

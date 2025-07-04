@@ -1131,7 +1131,7 @@
 </h:head>
 
 <h:body style="visibility: hidden">
-    <div id="appRoot" style="height: 48.5px"></div>
+    <div id="appRoot" style="min-height: 48.5px"></div>
     <script src="#{reactUiRoot.get()}/main.js"></script>
 
     <script src="#{contextPath}/webresource/js/prototype/prototype-1.7.3.js"></script>
@@ -1161,10 +1161,6 @@
             <span id="east-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
             <div id="rightContent"></div>
         </div>
-    </div>
-
-    <div id="footer">
-        <ui:include src="/pages/common/footer.xhtml" />
     </div>
 
     <div id="loadingPanel" style="display: none">

@@ -18,6 +18,7 @@ export interface OpenlInfo {
     'openl.start.milli': string,
     'openl.version': string,
     'openl.build.date': string,
+    'openl.build.number'?: string,
     'openl.start.time': string,
     'openl.start.hash': string
 }
