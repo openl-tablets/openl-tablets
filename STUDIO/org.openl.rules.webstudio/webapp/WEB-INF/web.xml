@@ -147,16 +147,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>LaunchFileServlet</servlet-name>
-        <servlet-class>org.openl.rules.webstudio.web.servlet.LaunchFileServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>LaunchFileServlet</servlet-name>
-        <url-pattern>/action/launch</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>TablePropertyValues</servlet-name>
         <servlet-class>org.openl.rules.webstudio.web.servlet.TablePropertyValues</servlet-class>
     </servlet>
