@@ -1,11 +1,12 @@
 package org.openl.rules.spring.openapi.controller;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
 
@@ -39,10 +40,9 @@ public class OpenApiController {
      * @return model and view for UI
      */
     @GetMapping
-    public ModelAndView getUi() {
-        var view = new ModelAndView();
-        view.setViewName("api-ui");
-        return view;
+    @ResponseBody
+    public Resource getUi() {
+        return new ClassPathResource("index.html", OpenApiController.class);
     }
 
 }
