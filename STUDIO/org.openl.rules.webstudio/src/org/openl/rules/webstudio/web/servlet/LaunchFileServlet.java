@@ -1,12 +1,11 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,38 +21,17 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.FileTypeHelper;
-import org.openl.util.StringUtils;
 
+@WebServlet("/action/launch")
 public class LaunchFileServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
     private transient final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
-
-    /**
-     * Checks if given IP address is a loopback.
-     *
-     * @param ip address to check
-     * @return <code>true</code> if <code>ip</code> represents loopback address, or <code>false</code> otherwise.
-     */
-    public static boolean isLoopbackAddress(String ip) {
-        if (StringUtils.isEmpty(ip)) {
-            return false;
-        }
-        try {
-            InetAddress addr = InetAddress.getByName(ip);
-            return addr != null && addr.isLoopbackAddress();
-        } catch (UnknownHostException e) {
-            Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
-            log.info("Cannot check '{}'.", ip, e);
-            return false;
-        }
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -102,24 +80,6 @@ public class LaunchFileServlet extends HttpServlet {
         if (!FileTypeHelper.isExcelFile(parser.getWbName())) { // Excel
             log.error("Unsupported file format [{}]", parser.getWbName());
             return;
-        }
-
-        String remote = request.getRemoteAddr();
-        // TODO: think about proper implementation
-        // request.getLocalAddr().equals(remote);
-        if (isLoopbackAddress(remote)) { // local mode
-            try {
-                String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
-                ExcelLauncher.launch(excelScriptPath,
-                        parser.getWbPath(),
-                        parser.getWbName(),
-                        parser.getWsName(),
-                        parser.getRange());
-
-                return;
-            } catch (Exception e) {
-                log.info("Cannot launch an excel file", e);
-            }
         }
 
         Path pathToFile = Paths.get(parser.getWbPath(), parser.getWbName());
