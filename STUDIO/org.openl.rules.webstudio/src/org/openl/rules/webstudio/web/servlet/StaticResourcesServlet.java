@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Yury Mmolchan
  */
-@WebServlet({"/css/*", "/icons/*", "/images/*", "/javascript/*", "/favicon.ico", "/favicon.svg"})
+@WebServlet({"/css/*", "/icons/*", "/images/*", "/js/*", "/javascript/*", "/favicon.ico", "/favicon.svg"})
 public class StaticResourcesServlet extends HttpServlet {
 
     @Override
