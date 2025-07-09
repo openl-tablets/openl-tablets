@@ -1,8 +1,5 @@
 package org.openl.rules.spring.openapi.conf;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,11 +21,6 @@ public class SpringMvcOpenApiConfiguration {
     public SpringMvcHandlerMethodsHelper springMvcHandlerMethodsHelper(ApplicationContext context) {
         OpenAPIConfiguration.configure();
         return new SpringMvcHandlerMethodsHelper(context);
-    }
-
-    @Bean("openLRestExceptionBasePackages")
-    public List<String> openLRestExceptionBasePackages() {
-        return Collections.singletonList("org.openl.rules.rest");
     }
 
 }

@@ -20,7 +20,6 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -50,17 +49,15 @@ import org.openl.util.StringUtils;
 @Component
 public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
+    private static final Set<String> ALLOWED_EXCEPTIONS_PACKAGES = Set.of("org.openl.rules.rest");
     private final OpenApiParameterService apiParameterService;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
-    private final List<String> openLRestExceptionBasePackages;
     private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiResponseServiceImpl(OpenApiParameterService apiParameterService,
                                       SpringMvcHandlerMethodsHelper handlerMethodsHelper,
-                                      @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages,
                                       OpenApiPropertyResolver apiPropertyResolver) {
         this.apiParameterService = apiParameterService;
-        this.openLRestExceptionBasePackages = openLRestExceptionBasePackages;
 
         this.exHandlerAdviceCache = handlerMethodsHelper.getControllerAdvices()
                 .values()
@@ -118,7 +115,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             for (var baseException : exHandlerInfo.getHandledExceptions()) {
                 scanner.addIncludeFilter(new AssignableTypeFilter(baseException));
             }
-            for (var basePackage : openLRestExceptionBasePackages) {
+            for (var basePackage : ALLOWED_EXCEPTIONS_PACKAGES) {
                 var candidates = scanner.findCandidateComponents(basePackage);
                 for (var candidate : candidates) {
                     try {
