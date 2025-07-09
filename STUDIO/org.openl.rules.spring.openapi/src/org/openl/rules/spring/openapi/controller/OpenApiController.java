@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
  */
 @Controller
 @RequestMapping("/api-docs")
+@Hidden
 public class OpenApiController {
 
     private final OpenApiServiceImpl openApiService;
