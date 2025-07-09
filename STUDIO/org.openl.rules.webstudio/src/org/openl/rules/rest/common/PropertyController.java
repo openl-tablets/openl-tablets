@@ -65,14 +65,6 @@ public class PropertyController {
         return propertyBean.getDefaultPropertyMap();
     }
 
-    @Operation(summary = "config.download-app-props.summary", description = "config.download-app-props.desc")
-    @GetMapping(value = "/application.properties", produces = "text/plain;charset=UTF-8")
-    public String getApplicationProperties() throws IOException {
-        var baos = new ByteArrayOutputStream();
-        DefaultPropertySource.transferAllOpenLDefaultProperties(baos);
-        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
-    }
-
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @AdminPrivilege
