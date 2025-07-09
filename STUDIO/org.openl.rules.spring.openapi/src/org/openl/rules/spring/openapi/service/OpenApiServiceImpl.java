@@ -2,7 +2,6 @@ package org.openl.rules.spring.openapi.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,14 +19,11 @@ public class OpenApiServiceImpl implements OpenApiService {
 
     private final ApplicationContext context;
     private final OpenApiSpringMvcReader openApiSpringMvcReader;
-    private final Set<Class<?>> ignoreControllers;
     private volatile OpenAPI calculatedOpenApi;
 
     public OpenApiServiceImpl(ApplicationContext context,
-                              OpenApiSpringMvcReader openApiSpringMvcReader,
-                              Set<Class<?>> ignoreControllers) {
+                              OpenApiSpringMvcReader openApiSpringMvcReader) {
         this.context = context;
-        this.ignoreControllers = ignoreControllers;
         this.openApiSpringMvcReader = openApiSpringMvcReader;
     }
 
@@ -41,7 +37,6 @@ public class OpenApiServiceImpl implements OpenApiService {
         Map<String, Class<?>> filteredControllers = controllers.entrySet()
                 .stream()
                 .filter(e -> AnnotationUtils.findAnnotation(e.getValue().getClass(), Hidden.class) == null)
-                .filter(e -> !ignoreControllers.contains(e.getValue().getClass()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getClass(), (a1, a2) -> a1));
 
         openApiSpringMvcReader.read(openApiContext, filteredControllers);
