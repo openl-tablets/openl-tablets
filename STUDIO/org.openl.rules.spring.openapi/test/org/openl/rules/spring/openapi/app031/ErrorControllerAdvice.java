@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import org.openl.rules.spring.openapi.app031.exception.ForbiddenException;
-import org.openl.rules.spring.openapi.app031.exception.NotFoundException;
+import org.openl.rules.rest.exception.ForbiddenException;
+import org.openl.rules.rest.exception.NotFoundException;
 
 @ControllerAdvice
 public class ErrorControllerAdvice extends ResponseEntityExceptionHandler {
