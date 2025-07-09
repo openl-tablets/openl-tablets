@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
+import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReaderImpl;
 
 /**
  * OpenAPI Controller
@@ -17,10 +17,11 @@ import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
 @Hidden
 public class OpenApiController {
 
-    private final OpenApiServiceImpl openApiService;
+    private final OpenApiSpringMvcReaderImpl openApiSpringMvcReader;
+    private volatile String openApi;
 
-    public OpenApiController(OpenApiServiceImpl openApiService) {
-        this.openApiService = openApiService;
+    public OpenApiController(OpenApiSpringMvcReaderImpl openApiSpringMvcReader) {
+        this.openApiSpringMvcReader = openApiSpringMvcReader;
     }
 
     /**
@@ -31,7 +32,14 @@ public class OpenApiController {
     @GetMapping(value = "/openapi.json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String openApi() {
-        return openApiService.getCalculatedOpenApi();
+        if (openApi == null) {
+            synchronized (this) {
+                if (openApi == null) {
+                    openApi = openApiSpringMvcReader.read();
+                }
+            }
+        }
+        return openApi;
     }
 
     /**

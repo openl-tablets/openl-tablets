@@ -16,7 +16,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,7 +31,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -52,7 +53,7 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
+public class OpenApiSpringMvcReaderImpl {
 
     private final SpringMvcHandlerMethodsHelper handlerMethodsHelper;
     private final OpenApiResponseService apiResponseService;
@@ -77,12 +78,9 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
 
     /**
      * Read OpenAPI schema for controllers from list
-     *
-     * @param openApiContext current OpenAPI context
-     * @param controllers    included Spring Controllers
      */
-    @Override
-    public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
+    public String read() {
+        OpenApiContext openApiContext = new OpenApiContext();
         apiSecurityService.generateGlobalSecurity(openApiContext);
         var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
                 .values()
@@ -92,7 +90,7 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         handlerMethodsHelper.getHandlerMethods()
                 .entrySet()
                 .stream()
-                .filter(e -> isRestControllers(e.getValue(), controllers))
+                .filter(e -> isRestControllers(e.getValue()))
                 .forEach(e -> visitHandlerMethod(openApiContext,
                         e.getKey(),
                         e.getValue(),
@@ -100,6 +98,12 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
 
         if (openApiContext.getOpenAPI().getTags() != null) {
             openApiContext.getOpenAPI().getTags().sort(Comparator.comparing(Tag::getName));
+        }
+
+        try {
+            return Json.mapper().writeValueAsString(openApiContext.getOpenAPI());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to copy calculated OpenAPI schema", e);
         }
     }
 
@@ -386,9 +390,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
                 .collect(Collectors.toSet());
     }
 
-    private static boolean isRestControllers(HandlerMethod method, Map<String, Class<?>> controllers) {
-        return isRestController(method.getBeanType()) && ClassUtils.getUserClass(
-                controllers.get(method.getBean().toString())) == method.getBeanType() && hasResponseBody(method);
+    private static boolean isRestControllers(HandlerMethod method) {
+        return isRestController(method.getBeanType()) && hasResponseBody(method);
     }
 
     private static boolean isRestController(Class<?> cl) {
