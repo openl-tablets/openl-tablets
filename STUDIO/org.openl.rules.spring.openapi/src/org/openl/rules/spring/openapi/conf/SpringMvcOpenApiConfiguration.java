@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
-import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
-import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
 
 /**
  * Main Spring Configuration for Spring OpenAPI Generator
@@ -24,14 +22,8 @@ public class SpringMvcOpenApiConfiguration {
 
     @Bean
     public SpringMvcHandlerMethodsHelper springMvcHandlerMethodsHelper(ApplicationContext context) {
-        return new SpringMvcHandlerMethodsHelper(context);
-    }
-
-    @Bean
-    public OpenApiServiceImpl openApiService(ApplicationContext context,
-                                             OpenApiSpringMvcReader openApiSpringMvcReader) {
         OpenAPIConfiguration.configure();
-        return new OpenApiServiceImpl(context, openApiSpringMvcReader);
+        return new SpringMvcHandlerMethodsHelper(context);
     }
 
     @Bean("openLRestExceptionBasePackages")
