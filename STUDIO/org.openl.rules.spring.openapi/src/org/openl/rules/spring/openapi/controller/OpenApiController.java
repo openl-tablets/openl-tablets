@@ -6,7 +6,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
@@ -15,7 +14,6 @@ import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
  * OpenAPI Controller
  */
 @Controller
-@RequestMapping("/api-docs")
 @Hidden
 public class OpenApiController {
 
@@ -41,7 +39,7 @@ public class OpenApiController {
      *
      * @return model and view for UI
      */
-    @GetMapping
+    @GetMapping(value = "/api-docs", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public Resource getUi() {
         return new ClassPathResource("index.html", OpenApiController.class);
