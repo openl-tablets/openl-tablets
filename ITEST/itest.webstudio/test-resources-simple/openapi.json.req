@@ -1,2 +1,2 @@
-GET /rest/api-docs/openapi.json HTTP/1.1
+GET /rest/openapi.json HTTP/1.1
 
