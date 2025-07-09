@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
-import org.openl.rules.spring.openapi.controller.OpenApiController;
 import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
 import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
 
@@ -32,7 +31,7 @@ public class SpringMvcOpenApiConfiguration {
     public OpenApiServiceImpl openApiService(ApplicationContext context,
                                              OpenApiSpringMvcReader openApiSpringMvcReader) {
         OpenAPIConfiguration.configure();
-        return new OpenApiServiceImpl(context, openApiSpringMvcReader, Collections.singleton(OpenApiController.class));
+        return new OpenApiServiceImpl(context, openApiSpringMvcReader);
     }
 
     @Bean("openLRestExceptionBasePackages")
