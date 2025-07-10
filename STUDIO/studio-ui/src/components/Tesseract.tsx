@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 
 // The main Tesseract animation component with optional props for size and speed
-const Tesseract = ({size = 100, speed = 0.0015}: { size?: number; speed?: number }) => {
+const TesseractCanvas = ({size = 100, speed = 0.0015}: { size?: number; speed?: number }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // useEffect hook runs after the component mounts to setup the animation
@@ -173,4 +173,19 @@ const Tesseract = ({size = 100, speed = 0.0015}: { size?: number; speed?: number
     return <canvas ref={canvasRef}/>;
 };
 
-export default Tesseract;
+export default function Tesseract() {
+    return (
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                width: '100vw',
+                backgroundColor: 'white'
+            }}
+        >
+            <TesseractCanvas size={350} speed={0.0015} />
+        </div>
+    );
+}
