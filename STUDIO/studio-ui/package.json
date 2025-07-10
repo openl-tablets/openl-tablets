@@ -5,24 +5,62 @@
   "proxy": "http://localhost:8080",
   "homepage": "/",
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@ant-design/icons": "^6.0.0",
+    "@eslint/js": "^9.30.1",
+    "antd": "^5.26.4",
+    "i18next": "^25.3.1",
+    "path-browserify": "^1.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.6.0",
+    "react-router-dom": "^7.6.3",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@babel/core": "7.28.0",
     "@babel/preset-react": "7.27.1",
     "@babel/preset-typescript": "7.27.1",
+    "@stylistic/eslint-plugin-jsx": "^4.4.1",
+    "@types/node": "^24.0.10",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
     "babel-loader": "10.0.0",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
+    "husky": "^9.1.7",
     "license-checker-rseidelsohn": "^4.4.2",
+    "postcss-scss": "^4.0.9",
+    "sass": "^1.89.2",
+    "sass-loader": "^16.0.5",
+    "serve": "^14.2.4",
+    "style-loader": "^4.0.0",
+    "stylelint": "^16.21.1",
+    "stylelint-config-standard": "^38.0.0",
     "tsconfig-paths-webpack-plugin": "4.2.0",
     "typescript": "^5.8.3",
+    "web-vitals": "^5.0.3",
     "webpack": "^5.100.2",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "^5.2.2"
   },
   "scripts": {
     "start": "webpack-cli serve --stats-error-details",
-    "build": "NODE_ENV=production && license-checker-rseidelsohn --onlyAllow 'MIT' --production --excludePrivatePackages && webpack --mode production --config webpack.production.config.js",
+    "build": "NODE_ENV=production && license-checker-rseidelsohn --onlyAllow 'MIT;Apache-2.0' --production --excludePrivatePackages && webpack --mode production --config webpack.production.config.js",
+    "serve": "serve dist -p 3002",
+    "clean": "rm -rf dist",
+    "lint": "eslint ./src && stylelint '**/*.scss'",
+    "lint:fix": "eslint ./src --fix && stylelint '**/*.scss' --fix",
     "test": "exit 0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:fix",
+      "pre-push": "npm run lint"
+    }
   },
   "browserslist": {
     "production": [
