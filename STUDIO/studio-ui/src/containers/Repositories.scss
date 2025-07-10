@@ -1,0 +1,42 @@
+.ant-tabs.repositories-tabs {
+  button.ant-tabs-nav-add {
+    border: none;
+    margin-top: 15px;
+
+    span.anticon {
+      margin-right: 5px;
+    }
+  }
+
+  >.ant-tabs-nav {
+    width: 250px;
+
+    .ant-tabs-nav-add {
+      text-transform: capitalize;
+      text-align: left;
+      font-weight: bold;
+
+      > span.anticon {
+        font-size: 16px;
+      }
+    }
+
+    .ant-tabs-tab.ant-tabs-tab-with-remove {
+      justify-content: space-between;
+
+      .ant-tabs-tab-btn {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .ant-tabs-tab-remove {
+        display: none;
+      }
+
+      &:hover .ant-tabs-tab-remove{
+        display: flex;
+      }
+    }
+  }
+}

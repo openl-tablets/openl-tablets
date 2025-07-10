@@ -1,0 +1,53 @@
+import React from 'react'
+import { Button } from 'antd'
+import Logo from '../components/Logo'
+
+const containerStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: 'linear-gradient(135deg, #f0f4fa 0%, #e9effa 100%)',
+}
+
+const cardStyle: React.CSSProperties = {
+    background: '#fff',
+    padding: '48px 40px',
+    borderRadius: 16,
+    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    maxWidth: 400,
+    width: '100%',
+}
+
+const codeStyle: React.CSSProperties = {
+    fontSize: 72,
+    fontWeight: 700,
+    color: '#1763C6',
+    marginBottom: 8,
+}
+
+const messageStyle: React.CSSProperties = {
+    fontSize: 20,
+    color: '#333',
+    marginBottom: 24,
+    textAlign: 'center',
+}
+
+const Forbidden = () => {
+    return (
+        <div style={containerStyle}>
+            <div style={cardStyle}>
+                <Logo height={72} width={72} />
+                <div style={codeStyle}>403</div>
+                <div style={messageStyle}>Access denied.<br />Log out and use another credentials.</div>
+                <Button href="/logout" size="large" type="primary">Log out</Button>
+            </div>
+        </div>
+    )
+}
+
+export default Forbidden

@@ -15,33 +15,34 @@
 
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base href="${contextPath}/"/>
 
-    <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-    <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/common.css?10" rel="stylesheet" />
-    <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/rulesDependencies.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/jquery-editable-select.min.css" rel="stylesheet" />
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/common.css?10" rel="stylesheet" />
+    <link href="css/layout/main.css" rel="stylesheet" />
+    <link href="css/jquery.popup.css" rel="stylesheet" />
+    <link href="css/jquery.multiselect.css" rel="stylesheet" />
+    <link href="css/rulesDependencies.css" rel="stylesheet" />
+    <link href="css/jquery-editable-select.min.css" rel="stylesheet" />
 
-    <link href="#{contextPath}/webresource/css/tableeditor.min.css" rel="stylesheet" />
+    <link href="webresource/css/tableeditor.min.css" rel="stylesheet" />
 
-    <script src="#{contextPath}/javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
-    <script src="#{contextPath}/javascript/vendor/jquery-3.7.1.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery-back-compat.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
-    <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/signals.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/crossroads.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery-ui-1.13.2.min.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery.layout.js?1"></script>
-    <script src="#{contextPath}/javascript/jquery.popup.js"></script>
-    <script src="#{contextPath}/javascript/jquery.multiselect.js?1"></script>
-    <script src="#{contextPath}/javascript/bomjs.js"></script>
-    <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jquery-editable-select.min.js?1"></script>
+    <script src="javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="javascript/vendor/jquery-3.7.1.min.js"></script>
+    <script src="javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
+    <script src="javascript/vendor/jquery-back-compat.js"></script>
+    <script src="javascript/vendor/jquery.are-you-sure.js"></script>
+    <script src="javascript/vendor/bootstrap.min.js"></script>
+    <script src="javascript/vendor/signals.min.js"></script>
+    <script src="javascript/vendor/crossroads.min.js"></script>
+    <script src="javascript/vendor/jquery-ui-1.13.2.min.js"></script>
+    <script src="javascript/vendor/jquery.layout.js?1"></script>
+    <script src="javascript/jquery.popup.js"></script>
+    <script src="javascript/jquery.multiselect.js?1"></script>
+    <script src="javascript/bomjs.js"></script>
+    <script src="javascript/vendor/response-monitor.js"></script>
+    <script src="javascript/vendor/jquery-editable-select.min.js?1"></script>
 
     <h:outputScript name="faces.js" library="jakarta.faces" />
 
@@ -1097,7 +1098,7 @@
 
         $j(function () {
             fixRichFaces();
-            const needRedirect = #{studio.needRedirect};
+            const needRedirect = "#{studio.needRedirect}" === "true";
             if (needRedirect) {
                 ws.nav.go("#{studio.url()}", true);
             }
@@ -1128,14 +1129,11 @@
 </h:head>
 
 <h:body style="visibility: hidden">
+    <div id="appRoot" style="min-height: 48.5px"></div>
+    <script src="#{environment.getProperty('_REACT_UI_ROOT_', request.contextPath.concat('/js'))}/main.js"></script>
+
     <script src="#{contextPath}/webresource/js/prototype/prototype-1.7.3.js"></script>
     <script src="#{contextPath}/webresource/js/tableeditor.min.js?1"></script>
-
-    <div id="header">
-        <ui:include src="/pages/common/header.xhtml">
-            <ui:param name="menu" value="rules" />
-        </ui:include>
-    </div>
 
     <div id="top"></div>
 
@@ -1155,10 +1153,6 @@
             <span id="east-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
             <div id="rightContent"></div>
         </div>
-    </div>
-
-    <div id="footer">
-        <ui:include src="/pages/common/footer.xhtml" />
     </div>
 
     <div id="loadingPanel" style="display: none">

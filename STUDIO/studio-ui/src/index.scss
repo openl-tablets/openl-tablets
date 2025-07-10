@@ -1,0 +1,26 @@
+html, body {
+  //font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+  //font-size: 14px;
+  //line-height: 22px;
+  color: rgb(0 0 0 / 88%);
+  margin: 0;
+}
+
+// Ant Design Modal
+.ant-modal .ant-modal-content {
+  max-height: 80vh;
+  overflow: auto;
+}
+
+// Ant Design Table
+.ant-dropdown.table-actions-dropdown {
+  .ant-dropdown-menu-item {
+    padding: 0;
+
+    button {
+      width: 100%;
+      // margin: 5px 12px;
+      justify-content: left;
+    }
+  }
+}
