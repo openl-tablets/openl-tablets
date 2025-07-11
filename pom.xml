@@ -189,6 +189,9 @@
         <istack.version>3.0.12</istack.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
+        <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
+        <bun.version>v1.2.18</bun.version>
+
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
@@ -431,6 +434,15 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>${frontend-maven-plugin.version}</version>
+                    <configuration>
+                        <bunVersion>${bun.version}</bunVersion>
+                        <installDirectory>${project.build.directory}</installDirectory>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1605,6 +1617,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.project.openapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.studio</groupId>
+                <artifactId>studio-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
