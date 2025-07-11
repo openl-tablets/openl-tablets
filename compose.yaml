@@ -26,6 +26,7 @@ services:
       DB_PASSWORD: s3cr3t
       SECURITY_ADMINISTRATORS: admin
       JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
+#      _REACT_UI_ROOT_: http://localhost:3100
     depends_on:
       postgres:
         condition: service_healthy
