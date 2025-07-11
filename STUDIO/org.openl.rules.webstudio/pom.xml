@@ -335,6 +335,10 @@
             <artifactId>org.openl.rules.webstudio.ai</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules.studio</groupId>
+            <artifactId>studio-ui</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>

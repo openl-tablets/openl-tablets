@@ -1,0 +1,39 @@
+{
+  "name": "studio-ui",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:8080",
+  "homepage": "/",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "7.27.1",
+    "@babel/preset-typescript": "7.27.1",
+    "babel-loader": "10.0.0",
+    "license-checker-rseidelsohn": "^4.4.2",
+    "tsconfig-paths-webpack-plugin": "4.2.0",
+    "typescript": "^5.8.3",
+    "webpack": "^5.100.2",
+    "webpack-cli": "6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "scripts": {
+    "start": "webpack-cli serve --stats-error-details",
+    "build": "NODE_ENV=production && license-checker-rseidelsohn --onlyAllow 'MIT' --production --excludePrivatePackages && webpack --mode production --config webpack.production.config.js",
+    "test": "exit 0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

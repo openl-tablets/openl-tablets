@@ -30,3 +30,10 @@ target
 # Logs
 logs
 *.log
+
+# node.js
+node_modules
+dist
+
+# Ignore bun artifacts, we already have npm package-lock.json
+bun.lock

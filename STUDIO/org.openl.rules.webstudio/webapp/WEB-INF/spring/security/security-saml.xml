@@ -24,6 +24,7 @@
             <security:filter-chain pattern="/icons/**" filters="none"/>
             <security:filter-chain pattern="/images/**" filters="none"/>
             <security:filter-chain pattern="/javascript/**" filters="none"/>
+            <security:filter-chain pattern="/js/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
             <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
