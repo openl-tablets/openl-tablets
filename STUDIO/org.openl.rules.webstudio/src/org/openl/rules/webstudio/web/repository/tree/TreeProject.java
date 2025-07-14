@@ -11,9 +11,9 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 /**

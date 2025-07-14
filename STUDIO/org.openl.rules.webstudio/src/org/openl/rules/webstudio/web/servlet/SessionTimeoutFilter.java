@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.filter;
+package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
 import java.util.Objects;

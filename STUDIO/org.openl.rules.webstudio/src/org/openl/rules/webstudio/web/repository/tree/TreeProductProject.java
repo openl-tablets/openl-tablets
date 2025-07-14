@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 public class TreeProductProject extends TreeProductFolder {

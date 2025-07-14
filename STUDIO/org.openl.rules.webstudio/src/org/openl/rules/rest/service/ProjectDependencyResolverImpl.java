@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Service
