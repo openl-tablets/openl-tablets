@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.filter;
+package org.openl.rules.webstudio.web.repository;
 
 /**
  * Base interface for filters.

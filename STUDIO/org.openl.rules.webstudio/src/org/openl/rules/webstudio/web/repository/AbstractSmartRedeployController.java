@@ -34,7 +34,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.WebStudioFormats;

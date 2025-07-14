@@ -1,4 +1,4 @@
-package org.openl.rules.project.resolving;
+package org.openl.rules.webstudio.web.repository;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -18,6 +18,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
