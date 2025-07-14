@@ -9,8 +9,6 @@ i18next.addResourceBundle('en', 'system', {
     reset_settings: 'Reset Settings',
     restore_defaults_warning: '<0>WARNING!</0> If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.',
     restore_defaults_and_restart: 'Restore Defaults and Restart',
-    user_workspace: 'User Workspace',
-    workspace_directory: 'Workspace Directory',
     history: 'History',
     maximum_count_of_changes: 'The maximum count of saved changes for each project per user',
     clear_all_history: 'Clear All History',

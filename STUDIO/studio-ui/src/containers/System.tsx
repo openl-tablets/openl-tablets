@@ -14,7 +14,6 @@ interface SystemSettings {
     testRunThreadCount: number
     timeFormat: string
     updateSystemProperties: boolean
-    userWorkspaceHome: string
     db: {
         maximumPoolSize: number
         password: string
@@ -127,11 +126,6 @@ export const System: React.FC = () => {
             <InputNumber
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
-            />
-            <Divider orientation="left">{t('system:user_workspace')}</Divider>
-            <Input
-                label={t('system:workspace_directory')}
-                name="userWorkspaceHome"
             />
             <Divider orientation="left">{t('system:history')}</Divider>
             <InputNumber
