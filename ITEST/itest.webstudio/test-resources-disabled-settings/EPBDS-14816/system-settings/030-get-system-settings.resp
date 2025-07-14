@@ -2,10 +2,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "userWorkspaceHome": {
-    "value": "openl-repository/workspace",
-    "readOnly": true
-  },
   "projectHistoryCount": {
     "value": 99,
     "readOnly": true
