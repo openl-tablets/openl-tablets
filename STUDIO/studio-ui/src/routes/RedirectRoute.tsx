@@ -15,9 +15,6 @@ export const RedirectRoute: React.FC<RedirectRouteProps> = ({ to }) => {
     if (page === 'editor') {
         window.location.href = CONFIG.CONTEXT + '/'
         return null
-    } else if (page === 'login') {
-        window.location.href = CONFIG.CONTEXT + '/faces/pages/login.xhtml'
-        return null
     } else if (to === 'logout') {
         window.location.href = CONFIG.CONTEXT + systemSettings.entrypoint.logoutUrl
         return null

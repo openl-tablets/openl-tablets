@@ -1,10 +1,13 @@
 import { notification } from 'antd'
 import CONFIG from './config'
+import { useAppStore } from 'store'
 
 const fetchInitialConfig = {
     method: 'GET',
     headers: new Headers(),
 }
+
+const appStore = useAppStore.getState()
 
 const apiCall = async (url: string, params?: RequestInit, throwError = false) => {
     const responseParams = {
@@ -24,8 +27,19 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
                 return response.text()
             } else if (status > 200 && status < 300) {
                 return true
+            }
+            else if (status === 401) {
+                appStore.setShowLogin(true)
+                throw new Error('Unauthorized! Please log in.')
+            } else if (status === 403) {
+                appStore.setShowForbidden(true)
+                throw new Error('Forbidden! You do not have permission to access this resource.')
             } else if (status === 404) {
+                appStore.setShowNotFound(true)
                 throw new Error('Page not found!')
+            } else if (status === 500) {
+                appStore.setShowServerError(true)
+                throw new Error('Internal server error! Please try again later.')
             } else {
                 await response.json().then((data: any) => {
                     if (data.fields) {

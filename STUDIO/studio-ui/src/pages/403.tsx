@@ -37,7 +37,7 @@ const messageStyle: React.CSSProperties = {
     textAlign: 'center',
 }
 
-export const Forbidden = () => {
+const Forbidden = () => {
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>

@@ -19,6 +19,7 @@ import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
 import ServerError from '../pages/500'
+import LoginPage from '../pages/LoginPage'
 
 const router = createBrowserRouter([
     {
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
                 element: <Tesseract size={400} />
             }
         ],
+    },
+    {
+        path: '/login',
+        element: <LoginPage />,
     },
     {
         path: '/logout',
