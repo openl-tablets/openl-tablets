@@ -59,14 +59,6 @@ public class SystemSettingsValidator {
         }
     }
 
-    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        WebStudioValidationUtils.directoryValidator(value, "Workspace Directory");
-    }
-
-    public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        WebStudioValidationUtils.directoryValidator(value, "History Directory");
-    }
-
     public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String errorMessage = null;
         String count = (String) value;
