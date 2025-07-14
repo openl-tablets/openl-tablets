@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.web.repository.tree.RepositoryFolderNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;

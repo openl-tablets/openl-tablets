@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.filter;
+package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
 import javax.servlet.Filter;
@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.env.Environment;
 
-import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 import org.openl.util.StringUtils;
 
 @WebFilter("/*")

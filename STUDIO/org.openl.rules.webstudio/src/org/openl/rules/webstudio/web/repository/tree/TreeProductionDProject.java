@@ -13,7 +13,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
-import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 

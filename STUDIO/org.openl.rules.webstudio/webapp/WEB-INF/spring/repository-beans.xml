@@ -72,7 +72,7 @@
     </bean>
 
     <bean id="projectDescriptorArtefactResolver"
-          class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
+          class="org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver"/>
 
     <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
         <constructor-arg ref="environment"/>

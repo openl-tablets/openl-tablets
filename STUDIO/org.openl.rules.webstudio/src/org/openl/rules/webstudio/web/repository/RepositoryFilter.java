@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.webstudio.filter.IFilter;
 
 class RepositoryFilter implements IFilter<AProjectArtefact> {
     private final String repositoryId;

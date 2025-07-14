@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.webstudio.filter.AllFilter;
+import org.openl.rules.webstudio.web.repository.AllFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.SelectFolderBean;
 

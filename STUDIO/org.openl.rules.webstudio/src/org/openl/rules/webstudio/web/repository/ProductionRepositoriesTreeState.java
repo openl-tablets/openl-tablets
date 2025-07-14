@@ -21,8 +21,6 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.webstudio.filter.AllFilter;
-import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
