@@ -26,6 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import org.openl.info.OpenLInfoLogger;
 import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.webstudio.Migrator;
@@ -136,6 +137,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        OpenLInfoLogger.memStat();
         ServletContext servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
         servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
