@@ -6,7 +6,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.TIME_PATTERN;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -116,14 +115,6 @@ public class SystemSettingsBean {
 
     public boolean isHasMessages() {
         return FacesContext.getCurrentInstance().getMaximumSeverity() != null;
-    }
-
-    public String getUserWorkspaceHome() {
-        return properties.getProperty(USER_WORKSPACE_HOME);
-    }
-
-    public void setUserWorkspaceHome(String userWorkspaceHome) {
-        properties.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {

@@ -20,7 +20,6 @@ import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.rest.settings.model.validation.DatePatternConstraint;
 import org.openl.rules.rest.settings.model.validation.TimePatternConstraint;
-import org.openl.rules.rest.settings.model.validation.WriteDirectoryConstraint;
 
 /**
  * The class contains system settings property names for settings edited in "Administration" page.
@@ -41,11 +40,6 @@ public final class AdministrationSettings implements SettingsHolder {
 
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
     public static final String AUTO_COMPILE = "compile.auto";
-
-    @Parameter(description = "User Workspace Home.")
-    @WriteDirectoryConstraint(directoryType = "Workspace Directory")
-    @SettingPropertyName(USER_WORKSPACE_HOME)
-    private String userWorkspaceHome;
 
     @Parameter(description = "The maximum count of saved changes for each project per user.")
     @Min(0)
@@ -121,15 +115,6 @@ public final class AdministrationSettings implements SettingsHolder {
         db = new DBSettings();
     }
 
-
-    public String getUserWorkspaceHome() {
-        return userWorkspaceHome;
-    }
-
-    public void setUserWorkspaceHome(String userWorkspaceHome) {
-        this.userWorkspaceHome = userWorkspaceHome;
-    }
-
     public Integer getProjectHistoryCount() {
         return projectHistoryCount;
     }
@@ -196,7 +181,6 @@ public final class AdministrationSettings implements SettingsHolder {
 
     @Override
     public void load(PropertiesHolder properties) {
-        userWorkspaceHome = properties.getProperty(USER_WORKSPACE_HOME);
         projectHistoryCount = Optional.ofNullable(properties.getProperty(PROJECT_HISTORY_COUNT))
                 .map(Integer::parseInt)
                 .orElse(null);
@@ -219,7 +203,6 @@ public final class AdministrationSettings implements SettingsHolder {
 
     @Override
     public void store(PropertiesHolder properties) {
-        properties.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
         properties.setProperty(PROJECT_HISTORY_COUNT, projectHistoryCount);
         properties.setProperty(DATE_PATTERN, datePattern);
         properties.setProperty(TIME_PATTERN, timeFormat);
