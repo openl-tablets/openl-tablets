@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.webstudio.filter.IFilter;
 
 class AndFilterIfSupport implements IFilter<AProjectArtefact> {
     private final IFilter<AProjectArtefact> filter1;

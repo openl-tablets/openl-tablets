@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.IFilter;
 import org.openl.rules.webstudio.web.ErrorsContainer;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;

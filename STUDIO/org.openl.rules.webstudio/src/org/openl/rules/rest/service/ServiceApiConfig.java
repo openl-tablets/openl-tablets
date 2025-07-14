@@ -10,7 +10,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.WebApplicationContext;
 
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
