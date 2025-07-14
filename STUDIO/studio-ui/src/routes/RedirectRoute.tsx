@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
-import { NoMatch } from './NoMatch'
+import NotFound from '../pages/404'
 import { SystemContext } from '../contexts'
 import { CONFIG } from '../services'
 
@@ -23,6 +23,6 @@ export const RedirectRoute: React.FC<RedirectRouteProps> = ({ to }) => {
         return null
 
     } else {
-        return <NoMatch />
+        return <NotFound />
     }
 }

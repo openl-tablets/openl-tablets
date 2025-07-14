@@ -1,17 +1,18 @@
 import React, { useContext, useMemo } from 'react'
-import { Button, Divider, Form, Row } from 'antd'
+import { Button, Divider, Form, notification, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, WIDTH_OF_FORM_LABEL } from 'constants/'
-import { SystemContext, UserContext } from '../contexts'
+import { SystemContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
+import { useUserStore } from 'store'
 
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(SystemContext)
-    const { userProfile, fetchUserProfile } = useContext(UserContext)
+    const { userProfile, fetchUserProfile } = useUserStore()
 
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
@@ -36,7 +37,8 @@ export const UserProfile: React.FC = () => {
                 },
                 body: JSON.stringify(body)
             })
-            fetchUserProfile()
+            await fetchUserProfile()
+            notification.success({ message: t('user:user_profile_updated_successfully') })
         } catch (error) {
             console.error('error', error)
         }
@@ -44,23 +46,23 @@ export const UserProfile: React.FC = () => {
 
     const initialValues = useMemo(() => {
         const displayNameSelectInitialValue = () => {
-            const firstName = userProfile.firstName || ''
-            const lastName = userProfile.lastName || ''
-            if (userProfile.displayName === `${firstName} ${lastName}`.trim()) {
+            const firstName = userProfile?.firstName || ''
+            const lastName = userProfile?.lastName || ''
+            if (userProfile?.displayName === `${firstName} ${lastName}`.trim()) {
                 return DisplayUserName.FirstLast
             }
-            if (userProfile.displayName === `${lastName} ${firstName}`.trim()) {
+            if (userProfile?.displayName === `${lastName} ${firstName}`.trim()) {
                 return DisplayUserName.LastFirst
             }
             return DisplayUserName.Other
         }
 
         return {
-            username: userProfile.username,
-            email: userProfile.email,
-            firstName: userProfile.firstName || '',
-            lastName: userProfile.lastName || '',
-            displayName: userProfile.displayName,
+            username: userProfile?.username,
+            email: userProfile?.email,
+            firstName: userProfile?.firstName || '',
+            lastName: userProfile?.lastName || '',
+            displayName: userProfile?.displayName,
             displayNameSelect: displayNameSelectInitialValue(),
         }
     }, [userProfile])
@@ -74,7 +76,7 @@ export const UserProfile: React.FC = () => {
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >
-            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile.externalFlags} isNewUser={false} />
+            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} />
             {!isExternalAuthSystem && (
                 <>
                     <Divider orientation="left">{t('user:profile.change_password')}</Divider>

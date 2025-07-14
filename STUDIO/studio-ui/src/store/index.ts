@@ -1,13 +1,7 @@
-import store, { RootState } from './store'
-import { useAppDispatch, useAppSelector } from './hooks'
-
-export default store
+import { useNotificationStore } from './notificationStore'
+import { useUserStore } from './userStore'
 
 export {
-    useAppDispatch,
-    useAppSelector
-}
-
-export type {
-    RootState
+    useNotificationStore,
+    useUserStore
 }

@@ -455,8 +455,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                             {t('groups:cancel')}
                         </Button>
                         <Button
-                            type="primary"
                             onClick={form.submit}
+                            type="primary"
                         >
                             {isNewGroup ? t('common:btn.invite') : t('common:btn.save')}
                         </Button>

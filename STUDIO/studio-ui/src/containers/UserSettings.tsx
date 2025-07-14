@@ -1,22 +1,22 @@
-import React, { useContext, useMemo } from 'react'
-import { Button, Divider, Form, Row } from 'antd'
+import React, { useMemo } from 'react'
+import { Button, Divider, Form, notification, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
-import { UserContext } from '../contexts'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
+import { useUserStore } from 'store'
 
 export const UserSettings: React.FC = () => {
     const { t } = useTranslation()
-    const { userProfile, loadUserProfile } = useContext(UserContext)
+    const { userProfile, fetchUserProfile } = useUserStore()
 
     const treeViewOptions = useMemo(() =>
-        userProfile.profiles?.map((profile) => ({
+        userProfile?.profiles?.map((profile) => ({
             value: profile.name,
             label: profile.displayName,
         })) || [],
-    [userProfile.profiles])
+    [userProfile])
 
     const testsPerPageOptions = [
         {
@@ -57,7 +57,8 @@ export const UserSettings: React.FC = () => {
                 },
                 body: JSON.stringify(body)
             })
-            loadUserProfile()
+            await fetchUserProfile()
+            notification.success({ message: t('user:user_settings_updated_successfully') })
         } catch (error) {
             console.error('error', error)
         }

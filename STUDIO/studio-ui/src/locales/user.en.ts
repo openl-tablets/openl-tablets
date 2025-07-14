@@ -26,4 +26,6 @@ i18next.addResourceBundle('en', 'user', {
         trace_settings: 'Trace Settings',
         show_numbers_without_formatting: 'Show Numbers Without Formatting',
     },
+    user_profile_updated_successfully: 'User profile updated successfully',
+    user_settings_updated_successfully: 'User settings updated successfully',
 })

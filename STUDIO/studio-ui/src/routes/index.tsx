@@ -1,6 +1,6 @@
 import React from 'react'
 import { createBrowserRouter } from 'react-router-dom'
-import { Notification } from 'containers/notification'
+import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
@@ -16,6 +16,9 @@ import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { CONFIG } from '../services'
+import Forbidden from '../pages/403'
+import NotFound from '../pages/404'
+import ServerError from '../pages/500'
 
 const router = createBrowserRouter([
     {
@@ -24,6 +27,22 @@ const router = createBrowserRouter([
         children: [
             {
                 path: 'faces/*', // To integrate with JSF Repository and Editor tabs
+            },
+            {
+                path: 'help',
+                element: <Help />,
+            },
+            {
+                path: 'forbidden',
+                element: <Forbidden />,
+            },
+            {
+                path: 'not-found',
+                element: <NotFound />,
+            },
+            {
+                path: 'server-error',
+                element: <ServerError />,
             },
             {
                 path: 'administration',
@@ -79,10 +98,6 @@ const router = createBrowserRouter([
                         ],
                     },
                 ],
-            },
-            {
-                path: 'help',
-                element: <Help />,
             },
             {
                 path: '*',

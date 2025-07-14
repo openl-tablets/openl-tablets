@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
 import { Link } from 'react-router-dom'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { CONFIG } from '../services'
 
 const documentationItems = [
     'Installation Guide',
@@ -36,7 +35,7 @@ export const Help: React.FC = () => {
                 </Col>
             </Row>
             <Row gutter={[24, 24]} style={{ padding: '24px 50px' }}>
-                <Col xs={24} sm={12} md={8}>
+                <Col md={8} sm={12} xs={24}>
                     <Card
                         bordered
                         title={(
@@ -57,7 +56,7 @@ export const Help: React.FC = () => {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={8}>
+                <Col md={8} sm={12} xs={24}>
                     <Card
                         bordered
                         title={(
@@ -72,7 +71,7 @@ export const Help: React.FC = () => {
                         <Link rel="noopener noreferrer" target="_blank" to="/rest/api-docs">Internal REST API Documentation</Link>
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={8}>
+                <Col md={8} sm={12} xs={24}>
                     <Card
                         bordered
                         title={(
@@ -87,7 +86,7 @@ export const Help: React.FC = () => {
                         <Link rel="noopener noreferrer" target="_blank" to="https://github.com/openl-tablets/openl-tablets/issues/">Report a Problem</Link>
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={8}>
+                <Col md={8} sm={12} xs={24}>
                     <Card
                         bordered
                         title={(

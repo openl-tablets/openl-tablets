@@ -6,8 +6,9 @@ import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOu
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { PermissionContext, SystemContext, UserContext } from '../../contexts'
+import { PermissionContext, SystemContext } from '../../contexts'
 import { CONFIG } from '../../services'
+import { useUserStore } from 'store'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -18,7 +19,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { pathname } = useLocation()
-    const { userProfile } = useContext(UserContext)
+    const userProfile = useUserStore(state => state.userProfile)
     const { hasAdminPermission } = useContext(PermissionContext)
     const { appVersion, systemSettings } = useContext(SystemContext)
 
@@ -32,11 +33,11 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             <Col>
                 <div className="user-menu-title">
                     <div className="user-menu-title-username">
-                        {userProfile.username}
+                        {userProfile?.username}
                     </div>
                     <div className="user-menu-title-email">
                         <Typography.Text style={{ fontWeight: 500 }} type="secondary">
-                            {userProfile.email}
+                            {userProfile?.email}
                         </Typography.Text>
                     </div>
                 </div>

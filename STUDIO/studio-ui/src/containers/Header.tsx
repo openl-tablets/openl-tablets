@@ -9,8 +9,7 @@ import Logo from './header/Logo'
 import { CONFIG } from '../services'
 import { SystemContext } from '../contexts'
 import { useScript } from '../hooks'
-import { useSelector } from 'react-redux'
-import { RootState } from '../store'
+import { useNotificationStore } from 'store'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -27,6 +26,7 @@ export const Header = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [activeKey, setActiveKey] = useState(window.location.pathname)
     const { systemSettings } = useContext(SystemContext)
+    const { notification } = useNotificationStore()
     useScript(systemSettings?.scripts)
 
     const onOpenUserMenu = useCallback(() => {
@@ -48,24 +48,22 @@ export const Header = () => {
         }
     ]
 
-    const goTo = (key = '/') => {
+    const goTo = (key = `${CONFIG.CONTEXT}/`) => {
         window.location.href =  key
     }
 
-    const notificationMessage = useSelector((state: RootState) => state.notification.notification)
-
     const Notify = useMemo(() => {
-        if (notificationMessage) {
+        if (notification) {
             return (<Alert
-                key={notificationMessage}
+                key={notification}
                 banner
                 closable
-                message={notificationMessage}
+                message={notification}
                 type="error"
             />)
         }
         return null
-    }, [notificationMessage])
+    }, [notification])
 
     return (
         <>
@@ -87,10 +85,10 @@ export const Header = () => {
                     </Col>
                     <Col span={10}>
                         <Menu
-                            activeKey={activeKey}
                             items={menuItems}
                             mode="horizontal"
                             onClick={({ key }) => goTo(key)}
+                            selectedKeys={[activeKey]}
                             style={{
                                 flex: 1,
                                 minWidth: 0,

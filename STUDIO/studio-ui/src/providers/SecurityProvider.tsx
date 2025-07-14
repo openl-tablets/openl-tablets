@@ -1,31 +1,15 @@
 import React, { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
-import { UserContext, SystemContext, PermissionContext } from '../contexts'
+import { SystemContext, PermissionContext } from '../contexts'
 import { apiCall } from '../services'
-import { UserDetails, UserProfile } from '../types/user'
 import { OpenlInfo, SystemSettings } from '../types/system'
 import { SystemUserMode } from '../constants/system'
+import { useUserStore } from 'store'
 
 export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [userProfile, setUserProfile] = useState<UserProfile>()
-    const [userDetails, setUserDetails] = useState<UserDetails>()
+    const { userProfile, userDetails } = useUserStore()
     const [systemSettings, setSystemSettings] = useState<SystemSettings>()
     const [openlInfo, setOpenlInfo] = useState<OpenlInfo>()
     const [appVersion, setAppVersion] = useState<string>('')
-    const [isProfileLoaded, setIsProfileLoaded] = useState(false)
-    const [isDetailsLoaded, setIsDetailsLoaded] = useState(false)
-    const [isSystemSettingsLoaded, setIsSystemSettingsLoaded] = useState(false)
-
-    const fetchUserProfile = async () => {
-        const profile = await apiCall('/users/profile')
-        setUserProfile(profile)
-    }
-
-    const fetchUserDetails = async () => {
-        if (userProfile && userProfile.username) {
-            const details = await apiCall(`/users/${userProfile.username}`)
-            setUserDetails(details)
-        }
-    }
 
     const fetchSystemSettings = async () => {
         const settings: SystemSettings = await apiCall('/settings')
@@ -41,16 +25,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
 
     const loadUserProfileAndDetails = async () => {
         fetchOpenlInformation()
-        await fetchSystemSettings()
-        setIsSystemSettingsLoaded(true)
-        if (!userProfile) {
-            await fetchUserProfile()
-            setIsProfileLoaded(true)
-        }
-        if (userProfile && userProfile.username) {
-            await fetchUserDetails()
-            setIsDetailsLoaded(true)
-        }
+        fetchSystemSettings()
     }
 
     useEffect(() => {
@@ -86,10 +61,6 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         return systemSettings?.supportedFeatures.groupsManagement || false
     }, [systemSettings])
 
-    if (!isProfileLoaded || !isDetailsLoaded || !isSystemSettingsLoaded) {
-        return null
-    }
-
     if (!userProfile || !userDetails || !systemSettings || !openlInfo) {
         console.error('User profile or details are not loaded')
         // TODO: Redirect to login/logout page
@@ -98,11 +69,9 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
 
     return (
         <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo, appVersion }}>
-            <UserContext.Provider value={{ userProfile, userDetails, fetchUserProfile }}>
-                <PermissionContext.Provider value={{ hasAdminPermission }}>
-                    {children}
-                </PermissionContext.Provider>
-            </UserContext.Provider>
+            <PermissionContext.Provider value={{ hasAdminPermission }}>
+                {children}
+            </PermissionContext.Provider>
         </SystemContext.Provider>
     )
 }

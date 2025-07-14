@@ -1,44 +1,30 @@
 import React, { Suspense, useEffect } from 'react'
 import { router } from './routes'
 import { App as AntApp } from 'antd'
-import { fetchUserDetails, fetchUserProfile } from './containers/user/userSlice'
-import { RootState, useAppDispatch, useAppSelector } from 'store'
-import { fetchNotification } from './containers/notification/notificationSlice'
+import { useUserStore, useNotificationStore } from 'store'
 import { RouterProvider } from 'react-router-dom'
 import { SecurityProvider } from './providers/SecurityProvider'
 
 function App() {
-    const dispatch = useAppDispatch()
-
-    const userStatus = useAppSelector((state: RootState) => state.user.status)
-    const isUserLoggedIn = useAppSelector((state: RootState) => state.user.isLoggedIn)
-    const username = useAppSelector((state: RootState) => state.user.profile.username)
+    const { fetchUserInfo, isLoggedIn } = useUserStore()
+    const { fetchNotification } = useNotificationStore()
 
     useEffect(() => {
-        dispatch(fetchNotification())
+        fetchUserInfo()
+    }, [])
+
+    useEffect(() => {
+        fetchNotification()
         const intervalCall = setInterval(() => {
-            dispatch(fetchNotification())
+            fetchNotification()
         }, 30000)
         return () => {
             // clean up
             clearInterval(intervalCall)
         }
-    }, [dispatch])
+    }, [fetchNotification])
 
-    useEffect(() => {
-        if (userStatus === 'idle') {
-            dispatch(fetchUserProfile())
-        }
-    }, [userStatus, dispatch])
-
-    useEffect(() => {
-        if (isUserLoggedIn && username) {
-            // @ts-ignore
-            dispatch(fetchUserDetails(username))
-        }
-    }, [username, dispatch])
-
-    return isUserLoggedIn // && isAllPluginsLoaded
+    return isLoggedIn
         ? (
             <Suspense fallback={<div>Loading...</div>}>
                 <AntApp>

@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { Input, Button, Typography, Row, InputRef } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { setNotification } from './notificationSlice'
-import { RootState, useAppDispatch, useAppSelector } from 'store'
+import { useNotificationStore } from 'store'
 
 const { TextArea } = Input
 
 export const Notification: React.FC = () => {
+    const { notification, setNotification } = useNotificationStore()
     const inputRef = React.useRef<InputRef>(null)
     const { t } = useTranslation()
-    const dispatch = useAppDispatch()
     const [text, setText] = useState('')
     const [focused, setFocused] = React.useState(false)
 
     const onFocus = () => setFocused(true)
     const onBlur = () => setFocused(false)
 
-    const notificationMessage = useAppSelector((state: RootState) => state.notification.notification)
-
     useEffect(() => {
         if (!focused && inputRef.current) {
-            setText(notificationMessage || '')
+            setText(notification || '')
         }
-    }, [notificationMessage])
+    }, [notification])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value)
@@ -38,7 +35,7 @@ export const Notification: React.FC = () => {
     }
 
     const postNotification = (notification: string) => {
-        dispatch(setNotification(notification))
+        setNotification(notification)
     }
 
     return (
