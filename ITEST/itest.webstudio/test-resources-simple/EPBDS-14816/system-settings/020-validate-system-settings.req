@@ -3,7 +3,6 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-  "userWorkspaceHome": "string",
   "projectHistoryCount": -1,
   "updateSystemProperties": null,
   "datePattern": "string",

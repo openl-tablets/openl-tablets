@@ -1133,10 +1133,6 @@ Content-Type: application/json
           "updateSystemProperties" : {
             "type": "boolean",
             "description" : "***"
-          },
-          "userWorkspaceHome" : {
-            "type": "string",
-            "description" : "***"
           }
         },
         "required": ["datePattern", "db", "timeFormat"]

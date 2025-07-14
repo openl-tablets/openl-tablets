@@ -1049,10 +1049,6 @@ Content-Type: application/json
             "type": "boolean",
             "description" : "***"
           },
-          "userWorkspaceHome" : {
-            "type": "string",
-            "description" : "***"
-          },
           "db" : {
             "$ref": "#/components/schemas/DBSettings"
           }
