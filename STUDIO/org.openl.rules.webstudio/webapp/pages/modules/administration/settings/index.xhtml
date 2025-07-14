@@ -321,19 +321,6 @@
                             <div id="common">
                                 <h:panelGroup id="commonProps" styleClass="fields" layout="block">
                                     <section>
-                                        <h3>User Workspace</h3>
-                                        <div>
-                                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                                <h:outputText value="Workspace Directory:"/>
-                                                <h:inputText id="workspace-dir"
-                                                             value="#{systemSettingsBean.userWorkspaceHome}"
-                                                             disabled="#{props.isDisabled('user.workspace.home')}"
-                                                             validator="#{validator.workSpaceDirValidator}"/>
-                                            </h:panelGrid>
-                                            <h:message for="workspace-dir" class="error"/>
-                                        </div>
-                                    </section>
-                                    <section>
                                         <h3>History</h3>
                                         <div id="history">
                                             <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn">
