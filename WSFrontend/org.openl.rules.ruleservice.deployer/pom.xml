@@ -40,16 +40,6 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
