@@ -481,4 +481,107 @@ public class FileUtils {
         }
         return -1;
     }
+
+    /**
+     * Checks if a path matches an Ant-style pattern.
+     * <p>
+     * This method uses the {@link #antPatternToRegex(String)} function to convert the Ant-style pattern
+     * to a Java regex pattern and then performs the matching.
+     * <p>
+     * <p><b>Examples:</b>
+     * <ul>
+     * <li>{@code pathMatches("com/t?st.jsp", "com/test.jsp")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/*.jsp", "com/index.jsp")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/** /storage", "com/index.jsp")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/** /storage", "com/project/internal/storage")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/** /storage", "com/project/storage")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/t?st.jsp", "com/tast.jsp")} &rarr; {@code true}</li>
+     * <li>{@code pathMatches("com/t?st.jsp", "com/toast.jsp")} &rarr; {@code false}</li>
+     * <li>{@code pathMatches("com/*.jsp", "com/project/index.jsp")} &rarr; {@code false}</li>
+     * </ul>
+     */
+    public static boolean pathMatches(String antPattern, String path) {
+        if (antPattern == null || path == null) {
+            throw new NullPointerException("Ant pattern and path must not be null");
+        }
+
+        // Normalize path separators to forward slashes
+        var normalizedPath = path.replace('\\', '/');
+        var normalizedPattern = antPattern.replace('\\', '/');
+
+        // Convert Ant pattern to regex and match
+        var regex = antPatternToRegex(normalizedPattern);
+        return normalizedPath.matches(regex);
+    }
+
+    /**
+     * Converts an Ant-style pattern to a Java regex pattern.
+     * <p>
+     * This method converts the following Ant-style wildcards to regex equivalents:
+     * <ul>
+     * <li>{@code ?} - matches exactly one character (except path separators) -&gt; {@code [^/]}</li>
+     * <li>{@code *} - matches zero or more characters except path separators -&gt; {@code [^/]*}</li>
+     * <li>{@code **} - matches zero or more characters including path separators -&gt; {@code .*}</li>
+     * </ul>
+     * </p>
+     *
+     */
+    private static String antPatternToRegex(String antPattern) {
+        if (antPattern == null) {
+            throw new NullPointerException("Ant pattern must not be null");
+        }
+        
+        StringBuilder regex = new StringBuilder();
+        regex.append('^'); // Start of string
+        
+        int length = antPattern.length();
+        for (int i = 0; i < length; i++) {
+            char c = antPattern.charAt(i);
+            
+            switch (c) {
+                case '?':
+                    // ? matches exactly one character except path separator
+                    regex.append("[^/]");
+                    break;
+                    
+                case '*':
+                    // Check if this is a ** pattern
+                    if (i + 1 < length && antPattern.charAt(i + 1) == '*') {
+                        // ** matches zero or more characters including path separators
+                        regex.append(".*");
+                        i++; // skip the second *
+                        if (i + 1 < length && antPattern.charAt(i + 1) == '/') {
+                            i++; // skip the '/' as it is already included in regexp
+                        }
+                    } else {
+                        // * matches zero or more characters except path separators
+                        regex.append("[^/]*");
+                    }
+                    break;
+                    
+                case '.':
+                case '^':
+                case '$':
+                case '[':
+                case ']':
+                case '(':
+                case ')':
+                case '{':
+                case '}':
+                case '+':
+                case '|':
+                case '\\':
+                    // Escape regex special characters
+                    regex.append('\\');
+                    // Fall through to the default
+                default:
+                    // Regular character
+                    regex.append(c);
+                    break;
+            }
+        }
+        
+        regex.append('$'); // End of string
+        return regex.toString();
+    }
 }

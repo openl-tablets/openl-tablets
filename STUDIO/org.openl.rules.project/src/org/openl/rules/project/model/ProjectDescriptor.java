@@ -33,8 +33,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.springframework.util.AntPathMatcher;
-
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -298,7 +296,7 @@ public class ProjectDescriptor {
                     }
                     String relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
-                    if (new AntPathMatcher().match(pathPattern, relativePath)) {
+                    if (FileUtils.pathMatches(pathPattern, relativePath)) {
                         pathEntries.add(relativePath);
                     }
                     return FileVisitResult.CONTINUE;
