@@ -27,9 +27,9 @@ public final class IntDomainHistory implements Serializable {
 
         };
 
-        protected int _min, _max, _oldmin, _oldmax;
+        private int _min, _max, _oldmin, _oldmax;
 
-        protected int _type_mask;
+        private int _type_mask;
         IntDomainHistory _history;
         int _removeIndex, _numberOfRemoves;
 
