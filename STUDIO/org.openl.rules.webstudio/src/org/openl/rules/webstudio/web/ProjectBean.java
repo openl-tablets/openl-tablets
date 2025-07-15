@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.CompiledOpenClass;
@@ -363,8 +362,7 @@ public class ProjectBean {
         final boolean isNewModule = StringUtils.isBlank(oldName) && StringUtils.isBlank(index);
         final Predicate<Module> isEditedModule = m -> !isNewModule && Objects.equals(oldName, m.getName());
 
-        final PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
-        final Predicate<Module> wildcardPathMatch = m -> pathMatcher.match(m.getRulesRootPath().getPath(),
+        final Predicate<Module> wildcardPathMatch = m -> FileUtils.pathMatches(m.getRulesRootPath().getPath(),
                 relativePath);
 
         final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath().getPath(), relativePath);
@@ -1702,11 +1700,10 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
 
-        PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
         for (Module m : projectDescriptor.getModules()) {
             if (projectDescriptorManager.isModuleWithWildcard(m)) {
                 String path = m.getRulesRootPath().getPath();
-                if (pathMatcher.match(path, newFileName)) {
+                if (FileUtils.pathMatches(path, newFileName)) {
                     if (!currentPathPattern.equals(path)) {
                         // Module file name captured by another path pattern (not current one).
                         // User should ensure that he didn't do that unintentionally.
