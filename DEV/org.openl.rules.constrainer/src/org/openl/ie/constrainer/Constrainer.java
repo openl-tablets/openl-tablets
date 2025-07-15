@@ -115,7 +115,7 @@ public final class Constrainer implements Serializable {
 
     private final FastStack _active_undoable_once;
 
-    transient private PrintStream _out = System.out;
+    final transient private PrintStream _out = System.out;
 
     /*
      * ============================================================================== Misc: toString(), helpers, ...

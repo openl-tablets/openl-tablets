@@ -185,7 +185,7 @@ public final class FastVector implements Cloneable, Serializable {
      *
      * @see java.util.Vector#toArray(Object[])
      */
-    public Object[] toArray(Object a[]) {
+    public Object[] toArray(Object[] a) {
         if (a.length < m_size) {
             a = (Object[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), m_size);
         }
