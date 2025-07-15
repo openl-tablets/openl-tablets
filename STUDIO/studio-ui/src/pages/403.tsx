@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from 'antd'
-import Logo from '../containers/header/Logo'
+import Logo from '../components/Logo'
 
 const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -41,10 +41,10 @@ const Forbidden = () => {
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
-                <Logo width={72} height={72} />
+                <Logo height={72} width={72} />
                 <div style={codeStyle}>403</div>
-                <div style={messageStyle}>Access denied.<br/>Log out and use another credentials.</div>
-                <Button type="primary" size="large" href="/logout">Log out</Button>
+                <div style={messageStyle}>Access denied.<br />Log out and use another credentials.</div>
+                <Button href="/logout" size="large" type="primary">Log out</Button>
             </div>
         </div>
     )

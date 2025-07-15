@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button, Divider, Form, notification, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -37,10 +37,13 @@ export const UserSettings: React.FC = () => {
         },
     ]
 
+    const [saving, setSaving] = useState(false)
+
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
 
         try {
+            setSaving(true)
             const body = {
                 ...restUserProfile,
                 ...values,
@@ -61,6 +64,8 @@ export const UserSettings: React.FC = () => {
             notification.success({ message: t('user:user_settings_updated_successfully') })
         } catch (error) {
             console.error('error', error)
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -87,6 +92,7 @@ export const UserSettings: React.FC = () => {
                 <Button
                     key="submit"
                     htmlType="submit"
+                    loading={saving}
                     style={{ marginTop: 20 }}
                     type="primary"
                 >

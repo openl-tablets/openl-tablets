@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { Button, Divider, Form, notification, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -13,13 +13,18 @@ export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
+    const [saving, setSaving] = useState(false)
 
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
         const { username: _, displayNameSelect, changePassword, ...restFormValues } = values
         const { newPassword = '', currentPassword = '', confirmPassword = '' }  = changePassword || {}
 
+        // Check if email was changed
+        const emailChanged = userProfile?.email !== values.email
+
         try {
+            setSaving(true)
             const body = {
                 ...restUserProfile,
                 ...restFormValues,
@@ -39,8 +44,17 @@ export const UserProfile: React.FC = () => {
             })
             await fetchUserProfile()
             notification.success({ message: t('user:user_profile_updated_successfully') })
+            if (emailChanged) {
+                notification.warning({
+                    message: t('users:email_verification_warning'),
+                    duration: 0,
+                    key: 'email-verification-warning',
+                })
+            }
         } catch (error) {
             console.error('error', error)
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -76,7 +90,7 @@ export const UserProfile: React.FC = () => {
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >
-            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} />
+            <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} showResendVerification={true} userProfile={userProfile} />
             {!isExternalAuthSystem && (
                 <>
                     <Divider orientation="left">{t('user:profile.change_password')}</Divider>
@@ -89,6 +103,7 @@ export const UserProfile: React.FC = () => {
                 <Button
                     key="submit"
                     htmlType="submit"
+                    loading={saving}
                     style={{ marginTop: 20 }}
                     type="primary"
                 >

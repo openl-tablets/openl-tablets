@@ -15,6 +15,7 @@ type InputProps = {
     hidden?: boolean
     rules?: RuleObject[]
     required?: boolean
+    type?: string
 }
 
 const Input: FC<InputProps> = ({
@@ -26,6 +27,7 @@ const Input: FC<InputProps> = ({
     placeholder,
     required,
     rules = [],
+    type,
     ...rest
 }) => {
     const form = Form.useFormInstance()
@@ -50,7 +52,7 @@ const Input: FC<InputProps> = ({
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdInput disabled={isDisabled} placeholder={placeholder} style={style} />
+            <AntdInput disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
         </Form.Item>
     )
 }

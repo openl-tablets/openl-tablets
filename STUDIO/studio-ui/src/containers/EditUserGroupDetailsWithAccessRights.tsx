@@ -448,7 +448,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 onClose={handleCloseDrawer}
                 open={isOpenFromParent || isOpen}
                 title={title}
-                width={600}
+                width={800}
                 extra={
                     <>
                         <Button key="back" onClick={handleCloseDrawer} style={{ marginRight: 20 }}>
@@ -472,7 +472,12 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                     onValuesChange={onValuesChange}
                 >
                     {isUser ? (
-                        <UserDetailsTab externalFlags={user?.externalFlags} isNewUser={!!newUser} />
+                        <UserDetailsTab
+                            externalFlags={user?.externalFlags}
+                            isNewUser={!!newUser}
+                            showResendVerification={true}
+                            userProfile={user}
+                        />
                     ) : (
                         <EditGroupDetails />
                     )}

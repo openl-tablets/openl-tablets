@@ -1,18 +1,24 @@
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Divider, Form, Space } from 'antd'
+import { Divider, Form, Space, Button, notification, Row, Col } from 'antd'
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
-import { UserExternalFlags } from '../../types/user'
+import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
+import { apiCall } from '../../services'
 
 interface UserDetailsTabProps {
     isNewUser?: boolean
     displayPasswordField?: boolean
     externalFlags?: UserExternalFlags
+    showResendVerification?: boolean
+    userProfile?: UserProfile | UserDetails
+    resendLoading?: boolean
+    cooldown?: number
+    onResendVerification?: () => void
 }
 
-export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true }) => {
+export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true, showResendVerification = false, userProfile, resendLoading, cooldown, onResendVerification }) => {
     const { t } = useTranslation()
     const form = Form.useFormInstance()
     const { isExternalAuthSystem } = useContext(SystemContext)
@@ -20,6 +26,42 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
     const lastName = Form.useWatch('lastName', form)
     const [isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled] = useState<boolean>(true)
     const previousDisplayNameSelect = useRef('')
+    // Use parent-provided resend logic if available, otherwise manage locally
+    const [localResendLoading, setLocalResendLoading] = useState(false)
+    const [localCooldown, setLocalCooldown] = useState(0)
+    const resendLoadingToUse = typeof resendLoading === 'boolean' ? resendLoading : localResendLoading
+    const cooldownToUse = typeof cooldown === 'number' ? cooldown : localCooldown
+    const handleResend = async () => {
+        if (onResendVerification) {
+            onResendVerification()
+            return
+        }
+        if (!userProfile?.username) {
+            notification.error({ message: t('users:cannot_determine_current_user') })
+            return
+        }
+        setLocalResendLoading(true)
+        try {
+            await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
+            notification.success({ message: t('users:verification_email_sent') })
+            setLocalCooldown(60)
+        } catch (e) {
+            notification.error({ message: t('users:failed_to_send_verification_email') })
+        } finally {
+            setLocalResendLoading(false)
+        }
+    }
+    React.useEffect(() => {
+        let timer: NodeJS.Timeout | undefined
+        if (!cooldown && localCooldown > 0) {
+            timer = setInterval(() => {
+                setLocalCooldown((prev) => (prev > 0 ? prev - 1 : 0))
+            }, 1000)
+        }
+        return () => {
+            if (timer) clearInterval(timer)
+        }
+    }, [localCooldown, cooldown])
 
     const displayNameOptions = useMemo(() => (
         [
@@ -63,8 +105,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     message: t('users:edit_modal.username_required')
                 }]}
             />
-            <Input
-                disabled={externalFlags?.emailExternal}
+            <Form.Item
                 label={t('users:edit_modal.email')}
                 name="email"
                 rules={[{
@@ -74,17 +115,50 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     max: 254,
                     message: t('users:edit_modal.email_max_length')
                 }]}
-            />
+                style={displayPasswordField ? { marginBottom: 8 } : {}}
+            >
+                <Row gutter={8} align="top" style={{ width: '100%' }}>
+                    <Col flex="auto">
+                        <Input
+                            disabled={externalFlags?.emailExternal}
+                            name="email"
+                            type="email"
+                        />
+                    </Col>
+                    {showResendVerification && userProfile && userProfile.externalFlags && userProfile.externalFlags.emailVerified === false && (
+                        <Col>
+                            <Button
+                                type="primary"
+                                onClick={handleResend}
+                                loading={resendLoadingToUse}
+                                disabled={cooldownToUse > 0}
+                            >
+                                {t('users:resend_verification_email')}
+                            </Button>
+                            {cooldownToUse > 0 && (
+                                <div style={{ color: '#888', fontSize: 12, textAlign: 'right' }}>
+                                    {t('users:resend_verification_email_timer', { seconds: cooldownToUse })}
+                                </div>
+                            )}
+                        </Col>
+                    )}
+                </Row>
+            </Form.Item>
             {displayPasswordField && !isExternalAuthSystem && (
-                <InputPassword
-                    disabled={externalFlags?.emailExternal}
+                <Form.Item
                     label={t('users:edit_modal.password')}
                     name="password"
+                    style={{ marginBottom: 8 }}
                     rules={[{
                         required: isNewUser,
                         message: t('users:edit_modal.password_required')
                     }]}
-                />
+                >
+                    <InputPassword
+                        name="password"
+                        disabled={externalFlags?.emailExternal}
+                    />
+                </Form.Item>
             )}
             <Divider orientation="left">{t('users:name')}</Divider>
             <Input

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Form, Input, Alert } from 'antd'
-import Logo from '../containers/header/Logo'
+import Logo from '../components/Logo'
 
 const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -52,9 +52,9 @@ const LoginPage = () => {
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
-                <Logo width={72} height={72} />
+                <Logo height={72} width={72} />
                 <div style={titleStyle}>Sign in to OpenL Studio</div>
-                {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16, width: '100%' }} />}
+                {error && <Alert showIcon message={error} style={{ marginBottom: 16, width: '100%' }} type="error" />}
                 <Form layout="vertical" style={{ width: '100%' }} onFinish={onFinish}>
                     <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please enter your username' }]}> 
                         <Input autoFocus autoComplete="username" size="large" />
@@ -63,7 +63,7 @@ const LoginPage = () => {
                         <Input.Password autoComplete="current-password" size="large" />
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" size="large" block loading={loading}>
+                        <Button block htmlType="submit" loading={loading} size="large" type="primary">
                             Log in
                         </Button>
                     </Form.Item>

@@ -4,7 +4,6 @@ import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
-import Tesseract from '../components/Tesseract'
 import { Repositories } from '../containers/Repositories'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
@@ -15,11 +14,13 @@ import { Groups } from '../containers/Groups'
 import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
+import { EmailVerification } from '../containers/EmailVerification'
 import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
 import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
+import Tesseract from '../components/Tesseract'
 
 const router = createBrowserRouter([
     {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
                         ],
                     },
                 ],
+            },
+            {
+                path: 'email',
+                element: <EmailVerification />,
             },
             {
                 path: '*',

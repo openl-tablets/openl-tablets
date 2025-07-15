@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Badge, Button, Modal, Row, Table, Typography } from 'antd'
+import { Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
 import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ import { ColumnsType } from 'antd/es/table/interface'
 import { RenderGroupCell } from './users/RenderGroupCell'
 import { useGroups } from './groups/useGroups'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
+import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
@@ -89,6 +90,19 @@ export const Users: React.FC = () => {
                 title: t('users:users_table.email'),
                 dataIndex: 'email',
                 key: 'email',
+                render: (email, record) => {
+                    if (record.externalFlags && !record.externalFlags.emailVerified) {
+                        return (
+                            <span>
+                                {email}{' '}
+                                <Tooltip title={t('users:email_not_verified')}>
+                                    <ExclamationCircleTwoTone twoToneColor="#faad14" />
+                                </Tooltip>
+                            </span>
+                        )
+                    }
+                    return email
+                },
             },
             {
                 title: t('users:users_table.groups'),
