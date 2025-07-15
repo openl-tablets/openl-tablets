@@ -14,8 +14,6 @@
         <module>../WSFrontend/org.openl.rules.ruleservice.annotation</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.common</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.ws.common</module>
-        <!-- Tests -->
-        <module>org.openl.rules.test</module>
         <!-- Modules -->
         <module>org.openl.rules.tableeditor</module>
         <module>org.openl.rules.repository</module>
