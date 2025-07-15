@@ -32,7 +32,7 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public IntBoolExp and(boolean value) {
-        return value ? (IntBoolExp) this : IntBoolExpConst.getIntBoolExpConst(constrainer(), false);
+        return value ? this : IntBoolExpConst.getIntBoolExpConst(constrainer(), false);
     }
 
     @Override
@@ -58,7 +58,7 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public IntBoolExp or(boolean value) {
-        return value ? (IntBoolExp) IntBoolExpConst.getIntBoolExpConst(constrainer(), true) : this;
+        return value ? IntBoolExpConst.getIntBoolExpConst(constrainer(), true) : this;
     }
 
     @Override
