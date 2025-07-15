@@ -6,8 +6,6 @@ import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
-import org.openl.ie.tools.Reusable;
-import org.openl.ie.tools.ReusableFactory;
 
 //
 //: IntExpAddExp.java
@@ -51,81 +49,6 @@ public final class IntExpAddExp extends IntExpImpl {
         }
 
     } // ~ ExpAddExpObserver
-
-    static final class IntEventAddExp extends IntEvent {
-
-        static final ReusableFactory _factory = new ReusableFactory() {
-            @Override
-            protected Reusable createNewElement() {
-                return new IntEventAddExp();
-            }
-
-        };
-
-        int _type;
-
-        IntExp _second;
-        IntEvent _event;
-
-        static IntEventAddExp getEvent(IntEvent event, IntExp exp) {
-            IntEventAddExp ev = (IntEventAddExp) _factory.getElement();
-            ev.init(event, exp);
-            return ev;
-        }
-
-        public void init(IntEvent e, IntExp second) {
-            _event = e;
-            _second = second;
-            _type = e.type();
-            if (!_second.bound()) {
-                _type &= ~(REMOVE | VALUE);
-            }
-        }
-
-        @Override
-        public int max() {
-            return _event.max() + _second.max();
-        }
-
-        @Override
-        public int min() {
-            return _event.min() + _second.min();
-        }
-
-        @Override
-        public String name() {
-            return "Event AddExp";
-        }
-
-        @Override
-        public int numberOfRemoves() {
-            if ((_type & REMOVE) != 0) {
-                return _event.numberOfRemoves();
-            }
-            return 0;
-        }
-
-        @Override
-        public int oldmax() {
-            return _event.oldmax() + _second.max();
-        }
-
-        @Override
-        public int oldmin() {
-            return _event.oldmin() + _second.min();
-        }
-
-        @Override
-        public int removed(int i) {
-            return _event.removed(i) + _second.min();
-        }
-
-        @Override
-        public int type() {
-            return _type;
-        }
-
-    }
 
     private final IntExp _exp1;
 

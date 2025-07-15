@@ -22,7 +22,7 @@ package org.openl.ie.constrainer;
 public class GoalOr extends GoalImpl {
     private final Goal _g1;
     private final Goal _g2;
-    private ChoicePointLabel _label = null;
+    private final ChoicePointLabel _label = null;
 
     /**
      * Constructor with a given 2 goals.

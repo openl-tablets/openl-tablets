@@ -1,6 +1,5 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.ConstraintImpl;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
@@ -31,7 +30,6 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
     // PRIVATE MEMBERS
     private final IntExp _exp;
     private final int _value;
-    private Constraint _opposite;
 
     public ConstraintExpEqualsValue(IntExp exp, int value) {
         super(exp.constrainer());

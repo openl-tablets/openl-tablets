@@ -148,7 +148,7 @@ public class ModelExport {
         // out.println("_m.add(sumViolations==cost);");
 
         // ctor
-        out.println("" + className + "(IlcManager& m)");
+        out.println(className + "(IlcManager& m)");
         out.println(": _m(m)");
         out.println("{");
 
