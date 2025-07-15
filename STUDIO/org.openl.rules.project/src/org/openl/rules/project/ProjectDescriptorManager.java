@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -42,15 +39,6 @@ public class ProjectDescriptorManager {
 
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
-    private PathMatcher pathMatcher = new AntPathMatcher();
-
-    public PathMatcher getPathMatcher() {
-        return pathMatcher;
-    }
-
-    public void setPathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
-    }
 
     public IProjectDescriptorSerializer getSerializer() {
         return serializer;
@@ -113,7 +101,7 @@ public class ProjectDescriptorManager {
         for (Module module : descriptor.getModules()) {
             if (isModuleWithWildcard(module) && otherModuleRootPath != null) {
                 String relativePath = otherModuleRootPath.getPath().replace("\\", "/");
-                if (pathMatcher.match(module.getRulesRootPath().getPath(), relativePath)) {
+                if (FileUtils.pathMatches(module.getRulesRootPath().getPath(), relativePath)) {
                     return true;
                 }
             }
@@ -133,7 +121,7 @@ public class ProjectDescriptorManager {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
-                if (isNotTemporaryFile(file) && pathMatcher.match(ptrn, relativePath)) {
+                if (isNotTemporaryFile(file) && FileUtils.pathMatches(ptrn, relativePath)) {
                     Path modulePath = file.toAbsolutePath();
                     Module m = new Module();
                     m.setProject(descriptor);
