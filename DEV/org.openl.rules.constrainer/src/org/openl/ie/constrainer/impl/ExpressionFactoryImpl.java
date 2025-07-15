@@ -102,11 +102,9 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         // Should use more of the objects' equals() methods
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof ExpressionKey)) {
+            if (!(o instanceof ExpressionKey key)) {
                 return false;
             }
-
-            ExpressionKey key = (ExpressionKey) o;
 
             // compare classes
             if (_clazz != key.clazz()) {
@@ -205,17 +203,17 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     /**
      * Use cache to find already created expression.
      */
-    private boolean _getFromCache = false;
+    private final boolean _getFromCache = false;
 
     /**
      * Use cache to store newly created expression.
      */
-    private boolean _putInCache = false;
+    private final boolean _putInCache = false;
 
     /**
      * Use cache to find and store the expression.
      */
-    private boolean _useCache = false;
+    private final boolean _useCache = false;
 
     /**
      * Returns a constructor with the given parameter types for a given parameter values.

@@ -45,7 +45,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      */
     @Override
     final public IntBoolExp and(boolean value) {
-        return isTrue() ? (IntBoolExp) getIntBoolExpConst(constrainer(), value) : this;
+        return isTrue() ? getIntBoolExpConst(constrainer(), value) : this;
     }
 
     /**
@@ -88,7 +88,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      */
     @Override
     final public IntBoolExp or(boolean value) {
-        return isTrue() ? (IntBoolExp) this : getIntBoolExpConst(constrainer(), value);
+        return isTrue() ? this : getIntBoolExpConst(constrainer(), value);
     }
 
     /**

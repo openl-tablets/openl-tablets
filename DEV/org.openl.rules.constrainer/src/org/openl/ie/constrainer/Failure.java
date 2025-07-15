@@ -26,7 +26,7 @@ package org.openl.ie.constrainer;
  */
 public class Failure extends Exception {
     private final String _msg;
-    private ChoicePointLabel _label = null;
+    private final ChoicePointLabel _label = null;
 
     /**
      * Constructor for a Failure with a given description.
