@@ -16,6 +16,19 @@ import {
 import './MainMenu.scss'
 import { PermissionContext, SystemContext } from '../contexts'
 
+const MenuItems = {
+    userProfile: '/administration/user/profile',
+    userSettings: '/administration/user/settings',
+    repositories: '/administration/repositories/design',
+    system: '/administration/system',
+    security: '/administration/security',
+    users: '/administration/admin/management/users',
+    groups: '/administration/admin/management/groups',
+    notification: '/administration/notification',
+    tags: '/administration/tags',
+    mail: '/administration/mail',
+}
+
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const { hasAdminPermission } = useContext(PermissionContext)
@@ -37,21 +50,21 @@ const MainMenu: React.FC = () => {
                     navigate(key)
                 }}
             >
-                <Menu.Item key="/administration/user/profile" icon={<UserOutlined />}>{t('common:menu.my_profile')}</Menu.Item>
-                <Menu.Item key="/administration/user/settings" icon={<SettingOutlined />}>{t('common:menu.my_settings')}</Menu.Item>
+                <Menu.Item key={MenuItems.userProfile} id="menuitem-profile" icon={<UserOutlined />}>{t('common:menu.my_profile')}</Menu.Item>
+                <Menu.Item key={MenuItems.userSettings} id="menuitem-settings" icon={<SettingOutlined />}>{t('common:menu.my_settings')}</Menu.Item>
                 <Menu.Divider />
                 {hasAdminPermission() && (
                     <>
-                        <Menu.Item key="/administration/repositories/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
-                        <Menu.Item key="/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
-                        <Menu.Item key="/administration/security" icon={<SafetyOutlined />}>{t('common:menu.security')}</Menu.Item>
+                        <Menu.Item key={MenuItems.repositories} id="menuitem-repositories" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
+                        <Menu.Item key={MenuItems.system} id="menuitem-system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
+                        <Menu.Item key={MenuItems.security} id="menuitem-security" icon={<SafetyOutlined />}>{t('common:menu.security')}</Menu.Item>
                         { isUserManagementEnabled &&
-                            <Menu.Item key="/administration/admin/management/users" icon={<UserOutlined />}>{t('common:menu.users')}</Menu.Item>}
+                            <Menu.Item key={MenuItems.users} id="menuitem-users" icon={<UserOutlined />}>{t('common:menu.users')}</Menu.Item>}
                         { isGroupsManagementEnabled &&
-                            <Menu.Item key="/administration/admin/management/groups" icon={<TeamOutlined />}>{t('common:menu.groups')}</Menu.Item>}
-                        <Menu.Item key="/administration/notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
-                        <Menu.Item key="/administration/tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
-                        <Menu.Item key="/administration/mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>
+                            <Menu.Item key={MenuItems.groups} id="menuitem-groups" icon={<TeamOutlined />}>{t('common:menu.groups')}</Menu.Item>}
+                        <Menu.Item key={MenuItems.notification} id="menuitem-notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
+                        <Menu.Item key={MenuItems.tags} id="menuitem-tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
+                        <Menu.Item key={MenuItems.mail} id="menuitem-mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>
                     </>
                 )}
 

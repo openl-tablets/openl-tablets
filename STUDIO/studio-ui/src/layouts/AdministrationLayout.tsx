@@ -6,7 +6,7 @@ export const AdministrationLayout = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
             <MainMenu />
-            <div style={{ padding: 20, width: '100%' }}>
+            <div id="content" style={{ padding: 20, width: '100%' }}>
                 <Outlet />
             </div>
         </div>
