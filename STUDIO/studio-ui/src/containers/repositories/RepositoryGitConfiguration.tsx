@@ -30,7 +30,7 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
                 <>
                     <Input
                         label={t('repository:url')}
-                        name={['settings', 'url']}
+                        name={['settings', 'uri']}
                         rules={[{ required: true, message: t('common:validation.required') }]}
                         tooltip={{ icon: URLModal }}
                     />
