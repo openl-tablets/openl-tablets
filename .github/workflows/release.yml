@@ -92,12 +92,12 @@ jobs:
         working-directory: ./mvn-staging
         run: ls -Rl
 
-      - name: Deploy to https://oss.sonatype.org/
+      - name: Deploy to https://central.sonatype.com/
         run: >
           mvn "-Dstyle.color=always"
           org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged-repository
           -DrepositoryDirectory=mvn-staging
-          -DnexusUrl=https://oss.sonatype.org/
+          -DnexusUrl=https://ossrh-staging-api.central.sonatype.com/
           -DserverId=ossrh
           -DstagingProfileId=${{ secrets.OSSRH_STAGING_PROFILE_ID }}
           -DstagingDescription="Release ${{ env.RELEASE_TAG }} by ${{ github.actor }} #${{ github.run_number }}"
