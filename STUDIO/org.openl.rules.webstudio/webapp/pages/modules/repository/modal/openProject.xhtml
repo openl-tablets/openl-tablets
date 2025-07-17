@@ -73,7 +73,7 @@
                 let openDependencies = $j('#openProjectForm\\:openDependencies').is(":checked");
                 $j.ajax({
                     type: "POST",
-                    url: "#{contextPath}/web/user-workspace/" + openRepoId + "/projects/" + openPrName + "/open/?open-dependencies=" + openDependencies
+                    url: "#{contextPath}/web/user-workspace/" + openRepoId + "/projects/" + openPrName + "/open?open-dependencies=" + openDependencies
                 }).done(function () {
                     // The function can be called without opening the popup,
                     // at the end of it you still need to refresh the page

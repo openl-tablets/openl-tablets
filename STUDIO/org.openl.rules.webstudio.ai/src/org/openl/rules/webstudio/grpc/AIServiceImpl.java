@@ -50,7 +50,9 @@ public class AIServiceImpl implements AIService {
     @PreDestroy
     void destroy() {
         // Close the channel
-        channel.shutdown();
+        if (channel != null) {
+            channel.shutdown();
+        }
     }
 
 }

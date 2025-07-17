@@ -324,6 +324,9 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
      */
     @Override
     public String[] getMediaTypesForType(Class<?> cl) {
+        if (cl == null) {
+            cl = Object.class;
+        }
         Set<MediaType> possibleMediaTypes = new TreeSet<>(
                 MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
         for (var converter : mappingHandlerAdapter.getMessageConverters()) {
