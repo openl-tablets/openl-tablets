@@ -49,14 +49,14 @@
           p:sessionFactory-ref="openlSessionFactory"/>
 
     <bean id="jdbcLockRegistry" class="org.springframework.integration.jdbc.lock.JdbcLockRegistry">
-        <constructor-arg>
-            <bean class="org.springframework.integration.jdbc.lock.DefaultLockRepository">
-                <constructor-arg name="dataSource" ref="openlDataSource"/>
-                <property name="prefix" value="OPENL_"/>
-                <property name="region" value="studio"/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg name="client" ref="lockRepository"/>
         <property name="cacheCapacity" value="100"/>
+    </bean>
+
+    <bean id="lockRepository" class="org.springframework.integration.jdbc.lock.DefaultLockRepository">
+        <constructor-arg name="dataSource" ref="openlDataSource"/>
+        <property name="prefix" value="OPENL_"/>
+        <property name="region" value="studio"/>
     </bean>
 
     <context:component-scan base-package="org.openl.rules.security.standalone.dao"/>

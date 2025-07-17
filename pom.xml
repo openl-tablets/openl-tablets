@@ -303,6 +303,12 @@
                     <version>3.13.0</version>
                     <configuration>
                         <release>11</release>
+                        <compilerArgs>
+                            <!-- enable parameter names for Spring Validation.
+                            See: https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x/d5e0133619a70f7529a0f4a6f042e770cb33bdbc#upgrading-to-version-60
+                            -->
+                            <arg>-parameters</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>

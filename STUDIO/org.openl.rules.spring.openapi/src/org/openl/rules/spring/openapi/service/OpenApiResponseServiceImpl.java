@@ -22,6 +22,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.http.HttpEntity;
@@ -90,7 +91,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             if (isExceptionHandlerMethod(method)) {
                 var exHandlerInfoBuilder = ExceptionHandlerInfo.Builder.from(beanType, method);
                 var exHandlerInfo = exHandlerInfoBuilder
-                        .produces(apiParameterService.getMediaTypesForType((Class<?>) exHandlerInfoBuilder.getReturnType()))
+                        .produces(apiParameterService.getMediaTypesForType(ResolvableType.forType(exHandlerInfoBuilder.getReturnType()).resolve()))
                         .build();
                 var methodApiResponses = new ApiResponses();
                 processApiResponses(getApiResponses(
