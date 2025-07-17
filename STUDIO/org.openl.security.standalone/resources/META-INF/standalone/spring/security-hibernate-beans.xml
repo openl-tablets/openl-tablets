@@ -49,7 +49,7 @@
           p:sessionFactory-ref="openlSessionFactory"/>
 
     <bean id="jdbcLockRegistry" class="org.springframework.integration.jdbc.lock.JdbcLockRegistry">
-        <constructor-arg>
+        <constructor-arg name="client">
             <bean class="org.springframework.integration.jdbc.lock.DefaultLockRepository">
                 <constructor-arg name="dataSource" ref="openlDataSource"/>
                 <property name="prefix" value="OPENL_"/>
