@@ -46,9 +46,9 @@ public class JettyServer {
 
         webAppContext.setClassLoader(new WebAppClassLoader(webAppContext) {
             @Override
-            public void addClassPath(String classPath) throws IOException {
+            public void addClassPath(Resource classPath) {
                 // exclude outdated Oracle JDBC Drive from classpath because it's challenging to use with testcontainers
-                if (classPath.contains("ojdbc6.jar")) {
+                if (classPath.getFileName().contains("ojdbc6.jar")) {
                     System.out.println("Excluding ojdbc6.jar from classpath: " + classPath);
                     return; // Skip adding this JAR
                 }
