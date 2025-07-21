@@ -15,7 +15,6 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <http.timeout.connect>60000</http.timeout.connect>
         <http.timeout.read>7200000</http.timeout.read>
     </properties>

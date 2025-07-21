@@ -346,6 +346,7 @@
                     <version>3.4.2</version>
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
+                        <skip>${maven.deploy.skip}</skip>
                         <archive>
                             <manifest>
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -608,16 +609,15 @@
         </profile>
         <profile>
             <id>sources</id>
-            <properties>
-                <!-- If true, generating of JavaDocs will be skipped  -->
-                <maven.javadoc.skip>false</maven.javadoc.skip>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>3.3.1</version>
+                        <configuration>
+                            <skipSource>${maven.deploy.skip}</skipSource>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -635,7 +635,7 @@
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
                             <doclint>none</doclint>
-                            <skip>${maven.javadoc.skip}</skip>
+                            <skip>${maven.deploy.skip}</skip>
                         </configuration>
                         <executions>
                             <execution>

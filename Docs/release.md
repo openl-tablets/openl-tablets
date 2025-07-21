@@ -13,7 +13,7 @@
 ## Release Process
 
 1. Run the [Release OpenL Tablets](https://github.com/openl-tablets/openl-tablets/actions/workflows/release.yml) action.
-2. Log in [SonaType](https://oss.sonatype.org/), verify staged artifacts, and click the 'Release' button.
+2. Log in [SonaType](https://central.sonatype.com/), verify staged artifacts, and click the 'Publish' button.
 **This step is irreversable, so be careful with what is released.**
    Artifacts become available in [Central Maven Repository](https://repo1.maven.org/maven2/org/openl/) within a few hours.
 3. After the release artifacts appear in [Central Maven Repository](https://repo1.maven.org/maven2/org/openl/),
