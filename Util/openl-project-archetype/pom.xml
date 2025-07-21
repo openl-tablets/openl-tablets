@@ -18,7 +18,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <build>

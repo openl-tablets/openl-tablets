@@ -13,7 +13,6 @@
     <url>https://openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
