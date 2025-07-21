@@ -134,7 +134,7 @@
         <amazonaws.version>2.34.9</amazonaws.version>
         <azure.version>12.31.3</azure.version>
         <netty.version>4.2.6.Final</netty.version>
-        <jgit.version>6.9.0.202403050737-openl</jgit.version>
+        <jgit.version>7.3.0.202506031305-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.4.240</h2.version>
