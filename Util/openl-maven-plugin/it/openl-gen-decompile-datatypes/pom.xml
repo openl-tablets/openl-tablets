@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-gen-decompile-datatypes</artifactId>
+    <version>0.0.0</version>
+    <packaging>openl</packaging>
+    <name>Decompiled datatypes</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.openl.version>@project.version@</org.openl.version>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${org.openl.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <interfaceClass>com.example.Service</interfaceClass>
+                    <threadCount>5</threadCount>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <superInterface>com.example.service.BaseService, Cloneable</superInterface>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Decompile OpenL Datatypes -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.vineflower</groupId>
+                        <artifactId>vineflower</artifactId>
+                        <version>1.10.1</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>decompile-openl-classes</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <executableDependency>
+                                <groupId>org.vineflower</groupId>
+                                <artifactId>vineflower</artifactId>
+                            </executableDependency>
+                            <mainClass>org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler</mainClass>
+                            <arguments>
+                                <argument>${project.build.outputDirectory}</argument>
+                                <argument>${project.build.directory}/generated-sources/openl</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
