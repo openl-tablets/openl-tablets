@@ -30,6 +30,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
@@ -257,6 +258,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     public ServiceDescription getServiceDescriptionInProcess() {
         return this.serviceDescriptionInProcess;
+    }
+
+    public ProjectDescriptor getProjectDescriptorInProcess() {
+        return serviceDescriptionInProcess != null ? serviceDescriptionInProcess.getProjectDescriptor() : null;
     }
 
     @Override
