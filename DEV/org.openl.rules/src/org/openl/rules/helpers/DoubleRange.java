@@ -119,7 +119,8 @@ public class DoubleRange extends Range<Double> implements INumberRange {
             // prevent precision loosing in decimal numeral system
             return contains(Double.parseDouble(n.toString()));
         }
-        return n != null && contains(n.doubleValue());
+
+        return n != null && !Double.isNaN(n.doubleValue()) && contains(n.doubleValue());
     }
 
     @Override
