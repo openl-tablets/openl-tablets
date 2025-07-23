@@ -48,6 +48,7 @@ jobs:
           metaUrl="$SERVER/org/openl/org.openl.core/maven-metadata.xml"
           metaData="$(wget -qO - $metaUrl)"
           latest="$(echo $metaData | xmllint --xpath /metadata/versioning/latest/text\(\) - )"
+          latest=${latest%-jakarta}
           version="${{ github.event.inputs.version }}"
           if [ "$version" = "latest" ]; then
             version="$latest"

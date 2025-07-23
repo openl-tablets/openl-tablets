@@ -18,7 +18,6 @@
     </organization>
     <properties>
         <demo.root>jetty-home-${jetty.version}</demo.root>
-        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
     <build>
         <plugins>
