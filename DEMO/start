@@ -1,0 +1,345 @@
+#!/bin/bash
+
+# ===================================================================================
+# OpenL Tablets & Jetty Runner Script
+#
+# This script automates the download, setup, and execution of OpenL Tablets
+# WebStudio and RuleServices on an embedded Jetty server. The 'webapps' folder
+# will be created in the same directory as this script.
+#
+# Usage:
+#   ./start
+#
+# Compatibility:
+# - Linux (Ubuntu, RHEL)
+# - macOS
+# - Architectures (x86_64, aarch64/arm64)
+# ===================================================================================
+
+set -e # Exit immediately if a command exits with a non-zero status.
+
+# --- 1. SETTINGS ---
+# Define the required versions for your environment.
+# -----------------------------------------------------------------------------------
+SKIP_OS_JAVA=false #To ignore system Java and use a local JRE
+MAVEN_URL="https://repo1.maven.org/maven2"
+
+JAVA_MAJOR_VERSION="21"
+JETTY_VERSION="12.1.0"
+
+# JDBC Driver Versions
+POSTGRES_VERSION="42.7.7"
+ORACLE_VERSION="23.9.0.25.07"
+MSSQL_VERSION="12.10.1.jre11"
+
+
+# --- SCRIPT INTERNAL VARIABLES ---
+# -----------------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $SCRIPT_DIR
+JETTY_HOME="$SCRIPT_DIR/jetty-home"
+JETTY_DOWNLOAD_URL="${MAVEN_URL}/org/eclipse/jetty/jetty-home/${JETTY_VERSION}/jetty-home-${JETTY_VERSION}.tar.gz"
+WEBAPPS_DIR="$SCRIPT_DIR/webapps"
+JAVA_CMD="" # This will be set by the find_or_download_java function
+
+# --- READ OPENL VERSION FROM FILE ---
+# -----------------------------------------------------------------------------------
+VERSION_FILE="$SCRIPT_DIR/openl.version"
+if [ ! -f "$VERSION_FILE" ]; then
+    echo "ERROR: Version file not found at ${VERSION_FILE}"
+    echo "Please create a file named 'openl.version' with the desired OpenL version (e.g., 6.0.0)."
+    exit 1
+fi
+OPENL_VERSION=$(cat "$VERSION_FILE" | tr -d '\n\r ')
+echo "INFO: Using OpenL version ${OPENL_VERSION} from file."
+
+# --- DOWNLOAD HELPER ---
+# Unified function to download files using curl or wget
+# -----------------------------------------------------------------------------------
+download_file() {
+    local url=$1
+    local output_path=$2
+
+    echo "INFO: Download ${url} to ${output_path}"
+    if command -v curl &> /dev/null; then
+        if ! curl -sfL -o "$output_path" "$url"; then
+            echo "ERROR: Failed to download ${url} using curl."
+            exit 1
+        fi
+    elif command -v wget &> /dev/null; then
+        if ! wget -q -O "$output_path" "$url"; then
+            echo "ERROR: Failed to download ${url} using wget."
+            exit 1
+        fi
+    else
+        echo "ERROR: Neither curl nor wget found. Please install one of them to proceed."
+        exit 1
+    fi
+}
+
+
+# --- 2. DETERMINE AVAILABLE RAM and SET _JAVA_MEMORY ---
+# Calculates 80% of total system RAM for the JVM heap space.
+# -----------------------------------------------------------------------------------
+echo "INFO: Determining available RAM..."
+os_type=$(uname -s)
+total_ram_kb=0
+case "$os_type" in
+    Linux)
+        total_ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        ;;
+    Darwin) # macOS
+        total_ram_kb=$(sysctl -n hw.memsize | awk '{print $1/1024}')
+        ;;
+    *)
+        echo "ERROR: Unsupported operating system: $os_type"
+        exit 1
+        ;;
+esac
+
+if [ "$total_ram_kb" -le 0 ]; then
+    echo "ERROR: Could not determine total RAM. Defaulting to 2GB."
+    total_ram_kb="Unknown"
+    xmx_mb=2048
+else
+    total_ram_kb=$(($total_ram_kb / 1024))
+    xmx_mb=$((total_ram_kb * 80 / 100))
+fi
+
+echo "INFO: Setting JVM Max Heap Size (-Xmx) to ${xmx_mb}M."
+export _JAVA_MEMORY="-Xmx${xmx_mb}m"
+
+
+# --- 3. FIND OR DOWNLOAD JAVA ---
+# Checks for a suitable Java version and downloads a JRE if necessary.
+# -----------------------------------------------------------------------------------
+find_or_download_java() {
+    echo "INFO: Checking for a valid Java installation..."
+    local required_version=$1
+    local local_java_dir="$SCRIPT_DIR/jre" # Use 'jre' directory
+
+    # Function to check the version of a given java executable
+    check_java_version() {
+        local java_path=$1
+        if [ ! -x "$java_path" ]; then
+            return 1
+        fi
+        # Extract major version number (handles various version string formats)
+        local version_string=$("$java_path" -version 2>&1)
+        local major_version=$(echo "$version_string" | grep -o 'version "[0-9]\{1,2\}' | grep -o '[0-9]\{1,2\}')
+
+        if [[ -n "$major_version" && "$major_version" -ge "$required_version" ]]; then
+            echo "INFO: Found suitable Java version $major_version at $java_path."
+            JAVA_CMD="$java_path"
+            return 0
+        else
+            echo "INFO: Java at $java_path is version $major_version, which is less than required $required_version."
+            return 1
+        fi
+    }
+
+    # 1. Check for a previously downloaded JRE in the script's 'jre' folder
+    if [ -d "$local_java_dir" ]; then
+        # Find the java executable within the downloaded JRE structure
+        local downloaded_java_path
+        if [ "$os_type" = "Darwin" ]; then
+            downloaded_java_path=$(find "$local_java_dir" -type f -name "java" | grep "/Contents/Home/bin/java" || true)
+        else
+            downloaded_java_path=$(find "$local_java_dir" -type f -name "java" | grep "/bin/java" || true)
+        fi
+
+        if [ -n "$downloaded_java_path" ] && check_java_version "$downloaded_java_path"; then
+            return
+        else
+            echo "INFO: Previously downloaded JRE is not suitable. Removing it."
+            rm -rf "$local_java_dir"
+        fi
+    fi
+
+    # 2. Check system's default Java, unless skipped by the flag
+    if [ "$SKIP_OS_JAVA" = "false" ]; then
+        if command -v java &> /dev/null; then
+            if check_java_version "$(command -v java)"; then
+                return
+            fi
+        else
+            echo "INFO: No Java found in system PATH."
+        fi
+    else
+        echo "INFO: Skipping check for OS-provided Java as requested by the --skip-os-java flag."
+    fi
+
+    # 3. Download a new JRE if no suitable version was found
+    echo "INFO: No suitable Java found. Downloading OpenJRE ${required_version}..."
+    local arch=$(uname -m)
+    local os_arch=""
+    local os_name=""
+    local jre_url=""
+
+    case "$os_type" in
+        Linux) os_name="linux";;
+        Darwin)  os_name="mac";;
+    esac
+
+    case "$arch" in
+        x86_64) os_arch="x64";;
+        arm64) os_arch="aarch64";;
+        aarch64) os_arch="aarch64";;
+        *) echo "ERROR: Unsupported architecture: $arch on $os_type"; exit 1;;
+    esac
+
+    # Download the Java Runtime Environment
+    jre_url="https://api.adoptium.net/v3/binary/latest/${required_version}/ga/${os_name}/${os_arch}/jre/hotspot/normal/eclipse"
+
+    echo "INFO: Downloading from $jre_url"
+    mkdir -p "$local_java_dir"
+    download_file "$jre_url" "$SCRIPT_DIR/openjre.tar.gz"
+
+    echo "INFO: Unpacking Java..."
+    tar -xzf "$SCRIPT_DIR/openjre.tar.gz" -C "$local_java_dir" --strip-components=1
+    rm "$SCRIPT_DIR/openjre.tar.gz"
+
+    # Set JAVA_CMD to the newly downloaded java
+    if [ "$os_type" = "Darwin" ]; then
+        JAVA_CMD=$(find "$local_java_dir" -type f -name "java" | grep "/Contents/Home/bin/java" || true)
+    else
+        JAVA_CMD=$(find "$local_java_dir" -type f -name "java" | grep "/bin/java" || true)
+    fi
+
+    if [ -z "$JAVA_CMD" ]; then
+        echo "ERROR: Failed to find Java executable after download."
+        exit 1
+    fi
+    echo "INFO: Java successfully downloaded and configured."
+}
+
+find_or_download_java "$JAVA_MAJOR_VERSION"
+
+
+# --- 4. DOWNLOAD AND UNPACK JETTY ---
+# -----------------------------------------------------------------------------------
+if [ ! -d "$JETTY_HOME" ]; then
+    echo "INFO: Jetty not found. Downloading Jetty ${JETTY_VERSION}..."
+    rm -rf jetty-home*
+    download_file "$JETTY_DOWNLOAD_URL" "$SCRIPT_DIR/jetty.tar.gz"
+    echo "INFO: Unpacking Jetty..."
+    tar -xzf "$SCRIPT_DIR/jetty.tar.gz" -C "$SCRIPT_DIR"
+    rm "$SCRIPT_DIR/jetty.tar.gz"
+    mv jetty-home-* "jetty-home"
+    echo "INFO: Jetty successfully installed at $JETTY_HOME"
+else
+    echo "INFO: Jetty installation found at $JETTY_HOME."
+fi
+
+
+# --- 5. DOWNLOAD JDBC DRIVERS ---
+# -----------------------------------------------------------------------------------
+# Function to download a driver jar if it doesn't exist
+download_driver() {
+    local download_url=$1
+    local driver_jar_name
+    driver_jar_name=$(basename "$download_url")
+    local target_dir="$JETTY_HOME/lib/ext"
+    local target_file="$target_dir/$driver_jar_name"
+
+    mkdir -p "$target_dir"
+
+    if [ ! -f "$target_file" ]; then
+        echo "INFO: Downloading ${driver_jar_name}..."
+        download_file "$download_url" "$target_file"
+        echo "INFO: ${driver_jar_name} downloaded."
+    else
+        echo "INFO: ${driver_jar_name} already present."
+    fi
+}
+
+echo "INFO: Checking for JDBC drivers..."
+download_driver "${MAVEN_URL}/org/postgresql/postgresql/${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.jar"
+download_driver "${MAVEN_URL}/com/oracle/database/jdbc/ojdbc11/${ORACLE_VERSION}/ojdbc11-${ORACLE_VERSION}.jar"
+download_driver "${MAVEN_URL}/com/microsoft/sqlserver/mssql-jdbc/${MSSQL_VERSION}/mssql-jdbc-${MSSQL_VERSION}.jar"
+
+
+# --- 6. DOWNLOAD AND UNPACK OPENL .WAR FILES ---
+# -----------------------------------------------------------------------------------
+# Function to download and unpack a .war file if the target directory doesn't exist
+download_war() {
+    local component_name=$1
+    local download_url=$2
+    local target_war="$WEBAPPS_DIR/$component_name.war"
+    local target_dir="$WEBAPPS_DIR/$component_name"
+
+    if [ ! -d "$target_dir" ]; then
+        echo "INFO: Downloading ${component_name}..."
+        download_file "$download_url" "$target_war"
+
+        echo "INFO: Unpacking ${component_name}..."
+        mkdir -p "$target_dir"
+        tar -xf "$target_war" -C "$target_dir"
+
+        rm "$target_war"
+        echo "INFO: ${component_name} downloaded."
+    else
+        echo "INFO: ${component_name} already exists."
+    fi
+}
+
+# Download and unpack the components using the helper function
+download_war "webstudio" "${MAVEN_URL}/org/openl/rules/org.openl.rules.webstudio/${OPENL_VERSION}/org.openl.rules.webstudio-${OPENL_VERSION}.war"
+download_war "webservice" "${MAVEN_URL}/org/openl/rules/org.openl.rules.ruleservice.ws/${OPENL_VERSION}/org.openl.rules.ruleservice.ws-${OPENL_VERSION}.war"
+
+# Init Default repository
+if [[ -z "$OPENL_HOME" ]]; then
+  echo "INFO: OPENL_HOME environment variable has not been defined."
+  if [[ -d "$HOME/Desktop/OpenL_Home" ]] ; then
+    echo "INFO: OpenL_Home folder has been found on the Desktop. Going to use it."
+    OPENL_HOME="$HOME/Desktop/OpenL_Home"
+  else
+    echo "INFO: OpenL_Home folder has not been found on the Desktop. Going to use internal openl-demo folder."
+    OPENL_HOME="./openl-demo"
+    if [[ -d "$OPENL_HOME" ]] && [[ "$(ls -A $OPENL_HOME)" ]]; then
+      echo "INFO: Skip initialization. The openl-demo folder is not empty"
+    else
+      echo "INFO: Initializing the openl-demo folder for demo purposes."
+      mkdir -p "$OPENL_HOME"
+      echo -ne ".version=LATEST\ndemo.init=true" > "$OPENL_HOME/webstudio.properties"
+    fi
+  fi
+fi
+
+
+# --- 7. RUN JETTY SERVER ---
+# -----------------------------------------------------------------------------------
+echo "============================================================"
+echo "Starting Jetty Server for OpenL Tablets..."
+echo "  Java Command: $JAVA_CMD"
+echo "    Jetty Home: $JETTY_HOME"
+echo "    OpenL Home: $OPENL_HOME"
+echo "   Webapps Dir: $WEBAPPS_DIR"
+echo "  Total Memory: $total_ram_kb MB"
+echo "   Memory Opts: $_JAVA_MEMORY"
+echo "============================================================"
+echo -e " Access OpenL Studio at: \033[94m http://localhost:8080/webstudio \033[0m"
+echo -e "Access Rule Services at: \033[94m http://localhost:8080/webservice \033[0m"
+"$JAVA_CMD" -version
+echo "Press Ctrl+C to stop the server."
+
+# Set the terminal title
+echo -ne "\033]0;OpenL DEMO\007"
+# Open the default browser
+sleep 1 && open http://localhost:8080/ &
+
+# Use exec to replace the script process with the Java process
+exec "$JAVA_CMD" \
+    -Dopenl.home="$OPENL_HOME" \
+    -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+    -Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 \
+    -Djetty.httpConfig.requestHeaderSize=32768 \
+    -Djetty.httpConfig.responseHeaderSize=32768 \
+    -Dapple.awt.UIElement=true \
+    $_JAVA_MEMORY \
+    -Djetty.home="$JETTY_HOME" \
+    -Djetty.base="$JETTY_HOME" \
+    -Djetty.deploy.monitoredDir="$WEBAPPS_DIR" \
+    -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
+    -jar "$JETTY_HOME/start.jar" \
+    --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi
