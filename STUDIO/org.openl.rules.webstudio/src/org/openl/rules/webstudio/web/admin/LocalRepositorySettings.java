@@ -11,7 +11,6 @@ public class LocalRepositorySettings extends RepositorySettings {
 
     private final static String URI_SUFFIX = ".uri";
     private final static String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
-    private final static String SUPPORT_DEPLOYMENTS_SUFFIX = ".support-deployments";
 
     @Parameter(description = "Local path")
     @SettingPropertyName(URI_SUFFIX)
@@ -20,13 +19,11 @@ public class LocalRepositorySettings extends RepositorySettings {
 
     private final String uriProperty;
     private final String baseDeployPathProperty;
-    private final String supportDeploymentsProperty;
 
     public LocalRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
         this.uriProperty = configPrefix + URI_SUFFIX;
         this.baseDeployPathProperty = configPrefix + BASE_DEPLOY_PATH_SUFFIX;
-        this.supportDeploymentsProperty = configPrefix + SUPPORT_DEPLOYMENTS_SUFFIX;
 
         load(properties);
     }
@@ -39,7 +36,6 @@ public class LocalRepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
         propertiesHolder.setProperty(uriProperty, uri);
-        propertiesHolder.setProperty(supportDeploymentsProperty, true);
         propertiesHolder.setProperty(baseDeployPathProperty, "");
     }
 
@@ -47,7 +43,7 @@ public class LocalRepositorySettings extends RepositorySettings {
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(uriProperty, supportDeploymentsProperty, baseDeployPathProperty);
+        properties.revertProperties(uriProperty, baseDeployPathProperty);
         load(properties);
     }
 
