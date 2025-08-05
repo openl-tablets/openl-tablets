@@ -3,7 +3,8 @@ Content-Type: application/json
 
 {
   "entrypoint": {
-    "logoutUrl": "/logout"
+    "logoutUrl": "/logout",
+    "loginUrl": "/oauth2/authorization/webstudio"
   },
   "userMode": "EXTERNAL",
   "supportedFeatures": {

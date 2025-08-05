@@ -2,7 +2,6 @@ package org.openl.rules.rest.settings;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,14 +27,17 @@ import org.openl.util.StringUtils;
 public class SettingsController {
 
     private final Environment environment;
-    private final Optional<Supplier<String>> logoutUrlProvider;
+    private final Optional<String> logoutUrl;
+    private final Optional<String> loginUrl;
     private final BooleanSupplier mailSenderFeature;
 
     public SettingsController(Environment environment,
-                              @Qualifier("logoutUrlProvider") Optional<Supplier<String>> logoutUrlProvider,
+                              @Qualifier("logoutUrl") Optional<String> logoutUrl,
+                              @Qualifier("loginUrl") Optional<String> loginUrl,
                               @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature) {
         this.environment = environment;
-        this.logoutUrlProvider = logoutUrlProvider;
+        this.logoutUrl = logoutUrl;
+        this.loginUrl = loginUrl;
         this.mailSenderFeature = mailSenderFeature;
     }
 
@@ -45,7 +47,8 @@ public class SettingsController {
         var userManagementMode = getUserManagementMode();
         return SettingsModel.builder()
                 .entrypoint(EntrypointSettingsModel.builder()
-                        .logoutUrl(logoutUrlProvider.map(Supplier::get).orElse(null))
+                        .logoutUrl(logoutUrl.orElse(null))
+                        .loginUrl(loginUrl.orElse(null))
                         .build())
                 .userMode(userManagementMode)
                 .supportedFeatures(SupportedFeaturesModel.builder()
