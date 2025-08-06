@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react'
+import React, {FC, useContext, useMemo} from 'react'
 import { Col, Drawer, Menu, Row, Typography } from 'antd'
 import './UserMenu.scss'
 import { UserLogo } from '../../components/UserLogo'
@@ -23,7 +23,9 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { hasAdminPermission } = useContext(PermissionContext)
     const { appVersion, systemSettings } = useContext(SystemContext)
 
-    const logoutURL = systemSettings?.entrypoint?.logoutUrl || null
+    const logoutURL = useMemo(() => {
+        return systemSettings?.entrypoint?.logoutUrl || null
+    }, [systemSettings])
 
     const Title = (
         <Row align="middle">
@@ -46,7 +48,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     )
 
     const onClick = ({ key }: { key: string }) => {
-        if (pathname.startsWith('/faces/') || pathname === '/') {
+        if (pathname.startsWith('/faces/') || pathname === '/' || key === logoutURL) {
             window.location.href = CONFIG.CONTEXT + key
         } else {
             navigate(key)
@@ -87,7 +89,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                     {t('common:user_menu.help')}
                 </Menu.Item>
                 {logoutURL && (
-                    <Menu.Item key="/logout" icon={<LogoutOutlined />}>
+                    <Menu.Item key={logoutURL} icon={<LogoutOutlined />}>
                         {t('common:user_menu.sign_out')}
                     </Menu.Item>
                 )}
