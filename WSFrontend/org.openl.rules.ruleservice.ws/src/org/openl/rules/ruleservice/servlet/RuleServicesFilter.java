@@ -85,7 +85,7 @@ public class RuleServicesFilter implements Filter {
         Arrays.sort(checkers, AnnotationAwareOrderComparator.INSTANCE);
         log.info("Available Authorization checkers: {}", Arrays.toString(checkers));
         authorizationCheckers = checkers;
-        accessDeniedHandler = appContext.getBeansOfType(AccessDeniedHandler.class).values().iterator().next();
+        accessDeniedHandler = appContext.getBeansOfType(AccessDeniedHandler.class).values().stream().min(AnnotationAwareOrderComparator.INSTANCE).get();
 
         //CORS
         var allowed = env.getProperty("cors.allowed.origins");
