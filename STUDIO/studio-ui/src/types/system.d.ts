@@ -2,14 +2,15 @@ import { SystemUserMode } from '../constants/system'
 
 export interface SystemSettings {
     entrypoint: {
-        logoutUrl: string
+        loginUrl?: string
+        logoutUrl?: string
     }
-    supportedFeatures: {
+    supportedFeatures?: {
         emailVerification: boolean
         groupsManagement: boolean
         userManagement: boolean
     },
-    userMode: SystemUserMode,
+    userMode?: SystemUserMode,
     scripts?: string | string[]
 }
 

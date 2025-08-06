@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { router } from './routes'
 import { App as AntApp } from 'antd'
-import { useUserStore, useNotificationStore, useAppStore } from 'store'
+import { useAppStore, useNotificationStore, useUserStore } from 'store'
 import { RouterProvider } from 'react-router-dom'
 import { SecurityProvider } from './providers/SecurityProvider'
 import { CONFIG } from './services'
@@ -13,10 +13,13 @@ function App() {
     const { fetchUserInfo, isLoggedIn } = useUserStore()
     const { fetchNotification } = useNotificationStore()
 
+    const loginPage = `${CONFIG.CONTEXT}/login`
+    const isLoginPage = location.pathname === loginPage
+
     useEffect(() => {
         // Set up global error handling
         setupGlobalErrorHandling()
-        
+
         fetchUserInfo()
     }, [])
 
@@ -31,13 +34,19 @@ function App() {
         }
     }, [fetchNotification])
 
-    if (showLogin) {
-        window.location.href = CONFIG.LOGIN_URL + `?redirect=${encodeURIComponent(window.location.href)}`
+    if (showLogin && !isLoginPage) {
+        if (location.pathname === `${CONFIG.CONTEXT}/`) {
+            // navigate to the login page
+            window.location.href = loginPage
+            return
+        }
+        // do redirect through the server
+        location.reload()
+        return
     }
 
-    return isLoggedIn
-        ? (
-            <ErrorBoundary 
+    return(
+        <ErrorBoundary
                 onError={(error: Error, errorInfo: any) => {
                     errorHandler.logError(error, {
                         componentStack: errorInfo?.componentStack || undefined,
@@ -46,15 +55,13 @@ function App() {
                 }}
             >
                 <Suspense fallback={<div>Loading...</div>}>
-                    <AntApp>
-                        <SecurityProvider>
-                            <RouterProvider router={router} />
-                        </SecurityProvider>
-                    </AntApp>
-                </Suspense>
-            </ErrorBoundary>
-        )
-        : null
+            <AntApp>
+                <SecurityProvider>
+                    <RouterProvider router={router} />
+                </SecurityProvider>
+            </AntApp>
+        </Suspense></ErrorBoundary>
+    )
 }
 
 export default App
