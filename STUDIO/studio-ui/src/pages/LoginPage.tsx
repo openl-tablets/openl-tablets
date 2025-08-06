@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, Alert } from 'antd'
+import { useLocation } from 'react-router-dom'
+import { Alert, Button, Form, Input } from 'antd'
+import { CONFIG } from '../services'
 import Logo from '../components/Logo'
 
 const containerStyle: React.CSSProperties = {
@@ -34,19 +36,31 @@ const titleStyle: React.CSSProperties = {
 const LoginPage = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const location = useLocation().pathname
 
     const onFinish = (values: { username: string; password: string }) => {
         setLoading(true)
         setError(null)
-        // TODO: Replace with real authentication logic
-        setTimeout(() => {
-            if (values.username === 'admin' && values.password === 'admin') {
-                window.location.href = '/'
+        const encodedBody = new URLSearchParams({
+            username: values.username,
+            password: values.password,
+        }).toString()
+        fetch(`${CONFIG.CONTEXT}${location}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: encodedBody
+        }).then((response) => {
+            setLoading(false)
+            if (response.redirected) {
+                window.location.href = response.url // manually trigger browser redirect
+            } else if (response.ok) {
+                window.location.href = `${CONFIG.CONTEXT}/` // or default success redirect
             } else {
-                setError('Invalid username or password')
-                setLoading(false)
+                setError('Login failed. Incorrect Username or Password.')
             }
-        }, 1000)
+        })
     }
 
     return (
@@ -56,10 +70,10 @@ const LoginPage = () => {
                 <div style={titleStyle}>Sign in to OpenL Studio</div>
                 {error && <Alert showIcon message={error} style={{ marginBottom: 16, width: '100%' }} type="error" />}
                 <Form layout="vertical" onFinish={onFinish} style={{ width: '100%' }}>
-                    <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please enter your username' }]}> 
+                    <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please enter your username' }]}>
                         <Input autoFocus autoComplete="username" size="large" />
                     </Form.Item>
-                    <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter your password' }]}> 
+                    <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter your password' }]}>
                         <Input.Password autoComplete="current-password" size="large" />
                     </Form.Item>
                     <Form.Item>
