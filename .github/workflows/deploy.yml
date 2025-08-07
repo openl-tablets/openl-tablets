@@ -1,7 +1,7 @@
-# This workflow will build a Java project with Maven on the daily basis (aka Nightly Build).
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# This workflow will build a project with Maven every day (aka Nightly Build)
+# and deploys the built docker images to the GitHub Packages.
 
-name: Deploy Maven artifacts
+name: Build GitHub packages
 
 on:
   schedule:
@@ -37,7 +37,8 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java and cache
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 11
@@ -90,3 +91,30 @@ jobs:
           docker buildx build -t $repo/demo:x -t $repo/demo:${{ env.TAG_VERSION }} . \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision
+
+      - name: Summary
+        run: |
+          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/webstudio:${{ env.TAG_VERSION }}`' >> $GITHUB_STEP_SUMMARY
+          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/ws:${{ env.TAG_VERSION }}`' >> $GITHUB_STEP_SUMMARY
+          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/ws:${{ env.TAG_VERSION }}-all`' >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean up old versions of RuleServices
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'ws'
+          package-type: 'container'
+          min-versions-to-keep: 50 # 5 versions * 2 variants * 5 manifests
+
+      - name: Clean up old versions of Studio
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'webstudio'
+          package-type: 'container'
+          min-versions-to-keep: 25 # 5 versions * 5 manifests
+
+      - name: Clean up old versions of DEMO
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'demo'
+          package-type: 'container'
+          min-versions-to-keep: 5 # 1 versions * 5 manifests
