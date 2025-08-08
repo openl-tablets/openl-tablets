@@ -7,6 +7,13 @@ const fetchInitialConfig = {
     headers: new Headers(),
 }
 
+class EmptyError extends Error {
+    constructor() {
+        super('')
+        this.name = 'EmptyError'
+    }
+}
+
 const appStore = useAppStore.getState()
 
 const apiCall = async (url: string, params?: RequestInit, throwError = false) => {
@@ -30,7 +37,7 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
             }
             else if (status === 401) {
                 appStore.setShowLogin(true)
-                throw new Error('Unauthorized! Please log in.')
+                throw new EmptyError()
             } else if (status === 403) {
                 appStore.setShowForbidden(true)
                 throw new Error('Forbidden! You do not have permission to access this resource.')
@@ -55,7 +62,8 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
         .catch(error => {
             if (throwError) {
                 throw error
-            } else {
+            } else if (error instanceof EmptyError) {
+            } else if (error instanceof Error) {
                 notification.error({ message: error.toString() })
             }
         })
