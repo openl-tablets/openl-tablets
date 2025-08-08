@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -48,6 +49,11 @@ public class UserManagementConfiguration {
     public GroupManagementService groupManagementService(GroupDao groupDao,
                                                          @Autowired(required = false) JdbcMutableAclService aclService) {
         return new GroupManagementService(groupDao, aclService);
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
 }
