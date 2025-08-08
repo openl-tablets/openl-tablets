@@ -53,7 +53,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
             notification.success({ message: t('users:verification_email_sent') })
             setLocalCooldown(60)
-        } catch (e) {
+        } catch (_) {
             notification.error({ message: t('users:failed_to_send_verification_email') })
         } finally {
             setLocalResendLoading(false)
@@ -133,7 +133,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                             type="email"
                         />
                     </Col>
-                    {showResendVerification && userProfile && userProfile.externalFlags && !userProfile.externalFlags.emailVerified && systemSettings.supportedFeatures.emailVerification && (
+                    {showResendVerification && userProfile && userProfile.externalFlags && !userProfile.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification && (
                         <Col>
                             <Button
                                 disabled={cooldownToUse > 0 || isFormDirty}
