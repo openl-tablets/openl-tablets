@@ -7,7 +7,6 @@ Content-Type: application/json
   "allowProjectCreateDelete": true,
   "entityId": "webstudio",
   "metadataUrl": "",
-  "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
   "serverCertificate": "",
   "forceAuthN": false,
   "attributes": {

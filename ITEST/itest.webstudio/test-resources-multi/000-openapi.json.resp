@@ -376,10 +376,6 @@ Content-Type: application/json
             "attributes" : {
               "$ref" : "#/components/schemas/SAMLAttributesSettings"
             },
-            "binding" : {
-              "type" : "string",
-              "description" : "***"
-            },
             "defaultGroup" : {
               "type" : "string",
               "description" : "***",

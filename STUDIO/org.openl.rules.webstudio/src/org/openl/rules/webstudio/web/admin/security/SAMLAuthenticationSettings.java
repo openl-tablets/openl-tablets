@@ -17,7 +17,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
 
     private static final String ENTITY_ID = "security.saml.entity-id";
     private static final String METADATA_URL = "security.saml.saml-server-metadata-url";
-    private static final String BINDING = "security.saml.binding";
     private static final String SERVER_CERTIFICATE = "security.saml.server-certificate";
     private static final String FORCE_AUTHN = "security.saml.forceAuthN";
     private static final String LOCAL_KEY = "security.saml.local-key";
@@ -32,10 +31,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
     @SettingPropertyName(METADATA_URL)
     @NotBlank
     private String metadataUrl;
-
-    @Parameter(description = "SAML binding method (e.g., HTTP-Redirect, HTTP-POST).")
-    @SettingPropertyName(BINDING)
-    private String binding;
 
     @Parameter(description = "Base64-encoded public key of the SAML IdP server.")
     @SettingPropertyName(SERVER_CERTIFICATE)
@@ -61,7 +56,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         super.load(properties);
         entityId = properties.getProperty(ENTITY_ID);
         metadataUrl = properties.getProperty(METADATA_URL);
-        binding = properties.getProperty(BINDING);
         serverCertificate = properties.getProperty(SERVER_CERTIFICATE);
         forceAuthN = Optional.ofNullable(properties.getProperty(FORCE_AUTHN))
                 .map(Boolean::parseBoolean)
@@ -74,7 +68,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         super.store(properties);
         properties.setProperty(ENTITY_ID, entityId);
         properties.setProperty(METADATA_URL, metadataUrl);
-        properties.setProperty(BINDING, binding);
         properties.setProperty(SERVER_CERTIFICATE, serverCertificate);
         properties.setProperty(FORCE_AUTHN, forceAuthN);
         attributes.store(properties);
@@ -93,7 +86,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         properties.revertProperties(
                 ENTITY_ID,
                 METADATA_URL,
-                BINDING,
                 SERVER_CERTIFICATE,
                 FORCE_AUTHN,
                 LOCAL_KEY,
@@ -117,14 +109,6 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
 
     public void setMetadataUrl(String metadataUrl) {
         this.metadataUrl = metadataUrl;
-    }
-
-    public String getBinding() {
-        return binding;
-    }
-
-    public void setBinding(String binding) {
-        this.binding = binding;
     }
 
     public String getServerCertificate() {
