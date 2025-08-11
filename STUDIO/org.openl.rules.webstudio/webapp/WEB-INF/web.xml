@@ -105,11 +105,6 @@
             <param-name>redirectPage</param-name>
             <param-value>/faces/pages/sessionExpired.xhtml</param-value>
         </init-param>
-        <init-param>
-            <description>Comma separated list of urls</description>
-            <param-name>excludePages</param-name>
-            <param-value>/faces/pages/login.xhtml</param-value>
-        </init-param>
     </filter>
 
     <filter-mapping>
