@@ -65,16 +65,6 @@
 
     <!-- ======================== Logout ========================== -->
 
-    <bean id="accessDeniedUrl" class="java.lang.String">
-        <constructor-arg value="/faces/pages/accessDenied.xhtml"/>
-    </bean>
-
-    <!-- Handler deciding where to redirect user after failed login -->
-    <bean id="failureRedirectHandler"
-          class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <property name="defaultFailureUrl" ref="accessDeniedUrl"/>
-    </bean>
-
     <bean id="logoutSuccessUrl" class="java.lang.String">
         <constructor-arg value="/"/>
     </bean>
