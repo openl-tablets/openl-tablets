@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.EncodedKeySpec;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -60,24 +62,29 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
                     .signingX509Credentials(c -> c.add(signing))
                     .decryptionX509Credentials(c -> c.add(decryption));
 
-            // Override certificate from the Metadata XML to prevent MITM attack.
-            String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
-            if (StringUtils.isNotBlank(serverCertificate)) {
-                X509Certificate idpCert = X509Support.decodeCertificate(serverCertificate);
-                Saml2X509Credential verification = Saml2X509Credential.verification(idpCert);
-                registrationBuilder.assertingPartyDetails(party -> party
-                        .verificationX509Credentials(c -> {
-                            c.clear();
-                            c.add(verification);
-                        })
-                );
-            }
-
-            RelyingPartyRegistration registration = registrationBuilder.build();
-
+            RelyingPartyRegistration registration = registrationBuilder
+                    .assertingPartyMetadata(this::assertingPartyMetadata)
+                    .build();
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
             log.error("", e);
+        }
+    }
+
+    private void assertingPartyMetadata(AssertingPartyMetadata.Builder<?> party) {
+        // Override certificate from the Metadata XML to prevent MITM attack.
+        String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
+        if (StringUtils.isNotBlank(serverCertificate)) {
+            try {
+                X509Certificate idpCert = X509Support.decodeCertificate(serverCertificate);
+                Saml2X509Credential verification = Saml2X509Credential.verification(idpCert);
+                party.verificationX509Credentials(c -> {
+                    c.clear();
+                    c.add(verification);
+                });
+            } catch (CertificateException e) {
+                throw new IllegalArgumentException("Failed to decode server certificate", e);
+            }
         }
     }
 
