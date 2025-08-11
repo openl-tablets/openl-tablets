@@ -37,3 +37,7 @@ dist
 
 # Ignore bun artifacts, we already have npm package-lock.json
 bun.lock
+
+# Ignore AI assistant files
+CLAUDE.md
+.claude
