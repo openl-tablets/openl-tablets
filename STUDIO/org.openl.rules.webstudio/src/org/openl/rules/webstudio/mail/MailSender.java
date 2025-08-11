@@ -29,7 +29,6 @@ public class MailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSender.class);
 
     private static final String MAIL_VERIFICATION_TEMPLATE = "/templates/email-verification.eml";
-    private static final String MAIL_VERIFICATION_PAGE = "/faces/pages/modules/emailVerification.xhtml";
 
     private final MailSenderProperties settings;
     private final UserSettingManagementService userSettingManagementService;
@@ -102,7 +101,7 @@ public class MailSender {
         } else if (root.contains("/rest")) {
             root = root.substring(0, root.lastIndexOf("/rest"));
         }
-        return root + MAIL_VERIFICATION_PAGE + "?token=" + token;
+        return root + "/email?token=" + token;
     }
 
     public boolean isValidEmailSettings() {
