@@ -1,4 +1,4 @@
-POST /security_login_check HTTP/1.1
+POST /login HTTP/1.1
 Content-type: application/x-www-form-urlencoded
 
 username=EPBDS_12973_2&password=pass

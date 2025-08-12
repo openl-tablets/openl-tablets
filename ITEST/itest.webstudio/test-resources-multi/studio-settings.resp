@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "entrypoint": {
-    "logoutUrl": "/security_logout"
+    "logoutUrl": "/logout"
   },
   "userMode": "INTERNAL",
   "supportedFeatures": {
