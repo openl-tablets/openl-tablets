@@ -1,0 +1,2 @@
+GET /any/other/urls/are/treated/as/react/ui HTTP/1.1
+
