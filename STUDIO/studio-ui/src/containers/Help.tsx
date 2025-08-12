@@ -17,8 +17,8 @@ export const Help: React.FC = () => {
     const { t } = useTranslation()
     const { openlInfo } = useContext(SystemContext)
 
-    const openlVersion = openlInfo['openl.version'] || 'unknown'
-    const openlUrl = openlInfo['openl.site'] || 'https://openl-tablets.org'
+    const openlVersion = (openlInfo && openlInfo['openl.version']) || 'unknown'
+    const openlUrl = (openlInfo && openlInfo['openl.site']) || 'https://openl-tablets.org'
 
     const baseLink = `${openlUrl}/files/openl-tablets/${openlVersion}/OpenL Tablets - `
 
