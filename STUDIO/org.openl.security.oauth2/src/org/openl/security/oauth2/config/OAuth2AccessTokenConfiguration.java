@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
@@ -65,7 +66,7 @@ public class OAuth2AccessTokenConfiguration {
 
     @Bean
     public ExceptionTranslationFilter bearerExceptionTranslationFilter(BearerTokenAuthenticationEntryPoint authenticationEntryPoint) {
-        return new ExceptionTranslationFilter(authenticationEntryPoint);
+        return new ExceptionTranslationFilter(authenticationEntryPoint, new NullRequestCache());
     }
 
     @Bean

@@ -23,6 +23,7 @@
 
     <context:property-placeholder/>
     <context:component-scan base-package="
+                    org.openl.studio
                     org.openl.rules.webstudio
                     org.openl.rules.rest
                     org.openl.rules.ui.tablewizard
@@ -30,13 +31,7 @@
                     "/>
     <import resource="repository-beans.xml"/>
     <import resource="db-services.xml"/>
-    <import resource="security/security-${user.mode}.xml"/>
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
-
-    <bean id="requestRejectedHandler"
-          class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
-        <constructor-arg name="httpError" value="400"/>
-    </bean>
 
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo"/>
 
