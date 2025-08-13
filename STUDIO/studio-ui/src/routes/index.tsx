@@ -21,6 +21,7 @@ import NotFound from '../pages/404'
 import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
 import Tesseract from '../components/Tesseract'
+import { Trace } from '../containers/Trace'
 
 const router = createBrowserRouter([
     {
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
             {
                 path: 'email',
                 element: <EmailVerification />,
+            },
+            {
+                path: '/trace',
+                element: <Trace />,
             },
             {
                 path: '*',
