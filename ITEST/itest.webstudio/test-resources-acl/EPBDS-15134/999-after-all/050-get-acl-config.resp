@@ -1,0 +1,85 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Analysts"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Deployers"
+        }
+      }, {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Developers"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Testers"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      }
+    ]
+  }, {
+      "resourceRef": {
+        "repositoryType": "DESIGN",
+        "repositoryId": "design",
+        "projectName": "Some_Project"
+      },
+      "aces": [
+        {
+          "role": "CONTRIBUTOR",
+          "sub": {
+            "sid": "admin",
+            "principal": true
+          }
+        }
+      ]
+  }, {
+    "resourceRef": {
+      "repositoryType": "PROD"
+    },
+    "aces": [
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Analysts"
+        }
+      }, {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "Deployers"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Developers"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Testers"
+        }
+      }, {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "Viewers"
+        }
+      }
+    ]
+  }
+]

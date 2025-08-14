@@ -2,27 +2,19 @@ package org.openl.rules.webstudio.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
@@ -93,22 +85,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         }
         // Create if absent
         groupManagementService.addGroup(defaultGroup, "A default group for authenticated users");
-        group = groupManagementService.getGroupByName(defaultGroup);
-        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            SimpleGroup group1 = new SimpleGroup();
-            group1.setName(relevantSystemWideGrantedAuthority.getAuthority());
-            SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group1)).build();
-            SecurityContextHolder.getContext()
-                    .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
-            aclServiceProvider.getDesignRepoAclService().addRootPermissions(List.of(AclPermission.READ),
-                    List.of(new GrantedAuthoritySid(group.getName())));
-            aclServiceProvider.getProdRepoAclService().addRootPermissions(List.of(AclPermission.READ),
-                    List.of(new GrantedAuthoritySid(group.getName())));
-        } finally {
-            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
-        }
-        return group;
+        return groupManagementService.getGroupByName(defaultGroup);
 
     }
 

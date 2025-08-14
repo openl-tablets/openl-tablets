@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Some_Project",
+    "modifiedBy": "admin",
+    "modifiedAt": "***",
+    "revision": "***",
+    "id": "***",
+    "status": "CLOSED",
+    "comment": "***",
+    "repository": "design"
+  }
+]
+
