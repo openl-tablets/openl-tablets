@@ -188,10 +188,13 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     private void refreshContext() {
         write.lock();
         try {
+            LOG.info("Refreshing Spring context to reload application configuration...");
             applicationContext.refresh();
+            LOG.info("Cleaning up HTTP Sessions...");
             for (HttpSession session : new ArrayList<>(cache.values())) {
                 session.invalidate();
             }
+            LOG.info("OpenL Studio has been reloaded.");
         } finally {
             write.unlock();
         }
