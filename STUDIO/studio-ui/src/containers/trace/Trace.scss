@@ -1,0 +1,89 @@
+.trace-tree {
+  .ant-tree-node-content-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .ant-tree-title {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .ant-tree-switcher {
+    flex-shrink: 0 !important;
+  }
+
+  .ant-tree-node-content-wrapper:hover {
+    background-color: #f0f8ff !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  .favorite-tree-node {
+    background-color: #fff7e6 !important;
+    border-left: 2px solid #faad14 !important;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: #faad14;
+      border-radius: 1px 0 0 1px;
+    }
+
+    &:hover {
+      background-color: #fff2d9 !important;
+      transition: background-color 0.2s ease !important;
+    }
+  }
+
+  .ant-tree-node-content-wrapper:hover .favorite-tree-node {
+    background-color: #fff2d9 !important;
+  }
+}
+
+.favorite-star {
+  animation: favorite-pulse 0.6s ease-in-out;
+}
+
+@keyframes favorite-pulse {
+  0% { 
+    transform: scale(1); 
+  }
+
+  50% { 
+    transform: scale(1.2); 
+  }
+
+  100% { 
+    transform: scale(1); 
+  }
+}
+
+/* Custom tooltip styles */
+.trace-tooltip {
+  .ant-tooltip-inner {
+    background-color: #262626 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 15%) !important;
+    font-weight: 500 !important;
+    word-break: break-word !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    padding: 8px 12px !important;
+    max-width: 400px !important;
+  }
+
+  .ant-tooltip-arrow::before {
+    background-color: #262626 !important;
+  }
+}
