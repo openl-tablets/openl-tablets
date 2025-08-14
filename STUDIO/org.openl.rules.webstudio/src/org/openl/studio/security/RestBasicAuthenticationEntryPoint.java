@@ -1,4 +1,4 @@
-package org.openl.rules.rest;
+package org.openl.studio.security;
 
 import java.io.IOException;
 import java.io.Writer;

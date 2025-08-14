@@ -24,7 +24,6 @@ const titleStyle: CSSProperties = {
 export const Header = () => {
     const { t } = useTranslation()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-    const [activeKey, setActiveKey] = useState(window.location.pathname)
     const { systemSettings } = useContext(SystemContext)
     const { notification } = useNotificationStore()
     useScript(systemSettings?.scripts)
@@ -65,6 +64,10 @@ export const Header = () => {
         return null
     }, [notification])
 
+    const activeKeyFromPath = useMemo(() => {
+        return  window.location.pathname
+    }, [])
+
     return (
         <>
             <AntHeader>
@@ -88,7 +91,7 @@ export const Header = () => {
                             items={menuItems}
                             mode="horizontal"
                             onClick={({ key }) => goTo(key)}
-                            selectedKeys={[activeKey]}
+                            selectedKeys={[activeKeyFromPath]}
                             style={{
                                 flex: 1,
                                 minWidth: 0,

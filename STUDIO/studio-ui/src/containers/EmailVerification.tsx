@@ -112,7 +112,7 @@ export const EmailVerification = () => {
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
             notification.success({ message: t('users:verification_email_sent') })
             setCooldown(60)
-        } catch (e) {
+        } catch (_) {
             notification.error({ message: t('users:failed_to_send_verification_email') })
         } finally {
             setResendLoading(false)

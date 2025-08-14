@@ -27,7 +27,6 @@ import org.w3c.dom.Node;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -39,11 +38,11 @@ import org.openl.util.StringUtils;
 public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication> {
 
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
-    private final Consumer<User> syncUserData;
+    private final Consumer<SimpleUser> syncUserData;
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
-                                                Consumer<User> syncUserData,
+                                                Consumer<SimpleUser> syncUserData,
                                                 BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
         this.syncUserData = syncUserData;
