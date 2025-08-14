@@ -125,14 +125,6 @@ public class ManagementController {
         }
     }
 
-    @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary", hidden = true)
-    @GetMapping("/old/groups")
-    @Deprecated
-    @AdminPrivilege
-    public Map<String, UIGroup> getOldGroups() {
-        return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, this::buildUIGroup));
-    }
-
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
     @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
