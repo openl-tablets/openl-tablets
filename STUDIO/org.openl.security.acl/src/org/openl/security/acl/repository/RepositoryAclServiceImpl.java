@@ -105,12 +105,6 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     }
 
     @Override
-    public String getFullPath(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        return (String) oi.getIdentifier();
-    }
-
-    @Override
     @Transactional
     public List<Permission> listPermissions(AProjectArtefact projectArtefact, Sid sid) {
         if (sid == null) {

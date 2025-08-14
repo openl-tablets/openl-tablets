@@ -287,28 +287,3 @@ String.prototype.unescapeHTML = function() {
         .replace(/&gt;/g,'>')
         .replace(/&nbsp;/g,' ');
 }
-
-function copyToClipboard(text) {
-    /* Create a temporary textarea element */
-    var tempTextArea = document.createElement("textarea");
-
-    /* Set the value of the textarea to the text you want to copy */
-    tempTextArea.value = text;
-
-    /* Append the textarea element to the document */
-    document.body.appendChild(tempTextArea);
-
-    /* Select the text inside the textarea */
-    tempTextArea.select();
-    tempTextArea.setSelectionRange(0, 99999); /* For mobile devices */
-
-    /* Use the Clipboard API to copy the text */
-    navigator.clipboard.writeText(text).then(function () {
-        /* Success! */
-    }, function (err) {
-        /* Error copying to clipboard */
-    });
-
-    /* Remove the temporary textarea element from the document */
-    document.body.removeChild(tempTextArea);
-}

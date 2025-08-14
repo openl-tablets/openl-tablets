@@ -44,7 +44,6 @@ public class DisabledAclConfigurationTest {
         assertTrue(service.createAcl(stubArtefact, List.of(), false));
         assertTrue(service.hasAcl(stubArtefact));
         assertNull(service.getPath(stubArtefact));
-        assertNull(service.getFullPath(stubArtefact));
     }
 
     private void test_DisabledSimpleRepositoryAclService_stubs(SimpleRepositoryAclService service) {

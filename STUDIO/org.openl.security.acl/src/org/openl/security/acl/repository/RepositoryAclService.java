@@ -24,8 +24,6 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     String getPath(AProjectArtefact projectArtefact);
 
-    String getFullPath(AProjectArtefact projectArtefact);
-
     List<Permission> listPermissions(AProjectArtefact projectArtefact, Sid sid);
 
     Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact);
