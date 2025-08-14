@@ -50,10 +50,10 @@ public class AuthenticationSettingsController extends CRUDSettingsController<Aut
 
     @Override
     protected AuthenticationSettings mergeSettings(AuthenticationSettings originalSettings, JsonNode patch) throws IOException {
-        var userMode = patch.get("userMode").asText();
-        if (!originalSettings.getUserMode().getValue().equals(userMode)) {
+        var userMode = patch.get("userMode");
+        if (userMode != null && !originalSettings.getUserMode().getValue().equals(userMode.asText())) {
             throw new BadRequestException("invalid.settings.authentication.user-mode.not-match.message",
-                    new Object[]{userMode, originalSettings.getUserMode().getValue()});
+                    new Object[]{userMode.asText(), originalSettings.getUserMode().getValue()});
         }
         return super.mergeSettings(originalSettings, patch);
     }

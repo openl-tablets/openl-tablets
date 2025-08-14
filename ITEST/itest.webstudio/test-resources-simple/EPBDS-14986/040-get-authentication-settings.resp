@@ -9,6 +9,6 @@ Content-Type: application/json
     "email": "foo@example.com",
     "firstName": "John",
     "lastName": "Doe",
-    "displayName": "John Doe"
+    "displayName": "J-Does"
   }
 }
