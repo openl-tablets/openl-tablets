@@ -1,3 +1,0 @@
-GET /rest/admin/management/groups/settings HTTP/1.1
-Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
-

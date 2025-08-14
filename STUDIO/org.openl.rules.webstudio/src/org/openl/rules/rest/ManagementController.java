@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.model.GroupSettingsModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Privileges;
@@ -191,25 +190,6 @@ public class ManagementController {
             var prodPermission = prodRole.getCumulativePermission();
             prodRepoAclService.addRootPermissions(sid, prodPermission);
         }
-    }
-
-    @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
-    @PostMapping(value = "/groups/settings", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    @AdminPrivilege
-    @Deprecated(forRemoval = true)
-    public void saveSettings(@RequestBody GroupSettingsModel request) throws IOException {
-        validationProvider.validate(request);
-        DynamicPropertySource.get().save(Map.of(InheritedAuthenticationSettings.DEFAULT_GROUP, request.getDefaultGroup()));
-    }
-
-    @Operation(description = "mgmt.get-settings.desc", summary = "mgmt.get-settings.summary")
-    @GetMapping("/groups/settings")
-    @Deprecated(forRemoval = true)
-    public GroupSettingsModel getSettings() {
-        GroupSettingsModel model = new GroupSettingsModel();
-        model.setDefaultGroup(environment.getProperty(InheritedAuthenticationSettings.DEFAULT_GROUP));
-        return model;
     }
 
     @Operation(description = "mgmt.get-roles.desc", summary = "mgmt.get-roles.summary")
