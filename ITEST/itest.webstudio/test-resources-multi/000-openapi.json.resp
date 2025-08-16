@@ -744,8 +744,7 @@ Content-Type: application/json
             },
             "remoteRepository" : {
               "type": "boolean",
-              "description" : "***",
-              "readOnly": true
+              "description" : "***"
             },
             "tagPrefix" : {
               "type": "string",
@@ -978,8 +977,7 @@ Content-Type: application/json
             },
             "remoteRepository" : {
               "type": "boolean",
-              "description" : "***",
-              "readOnly": true
+              "description" : "***"
             },
             "tagPrefix" : {
               "type": "string",
