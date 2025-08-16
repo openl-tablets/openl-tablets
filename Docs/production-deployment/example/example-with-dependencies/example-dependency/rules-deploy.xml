@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <serviceName>example-with-dependencies</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>example-with-dependencies</url>
+</rules-deploy>
