@@ -1,4 +1,4 @@
-package org.openl.rules.security;
+package org.openl.studio.security;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import org.openl.rules.security.Group;
 
 public class RoleHierarchyImpl implements RoleHierarchy {
 
