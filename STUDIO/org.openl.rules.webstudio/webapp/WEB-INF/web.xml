@@ -81,7 +81,7 @@
 
     <filter>
         <filter-name>SecurityFilter</filter-name>
-        <filter-class>org.openl.rules.webstudio.web.servlet.SecurityFilter</filter-class>
+        <filter-class>org.openl.studio.security.SecurityFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>
