@@ -26,6 +26,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +50,6 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.OwnerOrAdminPrivilege;
@@ -66,6 +66,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.studio.security.SecurityUtils;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 
@@ -262,6 +263,9 @@ public class UsersController {
         String username = currentUserInfo.getUserName();
         User user = userManagementService.getUser(username);
 
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var isAdmin = SecurityUtils.hasAuthority(authentication, Privileges.ADMIN.getAuthority());
+
         return new UserProfileModel().setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
@@ -277,7 +281,7 @@ public class UsersController {
                 .setDisplayName(user.getDisplayName())
                 .setUsername(user.getUsername())
                 .setExternalFlags(user.getExternalFlags())
-                .setAdministrator(AccessManager.isGranted(Privileges.ADMIN))
+                .setAdministrator(isAdmin)
                 .setProfiles(Profile.PROFILES);
 
     }

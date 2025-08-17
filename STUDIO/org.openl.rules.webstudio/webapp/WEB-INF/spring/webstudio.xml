@@ -81,6 +81,4 @@
         <constructor-arg name="zipFilter" ref="zipFilter"/>
     </bean>
 
-    <bean class="org.openl.rules.security.AccessManager"/>
-
 </beans>
