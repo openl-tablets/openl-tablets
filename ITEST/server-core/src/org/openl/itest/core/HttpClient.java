@@ -3,6 +3,7 @@ package org.openl.itest.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -32,6 +33,7 @@ public class HttpClient implements AutoCloseable{
     public static final String ANSI_BLACK_BOLD = "\u001B[2;36m";
     public static final String ANSI_RED_BOLD = "\u001B[1;31m";
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
+    public static final String ANSI_BLUE_BOLD = "\u001B[1;34m";
 
     private final JettyServer server;
     private final URI baseURL;
@@ -98,11 +100,18 @@ public class HttpClient implements AutoCloseable{
      * @param path a root directory where HTTP request files are stored
      */
     public void test(String path) {
+        var holder = new String[1];
         try (Stream<Path> walk = Files.walk(Paths.get(path))) {
             long errors = walk.map(Path::toString).filter(p -> p.endsWith(".req")).map(p -> p.substring(0, p.length() - 4)).sorted().map(p -> {
-                System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
                 long start = System.currentTimeMillis();
                 try {
+                    var folder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
+                    if (!folder.equals(holder[0])) {
+                        holder[0] = folder;
+                        cookie.remove();
+                        System.out.println(ANSI_BLUE_BOLD + "=============== RESET COOKIE ===============" + ANSI_RESET);
+                    }
+                    System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
                     send(p + ".req", p + ".resp");
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
