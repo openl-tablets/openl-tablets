@@ -25,7 +25,6 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -33,10 +32,10 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import org.openl.rules.security.SimpleUser;
-import org.openl.security.oauth2.LazyClientRegistrationRepository;
-import org.openl.security.oauth2.Oauth2LogoutSuccessHandler;
-import org.openl.security.oauth2.OpenLOAuth2UserService;
-import org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration;
+import org.openl.studio.security.oauth2.LazyClientRegistrationRepository;
+import org.openl.studio.security.oauth2.Oauth2LogoutSuccessHandler;
+import org.openl.studio.security.oauth2.OpenLOAuth2UserService;
+import org.openl.studio.security.oauth2.OAuth2AccessTokenConfiguration;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' == 'oauth2'")

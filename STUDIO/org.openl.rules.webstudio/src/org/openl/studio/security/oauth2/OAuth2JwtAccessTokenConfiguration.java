@@ -1,4 +1,4 @@
-package org.openl.security.oauth2.config;
+package org.openl.studio.security.oauth2;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenValidator;
@@ -23,12 +22,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 import org.openl.rules.security.Privilege;
-import org.openl.security.oauth2.OpenLJwtGrantedAuthoritiesConverter;
 
 /**
  * Configuration for OAuth2 JWT access token authentication.
  */
-@Configuration
 public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean(OAuth2AccessTokenConfiguration.AUTH_PROVIDER_BEAN_NAME)

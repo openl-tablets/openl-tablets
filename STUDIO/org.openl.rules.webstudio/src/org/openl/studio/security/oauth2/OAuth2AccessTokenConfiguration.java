@@ -1,4 +1,4 @@
-package org.openl.security.oauth2.config;
+package org.openl.studio.security.oauth2;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -21,13 +22,13 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.security.oauth2.UserInfoClaimsConverter;
 
 /**
  * Configuration for OAuth2 access token authentication.
  */
 @Configuration
 @Import(OAuth2ImportSelector.class)
+@ConditionalOnExpression("'${user.mode}' == 'oauth2'")
 public class OAuth2AccessTokenConfiguration {
 
     /**

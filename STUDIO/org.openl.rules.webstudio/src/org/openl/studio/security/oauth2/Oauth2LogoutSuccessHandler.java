@@ -1,4 +1,4 @@
-package org.openl.security.oauth2;
+package org.openl.studio.security.oauth2;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;

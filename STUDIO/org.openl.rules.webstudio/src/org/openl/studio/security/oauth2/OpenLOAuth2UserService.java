@@ -1,4 +1,4 @@
-package org.openl.security.oauth2;
+package org.openl.studio.security.oauth2;
 
 import java.util.Map;
 import java.util.Objects;

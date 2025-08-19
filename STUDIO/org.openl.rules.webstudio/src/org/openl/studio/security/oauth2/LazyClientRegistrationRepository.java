@@ -1,4 +1,4 @@
-package org.openl.security.oauth2;
+package org.openl.studio.security.oauth2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
