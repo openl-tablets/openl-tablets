@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -15,14 +16,19 @@ import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
+import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextPropagationChannelInterceptor;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -34,10 +40,16 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final ApplicationContext applicationContext;
     private final ObjectMapper objectMapper;
+    private final AuthorizationManager<Message<?>> messageAuthorizationManager;
 
-    public WebSocketConfig(ObjectMapper objectMapper) {
+    public WebSocketConfig(ApplicationContext applicationContext,
+                           ObjectMapper objectMapper,
+                           AuthorizationManager<Message<?>> messageAuthorizationManager) {
+        this.applicationContext = applicationContext;
         this.objectMapper = objectMapper;
+        this.messageAuthorizationManager = messageAuthorizationManager;
     }
 
     @Override
@@ -60,9 +72,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+    }
+
+    @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        var authInterceptor = new AuthorizationChannelInterceptor(messageAuthorizationManager);
+        var publisher = new SpringAuthorizationEventPublisher(applicationContext);
+        authInterceptor.setAuthorizationEventPublisher(publisher);
         registration.interceptors(getSessionSecurityContextChannelInterceptor(),
-                new SecurityContextPropagationChannelInterceptor());
+                new SecurityContextPropagationChannelInterceptor(),
+                authInterceptor);
     }
 
     // Resolve the security context from the session attributes
