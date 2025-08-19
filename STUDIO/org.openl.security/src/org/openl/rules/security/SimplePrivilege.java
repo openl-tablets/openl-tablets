@@ -16,11 +16,6 @@ public class SimplePrivilege implements Privilege {
     }
 
     @Override
-    public String getDisplayName() {
-        return name;
-    }
-
-    @Override
     public String getAuthority() {
         return name;
     }

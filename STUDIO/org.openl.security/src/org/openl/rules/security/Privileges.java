@@ -8,22 +8,11 @@ package org.openl.rules.security;
  */
 public enum Privileges implements Privilege {
 
-    ADMIN("Administrate");
-
-    private final String displayName;
-
-    Privileges(String displayName) {
-        this.displayName = displayName;
-    }
+    ADMIN;
 
     @Override
     public String getName() {
         return name();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return displayName;
     }
 
     @Override

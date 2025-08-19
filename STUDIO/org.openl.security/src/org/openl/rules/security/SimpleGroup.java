@@ -52,11 +52,6 @@ public class SimpleGroup implements Group {
     }
 
     @Override
-    public String getDisplayName() {
-        return name;
-    }
-
-    @Override
     public String getAuthority() {
         return getName();
     }

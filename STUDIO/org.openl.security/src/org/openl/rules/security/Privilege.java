@@ -6,6 +6,4 @@ public interface Privilege extends GrantedAuthority {
 
     String getName();
 
-    String getDisplayName();
-
 }
