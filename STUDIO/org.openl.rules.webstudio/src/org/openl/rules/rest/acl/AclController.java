@@ -28,13 +28,13 @@ import org.openl.rules.rest.acl.model.AclResourceRef;
 import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.BulkAclOverwriteRequest;
 import org.openl.rules.rest.acl.service.BulkAclOverwriteService;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.CollectionUtils;
 
 @Validated

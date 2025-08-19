@@ -19,9 +19,9 @@ import org.openl.rules.rest.settings.model.RepositoriesBatchRequest;
 import org.openl.rules.rest.settings.service.DesignRepositorySettingsService;
 import org.openl.rules.rest.settings.service.ProductionRepositorySettingsService;
 import org.openl.rules.rest.settings.service.RepositorySettingsService;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.SettingsService;
+import org.openl.studio.security.AdminPrivilege;
 
 @RestController
 @RequestMapping("/admin/settings/repos")

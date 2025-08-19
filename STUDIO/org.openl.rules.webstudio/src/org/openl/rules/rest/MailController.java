@@ -27,8 +27,6 @@ import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.rest.model.NotificationModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.AdminPrivilege;
-import org.openl.rules.security.OwnerOrAdminPrivilege;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
@@ -36,6 +34,8 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.security.AdminPrivilege;
+import org.openl.studio.security.OwnerOrAdminPrivilege;
 
 @RestController
 @RequestMapping("/mail")

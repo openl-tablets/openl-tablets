@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.openl.rules.rest.settings.model.CURepositoryConfigurationModel;
 import org.openl.rules.rest.settings.model.CreateRepositoryTemplateModel;
 import org.openl.rules.rest.settings.service.RepositorySettingsService;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.SettingsService;
+import org.openl.studio.security.AdminPrivilege;
 
 public abstract class CRUDRepositorySettingsController {
 

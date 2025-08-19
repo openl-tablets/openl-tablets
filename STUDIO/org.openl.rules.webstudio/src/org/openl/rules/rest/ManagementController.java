@@ -1,6 +1,5 @@
 package org.openl.rules.rest;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,17 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
-import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 

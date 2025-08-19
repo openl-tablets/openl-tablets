@@ -30,12 +30,12 @@ import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.StringUtils;
 
 @RestController

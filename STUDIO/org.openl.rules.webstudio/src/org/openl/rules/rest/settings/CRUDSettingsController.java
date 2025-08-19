@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
 import org.openl.rules.webstudio.web.admin.SettingsService;
+import org.openl.studio.security.AdminPrivilege;
 
 public abstract class CRUDSettingsController<E extends SettingsHolder> {
 

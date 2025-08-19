@@ -18,9 +18,9 @@ import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.settings.model.CreateAuthenticationTemplateModel;
 import org.openl.rules.rest.settings.service.AuthenticationSettingsFactory;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.rules.webstudio.web.admin.security.AuthenticationSettings;
+import org.openl.studio.security.AdminPrivilege;
 
 @RestController
 @RequestMapping("/admin/settings/authentication")
