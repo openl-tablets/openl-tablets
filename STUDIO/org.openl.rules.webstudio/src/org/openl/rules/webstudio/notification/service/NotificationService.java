@@ -1,4 +1,4 @@
-package org.openl.rules.rest.common.service;
+package org.openl.rules.webstudio.notification.service;
 
 import java.io.IOException;
 

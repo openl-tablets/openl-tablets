@@ -1,4 +1,4 @@
-package org.openl.rules.rest.config;
+package org.openl.rules.socket.config;
 
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 

@@ -1,4 +1,4 @@
-package org.openl.rules.rest.config;
+package org.openl.rules.socket.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;

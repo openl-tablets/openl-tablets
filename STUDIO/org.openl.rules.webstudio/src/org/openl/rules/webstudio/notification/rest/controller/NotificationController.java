@@ -1,4 +1,4 @@
-package org.openl.rules.rest.common;
+package org.openl.rules.webstudio.notification.rest.controller;
 
 import java.io.IOException;
 import jakarta.servlet.http.HttpSession;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.common.service.NotificationService;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.notification.service.NotificationService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @RestController

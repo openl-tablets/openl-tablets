@@ -1,4 +1,4 @@
-package org.openl.rules.rest.common;
+package org.openl.rules.socket.controller;
 
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.simp.annotation.SendToUser;

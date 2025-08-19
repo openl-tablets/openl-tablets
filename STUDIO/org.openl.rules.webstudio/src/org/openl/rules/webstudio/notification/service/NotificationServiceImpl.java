@@ -1,4 +1,4 @@
-package org.openl.rules.rest.common.service;
+package org.openl.rules.webstudio.notification.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,21 +8,22 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.webstudio.notification.event.NotificationEvent;
 import org.openl.util.StringUtils;
 
 @Component
 public class NotificationServiceImpl implements NotificationService {
 
     private final Path NOTIFICATION_FILE;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher publisher;
 
     public NotificationServiceImpl(@Value("${admin.notification-file}") String notificationFile,
-                                  SimpMessagingTemplate messagingTemplate) {
+                                   ApplicationEventPublisher publisher) {
         this.NOTIFICATION_FILE = Paths.get(notificationFile);
-        this.messagingTemplate = messagingTemplate;
+        this.publisher = publisher;
     }
 
     @Override
@@ -42,10 +43,6 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             Files.writeString(NOTIFICATION_FILE, notification);
         }
-        notifyAll(notification);
-    }
-
-    private void notifyAll(String message) {
-        messagingTemplate.convertAndSend("/topic/public/notification.txt", message == null ? "" : message);
+        publisher.publishEvent(new NotificationEvent(notification, this));
     }
 }
