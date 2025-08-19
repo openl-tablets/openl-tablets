@@ -20,7 +20,7 @@ import org.openl.util.StringTool;
 
 /**
  * Workaround for WebSphere Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project" instead
- * of "Empty Project") but JarEntry.getName() not encoded - in that cases PathMatchingResourcePatternResolver cannot
+ * of "Empty Project") but JarEntry.getAuthority() not encoded - in that cases PathMatchingResourcePatternResolver cannot
  * find the resource. See the line with "Workaround" keyword for details. TODO remove this class when the bug is fixed
  * without workaround
  *

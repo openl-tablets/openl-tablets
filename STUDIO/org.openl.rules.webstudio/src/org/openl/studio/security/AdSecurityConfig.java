@@ -14,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.webstudio.security.LdapToOpenLUserDetailsMapper;
 
@@ -48,7 +47,7 @@ public class AdSecurityConfig {
 
     @Bean
     public LdapToOpenLUserDetailsMapper userDetailsContextMapper(@Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
-                                                                 @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper,
+                                                                 @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper,
                                                                  Environment environment) {
         var delegate = new LdapUserDetailsMapper();
         return new LdapToOpenLUserDetailsMapper(

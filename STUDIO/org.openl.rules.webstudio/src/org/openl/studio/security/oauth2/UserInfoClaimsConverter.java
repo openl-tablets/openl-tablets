@@ -10,9 +10,8 @@ import java.util.function.Consumer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
 
@@ -23,11 +22,11 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
 
     private final PropertyResolver propertyResolver;
     private final Consumer<SimpleUser> syncUserData;
-    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
 
     public UserInfoClaimsConverter(PropertyResolver propertyResolver,
                                    Consumer<SimpleUser> syncUserData,
-                                   BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                   BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         this.syncUserData = syncUserData;
         this.propertyResolver = propertyResolver;
         this.privilegeMapper = privilegeMapper;
@@ -35,13 +34,13 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
 
     @Override
     public SimpleUser convert(Map<String, Object> claims) {
-        final List<Privilege> grantedAuthorities = new ArrayList<>();
+        final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         Object claimGroups = claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
         if (claimGroups != null) {
             if (List.class.isAssignableFrom(claimGroups.getClass())) {
                 List<?> groups = (List<?>) claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
                 for (Object name : groups) {
-                    grantedAuthorities.add(new SimplePrivilege(name.toString()));
+                    grantedAuthorities.add(new SimpleGrantedAuthority(name.toString()));
                 }
             }
         }
@@ -56,7 +55,7 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
                 .setDisplayName(getAttributeAsString(claims, "security.oauth2.attribute.display-name"));
 
         syncUserData.accept(userBuilder.build());
-        Collection<Privilege> privileges = privilegeMapper.apply(username, grantedAuthorities);
+        Collection<GrantedAuthority> privileges = privilegeMapper.apply(username, grantedAuthorities);
 
         return userBuilder.setPrivileges(privileges).build();
     }

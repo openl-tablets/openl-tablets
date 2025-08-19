@@ -21,8 +21,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
-import org.openl.rules.security.Privilege;
-
 /**
  * Configuration for OAuth2 JWT access token authentication.
  */
@@ -59,7 +57,7 @@ public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean
     public OpenLJwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter(
-            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         return new OpenLJwtGrantedAuthoritiesConverter(new JwtGrantedAuthoritiesConverter(), privilegeMapper);
     }
 

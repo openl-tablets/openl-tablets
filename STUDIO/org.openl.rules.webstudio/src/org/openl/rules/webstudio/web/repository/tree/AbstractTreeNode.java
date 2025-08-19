@@ -51,7 +51,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     // ProjectArtefact p2 = o2.dataBean;
     //
     // if (p1 == null || p2 == null || p1.isFolder() == p2.isFolder()) {
-    // return o1.getName().compareToIgnoreCase(o2.getName());
+    // return o1.getAuthority().compareToIgnoreCase(o2.getAuthority());
     // }
     //
     // return (p1.isFolder() ? -1 : 1);

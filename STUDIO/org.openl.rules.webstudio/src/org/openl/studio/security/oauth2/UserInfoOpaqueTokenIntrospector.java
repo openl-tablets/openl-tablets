@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -28,7 +29,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 
 /**
@@ -115,9 +115,9 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
     private static class UserCacheValue {
 
         public final Map<String, Object> userAttributes;
-        public final Collection<Privilege> privileges;
+        public final Collection<GrantedAuthority> privileges;
 
-        public UserCacheValue(Map<String, Object> userAttributes, Collection<Privilege> privileges) {
+        public UserCacheValue(Map<String, Object> userAttributes, Collection<? extends GrantedAuthority> privileges) {
             this.userAttributes = Collections.unmodifiableMap(userAttributes);
             this.privileges = Collections.unmodifiableCollection(privileges);
         }

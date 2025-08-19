@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.openl.rules.security.Privilege;
+import org.springframework.security.core.GrantedAuthority;
+
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -14,24 +15,24 @@ public final class PrivilegesEvaluator {
     private PrivilegesEvaluator() {
     }
 
-    public static Collection<Privilege> createPrivileges(User user) {
-        Collection<Privilege> grantedList = new ArrayList<>();
+    public static Collection<GrantedAuthority> createPrivileges(User user) {
+        Collection<GrantedAuthority> grantedList = new ArrayList<>();
 
         Set<Group> groups = user.getGroups();
         for (Group group : groups) {
-            Collection<Privilege> privileges = createPrivileges(group);
+            Collection<GrantedAuthority> privileges = createPrivileges(group);
             grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
         }
         return grantedList;
     }
 
     public static SimpleGroup wrap(Group group) {
-        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(group);
+        Collection<GrantedAuthority> privileges = PrivilegesEvaluator.createPrivileges(group);
         return new SimpleGroup(group.getName(), group.getDescription(), privileges);
     }
 
-    private static Collection<Privilege> createPrivileges(Group group) {
-        Collection<Privilege> grantedList = new ArrayList<>();
+    private static Collection<GrantedAuthority> createPrivileges(Group group) {
+        Collection<GrantedAuthority> grantedList = new ArrayList<>();
 
         Set<String> privileges = group.getPrivileges();
 

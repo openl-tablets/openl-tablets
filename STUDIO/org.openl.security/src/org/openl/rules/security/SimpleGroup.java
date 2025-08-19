@@ -2,13 +2,15 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
+import org.springframework.security.core.GrantedAuthority;
+
 public class SimpleGroup implements Group {
 
     private static final long serialVersionUID = 1L;
 
     private String name;
     private String description;
-    private Collection<Privilege> privileges;
+    private Collection<GrantedAuthority> privileges;
 
     public SimpleGroup() {
     }
@@ -18,15 +20,10 @@ public class SimpleGroup implements Group {
      *
      * @param privileges nested authorities (privileges and groups)
      */
-    public SimpleGroup(String name, String description, Collection<Privilege> privileges) {
+    public SimpleGroup(String name, String description, Collection<GrantedAuthority> privileges) {
         this.name = name;
         this.description = description;
         this.privileges = privileges;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
@@ -43,23 +40,23 @@ public class SimpleGroup implements Group {
     }
 
     @Override
-    public Collection<Privilege> getPrivileges() {
+    public Collection<GrantedAuthority> getPrivileges() {
         return privileges;
     }
 
-    public void setPrivileges(Collection<Privilege> privileges) {
+    public void setPrivileges(Collection<GrantedAuthority> privileges) {
         this.privileges = privileges;
     }
 
     @Override
     public String getAuthority() {
-        return getName();
+        return name;
     }
 
     @Override
     public boolean hasPrivilege(String privilege) {
-        for (Privilege auth : privileges) {
-            if (auth.getName().equals(privilege)) {
+        for (var auth : privileges) {
+            if (auth.getAuthority().equals(privilege)) {
                 return true;
             }
 

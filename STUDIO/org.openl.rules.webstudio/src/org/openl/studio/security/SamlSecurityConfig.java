@@ -34,7 +34,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.studio.security.saml.OpenLResponseAuthenticationConverter;
 import org.openl.studio.security.saml.OpenLSamlBuilder;
@@ -191,7 +190,7 @@ public class SamlSecurityConfig {
     public OpenLResponseAuthenticationConverter responseAuthenticationConverter(
             Environment environment,
             @Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
-            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         
         return new OpenLResponseAuthenticationConverter(environment, syncUserData, privilegeMapper);
     }

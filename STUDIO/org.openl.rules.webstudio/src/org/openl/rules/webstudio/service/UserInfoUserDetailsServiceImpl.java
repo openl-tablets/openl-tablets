@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.standalone.dao.UserDao;
@@ -24,11 +23,11 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserDao userDao;
     private final AdminUsers adminUsersInitializer;
-    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
 
     public UserInfoUserDetailsServiceImpl(UserDao userDao,
                                           AdminUsers adminUsersInitializer,
-                                          BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                          BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         this.userDao = userDao;
         this.adminUsersInitializer = adminUsersInitializer;
         this.privilegeMapper = privilegeMapper;
@@ -44,7 +43,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
-        Collection<Privilege> privileges = privilegeMapper.apply(user.getLoginName(), Collections.emptyList());
+        Collection<GrantedAuthority> privileges = privilegeMapper.apply(user.getLoginName(), Collections.emptyList());
 
         SimpleUser simpleUser = SimpleUser.builder()
                 .setFirstName(user.getFirstName())

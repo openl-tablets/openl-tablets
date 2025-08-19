@@ -7,9 +7,9 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.GrantedAuthority;
 
 import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
@@ -66,7 +66,7 @@ public class AdminUsers {
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();
             groups.add(adminGroup);
-            user.getAuthorities().stream().filter(g -> g instanceof Group).map(Privilege::getName).forEach(groups::add);
+            user.getAuthorities().stream().filter(g -> g instanceof Group).map(GrantedAuthority::getAuthority).forEach(groups::add);
             userService.updateAuthorities(username, groups);
         }
     }
@@ -80,7 +80,7 @@ public class AdminUsers {
         }
         for (Group group : groupService.getGroups()) {
             if (group.hasPrivilege(ADMIN)) {
-                return group.getName();
+                return group.getAuthority();
             }
         }
         if (!groupService.existsByName(ADMIN_GROUP)) {

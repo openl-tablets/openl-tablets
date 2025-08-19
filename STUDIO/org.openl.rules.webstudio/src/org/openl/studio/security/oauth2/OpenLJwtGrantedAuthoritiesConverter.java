@@ -10,18 +10,16 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
-import org.openl.rules.security.Privilege;
-
 /**
- * Maps JWT claims to OpenL {@link Privilege}s.
+ * Maps JWT claims to OpenL {@link GrantedAuthority}s.
  */
 public class OpenLJwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
     private final JwtGrantedAuthoritiesConverter delegate;
-    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
 
     public OpenLJwtGrantedAuthoritiesConverter(JwtGrantedAuthoritiesConverter delegate,
-                                               BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                               BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         this.delegate = delegate;
         this.privilegeMapper = privilegeMapper;
     }

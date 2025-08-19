@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl;
@@ -32,7 +31,7 @@ public class MultiSecurityConfig {
     public UserDetailsService userDetailsService(
             @Qualifier("openlUserDao") UserDao userDao,
             @Qualifier("adminUsersInitializer") AdminUsers adminUsersInitializer,
-            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
 
         return new UserInfoUserDetailsServiceImpl(userDao, adminUsersInitializer, privilegeMapper);
     }

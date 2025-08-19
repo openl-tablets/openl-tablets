@@ -19,13 +19,12 @@ import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.w3c.dom.Node;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -37,13 +36,13 @@ import org.openl.util.StringUtils;
  */
 public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication> {
 
-    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
     private final Consumer<SimpleUser> syncUserData;
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
                                                 Consumer<SimpleUser> syncUserData,
-                                                BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -65,7 +64,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
 
         syncUserData.accept(simpleUser);
 
-        Collection<Privilege> privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
+        Collection<GrantedAuthority> privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
 
         DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Collections.emptyMap());
         principal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
@@ -127,10 +126,10 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5
         }
 
         public SimpleUser build() {
-            final List<Privilege> grantedAuthorities = new ArrayList<>();
+            final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
                 for (String name : getAttributeValues(groupsAttribute)) {
-                    grantedAuthorities.add(new SimplePrivilege(name));
+                    grantedAuthorities.add(new SimpleGrantedAuthority(name));
                 }
             }
 

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
+import org.springframework.security.core.GrantedAuthority;
+
 public class SimpleUser implements User {
 
     private static final long serialVersionUID = 1L;
@@ -12,7 +14,7 @@ public class SimpleUser implements User {
     private String lastName;
     private String username;
     private String passwordHash;
-    private Collection<Privilege> privileges;
+    private Collection<? extends GrantedAuthority> privileges;
     private String email;
     private String displayName;
     private UserExternalFlags externalFlags;
@@ -89,7 +91,7 @@ public class SimpleUser implements User {
     }
 
     @Override
-    public Collection<Privilege> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return privileges;
     }
 
@@ -124,8 +126,8 @@ public class SimpleUser implements User {
 
     @Override
     public boolean hasPrivilege(String privilege) {
-        for (Privilege auth : privileges) {
-            if (auth.getName().equals(privilege)) {
+        for (var auth : privileges) {
+            if (auth.getAuthority().equals(privilege)) {
                 return true;
             }
 
@@ -189,7 +191,7 @@ public class SimpleUser implements User {
             return this;
         }
 
-        public Builder setPrivileges(Collection<Privilege> privileges) {
+        public Builder setPrivileges(Collection<? extends GrantedAuthority> privileges) {
             this.target.privileges = privileges;
             return this;
         }

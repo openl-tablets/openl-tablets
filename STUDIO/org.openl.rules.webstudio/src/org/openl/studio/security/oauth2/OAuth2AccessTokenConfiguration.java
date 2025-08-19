@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 
 /**
@@ -73,7 +72,7 @@ public class OAuth2AccessTokenConfiguration {
     @Bean
     public UserInfoClaimsConverter userInfoClaimsConverter(@Qualifier("environment") PropertyResolver propertyResolver,
                                                            @Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
-                                                           @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                           @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         return new UserInfoClaimsConverter(propertyResolver, syncUserData, privilegeMapper);
     }
 

@@ -2,16 +2,18 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
+import org.springframework.security.core.GrantedAuthority;
+
 /**
  * An authority containing several other authorities
  *
  * @author NSamatov
  */
-public interface Group extends Privilege {
+public interface Group extends GrantedAuthority {
 
     String getDescription();
 
-    Collection<Privilege> getPrivileges();
+    Collection<GrantedAuthority> getPrivileges();
 
     // List<Group> getGroups();
 

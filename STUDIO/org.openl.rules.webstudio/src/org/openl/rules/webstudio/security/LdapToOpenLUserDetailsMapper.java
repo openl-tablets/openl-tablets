@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.naming.CompositeName;
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -30,8 +29,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
 
@@ -39,7 +36,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
     private final UserDetailsContextMapper delegate;
     private final Consumer<SimpleUser> syncUserData;
-    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
 
     private final String groupFilter;
 
@@ -52,7 +49,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate,
                                         Consumer<SimpleUser> syncUserData,
                                         PropertyResolver propertyResolver,
-                                        BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                        BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
         this.delegate = delegate;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -89,14 +86,14 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 .setFirstName(firstName)
                 .setLastName(lastName)
                 .setUsername(fixedUsername)
-                .setPrivileges(userAuthorities.stream().map(GrantedAuthority::getAuthority).map(SimplePrivilege::new).collect(Collectors.toList()))
+                .setPrivileges(userAuthorities)
                 .setEmail(email)
                 .setDisplayName(displayName)
                 .build();
 
         syncUserData.accept(simpleUser);
 
-        Collection<Privilege> privileges = privilegeMapper.apply(fixedUsername, userAuthorities);
+        Collection<GrantedAuthority> privileges = privilegeMapper.apply(fixedUsername, userAuthorities);
 
         return SimpleUser.builder(simpleUser).setPrivileges(privileges).build();
     }
@@ -149,7 +146,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      *
      * @return Not null list if successful and null if cannot load user authorities because of an error.
      */
-    private Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
+    private Collection<GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
                                                                        String username,
                                                                        String password) {
         try {

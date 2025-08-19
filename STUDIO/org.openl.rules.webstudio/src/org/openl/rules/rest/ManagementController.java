@@ -169,7 +169,7 @@ public class ManagementController {
             groupManagementService.updateGroup(oldName, name, description);
         }
         if (Boolean.TRUE.equals(admin)) {
-            groupManagementService.updateGroup(name, Collections.singleton(Privileges.ADMIN.getName()));
+            groupManagementService.updateGroup(name, Collections.singleton(Privileges.ADMIN.getAuthority()));
         } else {
             groupManagementService.updateGroup(name, Collections.emptySet());
         }
@@ -204,7 +204,7 @@ public class ManagementController {
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
                 .stream()
-                .map(org.openl.rules.security.Group::getName)
+                .map(org.openl.rules.security.Group::getAuthority)
                 .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 

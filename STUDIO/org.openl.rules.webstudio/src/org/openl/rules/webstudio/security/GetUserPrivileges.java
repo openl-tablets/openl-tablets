@@ -3,13 +3,10 @@ package org.openl.rules.webstudio.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 
 import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -21,7 +18,7 @@ import org.openl.util.StringUtils;
 /**
  * Get all privileges for the given user.
  */
-public class GetUserPrivileges implements BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> {
+public class GetUserPrivileges implements BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
@@ -39,9 +36,9 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         this.relevantSystemWideGrantedAuthority = relevantSystemWideGrantedAuthority;
     }
 
-    public Collection<Privilege> apply(String user, Collection<? extends GrantedAuthority> authorities) {
+    public Collection<GrantedAuthority> apply(String user, Collection<? extends GrantedAuthority> authorities) {
 
-        Collection<Privilege> privileges = new ArrayList<>();
+        Collection<GrantedAuthority> privileges = new ArrayList<>();
 
         // Add a default group if it presents
         Group defaultGroup = getDefaultGroup();
@@ -55,14 +52,13 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         // Add authorities from the DB if exists
         User userDetails = userManagementService.getUser(user);
         if (userDetails != null) {
-            privileges.addAll(
-                    userDetails.getAuthorities().stream().map(GetUserPrivileges::toPrivilege).collect(Collectors.toList()));
+            privileges.addAll(userDetails.getAuthorities());
         }
 
         return privileges;
     }
 
-    private void mapAuthorities(Collection<? extends GrantedAuthority> authorities, Collection<Privilege> privileges) {
+    private void mapAuthorities(Collection<? extends GrantedAuthority> authorities, Collection<GrantedAuthority> privileges) {
         for (GrantedAuthority authority : authorities) {
             String authorityName = authority.getAuthority();
             Group group = groupManagementService.getGroupByName(authorityName);
@@ -70,7 +66,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
                 // Expand priveleges from the DB
                 privileges.add(group);
             } else {
-                privileges.add(toPrivilege(authority));
+                privileges.add(authority);
             }
         }
     }
@@ -86,15 +82,6 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         // Create if absent
         groupManagementService.addGroup(defaultGroup, "A default group for authenticated users");
         return groupManagementService.getGroupByName(defaultGroup);
-
-    }
-
-    private static Privilege toPrivilege(GrantedAuthority authority) {
-        if (authority instanceof Privilege) {
-            return ((Privilege) authority);
-        } else {
-            return (new SimplePrivilege(authority.getAuthority()));
-        }
 
     }
 
