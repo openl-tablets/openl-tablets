@@ -1,4 +1,4 @@
-package org.openl.security.saml;
+package org.openl.studio.security.saml;
 
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.MarshallingException;

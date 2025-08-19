@@ -36,9 +36,9 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.security.saml.OpenLResponseAuthenticationConverter;
-import org.openl.security.saml.OpenLSamlBuilder;
-import org.openl.security.saml.SamlLogoutSuccessHandler;
+import org.openl.studio.security.saml.OpenLResponseAuthenticationConverter;
+import org.openl.studio.security.saml.OpenLSamlBuilder;
+import org.openl.studio.security.saml.SamlLogoutSuccessHandler;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' == 'saml'")

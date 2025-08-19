@@ -32,7 +32,6 @@
         <module>org.openl.rules.demo</module>
         <module>org.openl.security</module>
         <module>org.openl.security.standalone</module>
-        <module>org.openl.security.saml</module>
         <module>org.openl.security.oauth2</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.rules.spring.openapi</module>

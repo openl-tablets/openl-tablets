@@ -1,4 +1,4 @@
-package org.openl.security.saml;
+package org.openl.studio.security.saml;
 
 import java.util.ArrayList;
 import java.util.Collection;
