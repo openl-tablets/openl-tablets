@@ -33,7 +33,7 @@
     <import resource="db-services.xml"/>
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
 
-    <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo"/>
+    <bean id="currentUserInfo" class="org.openl.studio.security.CurrentUserInfo"/>
 
     <bean id="excludedFolders" class="java.util.LinkedHashSet">
         <constructor-arg>

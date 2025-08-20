@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.security;
+package org.openl.studio.security;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -23,8 +23,8 @@ import org.openl.rules.rest.model.UserEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.studio.security.CurrentUserInfo;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
 public class UsersValidatorTest extends AbstractConstraintValidatorTest {
