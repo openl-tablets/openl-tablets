@@ -193,7 +193,7 @@ public class UsersRestTest {
         String content = bufferedReader.lines().collect(Collectors.joining());
         int tokenStartIndex = content.indexOf(TOKEN_PARAM) + TOKEN_PARAM.length();
         String token = content.substring(tokenStartIndex, tokenStartIndex + TOKEN_LENGTH);
-        client.getForObject("/web/mail/verify/" + token, String.class, 204);
+        client.getForObject("/web/mail/verify/" + token, String.class, 204, "Authorization", "Basic YWRtaW46YWRtaW4=");
         inputStreamReader.close();
         bufferedReader.close();
 

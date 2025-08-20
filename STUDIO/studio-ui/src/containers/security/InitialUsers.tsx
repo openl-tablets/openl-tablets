@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { Divider, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
-import {Checkbox, Select} from '../../components'
+import { Select } from '../../components'
 
 interface InitialUsersProps {
     userGroups: { label: string; value: string }[]

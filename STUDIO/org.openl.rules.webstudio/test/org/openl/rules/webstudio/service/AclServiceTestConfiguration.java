@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import org.openl.rules.security.config.MethodSecurityConfig;
+import org.openl.studio.security.MethodSecurityConfig;
 import org.openl.rules.webstudio.config.SpringCachingConfig;
 import org.openl.security.acl.config.EnabledAclConfiguration;
 import org.openl.security.acl.config.OpenLAclConfiguration;
