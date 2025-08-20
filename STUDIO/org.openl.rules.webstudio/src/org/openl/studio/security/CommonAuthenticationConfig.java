@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
-import org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper;
+import org.openl.studio.security.ad.OpenLAuthenticationProviderWrapper;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' != 'single'")

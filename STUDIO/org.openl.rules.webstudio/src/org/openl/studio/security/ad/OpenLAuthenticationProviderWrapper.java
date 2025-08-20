@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.security;
+package org.openl.studio.security.ad;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

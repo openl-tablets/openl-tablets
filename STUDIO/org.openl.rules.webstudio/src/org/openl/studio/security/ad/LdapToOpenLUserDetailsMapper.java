@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.security;
+package org.openl.studio.security.ad;
 
 import java.util.ArrayList;
 import java.util.Collection;

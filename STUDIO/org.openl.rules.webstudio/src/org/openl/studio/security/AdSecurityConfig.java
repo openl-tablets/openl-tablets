@@ -15,7 +15,7 @@ import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAu
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.webstudio.security.LdapToOpenLUserDetailsMapper;
+import org.openl.studio.security.ad.LdapToOpenLUserDetailsMapper;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' == 'ad'")
