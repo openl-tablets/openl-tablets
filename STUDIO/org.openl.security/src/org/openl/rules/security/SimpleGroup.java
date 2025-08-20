@@ -30,11 +30,6 @@ public class SimpleGroup implements Group {
         this.name = name;
     }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }

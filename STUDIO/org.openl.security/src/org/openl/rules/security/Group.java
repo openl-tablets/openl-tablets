@@ -11,11 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public interface Group extends GrantedAuthority {
 
-    String getDescription();
-
     Collection<GrantedAuthority> getPrivileges();
-
-    // List<Group> getGroups();
 
     /**
      * Returns true if this group contains given privilege
