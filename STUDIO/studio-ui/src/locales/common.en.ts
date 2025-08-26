@@ -67,6 +67,7 @@ i18next.addResourceBundle('en', 'common', {
         invalid_date: 'Invalid date',
         invalid_time: 'Invalid time',
         invalid_number: 'Invalid number',
+        leave_blank: 'Leave blank to keep the current value'
     },
     plugin: {
         loading_plugin: 'Loading Plugin',

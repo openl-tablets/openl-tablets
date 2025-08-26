@@ -26,3 +26,28 @@ export const useRules = ({ required, rules = []}: { required?: boolean, rules: R
 
     return { allRules }
 }
+
+export const usePasswordRules = ({ required, isSecret, rules = []}: { required?: boolean, isSecret: boolean, rules: RuleObject[] }) => {
+    const { t } = useTranslation()
+    const [additionalRules, setAdditionalRules] = useState<RuleObject[]>([])
+
+    useEffect(() => {
+        if (required && !isSecret) {
+            setAdditionalRules(prev => {
+                const updatedRules = prev.filter(rule => !rule.required)
+                return [...updatedRules, {
+                    required: true,
+                    message: t('common:validation.required')
+                }]
+            })
+        } else {
+            setAdditionalRules(prev => prev.filter(rule => !rule.required))
+        }
+    }, [required, isSecret])
+
+    const allRules = useMemo(() => {
+        return rules.concat(additionalRules)
+    }, [rules, additionalRules])
+
+    return { allRules }
+}

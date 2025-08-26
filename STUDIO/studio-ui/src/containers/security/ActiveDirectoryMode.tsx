@@ -45,9 +45,6 @@ export const ActiveDirectoryMode = () => {
             <Input required label={t('security:active_directory_url')} name="serverUrl" />
             <Input required label={t('security:user_filter')} name="searchFilter" tooltip={{ icon: UserFilterModal }} />
             <Input label={t('security:group_filter')} name="groupFilter" tooltip={{ icon: GroupFilterModal }} />
-            {/*<Typography.Paragraph>{t('security:login_and_password_info')}</Typography.Paragraph>*/}
-            {/*<Input label={t('common:login')} name="" />*/}
-            {/*<InputPassword label={t('common:password')} name="" />*/}
         </>
     )
 }

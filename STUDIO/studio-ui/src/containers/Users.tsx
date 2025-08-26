@@ -91,7 +91,7 @@ export const Users: React.FC = () => {
                 dataIndex: 'email',
                 key: 'email',
                 render: (email, record) => {
-                    if (record.externalFlags && !record.externalFlags.emailVerified && systemSettings.supportedFeatures.emailVerification) {
+                    if (record.externalFlags && !record.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification) {
                         return (
                             <span>
                                 {email}{' '}

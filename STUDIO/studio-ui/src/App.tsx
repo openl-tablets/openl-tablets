@@ -45,6 +45,10 @@ function App() {
         return
     }
 
+    if (!showLogin && !isLoggedIn) {
+        return null
+    }
+
     return(
         <ErrorBoundary
                 onError={(error: Error, errorInfo: any) => {

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Button, Divider, Form, notification, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +14,10 @@ export const UserProfile: React.FC = () => {
     const { isExternalAuthSystem } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
     const [saving, setSaving] = useState(false)
+
+    useEffect(() => {
+        fetchUserProfile()
+    }, [])
 
     const handleSubmit = async (values: UserProfileFormFields) => {
         const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
