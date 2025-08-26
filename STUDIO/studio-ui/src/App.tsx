@@ -33,6 +33,10 @@ function App() {
         window.location.href = loginPage + `?from=${encodeURIComponent(window.location.href)}`
     }
 
+    if (!showLogin && !isLoggedIn) {
+        return null
+    }
+
     return(
         <Suspense fallback={<div>Loading...</div>}>
             <AntApp>
