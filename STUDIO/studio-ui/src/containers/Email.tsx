@@ -39,9 +39,9 @@ export const Email: React.FC = () => {
             })
         } else {
             await apiCall('/admin/settings/mail', {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/merge-patch+json'
                 },
                 body: JSON.stringify(restValues)
             }).then(() => {
@@ -106,12 +106,9 @@ export const Email: React.FC = () => {
                         }]}
                     />
                     <InputPassword
+                        required
                         label={t('email:password')}
                         name="password"
-                        rules={[{
-                            required: true,
-                            message: t('common:validation.required')
-                        }]}
                     />
                 </>
             )}

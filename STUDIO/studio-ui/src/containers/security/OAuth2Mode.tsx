@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Divider, Typography } from 'antd'
-import { Input } from '../../components'
+import { Input, InputPassword } from '../../components'
 
 export const OAuth2Mode = () => {
     const { t } = useTranslation()
@@ -20,7 +20,7 @@ export const OAuth2Mode = () => {
                 label={t('security:issuer_uri')}
                 name="issuerUri"
             />
-            <Input
+            <InputPassword
                 required
                 label={t('security:client_secret')}
                 name="clientSecret"
