@@ -38,7 +38,12 @@ const MainMenu: React.FC = () => {
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
     useEffect(() => {
-        setSelectedKeys([location.pathname])
+        // Special handling for repositories to highlight both design and deployment tabs
+        if (location.pathname.startsWith('/administration/repositories/')) {
+            setSelectedKeys(['/administration/repositories/design'])
+        } else {
+            setSelectedKeys([location.pathname])
+        }
     }, [location.pathname])
 
     return (

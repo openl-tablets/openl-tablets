@@ -1,5 +1,6 @@
-import React, { useRef } from 'react'
-import { Modal, Tabs } from 'antd'
+import React, { useRef, useState } from 'react'
+import { Modal, Tabs, Button } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DesignRepositoriesConfiguration } from './repositories/DesignRepositoriesConfiguration'
 import './Repositories.scss'
@@ -12,6 +13,12 @@ export const Repositories = () => {
     const { repositoryTab } = useParams()
     const navigate = useNavigate()
     const formRef = useRef<FormRefProps>(null)
+    const [isEditingNewRepository, setIsEditingNewRepository] = useState(false)
+    
+    // Get the current repository data type based on the active tab
+    const currentRepositoryDataType = repositoryTab === RepositoryDataType.DEPLOYMENT 
+        ? RepositoryDataType.DEPLOYMENT 
+        : RepositoryDataType.DESIGN
 
     const navigateTo = (key: string) => {
         if (key !== repositoryTab) {
@@ -28,20 +35,61 @@ export const Repositories = () => {
                 content: t('repository:confirm_leave_without_saving_message'),
                 onOk: () => {
                     navigateTo(key)
+                    // Reset editing state when switching between Design and Deployment tabs
+                    setIsEditingNewRepository(false)
                 },
             })
         } else {
             navigateTo(key)
+            // Reset editing state when switching between Design and Deployment tabs
+            setIsEditingNewRepository(false)
         }
     }
 
+    const handleAddRepository = async () => {
+        if (formRef.current) {
+            await formRef.current.addRepository()
+            setIsEditingNewRepository(true)
+        }
+    }
+
+    const addRepositoryButtonLabel = currentRepositoryDataType === RepositoryDataType.DESIGN 
+        ? t('repository:add_design_repository') 
+        : t('repository:add_deployment_repository')
+
     return (
-        <Tabs destroyInactiveTabPane activeKey={repositoryTab} onChange={onChangeTab} >
+        <Tabs 
+            destroyInactiveTabPane 
+            activeKey={repositoryTab} 
+            onChange={onChangeTab}
+            tabBarExtraContent={
+                <Button 
+                    type="text" 
+                    icon={<PlusOutlined />} 
+                    onClick={handleAddRepository}
+                    disabled={isEditingNewRepository}
+                >
+                    {addRepositoryButtonLabel}
+                </Button>
+            }
+        >
             <Tabs.TabPane key={RepositoryDataType.DESIGN} tab={t('repository:tabs.design_repositories')}>
-                <DesignRepositoriesConfiguration ref={formRef} repositoryDataType={RepositoryDataType.DESIGN} />
+                <div style={{ minHeight: '400px' }}>
+                    <DesignRepositoriesConfiguration 
+                        ref={formRef} 
+                        repositoryDataType={RepositoryDataType.DESIGN}
+                        onEditingStateChange={setIsEditingNewRepository}
+                    />
+                </div>
             </Tabs.TabPane>
             <Tabs.TabPane key={RepositoryDataType.DEPLOYMENT} tab={t('repository:tabs.deployment_repositories')}>
-                <DesignRepositoriesConfiguration ref={formRef} repositoryDataType={RepositoryDataType.DEPLOYMENT} />
+                <div style={{ minHeight: '400px' }}>
+                    <DesignRepositoriesConfiguration 
+                        ref={formRef} 
+                        repositoryDataType={RepositoryDataType.DEPLOYMENT}
+                        onEditingStateChange={setIsEditingNewRepository}
+                    />
+                </div>
             </Tabs.TabPane>
         </Tabs>
     )

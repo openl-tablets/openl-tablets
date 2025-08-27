@@ -1,10 +1,9 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
 import { Button, Divider, Form, Modal, Row, Tabs } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { RepositoryDataType, RepositoryType } from './constants'
 import { WIDTH_OF_FORM_LABEL } from '../../constants'
 import { Input, Select } from '../../components'
-import { useTranslation } from 'react-i18next'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { useRepositoryConfiguration } from './hooks'
@@ -12,9 +11,10 @@ import { FormRefProps, RepositoryResponse } from './index'
 
 interface DesignRepositoriesConfigurationProps {
     repositoryDataType: RepositoryDataType
+    onEditingStateChange?: (isEditing: boolean) => void
 }
 
-export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType }, ref) => {
+export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
     const { t } = useTranslation()
     const { configuration: initialConfiguration = [],
         fetchRepositoryConfigurationTemplate,
@@ -28,6 +28,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         return queryParams.get('r') || (Array.isArray(initialConfiguration) && initialConfiguration.length && initialConfiguration[0]?.id)
     })
     const [defaultConfiguration, setDefaultConfiguration] = React.useState(null)
+    const [isEditingNewRepository, setIsEditingNewRepository] = React.useState(false)
     const [form] = Form.useForm()
     const repositoryType = Form.useWatch('type', form)
 
@@ -39,6 +40,20 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
 
     useImperativeHandle(ref, () => ({
         getForm: () => form,
+        addRepository: async () => {
+            const initialConfig = await fetchRepositoryConfigurationTemplate(RepositoryType.GIT)
+            // If there are no repositories, set the configuration to an array with the new repository
+            if (!configuration || !Array.isArray(configuration) || configuration.length === 0) {
+                setConfiguration([initialConfig])
+            } else {
+                setConfiguration([...configuration, initialConfig])
+            }
+            setActiveKey(initialConfig.id)
+            form.setFieldsValue(initialConfig)
+            setIsEditingNewRepository(true)
+            onEditingStateChange?.(true)
+        },
+        isEditingNewRepository: () => isEditingNewRepository
     }))
 
     useEffect(() => {
@@ -59,18 +74,15 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }, [initialConfiguration])
 
     const onEdit = async (targetKey: any, action: string) => {
-        if (action === 'add') {
-            const initialConfig = await fetchRepositoryConfigurationTemplate(RepositoryType.GIT)
-            setConfiguration([...configuration, initialConfig])
-            setActiveKey(initialConfig.id)
-            form.setFieldsValue(initialConfig)
-        } else if (action === 'remove') {
+        if (action === 'remove') {
             handleDeleteRepository(targetKey)
         }
     }
 
     const onFinish = ((values: any) => {
         handleApplyConfiguration(values)
+        setIsEditingNewRepository(false)
+        onEditingStateChange?.(false)
     })
 
     const onChangeType = (value: any) => {
@@ -98,6 +110,10 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             if (tabType === 'card') {
                 setConfiguration(prev => prev.slice(0, -1))
             }
+            
+            // Reset editing state when navigating to a different repository
+            setIsEditingNewRepository(false)
+            onEditingStateChange?.(false)
         }
 
         if (form?.isFieldsTouched() || tabType === 'card') {
@@ -132,29 +148,46 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         return 'card'
     }, [initialConfiguration, configuration])
 
+    // Check if we have repositories
+    const hasRepositories = initialConfiguration && Array.isArray(initialConfiguration) && initialConfiguration.length > 0
+
+    // If there are no repositories and no configuration in state, show a message
+    if (!hasRepositories && (!configuration || configuration.length === 0)) {
+        const repositoryType = repositoryDataType === RepositoryDataType.DESIGN ? t('repository:design') : t('repository:deployment')
+        return (
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+                <p>{t('repository:no_repositories_available')}</p>
+                <p>{t('repository:click_add_repository_to_create_first', { type: repositoryType })}</p>
+            </div>
+        )
+    }
+
+    // If there are repositories but no active key, select the first one
+    if (!activeKey && configuration && configuration.length > 0) {
+        const firstRepo = configuration[0]
+        setActiveKey(firstRepo.id)
+        setActiveRepository(firstRepo)
+        form.setFieldsValue(firstRepo)
+        setURLSearchParam(firstRepo.id)
+        return null // Return null to trigger a re-render
+    }
+
+    // If still no active key
     if (!activeKey) {
-        return <div>Please select a repository</div>
+        return null
     }
 
-    if (!initialConfiguration || !Array.isArray(initialConfiguration) || initialConfiguration.length === 0) {
-        return <div>No repositories available</div>
-    }
-
+    // Render the tabs with repositories
     return (
         <Tabs
             destroyInactiveTabPane
+            hideAdd
             activeKey={activeKey}
             className="repositories-tabs"
             onChange={onChangeTab}
             onEdit={onEdit}
             tabPosition="left"
             type={tabType}
-            addIcon={(
-                <>
-                    <PlusOutlined />
-                    {t('repository:add_repository')}
-                </>
-            )}
             items={configuration?.map((repository) => ({
                 label: typeof repository.name === 'string' ? repository.name : repository?.name?.value,
                 key: repository.id,

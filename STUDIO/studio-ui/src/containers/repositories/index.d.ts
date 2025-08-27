@@ -83,4 +83,6 @@ export interface RepositoryResponse {
 
 export interface FormRefProps {
     getForm: () => FormInstance
+    addRepository: () => Promise<void>
+    isEditingNewRepository: () => boolean
 }
