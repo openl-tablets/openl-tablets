@@ -57,4 +57,6 @@ i18next.addResourceBundle('en', 'repository', {
     confirm_apply_configuration_message: 'All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply this configuration now?',
     confirm_leave_without_saving: 'You have unsaved changes',
     confirm_leave_without_saving_message: 'Are you sure you want to leave without saving?',
+    cannot_delete_last_repository: 'Cannot delete last repository',
+    cannot_delete_last_repository_message: 'At least one repository must remain. You cannot delete the last repository.',
 })
