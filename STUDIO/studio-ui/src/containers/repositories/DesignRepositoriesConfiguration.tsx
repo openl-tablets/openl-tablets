@@ -65,14 +65,6 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             setActiveKey(initialConfig.id)
             form.setFieldsValue(initialConfig)
         } else if (action === 'remove') {
-            // Prevent deletion of the last repository
-            if (configuration.length <= 1) {
-                Modal.warning({
-                    title: t('repository:cannot_delete_last_repository'),
-                    content: t('repository:cannot_delete_last_repository_message'),
-                })
-                return
-            }
             handleDeleteRepository(targetKey)
         }
     }
