@@ -6,11 +6,17 @@ import java.util.function.Predicate;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.util.StringUtils;
 
+/**
+ * Criteria query for filtering deployments.
+ *
+ * @param repository the repository ID to filter by (optional)
+ * @param name       the deployment name to filter by (optional)
+ */
 public record DeploymentCriteriaQuery(String repository, String name) {
 
     public Predicate<Deployment> getFilter() {
         Predicate<Deployment> filter = d -> true;
-        if (repository != null && !repository.isEmpty()) {
+        if (StringUtils.isNotBlank(repository)) {
             filter = filter.and(d -> d.getRepository().getId().equals(repository));
         }
         if (StringUtils.isNotBlank(name)) {

@@ -2,13 +2,30 @@ package org.openl.rules.rest.deployment.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.rules.rest.model.GenericView;
 import org.openl.rules.rest.model.ProjectIdModel;
 
+@Schema(description = "Deployment view model")
 public class DeploymentViewModel {
 
+    @JsonView({GenericView.Full.class, GenericView.Short.class})
+    @Parameter(description = "Deployment identifier", required = true)
     public final ProjectIdModel id;
+
+    @JsonView({GenericView.Full.class, GenericView.Short.class})
+    @Parameter(description = "Deployment name", required = true)
     public final String name;
+
+    @JsonView({GenericView.Full.class, GenericView.Short.class})
+    @Parameter(description = "Production repository id", required = true)
     public final String repository;
+
+    @JsonView(GenericView.Full.class)
+    @Parameter(description = "List of deployment items")
     public final List<DeploymentItemViewModel> items;
 
     public DeploymentViewModel(Builder from) {

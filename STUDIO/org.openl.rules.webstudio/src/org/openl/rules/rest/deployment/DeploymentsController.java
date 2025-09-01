@@ -2,6 +2,12 @@ package org.openl.rules.rest.deployment;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,12 +24,13 @@ import org.openl.rules.rest.deployment.model.DeploymentViewModel;
 import org.openl.rules.rest.deployment.model.RedeployProjectModel;
 import org.openl.rules.rest.deployment.service.DeploymentCriteriaQuery;
 import org.openl.rules.rest.deployment.service.DeploymentService;
+import org.openl.rules.rest.model.GenericView;
 import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.rest.resolver.Base64ProjectConverter;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
-//@Hidden
+@Tag(name = "Deployments", description = "Deployment management APIs")
 public class DeploymentsController {
 
     private final DeploymentService deploymentService;
@@ -35,7 +42,12 @@ public class DeploymentsController {
         this.projectConverter = projectConverter;
     }
 
+    @Operation(summary = "Get Deployments", description = "Returns a list of deployments. Optionally, filter by provided criterias.")
+    @Parameters({
+            @Parameter(name = "repository", description = "Production repository id to filter deployments", in = ParameterIn.QUERY)
+    })
     @GetMapping
+    @JsonView(GenericView.Short.class)
     public List<DeploymentViewModel> getDeployments(@RequestParam(value = "repository", required = false) String repository) {
         var query = DeploymentCriteriaQuery.builder()
                 .repository(repository)
@@ -45,8 +57,9 @@ public class DeploymentsController {
                 .toList();
     }
 
+    @Operation(summary = "Deploy Project", description = "Deploys a project to the specified deployment.")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void redeploy(@RequestBody DeployProjectModel deployProject) throws ProjectException {
+    public void deploy(@RequestBody DeployProjectModel deployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.builder()
                 .repository(deployProject.productionRepositoryId)
                 .projectName(deployProject.deploymentName)
@@ -55,6 +68,7 @@ public class DeploymentsController {
         deploymentService.deploy(deploymentId, projectToDeploy, deployProject.comment);
     }
 
+    @Operation(summary = "Redeploy Project", description = "Redeploys a project to an existing deployment.")
     @PostMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void redeploy(@PathVariable("id") String id, @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.decode(id);

@@ -2,14 +2,22 @@ package org.openl.rules.rest.deployment.model;
 
 import java.time.ZonedDateTime;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Deployment item view model")
 public class DeploymentItemViewModel {
 
+    @Parameter(description = "Project name", required = true)
     public final String name;
 
+    @Parameter(description = "Author of latest deploy", required = true)
     public final String modifiedBy;
 
+    @Parameter(description = "Date and time of latest deploy", required = true)
     public final ZonedDateTime modifiedAt;
 
+    @Parameter(description = "Deployed project revision", required = true)
     public final String revision;
 
     public DeploymentItemViewModel(Builder from) {

@@ -13,6 +13,9 @@ public final class GenericView {
     public interface Full {
     }
 
+    public interface Short {
+    }
+
     public interface CreateOrUpdate {
     }
 
