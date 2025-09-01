@@ -18,13 +18,13 @@ import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -33,6 +33,7 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.repository.DependencyChecker;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
+import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.util.Utils;
@@ -97,16 +98,16 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 latestDeploymentVersion = userWorkspace.getLatestDeploymentConfiguration(deploymentProject.getName());
             }
 
-            ProjectDescriptor<?> projectDescriptor = null;
+            ProjectDescriptor projectDescriptor = null;
 
             // check all descriptors
             // we are interested in all Deployment projects that has the project
             @SuppressWarnings("rawtypes")
             Collection<ProjectDescriptor> descriptors = latestDeploymentVersion.getProjectDescriptors();
-            for (ProjectDescriptor<?> descr : descriptors) {
+            for (ProjectDescriptor descr : descriptors) {
                 if (projectName
-                        .equals(descr.getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId()
-                        .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
+                        .equals(descr.projectName()) && (descr.repositoryId() == null || descr.repositoryId()
+                        .equals(repoId)) && (descr.path() == null || descr.path().equals(path))) {
                     projectDescriptor = descr;
                     break;
                 }
@@ -191,17 +192,17 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                                         "Can be updated to '" + to + "' and then deployed. Deployed version is being defined.");
                             }
                         } else {
-                            String repositoryId = projectDescriptor.getRepositoryId();
+                            String repositoryId = projectDescriptor.repositoryId();
                             if (repositoryId == null) {
-                                repositoryId = userWorkspace.getDesignTimeRepository().getRepositories().get(0).getId();
+                                repositoryId = userWorkspace.getDesignTimeRepository().getRepositories().getFirst().getId();
                             }
                             ProjectVersion version;
-                            if (projectDescriptor.getPath() != null) {
+                            if (projectDescriptor.path() != null) {
                                 try {
                                     version = userWorkspace.getDesignTimeRepository()
                                             .getProjectByPath(repositoryId,
-                                                    projectDescriptor.getBranch(),
-                                                    projectDescriptor.getPath(),
+                                                    projectDescriptor.branch(),
+                                                    projectDescriptor.path(),
                                                     lastDeployedVersion)
                                             .getVersion();
                                 } catch (IOException e) {
@@ -212,7 +213,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                             } else {
                                 version = userWorkspace.getDesignTimeRepository()
                                         .getProject(repositoryId,
-                                                projectDescriptor.getProjectName(),
+                                                projectDescriptor.projectName(),
                                                 new CommonVersionImpl(lastDeployedVersion))
                                         .getVersion();
                             }
@@ -333,7 +334,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             boolean sameVersion = deployConfiguration
                     .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
                     .compareTo(
-                            deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
+                            deployConfiguration.getProjectDescriptor(project.getBusinessName()).projectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -345,9 +346,15 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
-                String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
-                deployConfiguration.addProjectDescriptor(project.getRepository()
-                        .getId(), project.getBusinessName(), project.getRealPath(), branch, project.getVersion());
+                var projectDescriptor = ProjectDescriptorImpl.builder()
+                        .repositoryId(project.getRepository().getId())
+                        .projectName(project.getBusinessName())
+                        .path(project.getRealPath())
+                        .projectVersion(project.getVersion());
+                if (project instanceof RulesProject rulesProject) {
+                    projectDescriptor.branch(rulesProject.getBranch());
+                }
+                deployConfiguration.addProjectDescriptor(projectDescriptor.build());
 
                 Comments deployConfigRepoComments = new Comments(propertyResolver, repoId);
                 String comment = create ? deployConfigRepoComments.createProject(deploymentName)

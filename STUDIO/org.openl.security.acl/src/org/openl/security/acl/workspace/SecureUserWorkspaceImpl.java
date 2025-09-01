@@ -106,7 +106,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private boolean canRead(ADeploymentProject deployConfig) {
         return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
-                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.getRepositoryId(), pd.getPath())
+                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.repositoryId(), pd.path())
                         .isPresent());
     }
 

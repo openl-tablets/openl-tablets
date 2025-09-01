@@ -649,5 +649,5 @@ public class RulesProject extends UserWorkspaceProject {
     
     public Map<String, String> getDesignTags() {
         return designTags.getTags();
-    } 
+    }
 }
