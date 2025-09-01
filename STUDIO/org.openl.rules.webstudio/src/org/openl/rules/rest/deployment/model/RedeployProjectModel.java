@@ -3,13 +3,19 @@ package org.openl.rules.rest.deployment.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.rest.model.ProjectIdModel;
 
 @JsonDeserialize(builder = RedeployProjectModel.Builder.class)
+@Schema(description = "Redeploy project request model")
 public class RedeployProjectModel {
 
+    @Parameter(description = "Project identifier to redeploy", required = true)
     public final ProjectIdModel projectId;
+
+    @Parameter(description = "Redeployment reason comment")
     public final String comment;
 
     public RedeployProjectModel(Builder builder) {
