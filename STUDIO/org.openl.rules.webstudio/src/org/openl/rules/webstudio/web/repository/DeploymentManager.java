@@ -62,17 +62,8 @@ public class DeploymentManager implements InitializingBean {
         deployers.add(repositoryConfigName);
     }
 
-    public void removeRepository(String repositoryConfigName) {
-        deployers.remove(repositoryConfigName);
-        repositoryFactoryProxy.releaseRepository(repositoryConfigName);
-    }
-
     public Collection<String> getRepositoryConfigNames() {
         return deployers;
-    }
-
-    public boolean hasDeploymentRepository() {
-        return !deployers.isEmpty();
     }
 
     public String validateOnMainBranch(List<ADeploymentProject> projects, String repositoryConfigName) {
