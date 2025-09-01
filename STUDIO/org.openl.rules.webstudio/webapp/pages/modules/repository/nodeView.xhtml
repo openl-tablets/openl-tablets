@@ -443,7 +443,6 @@
             const projectId = btoa(repositoryId + ":" + projectName);
             const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
             $j.when(projectDataRequest).done((projectDataRes) => {
-                console.log(projectDataRes);
                 window.dispatchEvent(new CustomEvent('openDeployModal', {detail: projectDataRes}))
             }).fail(() => {
                 alert("Failed to load project information.");
