@@ -60,12 +60,12 @@ public class DependencyChecker {
         DesignTimeRepository designRepository = workspace.getDesignTimeRepository();
 
         for (ProjectDescriptor descriptor : deploymentProject.getProjectDescriptors()) {
-            String projectName = descriptor.getProjectName();
-            String projectPath = descriptor.getPath();
-            CommonVersion projectVersion = descriptor.getProjectVersion();
+            String projectName = descriptor.projectName();
+            String projectPath = descriptor.path();
+            CommonVersion projectVersion = descriptor.projectVersion();
 
             try {
-                String repositoryId = descriptor.getRepositoryId();
+                String repositoryId = descriptor.repositoryId();
                 if (repositoryId == null) {
                     repositoryId = designRepository.getRepositories().get(0).getId();
                 }

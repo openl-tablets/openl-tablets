@@ -18,11 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.ChangesetType;
@@ -64,23 +62,19 @@ public class ADeploymentProject extends UserWorkspaceProject {
         lockEngine = null;
     }
 
-    public void addProjectDescriptor(String repositoryId,
-                                     String name,
-                                     String path,
-                                     String branch,
-                                     CommonVersion version) {
-        if (hasProjectDescriptor(name)) {
-            removeProjectDescriptor(name);
+    public void addProjectDescriptor(ProjectDescriptor projectDescriptor) {
+        if (hasProjectDescriptor(projectDescriptor.projectName())) {
+            removeProjectDescriptor(projectDescriptor.projectName());
         }
-        getDescriptors().add(new ProjectDescriptorImpl(repositoryId, name, path, branch, version));
+        getDescriptors().add(projectDescriptor);
     }
 
     public boolean hasProjectDescriptor(String name) {
         Collection<ProjectDescriptor> pgl = getProjectDescriptors();
 
         if (pgl != null) {
-            for (ProjectDescriptor descriptor : pgl) {
-                if (descriptor.getProjectName().equals(name)) {
+            for (var descriptor : pgl) {
+                if (descriptor.projectName().equals(name)) {
                     return true;
                 }
             }
@@ -91,7 +85,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     public ProjectDescriptor getProjectDescriptor(String name) throws ProjectException {
         for (ProjectDescriptor descriptor : getProjectDescriptors()) {
-            if (descriptor.getProjectName().equals(name)) {
+            if (descriptor.projectName().equals(name)) {
                 return descriptor;
             }
         }
@@ -196,9 +190,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     private void removeProjectDescriptor(String name) {
-        Collection<ProjectDescriptor> projectDescriptors = getDescriptors();
-        for (ProjectDescriptor descriptor : projectDescriptors) {
-            if (descriptor.getProjectName().equals(name)) {
+        var projectDescriptors = getDescriptors();
+        for (var descriptor : projectDescriptors) {
+            if (descriptor.projectName().equals(name)) {
                 projectDescriptors.remove(descriptor);
                 break;
             }
@@ -291,7 +285,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
             }
             return descriptors;
         }
-
     }
 
     @Override

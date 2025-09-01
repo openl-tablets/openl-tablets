@@ -1,15 +1,18 @@
 package org.openl.rules.rest.acl.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 
+import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
+import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.CollectionUtils;
@@ -35,7 +38,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
             return true;
         }
         if (project instanceof ADeploymentProject deployConfig) {
-            return deploymentRepositoryService.hasPermission(permission) && canReadAtLeastOneDeployedProject(deployConfig);
+            return deploymentRepositoryService.hasPermission(permission) && hasPermission(deployConfig.getProjectDescriptors(), BasePermission.READ);
         } else {
             var aclService = aclServiceProvider.getDesignRepoAclService();
             if (permission.getMask() == BasePermission.DELETE.getMask()) {
@@ -63,10 +66,11 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
         return aclService.isGranted(child, useParentStrategy, permission);
     }
 
-    private boolean canReadAtLeastOneDeployedProject(ADeploymentProject deployConfig) {
+    @Override
+    public boolean hasPermission(Collection<ProjectDescriptor> projects, Permission permission) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
-        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
-                .anyMatch(pd -> aclService.isGranted(pd.getRepositoryId(), pd.getPath(), List.of(BasePermission.READ)));
+        return CollectionUtils.isEmpty(projects) || projects.stream()
+                .anyMatch(pd -> aclService.isGranted(pd.repositoryId(), pd.path(), List.of(permission)));
     }
 
     @Override
@@ -81,5 +85,18 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
     @Override
     public boolean hasCreateDeployConfigProjectPermission() {
         return deploymentRepositoryService.hasPermission(BasePermission.CREATE);
+    }
+
+    @Override
+    public boolean hasCreateDeploymentPermission(String repoId) {
+        var productionAclService = aclServiceProvider.getProdRepoAclService();
+        return productionAclService.isGranted(repoId, null, List.of(BasePermission.CREATE));
+    }
+
+    @Override
+    public boolean hasPermission(DeploymentRequest deploymentRequest, Permission permission) {
+        var productionAclService = aclServiceProvider.getProdRepoAclService();
+        boolean granted = productionAclService.isGranted(deploymentRequest.productionRepositoryId(), deploymentRequest.name(), List.of(permission));
+        return granted && hasPermission(deploymentRequest.projectDescriptors(), BasePermission.READ);
     }
 }

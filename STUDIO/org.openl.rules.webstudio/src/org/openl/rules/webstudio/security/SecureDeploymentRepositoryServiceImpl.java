@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.security;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +47,17 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
         return getRepositories(AclPermission.READ)
                 .sorted(RepositoryConfiguration.COMPARATOR)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<RepositoryConfiguration> getRepository(String id) {
+        if (!deploymentManager.getRepositoryConfigNames().contains(id)) {
+            return Optional.empty();
+        }
+        if (!productionRepositoryAclService.isGranted(id, null, List.of(AclPermission.READ))) {
+            return Optional.empty();
+        }
+        return Optional.of(repositoryConfigurationFactory.apply(id));
     }
 
     @Override

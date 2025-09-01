@@ -1,11 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
@@ -15,12 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.deployment.service.DeploymentCriteriaQuery;
+import org.openl.rules.rest.deployment.service.DeploymentService;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -30,15 +26,15 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 @Service
 @SessionScope
 public class ProductionRepositoriesTreeState {
-    private static final String SEPARATOR = "#";
+
     @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
     @Autowired
-    private RepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
 
     @Autowired
-    private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
+    private DeploymentService deploymentService;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -47,60 +43,6 @@ public class ProductionRepositoriesTreeState {
     private TreeRepository root;
 
     private final IFilter<AProjectArtefact> filter = new AllFilter<>();
-
-    private static Collection<Deployment> getLastDeploymentProjects(Repository repository,
-                                                                    String deployPath) throws IOException {
-
-        Map<String, Deployment> latestDeployments = new HashMap<>();
-        Map<String, Integer> versionsList = new HashMap<>();
-
-        Collection<FileData> fileDatas;
-        if (repository.supports().folders()) {
-            // All deployments
-            fileDatas = repository.listFolders(deployPath);
-        } else {
-            // Projects inside all deployments
-            fileDatas = repository.list(deployPath);
-        }
-        for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
-
-            String deploymentName = deploymentFolderName;
-            int version = 0;
-            CommonVersionImpl commonVersion;
-            if (separatorPosition >= 0) {
-                deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                version = Integer.parseInt(deploymentFolderName.substring(separatorPosition + 1));
-                commonVersion = new CommonVersionImpl(version);
-            } else {
-                commonVersion = new CommonVersionImpl(fileData.getVersion());
-            }
-            Integer previous = versionsList.put(deploymentName, version);
-            if (previous != null && previous > version) {
-                // rollback
-                versionsList.put(deploymentName, previous);
-            } else {
-                // put the latest deployment
-
-                String folderPath = deployPath + deploymentFolderName;
-                boolean folderStructure;
-                if (repository.supports().folders()) {
-                    folderStructure = !repository.listFolders(folderPath + "/").isEmpty();
-                } else {
-                    folderStructure = false;
-                }
-                Deployment deployment = new Deployment(repository,
-                        folderPath,
-                        deploymentName,
-                        commonVersion,
-                        folderStructure);
-                latestDeployments.put(deploymentName, deployment);
-            }
-        }
-
-        return latestDeployments.values();
-    }
 
     private void buildTree() {
         if (root != null) {
@@ -124,8 +66,7 @@ public class ProductionRepositoriesTreeState {
 
             /* Get repo's deployment configs */
             IFilter<AProjectArtefact> filter = this.filter;
-            List<AProjectFolder> repoList = getPRepositoryProjects(repoConfig);
-            repoList.sort(RepositoryUtils.ARTEFACT_COMPARATOR);
+            List<Deployment> repoList = getPRepositoryProjects(repoConfig);
 
             for (AProjectFolder project : repoList) {
                 TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(),
@@ -146,11 +87,11 @@ public class ProductionRepositoriesTreeState {
         log.debug("Finishing buildTree()");
     }
 
-    private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
+    private List<Deployment> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
-            Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            String deploymentsPath = productionRepositoryFactoryProxy.getBasePath(repoConfig.getConfigName());
-            return new ArrayList<>(getLastDeploymentProjects(repository, deploymentsPath));
+            return deploymentService.getDeployments(DeploymentCriteriaQuery.builder()
+                    .repository(repoConfig.getId())
+                    .build());
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -178,7 +119,7 @@ public class ProductionRepositoriesTreeState {
             return;
         }
 
-        Object currentSelectionKey = selection.get(0);
+        Object currentSelectionKey = selection.getFirst();
         UITree tree = (UITree) event.getSource();
 
         Object storedKey = tree.getRowKey();

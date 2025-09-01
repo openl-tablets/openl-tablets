@@ -176,8 +176,8 @@ class AclProjectsHelperImplTest {
     @SuppressWarnings("rawtypes")
     private ProjectDescriptor createProjectDescriptor(String repoId, String path) {
         var projectDescriptor = mock(ProjectDescriptor.class);
-        when(projectDescriptor.getRepositoryId()).thenReturn(repoId);
-        when(projectDescriptor.getPath()).thenReturn(path);
+        when(projectDescriptor.repositoryId()).thenReturn(repoId);
+        when(projectDescriptor.path()).thenReturn(path);
         return projectDescriptor;
     }
 

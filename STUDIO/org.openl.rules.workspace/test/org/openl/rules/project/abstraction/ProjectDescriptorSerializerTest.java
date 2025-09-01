@@ -50,22 +50,20 @@ public class ProjectDescriptorSerializerTest {
     }
 
     @Test
-    @SuppressWarnings("rawtypes")
     public void deserialize() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
                 .deserialize(new FileInputStream("test-resources/xml/descriptor1.xml"));
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
-        assertEquals(expected.get(0).getProjectName(), result.get(0).getProjectName());
-        assertEquals(expected.get(0).getProjectVersion(), result.get(0).getProjectVersion());
-        assertEquals(expected.get(1).getProjectName(), result.get(1).getProjectName());
-        assertEquals(expected.get(1).getProjectVersion(), result.get(1).getProjectVersion());
-        assertEquals(expected.get(2).getProjectName(), result.get(2).getProjectName());
-        assertEquals(expected.get(2).getProjectVersion(), result.get(2).getProjectVersion());
+        assertEquals(expected.get(0).projectName(), result.get(0).projectName());
+        assertEquals(expected.get(0).projectVersion(), result.get(0).projectVersion());
+        assertEquals(expected.get(1).projectName(), result.get(1).projectName());
+        assertEquals(expected.get(1).projectVersion(), result.get(1).projectVersion());
+        assertEquals(expected.get(2).projectName(), result.get(2).projectName());
+        assertEquals(expected.get(2).projectVersion(), result.get(2).projectVersion());
     }
 
     @Test
-    @SuppressWarnings("rawtypes")
     public void checkCompatability() throws IOException, JAXBException {
         byte[] xml;
         try (var input = serializer.serialize(makeDescriptors())) {
@@ -78,16 +76,15 @@ public class ProjectDescriptorSerializerTest {
 
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
-        assertEquals(expected.get(0).getProjectName(), result.get(0).getProjectName());
-        assertEquals(expected.get(0).getProjectVersion(), result.get(0).getProjectVersion());
-        assertEquals(expected.get(1).getProjectName(), result.get(1).getProjectName());
-        assertEquals(expected.get(1).getProjectVersion(), result.get(1).getProjectVersion());
-        assertEquals(expected.get(2).getProjectName(), result.get(2).getProjectName());
-        assertEquals(expected.get(2).getProjectVersion(), result.get(2).getProjectVersion());
+        assertEquals(expected.get(0).projectName(), result.get(0).projectName());
+        assertEquals(expected.get(0).projectVersion(), result.get(0).projectVersion());
+        assertEquals(expected.get(1).projectName(), result.get(1).projectName());
+        assertEquals(expected.get(1).projectVersion(), result.get(1).projectVersion());
+        assertEquals(expected.get(2).projectName(), result.get(2).projectName());
+        assertEquals(expected.get(2).projectVersion(), result.get(2).projectVersion());
     }
 
     @Test
-    @SuppressWarnings("rawtypes")
     public void deserializeEmpty() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
                 .deserialize(new FileInputStream("test-resources/xml/empty_descriptor.xml"));
@@ -95,13 +92,11 @@ public class ProjectDescriptorSerializerTest {
     }
 
     @Test
-    @SuppressWarnings("rawtypes")
     public void deserializeBlack() throws JAXBException {
         List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(""));
         assertNull(result);
     }
 
-    @SuppressWarnings("rawtypes")
     private static List<ProjectDescriptor> makeDescriptors() {
         ProjectDescriptor prj1 = new ProjectDescriptorImpl("design",
                 "project1 & \\ <>",

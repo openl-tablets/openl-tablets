@@ -16,11 +16,13 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -148,15 +150,25 @@ public class DemoInit {
                 }
                 var deployConfiguration = userWorkspace.createDDProject(projectName);
                 deployConfiguration.open();
-                var branch = createdProject.getBranch();
-                deployConfiguration.addProjectDescriptor(createdProject.getRepository()
-                        .getId(), createdProject.getBusinessName(), createdProject.getRealPath(), branch, createdProject.getVersion());
+                var projectDescriptor = ProjectDescriptorImpl.builder()
+                        .repositoryId(createdProject.getRepository().getId())
+                        .projectName(createdProject.getBusinessName())
+                        .path(createdProject.getRealPath())
+                        .branch(createdProject.getBranch())
+                        .projectVersion(createdProject.getVersion())
+                        .build();
+                deployConfiguration.addProjectDescriptor(projectDescriptor);
 
                 deployConfiguration.getFileData().setComment("Deploy configuration " + projectName + " is created.");
 
                 deployConfiguration.save();
                 var repositoryConfigName = deploymentManager.getRepositoryConfigNames().iterator().next();
-                deploymentManager.deploy(deployConfiguration, repositoryConfigName, userWorkspace.getUser(), null);
+                var request = DeploymentRequest.builder()
+                        .name(deployConfiguration.getName())
+                        .productionRepositoryId(repositoryConfigName)
+                        .projectDescriptors(deployConfiguration.getProjectDescriptors())
+                        .currentUser(userWorkspace.getUser());
+                deploymentManager.deploy(request.build());
             }
         } catch (Exception ex) {
             LOG.error("Project: {}", projectName, ex);

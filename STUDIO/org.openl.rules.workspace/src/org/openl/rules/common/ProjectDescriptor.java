@@ -1,15 +1,15 @@
 package org.openl.rules.common;
 
-public interface ProjectDescriptor<T extends CommonVersion> {
+public interface ProjectDescriptor {
 
-    String getRepositoryId();
+    String repositoryId();
 
-    String getProjectName();
+    String projectName();
 
-    String getPath();
+    String path();
 
-    String getBranch();
+    String branch();
 
-    T getProjectVersion();
+    CommonVersion projectVersion();
 
 }

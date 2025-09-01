@@ -132,11 +132,13 @@ public class DeploymentController {
             AProject projectToAdd = workspace.getDesignTimeRepository().getProject(repositoryId, projectName);
             String businessName = projectToAdd.getBusinessName();
             String path = projectToAdd.getRealPath();
-            ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId,
-                    businessName,
-                    path,
-                    projectBranch,
-                    new CommonVersionImpl(version));
+            ProjectDescriptorImpl newItem = ProjectDescriptorImpl.builder()
+                    .repositoryId(repositoryId)
+                    .projectName(businessName)
+                    .path(path)
+                    .branch(projectBranch)
+                    .projectVersion(new CommonVersionImpl(version))
+                    .build();
             List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
             synchronized (project) {
                 items = null;
@@ -326,10 +328,10 @@ public class DeploymentController {
             items = new ArrayList<>();
             UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
             for (ProjectDescriptor descriptor : descriptors) {
-                DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getRepositoryId(),
-                        descriptor.getProjectName(),
-                        descriptor.getPath(),
-                        descriptor.getProjectVersion());
+                DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.repositoryId(),
+                        descriptor.projectName(),
+                        descriptor.path(),
+                        descriptor.projectVersion());
                 try {
                     RulesProject rulesProject = getRulesProject(workspace, item);
                     if (!aclServiceProvider.getDesignRepoAclService().isGranted(rulesProject, List.of(AclPermission.WRITE))) {
@@ -491,7 +493,7 @@ public class DeploymentController {
         List<ProjectDescriptor> newDescriptors = new ArrayList<>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
-            if (pd.getProjectName().equals(projectName)) {
+            if (pd.projectName().equals(projectName)) {
                 if (newItem != null) {
                     newDescriptors.add(newItem);
                     newItem = null;

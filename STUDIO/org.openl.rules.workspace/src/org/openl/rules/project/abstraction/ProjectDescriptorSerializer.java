@@ -30,7 +30,6 @@ public class ProjectDescriptorSerializer {
         jaxbSerializer = new JAXBSerializer(Wrapper.class);
     }
 
-    @SuppressWarnings({"rawtypes"})
     public InputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             jaxbSerializer.marshal(new Wrapper(descriptors), outputStream);
@@ -38,7 +37,6 @@ public class ProjectDescriptorSerializer {
         }
     }
 
-    @SuppressWarnings({"rawtypes"})
     public List<ProjectDescriptor> deserialize(InputStream source) throws JAXBException {
         try {
             if (source.available() == 0) {
@@ -54,7 +52,6 @@ public class ProjectDescriptorSerializer {
     /**
      * For internal purpose, to wrap list of elements to the main tag
      */
-    @SuppressWarnings({"rawtypes"})
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "descriptors")
     private static final class Wrapper {
@@ -92,11 +89,11 @@ public class ProjectDescriptorSerializer {
         private String projectVersion;
 
         public ProjectDescriptorXmlDto(ProjectDescriptor projectDescriptor) {
-            this.repositoryId = projectDescriptor.getRepositoryId();
-            this.path = projectDescriptor.getPath();
-            this.projectName = projectDescriptor.getProjectName();
-            this.branch = projectDescriptor.getBranch();
-            this.projectVersion = projectDescriptor.getProjectVersion().getVersionName();
+            this.repositoryId = projectDescriptor.repositoryId();
+            this.path = projectDescriptor.path();
+            this.projectName = projectDescriptor.projectName();
+            this.branch = projectDescriptor.branch();
+            this.projectVersion = projectDescriptor.projectVersion().getVersionName();
         }
 
         // for JAXB serialization

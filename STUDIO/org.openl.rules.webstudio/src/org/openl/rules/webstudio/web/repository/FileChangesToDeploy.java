@@ -52,7 +52,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
     @Override
     public Iterator<FileItem> iterator() {
-        return new Iterator<FileItem>() {
+        return new Iterator<>() {
             private int descriptorIndex;
             private Iterator<FileItem> projectIterator;
 
@@ -63,19 +63,19 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
 
                 if (descriptorIndex < descriptors.size()) {
-                    ProjectDescriptor<?> pd = descriptors.get(descriptorIndex++);
-                    String repositoryId = pd.getRepositoryId();
+                    ProjectDescriptor pd = descriptors.get(descriptorIndex++);
+                    String repositoryId = pd.repositoryId();
                     if (repositoryId == null) {
-                        repositoryId = designRepo.getRepositories().get(0).getId();
+                        repositoryId = designRepo.getRepositories().getFirst().getId();
                     }
                     Repository repository = designRepo.getRepository(repositoryId);
-                    String version = pd.getProjectVersion().getVersionName();
-                    String projectName = pd.getProjectName();
-                    String projectPath = pd.getPath();
-                    String branch = pd.getBranch();
+                    String version = pd.projectVersion().getVersionName();
+                    String projectName = pd.projectName();
+                    String projectPath = pd.path();
+                    String branch = pd.branch();
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(username)
-                            .setBuildNumber(pd.getProjectVersion().getRevision())
+                            .setBuildNumber(pd.projectVersion().getRevision())
                             .setImplementationTitle(projectName)
                             .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, version));
                     if (branch != null) {

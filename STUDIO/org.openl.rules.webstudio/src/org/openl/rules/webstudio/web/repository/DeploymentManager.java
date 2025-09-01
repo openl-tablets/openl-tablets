@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -22,7 +21,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -89,7 +87,7 @@ public class DeploymentManager implements InitializingBean {
                 .filter(Objects::nonNull)
                 .flatMap(x -> x.getProjectDescriptors().stream())
                 .map(x -> {
-                    var repo = designRepository.getRepository(x.getRepositoryId());
+                    var repo = designRepository.getRepository(x.repositoryId());
                     if (repo == null) {
                         return null;
                     }
@@ -97,7 +95,7 @@ public class DeploymentManager implements InitializingBean {
                         return null;
                     }
                     var repoMainBranch = ((BranchRepository) repo).getBranch();
-                    if (repoMainBranch.equals(x.getBranch())) {
+                    if (repoMainBranch.equals(x.branch())) {
                         return null;
                     }
                     return repoMainBranch;
@@ -109,82 +107,78 @@ public class DeploymentManager implements InitializingBean {
     public DeployID deploy(ADeploymentProject project, String repositoryConfigName, String comment) throws ProjectException {
 
         CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
-        return deploy(project, repositoryConfigName, user, comment);
+        var request = DeploymentRequest.builder()
+                .name(project.getName())
+                .productionRepositoryId(repositoryConfigName)
+                .projectDescriptors(project.getProjectDescriptors())
+                .currentUser(user)
+                .comment(comment);
+        return deploy(request.build());
     }
 
-    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, CommonUser user, String comment) throws ProjectException {
-        if (!deployers.contains(repositoryConfigName)) {
-            throw new IllegalArgumentException(String.format("Repository '%s' is not found.", repositoryConfigName));
+    public DeployID deploy(DeploymentRequest request) throws DeploymentException {
+        if (!deployers.contains(request.productionRepositoryId())) {
+            throw new IllegalArgumentException(String.format("Repository '%s' is not found.", request.productionRepositoryId()));
         }
-
-        @SuppressWarnings("rawtypes")
-        Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
-
         try {
-            Repository deployRepo = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-            StringBuilder sb = new StringBuilder(project.getName());
-            ProjectVersion projectVersion = project.getVersion();
-            String deploymentsPath = repositoryFactoryProxy.getBasePath(repositoryConfigName);
-            if (projectVersion != null) {
-                String apiVersion = getApiVersion(project);
-                if (apiVersion != null) {
-                    sb.append(API_VERSION_SEPARATOR).append(apiVersion);
-                }
+            StringBuilder sb = new StringBuilder(request.name());
+            String apiVersion = getApiVersion(request.name(), request.projectDescriptors());
+            if (apiVersion != null) {
+                sb.append(API_VERSION_SEPARATOR).append(apiVersion);
             }
             DeployID id = new DeployID(sb.toString());
+
+            Repository deployRepo = repositoryFactoryProxy.getRepositoryInstance(request.productionRepositoryId());
+            String deploymentsPath = repositoryFactoryProxy.getBasePath(request.productionRepositoryId());
 
             String deploymentName = deploymentsPath + id.getName();
             String deploymentPath = deploymentName + "/";
 
             String rulesPath = designRepository.getRulesLocation();
-            comment = Optional.ofNullable(comment)
-                    .filter(StringUtils::isNotBlank)
-                    .orElseGet(project.getFileData()::getComment);
             if (deployRepo.supports().folders()) {
-
-                try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
+                try (FileChangesToDeploy changes = new FileChangesToDeploy(request.projectDescriptors(),
                         designRepository,
                         rulesPath,
                         deploymentPath,
-                        user.getUserName())) {
+                        request.currentUser().getUserName())) {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
-                    deploymentData.setAuthor(user.getUserInfo());
-                    deploymentData.setComment(comment);
+                    deploymentData.setAuthor(request.currentUser().getUserInfo());
+                    deploymentData.setComment(request.comment());
                     deployRepo.save(deploymentData, changes, ChangesetType.FULL);
                 }
             } else {
                 List<FileData> existingProjects = deployRepo.list(deploymentPath);
-                List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
+                List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, request.projectDescriptors());
                 for (FileData fileData : projectsToDelete) {
-                    fileData.setAuthor(user.getUserInfo());
+                    fileData.setAuthor(request.currentUser().getUserInfo());
                     deployRepo.delete(fileData);
                 }
 
-                for (ProjectDescriptor<?> pd : projectDescriptors) {
-                    String repositoryId = pd.getRepositoryId();
+                for (ProjectDescriptor pd : request.projectDescriptors()) {
+                    String repositoryId = pd.repositoryId();
                     if (repositoryId == null) {
-                        repositoryId = designRepository.getRepositories().get(0).getId();
+                        repositoryId = designRepository.getRepositories().getFirst().getId();
                     }
                     Repository designRepo = designRepository.getRepository(repositoryId);
-                    String version = pd.getProjectVersion().getVersionName();
-                    String projectName = pd.getProjectName();
-                    String projectPath = pd.getPath();
-                    String branch = pd.getBranch();
+                    String version = pd.projectVersion().getVersionName();
+                    String projectName = pd.projectName();
+                    String projectPath = pd.path();
+                    String branch = pd.branch();
 
                     FileData dest = new FileData();
                     dest.setName(deploymentPath + projectName);
-                    dest.setAuthor(user.getUserInfo());
-                    dest.setComment(comment);
+                    dest.setAuthor(request.currentUser().getUserInfo());
+                    dest.setComment(request.comment());
 
                     final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
-                            .setBuiltBy(user.getUserName())
-                            .setBuildNumber(pd.getProjectVersion().getRevision())
+                            .setBuiltBy(request.currentUser().getUserName())
+                            .setBuildNumber(pd.projectVersion().getRevision())
                             .setImplementationTitle(projectName)
                             .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
-                    if (pd.getBranch() != null) {
-                        manifestBuilder.setBuildBranch(pd.getBranch());
+                    if (pd.branch() != null) {
+                        manifestBuilder.setBuildBranch(pd.branch());
                     }
 
                     if (designRepo.supports().folders()) {
@@ -210,13 +204,39 @@ public class DeploymentManager implements InitializingBean {
                     }
                 }
             }
-
-            // TODO: Some analogue of notifyChanges() possibly will be needed
-            // rRepository.notifyChanges();
             return id;
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
+    }
+
+    public String validateOnMainBranch(DeploymentRequest request) {
+        var projectDescriptors = request.projectDescriptors();
+        if (projectDescriptors == null || projectDescriptors.isEmpty() || request.productionRepositoryId() == null) {
+            return null;
+        }
+        if (!new RepositoryConfiguration(request.productionRepositoryId(), propertyResolver).getSettings().isMainBranchOnly()) {
+            return null;
+        }
+
+        return projectDescriptors.stream()
+                .filter(Objects::nonNull)
+                .map(x -> {
+                    var repo = designRepository.getRepository(x.repositoryId());
+                    if (repo == null) {
+                        return null;
+                    }
+                    if (!repo.supports().branches()) {
+                        return null;
+                    }
+                    var repoMainBranch = ((BranchRepository) repo).getBranch();
+                    if (repoMainBranch.equals(x.branch())) {
+                        return null;
+                    }
+                    return repoMainBranch;
+                })
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     private void includeManifestIntoArchiveAndSave(Repository deployRepo,
@@ -260,7 +280,7 @@ public class DeploymentManager implements InitializingBean {
             for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext(); ) {
                 String folderPath = it.next().getName();
                 String projectName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
-                if (projectName.equals(projectToDeploy.getProjectName())) {
+                if (projectName.equals(projectToDeploy.projectName())) {
                     // This project will be replaced with a new version. No need to delete it
                     it.remove();
                     break;
@@ -270,30 +290,29 @@ public class DeploymentManager implements InitializingBean {
         return projectsToDelete;
     }
 
-    private String getApiVersion(ADeploymentProject deploymentConfiguration) {
-        for (ProjectDescriptor pd : deploymentConfiguration.getProjectDescriptors()) {
+    private String getApiVersion(String deploymentName, Collection<ProjectDescriptor> projectDescriptors) {
+        for (var pd : projectDescriptors) {
             try {
                 try {
-                    String repositoryId = pd.getRepositoryId();
+                    String repositoryId = pd.repositoryId();
                     if (repositoryId == null) {
-                        repositoryId = designRepository.getRepositories().get(0).getId();
+                        repositoryId = designRepository.getRepositories().getFirst().getId();
                     }
-                    String branch = pd.getBranch();
-                    String projectPath = pd.getPath();
+                    String branch = pd.branch();
+                    String projectPath = pd.path();
                     AProject project;
                     if (projectPath != null) {
                         project = designRepository.getProjectByPath(repositoryId,
                                 branch,
                                 projectPath,
-                                pd.getProjectVersion().getVersionName());
+                                pd.projectVersion().getVersionName());
                     } else {
                         project = designRepository
-                                .getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
+                                .getProject(repositoryId, pd.projectName(), pd.projectVersion());
                     }
 
                     AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
-                    if (artifact instanceof AProjectResource) {
-                        AProjectResource resource = (AProjectResource) artifact;
+                    if (artifact instanceof AProjectResource resource) {
                         try (InputStream content = resource.getContent()) {
                             RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             String apiVersion = rulesDeploy.getVersion();
@@ -307,8 +326,8 @@ public class DeploymentManager implements InitializingBean {
             } catch (Exception e) {
                 LOG.error(
                         "Project loading from repository was failed! " + "Project with name '{}' in deploy configuration '{}' has been skipped.",
-                        pd.getProjectName(),
-                        deploymentConfiguration.getName(),
+                        pd.projectName(),
+                        deploymentName,
                         e);
             }
         }

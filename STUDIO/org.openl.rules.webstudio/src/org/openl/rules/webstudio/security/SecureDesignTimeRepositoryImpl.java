@@ -155,10 +155,10 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
                 .anyMatch(pd -> {
                     try {
-                        getProjectByPath(pd.getRepositoryId(),
-                                pd.getBranch(),
-                                pd.getPath(),
-                                pd.getProjectVersion().getVersionName());
+                        getProjectByPath(pd.repositoryId(),
+                                pd.branch(),
+                                pd.path(),
+                                pd.projectVersion().getVersionName());
                         return true;
                     } catch (IOException e) {
                         return false;
