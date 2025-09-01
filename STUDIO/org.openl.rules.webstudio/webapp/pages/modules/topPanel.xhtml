@@ -138,7 +138,7 @@
                                value="Sync"
                                title="Synchronize updates"
                                rendered="#{studio.canMerge}" />
-                <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.repository.id}', '#{rProject.name}'); return false;" value="Deploy"
+                <h:commandLink styleClass="changes-listener" onclick="openProjectRedeployDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;" value="Deploy"
                                id="deployProjectButton"
                                title="Deploy the project"
                                rendered="#{studio.canRedeploy}">
@@ -377,6 +377,16 @@
                 return true;
             }
             return confirm("#{msg['ws.project.warning.other.branch']}");
+        }
+
+        function openProjectRedeployDialog(repositoryId, projectName) {
+            const projectId = btoa(repositoryId + ":" + projectName);
+            const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
+            $j.when(projectDataRequest).done((projectDataRes) => {
+                window.dispatchEvent(new CustomEvent('openDeployModal', {detail: projectDataRes}))
+            }).fail(() => {
+                alert("Failed to load project information.");
+            });
         }
 
         //]]>

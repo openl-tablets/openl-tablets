@@ -113,7 +113,7 @@
                   <h:panelGroup rendered="#{studio.getCanRedeploy(prj.data)}">
                         &#160;
                         <h:commandLink immediate="true"
-                                       onclick="openSmartRedeployDialog('#{prj.data.repository.id}', '#{prj.data.name}'); return false;" title="Deploy project">
+                                       onclick="openProjectRedeployDialog('#{prj.data.repository.id}', '#{prj.data.name}'); return false;" title="Deploy project">
                             <h:graphicImage url="/webresource/images/repository/upload.gif" styleClass="actionImage" alt="Deploy"/>
                         </h:commandLink>
                   </h:panelGroup>
