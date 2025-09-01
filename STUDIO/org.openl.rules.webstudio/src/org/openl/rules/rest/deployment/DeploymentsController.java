@@ -2,7 +2,6 @@ package org.openl.rules.rest.deployment;
 
 import java.util.List;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +23,7 @@ import org.openl.rules.rest.resolver.Base64ProjectConverter;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
-@Hidden
+//@Hidden
 public class DeploymentsController {
 
     private final DeploymentService deploymentService;
