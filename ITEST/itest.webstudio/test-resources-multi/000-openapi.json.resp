@@ -4,6 +4,63 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "RedeployProjectModel": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": ["projectId"]
+      },
+      "DeployProjectModel": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "***"
+          },
+          "deploymentName": {
+            "type": "string",
+            "description": "***"
+          },
+          "productionRepositoryId": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": ["deploymentName", "productionRepositoryId", "projectId"]
+      },
+      "DeploymentViewModel_Short": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "repository": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": ["id", "name", "repository"]
+      },
       "BulkAclOverwriteRequest": {
         "type": "object",
         "description": "***",
@@ -3223,6 +3280,273 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/deployments": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "repository",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeploymentViewModel_Short"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["Deployments"]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeployProjectModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["Deployments"]
+      }
+    },
+    "/deployments/{id}": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeployProjectModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["Deployments"]
+      }
+    },
     "/acls": {
       "get": {
         "operationId": "***",
@@ -15017,6 +15341,9 @@ Content-Type: application/json
       "name": "Conflict"
     }, {
       "name": "Deploy Configuration Repository"
+    }, {
+      "description" : "***",
+      "name" : "Deployments"
     }, {
       "name": "Design Repository"
     }, {
