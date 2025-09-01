@@ -123,7 +123,7 @@
                         </h:commandButton>
 
                         <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy"
-                                         onclick="openSmartRedeployDialog('#{artefact.repository.id}', '#{artefact.name}'); return false;"
+                                         onclick="openProjectRedeployDialog('#{artefact.repository.id}', '#{artefact.name}'); return false;"
                                          title="Deploy selected deployments with the latest version of this project"/>
 
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
@@ -438,6 +438,17 @@
             // Reinitialize filters state when nodeView is re-rendered.
             reInitRepoFilter();
         });
+
+        function openProjectRedeployDialog(repositoryId, projectName) {
+            const projectId = btoa(repositoryId + ":" + projectName);
+            const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
+            $j.when(projectDataRequest).done((projectDataRes) => {
+                console.log(projectDataRes);
+                window.dispatchEvent(new CustomEvent('openDeployModal', {detail: projectDataRes}))
+            }).fail(() => {
+                alert("Failed to load project information.");
+            });
+        }
 
         //]]>
     </script>
