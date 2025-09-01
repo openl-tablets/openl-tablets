@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.rest.model.ProjectIdModel;
+import org.openl.rules.rest.validation.ProjectNameConstraint;
 
 @JsonDeserialize(builder = DeployProjectModel.Builder.class)
 @Schema(description = "Deploy project request model")
@@ -16,6 +17,7 @@ public class DeployProjectModel {
     public final String productionRepositoryId;
 
     @Parameter(description = "Deployment name", required = true)
+    @ProjectNameConstraint
     public final String deploymentName;
 
     @Parameter(description = "Project identifier to deploy", required = true)
