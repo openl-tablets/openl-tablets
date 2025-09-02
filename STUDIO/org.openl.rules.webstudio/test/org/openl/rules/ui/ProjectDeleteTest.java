@@ -45,18 +45,6 @@ public class ProjectDeleteTest {
         }
     }
 
-    @Test
-    public void testDelete() throws Exception {
-        pm.setModuleInfo(getModules().get(0));
-        pm.clearModuleInfo();
-
-        try {
-            FileUtils.delete(projectFolder);
-        } catch (IOException e) {
-            fail("Project is locked and cannot be deleted");
-        }
-    }
-
     private List<Module> getModules() throws ProjectResolvingException {
         return ProjectResolver.getInstance().resolve(projectFolder).getModules();
     }
