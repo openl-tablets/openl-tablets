@@ -206,17 +206,34 @@ public class FileUtils {
         if (!Files.exists(root)) {
             throw new FileNotFoundException("Path does not exist: " + root);
         }
+        var theFirstException = new IOException[1];
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.deleteIfExists(file);
+                try {
+                    Files.deleteIfExists(file);
+                } catch (IOException e) {
+                    if (theFirstException[0] == null) {
+                        theFirstException[0] = e;
+                    }
+                }
                 return FileVisitResult.CONTINUE;
             }
 
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.deleteIfExists(dir);
+                try {
+                    Files.deleteIfExists(dir);
+                } catch (IOException e) {
+                    if (theFirstException[0] == null) {
+                        theFirstException[0] = e;
+                    }
+                }
                 return FileVisitResult.CONTINUE;
             }
         });
+
+        if (theFirstException[0] != null) {
+            throw theFirstException[0];
+        }
     }
 
     /**
