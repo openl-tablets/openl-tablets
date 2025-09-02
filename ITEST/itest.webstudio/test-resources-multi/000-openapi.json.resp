@@ -3446,7 +3446,7 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "200": {
+          "204": {
             "description": "***"
           }
         },
@@ -3539,7 +3539,7 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "200": {
+          "204": {
             "description": "***"
           }
         },

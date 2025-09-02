@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "cHJvZHVjdGlvbjpFUEJEUy0xNTA5Mw==",
+    "name": "EPBDS-15093",
+    "repository": "production"
+  },
+  {
+    "id": "cHJvZHVjdGlvbjpTYW1wbGUx",
+    "name": "Sample1",
+    "repository": "production"
+  }
+]

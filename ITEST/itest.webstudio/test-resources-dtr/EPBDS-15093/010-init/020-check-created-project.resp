@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-15093",
+  "modifiedBy": "DEFAULT",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM=",
+  "status": "CLOSED",
+  "comment": "Project EPBDS-15093 is created.",
+  "repository": "design-flat",
+  "selectedBranches": ["master"]
+}
