@@ -119,7 +119,7 @@ public class ProjectHistoryService {
         File dir = new File(projectHistoryPath);
         // Project can contain no history
         if (dir.exists()) {
-            FileUtils.delete(dir);
+            FileUtils.delete(dir.toPath());
         }
     }
 
@@ -148,7 +148,7 @@ public class ProjectHistoryService {
             FileVisitResult fileVisitResult = super.visitFile(file, attrs);
             File f = file.toFile();
             if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {
-                FileUtils.delete(f);
+                FileUtils.delete(f.toPath());
             }
             return fileVisitResult;
         }
@@ -169,7 +169,7 @@ public class ProjectHistoryService {
             Arrays.sort(files);
             for (int i = 0; i < files.length - count - 1; i++) {
                 File file = files[i];
-                FileUtils.delete(file);
+                FileUtils.delete(file.toPath());
             }
             if (count == 0) {
                 File revisionVersion = new File(storagePath, REVISION_VERSION);

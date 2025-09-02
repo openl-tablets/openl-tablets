@@ -39,7 +39,7 @@ public class ProjectDeleteTest {
         pm.clearModuleInfo();
 
         try {
-            FileUtils.delete(projectFolder);
+            FileUtils.delete(projectFolder.toPath());
         } catch (IOException e) {
             fail("Project is locked and cannot be deleted");
         }
@@ -51,7 +51,7 @@ public class ProjectDeleteTest {
         pm.clearModuleInfo();
 
         try {
-            FileUtils.delete(projectFolder);
+            FileUtils.delete(projectFolder.toPath());
         } catch (IOException e) {
             fail("Project is locked and cannot be deleted");
         }

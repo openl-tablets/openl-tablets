@@ -46,7 +46,7 @@ public class ProjectVersionCacheMonitorTest {
         if (repo != null) {
             repo.close();
         }
-        FileUtils.delete(root);
+        FileUtils.delete(root.toPath());
         if (root.exists()) {
             fail("Cannot delete folder " + root);
         }

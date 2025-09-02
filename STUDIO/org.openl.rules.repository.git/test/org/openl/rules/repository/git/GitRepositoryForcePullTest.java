@@ -68,7 +68,7 @@ public class GitRepositoryForcePullTest {
 
     @AfterAll
     static void cleanUp() throws IOException {
-        FileUtils.delete(template);
+        FileUtils.delete(template.toPath());
     }
 
     @BeforeEach
@@ -93,7 +93,7 @@ public class GitRepositoryForcePullTest {
             repo.close();
             local2.close();
         } finally {
-            FileUtils.delete(root);
+            FileUtils.delete(root.toPath());
         }
     }
 

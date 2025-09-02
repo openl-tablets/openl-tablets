@@ -122,7 +122,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (outputDirectory.isDirectory()) {
             info("Cleaning up '", outputDirectory, "' directory...");
-            FileUtils.delete(outputDirectory);
+            FileUtils.delete(outputDirectory.toPath());
         }
         ClassLoader classLoader = null;
         try {

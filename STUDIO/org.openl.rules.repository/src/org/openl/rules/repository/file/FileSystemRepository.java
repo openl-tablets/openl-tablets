@@ -148,7 +148,7 @@ public class FileSystemRepository implements Repository, Closeable {
     public boolean delete(FileData data) throws IOException {
         File file = new File(root, data.getName());
         try {
-            FileUtils.delete(file);
+            FileUtils.delete(file.toPath());
         } catch (FileNotFoundException e) {
             return false;
         }
@@ -168,7 +168,7 @@ public class FileSystemRepository implements Repository, Closeable {
         for (FileData fd : data) {
             File f = new File(root, fd.getName());
             try {
-                FileUtils.delete(f);
+                FileUtils.delete(f.toPath());
                 deleted = true;
             } catch (FileNotFoundException ignored) {
                 continue;

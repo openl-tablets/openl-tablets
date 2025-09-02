@@ -84,7 +84,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
 
     @AfterAll
     public static void cleanUp() throws IOException {
-        FileUtils.delete(template);
+        FileUtils.delete(template.toPath());
     }
 
     @BeforeEach
@@ -103,7 +103,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
         try {
             repo.close();
         } finally {
-            FileUtils.delete(root);
+            FileUtils.delete(root.toPath());
         }
     }
 

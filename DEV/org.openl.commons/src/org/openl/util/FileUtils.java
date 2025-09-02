@@ -195,87 +195,6 @@ public class FileUtils {
     }
 
     /**
-     * Moves a directory or a file.
-     * <p>
-     * When the destination directory or file is on another file system, do a "copy and delete".
-     *
-     * @param src  the directory or the file to be moved
-     * @param dest the destination directory or file
-     * @throws NullPointerException if source or destination is {@code null}
-     * @throws IOException          if source or destination is invalid
-     * @throws IOException          if an IO error occurs moving the file
-     */
-    public static void move(File src, File dest) throws IOException {
-        if (!src.exists()) {
-            throw new FileNotFoundException(String.format("Source '%s' does not exist", src));
-        }
-        if (dest.exists()) {
-            throw new IOException(String.format("Destination '%s' already exists", dest));
-        }
-        boolean rename = src.renameTo(dest);
-        if (!rename) {
-            if (src.isDirectory() && dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
-                throw new IOException(
-                        String.format("Cannot move directory '%s' to a subdirectory of itself '%s'.", src, dest));
-            }
-            copy(src, dest);
-            delete(src);
-            if (src.exists()) {
-                throw new IOException(
-                        String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
-            }
-        }
-    }
-
-    /**
-     * Deletes a file. If file is a directory, delete it and all sub-directories.
-     * <p/>
-     * The difference between File.delete() and this method are:
-     * <ul>
-     * <li>A directory to be deleted does not have to be empty.</li>
-     * <li>You get exceptions when a file or directory cannot be deleted.</li>
-     * </ul>
-     *
-     * @param file file or directory to delete, must not be {@code null}
-     * @throws NullPointerException  if the directory is {@code null}
-     * @throws FileNotFoundException if the file has not been found
-     * @throws IOException           in case deletion is unsuccessful
-     */
-    public static void delete(File file) throws IOException {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files == null) { // null if security restricted
-                throw new IOException("Failed to list contents of directory: " + file);
-            }
-
-            IOException exception = null;
-            for (File fl : files) {
-                try {
-                    delete(fl);
-                } catch (IOException ioe) {
-                    exception = ioe;
-                }
-            }
-
-            if (null != exception) {
-                throw exception;
-            }
-
-            if (!file.delete()) {
-                throw new IOException("Unable to delete directory: " + file);
-            }
-        } else {
-            boolean filePresent = file.exists();
-            if (!file.delete()) {
-                if (!filePresent) {
-                    throw new FileNotFoundException("File does not exist: " + file);
-                }
-                throw new IOException("Unable to delete file: " + file);
-            }
-        }
-    }
-
-    /**
      * Deletes a path. If provided path is a directory, delete it and all sub-directories.
      *
      * @param root path to file or directory to delete, must not be {@code null}
@@ -289,29 +208,15 @@ public class FileUtils {
         }
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                delete0(file);
+                Files.deleteIfExists(file);
                 return FileVisitResult.CONTINUE;
             }
 
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                delete0(dir);
+                Files.deleteIfExists(dir);
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    /**
-     * Delete file or directory using old API. Because {@link Files#delete(Path)} throws sometimes
-     * {@link java.nio.file.AccessDeniedException} by unknown reason on Windows environment
-     *
-     * @param path path to delete
-     * @throws IOException if failed to delete
-     */
-    private static void delete0(Path path) throws IOException {
-        File toDelete = path.toFile();
-        if (!toDelete.delete()) {
-            throw new IOException("Failed to delete: " + path);
-        }
     }
 
     /**
@@ -330,7 +235,7 @@ public class FileUtils {
             return;
         }
         try {
-            delete(file);
+            delete(file.toPath());
         } catch (Exception ignored) {
             // ignore
         }

@@ -263,7 +263,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             File outputDeploymentDir = new File(outputDirectory, finalName + "-" + DEPLOYMENT_CLASSIFIER);
             if (outputDeploymentDir.isDirectory()) {
                 info("Cleaning up '", outputDeploymentDir, "' directory...");
-                FileUtils.delete(outputDeploymentDir);
+                FileUtils.delete(outputDeploymentDir.toPath());
             }
             outputDeploymentDir.mkdir();
             Set<Artifact> openLDependencies = getDependentOpenLProjects();

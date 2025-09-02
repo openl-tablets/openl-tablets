@@ -36,7 +36,7 @@ public class LockTest {
 
     @AfterEach
     public void tearDown() throws IOException {
-        FileUtils.delete(tempDirectoryPath.toFile());
+        FileUtils.delete(tempDirectoryPath.toFile().toPath());
         if (tempDirectoryPath.toFile().exists()) {
             fail("Cannot delete folder " + tempDirectoryPath);
         }

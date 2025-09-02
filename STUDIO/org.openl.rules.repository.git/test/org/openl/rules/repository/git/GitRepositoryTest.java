@@ -127,7 +127,7 @@ public class GitRepositoryTest {
 
     @AfterAll
     public static void clearTest() throws IOException {
-        FileUtils.delete(template);
+        FileUtils.delete(template.toPath());
         if (template.exists()) {
             fail("Cannot delete folder " + template);
         }
@@ -1272,7 +1272,7 @@ public class GitRepositoryTest {
         // Delete the file but don't commit it. Changes in not committed (modified externally for example or after
         // unsuccessful operation)
         // files must be aborted after repo.save() method.
-        FileUtils.delete(existingFile);
+        FileUtils.delete(existingFile.toPath());
         assertFalse(existingFile.exists());
 
         // Save other file.

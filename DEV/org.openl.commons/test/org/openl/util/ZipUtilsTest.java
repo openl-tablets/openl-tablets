@@ -26,7 +26,7 @@ public class ZipUtilsTest {
             assertFalse(zipFile.exists());
         } finally {
             // If cannot delete the folder, we must fail, because folder is locked.
-            FileUtils.delete(tempFolder);
+            FileUtils.delete(tempFolder.toPath());
             assertFalse(tempFolder.exists());
         }
     }
