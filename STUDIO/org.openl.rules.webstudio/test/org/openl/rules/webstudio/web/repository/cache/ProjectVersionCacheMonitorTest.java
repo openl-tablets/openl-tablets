@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -17,12 +16,13 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class ProjectVersionCacheMonitorTest {
 
+    @TempDir
     private File root;
+    @AutoClose
     private Repository repo;
     private ProjectVersionCacheMonitor projectVersionCacheMonitor;
     private ProjectVersionCacheManager projectVersionCacheManager;
@@ -30,7 +30,6 @@ public class ProjectVersionCacheMonitorTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
         projectVersionCacheMonitor = new ProjectVersionCacheMonitor(new SimpleGrantedAuthority("Administrators"));
         projectVersionCacheManager = new ProjectVersionCacheManager();
@@ -39,17 +38,6 @@ public class ProjectVersionCacheMonitorTest {
         projectVersionCacheMonitor.setProjectVersionCacheDB(projectVersionCacheDB);
         projectVersionCacheManager.setProjectVersionCacheDB(projectVersionCacheDB);
         projectVersionCacheMonitor.setProjectVersionCacheManager(projectVersionCacheManager);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.delete(root.toPath());
-        if (root.exists()) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test

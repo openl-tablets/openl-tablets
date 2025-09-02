@@ -3,10 +3,8 @@ package org.openl.rules.lock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,31 +13,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import org.openl.util.FileUtils;
+import org.junit.jupiter.api.io.TempDir;
 
 public class LockTest {
 
     private Lock lock;
+    @TempDir
     private Path tempDirectoryPath;
     static final int MAX_THREADS = Math.min(12, Runtime.getRuntime().availableProcessors() * 2);
 
     @BeforeEach
     public void setUp() throws IOException {
-        tempDirectoryPath = Files.createTempDirectory("openl-locks");
         lock = new Lock(tempDirectoryPath, "my/lock/id");
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        FileUtils.delete(tempDirectoryPath.toFile().toPath());
-        if (tempDirectoryPath.toFile().exists()) {
-            fail("Cannot delete folder " + tempDirectoryPath);
-        }
     }
 
     @Test

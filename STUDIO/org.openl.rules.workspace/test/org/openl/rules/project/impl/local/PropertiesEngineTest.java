@@ -7,23 +7,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.util.FileUtils;
 
 public class PropertiesEngineTest {
-    private final File ROOT = new File("target/test-file-repository/");
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(ROOT);
-        assertFalse(ROOT.exists());
-    }
+    @TempDir
+    File root;
 
     @Test
     public void testRelativePath() {
-        final File repo = new File(ROOT, "repo");
+        final File repo = new File(root, "repo");
 
         final PropertiesEngine engine = new PropertiesEngine(repo);
         final File folder1 = new File(repo, "folder1");
@@ -43,7 +38,7 @@ public class PropertiesEngineTest {
 
     @Test
     public void dontRecreateDeletedProject() {
-        final File repo = new File(ROOT, "repo");
+        final File repo = new File(root, "repo");
         final PropertiesEngine engine = new PropertiesEngine(repo);
 
         // Check that if project folder exists, we can create properties file for it.

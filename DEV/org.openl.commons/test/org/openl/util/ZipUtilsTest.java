@@ -5,29 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ZipUtilsTest {
+
+    @TempDir
+    File tempFolder;
+
     @Test
     public void testContainsMethodReleasesResources() throws IOException {
-        File tempFolder = Files.createTempDirectory("openl").toFile();
-        try {
-            final File file = new File(tempFolder, "test.txt");
-            assertTrue(file.createNewFile());
+        final File file = new File(tempFolder, "test.txt");
+        assertTrue(file.createNewFile());
 
-            final File zipFile = new File(tempFolder, "archive.zip");
-            ZipUtils.archive(tempFolder, zipFile);
+        final File zipFile = new File(tempFolder, "archive.zip");
+        ZipUtils.archive(tempFolder, zipFile);
 
-            assertTrue(ZipUtils.contains(zipFile, name -> name.equals("test.txt")));
+        assertTrue(ZipUtils.contains(zipFile, name -> name.equals("test.txt")));
 
-            assertTrue(zipFile.delete());
-            assertFalse(zipFile.exists());
-        } finally {
-            // If cannot delete the folder, we must fail, because folder is locked.
-            FileUtils.delete(tempFolder.toPath());
-            assertFalse(tempFolder.exists());
-        }
+        assertTrue(zipFile.delete());
+        assertFalse(zipFile.exists());
     }
 }

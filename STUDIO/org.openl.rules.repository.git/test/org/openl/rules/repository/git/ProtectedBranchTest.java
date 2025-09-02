@@ -11,7 +11,6 @@ import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -22,11 +21,11 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FS_POSIX;
 import org.eclipse.jgit.util.FS_Win32_Cygwin;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
@@ -36,15 +35,16 @@ import org.openl.util.IOUtils;
 
 public class ProtectedBranchTest {
     private static final String BRANCH1 = "branch1";
+    @TempDir
     private static File template;
+    @TempDir
     private File root;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeAll
     public static void initTest() throws GitAPIException, IOException {
         assumeSupportedPlatform();
-
-        template = Files.createTempDirectory("openl-template").toFile();
 
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
@@ -63,21 +63,8 @@ public class ProtectedBranchTest {
         }
     }
 
-    @AfterAll
-    public static void clearTest() {
-        if (template == null) {
-            return;
-        }
-        FileUtils.deleteQuietly(template);
-        if (template.exists()) {
-            fail("Cannot delete folder " + template);
-        }
-    }
-
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl").toFile();
-
         File remote = new File(root, "remote");
         File local = new File(root, "local");
 
@@ -90,17 +77,6 @@ public class ProtectedBranchTest {
         }
         // Open the repository with a new pre-push hook
         repo = createRepository(remoteUri, local);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(root);
-        if (root.exists()) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test

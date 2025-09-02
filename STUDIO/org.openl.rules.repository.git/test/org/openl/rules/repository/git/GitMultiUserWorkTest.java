@@ -4,25 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class GitMultiUserWorkTest {
@@ -30,24 +28,14 @@ public class GitMultiUserWorkTest {
     static final int MAX_THREADS = Math.min(6, Runtime.getRuntime().availableProcessors() * 2);
     private static final String FOLDER_IN_REPOSITORY = "rules/project";
 
+    @TempDir
     private Path root;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl");
         repo = createRepository(root.resolve("design-repository"));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(root);
-        if (Files.exists(root)) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,46 +21,38 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class ZippedLocalRepositoryTest {
 
-    private static final String REPOSITORY_ROOT = "target/test-zip-repository/";
-
+    @TempDir
     private File repositoryRoot;
+    @AutoClose
     private Repository repository;
     private Map<String, byte[]> singleDeployment;
     private Map<String, byte[]> multiDeployment;
 
     @BeforeEach
     public void setUp() throws IOException {
-        this.repositoryRoot = new File(REPOSITORY_ROOT);
-        FileUtils.deleteQuietly(this.repositoryRoot);
-        new File(REPOSITORY_ROOT).mkdirs();
         setUpZipRepository();
         configureZipRepository();
     }
 
     private void configureZipRepository(String... archives) {
         ZippedLocalRepository repository = new ZippedLocalRepository();
-        repository.setUri(REPOSITORY_ROOT);
+        repository.setUri(repositoryRoot.getPath());
         repository.setArchives(archives);
         repository.initialize();
         this.repository = repository;
-    }
-
-    @AfterEach
-    public void cleanUp() throws IOException {
-        ((Closeable) repository).close();
     }
 
     private void setUpZipRepository() throws IOException {
@@ -182,7 +173,7 @@ public class ZippedLocalRepositoryTest {
     public void initializationTest() throws IOException {
         try {
             configureZipRepository("", null);
-            configureZipRepository("target\\test-zip-repository\\singleDeployment", null);
+            configureZipRepository(repositoryRoot.getPath() + "\\singleDeployment", null);
         } catch (IllegalStateException e) {
             fail("Ooops...");
         }

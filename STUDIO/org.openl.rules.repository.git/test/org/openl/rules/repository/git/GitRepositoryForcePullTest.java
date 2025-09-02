@@ -9,7 +9,6 @@ import static org.openl.rules.repository.git.TestGitUtils.writeText;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
@@ -24,11 +23,11 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
@@ -39,15 +38,18 @@ public class GitRepositoryForcePullTest {
 
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
 
+    @TempDir
     private static File template;
 
+    @TempDir
     private File root;
+    @AutoClose
     private GitRepository repo;
+    @AutoClose
     private Git local2;
 
     @BeforeAll
     static void initialize() throws IOException, GitAPIException {
-        template = Files.createTempDirectory("openl-template").toFile();
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
@@ -66,15 +68,8 @@ public class GitRepositoryForcePullTest {
         }
     }
 
-    @AfterAll
-    static void cleanUp() throws IOException {
-        FileUtils.delete(template.toPath());
-    }
-
     @BeforeEach
     void setUp() throws IOException, GitAPIException {
-        root = Files.createTempDirectory("openl-merge-test").toFile();
-
         File remote = new File(root, "remote");
         File local = new File(root, "local");
 
@@ -85,16 +80,6 @@ public class GitRepositoryForcePullTest {
                 .setURI(remote.toURI().toString())
                 .setDirectory(new File(root, "local-2"))
                 .call();
-    }
-
-    @AfterEach
-    void reset() throws IOException {
-        try {
-            repo.close();
-            local2.close();
-        } finally {
-            FileUtils.delete(root.toPath());
-        }
     }
 
     private GitRepository createRepository(File remote, File local) {
