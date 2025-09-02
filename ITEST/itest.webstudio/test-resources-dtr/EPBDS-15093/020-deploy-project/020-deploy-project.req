@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-15093",
+  "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM=",
+  "comment": "Deploy project EPBDS-15093"
+}
