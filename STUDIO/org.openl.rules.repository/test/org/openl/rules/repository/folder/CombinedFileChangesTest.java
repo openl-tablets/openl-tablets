@@ -10,33 +10,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class CombinedFileChangesTest {
+
+    @TempDir
     private File root;
+    @AutoClose
     private FileSystemRepository repo;
 
     @BeforeEach
     public void setUp() {
-        root = new File("target/test-file-repository/");
         repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        FileUtils.deleteQuietly(root);
     }
 
     @Test

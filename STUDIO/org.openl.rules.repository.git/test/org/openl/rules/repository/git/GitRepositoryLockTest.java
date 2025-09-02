@@ -13,38 +13,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jgit.errors.LockFailedException;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class GitRepositoryLockTest {
 
+    @TempDir
     private Path root;
     private Path repoRoot;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl");
         repoRoot = root.resolve("design-repository");
         repo = createRepository(repoRoot);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(root);
-        if (Files.exists(root)) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test

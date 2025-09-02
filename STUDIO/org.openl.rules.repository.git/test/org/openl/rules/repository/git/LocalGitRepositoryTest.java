@@ -12,7 +12,6 @@ import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +20,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.Constants;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -33,30 +33,19 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class LocalGitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
 
+    @TempDir
     private File root;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(root);
-        if (root.exists()) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test

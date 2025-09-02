@@ -4,33 +4,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.LfsFactory;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.util.FileUtils;
 import org.openl.util.ZipUtils;
 
 public class MergeLfsRepoTest {
 
-    private static final String REPO_URI = "target/test-classes/repositories/MergeLfsRepoTest";
-
+    @TempDir
+    File gitRepo;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeEach
     public void setUp() throws Exception {
-        Path repoPath = Path.of(REPO_URI);
-        Files.createDirectories(repoPath);
-        File gitRepo = Files.createTempDirectory(repoPath, "lfs-merge").toFile();
-
-        ZipUtils.extractAll(new File(REPO_URI + ".zip"), gitRepo);
+        ZipUtils.extractAll(new File("target/test-classes/repositories/MergeLfsRepoTest.zip"), gitRepo);
 
         repo = createRepository(gitRepo.getAbsolutePath());
 
@@ -43,14 +38,6 @@ public class MergeLfsRepoTest {
             LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
         }
 
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(Path.of(REPO_URI));
     }
 
     @Test

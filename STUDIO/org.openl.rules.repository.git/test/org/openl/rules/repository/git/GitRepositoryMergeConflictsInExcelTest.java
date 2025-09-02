@@ -36,11 +36,12 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
@@ -58,14 +59,16 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private static final Path TEST_CASES_ROOT = Paths.get("test-resources/EPBDS-8483");
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
 
+    @TempDir
     private static File template;
 
+    @TempDir
     private File root;
+    @AutoClose
     private GitRepository repo;
 
     @BeforeAll
     public static void initialize() throws IOException, GitAPIException {
-        template = Files.createTempDirectory("openl-merge-test-template").toFile();
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
@@ -82,29 +85,13 @@ public class GitRepositoryMergeConflictsInExcelTest {
         }
     }
 
-    @AfterAll
-    public static void cleanUp() throws IOException {
-        FileUtils.delete(template);
-    }
-
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl-merge-test").toFile();
-
         File remote = new File(root, "remote");
         File local = new File(root, "local");
 
         FileUtils.copy(template, remote);
         repo = createRepository(remote, local);
-    }
-
-    @AfterEach
-    public void reset() throws IOException {
-        try {
-            repo.close();
-        } finally {
-            FileUtils.delete(root);
-        }
     }
 
     private GitRepository createRepository(File remote, File local) {

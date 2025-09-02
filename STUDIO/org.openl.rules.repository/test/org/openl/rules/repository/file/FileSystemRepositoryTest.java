@@ -21,61 +21,51 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class FileSystemRepositoryTest {
-    @Test
-    public void test() throws Exception {
-        File root = new File("target/test-file-repository/");
-        FileUtils.deleteQuietly(root);
-        FileSystemRepository repo = new FileSystemRepository();
-        repo.setRoot(root);
-        repo.initialize();
-        testRepo(repo);
-    }
+
+    @TempDir
+    File tmpDir;
 
     @Test
     public void createFolderOnDemand() throws IOException {
-        File base = new File("target/test-file-repository-on-demand/");
-        FileUtils.deleteQuietly(base);
+        File root = new File(tmpDir, "parent/my-repo");
 
-        try {
-            File root = new File(base, "my-repo");
+        FileSystemRepository repo = new FileSystemRepository();
+        repo.setRoot(root);
+        repo.initialize();
+        assertFalse(root.exists(), "Repo folder must not be created after initialize().");
 
-            FileSystemRepository repo = new FileSystemRepository();
-            repo.setRoot(root);
-            repo.initialize();
-            assertFalse(root.exists(), "Repo folder must not be created after initialize().");
+        assertList(repo, "", 0);
+        assertFalse(root.exists(), "We didn't modify repository. Repo folder must not be created.");
 
-            assertList(repo, "", 0);
-            assertFalse(root.exists(), "We didn't modify repository. Repo folder must not be created.");
+        assertSave(repo, "folder1/text", "The file in the folder");
+        assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
 
-            assertSave(repo, "folder1/text", "The file in the folder");
-            assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
+        assertSave(repo, "folder2/text", "The file in the folder");
+        assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
 
-            assertSave(repo, "folder2/text", "The file in the folder");
-            assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
+        assertDelete(repo, "folder2/text", true);
+        assertTrue(root.exists(), "Repo still contains at least 1 file. Repo folder must exist.");
 
-            assertDelete(repo, "folder2/text", true);
-            assertTrue(root.exists(), "Repo still contains at least 1 file. Repo folder must exist.");
+        assertDelete(repo, "folder1/text", true);
+        assertFalse(root.exists(), "Repo folder must be deleted when all files in it were deleted.");
 
-            assertDelete(repo, "folder1/text", true);
-            assertFalse(root.exists(), "Repo folder must be deleted when all files in it were deleted.");
-
-            assertTrue(base.exists(), "Repository's base folder must not be deleted: Repo is not responsible for it.");
-        } finally {
-            // Cleanup
-            FileUtils.deleteQuietly(base);
-        }
+        assertTrue(root.getParentFile().exists(), "Repository's base folder must not be deleted: Repo is not responsible for it.");
     }
 
-    private void testRepo(FileSystemRepository repo) throws IOException {
+    @Test
+    public void testRepo() throws IOException {
+        FileSystemRepository repo = new FileSystemRepository();
+        repo.setRoot(tmpDir);
+        repo.initialize();
         Calendar calendar = Calendar.getInstance();
         calendar.set(2018, Calendar.NOVEMBER, 25, 10, 11, 12);
         calendar.set(Calendar.MILLISECOND, 0);

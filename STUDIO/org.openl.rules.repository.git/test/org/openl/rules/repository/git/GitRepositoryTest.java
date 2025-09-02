@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,12 +35,12 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
@@ -63,15 +62,18 @@ public class GitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
     private static final String TAG_PREFIX = "Rules_";
 
+    @TempDir
     private static File template;
+    @TempDir
     private File root;
+    private File remote;
+    private File local;
+    @AutoClose
     private GitRepository repo;
     private ChangesCounter changesCounter;
 
     @BeforeAll
     public static void initTest() throws GitAPIException, IOException {
-        template = Files.createTempDirectory("openl-template").toFile();
-
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
@@ -125,37 +127,17 @@ public class GitRepositoryTest {
         }
     }
 
-    @AfterAll
-    public static void clearTest() throws IOException {
-        FileUtils.delete(template);
-        if (template.exists()) {
-            fail("Cannot delete folder " + template);
-        }
-    }
-
     @BeforeEach
     public void setUp() throws IOException {
-        root = Files.createTempDirectory("openl").toFile();
 
-        File remote = new File(root, "remote");
-        File local = new File(root, "local");
+        remote = new File(root, "remote");
+        local = new File(root, "local");
 
         FileUtils.copy(template, remote);
         repo = createRepository(remote, local);
 
         changesCounter = new ChangesCounter();
         repo.setListener(changesCounter);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (repo != null) {
-            repo.close();
-        }
-        FileUtils.deleteQuietly(root);
-        if (root.exists()) {
-            fail("Cannot delete folder " + root);
-        }
     }
 
     @Test
@@ -310,7 +292,6 @@ public class GitRepositoryTest {
         assertEquals(2, changesCounter.getChanges());
 
         // Clone remote repository to temp folder and check that changes we made before exist there
-        File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository secondRepo = createRepository(remote, temp)) {
             assertEquals(text, readText(secondRepo.read("rules/project1/folder/file4")));
@@ -579,7 +560,7 @@ public class GitRepositoryTest {
         }
 
         // Check that there are no uncommitted changes after error
-        try (Git git = Git.open(new File(root, "local"))) {
+        try (Git git = Git.open(local)) {
             Status status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
@@ -590,8 +571,6 @@ public class GitRepositoryTest {
         // Prepare the test: the folder with local repository name exists but it's empty
         repo.close();
 
-        File remote = new File(root, "remote");
-        File local = new File(root, "local");
         FileUtils.deleteQuietly(local);
         assertFalse(local.exists(), "Cannot delete repository. It shouldn't be locked.");
 
@@ -612,7 +591,6 @@ public class GitRepositoryTest {
     @Test
     public void neededBranchWasNotClonedBefore() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local = new File(root, "temp");
         try (GitRepository repository = createRepository(remote, local, Constants.MASTER)) {
             assertEquals(2, repository.list("").size());
@@ -636,7 +614,6 @@ public class GitRepositoryTest {
     @Test
     public void twoUsersAddFileSimultaneously() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -673,7 +650,6 @@ public class GitRepositoryTest {
     @Test
     public void mergeConflictInFile() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -762,7 +738,6 @@ public class GitRepositoryTest {
     @Test
     public void mergeConflictInFileMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -807,7 +782,6 @@ public class GitRepositoryTest {
     @Test
     public void mergeConflictInFolder() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -927,7 +901,6 @@ public class GitRepositoryTest {
     @Test
     public void mergeConflictInFolderWithFileDeleting() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -1013,7 +986,6 @@ public class GitRepositoryTest {
     @Test
     public void mergeConflictInFolderMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
@@ -1092,7 +1064,6 @@ public class GitRepositoryTest {
         assertListEquals(Arrays.asList("test", "project1/test2"), repo.getBranches(FOLDER_IN_REPOSITORY));
 
         // Test that forBranch() fetches new branch if it has not been cloned before
-        File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository repository = createRepository(remote, temp, Constants.MASTER)) {
             GitRepository branchRepo = repository.forBranch("project1/test2");
@@ -1102,7 +1073,6 @@ public class GitRepositoryTest {
 
     @Test
     public void pathToRepoInsteadOfUri() {
-        File local = new File(root, "local");
         // Will use this path instead of uri. Git accepts that.
         String remote = new File(root, "remote").getAbsolutePath();
 
@@ -1130,10 +1100,9 @@ public class GitRepositoryTest {
 
         // Make a copy before any modifications
         File local2 = new File(root, "local2");
-        FileUtils.copy(new File(root, "local"), local2);
+        FileUtils.copy(local, local2);
 
         // Modify on remote
-        File remote = new File(root, "remote");
         try (Git git = Git.open(remote)) {
             git.checkout().setName(BRANCH).call();
             git.branchCreate().setName(newBranch).call();
@@ -1163,14 +1132,14 @@ public class GitRepositoryTest {
         assertEquals(3, file2History.size());
 
         // Check that after repo initialization all changes are fetched and fast forwarded
-        try (GitRepository repo2 = createRepository(new File(root, "remote"), local2)) {
+        try (GitRepository repo2 = createRepository(remote, local2)) {
             file2History = repo2.listHistory("rules/project1/file2");
             assertEquals(3, file2History.size());
             assertTrue(repo2.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
         // Check that all branches are available when repository is cloned.
-        try (GitRepository repo3 = createRepository(new File(root, "remote"), new File(root, "local3"))) {
+        try (GitRepository repo3 = createRepository(remote, new File(root, "local3"))) {
             assertTrue(repo3.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
@@ -1185,7 +1154,7 @@ public class GitRepositoryTest {
         assertFalse(repo.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
 
         // Check that after repo initialization the branch is deleted on local repository.
-        try (GitRepository repo2 = createRepository(new File(root, "remote"), local2, "master")) {
+        try (GitRepository repo2 = createRepository(remote, local2, "master")) {
             assertFalse(repo2.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
         }
     }
