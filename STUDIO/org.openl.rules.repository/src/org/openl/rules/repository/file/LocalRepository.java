@@ -24,9 +24,9 @@ public class LocalRepository extends FileSystemRepository {
      * @return hashCode for given folder
      */
     @Override
-    protected String getVersion(File file) {
-        if (file.isDirectory()) {
-            File[] files = listAllFiles(file);
+    protected String getVersion(Path file) {
+        if (Files.isDirectory(file)) {
+            File[] files = listAllFiles(file.toFile());
             int hash = 1;
             for (File f : files) {
                 hash = 31 * hash + Objects.hash(f.getName(), f.lastModified(), f.length());

@@ -1,31 +1,19 @@
 package org.openl.rules.repository.file;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.openl.rules.repository.common.RevisionGetter;
 
 public final class FileChangesMonitor implements RevisionGetter {
-    private final File baseDir;
+    private final Path baseDir;
     private ArrayList<FileTimeStamp> timestamps = new ArrayList<>(0);
     private int revision;
 
-    FileChangesMonitor(File baseDir) {
+    FileChangesMonitor(Path baseDir) {
         this.baseDir = baseDir;
-    }
-
-    private void collect(File file, ArrayList<FileTimeStamp> result) {
-        if (file.isDirectory()) {
-            File[] filesArray = file.listFiles();
-            if (filesArray != null) {
-                for (File f : filesArray) {
-                    collect(f, result);
-                }
-            }
-        } else {
-            // Assuming that "a not directory is a file"
-            result.add(new FileTimeStamp(file));
-        }
     }
 
     @Override
@@ -36,7 +24,13 @@ public final class FileChangesMonitor implements RevisionGetter {
         // so 10 free cells is enough for fast expanding.
         ArrayList<FileTimeStamp> newTimestamps = new ArrayList<>(quantity + 10);
         // Scanning all files in the base directory
-        collect(baseDir, newTimestamps);
+        if (Files.isDirectory(baseDir)) {
+            try (var stream = Files.walk(baseDir)) {
+                stream.filter(Files::isRegularFile).forEach(path -> newTimestamps.add(new FileTimeStamp(path.toFile())));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         boolean changed = false;
         // If quantity of files is different from the previous scanning
         // e.g. files have been added or deleted

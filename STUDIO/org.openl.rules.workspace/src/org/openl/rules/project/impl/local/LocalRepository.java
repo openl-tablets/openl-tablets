@@ -3,6 +3,7 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,9 +55,9 @@ public class LocalRepository extends FileSystemRepository {
     private final Logger log = LoggerFactory.getLogger(LocalRepository.class);
     private final PropertiesEngine propertiesEngine;
 
-    public LocalRepository(File location) {
+    public LocalRepository(Path location) {
         setRoot(location);
-        propertiesEngine = new PropertiesEngine(location);
+        propertiesEngine = new PropertiesEngine(location.toFile());
     }
 
     @Override
@@ -124,7 +125,7 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     @Override
-    protected FileData getFileData(File file) throws IOException {
+    protected FileData getFileData(Path file) throws IOException {
         FileData fileData = super.getFileData(file);
         var properties = readFileProperties(fileData.getName());
         String uniqueId = properties.get(UNIQUE_ID_PROPERTY);
@@ -173,8 +174,8 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     @Override
-    protected boolean isSkip(File file) {
-        return FolderHelper.PROPERTIES_FOLDER.equals(file.getName());
+    protected boolean isSkip(Path file) {
+        return FolderHelper.PROPERTIES_FOLDER.equals(file.getFileName().toString());
     }
 
     public ProjectState getProjectState(final String pathInProject) {

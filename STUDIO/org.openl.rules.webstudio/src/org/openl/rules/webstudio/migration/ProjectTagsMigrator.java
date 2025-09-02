@@ -6,9 +6,9 @@ package org.openl.rules.webstudio.migration;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.openl.rules.common.CommonUser;
@@ -19,7 +19,6 @@ import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileUtils;
@@ -55,10 +54,10 @@ public class ProjectTagsMigrator {
         FileData projectFolder = repository.check(projectPath);
         if (projectFolder != null) {
             AProject sourceProject = new AProject(repository, projectFolder);
-            File tempFolder = null;
+            Path tempFolder = null;
             try {
                 // Unpack to temp folder
-                tempFolder = Files.createTempDirectory("openl").toFile();
+                tempFolder = Files.createTempDirectory("openl");
                 try (FileSystemRepository tempRepository = new FileSystemRepository()) {
                     tempRepository.setRoot(tempFolder);
                     tempRepository.initialize();

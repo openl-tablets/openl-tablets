@@ -2,10 +2,10 @@ package org.openl.rules.project.abstraction;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -390,10 +390,10 @@ public class AProject extends AProjectFolder implements IProject {
                 if (getResourceTransformer() != null) {
                     // projectFrom will be unarchived, transformed and then archived
 
-                    File tempFolder = null;
+                    Path tempFolder = null;
                     try {
                         // Unpack to temp folder
-                        tempFolder = Files.createTempDirectory("openl").toFile();
+                        tempFolder = Files.createTempDirectory("openl");
                         try (FileSystemRepository tempRepository = new FileSystemRepository()) {
                             tempRepository.setRoot(tempFolder);
                             tempRepository.initialize();

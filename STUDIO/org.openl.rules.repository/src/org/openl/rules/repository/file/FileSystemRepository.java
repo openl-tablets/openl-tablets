@@ -1,12 +1,19 @@
 package org.openl.rules.repository.file;
 
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.attribute.FileTime.fromMillis;
+
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,29 +42,21 @@ import org.openl.util.FileUtils;
 public class FileSystemRepository implements Repository, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(FileSystemRepository.class);
 
-    private File root;
-    private int rootPathLength;
+    private Path root;
     private ChangesMonitor monitor;
     private String id;
     private int listenerTimerPeriod = 10;
     private String name;
 
-    public void setRoot(File root) {
+    public void setRoot(Path root) {
         this.root = root;
     }
 
     public void setUri(String path) {
-        this.root = new File(path);
+        this.root = Path.of(path);
     }
 
     public void initialize() {
-        try {
-            String rootPath = root.getCanonicalPath();
-            rootPathLength = rootPath.length() + 1;
-            monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), listenerTimerPeriod);
-        } catch (IOException e) {
-            throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s]", root));
-        }
     }
 
     public void setId(String id) {
@@ -80,16 +79,30 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        LinkedList<FileData> files = new LinkedList<>();
-        File directory = new File(root, path);
-        listFiles(files, directory);
-        return files;
+        var directory = root.resolve(path);
+        if (Files.isDirectory(directory)) {
+            try (var stream = Files.walk(directory)) {
+                var list = new ArrayList<FileData>();
+                stream.filter(Files::isRegularFile).forEach(file -> {
+                    try {
+                        list.add(getFileData(file));
+                    } catch (Exception ex) {
+                        LOG.warn("Failed to resolve file '{}' in the directory '{}'.",
+                                file.getFileName(),
+                                directory,
+                                ex);
+                    }
+                });
+                return list;
+            }
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        File file = new File(root, name);
-        if (file.exists()) {
+        var file = root.resolve(name);
+        if (Files.exists(file)) {
             return getFileData(file);
         }
         return null;
@@ -97,10 +110,10 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileItem read(String name) throws IOException {
-        File file = new File(root, name);
-        if (file.exists()) {
-            FileData data = getFileData(file);
-            FileInputStream stream = new FileInputStream(file);
+        var file = root.resolve(name);
+        if (Files.exists(file)) {
+            var data = getFileData(file);
+            var stream = Files.newInputStream(file);
             return new FileItem(data, stream);
         }
         return null;
@@ -108,34 +121,30 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        FileData saved = write(data, stream);
+        var saved = write(data, stream);
         invokeListener();
         return saved;
     }
 
     private FileData write(FileData data, InputStream stream) throws IOException {
-        String dataName = data.getName();
-        File file = new File(root, dataName);
-        if (!file.getParentFile().mkdirs() && !file.getParentFile().exists()) {
-            LOG.warn("Could not create the folder '{}'", file.getParentFile());
+        var dataName = data.getName();
+        var file = root.resolve(dataName);
+        var parent = file.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
         }
 
-        // Close only output stream. This class is not responsible for input stream: stream must be closed in the
-        // place where it was created.
-        try (FileOutputStream output = new FileOutputStream(file)) {
-            stream.transferTo(output);
-        }
+        Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING);
+
         if (data.getModifiedAt() != null) {
-            if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                LOG.warn("Failed to set modified time to file '{}'.", dataName);
-            }
+            Files.setLastModifiedTime(file, fromMillis(data.getModifiedAt().getTime()));
         }
         return getFileData(file);
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        List<FileData> result = new ArrayList<>();
+        var result = new ArrayList<FileData>();
         for (FileItem fileItem : fileItems) {
             FileData saved = write(fileItem.getData(), fileItem.getStream());
             result.add(saved);
@@ -146,18 +155,15 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        File file = new File(root, data.getName());
+        var file = root.resolve(data.getName());
         try {
-            FileUtils.delete(file.toPath());
+            FileUtils.delete(file); //FIXME: Use Files.delete() because this API should delete only one file
         } catch (FileNotFoundException e) {
             return false;
         }
-        // Delete empty parent folders including repo root if they are empty
-        boolean deleted;
-        do {
-            file = file.getParentFile();
-            deleted = file.delete();
-        } while (!file.equals(root) && deleted);
+
+        deleteEmptyParentFolders(file);
+
         invokeListener();
         return true;
     }
@@ -165,20 +171,16 @@ public class FileSystemRepository implements Repository, Closeable {
     @Override
     public boolean delete(List<FileData> data) throws IOException {
         boolean deleted = false;
-        for (FileData fd : data) {
-            File f = new File(root, fd.getName());
+        for (var fd : data) {
+            var f = root.resolve(fd.getName());
             try {
-                FileUtils.delete(f.toPath());
+                Files.delete(f);
                 deleted = true;
-            } catch (FileNotFoundException ignored) {
-                continue;
+
+                deleteEmptyParentFolders(f);
+            } catch (IOException ignored) {
+                // For example, if the file doesn't exist.
             }
-            // Delete empty parent folders including repo root if they are empty
-            boolean parentDeleted;
-            do {
-                f = f.getParentFile();
-                parentDeleted = f.delete();
-            } while (!f.equals(root) && parentDeleted);
         }
         if (deleted) {
             invokeListener();
@@ -186,26 +188,44 @@ public class FileSystemRepository implements Repository, Closeable {
         return deleted;
     }
 
+    private void deleteEmptyParentFolders(Path file) {
+        var parent = file.getParent();
+        while (parent != null) {
+            try (var stream = Files.list(parent)) {
+                if (stream.findAny().isEmpty()) {
+                    Files.delete(parent);
+                } else {
+                    break;
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to check or delete parent directory '{}'.", parent, e);
+                break;
+            }
+            parent = parent.equals(root) ? null : parent.getParent();
+        }
+    }
+
     private FileData copy(String srcName, FileData destData) throws IOException {
-        File srcFile = new File(root, srcName);
-        String destName = destData.getName();
-        File destFile = new File(root, destName);
-        FileUtils.copy(srcFile, destFile);
+        var srcFile = root.resolve(srcName);
+        var destFile = root.resolve(destData.getName());
+        Files.createDirectories(destFile.getParent());
+        Files.copy(srcFile, destFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
         return getFileData(destFile);
     }
 
     @Override
     public void setListener(Listener callback) {
-        if (monitor != null) {
-            monitor.setListener(callback);
+        if (monitor == null) {
+            monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), listenerTimerPeriod);
         }
+        monitor.setListener(callback);
     }
 
     @Override
     public List<FileData> listHistory(String name) {
-        File file = new File(root, name);
+        var file = root.resolve(name);
         try {
-            if (file.exists()) {
+            if (Files.exists(file)) {
                 FileData data = getFileData(file);
                 return Collections.singletonList(data);
             }
@@ -249,48 +269,23 @@ public class FileSystemRepository implements Repository, Closeable {
         return new FeaturesBuilder(this).setVersions(false).setFolders(true).build();
     }
 
-    private void listFiles(Collection<FileData> files, File directory) {
-        File[] found = directory.listFiles();
-
-        if (found != null) {
-            for (File file : found) {
-                if (file.isDirectory()) {
-                    listFiles(files, file);
-                } else {
-                    try {
-                        FileData data = getFileData(file);
-                        files.add(data);
-                    } catch (Exception ex) {
-                        LOG.warn("Failed to resolve file '{}' in the directory '{}'.", file.getName(), directory, ex);
-                    }
-                }
-            }
-        }
-    }
-
-    protected FileData getFileData(File file) throws IOException {
-        if (!file.exists()) {
+    protected FileData getFileData(Path file) throws IOException {
+        if (!Files.exists(file)) {
             throw new FileNotFoundException(String.format("File '%s' does not exist.", file));
         }
-        if (rootPathLength == 0) {
-            initialize();
-        }
-        FileData data = new FileData();
-        String canonicalPath = file.getCanonicalPath();
-        String relativePath = canonicalPath.substring(rootPathLength);
-        String converted = relativePath.replace('\\', '/');
-        data.setName(converted);
-        long timestamp = file.lastModified();
-        Date date = new Date(timestamp);
-        data.setModifiedAt(date);
-        if (file.isFile()) {
-            long size = file.length();
-            data.setSize(size);
+        var data = new FileData();
+
+        var relativePath = root.relativize(file).toString();
+        data.setName(relativePath.replace('\\', '/'));
+        data.setModifiedAt(new Date(Files.getLastModifiedTime(file).toMillis()));
+        data.setVersion(getVersion(file));
+        if (Files.isRegularFile(file)) {
+            data.setSize(Files.size(file));
         }
         return data;
     }
 
-    public File getRoot() {
+    public Path getRoot() {
         return root;
     }
 
@@ -312,33 +307,25 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFolders(String path) {
-        LinkedList<FileData> files = new LinkedList<>();
-        File directory = new File(root, path);
-        File[] found = directory.listFiles();
-
-        if (found != null) {
-            for (File file : found) {
-                if (file.isDirectory()) {
+        var files = new LinkedList<FileData>();
+        var directory = root.resolve(path);
+        if (Files.isDirectory(directory)) {
+            try (var stream = Files.list(directory)) {
+                stream.filter(Files::isDirectory).forEach(file -> {
                     try {
-                        if (rootPathLength == 0) {
-                            initialize();
-                        }
-                        FileData data = new FileData();
-                        String relativePath = file.getCanonicalPath().substring(rootPathLength);
-                        data.setName(relativePath.replace('\\', '/'));
-                        data.setModifiedAt(new Date(file.lastModified()));
-                        data.setVersion(getVersion(file));
-                        files.add(data);
+                        files.add(getFileData(file));
                     } catch (Exception ex) {
                         LOG.warn("Failed to resolve folder '{}'.", directory, ex);
                     }
-                }
+                });
+            } catch (IOException e) {
+                LOG.warn("Failed to list folders in directory '{}'.", directory, e);
             }
         }
         return files;
     }
 
-    protected String getVersion(File file) {
+    protected String getVersion(Path file) {
         return null;
     }
 
@@ -356,71 +343,79 @@ public class FileSystemRepository implements Repository, Closeable {
                          Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
         // Add new files and update existing ones
-        List<File> savedFiles = new ArrayList<>();
-        for (FileItem change : files) {
-            FileData data = change.getData();
-            File file = new File(root, data.getName());
+        var savedFiles = new ArrayList<Path>();
+        for (var change : files) {
+            var data = change.getData();
+            var file = root.resolve(data.getName());
             savedFiles.add(file);
-            createParent(file);
+            Files.createDirectories(file.getParent());
 
-            InputStream stream = change.getStream();
+            var stream = change.getStream();
             if (stream != null) {
-                try (FileOutputStream output = new FileOutputStream(file)) {
-                    stream.transferTo(output);
-                }
+                Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING);
                 if (data.getModifiedAt() != null) {
-                    if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                        LOG.warn("Failed to set modified time to file '{}'.", data.getName());
-                    }
+                    Files.setLastModifiedTime(file, fromMillis(data.getModifiedAt().getTime()));
                 }
             } else {
-                FileUtils.deleteQuietly(file);
+                Files.delete(file);
             }
         }
 
-        File folder = new File(root, folderData.getName());
+        var folder = root.resolve(folderData.getName());
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }
-        FileData saved = folder.exists() ? getFileData(folder) : null;
+        var saved = Files.exists(folder) ? getFileData(folder) : null;
         invokeListener();
         return saved;
     }
 
-    private void removeAbsentFiles(File directory, Collection<File> toSave) {
-        File[] found = directory.listFiles();
-
-        if (found != null) {
-            for (File file : found) {
+    private void removeAbsentFiles(Path directory, Collection<Path> toSave) throws IOException {
+        if (!Files.exists(directory)) {
+            return;
+        }
+        Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (isSkip(file)) {
-                    continue;
+                    return FileVisitResult.CONTINUE;
                 }
-                if (file.isDirectory()) {
-                    removeAbsentFiles(file, toSave);
-                    File[] files = file.listFiles();
-                    if (files == null || files.length == 0) {
-                        if (!file.delete()) {
-                            LOG.warn("Failed to delete an empty directory: '{}'", file);
-                        }
-                    }
-                } else {
-                    if (!toSave.contains(file)) {
-                        FileUtils.deleteQuietly(file);
+                if (!toSave.contains(file)) {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to delete a file: '{}'", file, e);
                     }
                 }
+                return FileVisitResult.CONTINUE;
             }
-        }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (exc != null) {
+                    throw exc;
+                }
+                if (isSkip(dir)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                // Don't delete the root folder of the change
+                if (dir.equals(directory)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                try (var stream = Files.list(dir)) {
+                    if (stream.findAny().isEmpty()) {
+                        Files.delete(dir);
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to delete an empty directory: '{}'", dir, e);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
-    protected boolean isSkip(File file) {
+    protected boolean isSkip(Path file) {
         return false;
-    }
-
-    private void createParent(File file) throws FileNotFoundException {
-        File parentFile = file.getParentFile();
-        if (!parentFile.mkdirs() && !parentFile.exists()) {
-            throw new FileNotFoundException("Failed to create the folder '" + parentFile.getAbsolutePath() + "'.");
-        }
     }
 
     public void setListenerTimerPeriod(int listenerTimerPeriod) {

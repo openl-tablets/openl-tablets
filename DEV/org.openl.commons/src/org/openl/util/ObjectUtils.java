@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 
 /**
  * Set of utilities for manipulating with objects.
@@ -35,6 +36,8 @@ public class ObjectUtils {
                 Array.set(res, i, convert(values[i], componentType));
             }
             return res;
+        } else if (type.equals(Path.class)) {
+            return Path.of(value);
         } else {
             if (type.isPrimitive()) {
                 type = ClassUtils.primitiveToWrapper(type);

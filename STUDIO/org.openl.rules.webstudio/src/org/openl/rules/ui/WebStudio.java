@@ -338,7 +338,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (renameProject) {
                 if (repository.supports().mappedFolders()) {
                     LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
-                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
                     String prevPath = project.getFolderPath();
                     int index = prevPath.lastIndexOf('/');
                     String newPath = prevPath.substring(0, index + 1) + logicalName;
@@ -487,7 +487,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         String repoId = project.getRepository().getId();
                         List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
                                 k -> new ArrayList<>());
-                        File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                        File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
                         File folder = new File(repoRoot, project.getFolderPath());
                         ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
                         if (resolvedDescriptor != null) {

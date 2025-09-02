@@ -327,7 +327,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (!rPr.getLocalFolderName().equals(realProjectName)) {
                             // We cannot close and then open a project in workspace, we should rename the folder
                             // in file system directly. Otherwise we will lose unsaved user changes.
-                            File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot();
+                            File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot().toFile();
                             String prevPath = rPr.getFolderPath();
                             int index = prevPath.lastIndexOf('/');
                             String newPath = prevPath.substring(0, index + 1) + realProjectName;

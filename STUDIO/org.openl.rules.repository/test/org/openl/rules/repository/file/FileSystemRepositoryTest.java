@@ -8,10 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,33 +33,33 @@ import org.openl.util.IOUtils;
 public class FileSystemRepositoryTest {
 
     @TempDir
-    File tmpDir;
+    Path tmpDir;
 
     @Test
     public void createFolderOnDemand() throws IOException {
-        File root = new File(tmpDir, "parent/my-repo");
+        var root = tmpDir.resolve("parent/my-repo");
 
         FileSystemRepository repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
-        assertFalse(root.exists(), "Repo folder must not be created after initialize().");
+        assertFalse(Files.exists(root), "Repo folder must not be created after initialize().");
 
         assertList(repo, "", 0);
-        assertFalse(root.exists(), "We didn't modify repository. Repo folder must not be created.");
+        assertFalse(Files.exists(root), "We didn't modify repository. Repo folder must not be created.");
 
         assertSave(repo, "folder1/text", "The file in the folder");
-        assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
+        assertTrue(Files.exists(root), "We added the file to repo. Repo folder must exist.");
 
         assertSave(repo, "folder2/text", "The file in the folder");
-        assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
+        assertTrue(Files.exists(root), "We added the file to repo. Repo folder must exist.");
 
         assertDelete(repo, "folder2/text", true);
-        assertTrue(root.exists(), "Repo still contains at least 1 file. Repo folder must exist.");
+        assertTrue(Files.exists(root), "Repo still contains at least 1 file. Repo folder must exist.");
 
         assertDelete(repo, "folder1/text", true);
-        assertFalse(root.exists(), "Repo folder must be deleted when all files in it were deleted.");
+        assertFalse(Files.exists(root), "Repo folder must be deleted when all files in it were deleted.");
 
-        assertTrue(root.getParentFile().exists(), "Repository's base folder must not be deleted: Repo is not responsible for it.");
+        assertTrue(Files.exists(root.getParent()), "Repository's base folder must not be deleted: Repo is not responsible for it.");
     }
 
     @Test

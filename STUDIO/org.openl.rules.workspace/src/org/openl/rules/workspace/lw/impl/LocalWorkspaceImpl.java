@@ -42,7 +42,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
         localProjects = new HashMap<>();
 
-        localRepository = new LocalRepository(location);
+        localRepository = new LocalRepository(location.toPath());
         localRepository.initialize();
         loadProjects();
     }
