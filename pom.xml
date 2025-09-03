@@ -85,12 +85,12 @@
         <spring.security.version>5.8.16</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>10.3.1</nimbus-jose-jwt.version>
-        <json-smart.version>2.5.2</json-smart.version>
+        <nimbus-jose-jwt.version>10.4.2</nimbus-jose-jwt.version>
+        <json-smart.version>2.6.0</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.8</asm.version>
-        <byte-buddy.version>1.17.6</byte-buddy.version>
+        <byte-buddy.version>1.17.7</byte-buddy.version>
         <cloning.version>1.12.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
@@ -99,7 +99,7 @@
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.18.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.19.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- Casandra -->
         <cassandra.driver.version>4.17.0</cassandra.driver.version>
@@ -108,11 +108,11 @@
         <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
         <!-- REST -->
-        <jackson.version>2.19.2</jackson.version>
-        <cxf.version>3.6.7</cxf.version>
+        <jackson.version>2.20.0</jackson.version>
+        <cxf.version>3.6.8</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.73.0</grpc.version>
+        <grpc.version>1.75.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.28</swagger.core.version>
@@ -128,32 +128,32 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>10.0.25</jetty.version>
+        <jetty.version>10.0.26</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.32.4</amazonaws.version>
-        <azure.version>12.31.0</azure.version>
-        <netty.version>4.2.3.Final</netty.version>
+        <amazonaws.version>2.33.0</amazonaws.version>
+        <azure.version>12.31.2</azure.version>
+        <netty.version>4.2.4.Final</netty.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.3.232</h2.version>
         <mssql.version>12.10.1.jre11</mssql.version>
-        <hikaricp.version>6.3.0</hikaricp.version>
+        <hikaricp.version>7.0.2</hikaricp.version>
         <hibernate.orm.version>5.6.15.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.13.3</junit.version>
+        <junit.version>5.13.4</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <mockito.version>5.18.0</mockito.version>
+        <mockito.version>5.19.0</mockito.version>
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.10.3</xmlunit.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.17</minio.version>
-        <ojdbc11.version>23.8.0.25.04</ojdbc11.version>
+        <ojdbc11.version>23.9.0.25.07</ojdbc11.version>
         <postgresql.version>42.7.7</postgresql.version>
         <mariadb.version>2.7.12</mariadb.version>
         <jmh.version>1.37</jmh.version>
@@ -177,8 +177,8 @@
         <greenmail.version>1.6.15</greenmail.version>
 
         <!-- Commons and utils -->
-        <commons-codec.version>1.18.0</commons-codec.version>
-        <commons-compress.version>1.27.1</commons-compress.version>
+        <commons-codec.version>1.19.0</commons-codec.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-io.version>2.20.0</commons-io.version>
         <commons-jxpath.version>1.4.0</commons-jxpath.version>
@@ -189,7 +189,7 @@
         <gson.version>2.13.1</gson.version>
 
         <bouncycastle.version>1.81</bouncycastle.version>
-        <groovy.version>4.0.27</groovy.version>
+        <groovy.version>4.0.28</groovy.version>
         <poi.version>5.4.1</poi.version>
         <aspectj.version>1.9.24</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
@@ -412,7 +412,7 @@
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.13.0</version>
+                    <version>6.17.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
