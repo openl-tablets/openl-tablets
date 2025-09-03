@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Modal, Form, Switch, Button, Row, Col } from 'antd'
+import { Modal, Form, Button, Space } from 'antd'
 import { RocketOutlined, BranchesOutlined } from '@ant-design/icons'
 import { useGlobalEvents } from '../hooks'
-import { Select } from '../components/form'
+import { Select, TextArea } from '../components/form'
+import { apiCall } from '../services'
+import { Repository } from '../types/repositories'
+import { useTranslation } from 'react-i18next'
+import { WIDTH_OF_FORM_LABEL_MODAL } from '../constants'
+
+interface DeployModalDetail {
+    branch: string
+    comment: string
+    id: string
+    modifiedAt: string
+    modifiedBy: string
+    name: string
+    repository: string
+    revision: string
+    selectedBranches: string[]
+    status: string
+}
 
 /**
  * DeployModal component
@@ -10,131 +27,205 @@ import { Select } from '../components/form'
  * window.dispatchEvent(new CustomEvent('openDeployModal', {detail: {test:'test'}}))
  */
 export const DeployModal: React.FC = () => {
+    const { t } = useTranslation()
     const [form] = Form.useForm()
-    const { details }: { details: { title?: string, initialValues?: any } | null } = useGlobalEvents('openDeployModal')
+    const selectedRepository = Form.useWatch('repository', form)
+    const { detail } = useGlobalEvents<DeployModalDetail>('openDeployModal')
     const [visible, setVisible] = useState(false)
     const [searchString, setSearchString] = useState('')
-    const [deploymentNames, setDeploymentNames] = useState<string[]>([])
+    const [deploymentRepositories, setDeploymentRepositories] = useState<Repository[]>([])
+    const [deploymentNames, setDeploymentNames] = useState<Array<{id: string, name: string}>>([])
+    const [isNewDeployment, setIsNewDeployment] = useState<boolean>(false)
+
+    const fetchDeploymentRepositories = async () => {
+        const response: Repository[] = await apiCall('/production-repos')
+        setDeploymentRepositories(response)
+    }
 
     const fetchDeploymentNames = async () => {
-        // TODO: fetch deployment names from the API
-        // const response: string[] = await apiCall(?search=${searchString}`)
-        setDeploymentNames([])
+        const response: Array<{id: string, name: string}> = await apiCall(`/deployments?repository=${selectedRepository}`)
+        setDeploymentNames(response)
     }
 
     useEffect(() => {
-        if (searchString) {
-            fetchDeploymentNames()
+        if (visible && !deploymentRepositories.length) {
+            fetchDeploymentRepositories()
         }
-    }, [searchString])
+    }, [visible, deploymentRepositories])
 
     useEffect(() => {
-        const hasDetails = details && Object.keys(details).length > 0
+        if (selectedRepository) {
+            fetchDeploymentNames()
+        } else {
+            setDeploymentNames([])
+        }
+        // Clean deploy name on repository is changed
+        form.setFieldsValue({ deploymentName: undefined })
+        setIsNewDeployment(false)
+        setSearchString('')
+    }, [selectedRepository, form])
+
+    useEffect(() => {
+        const hasDetails = !!(detail && Object.keys(detail).length > 0)
         setVisible(hasDetails)
         if (hasDetails) {
-            form.setFieldsValue(details.initialValues || {})
+            // Clear form when modal opens
+            form.resetFields()
+            // Reset states
+            setSearchString('')
+            setIsNewDeployment(false)
+            setDeploymentNames([])
         }
-    }, [details, form])
+    }, [detail, form])
 
     const handleClose = () => {
-        window.dispatchEvent(new CustomEvent('openModal', { detail: null }))
+        setVisible(false)
+        window.dispatchEvent(new CustomEvent('openDeployModal', { detail: null }))
     }
 
-    const handleDeploy = () => {
-        form.validateFields()
-            .then(values => {
-                console.warn('Deploying with values:', values)
-                handleClose()
-            })
-            .catch(info => {
-                console.error('Validate Failed:', info)
-            })
+    const handleDeploy = async () => {
+        try {
+            const values = await form.validateFields()
+            
+            const { repository, deploymentName, comment } = values
+            const projectId = detail?.id
+            
+            if (isNewDeployment) {
+                // Create new deployment
+                await apiCall('/deployments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        comment,
+                        deploymentName,
+                        productionRepositoryId: repository,
+                        projectId,
+                    }),
+                })
+            } else {
+                // Deploy to existing deployment
+                const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
+                if (selectedDeployment) {
+                    await apiCall(`/deployments/${selectedDeployment.id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            comment,
+                            projectId,
+                        }),
+                    })
+                }
+            }
+            
+            handleClose()
+        } catch (info) {
+            console.error('Validate Failed:', info)
+        }
     }
 
     const handleSearchDeploymentName = (newValue: string) => {
         setSearchString(newValue)
+        // If a user types something new, mark as new deployment
+        if (newValue && !deploymentNames.find(dep => dep.name === newValue)) {
+            setIsNewDeployment(true)
+        }
     }
 
     const handleChangeDeploymentName = (newValue: string) => {
         if (newValue) {
             setSearchString('')
-            form.setFieldsValue({ deploymentName: newValue })
+            // Check if this is an existing deployment or a new one
+            const existingDeployment = deploymentNames.find(dep => dep.id === newValue)
+            if (existingDeployment) {
+                setIsNewDeployment(false)
+                form.setFieldsValue({ deploymentName: existingDeployment.name })
+            } else {
+                setIsNewDeployment(true)
+                form.setFieldsValue({ deploymentName: newValue })
+            }
         }
     }
 
     const onBlurDeploymentName = () => {
         if (searchString) {
+            setIsNewDeployment(true)
             form.setFieldsValue({ deploymentName: searchString })
         }
     }
 
-    const deploymentNameOptions = useMemo(() => {
-        return deploymentNames.map(group => ({
-            value: group,
-            label: group,
+    const deploymentRepositoriesOptions = useMemo(() => {
+        return deploymentRepositories.map(group => ({
+            value: group.id,
+            label: group.name,
         }))
-    }, [deploymentNames])
+    }, [deploymentRepositories])
 
     return (
         <Modal
             onCancel={handleClose}
             open={visible}
-            width={600}
+            width={800}
             footer={[
                 <Button key="cancel" onClick={handleClose}>
-                    Cancel
+                    {t('deploy:buttons.cancel')}
                 </Button>,
                 <Button key="deploy" onClick={handleDeploy} type="primary">
-                    Deploy
+                    {t('deploy:buttons.deploy')}
                 </Button>,
             ]}
             title={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <RocketOutlined style={{ marginRight: 8 }} />
-                    {details?.title || 'Deploy rules-deploy.xml'}
+                    {t('deploy:title', { projectName: detail?.name })}
                 </div>
             }
         >
-            <Form form={form} layout="vertical" name="deploy_form">
-                <Select
-                    label="Repository"
-                    name="repository"
-                    suffixIcon={<BranchesOutlined />}
-                    options={[
-                        { value: 'dev', label: <div><BranchesOutlined /> Dev</div> },
-                    ]}
-                />
-                <Select
-                    showSearch
-                    defaultActiveFirstOption={false}
-                    filterOption={false}
-                    label="Deployment Name"
-                    name="deploymentName"
-                    notFoundContent={null}
-                    onBlur={onBlurDeploymentName}
-                    onChange={handleChangeDeploymentName}
-                    onSearch={handleSearchDeploymentName}
-                    options={deploymentNameOptions}
-                    style={{ width: '100%' }}
-                    suffixIcon={null}
-                />
-                <Select
-                    label="Revision"
-                    name="revision"
-                    options={[]} // Options for revisions would be populated here
-                    placeholder="Select revision"
-                />
-                <Form.Item label="" name="dependentProjects" valuePropName="checked">
-                    <Row>
-                        <Col>
-                            <Switch />
-                        </Col>
-                        <Col>
-                            <span style={{ marginLeft: 8 }}>Dependent projects</span>
-                        </Col>
-                    </Row>
-                </Form.Item>
-            </Form>
+            <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
+                <Form 
+                    labelWrap
+                    form={form}
+                    labelAlign="right"
+                    labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
+                    name="deploy_form"
+                    wrapperCol={{ flex: 1 }}
+                >
+                    <Select
+                        required
+                        label={t('deploy:repository.label')}
+                        name="repository"
+                        options={deploymentRepositoriesOptions}
+                        placeholder={t('deploy:repository.placeholder')}
+                        suffixIcon={<BranchesOutlined />}
+                    />
+                    <Select
+                        required
+                        showSearch
+                        defaultActiveFirstOption={false}
+                        disabled={!selectedRepository}
+                        filterOption={false}
+                        label={t('deploy:deployment_name.label')}
+                        name="deploymentName"
+                        notFoundContent={null}
+                        onBlur={onBlurDeploymentName}
+                        onChange={handleChangeDeploymentName}
+                        onSearch={handleSearchDeploymentName}
+                        options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
+                        placeholder={t('deploy:deployment_name.placeholder')}
+                        style={{ width: '100%' }}
+                        suffixIcon={null}
+                    />
+                    <TextArea
+                        required
+                        label={t('deploy:comment.label')}
+                        name="comment"
+                        placeholder={t('deploy:comment.placeholder')}
+                    />
+                </Form>
+            </Space>
         </Modal>
     )
 }
