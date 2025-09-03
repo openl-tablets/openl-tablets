@@ -8,12 +8,12 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
@@ -44,7 +44,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
 
     @Override
     public List<RepositoryConfiguration> getRepositories() {
-        return getRepositories(AclPermission.READ)
+        return getRepositories(BasePermission.READ)
                 .sorted(RepositoryConfiguration.COMPARATOR)
                 .collect(Collectors.toList());
     }
@@ -54,7 +54,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
         if (!deploymentManager.getRepositoryConfigNames().contains(id)) {
             return Optional.empty();
         }
-        if (!productionRepositoryAclService.isGranted(id, null, List.of(AclPermission.READ))) {
+        if (!productionRepositoryAclService.isGranted(id, null, List.of(BasePermission.READ))) {
             return Optional.empty();
         }
         return Optional.of(repositoryConfigurationFactory.apply(id));
@@ -62,7 +62,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
 
     @Override
     public List<RepositoryConfiguration> getManageableRepositories() {
-        return getRepositories(AclPermission.ADMINISTRATION)
+        return getRepositories(BasePermission.ADMINISTRATION)
                 .sorted(RepositoryConfiguration.COMPARATOR)
                 .collect(Collectors.toList());
     }

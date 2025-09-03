@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -21,8 +22,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.openl.security.acl.permission.AclPermission;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
@@ -56,13 +55,13 @@ public class AclServiceTest {
 
         // Now grant some permissions via an access control entry (ACE)
         Sid sid = new PrincipalSid("Samantha");
-        acl.insertAce(acl.getEntries().size(), AclPermission.WRITE, sid, true);
-        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, true);
-        acl.insertAce(acl.getEntries().size(), AclPermission.DELETE, sid, false);
+        acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.DELETE, sid, false);
 
         // Authority Permissions
         Sid sid1 = new GrantedAuthoritySid("Samantha");
-        acl.insertAce(acl.getEntries().size(), AclPermission.WRITE, sid1, false);
+        acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid1, false);
         aclService.updateAcl(acl);
 
         try {
@@ -71,10 +70,10 @@ public class AclServiceTest {
             fail("ACL is not found!");
         }
 
-        assertTrue(acl.isGranted(List.of(AclPermission.WRITE), List.of(sid), false));
-        assertTrue(acl.isGranted(List.of(AclPermission.READ), List.of(sid), false));
-        assertFalse(acl.isGranted(List.of(AclPermission.DELETE), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(BasePermission.WRITE), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(BasePermission.READ), List.of(sid), false));
+        assertFalse(acl.isGranted(List.of(BasePermission.DELETE), List.of(sid), false));
         // Authority Permissions
-        assertFalse(acl.isGranted(List.of(AclPermission.WRITE), List.of(sid1), false));
+        assertFalse(acl.isGranted(List.of(BasePermission.WRITE), List.of(sid1), false));
     }
 }

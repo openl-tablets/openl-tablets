@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
@@ -55,7 +56,6 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
@@ -253,7 +253,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
                 throw new Message("There is no permission for copying the project.");
             }
             if (isSupportsBranches() && !isSeparateProject()) {
@@ -552,7 +552,7 @@ public class CopyBean {
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
                     return true;
                 }
             }

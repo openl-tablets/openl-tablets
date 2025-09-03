@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -23,7 +24,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.FileTypeHelper;
 
 @WebServlet("/action/launch")
@@ -51,7 +51,7 @@ public class LaunchFileServlet extends HttpServlet {
         } catch (ProjectException e) {
             return;
         }
-        if (!ws.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.WRITE))) {
+        if (!ws.getDesignRepositoryAclService().isGranted(currentModule, List.of(BasePermission.WRITE))) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +32,6 @@ import org.openl.rules.rest.service.ProjectDependencyResolver;
 import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @RestController
@@ -80,7 +80,7 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.READ))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(BasePermission.READ))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
@@ -159,7 +159,7 @@ public class ProjectManagementController {
         // request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
+            if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {
@@ -192,7 +192,7 @@ public class ProjectManagementController {
                       @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
+            if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {

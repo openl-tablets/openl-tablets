@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.common.ProjectException;
@@ -28,7 +29,6 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
@@ -59,10 +59,10 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(true);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))).thenReturn(true);
 
         assertSame(rulesProject, projectConverter.convert(projectId));
-        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.READ));
+        verify(designRepositoryAclService).isGranted(rulesProject, List.of(BasePermission.READ));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(false);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))).thenReturn(false);
 
         assertThrows(SecurityException.class, () -> projectConverter.convert(projectId));
     }
@@ -121,10 +121,10 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(true);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))).thenReturn(true);
 
         assertSame(rulesProject, projectConverter.convert(projectId));
-        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.READ));
+        verify(designRepositoryAclService).isGranted(rulesProject, List.of(BasePermission.READ));
     }
 
     @Test

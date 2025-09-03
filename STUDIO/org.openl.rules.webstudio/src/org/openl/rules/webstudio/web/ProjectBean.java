@@ -31,6 +31,7 @@ import io.swagger.v3.core.util.Yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -80,7 +81,6 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
@@ -745,7 +745,7 @@ public class ProjectBean {
     private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-            if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
+            if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
                         ProjectArtifactUtils.extractResourceName(projectArtefact)));
             }
@@ -782,7 +782,7 @@ public class ProjectBean {
                 path = designRepositoryAclService
                         .getPath(currentProject) + (StringUtils.isNotBlank(path) ? "/" + path : StringUtils.EMPTY);
                 return designRepositoryAclService
-                        .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.CREATE));
+                        .isGranted(currentProject.getRepository().getId(), path, List.of(BasePermission.CREATE));
             }
         }
         return false;
@@ -796,12 +796,12 @@ public class ProjectBean {
                     return designRepositoryAclService.isGranted(
                             currentProject
                                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
-                            List.of(AclPermission.WRITE));
+                            List.of(BasePermission.WRITE));
                 } catch (ProjectException ignored) {
                     return false;
                 }
             } else {
-                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.CREATE));
+                return designRepositoryAclService.isGranted(currentProject, List.of(BasePermission.CREATE));
             }
         }
         return false;
@@ -817,14 +817,14 @@ public class ProjectBean {
                 if (isModuleWithWildcard(module)) {
                     for (Module m : getModulesMatchingPathPattern(module)) {
                         AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
-                        if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
+                        if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                             return true;
                         }
                     }
                     return false;
                 } else {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-                    return !designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE);
+                    return !designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE);
                 }
             } catch (ProjectException e) {
                 return true;
@@ -1216,7 +1216,7 @@ public class ProjectBean {
     }
 
     private void validatePermissionForEditing(AProjectArtefact artefact) {
-        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
+        if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
             throw new Message(String.format("There is no permission for modifying '%s' file.",
                     ProjectArtifactUtils.extractResourceName(artefact)));
         }
@@ -1225,7 +1225,7 @@ public class ProjectBean {
     private void validatePermissionForCreating(RulesProject currentProject, String path) {
         String p = designRepositoryAclService.getPath(currentProject);
         if (!designRepositoryAclService
-                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.CREATE))) {
+                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(BasePermission.CREATE))) {
             throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                     ProjectArtifactUtils.extractResourceName(currentProject),
                     path));
@@ -1358,7 +1358,7 @@ public class ProjectBean {
             log.warn("Existing file wasn't found in module {}", existingModule.getName(), e);
         }
         if (artefact != null) {
-            if (!designRepositoryAclService.isGranted(artefact, true, AclPermission.DELETE)) {
+            if (!designRepositoryAclService.isGranted(artefact, true, BasePermission.DELETE)) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
                         ProjectArtifactUtils.extractResourceName(artefact)));
             }

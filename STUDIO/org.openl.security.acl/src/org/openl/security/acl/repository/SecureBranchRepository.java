@@ -6,13 +6,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.security.acls.domain.BasePermission;
+
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.security.acl.permission.AclPermission;
 
 public class SecureBranchRepository extends SecureRepository implements BranchRepository {
     private final BranchRepository branchRepository;
@@ -24,7 +25,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public boolean isMergedInto(String from, String to) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.READ))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
             return branchRepository.isMergedInto(from, to);
         }
         throw new AccessDeniedException("There is no permission for the action.");
@@ -42,7 +43,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public void createBranch(String projectPath, String branch) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.WRITE))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
             branchRepository.createBranch(projectPath, branch);
         } else {
             throw new AccessDeniedException("There is no permission for creating a branch.");
@@ -51,7 +52,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.WRITE))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.WRITE))) {
             branchRepository.createBranch(projectPath, branch, startPoint);
         } else {
             throw new AccessDeniedException("There is no permission for creating a branch.");
@@ -65,7 +66,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public List<String> getBranches(String projectPath) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(AclPermission.READ))) {
+        if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(BasePermission.READ))) {
             return branchRepository.getBranches(projectPath);
         }
         return Collections.emptyList();
@@ -90,7 +91,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
             if (simpleRepositoryAclService
-                    .isGranted(getId(), fileItem.getData().getName(), List.of(AclPermission.WRITE))) {
+                    .isGranted(getId(), fileItem.getData().getName(), List.of(BasePermission.WRITE))) {
                 throw new AccessDeniedException("There is no permission for merging changes to a branch.");
             }
         }

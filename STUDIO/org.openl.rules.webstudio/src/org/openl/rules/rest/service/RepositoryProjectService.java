@@ -4,16 +4,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import jakarta.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
@@ -39,7 +39,7 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
         Collection<? extends AProject> projects;
         if (query.getRepositoryId().isPresent()) {
             var repositoryId = query.getRepositoryId().get();
-            if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.READ))) {
+            if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.READ))) {
                 return Stream.empty();
             }
             projects = designTimeRepository.getProjects(repositoryId);

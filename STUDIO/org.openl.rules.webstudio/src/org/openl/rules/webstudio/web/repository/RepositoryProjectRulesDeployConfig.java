@@ -12,6 +12,7 @@ import jakarta.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
@@ -25,7 +26,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.IOUtils;
@@ -93,7 +93,7 @@ public class RepositoryProjectRulesDeployConfig {
         if (hasRulesDeploy(project)) {
             try {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
+                if (!designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE)) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact)));
                     return;
@@ -124,14 +124,14 @@ public class RepositoryProjectRulesDeployConfig {
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
+                if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(artefact)));
                     return;
                 }
                 artefact.setContent(inputStream);
             } else {
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
+                if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.CREATE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
                             ProjectArtifactUtils.extractResourceName(project),
                             RULES_DEPLOY_CONFIGURATION_FILE));
@@ -212,9 +212,9 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.WRITE));
+                return designRepositoryAclService.isGranted(projectArtefact, List.of(BasePermission.WRITE));
             } else {
-                return designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE));
+                return designRepositoryAclService.isGranted(project, List.of(BasePermission.CREATE));
             }
         } catch (ProjectException e) {
             return false;
@@ -228,7 +228,7 @@ public class RepositoryProjectRulesDeployConfig {
         }
         try {
             AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-            return designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE);
+            return designRepositoryAclService.isGranted(projectArtefact, true, BasePermission.DELETE);
         } catch (ProjectException e) {
             return false;
         }

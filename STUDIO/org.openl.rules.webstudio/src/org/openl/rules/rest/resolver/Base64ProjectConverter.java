@@ -7,6 +7,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
@@ -16,7 +17,6 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
@@ -49,7 +49,7 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
         if (project == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             throw new SecurityException();
         }
         return project;

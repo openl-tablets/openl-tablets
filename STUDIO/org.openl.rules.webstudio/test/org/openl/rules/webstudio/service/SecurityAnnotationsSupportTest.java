@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
@@ -18,8 +19,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.openl.security.acl.permission.AclPermission;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
@@ -68,7 +67,7 @@ public class SecurityAnnotationsSupportTest {
 
         // Now grant some permissions via an access control entry (ACE)
         Sid sid = new PrincipalSid("oleg");
-        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, false);
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, false);
         aclService.updateAcl(acl);
         try {
             securedService.read(foo);
@@ -76,7 +75,7 @@ public class SecurityAnnotationsSupportTest {
         } catch (AccessDeniedException ignored) {
         }
         acl.deleteAce(acl.getEntries().size() - 1);
-        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
         aclService.updateAcl(acl);
         securedService.read(foo);
     }

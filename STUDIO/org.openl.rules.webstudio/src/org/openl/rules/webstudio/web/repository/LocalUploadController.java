@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.security.acl.permission.AclPermission.CREATE;
+import static org.springframework.security.acls.domain.BasePermission.CREATE;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;

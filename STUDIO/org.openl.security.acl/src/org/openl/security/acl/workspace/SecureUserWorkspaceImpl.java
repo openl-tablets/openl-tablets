@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.acls.domain.BasePermission;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
@@ -15,7 +17,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 public class SecureUserWorkspaceImpl implements UserWorkspace {
@@ -36,7 +37,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public boolean hasProject(String repositoryId, String name) {
         try {
             RulesProject project = userWorkspace.getProject(repositoryId, name);
-            return designRepositoryAclService.isGranted(project, List.of(AclPermission.READ));
+            return designRepositoryAclService.isGranted(project, List.of(BasePermission.READ));
         } catch (ProjectException e) {
             return false;
         }
@@ -46,7 +47,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<RulesProject> getProjects(String repositoryId) {
         return userWorkspace.getProjects(repositoryId)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.READ)))
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -87,7 +88,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public String getActualName(AProject project) throws ProjectException, IOException {
-        if (designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+        if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             return userWorkspace.getActualName(project);
         } else {
             throw new ProjectException("There is no permission for reading the project.");
@@ -111,13 +112,13 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
                                            String comment) throws ProjectException {
         if (userWorkspace.hasProject(repositoryId, name)) {
             String path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
-            if (designRepositoryAclService.isGranted(repositoryId, path, List.of(AclPermission.WRITE))) {
+            if (designRepositoryAclService.isGranted(repositoryId, path, List.of(BasePermission.WRITE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
                 throw new ProjectException(String.format("There is no permission for modifying '%s'.", path));
             }
         } else {
-            if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+            if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.CREATE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
                 throw new ProjectException("There is no permission for creating a new project.");
@@ -129,7 +130,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
         Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
         if (rulesProjectOptional
-                .isPresent() && !designRepositoryAclService.isGranted(rulesProjectOptional.get(), List.of(AclPermission.READ))) {
+                .isPresent() && !designRepositoryAclService.isGranted(rulesProjectOptional.get(), List.of(BasePermission.READ))) {
             return Optional.empty();
         }
         return rulesProjectOptional;
@@ -143,7 +144,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
-        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))) {
+        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }
         return rulesProject;
@@ -152,7 +153,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
-        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))) {
+        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }
         return rulesProject;
@@ -162,7 +163,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects() {
         return userWorkspace.getProjects()
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.READ)))
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -170,7 +171,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
         return userWorkspace.getProjects(refreshBefore)
                 .stream()
-                .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.READ)))
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 

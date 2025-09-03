@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
@@ -64,12 +64,12 @@ public class RepositoryAclServiceTest {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test
@@ -80,12 +80,12 @@ public class RepositoryAclServiceTest {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(designRepositoryAclService
-                .isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                .isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test
@@ -96,12 +96,12 @@ public class RepositoryAclServiceTest {
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test
@@ -111,15 +111,15 @@ public class RepositoryAclServiceTest {
     public void permissionDuplicateChecking() {
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
         designRepositoryAclService.addPermissions("repoId2",
                 "/projectName1/rules",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
         assertEquals(1,
                 designRepositoryAclService.listPermissions("repoId2", "/projectName1/rules")
@@ -133,45 +133,45 @@ public class RepositoryAclServiceTest {
     @Rollback
     public void permissionRemovingByPermission() {
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.WRITE, AclPermission.READ),
+                List.of(BasePermission.WRITE, BasePermission.READ),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
         mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.removePermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.WRITE),
+                List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
         mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.removePermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ),
+                List.of(BasePermission.READ),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test
@@ -180,51 +180,51 @@ public class RepositoryAclServiceTest {
     @Rollback
     public void permissionRemovingBySids() {
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         Authentication mockUser = setAndreyAuthenticationToContext();
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ),
+                List.of(BasePermission.READ),
                 List.of(new PrincipalSid("oleg"), new PrincipalSid("andrey")));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         setAndreyAuthenticationToContext();
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService.removePermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ),
+                List.of(BasePermission.READ),
                 List.of(new PrincipalSid("andrey")));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         setAndreyAuthenticationToContext();
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.removePermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ),
+                List.of(BasePermission.READ),
                 List.of(new PrincipalSid("oleg")));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         setAndreyAuthenticationToContext();
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
     }
 
     @Test
@@ -232,30 +232,30 @@ public class RepositoryAclServiceTest {
     @Rollback
     @Transactional
     public void delete() {
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
-                .addPermissions("repoId1", "/projectName1/rules", List.of(AclPermission.READ), List.of(new PrincipalSid("oleg")));
+                .addPermissions("repoId1", "/projectName1/rules", List.of(BasePermission.READ), List.of(new PrincipalSid("oleg")));
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ),
+                List.of(BasePermission.READ),
                 List.of(new PrincipalSid("oleg")));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
 
         mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.deleteAcl("repoId1", "/projectName1/rules");
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
     }
 
     @Test
@@ -263,36 +263,36 @@ public class RepositoryAclServiceTest {
     @Rollback
     @Transactional
     public void move() {
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertFalse(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
-                .addPermissions("repoId1", "/projectName1/rules", List.of(AclPermission.READ), List.of(new PrincipalSid("oleg")));
+                .addPermissions("repoId1", "/projectName1/rules", List.of(BasePermission.READ), List.of(new PrincipalSid("oleg")));
         designRepositoryAclService.addPermissions("repoId1",
                 "/projectName1/rules/module1.xlsx",
-                List.of(AclPermission.READ, AclPermission.WRITE),
+                List.of(BasePermission.READ, BasePermission.WRITE),
                 List.of(new PrincipalSid("oleg")));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
 
         mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService.move("repoId1", "/projectName1/rules", "/projectName1/rules1/rules2");
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(AclPermission.READ)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(BasePermission.READ)));
         assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(AclPermission.WRITE)));
+                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test
@@ -300,62 +300,62 @@ public class RepositoryAclServiceTest {
     @Transactional
     @Rollback
     public void nullPathSupport() {
-        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         Authentication mockUser = setAdminAuthenticationToContext();
         designRepositoryAclService
-                .addPermissions("repoId1", null, List.of(AclPermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
+                .addPermissions("repoId1", null, List.of(BasePermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService
-                .removePermissions("repoId1", "", List.of(AclPermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
+                .removePermissions("repoId1", "", List.of(BasePermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService
-                .addPermissions("repoId1", "", List.of(AclPermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
+                .addPermissions("repoId1", "", List.of(BasePermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService
                 .removePermissions("repoId1", "/", List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService
-                .addPermissions("repoId1", "/", List.of(AclPermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
+                .addPermissions("repoId1", "/", List.of(BasePermission.READ), List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
         setAdminAuthenticationToContext();
         designRepositoryAclService.removePermissions("repoId1", null);
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(AclPermission.READ)));
-        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(AclPermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", null, List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
     }
 

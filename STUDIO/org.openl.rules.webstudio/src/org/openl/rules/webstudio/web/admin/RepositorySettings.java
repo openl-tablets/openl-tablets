@@ -369,9 +369,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         public interface Design extends Base {
         }
 
-        public interface DeployConfig extends Base {
-        }
-
         public interface Production extends Base {
         }
     }
