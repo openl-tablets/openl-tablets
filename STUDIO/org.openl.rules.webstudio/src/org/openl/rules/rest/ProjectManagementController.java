@@ -1,8 +1,6 @@
 package org.openl.rules.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.JAXBException;
 
@@ -16,14 +14,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -32,11 +28,8 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.project.ProjectStateValidator;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.service.ProjectDependencyResolver;
-import org.openl.rules.rest.service.ProjectDeploymentService;
 import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
-import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -47,8 +40,6 @@ import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 public class ProjectManagementController {
 
     private final ProjectDependencyResolver projectDependencyResolver;
-    private final ProjectDeploymentService projectDeploymentService;
-    private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclServiceProvider aclServiceProvider;
     private final WorkspaceProjectService projectService;
@@ -56,15 +47,11 @@ public class ProjectManagementController {
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
-                                       ProjectDeploymentService projectDeploymentService,
-                                       DeploymentManager deploymentManager,
                                        ProjectStateValidator projectStateValidator,
                                        RepositoryAclServiceProvider aclServiceProvider,
                                        WorkspaceProjectService projectService,
                                        AclProjectsHelper aclProjectsHelper) {
         this.projectDependencyResolver = projectDependencyResolver;
-        this.projectDeploymentService = projectDeploymentService;
-        this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
         this.aclServiceProvider = aclServiceProvider;
         this.projectService = projectService;
@@ -112,27 +99,6 @@ public class ProjectManagementController {
     }
 
     /**
-     * Returns deployment items for selected project.
-     *
-     * @param repo           repository where the project is located.
-     * @param name           project name.
-     * @param deployRepoName name of deploy repository.
-     * @return project info.
-     */
-    @GetMapping("/{repo-name}/projects/{proj-name}/deployments/{deploy-repo-name}")
-    @Hidden
-    public List<DeploymentProjectItem> getDeploymentItems(@DesignRepository("repo-name") Repository repo,
-                                                          @PathVariable("proj-name") String name,
-                                                          @PathVariable("deploy-repo-name") String deployRepoName) {
-        try {
-            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            return projectDeploymentService.getDeploymentProjectItems(project, deployRepoName);
-        } catch (ProjectException e) {
-            throw new NotFoundException("project.message", name);
-        }
-    }
-
-    /**
      * Closes the selected project
      *
      * @param repo repository where the project is located.
@@ -171,56 +137,6 @@ public class ProjectManagementController {
             // User workspace is changed when the project was opened, so we must refresh it to calc dependencies.
             // reset() should internally refresh workspace.
             webstudio.reset();
-        } catch (ProjectException e) {
-            throw new NotFoundException("project.message", name);
-        }
-    }
-
-    /**
-     * Deploy the selected project
-     *
-     * @param repo           repository where the project is located.
-     * @param name           project name.
-     * @param deployRepoName repository name where to deploy the project.
-     * @param items          items to deploy.
-     */
-    @PostMapping("/{repo-name}/projects/{proj-name}/deploy")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Hidden
-    public void deploy(@DesignRepository("repo-name") Repository repo,
-                       @PathVariable("proj-name") String name,
-                       @RequestParam("deploy-repo-name") String deployRepoName,
-                       @RequestBody String[] items) {
-        try {
-            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!projectStateValidator.canDeploy(project)) {
-                if (project.isDeleted()) {
-                    throw new ConflictException("project.deploy.deleted.message");
-                }
-                throw new ConflictException("project.deploy.conflict.message");
-            }
-            List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
-                    .getDeploymentProjectItems(project, repo.getId());
-            List<ADeploymentProject> deploymentProjectsToDeploy = new ArrayList<>();
-            for (String item : items) {
-                Optional<DeploymentProjectItem> deploymentProjectItem = deploymentProjectItems.stream()
-                        .filter(p -> p.getName().equals(item))
-                        .findFirst();
-                if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
-                    ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
-                    if (!aclProjectsHelper.hasPermission(deploymentProject, AclPermission.WRITE)) {
-                        throw new SecurityException();
-                    }
-                    deploymentProjectsToDeploy.add(deploymentProject);
-                }
-            }
-            var validBranchName = deploymentManager.validateOnMainBranch(deploymentProjectsToDeploy, deployRepoName);
-            if (validBranchName != null) {
-                throw new ConflictException("project.deploy.restricted.message", validBranchName);
-            }
-            for (ADeploymentProject deploymentProject : deploymentProjectsToDeploy) {
-                deploymentManager.deploy(deploymentProject, deployRepoName, null);
-            }
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }

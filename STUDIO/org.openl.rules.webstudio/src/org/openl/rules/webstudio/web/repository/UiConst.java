@@ -11,9 +11,7 @@ public final class UiConst {
     public static final String TYPE_FOLDER = "folder";
     public static final String TYPE_PROJECT = "project";
     public static final String TYPE_GROUP = "group";
-    public static final String TYPE_DEPLOYMENT_PROJECT = "deployment";
     public static final String TYPE_REPOSITORY = "repository";
-    public static final String TYPE_DEPLOYMENT_REPOSITORY = "drepository";
 
     public static final String TYPE_PRODUCTION_FILE = "prodfile";
     public static final String TYPE_PRODUCTION_FOLDER = "prodfolder";

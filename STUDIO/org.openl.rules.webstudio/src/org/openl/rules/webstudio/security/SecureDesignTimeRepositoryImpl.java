@@ -10,16 +10,13 @@ import org.springframework.security.acls.model.Permission;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
-import org.openl.util.CollectionUtils;
 
 public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepository {
 
@@ -126,54 +123,8 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     @Override
-    public ADeploymentProject.Builder createDeploymentConfigurationBuilder(String name) {
-        return designTimeRepository.createDeploymentConfigurationBuilder(name);
-    }
-
-    @Override
-    public List<ADeploymentProject> getDDProjects() throws RepositoryException {
-        return designTimeRepository.getDDProjects()
-                .stream()
-                .filter(this::canRead)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public ADeploymentProject getDDProject(String name) throws RepositoryException {
-        var ddProject = designTimeRepository.getDDProject(name);
-        if (ddProject == null) {
-            return null;
-        }
-        if (canRead(ddProject)) {
-            return ddProject;
-        } else {
-            throw new RepositoryException("Access denied");
-        }
-    }
-
-    private boolean canRead(ADeploymentProject deployConfig) {
-        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
-                .anyMatch(pd -> {
-                    try {
-                        getProjectByPath(pd.repositoryId(),
-                                pd.branch(),
-                                pd.path(),
-                                pd.projectVersion().getVersionName());
-                        return true;
-                    } catch (IOException e) {
-                        return false;
-                    }
-                });
-    }
-
-    @Override
     public void refresh() {
         designTimeRepository.refresh();
-    }
-
-    @Override
-    public boolean hasDDProject(String name) {
-        return designTimeRepository.hasDDProject(name);
     }
 
     @Override
@@ -196,18 +147,4 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return designTimeRepository.getExceptions();
     }
 
-    @Override
-    public boolean hasDeployConfigRepo() {
-        return designTimeRepository.hasDeployConfigRepo();
-    }
-
-    @Override
-    public Repository getDeployConfigRepository() {
-        return designTimeRepository.getDeployConfigRepository();
-    }
-
-    @Override
-    public String getDeployConfigLocation() {
-        return designTimeRepository.getDeployConfigLocation();
-    }
 }

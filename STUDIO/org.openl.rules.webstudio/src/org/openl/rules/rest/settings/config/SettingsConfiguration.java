@@ -9,11 +9,9 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.settings.service.AuthenticationSettingsFactory;
-import org.openl.rules.rest.settings.service.DeployConfigRepositorySettingsService;
 import org.openl.rules.rest.settings.service.DesignRepositorySettingsService;
 import org.openl.rules.rest.settings.service.ProductionRepositorySettingsService;
 import org.openl.rules.rest.settings.service.impl.AuthenticationSettingsFactoryImpl;
-import org.openl.rules.rest.settings.service.impl.DeployConfigRepositorySettingsServiceImpl;
 import org.openl.rules.rest.settings.service.impl.DesignRepositorySettingsServiceImpl;
 import org.openl.rules.rest.settings.service.impl.ProductionRepositorySettingsServiceImpl;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -62,14 +60,6 @@ public class SettingsConfiguration {
                                                                                    ObjectMapper objectMapper,
                                                                                    BeanValidationProvider beanValidationProvider) {
         return new ProductionRepositorySettingsServiceImpl(repositoryEditor, objectMapper, beanValidationProvider);
-    }
-
-    @Bean
-    public DeployConfigRepositorySettingsService deployConfigRepositorySettingsService(InMemoryProperties inMemoryProperties,
-                                                                                       ObjectMapper objectMapper,
-                                                                                       BeanValidationProvider beanValidationProvider,
-                                                                                       @Qualifier("designRepositoryEditor") RepositoryEditor designRepositoryEditor) {
-        return new DeployConfigRepositorySettingsServiceImpl(inMemoryProperties, objectMapper, beanValidationProvider, designRepositoryEditor);
     }
 
     @Bean

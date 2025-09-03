@@ -7,19 +7,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.util.CollectionUtils;
 
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
@@ -64,53 +61,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public ADeploymentProject copyDDProject(ADeploymentProject project,
-                                            String name,
-                                            String comment) throws ProjectException {
-        return userWorkspace.copyDDProject(project, name, comment);
-    }
-
-    @Override
-    public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
-            throw new RepositoryException("There is no repository for deployment configurations.");
-        }
-        return userWorkspace.createDDProject(name);
-    }
-
-    @Override
-    public ADeploymentProject getDDProject(String name) throws ProjectException {
-        ADeploymentProject deploymentProject = userWorkspace.getDDProject(name);
-        if (canRead(deploymentProject)) {
-            return deploymentProject;
-        }
-        throw new ProjectException("There is no permission for reading the deployment configuration.");
-    }
-
-    @Override
-    public ADeploymentProject getLatestDeploymentConfiguration(String name) {
-        ADeploymentProject deploymentProject = userWorkspace.getLatestDeploymentConfiguration(name);
-        if (canRead(deploymentProject)) {
-            return deploymentProject;
-        }
-        return null;
-    }
-
-    @Override
-    public List<ADeploymentProject> getDDProjects() throws ProjectException {
-        return userWorkspace.getDDProjects()
-                .stream()
-                .filter(this::canRead)
-                .collect(Collectors.toList());
-    }
-
-    private boolean canRead(ADeploymentProject deployConfig) {
-        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
-                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.repositoryId(), pd.path())
-                        .isPresent());
-    }
-
-    @Override
     public DesignTimeRepository getDesignTimeRepository() {
         return userWorkspace.getDesignTimeRepository();
     }
@@ -118,11 +68,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public LocalWorkspace getLocalWorkspace() {
         return userWorkspace.getLocalWorkspace();
-    }
-
-    @Override
-    public boolean hasDDProject(String name) {
-        return userWorkspace.hasDDProject(name);
     }
 
     @Override

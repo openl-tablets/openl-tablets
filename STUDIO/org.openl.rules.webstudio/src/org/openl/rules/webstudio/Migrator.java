@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
@@ -274,24 +273,6 @@ public class Migrator {
         props.put("test.run.parallel", null); // Remove
         props.put("project.history.home", null); // Remove
 
-        // migrate deploy-config
-        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository")) || ("true")
-                .equals(Props.text("repository.deploy-config.separate-repository"))) {
-            props.put("repository.deploy-config.separate-repository", null);
-            props.put("repository.deploy-config.use-repository", null);
-
-            // migrate local repo path if have default value, since the default has changed on 5.24.0
-            // null means this property have default value from previous OpenL version
-            var depConfRepo = settings.getProperty("repository.deploy-config.factory");
-            if (settings.getProperty(
-                    "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
-                    .equals(depConfRepo)) || "org.openl.rules.repository.git.GitRepository".equals(depConfRepo)) {
-                props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
-            }
-        } else {
-            props.put("repository.deploy-config.use-repository", "design");
-        }
-
         // migrate design repository path
         var desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty("repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
@@ -309,14 +290,6 @@ public class Migrator {
             props.put("repository.design.new-branch.pattern", migratedNewBranchPattern);
             props.put("repository.design.new-branch-pattern", null);
         }
-        rename(settings,
-                props,
-                "repository.deploy-config.comment-validation-pattern",
-                "repository.deploy-config.comment-template.comment-validation-pattern");
-        rename(settings,
-                props,
-                "repository.deploy-config.invalid-comment-message",
-                "repository.deploy-config.comment-template.invalid-comment-message");
         rename(settings,
                 props,
                 "repository.design.comment-validation-pattern",

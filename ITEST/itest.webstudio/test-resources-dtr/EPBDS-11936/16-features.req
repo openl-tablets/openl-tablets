@@ -1,3 +1,0 @@
-GET /rest/deploy-config-repo/features HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-

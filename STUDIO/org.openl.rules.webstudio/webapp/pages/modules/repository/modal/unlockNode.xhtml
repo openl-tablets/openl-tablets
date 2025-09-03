@@ -26,18 +26,9 @@
                          value="Unlock"
                          action="#{repositoryTreeController.unlockSelectedProject}"
                          styleClass="button-primary"/>
-        <h:commandButton id="unlock-selected-deploy-configuration"
-                         value="Unlock"
-                         action="#{repositoryTreeController.unlockSelectedDeployConfiguration}"
-                         styleClass="button-primary"/>
         <h:commandButton id="unlock-project"
                          value="Unlock"
                          action="#{repositoryTreeController.unlockProject}"
-                         styleClass="button-primary">
-        </h:commandButton>
-        <h:commandButton id="unlock-deploy-configuration"
-                         value="Unlock"
-                         action="#{repositoryTreeController.unlockDeploymentConfiguration}"
                          styleClass="button-primary">
         </h:commandButton>
         <input type="button" value="Cancel" onclick="RichFaces.$('modalUnlockNode').hide();" />
@@ -48,18 +39,8 @@
 
   <script>
       function openSelectedUnlockDialog(nodeType) {
-          if (nodeType === 'project') {
-            $j('#unlockNodeForm\\:unlock-selected-project').show();
-            $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
-            $j('#unlockNodeForm\\:unlock-project').hide();
-            $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
-          } else {
-            $j('#unlockNodeForm\\:unlock-selected-project').hide();
-            $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').show();
-            $j('#unlockNodeForm\\:unlock-project').hide();
-            $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
-
-          }
+          $j('#unlockNodeForm\\:unlock-selected-project').show();
+          $j('#unlockNodeForm\\:unlock-project').hide();
           RichFaces.$('modalUnlockNode').show();
       }
 
@@ -68,23 +49,11 @@
         document.getElementById('unlockNodeForm:hiddenRepositoryId').value = repositoryId;
 
         $j('#unlockNodeForm\\:unlock-selected-project').hide();
-        $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
         $j('#unlockNodeForm\\:unlock-project').show();
-        $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
 
         RichFaces.$('modalUnlockNode').show();
       }
 
-      function openDeploymentUnlockDialog(deploymentProjectName) {
-        document.getElementById('unlockNodeForm:hiddenProjectName').value = deploymentProjectName;
-
-        $j('#unlockNodeForm\\:unlock-selected-project').hide();
-        $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
-        $j('#unlockNodeForm\\:unlock-project').hide();
-        $j('#unlockNodeForm\\:unlock-deploy-configuration').show();
-
-        RichFaces.$('modalUnlockNode').show();
-      }
   </script>
 
 </ui:composition>

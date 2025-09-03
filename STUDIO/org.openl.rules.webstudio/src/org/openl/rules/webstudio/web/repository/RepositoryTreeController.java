@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,14 +54,13 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.ProjectDescriptorManager;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
@@ -100,7 +97,6 @@ import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
-import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -172,10 +168,6 @@ public class RepositoryTreeController {
     private ZipCharsetDetector zipCharsetDetector;
 
     @Autowired
-    @Qualifier("deployConfigRepositoryComments")
-    private Comments deployConfigRepoComments;
-
-    @Autowired
     private RepositoryAclServiceProvider aclServiceProvider;
 
     @Autowired
@@ -225,8 +217,6 @@ public class RepositoryTreeController {
     private TemplatesResolver customTemplatesResolver;
 
     private TreeNode activeProjectNode;
-
-    private CommentValidator deployConfigCommentValidator;
 
     private String createProjectComment;
     private String archiveProjectComment;
@@ -420,9 +410,6 @@ public class RepositoryTreeController {
         }
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-            if (selectedProject instanceof ADeploymentProject) {
-                return false;
-            }
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
@@ -438,9 +425,6 @@ public class RepositoryTreeController {
         if (!repositoryTreeState.getCanOpen() && !repositoryTreeState.getCanEdit()) {
             // Because ui:repeat ignores the "rendered" property, here is a
             // workaround to reduce performance drop.
-            return Collections.emptyList();
-        }
-        if (getSelectedProject() instanceof ADeploymentProject) {
             return Collections.emptyList();
         }
         List<String> dependencies = new ArrayList<>(getDependencies(getSelectedProject(), true));
@@ -546,108 +530,6 @@ public class RepositoryTreeController {
         return !project.isLocalOnly() && !project.isOpenedForEditing() && !project.isOpened() && !project.isDeleted();
     }
 
-    public String copyDeploymentProject() {
-        String errorMessage = null;
-        ADeploymentProject project;
-
-        try {
-            project = userWorkspace.getDDProject(projectName);
-        } catch (Exception e) {
-            log.error("Cannot obtain deployment project '{}'.", projectName, e);
-            WebStudioUtils.addErrorMessage(e.getMessage());
-            return null;
-        }
-
-        if (project == null) {
-            errorMessage = "No project is selected.";
-        } else if (StringUtils.isBlank(newProjectName)) {
-            errorMessage = "Project name is empty.";
-        } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = String.format("Project name '%s' is invalid. %s", newProjectName, NameChecker.BAD_NAME_MSG);
-        } else if (userWorkspace.hasDDProject(newProjectName)) {
-            errorMessage = String.format("Deployment project '%s' already exists.", newProjectName);
-        }
-
-        if (!aclProjectsHelper.hasPermission(project, AclPermission.CREATE) || !aclProjectsHelper.hasCreateDeployConfigProjectPermission()) {
-            WebStudioUtils.addErrorMessage("There is no permission for copying the deployment configuration.");
-            return null;
-        }
-
-        if (errorMessage != null) {
-            WebStudioUtils.addErrorMessage("Cannot copy deployment project.", errorMessage);
-            return null;
-        }
-
-        try {
-            String comment = deployConfigRepoComments.copiedFrom(project.getName());
-            ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
-            repositoryTreeState.addDeploymentProjectToTree(newProject);
-        } catch (Exception e) {
-            String msg = "Failed to copy deployment project.";
-            log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg, e.getMessage());
-        }
-
-        return null;
-    }
-
-    public String createDeploymentConfiguration() {
-        try {
-            if (StringUtils.isBlank(projectName)) {
-                WebStudioUtils.addErrorMessage("Deploy Configuration name must not be empty.");
-                return null;
-            }
-            if (!NameChecker.checkName(projectName)) {
-                WebStudioUtils.addErrorMessage(
-                        "Specified name is not a valid Deploy Configuration name. " + NameChecker.BAD_NAME_MSG);
-                return null;
-            }
-            if (NameChecker.isReservedName(projectName)) {
-                WebStudioUtils.addErrorMessage("Specified deploy configuration name is a reserved word.");
-                return null;
-            }
-            if (!aclProjectsHelper.hasCreateDeployConfigProjectPermission()) {
-                WebStudioUtils.addErrorMessage("There is no permission for creating a new deployment configuration.");
-                return null;
-            }
-            if (userWorkspace.hasDDProject(projectName)) {
-                WebStudioUtils.addErrorMessage(
-                        "Cannot create configuration because configuration with such name already exists.");
-                return null;
-            }
-            ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
-            createdProject.open();
-            // Analogous to rules project creation (to change "created by"
-            // property and revision)
-            String comment = deployConfigRepoComments.createProject(projectName);
-
-            createdProject.getFileData().setComment(comment);
-            createdProject.save();
-            createdProject.open();
-            repositoryTreeState.addDeploymentProjectToTree(createdProject);
-            WebStudioUtils
-                    .addInfoMessage(String.format("Deploy Configuration '%s' is successfully created.", projectName));
-        } catch (Exception e) {
-            String msg = String.format("Failed to create Deploy Configuration '%s'.", projectName);
-            log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg, e.getMessage());
-        }
-
-        /* Clear the load form */
-        this.clearForm();
-
-        return null;
-    }
-
-    public String getCurrentDeployConfigRepositoryType() {
-        return Optional.ofNullable(userWorkspace)
-                .map(UserWorkspace::getDesignTimeRepository)
-                .map(DesignTimeRepository::getDeployConfigRepository)
-                .map(Repository::getId)
-                .map(this::getRepositoryConfiguration)
-                .map(RepositoryConfiguration::getType)
-                .orElse(null);
-    }
 
     public List<Repository> getCreateAllowedRepositories() {
         DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
@@ -863,30 +745,6 @@ public class RepositoryTreeController {
         }
     }
 
-    /*
-     * Because of renaming 'Deployment project' to 'Deploy Configuration' the method was renamed too.
-     */
-    public String deleteDeploymentConfiguration() {
-        String projectName = WebStudioUtils.getRequestParameter("deploymentProjectName");
-
-        try {
-            ADeploymentProject project = userWorkspace.getDDProject(projectName);
-            // projectInTree must be initialized before project was deleted
-            TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(project));
-            String comment = deployConfigRepoComments.archiveProject(project.getName());
-            project.delete(userWorkspace.getUser(), comment);
-            if (repositoryTreeState.isHideDeleted()) {
-                repositoryTreeState.deleteNode(projectInTree);
-            }
-
-            WebStudioUtils.addInfoMessage("Deploy configuration was deleted successfully.");
-        } catch (Exception e) {
-            log.error("Cannot delete deploy configuration '{}'.", projectName, e);
-            WebStudioUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
-        }
-        return null;
-    }
 
     private void findModulePaths(AProjectArtefact projectArtefact, Collection<String> modulePaths) {
         if (projectArtefact.isFolder()) {
@@ -1086,10 +944,8 @@ public class RepositoryTreeController {
                 project.delete(comment);
             } else {
                 projectArtefact.delete();
-                if (!(projectArtefact.getProject() instanceof ADeploymentProject)) {
-                    var repositoryAclService = aclServiceProvider.getDesignRepoAclService();
-                    repositoryAclService.deleteAcl(projectArtefact);
-                }
+                var repositoryAclService = aclServiceProvider.getDesignRepoAclService();
+                repositoryAclService.deleteAcl(projectArtefact);
             }
             TreeNode parent = selectedNode.getParent();
             if (parent != null && parent.getData() != null) {
@@ -1122,7 +978,6 @@ public class RepositoryTreeController {
 
             String nodeTypeName = switch (nodeType) {
                 case UiConst.TYPE_PROJECT -> "Project";
-                case UiConst.TYPE_DEPLOYMENT_PROJECT -> "Deploy configuration";
                 case UiConst.TYPE_FOLDER -> "Folder";
                 case null, default -> "File";
             };
@@ -1137,8 +992,7 @@ public class RepositoryTreeController {
     }
 
     private boolean isValidComment(UserWorkspaceProject project, String comment) {
-        CommentValidator commentValidator = project instanceof RulesProject ? getDesignCommentValidator(project)
-                : deployConfigCommentValidator;
+        CommentValidator commentValidator = getDesignCommentValidator(project);
 
         try {
             commentValidator.validate(comment);
@@ -1151,10 +1005,6 @@ public class RepositoryTreeController {
 
     public String unlockSelectedProject() {
         return unlockNode("Project");
-    }
-
-    public String unlockSelectedDeployConfiguration() {
-        return unlockNode("Deploy configuration");
     }
 
     private String unlockNode(String nodeTypeName) {
@@ -1261,24 +1111,6 @@ public class RepositoryTreeController {
         }
     }
 
-    public String unlockDeploymentConfiguration() {
-        try {
-            ADeploymentProject deploymentProject = userWorkspace.getDDProject(projectName);
-            if (deploymentProject == null) {
-                // It was deleted by other user
-                return null;
-            }
-            deploymentProject.unlock();
-            resetStudioModel();
-
-            WebStudioUtils.addInfoMessage("Deploy configuration was unlocked successfully.");
-        } catch (Exception e) {
-            log.error("Cannot unlock deployment project '{}'.", projectName, e);
-            WebStudioUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
-        }
-        return null;
-    }
-
     public String eraseProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         // EPBDS-225
@@ -1313,9 +1145,7 @@ public class RepositoryTreeController {
                     boolean mappedFolders = designRepository.supports().mappedFolders();
                     if (!mappedFolders || eraseFromRepository) {
                         project.erase(userWorkspace.getUser(), comment);
-                        if (!(project instanceof ADeploymentProject)) {
-                            aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
-                        }
+                        aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
                     } else {
                         ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
                     }
@@ -1326,9 +1156,7 @@ public class RepositoryTreeController {
                         // Try to erase second time. It should resolve the issue if conflict in
                         // openl-projects.properties file.
                         project.erase(userWorkspace.getUser(), comment);
-                        if (!(project instanceof ADeploymentProject)) {
-                            aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
-                        }
+                        aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
                     } else {
                         throw e;
                     }
@@ -1341,11 +1169,7 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateSelection();
 
             resetStudioModel();
-            if (UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)) {
-                WebStudioUtils.addInfoMessage("Deploy configuration was erased successfully.");
-            } else {
-                WebStudioUtils.addInfoMessage("Project was erased successfully.");
-            }
+            WebStudioUtils.addInfoMessage("Project was erased successfully.");
         } catch (Exception e) {
             repositoryTreeState.invalidateTree();
             String msg = e.getCause() instanceof IOException ? e
@@ -1525,7 +1349,7 @@ public class RepositoryTreeController {
             }
             AProjectResource addedFileResource = folder
                     .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
-            if (!(selectedProject instanceof ADeploymentProject) && !aclServiceProvider.getDesignRepoAclService()
+            if (!aclServiceProvider.getDesignRepoAclService()
                     .hasAcl(addedFileResource) && !aclServiceProvider.getDesignRepoAclService()
                     .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
@@ -1561,24 +1385,6 @@ public class RepositoryTreeController {
         repositoryTreeState.filter();
     }
 
-    public String getDeploymentProjectName() {
-        // EPBDS-92 - clear newDProject dialog every time
-        return null;
-    }
-
-    /**
-     * Gets all deployments projects from a repository.
-     *
-     * @return list of deployments projects
-     */
-    public List<TreeNode> getDeploymentProjects() {
-        TreeRepository deploymentRepository = repositoryTreeState.getDeploymentRepository();
-        if (deploymentRepository == null) {
-            return null;
-        }
-        return deploymentRepository.getChildNodes();
-    }
-
     public String getFileName() {
         return this.fileName;
     }
@@ -1603,9 +1409,6 @@ public class RepositoryTreeController {
     private Comments getComments(UserWorkspaceProject project) {
         if (project == null || project.getDesignRepository() == null) {
             return getComments(Comments.DESIGN_CONFIG_REPO_ID);
-        }
-        if (project instanceof ADeploymentProject) {
-            return deployConfigRepoComments;
         }
         repositoryId = project.getDesignRepository().getId();
         return getDesignRepoComments();
@@ -1766,21 +1569,19 @@ public class RepositoryTreeController {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
             }
-            if (!UiConst.TYPE_DEPLOYMENT_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())) {
-                boolean openedSimilarToHistoric = false;
-                if (repositoryProject instanceof RulesProject project) {
-                    AProject historic = new AProject(project.getDesignRepository(),
-                            project.getDesignFolderName(),
-                            version);
-                    openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
-                }
-                if (openedSimilarToHistoric || userWorkspace.isOpenedOtherProject(repositoryProject)) {
-                    WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
-                    // To avoid unnecessary request for the version when it's not needed (from
-                    // getHasDependenciesForVersion())
-                    version = null;
-                    return null;
-                }
+            boolean openedSimilarToHistoric = false;
+            if (repositoryProject instanceof RulesProject project) {
+                AProject historic = new AProject(project.getDesignRepository(),
+                        project.getDesignFolderName(),
+                        version);
+                openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
+            }
+            if (openedSimilarToHistoric || userWorkspace.isOpenedOtherProject(repositoryProject)) {
+                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
+                // To avoid unnecessary request for the version when it's not needed (from
+                // getHasDependenciesForVersion())
+                version = null;
+                return null;
             }
 
             if (repositoryProject.isOpened()) {
@@ -1824,13 +1625,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String selectDeploymentProject() {
-        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
-        String projectName = WebStudioUtils.getRequestParameter("projectName");
-        setRepositoryId(repositoryId);
-        selectProject(projectName, repositoryTreeState.getDeploymentRepository());
-        return null;
-    }
 
     private void selectProject(String projectName, TreeRepository root) {
         for (TreeNode node : root.getChildNodes()) {
@@ -1847,7 +1641,7 @@ public class RepositoryTreeController {
                     return true;
                 }
             }
-        } else if (node instanceof TreeProject || node instanceof TreeDProject) {
+        } else if (node instanceof TreeProject) {
             if (node.getData().getName().equals(projectName) && repositoryId
                     .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
@@ -2217,26 +2011,22 @@ public class RepositoryTreeController {
                         fileName));
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
-            if (!(node.getProject() instanceof ADeploymentProject)) {
-                TreeNode t = repositoryTreeState.getSelectedNode();
-                Stack<AProjectFolder> projectFolders = new Stack<>();
-                var repositoryAclService = aclServiceProvider.getDesignRepoAclService();
-                while (t.getData() instanceof AProjectFolder && !repositoryAclService.hasAcl(t.getData())) {
-                    projectFolders.push((AProjectFolder) t.getData());
-                    t = t.getParent();
-                }
-                while (!projectFolders.isEmpty()) {
-                    AProjectFolder p = projectFolders.pop();
-                    if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
-                            .hasAcl(p)) && !repositoryAclService.createAcl(p, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                        String message = String.format("Granting permissions to a new folder '%s' is failed.",
-                                ProjectArtifactUtils.extractResourceName(p));
-                        WebStudioUtils.addErrorMessage(message);
-                    }
+            TreeNode t = repositoryTreeState.getSelectedNode();
+            Stack<AProjectFolder> projectFolders = new Stack<>();
+            var repositoryAclService = aclServiceProvider.getDesignRepoAclService();
+            while (t.getData() instanceof AProjectFolder && !repositoryAclService.hasAcl(t.getData())) {
+                projectFolders.push((AProjectFolder) t.getData());
+                t = t.getParent();
+            }
+            while (!projectFolders.isEmpty()) {
+                AProjectFolder p = projectFolders.pop();
+                if ((!repositoryAclService.hasAcl(p)) && !repositoryAclService.createAcl(p, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
+                    String message = String.format("Granting permissions to a new folder '%s' is failed.",
+                            ProjectArtifactUtils.extractResourceName(p));
+                    WebStudioUtils.addErrorMessage(message);
                 }
             }
-            if (!(node.getProject() instanceof ADeploymentProject)
-                    && !aclServiceProvider.getDesignRepoAclService().hasAcl(addedFileResource)
+            if (!aclServiceProvider.getDesignRepoAclService().hasAcl(addedFileResource)
                     && !aclServiceProvider.getDesignRepoAclService().createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
@@ -2547,17 +2337,6 @@ public class RepositoryTreeController {
         return aclProjectsHelper.hasPermission(project, AclPermission.ADMINISTRATION);
     }
 
-    public boolean getCanDeleteDeployment() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        return getCanDeleteDeployment(selectedProject);
-    }
-
-    public boolean getCanDeleteDeployment(UserWorkspaceProject project) {
-        if (project instanceof ADeploymentProject) {
-            return !project.isBranchProtected() && (!project.isLocked() || project.isLockedByMe()) && aclProjectsHelper.hasPermission(project, AclPermission.DELETE);
-        }
-        return false;
-    }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;
@@ -2793,8 +2572,6 @@ public class RepositoryTreeController {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (project instanceof RulesProject) {
             getDesignCommentValidator(project).validate(comment);
-        } else if (project instanceof ADeploymentProject) {
-            deployConfigCommentValidator.validate(comment);
         }
     }
 
@@ -2830,7 +2607,7 @@ public class RepositoryTreeController {
      * Used when delete/undelete/erase a project.
      */
     public boolean isUseCustomCommentForProject() {
-        // Only projects are supported for now. Deploy configs can be supported in future.
+        // Only projects are supported for now.
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject == null) {
             return false;
@@ -2914,10 +2691,6 @@ public class RepositoryTreeController {
         this.zipCharsetDetector = zipCharsetDetector;
     }
 
-    public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
-        this.deployConfigRepoComments = deployConfigRepoComments;
-    }
-
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
@@ -2926,12 +2699,6 @@ public class RepositoryTreeController {
     public void init() {
         customTemplatesResolver = new CustomTemplatesResolver(
                 propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME));
-        String designRepoForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
-        if (StringUtils.isBlank(designRepoForDeployConfig)) {
-            deployConfigCommentValidator = CommentValidator.forRepo(Comments.DEPLOY_CONFIG_REPO_ID);
-        } else {
-            deployConfigCommentValidator = CommentValidator.forRepo(designRepoForDeployConfig);
-        }
         eraseFromRepository = false;
     }
 

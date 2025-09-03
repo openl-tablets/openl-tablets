@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import jakarta.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
@@ -20,6 +22,8 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
@@ -144,12 +148,6 @@ public class DemoInit {
             }
 
             if (deploy) {
-                if (!aclProjectsHelper.hasCreateDeployConfigProjectPermission()) {
-                    LOG.error("There is no permission to create deploy configuration project: {}", projectName);
-                    return;
-                }
-                var deployConfiguration = userWorkspace.createDDProject(projectName);
-                deployConfiguration.open();
                 var projectDescriptor = ProjectDescriptorImpl.builder()
                         .repositoryId(createdProject.getRepository().getId())
                         .projectName(createdProject.getBusinessName())
@@ -157,18 +155,22 @@ public class DemoInit {
                         .branch(createdProject.getBranch())
                         .projectVersion(createdProject.getVersion())
                         .build();
-                deployConfiguration.addProjectDescriptor(projectDescriptor);
 
-                deployConfiguration.getFileData().setComment("Deploy configuration " + projectName + " is created.");
-
-                deployConfiguration.save();
                 var repositoryConfigName = deploymentManager.getRepositoryConfigNames().iterator().next();
                 var request = DeploymentRequest.builder()
-                        .name(deployConfiguration.getName())
+                        .name(projectName)
                         .productionRepositoryId(repositoryConfigName)
-                        .projectDescriptors(deployConfiguration.getProjectDescriptors())
-                        .currentUser(userWorkspace.getUser());
-                deploymentManager.deploy(request.build());
+                        .projectDescriptors(List.of(projectDescriptor))
+                        .currentUser(userWorkspace.getUser())
+                        .build();
+                var validBranchName = deploymentManager.validateOnMainBranch(request);
+                if (validBranchName != null) {
+                    throw new ConflictException("project.deploy.restricted.message", validBranchName);
+                }
+                if (!aclProjectsHelper.hasPermission(request, BasePermission.WRITE)) {
+                    throw new ForbiddenException("default.message");
+                }
+                deploymentManager.deploy(request);
             }
         } catch (Exception ex) {
             LOG.error("Project: {}", projectName, ex);

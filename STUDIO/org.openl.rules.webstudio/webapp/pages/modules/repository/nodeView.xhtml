@@ -327,71 +327,7 @@
         </rich:tab>
     </rich:tabPanel>
 
-    <h:panelGroup layout="block" rendered="#{node.type == 'drepository'}">
-        <ui:include src="/pages/modules/repository/projectsD.xhtml"/>
-    </h:panelGroup>
 
-    <h:panelGroup rendered="#{node.type == 'deployment'}">
-        <f:event type="preRenderView" listener="#{deploymentController.onPageLoad()}"/>
-        <div class="nav-panel">
-            <h:panelGroup rendered="#{artefact.deleted}">
-                <h:commandButton id="undeleteId2" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
-                                 onclick="confirmUndeleteProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{undeleteMessage}"/>
-                <h:commandButton id="eraseId2" rendered="#{repositoryTreeState.canErase}" value="Erase"
-                                 onclick="confirmEraseProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{eraseMessage}"/>
-            </h:panelGroup>
-            <h:panelGroup rendered="#{not artefact.deleted}">
-                <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision"
-                                 type="button"
-                                 onclick="openOpenVersionDialog();" title="Open the specified project revision"/>
-
-                <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close"
-                                 action="#{deploymentController.close}"
-                                 immediate="true"
-                                 title="Close Deploy Configuration and make it unavailable for editing"
-                                 onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}"/>
-                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canOpen}" value="Open"
-                                 action="#{deploymentController.open}"
-                                 immediate="true"
-                                 title="Make project available for editing and lock it from editing by other users"/>
-                <h:commandButton rendered="#{repositoryTreeState.canSaveDeployment}"
-                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentNodeRepositoryType}' === 'repo-git', () => $j('#saveDeployId').click()); return false;"
-                                 value="Save" title="#{saveMessage}"/>
-                <h:commandButton id="saveDeployId" styleClass="hidden" action="#{deploymentController.save}"/>
-                <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy"
-                                 onclick="openCopyDeploymentProjectDialog(undefined, '#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{copyMessage}"/>
-                <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete"
-                                 onclick="onShowModalDeleteNode('#{repositoryTreeController.currentNodeRepositoryType}');return false;"
-                                 title="#{deleteMessage}"/>
-
-                <h:commandButton id="unlockId2"
-                                 rendered="#{repositoryTreeController.canUnlockDeployment(artefact) and node.data.locked and not node.data.lockedByMe}"
-                                 value="Unlock Deploy Configuration"
-                                 onclick="openSelectedUnlockDialog('deployment');return false;"
-                                 title="#{unlockMessage}">
-                    <f:ajax render="unlockId2"/>
-                </h:commandButton>
-                <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy"
-                                 onclick="openSelectRepositoryDialog();return false;"
-                                 title="Deploy into operations or staging"/>
-            </h:panelGroup>
-        </div>
-
-        <rich:tabPanel switchType="client">
-            <rich:tab header="Properties">
-                <ui:include src="node/deployment.xhtml"/>
-            </rich:tab>
-            <rich:tab header="Revisions" onenter="refreshVersionsContentDeployConfig()">
-                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
-                <a4j:jsFunction name="refreshVersionsContentDeployConfig"
-                                action="#{repositoryTreeController.forceUpdateVersionsBean}"
-                                oncomplete="initializeProjectRevisionTable('#{node.type}', '#{artefact.repository.id}', '#{artefact.name}', '#{repositoryTreeState.supportsBranches ? repositoryTreeController.projectBranch : null}', #{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted})"/>
-            </rich:tab>
-            <rich:tab header="Projects to Deploy">
-                <ui:include src="/pages/modules/repository/node/descriptors.xhtml"/>
-            </rich:tab>
-        </rich:tabPanel>
-    </h:panelGroup>
     <script>
         //<![CDATA[
         var $selectedBranch;
