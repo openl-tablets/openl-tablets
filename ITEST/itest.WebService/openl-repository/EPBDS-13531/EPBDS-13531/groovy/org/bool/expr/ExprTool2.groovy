@@ -187,7 +187,7 @@ class ExprTool {
     }
 
     private static Triple<Boolean, String, String> canSimplify(String op, Expression<Node> expression, Expression<Node> otherExpression) {
-        if (("<=" == op || ">=" == op) && isLiteral(expression) && otherExpression instanceof Variable<Node> && INTEGER_TYPES.contains(((Variable<Node>) otherExpression).value.boundNode.getType())) {
+        if (("<=" == op || ">=" == op) && isLiteral(expression) && otherExpression instanceof Variable && INTEGER_TYPES.contains(((Variable<Node>) otherExpression).value.boundNode.getType())) {
             Object value = getLiteralValue(expression)
             if (value instanceof Byte) {
                 Byte v = (Byte) value
@@ -745,13 +745,13 @@ class ExprTool {
                             }
                         }
                         if (op != null) {
-                            if ((op == "==" || op == "!=") && e0 instanceof Not<Node> && e1 instanceof Not<Node>) {
+                            if ((op == "==" || op == "!=") && e0 instanceof Not && e1 instanceof Not) {
                                 e0 = RuleSet.simplify(Not.of(e0))
                                 e1 = RuleSet.simplify(Not.of(e1))
                                 isLiteral0 = isLiteral(e0)
                                 isLiteral1 = isLiteral(e1)
-                            } else if (e0 instanceof Not<Node> || e1 instanceof Not<Node>) {
-                                if (e0 instanceof Not<Node>) {
+                            } else if (e0 instanceof Not || e1 instanceof Not) {
+                                if (e0 instanceof Not) {
                                     e0 = RuleSet.simplify(Not.of(e0))
                                     isLiteral0 = isLiteral(e0)
                                 } else {
@@ -946,10 +946,10 @@ class ExprTool {
             } else {
                 return boundNodeToSE(ast, variable.getValue().boundNode, formula)
             }
-        } else if (expression instanceof Literal<Node>) {
+        } else if (expression instanceof Literal) {
             Literal<Node> literal = (Literal<Node>) expression
             return new SE(String.valueOf(literal), true, null, true)
-        } else if (expression instanceof Not<Node>) {
+        } else if (expression instanceof Not) {
             Expression e = RuleSet.simplify(Not.of(expression))
             SE se = exprToSE(ast, e, true)
             if (se.value == "true" || se.value == "false") {
@@ -1022,8 +1022,8 @@ class ExprTool {
                 if (("eq" == method.getName() || "ne" == method.getName()) && method.getDeclaringClass() == JavaOpenClass.getOpenClass(Comparison.class) && method.getSignature().getNumberOfParameters() == 2 && isBooleanType(binaryOpNode.getChildren()[0].getType()) && isBooleanType(binaryOpNode.getChildren()[1].getType())) {
                     Expression<Node> p0 = parse(ast, binaryOpNode.getChildren()[0])
                     Expression<Node> p1 = parse(ast, binaryOpNode.getChildren()[1])
-                    boolean isLiteral0 = p0 instanceof Literal<Node>
-                    boolean isLiteral1 = p1 instanceof Literal<Node>
+                    boolean isLiteral0 = p0 instanceof Literal
+                    boolean isLiteral1 = p1 instanceof Literal
                     if (isLiteral0 && isLiteral1) {
                         Literal<Node> literal0 = (Literal<Node>) p0
                         Literal<Node> literal1 = (Literal<Node>) p1
@@ -1085,9 +1085,9 @@ class ExprTool {
     }
 
     private static boolean isLiteral(Expression<Node> expression) {
-        if (expression instanceof Literal<Node>) {
+        if (expression instanceof Literal) {
             return true
-        } else if (expression instanceof Variable<Node>) {
+        } else if (expression instanceof Variable) {
             Variable<Node> variable = (Variable<Node>) expression
             if (variable.value.v.literal) {
                 String s = variable.value.v.value
@@ -1123,9 +1123,9 @@ class ExprTool {
     }
 
     private static Object getLiteralValue(Expression<Node> expression) {
-        if (expression instanceof Literal<Node>) {
+        if (expression instanceof Literal) {
             return ((Literal<Node>) expression).getValue()
-        } else if (expression instanceof Variable<Node>) {
+        } else if (expression instanceof Variable) {
             Variable<Node> variable = (Variable<Node>) expression
             if (variable.value.v.literal) {
                 String s = variable.value.v.value
@@ -1156,7 +1156,7 @@ class ExprTool {
                 then = RuleSet.simplify(then)
                 if (ifNode.getElseNode() == null) {
                     SE conditionSE = exprToSE(ast, condition, true)
-                    if (then instanceof Not<Node>) {
+                    if (then instanceof Not) {
                         Expression<Node> d = RuleSet.simplify(Not.of(then))
                         SE thenSE = exprToSE(ast, d, true)
                         SE se = new SE(conditionSE.value + " ? " + thenSE.value, conditionSE.determined && thenSE.determined, "?", false)
@@ -1171,13 +1171,13 @@ class ExprTool {
                 Expression<Node> elseE = parse(ast, boundNode.getElseNode())
                 elseE = RuleSet.simplify(elseE)
                 boolean not = false
-                if (then instanceof Not<Node> && elseE instanceof Not<Node>) {
+                if (then instanceof Not && elseE instanceof Not) {
                     then = RuleSet.simplify(Not.of(then))
                     elseE = RuleSet.simplify(Not.of(elseE))
                     not = true
                 }
                 boolean v = false
-                if (condition instanceof Not<Node>) {
+                if (condition instanceof Not) {
                     condition = RuleSet.simplify(Not.of(condition))
                     var t = elseE
                     elseE = then
