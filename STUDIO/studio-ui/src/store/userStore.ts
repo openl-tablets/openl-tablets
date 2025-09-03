@@ -32,9 +32,9 @@ export const useUserStore = create<UserStore>((set) => ({
         set({ loading: true, error: null })
         try {
             const userProfile = await apiCall('/users/profile')
-            set({ userProfile, loading: false })
+            set({ userProfile, isLoggedIn: true, loading: false })
         } catch (error) {
-            set({ error, loading: false })
+            set({ error, isLoggedIn: false, loading: false })
         }
     }
 }))

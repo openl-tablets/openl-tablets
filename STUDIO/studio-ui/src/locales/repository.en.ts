@@ -57,4 +57,10 @@ i18next.addResourceBundle('en', 'repository', {
     confirm_apply_configuration_message: 'All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply this configuration now?',
     confirm_leave_without_saving: 'You have unsaved changes',
     confirm_leave_without_saving_message: 'Are you sure you want to leave without saving?',
+    add_design_repository: 'Add Design Repository',
+    add_deployment_repository: 'Add Deployment Repository',
+    no_repositories_available: 'No repositories available',
+    click_add_repository_to_create_first: 'Click "Add {{type}} Repository" to create your first repository.',
+    design: 'Design',
+    deployment: 'Deployment',
 })

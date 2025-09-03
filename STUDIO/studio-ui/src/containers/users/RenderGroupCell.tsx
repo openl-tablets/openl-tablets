@@ -106,7 +106,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
         <div>
             {groups
                 && groups.length > 0
-                && groups.map((group, index) => (
+                && groups.map((group) => (
                     <EditUserGroupDetailsWithAccessRights
                         group={selectedGroup}
                         onClose={onCloseEditDrawer}

@@ -878,6 +878,10 @@ Content-Type: application/json
           "logoutUrl" : {
             "type" : "string",
             "description" : "***"
+          },
+          "loginUrl" : {
+            "type" : "string",
+            "description" : "***"
           }
         }
       },

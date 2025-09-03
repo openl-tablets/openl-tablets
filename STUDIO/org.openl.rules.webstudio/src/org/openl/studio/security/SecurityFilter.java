@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.servlet;
+package org.openl.studio.security;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.WebAttributes;
+
+import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 
 public class SecurityFilter implements Filter {
 

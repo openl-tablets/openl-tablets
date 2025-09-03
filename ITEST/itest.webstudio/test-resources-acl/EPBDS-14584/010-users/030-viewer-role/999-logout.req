@@ -1,2 +1,2 @@
-POST /security_logout
+POST /logout
 

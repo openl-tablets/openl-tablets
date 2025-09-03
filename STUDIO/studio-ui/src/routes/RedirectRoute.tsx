@@ -10,13 +10,13 @@ interface RedirectRouteProps {
 
 export const RedirectRoute: React.FC<RedirectRouteProps> = ({ to }) => {
     const { page } = useParams()
-    const { systemSettings } = useContext(SystemContext)
+    const { getLogoutUrl } = useContext(SystemContext)
 
     if (page === 'editor') {
         window.location.href = CONFIG.CONTEXT + '/'
         return null
     } else if (to === 'logout') {
-        window.location.href = CONFIG.CONTEXT + systemSettings.entrypoint.logoutUrl
+        window.location.href = CONFIG.CONTEXT + getLogoutUrl()
         return null
 
     } else {

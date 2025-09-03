@@ -81,7 +81,7 @@
 
     <filter>
         <filter-name>SecurityFilter</filter-name>
-        <filter-class>org.openl.rules.webstudio.web.servlet.SecurityFilter</filter-class>
+        <filter-class>org.openl.studio.security.SecurityFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>
@@ -104,11 +104,6 @@
         <init-param>
             <param-name>redirectPage</param-name>
             <param-value>/faces/pages/sessionExpired.xhtml</param-value>
-        </init-param>
-        <init-param>
-            <description>Comma separated list of urls</description>
-            <param-name>excludePages</param-name>
-            <param-value>/faces/pages/login.xhtml</param-value>
         </init-param>
     </filter>
 
