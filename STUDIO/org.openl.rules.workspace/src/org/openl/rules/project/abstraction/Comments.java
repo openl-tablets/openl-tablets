@@ -18,11 +18,6 @@ public final class Comments {
      */
     public static final String DESIGN_CONFIG_REPO_ID = "design";
 
-    /**
-     * Repository id for Deploy Configuration repository
-     */
-    public static final String DEPLOY_CONFIG_REPO_ID = "deploy-config";
-
     private static final String PROJECT_NAME = "{project-name}";
     private static final String REVISION = "{revision}";
     private static final String AUTHOR = "{author}";

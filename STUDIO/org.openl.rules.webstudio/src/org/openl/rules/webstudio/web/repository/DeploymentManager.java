@@ -18,11 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.PropertyResolver;
 
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -35,7 +33,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -64,47 +61,6 @@ public class DeploymentManager implements InitializingBean {
 
     public Collection<String> getRepositoryConfigNames() {
         return deployers;
-    }
-
-    public String validateOnMainBranch(List<ADeploymentProject> projects, String repositoryConfigName) {
-        if (projects == null || projects.isEmpty() || repositoryConfigName == null) {
-            return null;
-        }
-        if (!new RepositoryConfiguration(repositoryConfigName, propertyResolver).getSettings().isMainBranchOnly()) {
-            return null;
-        }
-
-        return projects.stream()
-                .filter(Objects::nonNull)
-                .flatMap(x -> x.getProjectDescriptors().stream())
-                .map(x -> {
-                    var repo = designRepository.getRepository(x.repositoryId());
-                    if (repo == null) {
-                        return null;
-                    }
-                    if (!repo.supports().branches()) {
-                        return null;
-                    }
-                    var repoMainBranch = ((BranchRepository) repo).getBranch();
-                    if (repoMainBranch.equals(x.branch())) {
-                        return null;
-                    }
-                    return repoMainBranch;
-                })
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
-    }
-
-    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, String comment) throws ProjectException {
-
-        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
-        var request = DeploymentRequest.builder()
-                .name(project.getName())
-                .productionRepositoryId(repositoryConfigName)
-                .projectDescriptors(project.getProjectDescriptors())
-                .currentUser(user)
-                .comment(comment);
-        return deploy(request.build());
     }
 
     public DeployID deploy(DeploymentRequest request) throws DeploymentException {

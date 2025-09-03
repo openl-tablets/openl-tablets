@@ -142,7 +142,6 @@ services:
         repository.production.uri = jdbc:postgresql://postgres:5432/db?currentSchema=repository
         repository.production.login = $${db.user}
         repository.production.password = $${db.password}
-        repository.deploy-config.use-repository = design
         ' > /openl-home/.properties
         chown 1000:999 /openl-home/.properties
         

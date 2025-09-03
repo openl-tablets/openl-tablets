@@ -73,8 +73,6 @@ public class WebStudioTest {
                     .withInitParam("repository.production.name", "H2 Production")
                     .withInitParam("repository.production.uri", "jdbc:h2:mem:production-repo;DB_CLOSE_DELAY=-1")
                     .withInitParam("repository.production.base.path.$ref", "repo-default.production.base.path")
-                    // deploy configuration repository settings
-                    .withInitParam("repository.deploy-config.use-repository", "design")
                     .test();
         } finally {
             smtpServer.stop();

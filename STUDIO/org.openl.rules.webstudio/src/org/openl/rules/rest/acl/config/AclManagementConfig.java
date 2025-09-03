@@ -34,9 +34,8 @@ public class AclManagementConfig {
 
     @Bean
     public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider,
-                                               SecureDeploymentRepositoryService deploymentRepositoryService,
                                                @Value("${security.allow-project-create-delete}") boolean allowProjectCreateDelete) {
-        return new AclProjectsHelperImpl(aclServiceProvider, deploymentRepositoryService, allowProjectCreateDelete);
+        return new AclProjectsHelperImpl(aclServiceProvider, allowProjectCreateDelete);
     }
 
     @Bean

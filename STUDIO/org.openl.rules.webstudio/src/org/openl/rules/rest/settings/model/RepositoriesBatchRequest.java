@@ -14,10 +14,6 @@ public class RepositoriesBatchRequest {
     @Valid
     private RepositoriesBatchModel production;
 
-    @Parameter(description = "Deploy config")
-    @Valid
-    private DeployConfigRepositoryConfigurationModel deployConfig;
-
     public RepositoriesBatchModel getDesign() {
         return design;
     }
@@ -34,11 +30,4 @@ public class RepositoriesBatchRequest {
         this.production = production;
     }
 
-    public DeployConfigRepositoryConfigurationModel getDeployConfig() {
-        return deployConfig;
-    }
-
-    public void setDeployConfig(DeployConfigRepositoryConfigurationModel deployConfig) {
-        this.deployConfig = deployConfig;
-    }
 }

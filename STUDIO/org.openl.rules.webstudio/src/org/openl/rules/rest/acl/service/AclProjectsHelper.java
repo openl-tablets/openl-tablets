@@ -17,9 +17,6 @@ public interface AclProjectsHelper {
 
     boolean hasCreateProjectPermission(String repoId);
 
-    @Deprecated
-    boolean hasCreateDeployConfigProjectPermission();
-
     boolean hasCreateDeploymentPermission(String repoId);
 
     boolean hasPermission(Collection<ProjectDescriptor> projects, Permission permission);

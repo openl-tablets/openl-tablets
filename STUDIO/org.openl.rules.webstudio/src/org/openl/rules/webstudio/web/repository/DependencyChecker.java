@@ -9,13 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
  * @author Aleh Bykhavets
@@ -49,45 +44,6 @@ public class DependencyChecker {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             projectVersions.put(projectName, null);
-        }
-    }
-
-    public void addProjects(ADeploymentProject deploymentProject) {
-        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        if (workspace == null) {
-            return; // must never happen
-        }
-        DesignTimeRepository designRepository = workspace.getDesignTimeRepository();
-
-        for (ProjectDescriptor descriptor : deploymentProject.getProjectDescriptors()) {
-            String projectName = descriptor.projectName();
-            String projectPath = descriptor.path();
-            CommonVersion projectVersion = descriptor.projectVersion();
-
-            try {
-                String repositoryId = descriptor.repositoryId();
-                if (repositoryId == null) {
-                    repositoryId = designRepository.getRepositories().get(0).getId();
-                }
-                AProject project;
-                if (projectPath != null) {
-                    project = designRepository
-                            .getProjectByPath(repositoryId, null, projectPath, projectVersion.getVersionName());
-                } else {
-                    if (designRepository.hasProject(repositoryId, projectName)) {
-                        project = designRepository.getProject(repositoryId, projectName, projectVersion);
-                    } else {
-                        project = null;
-                    }
-                }
-                if (project == null) {
-                    projectVersions.put(projectName, null);
-                } else {
-                    addProject(project);
-                }
-            } catch (Exception e) {
-                projectVersions.put(projectName, null);
-            }
         }
     }
 

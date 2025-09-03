@@ -127,15 +127,11 @@
                 const fetchMoreData = (projectData, repoFeatures, query, onSuccess) => {
                     let targetUrl = "#{contextPath}/web";
                     const canOpenVersions = projectData.canOpenVersions;
-                    if (projectData.type === "project") {
-                        targetUrl += "/repos/" + encodeURIComponent(projectData.repoName);
-                        if (repoFeatures.branches) {
-                            targetUrl += "/branches/" + encodeURIComponent(projectData.branch.replaceAll("/", " "));
-                        }
-                        targetUrl += "/projects/" + encodeURIComponent(projectData.name);
-                    } else {
-                        targetUrl += "/deploy-config-repo/configs/"  + encodeURIComponent(projectData.name);
+                    targetUrl += "/repos/" + encodeURIComponent(projectData.repoName);
+                    if (repoFeatures.branches) {
+                        targetUrl += "/branches/" + encodeURIComponent(projectData.branch.replaceAll("/", " "));
                     }
+                    targetUrl += "/projects/" + encodeURIComponent(projectData.name);
                     targetUrl += "/history";
                     query = $j.extend({}, query, {
                         search: $searchInput.val(),
@@ -156,22 +152,18 @@
                             $revisionRow.find("[attr=modified-at]").text(formatDateTime(rev.createdAt));
 
                             const $comment = $revisionRow.find("[attr=comment]")
-                            if (projectData.type === "project") {
-                                const commentParts = rev.commentParts || [];
-                                if (commentParts.length === 3) {
-                                    const $commentsPart = $commentsPartTemplate.clone();
-                                    $commentsPart.find("span:nth-child(1)").text(commentParts[0])
-                                    $commentsPart.find("a").text(commentParts[1])
-                                        .on("click", () => {
-                                            openRulesProject(commentParts[1]);
-                                        });
-                                    $commentsPart.find("span:nth-child(3)").text(commentParts[2])
-                                    $comment.append($commentsPart)
-                                } else {
-                                    $comment.text(rev.fullComment);
-                                }
+                            const commentParts = rev.commentParts || [];
+                            if (commentParts.length === 3) {
+                                const $commentsPart = $commentsPartTemplate.clone();
+                                $commentsPart.find("span:nth-child(1)").text(commentParts[0])
+                                $commentsPart.find("a").text(commentParts[1])
+                                    .on("click", () => {
+                                        openRulesProject(commentParts[1]);
+                                    });
+                                $commentsPart.find("span:nth-child(3)").text(commentParts[2])
+                                $comment.append($commentsPart)
                             } else {
-                                $comment.hide();
+                                $comment.text(rev.fullComment);
                             }
                             if (rev?.shortRevisionNo != null) {
                                 const $expandableRevision = $expandableRevisionTemplate.clone();
@@ -218,18 +210,10 @@
                     render: function (projectData) {
                         $searchInput.unbind("change");
                         $fullLogInput.unbind("change");
-                        if (projectData.type === "deployment") {
-                            $j('#project-revisions>section>header>.comments').hide();
-                        }
 
                         const repoFeatures = function () {
                             let result = {};
-                            let targetUrl = "#{contextPath}/web";
-                            if (projectData.type === "project") {
-                                targetUrl += "/repos/" + projectData.repoName + "/features";
-                            } else {
-                                targetUrl += "/deploy-config-repo/features";
-                            }
+                            let targetUrl = "#{contextPath}/web/repos/" + projectData.repoName + "/features";
                             $j.ajax({
                                 type: "GET",
                                 url: targetUrl,
@@ -286,7 +270,7 @@
                 }
             }();
 
-            if (type === "project" || type === "deployment") {
+            if (type === "project") {
                 revisionTableHandler.render({
                     type: type,
                     repoName: repoName,

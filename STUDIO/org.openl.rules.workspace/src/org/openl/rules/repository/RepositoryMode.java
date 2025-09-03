@@ -7,9 +7,6 @@ public enum RepositoryMode {
     @JsonProperty("design")
     DESIGN,
 
-    @JsonProperty("deploy-config")
-    DEPLOY_CONFIG,
-
     @JsonProperty("production")
     PRODUCTION;
 

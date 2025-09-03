@@ -1,7 +1,0 @@
-HTTP/1.1 409
-Content-Type: application/json
-
-{
-  "code": "openl.error.409.project.deploy.deleted.message",
-  "message": "Cannot deploy a deleted project."
-}

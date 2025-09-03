@@ -3,12 +3,6 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-  "deployConfig": {
-    "name": "Deploy Configuration GG",
-    "settings": {
-    },
-    "useDesignRepositoryForDeployConfig": "design1"
-  },
   "design": {
     "createOrUpdate": [
       {

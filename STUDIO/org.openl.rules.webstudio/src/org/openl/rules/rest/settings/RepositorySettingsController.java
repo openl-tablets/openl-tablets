@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.settings.model.RepositoriesBatchModel;
 import org.openl.rules.rest.settings.model.RepositoriesBatchRequest;
-import org.openl.rules.rest.settings.service.DeployConfigRepositorySettingsService;
 import org.openl.rules.rest.settings.service.DesignRepositorySettingsService;
 import org.openl.rules.rest.settings.service.ProductionRepositorySettingsService;
 import org.openl.rules.rest.settings.service.RepositorySettingsService;
@@ -32,16 +31,13 @@ public class RepositorySettingsController {
 
     private final DesignRepositorySettingsService designRepositorySettingsService;
     private final ProductionRepositorySettingsService productionRepositorySettingsService;
-    private final DeployConfigRepositorySettingsService deployConfigRepositorySettingsService;
     private final SettingsService settingsService;
 
     public RepositorySettingsController(DesignRepositorySettingsService designRepositorySettingsService,
                                         ProductionRepositorySettingsService productionRepositorySettingsService,
-                                        DeployConfigRepositorySettingsService deployConfigRepositorySettingsService,
                                         SettingsService settingsService) {
         this.designRepositorySettingsService = designRepositorySettingsService;
         this.productionRepositorySettingsService = productionRepositorySettingsService;
-        this.deployConfigRepositorySettingsService = deployConfigRepositorySettingsService;
         this.settingsService = settingsService;
     }
 
@@ -52,11 +48,6 @@ public class RepositorySettingsController {
     public void batchUpdate(@RequestBody RepositoriesBatchRequest request) throws IOException, RepositoryValidationException {
         processBatchRepository(request.getDesign(), designRepositorySettingsService);
         processBatchRepository(request.getProduction(), productionRepositorySettingsService);
-        if (request.getDeployConfig() != null) {
-            var configuration = deployConfigRepositorySettingsService.transform(request.getDeployConfig());
-            deployConfigRepositorySettingsService.validate(configuration);
-            deployConfigRepositorySettingsService.store(configuration);
-        }
         settingsService.commit();
     }
 
@@ -87,7 +78,6 @@ public class RepositorySettingsController {
     public void revertConfiguration() throws IOException {
         designRepositorySettingsService.revert();
         productionRepositorySettingsService.revert();
-        deployConfigRepositorySettingsService.revert();
         settingsService.commit();
     }
 }

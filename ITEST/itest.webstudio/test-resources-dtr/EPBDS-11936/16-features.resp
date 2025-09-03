@@ -1,7 +1,0 @@
-HTTP/1.1 200
-Content-Type: application/json
-
-{
-  "branches": false,
-  "searchable": true
-}

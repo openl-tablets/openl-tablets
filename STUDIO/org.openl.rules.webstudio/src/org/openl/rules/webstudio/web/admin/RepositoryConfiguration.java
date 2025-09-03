@@ -28,7 +28,6 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.StringUtils;
 
 public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
@@ -68,10 +67,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     private BiFunction<String, String, String> valueFinder;
 
     private RepositoryMode repoMode;
-
-    @JsonView(RepositorySettings.Views.DeployConfig.class)
-    @SettingPropertyName(value = DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG)
-    private String useDesignRepositoryForDeployConfig;
 
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
         this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
@@ -136,10 +131,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;
         settings = createSettings(repositoryType, properties, nameWithPrefix);
-
-        if (isDeployConfig()) {
-            useDesignRepositoryForDeployConfig = properties.getProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
-        }
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
@@ -169,23 +160,14 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         String factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
         propertiesHolder.setProperty(REPOSITORY_REF, factoryId);
 
-        if (isDeployConfig()) {
-            propertiesHolder.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepositoryForDeployConfig);
-        }
-
         settings.store(propertiesHolder);
     }
 
     public void revert() {
         properties.revertProperties(REPOSITORY_NAME,
-                REPOSITORY_REF,
-                DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+                REPOSITORY_REF);
         load();
         settings.revert(properties);
-    }
-
-    private boolean isDeployConfig() {
-        return configName.equalsIgnoreCase(RepositoryMode.DEPLOY_CONFIG.getId());
     }
 
     @JsonIgnore
@@ -259,14 +241,6 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     public RepositorySettings getSettings() {
         return settings;
-    }
-
-    public String getUseDesignRepositoryForDeployConfig() {
-        return useDesignRepositoryForDeployConfig;
-    }
-
-    public void setUseDesignRepositoryForDeployConfig(String useDesignRepositoryForDeployConfig) {
-        this.useDesignRepositoryForDeployConfig = useDesignRepositoryForDeployConfig;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

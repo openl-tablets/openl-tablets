@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +23,6 @@ import org.xml.sax.InputSource;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -40,13 +38,11 @@ import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
-import org.openl.util.RuntimeExceptionWrapper;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -61,31 +57,25 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepository designTimeRepository;
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
-    private final HashMap<String, ADeploymentProject> userDProjects;
 
     private volatile boolean projectsRefreshNeeded = true;
-    private volatile boolean deploymentsRefreshNeeded = true;
     private volatile boolean syncNeeded = true;
     private volatile boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
-    private final LockEngine deploymentsLockEngine;
     private final DesignTimeRepositoryListener designRepoListener = this::refresh;
 
     public UserWorkspaceImpl(WorkspaceUser user,
                              LocalWorkspace localWorkspace,
                              DesignTimeRepository designTimeRepository,
-                             LockEngine projectsLockEngine,
-                             LockEngine deploymentsLockEngine) {
+                             LockEngine projectsLockEngine) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
         this.projectsLockEngine = projectsLockEngine;
-        this.deploymentsLockEngine = deploymentsLockEngine;
 
         userRulesProjects = new HashMap<>();
-        userDProjects = new HashMap<>();
     }
 
     @Override
@@ -98,67 +88,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void addWorkspaceListener(UserWorkspaceListener listener) {
         listeners.add(listener);
         designTimeRepository.addListener(designRepoListener);
-    }
-
-    @Override
-    public ADeploymentProject copyDDProject(ADeploymentProject project,
-                                            String name,
-                                            String comment) throws ProjectException {
-        ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
-        newProject.getFileData().setComment(comment);
-        newProject.update(project, user);
-        refresh();
-        return newProject;
-    }
-
-    @Override
-    public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        if (deploymentsRefreshNeeded) {
-            refreshDeploymentProjects();
-        }
-        ADeploymentProject ddProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
-        userDProjects.put(name.toLowerCase(), ddProject);
-        return ddProject;
-    }
-
-    @Override
-    public ADeploymentProject getDDProject(String name) throws ProjectException {
-        refreshDeploymentProjects();
-        ADeploymentProject deploymentProject;
-        synchronized (userDProjects) {
-            deploymentProject = userDProjects.get(name.toLowerCase());
-        }
-        if (deploymentProject == null) {
-            throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
-        }
-        return deploymentProject;
-    }
-
-    @Override
-    public ADeploymentProject getLatestDeploymentConfiguration(String name) {
-        return getDesignTimeRepository().createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
-    }
-
-    @Override
-    public List<ADeploymentProject> getDDProjects() throws ProjectException {
-        refreshDeploymentProjects();
-
-        ArrayList<ADeploymentProject> result;
-        synchronized (userDProjects) {
-            result = new ArrayList<>(userDProjects.values());
-        }
-        result.sort(PROJECTS_COMPARATOR);
-
-        return result;
     }
 
     @Override
@@ -260,24 +189,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public boolean hasDDProject(String name) {
-        if (deploymentsRefreshNeeded) {
-            try {
-                refreshDeploymentProjects();
-            } catch (RepositoryException e) {
-                // FIXME Don't wrap checked exception
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
-        }
-        synchronized (userDProjects) {
-            if (userDProjects.get(name.toLowerCase()) != null) {
-                return true;
-            }
-        }
-        return designTimeRepository.hasDDProject(name);
-    }
-
-    @Override
     public boolean hasProject(String repositoryId, String name) {
         synchronized (userRulesProjects) {
             if (projectsRefreshNeeded) {
@@ -292,12 +203,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userRulesProjects) {
             userRulesProjects.clear();
         }
-
-        synchronized (userDProjects) {
-            userDProjects.clear();
-        }
         scheduleProjectsRefresh();
-        scheduleDeploymentsRefresh();
 
         cleanUpOnActivation = false;
     }
@@ -306,7 +212,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void refresh() {
         localWorkspace.refresh();
         scheduleProjectsRefresh();
-        scheduleDeploymentsRefresh();
     }
 
     @Override
@@ -377,59 +282,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
             return xPathExpression.evaluate(inputSource);
         } catch (XPathExpressionException e) {
             return null;
-        }
-    }
-
-    private void scheduleDeploymentsRefresh() {
-        synchronized (userDProjects) {
-            deploymentsRefreshNeeded = true;
-        }
-    }
-
-    private void refreshDeploymentProjects() throws RepositoryException {
-        List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
-
-        synchronized (userDProjects) {
-            // add new
-            HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<>();
-            for (ADeploymentProject ddp : dtrProjects) {
-                String name = ddp.getName();
-                dtrProjectsMap.put(name, ddp);
-
-                ADeploymentProject userDProject = userDProjects.get(name.toLowerCase());
-
-                if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
-                    userDProject = new ADeploymentProject(user,
-                            ddp.getRepository(),
-                            ddp.getFileData(),
-                            deploymentsLockEngine);
-                    if (!userDProject.isOpened()) {
-                        // Closed project cannot be locked.
-                        // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can
-                        // safely unlock it
-                        if (userDProject.isLockedByMe()) {
-                            userDProject.unlock();
-                        }
-                    }
-
-                    userDProjects.put(name.toLowerCase(), userDProject);
-                } else {
-                    userDProject.refresh();
-                }
-            }
-
-            // remove deleted
-            Iterator<ADeploymentProject> i = userDProjects.values().iterator();
-            while (i.hasNext()) {
-                ADeploymentProject userDProject = i.next();
-                String name = userDProject.getName();
-
-                if (!dtrProjectsMap.containsKey(name)) {
-                    i.remove();
-                }
-            }
-
-            deploymentsRefreshNeeded = false;
         }
     }
 
@@ -670,11 +522,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             userRulesProjects.clear();
         }
 
-        synchronized (userDProjects) {
-            userDProjects.clear();
-        }
         scheduleProjectsRefresh();
-        scheduleDeploymentsRefresh();
 
         for (UserWorkspaceListener listener : new ArrayList<>(listeners)) {
             listener.workspaceReleased(this);

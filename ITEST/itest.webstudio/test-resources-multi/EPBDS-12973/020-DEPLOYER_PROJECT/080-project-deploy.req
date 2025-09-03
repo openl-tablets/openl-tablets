@@ -1,5 +1,10 @@
-POST /web/user-workspace/design/projects/EPBDS-12973/deploy?deploy-repo-name=production HTTP/1.1
+POST /rest/deployments HTTP/1.1
 Authorization: Basic RVBCRFNfMTI5NzNfMzpwYXNz
 Content-Type: application/json
 
-[]
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-12973",
+  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "comment": "Deploy project EPBDS-12973"
+}

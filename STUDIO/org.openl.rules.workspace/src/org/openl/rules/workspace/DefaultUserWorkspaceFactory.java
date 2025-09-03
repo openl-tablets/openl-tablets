@@ -15,7 +15,6 @@ public class DefaultUserWorkspaceFactory implements UserWorkspaceFactory {
         return new UserWorkspaceImpl(user,
                 userLocalWorkspace,
                 designTimeRepository,
-                localWorkspaceManager.getLockEngine("projects"),
-                localWorkspaceManager.getLockEngine("deploy-configs"));
+                localWorkspaceManager.getLockEngine("projects"));
     }
 }
