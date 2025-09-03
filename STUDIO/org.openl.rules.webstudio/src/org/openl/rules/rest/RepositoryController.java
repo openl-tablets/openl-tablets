@@ -19,11 +19,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
-import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,6 +45,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,7 +81,6 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileUtils;
@@ -192,7 +192,7 @@ public class RepositoryController {
                     throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
                 }
                 if (!designRepositoryAclService
-                        .isGranted(repository.getId(), fileData.getName(), List.of(AclPermission.READ))) {
+                        .isGranted(repository.getId(), fileData.getName(), List.of(BasePermission.READ))) {
                     throw new SecurityException();
                 }
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
@@ -206,7 +206,7 @@ public class RepositoryController {
                     throw new FileNotFoundException(String.format("File '%s' is not found.", name));
                 }
                 if (!designRepositoryAclService
-                        .isGranted(repository.getId(), fileItem.getData().getName(), List.of(AclPermission.READ))) {
+                        .isGranted(repository.getId(), fileItem.getData().getName(), List.of(BasePermission.READ))) {
                     throw new SecurityException();
                 }
                 entity = fileItem.getStream();
@@ -373,7 +373,7 @@ public class RepositoryController {
             String repositoryId = getDefaultRepositoryId();
             if (userWorkspace.hasProject(repositoryId, name)) {
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
+                if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .contentType(MediaType.TEXT_PLAIN)
                             .body(String.format("No permission for modifying projects in the repository with id '%s'.",
@@ -473,7 +473,7 @@ public class RepositoryController {
             @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name) throws ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.TEXT_PLAIN)
                     .body("There is no permission for modifying the project.");
@@ -501,7 +501,7 @@ public class RepositoryController {
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADMINISTRATION))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.ADMINISTRATION))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.TEXT_PLAIN)
                     .body("There is no permission for unlocking the project.");

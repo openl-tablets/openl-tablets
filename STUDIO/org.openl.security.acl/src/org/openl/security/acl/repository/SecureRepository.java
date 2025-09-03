@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.security.acls.domain.BasePermission;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
@@ -15,7 +17,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
-import org.openl.security.acl.permission.AclPermission;
 
 public class SecureRepository implements Repository, RepositoryDelegate {
     private final Repository repository;
@@ -46,7 +47,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> list(String path) throws IOException {
         return repository.list(path)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(AclPermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +73,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     protected void checkSavePermissions(String name) throws IOException {
         if (repository.check(name) != null) {
-            if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.WRITE))) {
+            if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.WRITE))) {
                 throw new AccessDeniedException(
                         String.format("There is no permission for modifying '%s' in '%s' repository.", name, getName()));
             }
@@ -82,28 +83,28 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     }
 
     protected void checkCreatePermissions(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.CREATE))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.CREATE))) {
             throw new AccessDeniedException(
                     String.format("There is no permission for creating '%s' in '%s' repository.", name, getName()));
         }
     }
 
     protected void checkReadPermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.READ))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(BasePermission.READ))) {
             throw new AccessDeniedException(
                     String.format("There is no permission for reading '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeletePermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, true, AclPermission.DELETE)) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, true, BasePermission.DELETE)) {
             throw new AccessDeniedException(
                     String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeleteHistoryPermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, true, AclPermission.DELETE)) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, true, BasePermission.DELETE)) {
             throw new AccessDeniedException(
                     String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
@@ -171,7 +172,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> listFolders(String path) throws IOException {
         return repository.listFolders(path)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(AclPermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -179,7 +180,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> listFiles(String path, String version) throws IOException {
         return repository.listFiles(path, version)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(AclPermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 

@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ArtefactPath;
@@ -118,7 +119,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
@@ -275,7 +275,7 @@ public class RepositoryTreeController {
                 if (NameChecker.checkName(folderName)) {
                     if (!NameChecker.checkIsFolderPresent(folder, folderName)) {
                         try {
-                            if (aclProjectsHelper.hasPermission(folder, AclPermission.CREATE)) {
+                            if (aclProjectsHelper.hasPermission(folder, BasePermission.CREATE)) {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
@@ -352,7 +352,7 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            if (!aclProjectsHelper.hasPermission(repositoryProject, AclPermission.READ)) {
+            if (!aclProjectsHelper.hasPermission(repositoryProject, BasePermission.READ)) {
                 WebStudioUtils.addErrorMessage(String.format("There is no permission for closing '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
                 return null;
@@ -841,7 +841,7 @@ public class RepositoryTreeController {
             if (projectDescriptorChanged) {
                 String xmlString = serializer.serialize(projectDescriptor);
                 InputStream newContent = IOUtils.toInputStream(xmlString);
-                if (!aclProjectsHelper.hasPermission(resource, AclPermission.WRITE)) {
+                if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
                     throw new Message(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(resource)));
                 }
@@ -855,7 +855,7 @@ public class RepositoryTreeController {
         String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
                 .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
-        if (!aclProjectsHelper.hasPermission(childArtefact, AclPermission.DELETE)) {
+        if (!aclProjectsHelper.hasPermission(childArtefact, BasePermission.DELETE)) {
             WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
                     ProjectArtifactUtils.extractResourceName(childArtefact)));
             return null;
@@ -910,7 +910,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Failed to delete the project. The project does not exist in the branch.");
             return null;
         }
-        if (!aclProjectsHelper.hasPermission(projectArtefact, AclPermission.DELETE)) {
+        if (!aclProjectsHelper.hasPermission(projectArtefact, BasePermission.DELETE)) {
             throw new Message(String.format("There is no permission for deleting '%s' project.",
                     ProjectArtifactUtils.extractResourceName(projectArtefact)));
         }
@@ -1342,7 +1342,7 @@ public class RepositoryTreeController {
 
                 is = ((AProjectResource) uwp.getArtefactByPath(pathInProject)).getContent();
             }
-            if (!aclProjectsHelper.hasPermission(folder, AclPermission.CREATE)) {
+            if (!aclProjectsHelper.hasPermission(folder, BasePermission.CREATE)) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         folder.getArtefactPath().getStringValue(),
                         artefactPath.segment(artefactPath.segmentCount() - 1)));
@@ -1503,7 +1503,7 @@ public class RepositoryTreeController {
     public String openProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-            if (!aclProjectsHelper.hasPermission(project, AclPermission.READ)) {
+            if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(project)));
             }
@@ -1565,7 +1565,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage("Project version is not selected.");
                 return null;
             }
-            if (!aclProjectsHelper.hasPermission(repositoryProject, AclPermission.READ)) {
+            if (!aclProjectsHelper.hasPermission(repositoryProject, BasePermission.READ)) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
             }
@@ -2005,7 +2005,7 @@ public class RepositoryTreeController {
             if (lastUploadedFile == null) {
                 return "Upload the file";
             }
-            if (!aclProjectsHelper.hasPermission(node, AclPermission.CREATE)) {
+            if (!aclProjectsHelper.hasPermission(node, BasePermission.CREATE)) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         ProjectArtifactUtils.extractResourceName(node),
                         fileName));
@@ -2063,7 +2063,7 @@ public class RepositoryTreeController {
                 if (projectDescriptorArtifact instanceof AProjectResource resource) {
                     var serializer = new XmlProjectDescriptorSerializer();
 
-                    if (!aclProjectsHelper.hasPermission(resource, AclPermission.WRITE)) {
+                    if (!aclProjectsHelper.hasPermission(resource, BasePermission.WRITE)) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
                                 ProjectArtifactUtils.extractResourceName(resource)));
                     }
@@ -2102,7 +2102,7 @@ public class RepositoryTreeController {
 
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
-            if (!aclProjectsHelper.hasPermission(node, AclPermission.WRITE)) {
+            if (!aclProjectsHelper.hasPermission(node, BasePermission.WRITE)) {
                 throw new Message(String.format("There is no permission for modifying '%s' file.",
                         ProjectArtifactUtils.extractResourceName(node)));
             }
@@ -2268,7 +2268,7 @@ public class RepositoryTreeController {
                 // any user can delete own local project
                 return true;
             }
-            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
+            if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2297,7 +2297,7 @@ public class RepositoryTreeController {
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
                     return true;
                 }
             }
@@ -2330,11 +2330,11 @@ public class RepositoryTreeController {
     }
 
     public boolean canUnlock(AProject project) {
-        return aclProjectsHelper.hasPermission(project, AclPermission.ADMINISTRATION);
+        return aclProjectsHelper.hasPermission(project, BasePermission.ADMINISTRATION);
     }
 
     public boolean canUnlockDeployment(AProject project) {
-        return aclProjectsHelper.hasPermission(project, AclPermission.ADMINISTRATION);
+        return aclProjectsHelper.hasPermission(project, BasePermission.ADMINISTRATION);
     }
 
 
@@ -2949,7 +2949,7 @@ public class RepositoryTreeController {
         // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
         for (AProjectArtefact artefact : project.getArtefacts()) {
             if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                    List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
+                    List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
                 return true;
             }
         }

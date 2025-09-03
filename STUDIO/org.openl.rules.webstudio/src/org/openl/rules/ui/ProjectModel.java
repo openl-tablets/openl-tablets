@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -98,7 +99,6 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -521,7 +521,7 @@ public class ProjectModel {
             s = s.substring(s.indexOf("/") + 1);
             try {
                 if (studio.getDesignRepositoryAclService()
-                        .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.WRITE))) {
+                        .isGranted(rulesProject.getArtefact(s), List.of(BasePermission.WRITE))) {
                     ret.addAll(List.of(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
                 }
             } catch (ProjectException ignored) {
@@ -664,7 +664,7 @@ public class ProjectModel {
                 return false;
             }
             if (currentModule != null) {
-                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.WRITE))) {
+                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(BasePermission.WRITE))) {
                     return false;
                 }
             }
@@ -680,12 +680,12 @@ public class ProjectModel {
                 AProjectArtefact rulesDescriptorArtifact = currentProject
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 return studio.getDesignRepositoryAclService()
-                        .isGranted(rulesDescriptorArtifact, List.of(AclPermission.WRITE));
+                        .isGranted(rulesDescriptorArtifact, List.of(BasePermission.WRITE));
             } catch (ProjectException ignored) {
                 return false;
             }
         } else {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.CREATE));
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(BasePermission.CREATE));
         }
     }
 
@@ -699,9 +699,9 @@ public class ProjectModel {
             if (studio.getCurrentModule() == null) {
                 RulesProject currentProject = getProject();
                 var alcService = studio.getDesignRepositoryAclService();
-                return alcService.isGranted(currentProject, List.of(AclPermission.WRITE))
-                        || alcService.isGranted(currentProject, List.of(AclPermission.CREATE))
-                        || alcService.isGranted(currentProject, true, AclPermission.DELETE);
+                return alcService.isGranted(currentProject, List.of(BasePermission.WRITE))
+                        || alcService.isGranted(currentProject, List.of(BasePermission.CREATE))
+                        || alcService.isGranted(currentProject, true, BasePermission.DELETE);
             }
             return true;
         }

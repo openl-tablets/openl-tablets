@@ -11,8 +11,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import jakarta.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.Nonnull;
+
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -22,7 +24,6 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.rest.model.ProjectLockInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
@@ -45,7 +46,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     @Nonnull
     public List<ProjectViewModel> getProjects(ProjectCriteriaQuery query) {
         var criteriaFilter = buildFilterCriteria(query)
-                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.READ)))
+                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(BasePermission.READ)))
                 .and(buildTagsFilterCriteria(query));
         return getProjects0(query).filter(criteriaFilter)
                 .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))

@@ -10,14 +10,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
@@ -76,7 +77,6 @@ import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -232,7 +232,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public void close(RulesProject project) throws ProjectException {
         var webStudio = getWebStudio();
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             throw new ForbiddenException("default.message");
         }
         if (project.isDeleted()) {
@@ -271,7 +271,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private void open(RulesProject project,
                       boolean openDependencies,
                       ProjectStatusUpdateModel model) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             throw new ForbiddenException("default.message");
         }
         var workspace = getUserWorkspace();
@@ -406,7 +406,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
                     return true;
                 }
             }
@@ -538,7 +538,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
@@ -593,7 +593,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void appendTableLines(RulesProject project,
                                  String tableId,
                                  AppendTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);

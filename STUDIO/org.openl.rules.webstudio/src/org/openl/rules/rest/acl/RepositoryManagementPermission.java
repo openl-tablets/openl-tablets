@@ -19,6 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority()) or @aclRepositoriesHelper.hasPermission(#aclRepoId, T(org.openl.security.acl.permission.AclPermission).ADMINISTRATION)")
+@PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority()) or @aclRepositoriesHelper.hasPermission(#aclRepoId, T(org.springframework.security.acls.domain.BasePermission).ADMINISTRATION)")
 public @interface RepositoryManagementPermission {
 }

@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.richfaces.model.TreeNode;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
@@ -42,7 +42,7 @@ public class TreeBean {
 
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.READ));
+        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(BasePermission.READ));
     }
 
     public TreeNode getTree() {

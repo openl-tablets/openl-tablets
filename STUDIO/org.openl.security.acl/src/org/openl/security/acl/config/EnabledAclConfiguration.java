@@ -12,6 +12,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ConsoleAuditLogger;
 import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -27,7 +28,6 @@ import org.openl.security.acl.AclAuthorizationStrategyImpl;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.MaskPermissionGrantingStrategy;
 import org.openl.security.acl.oid.AclObjectIdentityProviderImpl;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceImpl;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
@@ -133,7 +133,7 @@ public class EnabledAclConfiguration {
 
     @Bean
     public DefaultPermissionFactory repositoryPermissionFactory() {
-        return new DefaultPermissionFactory(AclPermission.class);
+        return new DefaultPermissionFactory(BasePermission.class);
     }
 
     @Bean

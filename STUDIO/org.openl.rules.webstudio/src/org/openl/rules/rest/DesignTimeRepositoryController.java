@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,7 +68,6 @@ import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -134,7 +134,7 @@ public class DesignTimeRepositoryController {
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepository.getRepositories()
                 .stream()
-                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.READ)))
+                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(BasePermission.READ)))
                 .map(repo -> RepositoryViewModel.builder()
                         .id(repo.getId())
                         .name(repo.getName())
@@ -150,7 +150,7 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
             throw new SecurityException();
         }
         return projectService.getProjects(
@@ -160,7 +160,7 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")
     @GetMapping("/{repo-name}/branches")
     public List<String> listBranches(@DesignRepository("repo-name") Repository repository) throws IOException {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
             throw new SecurityException();
         }
         if (!repository.supports().branches()) {
@@ -194,7 +194,7 @@ public class DesignTimeRepositoryController {
             throw new NotFoundException("project.message", projectName);
         }
 
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
             throw new SecurityException();
         }
 
@@ -220,7 +220,7 @@ public class DesignTimeRepositoryController {
             JAXBException, ProjectException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
-            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.WRITE))) {
+            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
                 throw new SecurityException();
             }
         } else if (!aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {

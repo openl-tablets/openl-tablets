@@ -1,11 +1,9 @@
 package org.openl.security.acl.permission;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.CumulativePermission;
 import org.springframework.security.acls.model.Permission;
 
@@ -15,11 +13,11 @@ public enum AclRole {
      * A role designed for the administration and oversight of a specific resource within the system.
      */
     MANAGER("Manager",
-            AclPermission.ADMINISTRATION,
-            AclPermission.READ,
-            AclPermission.CREATE,
-            AclPermission.WRITE,
-            AclPermission.DELETE),
+            BasePermission.ADMINISTRATION,
+            BasePermission.READ,
+            BasePermission.CREATE,
+            BasePermission.WRITE,
+            BasePermission.DELETE),
 
     /**
      * A role with permissions to read and modify content within the resource.
@@ -28,17 +26,17 @@ public enum AclRole {
      * to the alter system settings or manage user permissions.
      */
     CONTRIBUTOR("Contributor",
-            AclPermission.READ,
-            AclPermission.CREATE,
-            AclPermission.WRITE,
-            AclPermission.DELETE),
+            BasePermission.READ,
+            BasePermission.CREATE,
+            BasePermission.WRITE,
+            BasePermission.DELETE),
 
     /**
      * A role with read-only access to the specific resource. They can view content, data, or settings run tests
      * but cannot make any changes, modifications, or deletions. Their role is to monitor and review information
      * without affecting the integrity or configuration of the resource.
      */
-    VIEWER("Viewer", AclPermission.READ);
+    VIEWER("Viewer", BasePermission.READ);
 
     private final String description;
     private final CumulativePermission cumulativePermission;
@@ -75,16 +73,6 @@ public enum AclRole {
         } else {
             return null;
         }
-    }
-
-    public List<Permission> getPermissions() {
-        List<Permission> basePermissions = new ArrayList<>();
-        for (var basePermission : AclPermission.ALL_SUPPORTED_PERMISSIONS) {
-            if ((cumulativePermission.getMask() & basePermission.getMask()) != 0) {
-                basePermissions.add(basePermission);
-            }
-        }
-        return Collections.unmodifiableList(basePermissions);
     }
 
 }
