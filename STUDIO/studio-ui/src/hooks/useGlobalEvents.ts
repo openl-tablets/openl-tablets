@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
-export const useGlobalEvents = (eventName: string) => {
-    const [details, setDetails] = useState({})
+export const useGlobalEvents = <T>(eventName: string) => {
+    const [detail, setDetail] = useState<T>()
 
     useEffect(() => {
         const handler = (event: Event) => {
             const customEvent = event as CustomEvent
-            setDetails(customEvent.detail)
+            setDetail(customEvent.detail)
         }
         window.addEventListener(eventName, handler)
 
@@ -15,5 +15,5 @@ export const useGlobalEvents = (eventName: string) => {
         }
     }, [eventName])
 
-    return { details }
+    return { detail }
 }

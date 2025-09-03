@@ -1,4 +1,5 @@
 import './common.en'
+import './deploy.en'
 import './email.en'
 import './groups.en'
 import './notification.en'
