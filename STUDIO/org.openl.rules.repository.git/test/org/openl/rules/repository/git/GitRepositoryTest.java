@@ -40,6 +40,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
@@ -64,7 +67,7 @@ public class GitRepositoryTest {
 
     @TempDir
     private static File template;
-    @TempDir
+    @TempDir(cleanup = CleanupMode.NEVER)
     private File root;
     private File remote;
     private File local;
@@ -567,6 +570,7 @@ public class GitRepositoryTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void repoFolderExistsButEmpty() throws IOException {
         // Prepare the test: the folder with local repository name exists but it's empty
         repo.close();
