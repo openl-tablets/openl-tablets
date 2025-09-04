@@ -147,11 +147,11 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     }
 
     @Override
-    protected void applyBeanValidatorAnnotations(Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
-        super.applyBeanValidatorAnnotations(property, annotations, parent, applyNotNullAnnotations);
+    protected boolean applyBeanValidatorAnnotations(Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
+        var modified = super.applyBeanValidatorAnnotations(property, annotations, parent, applyNotNullAnnotations);
         String propertyName = property.getName();
         if (propertyName != null && (propertyName.startsWith("get") || propertyName.startsWith("is"))) {
-
+            modified = true;
             // datatype with incorrect field is generated if property name looks like a getter method
             property.setName(propertyName.substring(propertyName.startsWith("get") ? 3 : 2));
 
@@ -169,6 +169,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                         ).ifPresent(property::setName);
             }
         }
+        return modified;
     }
 
     @Override
