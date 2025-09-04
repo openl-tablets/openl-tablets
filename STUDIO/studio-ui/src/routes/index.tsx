@@ -21,11 +21,13 @@ import NotFound from '../pages/404'
 import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
 import Tesseract from '../components/Tesseract'
+import { RouteErrorFallback } from '../components/RouteErrorFallback'
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: <DefaultLayout />,
+        errorElement: <RouteErrorFallback />,
         children: [
             {
                 path: 'faces/*', // To integrate with JSF Repository and Editor tabs
@@ -49,6 +51,7 @@ const router = createBrowserRouter([
             {
                 path: 'administration',
                 element: <AdministrationLayout />,
+                errorElement: <RouteErrorFallback />,
                 children: [
                     {
                         index: true,
@@ -114,6 +117,7 @@ const router = createBrowserRouter([
     {
         path: '/login',
         element: <LoginPage />,
+        errorElement: <RouteErrorFallback />,
     },
     {
         path: '/logout',
