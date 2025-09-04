@@ -77,8 +77,8 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>6.2.5</spring.framework.version>
-        <spring.boot.version>3.4.5</spring.boot.version>
+        <spring.framework.version>6.2.10</spring.framework.version>
+        <spring.boot.version>3.4.9</spring.boot.version>
         <spring.integration.version>6.5.1</spring.integration.version>
 
         <!-- Security -->
