@@ -29,6 +29,7 @@
             <security:filter-chain pattern="/web/public/**" filters="none"/>
             <security:filter-chain pattern="/rest/api-docs" filters="none"/>
             <security:filter-chain pattern="/rest/openapi.json" filters="none"/>
+            <security:filter-chain pattern="/web/ws/**" filters="securityContextPersistenceFilter"/>
             <security:filter-chain pattern="/rest/**"
                                    filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor"/>
             <security:filter-chain pattern="/**"
