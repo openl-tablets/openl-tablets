@@ -10,11 +10,13 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 import org.openl.config.PropertiesHolder;
 
+@Schema(allOf = RepositorySettings.class)
 public class AWSS3RepositorySettings extends RepositorySettings {
 
     private static final String SERVICE_ENDPOINT_PATH_SUFFIX = ".service-endpoint";

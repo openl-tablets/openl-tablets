@@ -7,9 +7,11 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 
+@Schema(allOf = RepositorySettings.class)
 public class AzureBlobRepositorySettings extends RepositorySettings {
 
     private static final String URI_PROPERTY_SUFFIX = ".uri";

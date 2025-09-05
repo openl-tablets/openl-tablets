@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 
+@Schema(allOf = AuthenticationSettings.class)
 public class NOPAuthenticationSettings extends AuthenticationSettings {
 
     @NotNull

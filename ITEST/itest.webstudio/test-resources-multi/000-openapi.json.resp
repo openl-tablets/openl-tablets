@@ -68,6 +68,7 @@ Content-Type: application/json
           "resources": {
             "type": "array",
             "description": "***",
+            "minItems": 1,
             "items": {
               "$ref": "#/components/schemas/AclResourceAccess"
             }
@@ -138,7 +139,8 @@ Content-Type: application/json
           },
           "sid": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "minLength": 1
           }
         },
         "required": ["sid"]
@@ -148,15 +150,19 @@ Content-Type: application/json
         "discriminator" : {
           "propertyName" : "userMode"
         },
-        "oneOf" : [ {
-          "$ref" : "#/components/schemas/InheritedAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/ADAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/SAMLAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/OAuth2AuthenticationSettings"
-        } ],
+        "oneOf" : [
+            {
+              "$ref" : "#/components/schemas/InheritedAuthenticationSettings"
+            }, {
+              "$ref" : "#/components/schemas/ADAuthenticationSettings"
+            }, {
+              "$ref" : "#/components/schemas/SAMLAuthenticationSettings"
+            }, {
+              "$ref" : "#/components/schemas/OAuth2AuthenticationSettings"
+            }, {
+              "$ref": "#/components/schemas/NOPAuthenticationSettings"
+            }
+        ],
         "properties" : {
           "allowProjectCreateDelete" : {
             "type" : "boolean",
@@ -181,6 +187,7 @@ Content-Type: application/json
             "administrators" : {
               "type" : "array",
               "description" : "***",
+              "minItems": 1,
               "items" : {
                 "type" : "string",
                 "maxLength" : 50,
@@ -202,7 +209,8 @@ Content-Type: application/json
             "domain" : {
               "type" : "string",
               "description" : "***",
-              "example" : "***"
+              "example" : "***",
+              "minLength": 1
             },
             "groupFilter" : {
               "type" : "string",
@@ -212,12 +220,14 @@ Content-Type: application/json
             "searchFilter" : {
               "type" : "string",
               "description" : "***",
-              "example" : "***"
+              "example" : "***",
+              "minLength": 1
             },
             "serverUrl" : {
               "type" : "string",
               "description" : "***",
-              "example" : "***"
+              "example" : "***",
+              "minLength": 1
             }
           }
         } ],
@@ -233,6 +243,7 @@ Content-Type: application/json
             "administrators" : {
               "type" : "array",
               "description" : "***",
+              "minItems": 1,
               "items" : {
                 "type" : "string",
                 "maxLength" : 50,
@@ -277,7 +288,8 @@ Content-Type: application/json
           "email" : {
             "type" : "string",
             "description" : "***",
-            "example" : "***"
+            "example" : "***",
+            "format": "email"
           },
           "firstName" : {
             "type" : "string",
@@ -305,7 +317,6 @@ Content-Type: application/json
       },
       "OAuth2AttributesSettings" : {
         "type" : "object",
-        "description" : "***",
         "properties" : {
           "displayName" : {
             "type" : "string",
@@ -343,6 +354,7 @@ Content-Type: application/json
             "administrators" : {
               "type" : "array",
               "description" : "***",
+              "minItems": 1,
               "items" : {
                 "type" : "string",
                 "maxLength" : 50,
@@ -355,11 +367,13 @@ Content-Type: application/json
             },
             "clientId" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "clientSecret" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "defaultGroup" : {
               "type" : "string",
@@ -373,11 +387,13 @@ Content-Type: application/json
             },
             "issuerUri" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "scope" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             }
           }
         } ],
@@ -385,7 +401,6 @@ Content-Type: application/json
       },
       "SAMLAttributesSettings" : {
         "type" : "object",
-        "description" : "***",
         "properties" : {
           "displayName" : {
             "type" : "string",
@@ -423,6 +438,7 @@ Content-Type: application/json
             "administrators" : {
               "type" : "array",
               "description" : "***",
+              "minItems": 1,
               "items" : {
                 "type" : "string",
                 "maxLength" : 50,
@@ -441,7 +457,8 @@ Content-Type: application/json
             },
             "entityId" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "forceAuthN" : {
               "type" : "boolean",
@@ -449,7 +466,8 @@ Content-Type: application/json
             },
             "metadataUrl" : {
               "type" : "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "serverCertificate" : {
               "type" : "string",
@@ -605,8 +623,7 @@ Content-Type: application/json
             "type": "boolean",
             "description" : "***"
           }
-        },
-        "required" : [ "commentTemplate", "invalidCommentMessage" ]
+        }
       },
       "AWSS3Region" : {
         "type" : "object",
@@ -646,7 +663,8 @@ Content-Type: application/json
             },
             "bucketName" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "listenerTimerPeriod" : {
               "type" : "integer",
@@ -656,7 +674,8 @@ Content-Type: application/json
             },
             "regionName" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "secretKey" : {
               "type": "string",
@@ -673,7 +692,7 @@ Content-Type: application/json
             }
           }
         } ],
-        "required" : [ "bucketName", "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "regionName" ]
+        "required" : [ "bucketName", "listenerTimerPeriod", "regionName" ]
       },
       "AzureBlobRepositorySettings" : {
         "type" : "object",
@@ -698,11 +717,12 @@ Content-Type: application/json
             },
             "uri" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             }
           }
         } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "uri" ]
+        "required" : ["listenerTimerPeriod", "uri" ]
       },
       "CommonRepositorySettings" : {
         "type" : "object",
@@ -725,11 +745,12 @@ Content-Type: application/json
             },
             "uri" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             }
           }
         } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
+        "required" : ["uri" ]
       },
       "GitRepositorySettings" : {
         "type" : "object",
@@ -762,7 +783,8 @@ Content-Type: application/json
             },
             "localRepositoryPath" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             },
             "login" : {
               "type": "string",
@@ -807,7 +829,7 @@ Content-Type: application/json
             }
           }
         } ],
-        "required" : [ "commentTemplate", "connectionTimeout", "failedAuthenticationSeconds", "invalidCommentMessage", "listenerTimerPeriod", "localRepositoryPath" ]
+        "required" : [ "connectionTimeout", "failedAuthenticationSeconds", "listenerTimerPeriod", "localRepositoryPath" ]
       },
       "LocalRepositorySettings" : {
         "type" : "object",
@@ -818,11 +840,12 @@ Content-Type: application/json
           "properties" : {
             "uri" : {
               "type": "string",
-              "description" : "***"
+              "description" : "***",
+              "minLength": 1
             }
           }
         } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
+        "required" : [ "uri" ]
       },
       "CURepositoryConfigurationModel" : {
         "type" : "object",
@@ -833,7 +856,8 @@ Content-Type: application/json
           },
           "name" : {
             "type" : "string",
-            "description" : "***"
+            "description" : "***",
+            "minLength": 1
           },
           "settings" : {
             "$ref" : "#/components/schemas/RepositorySettings"
@@ -872,7 +896,8 @@ Content-Type: application/json
           },
           "datePattern" : {
             "type": "string",
-            "description" : "***"
+            "description" : "***",
+            "minLength": 1
           },
           "dispatchingValidationEnabled" : {
             "type": "boolean",
@@ -895,7 +920,8 @@ Content-Type: application/json
           },
           "timeFormat" : {
             "type": "string",
-            "description" : "***"
+            "description" : "***",
+            "minLength": 1
           },
           "updateSystemProperties" : {
             "type": "boolean",
@@ -922,7 +948,8 @@ Content-Type: application/json
           "url": {
             "type": "string",
             "description": "***",
-            "example": "***"
+            "example": "***",
+            "minLength": 1
           },
           "user": {
             "type": "string",
@@ -1094,7 +1121,8 @@ Content-Type: application/json
           },
           "sid": {
             "type": "string",
-            "description": "SID name"
+            "description": "SID name",
+            "minLength": 1
           }
         },
         "required": ["sid"]
@@ -1886,7 +1914,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -1947,7 +1976,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -2020,7 +2050,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -2053,7 +2084,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         },
         "type": "object"
@@ -2076,7 +2108,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
@@ -2198,7 +2231,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -2268,7 +2302,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
