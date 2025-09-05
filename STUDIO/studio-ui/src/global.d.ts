@@ -8,7 +8,7 @@ declare global {
 
 interface FieldObject<T> {
     value: T,
-    readonly?: boolean,
+    readOnly?: boolean,
     secure?: boolean,
 }
 
