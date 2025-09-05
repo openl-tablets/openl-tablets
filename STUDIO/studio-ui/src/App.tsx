@@ -5,6 +5,8 @@ import { useUserStore, useNotificationStore, useAppStore } from 'store'
 import { RouterProvider } from 'react-router-dom'
 import { SecurityProvider } from './providers/SecurityProvider'
 import { CONFIG } from './services'
+import ErrorBoundary from './components/ErrorBoundary'
+import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
 
 function App() {
     const { showLogin } = useAppStore()
@@ -12,6 +14,9 @@ function App() {
     const { fetchNotification } = useNotificationStore()
 
     useEffect(() => {
+        // Set up global error handling
+        setupGlobalErrorHandling()
+        
         fetchUserInfo()
     }, [])
 
@@ -32,13 +37,22 @@ function App() {
 
     return isLoggedIn
         ? (
-            <Suspense fallback={<div>Loading...</div>}>
-                <AntApp>
-                    <SecurityProvider>
-                        <RouterProvider router={router} />
-                    </SecurityProvider>
-                </AntApp>
-            </Suspense>
+            <ErrorBoundary 
+                onError={(error: Error, errorInfo: any) => {
+                    errorHandler.logError(error, {
+                        componentStack: errorInfo?.componentStack || undefined,
+                        message: `App Level Error: ${error.message}`,
+                    })
+                }}
+            >
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AntApp>
+                        <SecurityProvider>
+                            <RouterProvider router={router} />
+                        </SecurityProvider>
+                    </AntApp>
+                </Suspense>
+            </ErrorBoundary>
         )
         : null
 }
