@@ -61,766 +61,815 @@ Content-Type: application/json
         },
         "required": ["id", "name", "repository"]
       },
-      "AuthenticationSettings" : {
-        "type" : "object",
-        "discriminator" : {
-          "propertyName" : "userMode"
+      "AuthenticationSettings": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "userMode"
         },
-        "oneOf" : [ {
-          "$ref" : "#/components/schemas/InheritedAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/ADAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/SAMLAuthenticationSettings"
-        }, {
-          "$ref" : "#/components/schemas/OAuth2AuthenticationSettings"
-        } ],
-        "properties" : {
-          "allowProjectCreateDelete" : {
-            "type" : "boolean",
-            "description" : "***"
-          },
-          "userMode" : {
-            "type" : "string",
-            "description" : "***",
-            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ],
-            "example" : "***"
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/InheritedAuthenticationSettings"
+          }, {
+            "$ref": "#/components/schemas/ADAuthenticationSettings"
+          }, {
+            "$ref": "#/components/schemas/SAMLAuthenticationSettings"
+          }, {
+            "$ref": "#/components/schemas/OAuth2AuthenticationSettings"
+          }, {
+            "$ref": "#/components/schemas/NOPAuthenticationSettings"
           }
-        },
-        "required" : [ "userMode" ]
-      },
-      "ADAuthenticationSettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/AuthenticationSettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "administrators" : {
-              "type" : "array",
-              "description" : "***",
-              "items" : {
-                "type" : "string",
-                "maxLength" : 50,
-                "minLength" : 0
-              },
-              "uniqueItems" : true
-            },
-            "credentials" : {
-              "type" : "string",
-              "description" : "***",
-              "writeOnly" : true
-            },
-            "defaultGroup" : {
-              "type" : "string",
-              "description" : "***",
-              "maxLength" : 65,
-              "minLength" : 0
-            },
-            "domain" : {
-              "type" : "string",
-              "description" : "***",
-              "example" : "***"
-            },
-            "groupFilter" : {
-              "type" : "string",
-              "description" : "***",
-              "example" : "***"
-            },
-            "searchFilter" : {
-              "type" : "string",
-              "description" : "***",
-              "example" : "***"
-            },
-            "serverUrl" : {
-              "type" : "string",
-              "description" : "***",
-              "example" : "***"
-            }
-          }
-        } ],
-        "required" : [ "administrators", "domain", "searchFilter", "serverUrl", "userMode" ]
-      },
-      "InheritedAuthenticationSettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/AuthenticationSettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "administrators" : {
-              "type" : "array",
-              "description" : "***",
-              "items" : {
-                "type" : "string",
-                "maxLength" : 50,
-                "minLength" : 0
-              },
-              "uniqueItems" : true
-            },
-            "defaultGroup" : {
-              "type" : "string",
-              "description" : "***",
-              "maxLength" : 65,
-              "minLength" : 0
-            }
-          }
-        } ],
-        "required" : [ "administrators", "userMode" ]
-      },
-      "NOPAuthenticationSettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/AuthenticationSettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "user" : {
-              "$ref" : "#/components/schemas/NOPUserSettings"
-            }
-          }
-        } ],
-        "required" : [ "user", "userMode" ]
-      },
-      "NOPUserSettings" : {
-        "type" : "object",
-        "properties" : {
-          "displayName" : {
-            "type" : "string",
-            "description" : "***",
-            "example" : "***",
-            "maxLength" : 255,
-            "minLength" : 1
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "***",
-            "example" : "***"
-          },
-          "firstName" : {
-            "type" : "string",
-            "description" : "***",
-            "example" : "***",
-            "maxLength" : 125,
-            "minLength" : 1
-          },
-          "lastName" : {
-            "type" : "string",
-            "description" : "***",
-            "example" : "***",
-            "maxLength" : 125,
-            "minLength" : 1
-          },
-          "username" : {
-            "type" : "string",
-            "description" : "***",
-            "example" : "***",
-            "maxLength" : 125,
-            "minLength" : 1
-          }
-        },
-        "required" : [ "displayName", "firstName", "lastName", "username" ]
-      },
-      "OAuth2AttributesSettings" : {
-        "type" : "object",
-        "description" : "***",
-        "properties" : {
-          "displayName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "firstName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "groups" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "lastName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "username" : {
-            "type" : "string",
-            "description" : "***"
-          }
-        }
-      },
-      "OAuth2AuthenticationSettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/AuthenticationSettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "administrators" : {
-              "type" : "array",
-              "description" : "***",
-              "items" : {
-                "type" : "string",
-                "maxLength" : 50,
-                "minLength" : 0
-              },
-              "uniqueItems" : true
-            },
-            "attributes" : {
-              "$ref" : "#/components/schemas/OAuth2AttributesSettings"
-            },
-            "clientId" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "clientSecret" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "defaultGroup" : {
-              "type" : "string",
-              "description" : "***",
-              "maxLength" : 65,
-              "minLength" : 0
-            },
-            "grantType" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "issuerUri" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "scope" : {
-              "type" : "string",
-              "description" : "***"
-            }
-          }
-        } ],
-        "required" : [ "administrators", "attributes", "clientId", "clientSecret", "issuerUri", "scope", "userMode" ]
-      },
-      "SAMLAttributesSettings" : {
-        "type" : "object",
-        "description" : "***",
-        "properties" : {
-          "displayName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "firstName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "groups" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "lastName" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "username" : {
-            "type" : "string",
-            "description" : "***"
-          }
-        }
-      },
-      "SAMLAuthenticationSettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/AuthenticationSettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "administrators" : {
-              "type" : "array",
-              "description" : "***",
-              "items" : {
-                "type" : "string",
-                "maxLength" : 50,
-                "minLength" : 0
-              },
-              "uniqueItems" : true
-            },
-            "attributes" : {
-              "$ref" : "#/components/schemas/SAMLAttributesSettings"
-            },
-            "defaultGroup" : {
-              "type" : "string",
-              "description" : "***",
-              "maxLength" : 65,
-              "minLength" : 0
-            },
-            "entityId" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "forceAuthN" : {
-              "type" : "boolean",
-              "description" : "***"
-            },
-            "metadataUrl" : {
-              "type" : "string",
-              "description" : "***"
-            },
-            "serverCertificate" : {
-              "type" : "string",
-              "description" : "***"
-            }
-          }
-        } ],
-        "required" : [ "administrators", "attributes", "entityId", "metadataUrl", "userMode" ]
-      },
-      "CreateAuthenticationTemplateModel" : {
-        "type" : "object",
-        "properties" : {
-          "userMode" : {
-            "type" : "string",
-            "enum" : [ "single", "multi", "ad", "saml", "oauth2" ]
-          }
-        },
-        "required" : [ "userMode" ]
-      },
-      "RepositoriesBatchRequest" : {
-        "type" : "object",
-        "properties" : {
-          "design" : {
-            "$ref" : "#/components/schemas/RepositoriesBatchModel"
-          },
-          "production" : {
-            "$ref" : "#/components/schemas/RepositoriesBatchModel"
-          }
-        }
-      },
-      "RepositoriesBatchModel" : {
-        "type" : "object",
-        "properties" : {
-          "createOrUpdate" : {
-            "type" : "array",
-            "description" : "***",
-            "items" : {
-              "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
-            }
-          },
-          "delete" : {
-            "type" : "array",
-            "description" : "***",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        }
-      },
-      "CreateRepositoryTemplateModel" : {
-        "type" : "object",
-        "properties" : {
-          "type" : {
-            "type" : "string",
-            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
-          }
-        },
-        "required" : [ "type" ]
-      },
-      "RepositoryConfiguration" : {
-        "type" : "object",
-        "properties" : {
-          "errorMessage" : {
-            "type" : "string",
-            "readOnly" : true
-          },
-          "id" : {
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "settings" : {
-            "$ref" : "#/components/schemas/RepositorySettings"
-          },
-          "type" : {
-            "type" : "string"
-          }
-        }
-      },
-      "RepositorySettings" : {
-        "description" : "***",
-        "type" : "object",
-        "oneOf" : [ {
-          "$ref" : "#/components/schemas/AWSS3RepositorySettings"
-        }, {
-          "$ref" : "#/components/schemas/AzureBlobRepositorySettings"
-        }, {
-          "$ref" : "#/components/schemas/CommonRepositorySettings"
-        }, {
-          "$ref" : "#/components/schemas/GitRepositorySettings"
-        }, {
-          "$ref" : "#/components/schemas/LocalRepositorySettings"
-        } ],
-        "properties" : {
-          "basePath" : {
-            "description" : "***",
-            "type": "string"
-          },
-          "commentTemplate" : {
-            "description" : "***",
-            "type": "string"
-          },
-          "commentTemplateOld" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "commentValidationPattern" : {
-            "description" : "***",
-            "type": "string"
-          },
-          "defaultCommentArchive" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentCopiedFrom" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentCreate" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentErase" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentRestore" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentRestoredFrom" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "defaultCommentSave" : {
-            "type": "string",
-            "description" : "***"
-          },
-          "flatFolderStructure" : {
+        ],
+        "properties": {
+          "allowProjectCreateDelete": {
             "type": "boolean",
-            "description" : "***"
+            "description": "***"
           },
-          "invalidCommentMessage" : {
+          "userMode": {
             "type": "string",
-            "description" : "***"
-          },
-          "mainBranchOnly" : {
-            "type": "boolean",
-            "description" : "***"
-          },
-          "useCustomComments" : {
-            "type": "boolean",
-            "description" : "***"
+            "description": "***",
+            "enum": ["single", "multi", "ad", "saml", "oauth2"],
+            "example": "***"
           }
         },
-        "required" : [ "commentTemplate", "invalidCommentMessage" ]
+        "required": ["userMode"]
       },
-      "AWSS3Region" : {
-        "type" : "object",
-        "properties" : {
-          "description" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        }
-      },
-      "AWSS3RepositorySettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/RepositorySettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "accessKey" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "allAllowedRegions" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/AWSS3Region"
+      "ADAuthenticationSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthenticationSettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "administrators": {
+                "type": "array",
+                "description": "***",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "maxLength": 50,
+                  "minLength": 0
+                },
+                "uniqueItems": true
+              },
+              "credentials": {
+                "type": "string",
+                "description": "***",
+                "writeOnly": true
+              },
+              "defaultGroup": {
+                "type": "string",
+                "description": "***",
+                "maxLength": 65,
+                "minLength": 0
+              },
+              "domain": {
+                "type": "string",
+                "description": "***",
+                "example": "***",
+                "minLength": 1
+              },
+              "groupFilter": {
+                "type": "string",
+                "description": "***",
+                "example": "***"
+              },
+              "searchFilter": {
+                "type": "string",
+                "description": "***",
+                "example": "***",
+                "minLength": 1
+              },
+              "serverUrl": {
+                "type": "string",
+                "description": "***",
+                "example": "***",
+                "minLength": 1
               }
-            },
-            "allSseAlgorithms" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string",
-                "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
+            }
+          }
+        ],
+        "required": ["administrators", "domain", "searchFilter", "serverUrl", "userMode"]
+      },
+      "InheritedAuthenticationSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthenticationSettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "administrators": {
+                "type": "array",
+                "description": "***",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "maxLength": 50,
+                  "minLength": 0
+                },
+                "uniqueItems": true
               },
-              "uniqueItems" : true
-            },
-            "bucketName" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "listenerTimerPeriod" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***",
-              "minimum" : 1
-            },
-            "regionName" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "secretKey" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "serviceEndpoint" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "sseAlgorithm" : {
-              "type" : "string",
-              "description" : "***",
-              "enum" : [ "AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null" ]
+              "defaultGroup": {
+                "type": "string",
+                "description": "***",
+                "maxLength": 65,
+                "minLength": 0
+              }
             }
           }
-        } ],
-        "required" : [ "bucketName", "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "regionName" ]
+        ],
+        "required": ["administrators", "userMode"]
       },
-      "AzureBlobRepositorySettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/RepositorySettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "accountKey" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "accountName" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "listenerTimerPeriod" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***",
-              "minimum" : 1
-            },
-            "uri" : {
-              "type": "string",
-              "description" : "***"
+      "NOPAuthenticationSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthenticationSettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/NOPUserSettings"
+              }
             }
           }
-        } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "listenerTimerPeriod", "uri" ]
+        ],
+        "required": ["user", "userMode"]
       },
-      "CommonRepositorySettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/RepositorySettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "login" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "password" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "secure" : {
-              "type": "boolean",
-              "description" : "***"
-            },
-            "uri" : {
-              "type": "string",
-              "description" : "***"
-            }
-          }
-        } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
-      },
-      "GitRepositorySettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/RepositorySettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "branch" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "connectionTimeout" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***",
-              "minimum" : 1
-            },
-            "failedAuthenticationSeconds" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***",
-              "minimum" : 1
-            },
-            "listenerTimerPeriod" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***",
-              "minimum" : 1
-            },
-            "localRepositoryPath" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "login" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "maxAuthenticationAttempts" : {
-              "type" : "integer",
-              "format" : "int32",
-              "description" : "***"
-            },
-            "newBranchRegex" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "newBranchRegexError" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "newBranchTemplate" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "password" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "protectedBranches" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "remoteRepository" : {
-              "type": "boolean",
-              "description" : "***"
-            },
-            "tagPrefix" : {
-              "type": "string",
-              "description" : "***"
-            },
-            "uri" : {
-              "type": "string",
-              "description" : "***"
-            }
-          }
-        } ],
-        "required" : [ "commentTemplate", "connectionTimeout", "failedAuthenticationSeconds", "invalidCommentMessage", "listenerTimerPeriod", "localRepositoryPath" ]
-      },
-      "LocalRepositorySettings" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/RepositorySettings"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "uri" : {
-              "type": "string",
-              "description" : "***"
-            }
-          }
-        } ],
-        "required" : [ "commentTemplate", "invalidCommentMessage", "uri" ]
-      },
-      "CURepositoryConfigurationModel" : {
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "***"
+      "NOPUserSettings": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 255,
+            "minLength": 1
           },
-          "name" : {
-            "type" : "string",
-            "description" : "***"
+          "email": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "format": "email"
           },
-          "settings" : {
-            "$ref" : "#/components/schemas/RepositorySettings"
+          "firstName": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 125,
+            "minLength": 1
           },
-          "type" : {
-            "type" : "string",
-            "description" : "***",
-            "enum" : [ "repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file" ]
+          "lastName": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 125,
+            "minLength": 1
+          },
+          "username": {
+            "type": "string",
+            "description": "***",
+            "example": "***",
+            "maxLength": 125,
+            "minLength": 1
           }
         },
-        "required" : [ "name", "settings", "type" ]
+        "required": ["displayName", "firstName", "lastName", "username"]
       },
-      "FilterProvider" : {
-        "type" : "object"
-      },
-      "MappingJacksonValue" : {
-        "type" : "object",
-        "properties" : {
-          "filters" : {
-            "$ref" : "#/components/schemas/FilterProvider"
+      "OAuth2AttributesSettings": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "***"
           },
-          "value" : {
-            "type" : "object"
+          "email": {
+            "type": "string",
+            "description": "***"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "***"
+          },
+          "groups": {
+            "type": "string",
+            "description": "***"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "***"
+          },
+          "username": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
-      "JsonNode" : {
-        "type" : "object"
+      "OAuth2AuthenticationSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthenticationSettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "administrators": {
+                "type": "array",
+                "description": "***",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "maxLength": 50,
+                  "minLength": 0
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "$ref": "#/components/schemas/OAuth2AttributesSettings"
+              },
+              "clientId": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "clientSecret": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "defaultGroup": {
+                "type": "string",
+                "description": "***",
+                "maxLength": 65,
+                "minLength": 0
+              },
+              "grantType": {
+                "type": "string",
+                "description": "***"
+              },
+              "issuerUri": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "scope": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "required": ["administrators", "attributes", "clientId", "clientSecret", "issuerUri", "scope", "userMode"]
       },
-      "AdministrationSettings" : {
-        "type" : "object",
-        "properties" : {
-          "autoCompile" : {
-            "type": "boolean",
-            "description" : "***"
-          },
-          "datePattern" : {
+      "SAMLAttributesSettings": {
+        "type": "object",
+        "properties": {
+          "displayName": {
             "type": "string",
-            "description" : "***"
+            "description": "***"
           },
-          "dispatchingValidationEnabled" : {
+          "email": {
+            "type": "string",
+            "description": "***"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "***"
+          },
+          "groups": {
+            "type": "string",
+            "description": "***"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "***"
+          },
+          "username": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "SAMLAuthenticationSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthenticationSettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "administrators": {
+                "type": "array",
+                "description": "***",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "maxLength": 50,
+                  "minLength": 0
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "$ref": "#/components/schemas/SAMLAttributesSettings"
+              },
+              "defaultGroup": {
+                "type": "string",
+                "description": "***",
+                "maxLength": 65,
+                "minLength": 0
+              },
+              "entityId": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "forceAuthN": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "metadataUrl": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "serverCertificate": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "required": ["administrators", "attributes", "entityId", "metadataUrl", "userMode"]
+      },
+      "CreateAuthenticationTemplateModel": {
+        "type": "object",
+        "properties": {
+          "userMode": {
+            "type": "string",
+            "enum": ["single", "multi", "ad", "saml", "oauth2"]
+          }
+        },
+        "required": ["userMode"]
+      },
+      "RepositoriesBatchRequest": {
+        "type": "object",
+        "properties": {
+          "design": {
+            "$ref": "#/components/schemas/RepositoriesBatchModel"
+          },
+          "production": {
+            "$ref": "#/components/schemas/RepositoriesBatchModel"
+          }
+        }
+      },
+      "RepositoriesBatchModel": {
+        "type": "object",
+        "properties": {
+          "createOrUpdate": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/CURepositoryConfigurationModel"
+            }
+          },
+          "delete": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateRepositoryTemplateModel": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file"]
+          }
+        },
+        "required": ["type"]
+      },
+      "RepositoryConfiguration": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "readOnly": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/RepositorySettings"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "RepositorySettings": {
+        "description": "***",
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AWSS3RepositorySettings"
+          }, {
+            "$ref": "#/components/schemas/AzureBlobRepositorySettings"
+          }, {
+            "$ref": "#/components/schemas/CommonRepositorySettings"
+          }, {
+            "$ref": "#/components/schemas/GitRepositorySettings"
+          }, {
+            "$ref": "#/components/schemas/LocalRepositorySettings"
+          }
+        ],
+        "properties": {
+          "basePath": {
+            "description": "***",
+            "type": "string"
+          },
+          "commentTemplate": {
+            "description": "***",
+            "type": "string"
+          },
+          "commentTemplateOld": {
+            "type": "string",
+            "description": "***"
+          },
+          "commentValidationPattern": {
+            "description": "***",
+            "type": "string"
+          },
+          "defaultCommentArchive": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentCopiedFrom": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentCreate": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentErase": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentRestore": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentRestoredFrom": {
+            "type": "string",
+            "description": "***"
+          },
+          "defaultCommentSave": {
+            "type": "string",
+            "description": "***"
+          },
+          "flatFolderStructure": {
             "type": "boolean",
-            "description" : "***"
+            "description": "***"
           },
-          "projectHistoryCount" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "***",
+          "invalidCommentMessage": {
+            "type": "string",
+            "description": "***"
+          },
+          "mainBranchOnly": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "useCustomComments": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "AWSS3Region": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "AWSS3RepositorySettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RepositorySettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "accessKey": {
+                "type": "string",
+                "description": "***"
+              },
+              "allAllowedRegions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AWSS3Region"
+                }
+              },
+              "allSseAlgorithms": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null"]
+                },
+                "uniqueItems": true
+              },
+              "bucketName": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "listenerTimerPeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
+              "regionName": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "secretKey": {
+                "type": "string",
+                "description": "***"
+              },
+              "serviceEndpoint": {
+                "type": "string",
+                "description": "***"
+              },
+              "sseAlgorithm": {
+                "type": "string",
+                "description": "***",
+                "enum": ["AES256", "aws:fsx", "aws:kms", "aws:kms:dsse", "null"]
+              }
+            }
+          }
+        ],
+        "required": ["bucketName", "listenerTimerPeriod", "regionName"]
+      },
+      "AzureBlobRepositorySettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RepositorySettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "accountKey": {
+                "type": "string",
+                "description": "***"
+              },
+              "accountName": {
+                "type": "string",
+                "description": "***"
+              },
+              "listenerTimerPeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
+              "uri": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "required": ["listenerTimerPeriod", "uri"]
+      },
+      "CommonRepositorySettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RepositorySettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "login": {
+                "type": "string",
+                "description": "***"
+              },
+              "password": {
+                "type": "string",
+                "description": "***"
+              },
+              "secure": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "uri": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "required": ["uri"]
+      },
+      "GitRepositorySettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RepositorySettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "branch": {
+                "type": "string",
+                "description": "***"
+              },
+              "connectionTimeout": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
+              "failedAuthenticationSeconds": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
+              "listenerTimerPeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "minimum": 1
+              },
+              "localRepositoryPath": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              },
+              "login": {
+                "type": "string",
+                "description": "***"
+              },
+              "maxAuthenticationAttempts": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
+              "newBranchRegex": {
+                "type": "string",
+                "description": "***"
+              },
+              "newBranchRegexError": {
+                "type": "string",
+                "description": "***"
+              },
+              "newBranchTemplate": {
+                "type": "string",
+                "description": "***"
+              },
+              "password": {
+                "type": "string",
+                "description": "***"
+              },
+              "protectedBranches": {
+                "type": "string",
+                "description": "***"
+              },
+              "remoteRepository": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "tagPrefix": {
+                "type": "string",
+                "description": "***"
+              },
+              "uri": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ],
+        "required": [
+          "connectionTimeout", "failedAuthenticationSeconds",
+          "listenerTimerPeriod", "localRepositoryPath"
+        ]
+      },
+      "LocalRepositorySettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RepositorySettings"
+          }, {
+            "type": "object",
+            "properties": {
+              "uri": {
+                "type": "string",
+                "description": "***",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "required": ["uri"]
+      },
+      "CURepositoryConfigurationModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "settings": {
+            "$ref": "#/components/schemas/RepositorySettings"
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": ["repo-jdbc", "repo-jndi", "repo-aws-s3", "repo-azure-blob", "repo-git", "repo-file"]
+          }
+        },
+        "required": ["name", "settings", "type"]
+      },
+      "FilterProvider": {
+        "type": "object"
+      },
+      "MappingJacksonValue": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "$ref": "#/components/schemas/FilterProvider"
+          },
+          "value": {
+            "type": "object"
+          }
+        }
+      },
+      "JsonNode": {
+        "type": "object"
+      },
+      "AdministrationSettings": {
+        "type": "object",
+        "properties": {
+          "autoCompile": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "datePattern": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "dispatchingValidationEnabled": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "projectHistoryCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
             "minimum": 0
           },
-          "testRunThreadCount" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "***",
+          "testRunThreadCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
             "minimum": 1
           },
-          "timeFormat" : {
+          "timeFormat": {
             "type": "string",
-            "description" : "***"
+            "description": "***",
+            "minLength": 1
           },
-          "updateSystemProperties" : {
+          "updateSystemProperties": {
             "type": "boolean",
-            "description" : "***"
+            "description": "***"
           },
-          "db" : {
+          "db": {
             "$ref": "#/components/schemas/DBSettings"
           }
         },
-        "required": [ "datePattern", "db", "timeFormat" ]
+        "required": ["datePattern", "db", "timeFormat"]
       },
       "DBSettings": {
         "type": "object",
@@ -840,7 +889,8 @@ Content-Type: application/json
           "url": {
             "type": "string",
             "description": "***",
-            "example": "***"
+            "example": "***",
+            "minLength": 1
           },
           "user": {
             "type": "string",
@@ -852,73 +902,73 @@ Content-Type: application/json
         },
         "required": ["url"]
       },
-      "MailVerificationServerSettings" : {
-        "type" : "object",
-        "properties" : {
-          "password" : {
+      "MailVerificationServerSettings": {
+        "type": "object",
+        "properties": {
+          "password": {
             "type": "string",
-            "description" : "***",
+            "description": "***",
             "example": "qwerty"
           },
-          "url" : {
+          "url": {
             "type": "string",
-            "description" : "***",
+            "description": "***",
             "example": "smtps://mail.example.com:1587"
           },
-          "username" : {
+          "username": {
             "type": "string",
-            "description" : "***",
+            "description": "***",
             "example": "jhon@mail.example.com"
           }
         }
       },
-      "EntrypointSettingsModel" : {
-        "type" : "object",
-        "properties" : {
-          "logoutUrl" : {
-            "type" : "string",
-            "description" : "***"
+      "EntrypointSettingsModel": {
+        "type": "object",
+        "properties": {
+          "logoutUrl": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
-      "SettingsModel" : {
-        "type" : "object",
-        "properties" : {
-          "entrypoint" : {
-            "$ref" : "#/components/schemas/EntrypointSettingsModel"
+      "SettingsModel": {
+        "type": "object",
+        "properties": {
+          "entrypoint": {
+            "$ref": "#/components/schemas/EntrypointSettingsModel"
           },
-          "supportedFeatures" : {
-            "$ref" : "#/components/schemas/SupportedFeaturesModel"
+          "supportedFeatures": {
+            "$ref": "#/components/schemas/SupportedFeaturesModel"
           },
-          "userMode" : {
-            "type" : "string",
-            "description" : "***",
-            "enum" : [ "INTERNAL", "EXTERNAL" ]
+          "userMode": {
+            "type": "string",
+            "description": "***",
+            "enum": ["INTERNAL", "EXTERNAL"]
           },
-          "scripts" : {
-            "type" : "array",
-            "description" : "***",
-            "items" : {
-              "type" : "string"
+          "scripts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
             }
           }
         },
-        "required" : [ "entrypoint", "supportedFeatures" ]
+        "required": ["entrypoint", "supportedFeatures"]
       },
-      "SupportedFeaturesModel" : {
-        "type" : "object",
-        "properties" : {
-          "emailVerification" : {
-            "type" : "boolean",
-            "description" : "***"
+      "SupportedFeaturesModel": {
+        "type": "object",
+        "properties": {
+          "emailVerification": {
+            "type": "boolean",
+            "description": "***"
           },
-          "groupsManagement" : {
-            "type" : "boolean",
-            "description" : "***"
+          "groupsManagement": {
+            "type": "boolean",
+            "description": "***"
           },
-          "userManagement" : {
-            "type" : "boolean",
-            "description" : "***"
+          "userManagement": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },
@@ -1027,7 +1077,8 @@ Content-Type: application/json
           },
           "sid": {
             "type": "string",
-            "description": "SID name"
+            "description": "SID name",
+            "minLength": 1
           }
         },
         "required": ["sid"]
@@ -1059,18 +1110,18 @@ Content-Type: application/json
         },
         "required": ["code", "description"]
       },
-      "ProjectLockInfo" : {
-        "type" : "object",
-        "required" : [ "lockedAt", "lockedBy"],
-        "properties" : {
-          "lockedAt" : {
-            "type" : "string",
-            "format" : "date-time",
-            "description" : "Locked date and time"
+      "ProjectLockInfo": {
+        "type": "object",
+        "required": ["lockedAt", "lockedBy"],
+        "properties": {
+          "lockedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Locked date and time"
           },
-          "lockedBy" : {
-            "type" : "string",
-            "description" : "Locked by user"
+          "lockedBy": {
+            "type": "string",
+            "description": "Locked by user"
           }
         }
       },
@@ -1449,8 +1500,8 @@ Content-Type: application/json
             "type": "string",
             "description": "Project Name"
           },
-          "lockInfo" : {
-            "$ref" : "#/components/schemas/ProjectLockInfo"
+          "lockInfo": {
+            "$ref": "#/components/schemas/ProjectLockInfo"
           },
           "modifiedBy": {
             "type": "string",
@@ -1504,7 +1555,7 @@ Content-Type: application/json
             "type": "string",
             "description": "Source Repository"
           },
-          "selectedBranches" : {
+          "selectedBranches": {
             "type": "array",
             "description": "***",
             "items": {
@@ -1552,9 +1603,9 @@ Content-Type: application/json
             "description": "***",
             "type": "string"
           },
-          "aclId" : {
-            "type" : "string",
-            "description" : "***"
+          "aclId": {
+            "type": "string",
+            "description": "***"
           }
         },
         "required": [
@@ -1738,23 +1789,23 @@ Content-Type: application/json
         },
         "type": "object"
       },
-      "NumberOfMembers" : {
-        "type" : "object",
-        "properties" : {
-          "external" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
+      "NumberOfMembers": {
+        "type": "object",
+        "properties": {
+          "external": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           },
-          "internal" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
+          "internal": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           },
-          "total" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "***"
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           }
         }
       },
@@ -1777,15 +1828,15 @@ Content-Type: application/json
             "type": "array",
             "uniqueItems": true
           },
-          "repositoryTypeToRole" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string",
-              "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+          "repositoryTypeToRole": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
             }
           },
-          "numberOfMembers" : {
-            "$ref" : "#/components/schemas/NumberOfMembers"
+          "numberOfMembers": {
+            "$ref": "#/components/schemas/NumberOfMembers"
           }
         },
         "type": "object"
@@ -1804,6 +1855,7 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
+            "format": "email",
             "type": "string"
           },
           "firstName": {
@@ -1865,7 +1917,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -1938,7 +1991,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -1971,7 +2025,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         },
         "type": "object"
@@ -1994,7 +2049,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
@@ -2116,7 +2172,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -2163,16 +2220,16 @@ Content-Type: application/json
             "type": "integer"
           },
           "treeView": {
-            "type":"string",
-            "description":"Default order"
+            "type": "string",
+            "description": "Default order"
           }
         },
         "type": "object"
       },
       "UserProfileModel": {
         "properties": {
-          "administrator" : {
-            "type" : "boolean"
+          "administrator": {
+            "type": "boolean"
           },
           "displayName": {
             "description": "***",
@@ -2186,7 +2243,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
@@ -2240,13 +2298,13 @@ Content-Type: application/json
             "type": "string"
           },
           "treeView": {
-            "type":"string",
-            "description":"Default order"
+            "type": "string",
+            "description": "Default order"
           },
           "profiles": {
-            "type":"array",
+            "type": "array",
             "items": {
-              "$ref":"#/components/schemas/RulesProfile"
+              "$ref": "#/components/schemas/RulesProfile"
             }
           }
         },
@@ -2299,13 +2357,13 @@ Content-Type: application/json
           "comment": {
             "type": "string"
           },
-          "selectedBranches" : {
-            "type" : "array",
-            "description" : "***",
-            "items" : {
-              "type" : "string"
+          "selectedBranches": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
             },
-            "uniqueItems" : true
+            "uniqueItems": true
           }
         }
       },
@@ -3175,2163 +3233,2167 @@ Content-Type: application/json
         "tags": ["Deployments"]
       }
     },
-    "/admin/settings/authentication/template" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateAuthenticationTemplateModel"
+    "/admin/settings/authentication/template": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAuthenticationTemplateModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AuthenticationSettings"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationSettings"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Authentication" ]
+        "summary": "***",
+        "tags": ["Settings: Authentication"]
       }
     },
-    "/admin/settings/authentication" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+    "/admin/settings/authentication": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Authentication" ]
+        "summary": "***",
+        "tags": ["Settings: Authentication"]
       },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AuthenticationSettings"
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationSettings"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Authentication" ]
+        "summary": "***",
+        "tags": ["Settings: Authentication"]
       },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
+      "patch": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Authentication" ]
+        "summary": "***",
+        "tags": ["Settings: Authentication"]
       },
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/AuthenticationSettings"
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthenticationSettings"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Authentication" ]
+        "summary": "***",
+        "tags": ["Settings: Authentication"]
       }
     },
-    "/admin/settings/repos/design/{repo-id}" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "repo-id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/admin/settings/repos/design/{repo-id}": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       }
     },
-    "/admin/settings/repos/design" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+    "/admin/settings/repos/design": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/RepositoryConfiguration"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryConfiguration"
                   }
                 }
               }
             }
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+      "patch": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CURepositoryConfigurationModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       }
     },
-    "/admin/settings/repos/design/validate" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+    "/admin/settings/repos/design/validate": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CURepositoryConfigurationModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       }
     },
-    "/admin/settings/repos/design/template" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateRepositoryTemplateModel"
+    "/admin/settings/repos/design/template": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRepositoryTemplateModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RepositoryConfiguration"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryConfiguration"
                 }
               }
             }
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Design Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Design Repository"]
       }
     },
-    "/admin/settings/repos/production" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+    "/admin/settings/repos/production": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/RepositoryConfiguration"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryConfiguration"
                   }
                 }
               }
             }
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+      "patch": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CURepositoryConfigurationModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       }
     },
-    "/admin/settings/repos/production/validate" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CURepositoryConfigurationModel"
+    "/admin/settings/repos/production/validate": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CURepositoryConfigurationModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       }
     },
-    "/admin/settings/repos/production/template" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateRepositoryTemplateModel"
+    "/admin/settings/repos/production/template": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRepositoryTemplateModel"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/RepositoryConfiguration"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositoryConfiguration"
                 }
               }
             }
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       }
     },
-    "/admin/settings/repos/production/{repo-id}" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "repo-id",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+    "/admin/settings/repos/production/{repo-id}": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Production Repository" ]
+        "summary": "***",
+        "tags": ["Settings: Production Repository"]
       }
     },
-    "/admin/settings/repos" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+    "/admin/settings/repos": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Repositories" ]
+        "summary": "***",
+        "tags": ["Settings: Repositories"]
       }
     },
-    "/admin/settings/repos/batch" : {
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/RepositoriesBatchRequest"
+    "/admin/settings/repos/batch": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepositoriesBatchRequest"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "204" : {
-            "description" : "***"
+          "204": {
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Repositories" ]
+        "summary": "***",
+        "tags": ["Settings: Repositories"]
       }
     },
-    "/admin/settings/system" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+    "/admin/settings/system": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: System" ]
+        "summary": "***",
+        "tags": ["Settings: System"]
       },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AdministrationSettings"
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdministrationSettings"
                 }
               }
             },
-            "description" : "default response"
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: System" ]
+        "summary": "***",
+        "tags": ["Settings: System"]
       },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
+      "patch": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "**",
-        "tags" : [ "Settings: System" ]
+        "summary": "**",
+        "tags": ["Settings: System"]
       },
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/AdministrationSettings"
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdministrationSettings"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: System" ]
+        "summary": "***",
+        "tags": ["Settings: System"]
       }
     },
-    "/admin/settings/mail" : {
-      "delete" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+    "/admin/settings/mail": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Mail Verification Server" ]
+        "summary": "***",
+        "tags": ["Settings: Mail Verification Server"]
       },
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MailVerificationServerSettings"
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailVerificationServerSettings"
                 }
               }
             },
-            "description" : "default response"
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Mail Verification Server" ]
+        "summary": "***",
+        "tags": ["Settings: Mail Verification Server"]
       },
-      "patch" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/merge-patch+json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
+      "patch": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonNode"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Mail Verification Server" ]
+        "summary": "***",
+        "tags": ["Settings: Mail Verification Server"]
       },
-      "post" : {
-        "description" : "***",
-        "operationId" : "***",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/MailVerificationServerSettings"
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MailVerificationServerSettings"
               }
             }
           },
-          "required" : true
+          "required": true
         },
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "204" : {
-            "description" : "default response"
+          "204": {
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings: Mail Verification Server" ]
+        "summary": "***",
+        "tags": ["Settings: Mail Verification Server"]
       }
     },
     "/admin/management/groups": {
@@ -5438,19 +5500,19 @@ Content-Type: application/json
                     "description": "***",
                     "type": "string"
                   },
-                  "designRole" : {
-                    "type" : "string",
-                    "description" : "***",
-                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+                  "designRole": {
+                    "type": "string",
+                    "description": "***",
+                    "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
                   },
-                  "prodRole" : {
-                    "type" : "string",
-                    "description" : "***",
-                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+                  "prodRole": {
+                    "type": "string",
+                    "description": "***",
+                    "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
                   },
-                  "admin" : {
-                    "type" : "boolean",
-                    "description" : "***."
+                  "admin": {
+                    "type": "boolean",
+                    "description": "***."
                   }
                 },
                 "required": [
@@ -5729,7 +5791,7 @@ Content-Type: application/json
       "get": {
         "description": "Get all roles.",
         "operationId": "roles",
-        "deprecated" : true,
+        "deprecated": true,
         "responses": {
           "423": {
             "content": {
@@ -8793,7 +8855,7 @@ Content-Type: application/json
     },
     "/mail/settings": {
       "get": {
-        "deprecated" : true,
+        "deprecated": true,
         "description": "***",
         "operationId": "***",
         "responses": {
@@ -8874,7 +8936,7 @@ Content-Type: application/json
         ]
       },
       "put": {
-        "deprecated" : true,
+        "deprecated": true,
         "description": "***",
         "operationId": "***",
         "requestBody": {
@@ -11470,96 +11532,98 @@ Content-Type: application/json
         ]
       }
     },
-    "/repos/{repo-name}/branches" : {
-      "get" : {
-        "operationId" : "***",
+    "/repos/{repo-name}/branches": {
+      "get": {
+        "operationId": "***",
         "description": "***",
         "summary": "***",
-        "parameters" : [ {
-          "description" : "***",
-          "in" : "path",
-          "name" : "repo-name",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "repo-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "string"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
                   }
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           }
         },
-        "tags" : [ "Design Repository" ]
+        "tags": ["Design Repository"]
       }
     },
     "/repos/{repo-name}/features": {
@@ -12041,19 +12105,19 @@ Content-Type: application/json
               "type": "boolean"
             }
           }, {
-           "in": "query",
-           "name": "skipEmptyParameters",
-           "required": true,
-           "schema": {
-             "type": "boolean"
-           }
+            "in": "query",
+            "name": "skipEmptyParameters",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
           },
           {
-            "in" : "query",
-            "name" : "flattenParameters",
-            "schema" : {
-              "type" : "boolean",
-              "default" : false
+            "in": "query",
+            "name": "flattenParameters",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -12650,7 +12714,7 @@ Content-Type: application/json
     },
     "/users/options": {
       "get": {
-        "deprecated" : true,
+        "deprecated": true,
         "description": "***",
         "operationId": "***",
         "responses": {
@@ -14006,167 +14070,167 @@ Content-Type: application/json
         }
       }
     },
-    "/production-repos" : {
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+    "/production-repos": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/RepositoryViewModel"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryViewModel"
                   }
                 }
               }
             },
-            "description" : "***"
+            "description": "***"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Production Repository" ]
+        "summary": "***",
+        "tags": ["Production Repository"]
       }
     },
-    "/settings" : {
-      "get" : {
-        "description" : "***",
-        "operationId" : "***",
-        "responses" : {
-          "423" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+    "/settings": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Locked"
+            "description": "Locked"
           },
-          "500" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Internal Server Error"
+            "description": "Internal Server Error"
           },
-          "403" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Forbidden"
+            "description": "Forbidden"
           },
-          "404" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Not Found"
+            "description": "Not Found"
           },
-          "409" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BaseError"
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
-            "description" : "Conflict"
+            "description": "Conflict"
           },
-          "400" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ValidationError"
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
-            "description" : "Bad Request"
+            "description": "Bad Request"
           },
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SettingsModel"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsModel"
                 }
               }
             },
-            "description" : "default response"
+            "description": "default response"
           }
         },
-        "summary" : "***",
-        "tags" : [ "Settings" ]
+        "summary": "***",
+        "tags": ["Settings"]
       }
     }
   },
@@ -14177,21 +14241,21 @@ Content-Type: application/json
   ],
   "tags": [
     {
-      "description" : "ACL Management API for Projects",
-      "name" : "ACL Management: Projects"
+      "description": "ACL Management API for Projects",
+      "name": "ACL Management: Projects"
     }, {
-      "description" : "ACL Management API for Repositories",
-      "name" : "ACL Management: Repositories"
+      "description": "ACL Management API for Repositories",
+      "name": "ACL Management: Repositories"
     }, {
-      "description" : "ACL Management API for Roles",
-      "name" : "ACL Management: Roles"
+      "description": "ACL Management API for Roles",
+      "name": "ACL Management: Roles"
     }, {
       "name": "Compare"
     }, {
       "name": "Conflict"
     }, {
-      "description" : "***",
-      "name" : "Deployments"
+      "description": "***",
+      "name": "Deployments"
     }, {
       "name": "Design Repository"
     }, {
@@ -14207,7 +14271,7 @@ Content-Type: application/json
     }, {
       "name": "Notification"
     }, {
-      "name" : "Production Repository"
+      "name": "Production Repository"
     }, {
       "name": "Project Compilation"
     }, {
@@ -14216,19 +14280,19 @@ Content-Type: application/json
       "name": "Projects (BETA)",
       "description": "Experimental projects API"
     }, {
-      "name" : "Settings"
+      "name": "Settings"
     }, {
-      "name" : "Settings: Authentication"
+      "name": "Settings: Authentication"
     }, {
-      "name" : "Settings: Design Repository"
+      "name": "Settings: Design Repository"
     }, {
-      "name" : "Settings: Mail Verification Server"
+      "name": "Settings: Mail Verification Server"
     }, {
-      "name" : "Settings: Production Repository"
+      "name": "Settings: Production Repository"
     }, {
-      "name" : "Settings: Repositories"
+      "name": "Settings: Repositories"
     }, {
-      "name" : "Settings: System"
+      "name": "Settings: System"
     }, {
       "name": "Tags"
     }, {

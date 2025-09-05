@@ -107,8 +107,8 @@
         <grpc.version>1.75.0</grpc.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.28</swagger.core.version>
-        <swagger.parser.version>2.1.25</swagger.parser.version>
+        <swagger.core.version>2.2.36</swagger.core.version>
+        <swagger.parser.version>2.1.33</swagger.parser.version>
 
         <!-- Logging -->
         <log4j.version>2.25.1</log4j.version>

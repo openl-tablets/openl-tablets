@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.NewBranchNamePatternConstraint;
@@ -15,6 +16,7 @@ import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
+@Schema(allOf = RepositorySettings.class)
 public class GitRepositorySettings extends RepositorySettings {
 
     private final static String URI_SUFFIX = ".uri";

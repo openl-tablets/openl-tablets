@@ -24,7 +24,8 @@ import org.openl.rules.webstudio.web.admin.SettingsHolder;
         InheritedAuthenticationSettings.class,
         ADAuthenticationSettings.class,
         SAMLAuthenticationSettings.class,
-        OAuth2AuthenticationSettings.class
+        OAuth2AuthenticationSettings.class,
+        NOPAuthenticationSettings.class
 })
 public abstract class AuthenticationSettings implements SettingsHolder {
 

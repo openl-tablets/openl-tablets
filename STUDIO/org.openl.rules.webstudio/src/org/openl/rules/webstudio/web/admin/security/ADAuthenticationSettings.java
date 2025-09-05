@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.ADConnectionConstraint;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 
 @ADConnectionConstraint
+@Schema(allOf = AuthenticationSettings.class)
 public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
 
     private static final String DOMAIN = "security.ad.domain";
