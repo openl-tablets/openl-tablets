@@ -4,10 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.util.StringUtils;
 
+@Schema(allOf = RepositorySettings.class)
 public class CommonRepositorySettings extends RepositorySettings {
 
     private static final String URI_PATH_SUFFIX = ".uri";

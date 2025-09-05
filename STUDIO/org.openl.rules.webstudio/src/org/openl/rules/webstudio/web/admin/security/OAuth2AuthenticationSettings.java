@@ -6,10 +6,12 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 
+@Schema(allOf = AuthenticationSettings.class)
 public class OAuth2AuthenticationSettings extends InheritedAuthenticationSettings {
 
     private static final String CLIENT_ID = "security.oauth2.client-id";

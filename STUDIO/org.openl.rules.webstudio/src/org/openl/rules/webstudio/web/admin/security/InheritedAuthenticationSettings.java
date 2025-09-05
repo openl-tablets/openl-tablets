@@ -10,12 +10,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
+@Schema(allOf = AuthenticationSettings.class)
 public class InheritedAuthenticationSettings extends AuthenticationSettings {
 
     private static final String SEP = ",";

@@ -7,12 +7,14 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.CertificateConstraint;
 import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
 
+@Schema(allOf = AuthenticationSettings.class)
 public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings {
 
     private static final String ENTITY_ID = "security.saml.entity-id";

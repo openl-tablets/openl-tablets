@@ -3,10 +3,12 @@ package org.openl.rules.webstudio.web.admin;
 import jakarta.validation.constraints.NotBlank;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.util.StringUtils;
 
+@Schema(allOf = RepositorySettings.class)
 public class LocalRepositorySettings extends RepositorySettings {
 
     private final static String URI_SUFFIX = ".uri";
