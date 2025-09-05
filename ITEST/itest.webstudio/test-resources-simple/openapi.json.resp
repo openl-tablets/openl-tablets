@@ -726,6 +726,7 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
+            "format" : "email",
             "type": "string"
           },
           "firstName": {
@@ -787,7 +788,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -860,7 +862,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -893,7 +896,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         },
         "type": "object"
@@ -916,7 +920,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
@@ -1038,7 +1043,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "firstName": {
             "description": "***",
@@ -1105,7 +1111,8 @@ Content-Type: application/json
             "example": "test@test",
             "maxLength": 254,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "externalFlags": {
             "$ref": "#/components/schemas/UserExternalFlags"
