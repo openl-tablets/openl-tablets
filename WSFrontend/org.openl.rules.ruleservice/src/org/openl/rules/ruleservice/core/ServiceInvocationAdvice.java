@@ -133,7 +133,13 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
         AnnotationConfigApplicationContext serviceContext = new AnnotationConfigApplicationContext();
-        serviceContext.setClassLoader(serviceClassLoader);
+        var configurationClass = getConfigurationClass(serviceClassLoader);
+        if (configurationClass != null) {
+            serviceContext.setClassLoader(configurationClass.getClassLoader());
+            serviceContext.register(configurationClass);
+        } else {
+            serviceContext.setClassLoader(serviceClassLoader);
+        }
         serviceContext.setParent(applicationContext);
         serviceContext.getBeanFactory().registerSingleton("openClass", openClass);
         if (rulesDeploy != null) {
@@ -143,14 +149,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         serviceContext.getBeanFactory().registerSingleton(OBJECT_MAPPER_ID, mapper);
         serviceContext.getBeanFactory()
                 .registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
-        try {
-            Class<?> configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
-            if (configurationClass.isAnnotationPresent(Configuration.class)) {
-                serviceContext.register(configurationClass);
-            }
-        } catch (ClassNotFoundException ignore) {
-            // Ignore
-        }
         serviceContext.refresh();
 
         this.serviceContext = serviceContext;
@@ -167,6 +165,18 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private Class<?> getConfigurationClass(ClassLoader serviceClassLoader) {
+        try {
+            var configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
+            if (configurationClass.isAnnotationPresent(Configuration.class)) {
+                return configurationClass;
+            }
+        } catch (ClassNotFoundException ignore) {
+            // Ignore
+        }
+        return null;
     }
 
     private ObjectMapper configureObjectMapper(ApplicationContext context,
