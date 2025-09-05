@@ -57,17 +57,6 @@ public class MainBean {
         return StringUtils.EMPTY;
     }
 
-    public void init() {
-        WebStudio studio = WebStudioUtils.getWebStudio(true);
-
-        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
-        String branchName = WebStudioUtils.getRequestParameter("branch");
-        String projectName = WebStudioUtils.getRequestParameter("project");
-        String moduleName = WebStudioUtils.getRequestParameter("module");
-
-        studio.init(repositoryId, branchName, projectName, moduleName);
-    }
-
     public String getVersionComment() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = studio.getCurrentProject();

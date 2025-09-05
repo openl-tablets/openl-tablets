@@ -1,2 +1,2 @@
-GET /faces/pages/modules/init.xhtml?project=Sample&repositoryId=local&module=Main HTTP/1.1
+GET /web/init?project=Sample&repositoryId=local&module=Main HTTP/1.1
 
