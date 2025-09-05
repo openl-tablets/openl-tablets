@@ -156,7 +156,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                 </>
             )}
             items={configuration?.map((repository) => ({
-                label: repository.name,
+                label: typeof repository.name === 'string' ? repository.name : repository?.name?.value,
                 key: repository.id,
                 children: (
                     <Form
