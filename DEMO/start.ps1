@@ -22,7 +22,7 @@ $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
 $JAVA_MAJOR_VERSION = "25"
-$JETTY_VERSION = "12.0.27"
+$JETTY_VERSION = "12.1.3"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.7"
@@ -316,7 +316,7 @@ $javaArgs = @(
     $_JAVA_MEMORY.Split(' '),
     "-Djetty.home=$JETTY_HOME",
     "-Djetty.base=$JETTY_HOME",
-    "-Djetty.deploy.monitoredDir=$WEBAPPS_DIR",
+    "-Djetty.deploy.webappsDir=$WEBAPPS_DIR",
     "-Djava.io.tmpdir=$env:TEMP",
     "-jar",
     (Join-Path $JETTY_HOME "start.jar"),
