@@ -25,7 +25,7 @@ SKIP_OS_JAVA=false #To ignore system Java and use a local JRE
 MAVEN_URL="https://repo1.maven.org/maven2"
 
 JAVA_MAJOR_VERSION="21"
-JETTY_VERSION="12.1.0"
+JETTY_VERSION="12.0.26"
 
 # JDBC Driver Versions
 POSTGRES_VERSION="42.7.7"
@@ -366,7 +366,7 @@ exec "$JAVA_CMD" \
     $_JAVA_MEMORY \
     -Djetty.home="$JETTY_HOME" \
     -Djetty.base="$JETTY_HOME" \
-    -Djetty.deploy.webappsDir="$WEBAPPS_DIR" \
+    -Djetty.deploy.monitoredDir="$WEBAPPS_DIR" \
     -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
     -jar "$JETTY_HOME/start.jar" \
     --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi

@@ -120,7 +120,7 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.1.0</jetty.version>
+        <jetty.version>12.0.26</jetty.version> <!-- https://github.com/jetty/jetty.project/issues/13563 -->
 
         <!-- Repositories -->
         <amazonaws.version>2.33.3</amazonaws.version>

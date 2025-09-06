@@ -44,7 +44,7 @@ ENV OTEL_SERVICE_NAME OpenL
 RUN mkdir -p $OTEL_DIR
 COPY --from=otel opentelemetry-javaagent.jar $OTEL_DIR
 
-COPY --from=jetty:12-jre21 /usr/local/jetty $OPENL_APP
+COPY --from=jetty:12.0-jre21 /usr/local/jetty $OPENL_APP
 
 # Create start file for Jetty with configuration options
 RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh
