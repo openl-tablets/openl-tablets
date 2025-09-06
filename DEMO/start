@@ -339,7 +339,7 @@ exec "$JAVA_CMD" \
     $_JAVA_MEMORY \
     -Djetty.home="$JETTY_HOME" \
     -Djetty.base="$JETTY_HOME" \
-    -Djetty.deploy.monitoredDir="$WEBAPPS_DIR" \
+    -Djetty.deploy.webappsDir="$WEBAPPS_DIR" \
     -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
     -jar "$JETTY_HOME/start.jar" \
     --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi
