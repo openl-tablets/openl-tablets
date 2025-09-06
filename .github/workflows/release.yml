@@ -35,13 +35,13 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Checkout ${{ github.event.inputs.branch }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.branch }}
           path: release
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 21
@@ -116,71 +116,27 @@ jobs:
 
       - name: Create release on GitHub
         id: create_release
-        uses: actions/create-release@v1
+        working-directory: ./build/DEMO
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          release_name: OpenL Tablets ${{ env.RELEASE_TAG }} Released
-          body: |
-            **OpenL Tablets ${{ env.RELEASE_TAG }} is available.**
-            More detailed information you can find at [Release Notes ${{ env.RELEASE_TAG }}](//openl-tablets.org/release-notes?ver=${{ env.RELEASE_TAG }}).
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          gh release create "${RELEASE_TAG}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "OpenL Tablets ${RELEASE_TAG} Released" \
+            --draft \
+            --notes-file - <<-EOF
+            **OpenL Tablets ${RELEASE_TAG} is available.**
+            More detailed information you can find at [Release Notes ${RELEASE_TAG}](//openl-tablets.org/release-notes?ver=${RELEASE_TAG}).
+
             All artifacts are ready for Downloads.
+            * [Download OpenL Studio](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.webstudio/${RELEASE_TAG}/org.openl.rules.webstudio-${RELEASE_TAG}.war)
+            * [Download OpenL Rule Services](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.ruleservice.ws/${RELEASE_TAG}/org.openl.rules.ruleservice.ws-${RELEASE_TAG}.war)
+            * [Download OpenL Rule Services (All)](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.ruleservice.ws.all/${RELEASE_TAG}/org.openl.rules.ruleservice.ws.all-${RELEASE_TAG}.war)
+            * [Download OpenL DEMO installer](https://github.com/openl-tablets/openl-tablets/releases/download/${RELEASE_TAG}/openl-tablets-demo-${RELEASE_TAG}.zip)
+
             Enjoy!
-          draft: true
-          prerelease: false
-
-      - name: Attach DEMO
-        id: attach-demo
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/DEMO/target/openl-tablets-demo.zip
-          asset_name: openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
-          asset_content_type: application/zip
-
-      - name: Attach OpenL Studio
-        id: attach-webstudio
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.webstudio/${{ env.RELEASE_TAG }}/org.openl.rules.webstudio-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-webstudio-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
-
-      - name: Attach Rule Services WS
-        id: attach-webservice
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-ws-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
-
-      - name: Attach Rule Services WS (All)
-        id: attach-webservice-all
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws.all-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-ws-all-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
-
-      - name: Attach Core
-        id: attach-core
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules/${{ env.RELEASE_TAG }}/org.openl.rules-${{ env.RELEASE_TAG }}.zip
-          asset_name: openl-tablets-core-${{ env.RELEASE_TAG }}.zip
-          asset_content_type: application/zip
+          EOF
+          echo "${RELEASE_TAG}" > ./openl.version
+          zip -r ../../openl-tablets-demo-${RELEASE_TAG}.zip .
+          gh release upload "${RELEASE_TAG}" "../../openl-tablets-demo-${RELEASE_TAG}.zip#openl-tablets-demo.zip" --clobber --repo "${GITHUB_REPOSITORY}"
