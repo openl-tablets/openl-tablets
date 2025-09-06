@@ -283,9 +283,36 @@ download_war() {
     fi
 }
 
-# Download and unpack the components using the helper function
-download_war "webstudio" "${MAVEN_URL}/org/openl/rules/org.openl.rules.webstudio/${OPENL_VERSION}/org.openl.rules.webstudio-${OPENL_VERSION}.war"
-download_war "webservice" "${MAVEN_URL}/org/openl/rules/org.openl.rules.ruleservice.ws/${OPENL_VERSION}/org.openl.rules.ruleservice.ws-${OPENL_VERSION}.war"
+# Download and unpack (or symlink) the components
+if [[ "$OPENL_VERSION" == "SNAPSHOT" ]]; then
+    echo "INFO: SNAPSHOT version detected. Creating symlinks to local 'target/webapp' outputs instead of downloading."
+
+    rm -rf "$WEBAPPS_DIR/webstudio"
+    cat > "$WEBAPPS_DIR/webstudio.xml" <<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
+
+<Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+    <Set name="contextPath">/webstudio</Set>
+    <Set name="war">../STUDIO/org.openl.rules.webstudio/target/webapp</Set>
+</Configure>
+EOF
+
+    rm -rf "$WEBAPPS_DIR/webservice"
+    cat > "$WEBAPPS_DIR/webservice.xml" <<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
+
+<Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+    <Set name="contextPath">/webservice</Set>
+    <Set name="war">../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp</Set>
+</Configure>
+EOF
+
+else
+    download_war "webstudio" "${MAVEN_URL}/org/openl/rules/org.openl.rules.webstudio/${OPENL_VERSION}/org.openl.rules.webstudio-${OPENL_VERSION}.war"
+    download_war "webservice" "${MAVEN_URL}/org/openl/rules/org.openl.rules.ruleservice.ws/${OPENL_VERSION}/org.openl.rules.ruleservice.ws-${OPENL_VERSION}.war"
+fi
 
 # Init Default repository
 if [[ -z "$OPENL_HOME" ]]; then
