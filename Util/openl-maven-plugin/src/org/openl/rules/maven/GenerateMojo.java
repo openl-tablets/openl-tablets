@@ -2,7 +2,6 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -20,10 +19,11 @@ import java.util.Set;
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
 import com.helger.jcodemodel.JCodeModel;
-import com.helger.jcodemodel.JCodeModelException;
 import com.helger.jcodemodel.JDefinedClass;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JMod;
+import com.helger.jcodemodel.exceptions.JCodeModelException;
+import com.helger.jcodemodel.writer.JCMWriter;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -329,7 +329,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
         // Write the generated source code
         outputDirectory.mkdirs();
-        model.build(outputDirectory, (PrintStream) null);
+        new JCMWriter(model).build(outputDirectory, x -> {});
     }
 
     /**
