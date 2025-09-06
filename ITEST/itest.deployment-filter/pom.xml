@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.27.13-jakarta-SNAPSHOT</version>
+        <version>5.27.13-jakarta</version>
     </parent>
 
     <artifactId>itest.deployment-filter</artifactId>
