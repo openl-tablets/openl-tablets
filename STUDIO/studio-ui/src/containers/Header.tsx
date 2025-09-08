@@ -24,6 +24,8 @@ const titleStyle: CSSProperties = {
 export const Header = () => {
     const { t } = useTranslation()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+    const [activeKey, setActiveKey] = useState(window.location.pathname)
+    const [lastWsMessage, setLastWsMessage] = useState<string>('')
     const { systemSettings } = useContext(SystemContext)
     const { notification } = useNotificationStore()
     useScript(systemSettings?.scripts)
@@ -52,17 +54,25 @@ export const Header = () => {
     }
 
     const Notify = useMemo(() => {
-        if (notification) {
+        // Show WebSocket message if available, otherwise show store notification
+        const messageToShow = lastWsMessage || notification
+        
+        if (messageToShow) {
             return (<Alert
-                key={notification}
+                key={messageToShow}
                 banner
                 closable
-                message={notification}
+                message={messageToShow}
                 type="error"
+                onClose={() => {
+                    if (lastWsMessage) {
+                        setLastWsMessage('')
+                    }
+                }}
             />)
         }
         return null
-    }, [notification])
+    }, [notification, lastWsMessage])
 
     const activeKeyFromPath = useMemo(() => {
         return  window.location.pathname

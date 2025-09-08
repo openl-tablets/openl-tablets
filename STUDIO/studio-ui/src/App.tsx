@@ -11,7 +11,7 @@ import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
 function App() {
     const { showLogin } = useAppStore()
     const { fetchUserInfo, isLoggedIn } = useUserStore()
-    const { fetchNotification } = useNotificationStore()
+    const { initializeWebSocket, cleanupWebSocket } = useNotificationStore()
 
     const loginPage = `${CONFIG.CONTEXT}/login`
     const isLoginPage = location.pathname === loginPage
@@ -24,15 +24,16 @@ function App() {
     }, [])
 
     useEffect(() => {
-        fetchNotification()
-        const intervalCall = setInterval(() => {
-            fetchNotification()
-        }, 30000)
-        return () => {
-            // clean up
-            clearInterval(intervalCall)
+        if (isLoggedIn) {
+            // Initialize WebSocket connection for real-time notifications
+            initializeWebSocket()
         }
-    }, [fetchNotification])
+        
+        return () => {
+            // Clean up WebSocket connection when component unmounts or user logs out
+            cleanupWebSocket()
+        }
+    }, [isLoggedIn, initializeWebSocket, cleanupWebSocket])
 
     if (showLogin && !isLoginPage) {
         if (location.pathname === `${CONFIG.CONTEXT}/`) {
