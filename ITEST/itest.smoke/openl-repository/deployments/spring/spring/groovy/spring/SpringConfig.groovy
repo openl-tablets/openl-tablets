@@ -1,5 +1,7 @@
 package spring
 
+import org.openl.rules.project.model.ProjectDescriptor
+import org.openl.rules.project.model.RulesDeploy
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -13,7 +15,7 @@ class SpringConfig {
     static String result
 
     @Bean
-    String feature() {
+    String feature(RulesDeploy rulesDeploy, ProjectDescriptor projectDescriptor) {
         result = "pong!"
     }
 
