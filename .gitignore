@@ -41,3 +41,11 @@ bun.lock
 # Ignore AI assistant files
 CLAUDE.md
 .claude
+
+# Ignore DEMO files
+/DEMO/jre/
+/DEMO/logs/
+/DEMO/openl-demo/
+/DEMO/jetty-home/
+/DEMO/webapps/*
+!/DEMO/webapps/ROOT/

@@ -207,6 +207,7 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
+        <module>DEMO</module>
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
