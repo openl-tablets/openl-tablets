@@ -61,7 +61,7 @@ export const UserSettings: React.FC = () => {
                 body: JSON.stringify(body)
             })
             await fetchUserProfile()
-            notification.success({ message: t('user:user_settings_updated_successfully') })
+            notification.success({ message: t('users:user_settings_updated_successfully') })
         } catch (error) {
             console.error('error', error)
         } finally {
@@ -78,16 +78,16 @@ export const UserSettings: React.FC = () => {
             onFinish={handleSubmit}
             wrapperCol={{ flex: 1 }}
         >
-            <Divider orientation="left">{t('user:settings.table_settings')}</Divider>
-            <Checkbox label={t('user:settings.show_header')} name="showHeader" />
-            <Checkbox label={t('user:settings.show_formulas')} name="showFormulas" />
-            <Select label={t('user:settings.default_order')} name="treeView" options={treeViewOptions} />
-            <Divider orientation="left">{t('user:settings.testing_settings')}</Divider>
-            <Select label={t('user:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
-            <Checkbox label={t('user:settings.failures_only')} name="testsFailuresOnly" />
-            <Checkbox label={t('user:settings.compound_result')} name="showComplexResult" />
-            <Divider orientation="left">{t('user:settings.trace_settings')}</Divider>
-            <Checkbox label={t('user:settings.show_numbers_without_formatting')} name="showRealNumbers" />
+            <Divider orientation="left">{t('users:settings.table_settings')}</Divider>
+            <Checkbox label={t('users:settings.show_header')} name="showHeader" />
+            <Checkbox label={t('users:settings.show_formulas')} name="showFormulas" />
+            <Select label={t('users:settings.default_order')} name="treeView" options={treeViewOptions} />
+            <Divider orientation="left">{t('users:settings.testing_settings')}</Divider>
+            <Select label={t('users:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
+            <Checkbox label={t('users:settings.failures_only')} name="testsFailuresOnly" />
+            <Checkbox label={t('users:settings.compound_result')} name="showComplexResult" />
+            <Divider orientation="left">{t('users:settings.trace_settings')}</Divider>
+            <Checkbox label={t('users:settings.show_numbers_without_formatting')} name="showRealNumbers" />
             <Row justify="end">
                 <Button
                     key="submit"

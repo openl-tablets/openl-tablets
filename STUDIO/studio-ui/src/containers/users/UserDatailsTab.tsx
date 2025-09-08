@@ -53,7 +53,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
             notification.success({ message: t('users:verification_email_sent') })
             setLocalCooldown(60)
-        } catch (e) {
+        } catch (_) {
             notification.error({ message: t('users:failed_to_send_verification_email') })
         } finally {
             setLocalResendLoading(false)
@@ -173,6 +173,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 disabled={externalFlags?.firstNameExternal}
                 label={t('users:edit_modal.first_name')}
                 name="firstName"
+                tooltip={t('users:edit_modal.first_name_info')}
                 rules={[{
                     max: 25,
                     message: t('users:edit_modal.first_name_max_length')
@@ -182,6 +183,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 disabled={externalFlags?.lastNameExternal}
                 label={t('users:edit_modal.last_name')}
                 name="lastName"
+                tooltip={t('users:edit_modal.last_name_info')}
                 rules={[{
                     max: 25,
                     message: t('users:edit_modal.last_name_max_length')
