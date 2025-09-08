@@ -24,7 +24,7 @@ The system is built around five roles and four workflow stages:
 
 This setup divides the delivery pipeline into four distinct stages. Each is illustrated below with a focused diagram and logical handoff to the next stage.
 
-1. **Authoring** – Rule authors modify rules through WebStudio.
+1. **Authoring** – Rule authors modify rules through OpenL Studio.
 2. **Development** – OpenL developers customize project structure or logic.
 3. **Build & Package** – CI/CD builds artifacts and Docker images from Git.
 4. **Deploy & Promote** – Images are promoted from development to production environments.
