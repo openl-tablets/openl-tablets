@@ -1,37 +1,70 @@
 import { create } from 'zustand'
-import { apiCall } from '../services'
+import { webSocketService, WebSocketMessage } from '../services/websocket'
 
 interface NotificationStore {
     notification?: string
     loading?: boolean
     error?: any | null
-    fetchNotification: () => Promise<void>
+    isWebSocketConnected?: boolean
     setNotification: (notification: string) => Promise<void>
+    initializeWebSocket: () => void
+    cleanupWebSocket: () => void
 }
 
-export const useNotificationStore = create<NotificationStore>((set) => ({
+export const useNotificationStore = create<NotificationStore>((set, get) => ({
     notification: '',
     loading: false,
     error: null,
-    fetchNotification: async () => {
-        set({ loading: true, error: null })
-        try {
-            const notification = await apiCall('/public/notification.txt')
-            set({ notification, loading: false })
-        } catch (error) {
-            set({ error, loading: false })
+    isWebSocketConnected: false,
+    setNotification: async (notification: string = '1') => {
+        const { isWebSocketConnected } = get()
+
+        if (isWebSocketConnected) {
+            set({ notification })
+            webSocketService.send('/app/admin/notification.txt', notification)
         }
     },
-    setNotification: async (notification: string) => {
-        set({ loading: true, error: null })
-        try {
-            await apiCall('/admin/notification.txt', {
-                method: 'POST',
-                body: notification
+    initializeWebSocket: () => {
+        const { isWebSocketConnected } = get()
+        
+        if (isWebSocketConnected) {
+            return // Already initialized
+        }
+
+        // Connect to WebSocket
+        webSocketService.connect().then(() => {
+            set({ isWebSocketConnected: true })
+
+            // Subscribe to notification topics
+            webSocketService.subscribe('/app/public/notification.txt', (message: WebSocketMessage) => {
+                set({ notification: message.body })
             })
-            set({ notification, loading: false })
-        } catch (error) {
-            set({ error, loading: false })
+
+            webSocketService.subscribe('/topic/public/notification.txt', (message: WebSocketMessage) => {
+                set({ notification: message.body })
+            })
+
+            webSocketService.subscribe('/user/queue/errors', (message: WebSocketMessage) => {
+                set({ error: message.body })
+            })
+
+        }).catch((error) => {
+            set({ error, isWebSocketConnected: false })
+        })
+    },
+    cleanupWebSocket: () => {
+        const { isWebSocketConnected } = get()
+        
+        if (isWebSocketConnected) {
+            // Unsubscribe from all notification topics
+            const subscriptions = webSocketService.getSubscriptions()
+            subscriptions.forEach(sub => {
+                if (sub.destination.includes('notification') || sub.destination.includes('errors')) {
+                    webSocketService.unsubscribe(sub.id)
+                }
+            })
+            
+            set({ isWebSocketConnected: false })
         }
     }
 }))

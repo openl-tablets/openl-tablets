@@ -11,7 +11,7 @@ i18next.addResourceBundle('en', 'groups', {
         no_results: 'No groups found'
     },
     apply: 'Apply',
-    invite_group: 'Invite group',
+    invite_group: 'Invite Group',
     cancel: 'Cancel',
     invite: 'Invite',
     role: {
