@@ -42,14 +42,12 @@ $JAVA_CMD = $null # This will be set by the find_or_download_java function
 # --- READ OPENL VERSION FROM FILE ---
 # -----------------------------------------------------------------------------------
 $VersionFile = Join-Path $SCRIPT_DIR "openl.version"
-if (-not (Test-Path $VersionFile)) {
-    Write-Host "ERROR: Version file not found at $VersionFile" -ForegroundColor Red
-    Write-Host "Please create a file named 'openl.version' with the desired OpenL version (e.g., 6.0.0)." -ForegroundColor Yellow
-    exit 1
+if (Test-Path $VersionFile) {
+    $OPENL_VERSION = (Get-Content -Path $VersionFile -Raw).Trim()
+    Write-Host "INFO: Using OpenL version '$OPENL_VERSION' from file." -ForegroundColor Green
+} else {
+    $OPENL_VERSION = "SNAPSHOT"
 }
-# Use -Raw to read the entire file as a single string, trimming any whitespace.
-$OPENL_VERSION = (Get-Content -Path $VersionFile -Raw).Trim()
-Write-Host "INFO: Using OpenL version '$OPENL_VERSION' from file." -ForegroundColor Green
 
 # --- 2. DETERMINE AVAILABLE RAM and SET _JAVA_MEMORY ---
 # Calculates 80% of total system RAM for the JVM heap space.
@@ -242,8 +240,30 @@ function Download-War {
 }
 
 New-Item -ItemType Directory -Path $WEBAPPS_DIR -Force | Out-Null
-Download-War "webstudio" "$MAVEN_URL/org/openl/rules/org.openl.rules.webstudio/$OPENL_VERSION/org.openl.rules.webstudio-$OPENL_VERSION.war"
-Download-War "webservice" "$MAVEN_URL/org/openl/rules/org.openl.rules.ruleservice.ws/$OPENL_VERSION/org.openl.rules.ruleservice.ws-$OPENL_VERSION.war"
+
+if ($OPENL_VERSION -eq "SNAPSHOT") {
+    Write-Host "INFO: SNAPSHOT version detected. Creating Jetty context XML files pointing to local build outputs." -ForegroundColor Green
+
+@'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
+<Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+    <Set name="war">../STUDIO/org.openl.rules.webstudio/target/webapp</Set>
+</Configure>
+'@ | Set-Content (Join-Path $WEBAPPS_DIR "webstudio.xml")
+
+@'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
+<Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
+    <Set name="war">../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp</Set>
+</Configure>
+'@ | Set-Content (Join-Path $WEBAPPS_DIR "webservice.xml")
+
+} else {
+    Download-War "webstudio" "$MAVEN_URL/org/openl/rules/org.openl.rules.webstudio/$OPENL_VERSION/org.openl.rules.webstudio-$OPENL_VERSION.war"
+    Download-War "webservice" "$MAVEN_URL/org/openl/rules/org.openl.rules.ruleservice.ws/$OPENL_VERSION/org.openl.rules.ruleservice.ws-$OPENL_VERSION.war"
+}
 
 # Init Default repository
 $OPENL_HOME = $env:OPENL_HOME
