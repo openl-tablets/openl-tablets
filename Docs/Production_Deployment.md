@@ -14,7 +14,7 @@ The system is built around five roles and four workflow stages:
 
 ### Key Roles
 
-- **Rule Author** – edits business rules using WebStudio
+- **Rule Author** – edits business rules using OpenL Studio
 - **OpenL Developer** – extends, configures, or customizes the platform (e.g., Java, Groovy, extensions)
 - **DevOps Engineer** – manages build pipelines and environment deployments
 - **CI/CD System** – builds artifacts and creates container images
