@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
-import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
@@ -69,10 +69,18 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.username'),
                 key: 'username',
-                render: ({ username, online, userGroups }) => {
+                render: ({ username, online, userGroups, unsafePassword }) => {
                     const userNameComponent = Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)
-                        ? <Typography.Text strong>{username}</Typography.Text>
-                        : username
+                        ? [<Typography.Text strong>{username}</Typography.Text>]
+                        : [username]
+
+                    if (unsafePassword) {
+                        userNameComponent.push(
+                            <Tooltip title={t('users:unsafe_default_password')}>
+                                <ExclamationCircleOutlined style={{ color: 'red', marginLeft: 6 }} />
+                            </Tooltip>
+                        )
+                    }
 
                     if (online) {
                         return <Badge dot color="green">{userNameComponent}</Badge>
@@ -131,7 +139,7 @@ export const Users: React.FC = () => {
                             type="text"
                         />
                         <Button
-                            icon={<CloseCircleOutlined />}
+                            icon={<DeleteOutlined />}
                             onClick={() => removeUser(record.username)}
                             type="text"
                         />

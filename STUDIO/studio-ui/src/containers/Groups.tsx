@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Table, Modal, Row } from 'antd'
-import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
@@ -70,7 +70,7 @@ export const Groups: React.FC = () => {
                         type="text"
                     />
                     <Button
-                        icon={<CloseCircleOutlined />}
+                        icon={<DeleteOutlined />}
                         onClick={() => removeGroup(record.id)}
                         type="text"
                     />
