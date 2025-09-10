@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 import org.openl.excel.parser.TableStyles;
+import org.openl.gen.writers.ISO8601DateFormater;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -87,7 +88,13 @@ public class ParsedCell implements ICell {
     @Override
     public String getStringValue() {
         Object value = getObjectValue();
-        return value == null ? null : String.valueOf(value);
+        if (value == null) {
+            return null;
+        } else  if (value instanceof Date date) {
+            return ISO8601DateFormater.format(date);
+        } else {
+            return value.toString();
+        }
     }
 
     @Override

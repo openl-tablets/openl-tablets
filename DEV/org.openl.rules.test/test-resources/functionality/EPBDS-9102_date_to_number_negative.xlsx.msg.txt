@@ -1,7 +1,7 @@
-The provided default value 'Sun Dec 31 00:00:00 UTC 1899' is not supported for the field 'someDouble' of type 'java.lang.Double'. Please provide an default value that matches the field type.
-ERROR: Cannot parse cell value 'Thu Jan 11 00:00:00 UTC 1900'. Expected value of type 'Double'.
-ERROR: Cannot parse cell value 'Wed Jul 18 00:00:00 UTC 1900' to the necessary type.
-ERROR: Cannot parse cell value 'Sun Jan 14 00:00:00 UTC 1900'. Expected value of type 'Double'.
-ERROR: Cannot parse cell value 'Sun Oct 27 00:00:00 UTC 1901'. Expected value of type 'Double'.
-ERROR: Cannot parse cell value 'Fri Jun 06 00:00:00 UTC 1902'. Expected value of type 'IntRange'.
-ERROR: Cannot parse cell value 'Sat Feb 15 00:00:00 UTC 1902'. Expected value of type 'DoubleRange'.
+ERROR: The provided default value '1899-12-31' is not supported for the field 'someDouble' of type 'java.lang.Double'. Please provide an default value that matches the field type.
+ERROR: Cannot parse cell value '1900-01-11'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value '1900-07-18' to the necessary type.
+ERROR: Cannot parse cell value '1900-01-14'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value '1901-10-27'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value '1902-06-06'. Expected value of type 'IntRange'.
+ERROR: Cannot parse cell value '1902-02-15'. Expected value of type 'DoubleRange'.
