@@ -124,7 +124,7 @@ services:
       - /bin/sh
       - -c
       - |
-        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.1.jar
+        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.7.jar
         echo "--- Initialization of the DB
 
         CREATE SCHEMA studio;
@@ -144,6 +144,7 @@ services:
         repository.production.password = $${db.password}
         ' > /openl-home/.properties
         chown 1000:999 /openl-home/.properties
+        chown 1000:999 /openl-home
         
         mkdir /www/nginx
         echo '
