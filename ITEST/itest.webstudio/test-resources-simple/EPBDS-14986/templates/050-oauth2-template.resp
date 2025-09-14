@@ -11,7 +11,7 @@ Content-Type: application/json
   "scope": "openid,profile,email",
   "grantType": "authorization_code",
   "attributes": {
-    "username": "preferred_username",
+    "username": "sub",
     "firstName": "given_name",
     "lastName": "family_name",
     "displayName": "name",
