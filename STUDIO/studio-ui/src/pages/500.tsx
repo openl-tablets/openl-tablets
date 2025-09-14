@@ -44,7 +44,7 @@ const ServerError = () => {
                 <Logo height={72} width={72} />
                 <div style={codeStyle}>500</div>
                 <div style={messageStyle}>Internal server error.<br />Try again later.</div>
-                <Button href="/" size="large" type="primary">Home</Button>
+                <Button href="" size="large" type="primary">Home</Button>
             </div>
         </div>
     )

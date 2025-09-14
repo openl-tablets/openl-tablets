@@ -44,7 +44,7 @@ const NotFound = () => {
                 <Logo height={72} width={72} />
                 <div style={codeStyle}>404</div>
                 <div style={messageStyle}>Page not found.<br />Go to the home page.</div>
-                <Button href="/" size="large" type="primary">Home</Button>
+                <Button href="" size="large" type="primary">Home</Button>
             </div>
         </div>
     )
