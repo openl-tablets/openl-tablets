@@ -66,7 +66,7 @@ public class SettingsController {
         return switch (environment.getProperty("user.mode")) {
             case null -> null;
             case "single" -> null;
-            case "demo", "multi" -> UserManagementMode.INTERNAL;
+            case "multi" -> UserManagementMode.INTERNAL;
             default -> UserManagementMode.EXTERNAL;
         };
     }
