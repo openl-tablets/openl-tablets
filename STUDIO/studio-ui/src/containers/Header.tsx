@@ -24,7 +24,6 @@ const titleStyle: CSSProperties = {
 export const Header = () => {
     const { t } = useTranslation()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-    const [activeKey, setActiveKey] = useState(window.location.pathname)
     const [lastWsMessage, setLastWsMessage] = useState<string>('')
     const { systemSettings } = useContext(SystemContext)
     const { notification } = useNotificationStore()
@@ -75,7 +74,7 @@ export const Header = () => {
     }, [notification, lastWsMessage])
 
     const activeKeyFromPath = useMemo(() => {
-        return  window.location.pathname
+        return window.location.pathname
     }, [])
 
     return (

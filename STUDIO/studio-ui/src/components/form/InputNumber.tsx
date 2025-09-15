@@ -45,7 +45,7 @@ const InputNumber: FC<InputNumberProps> = ({
             }
             form.setFieldValue(name, value.value)
         }
-    }, [])
+    }, [value])
 
     const inputStyle = useMemo(() => ({
         width: '100%',

@@ -52,20 +52,21 @@ function App() {
 
     return(
         <ErrorBoundary
-                onError={(error: Error, errorInfo: any) => {
-                    errorHandler.logError(error, {
-                        componentStack: errorInfo?.componentStack || undefined,
-                        message: `App Level Error: ${error.message}`,
-                    })
-                }}
-            >
-                <Suspense fallback={<div>Loading...</div>}>
-            <AntApp>
-                <SecurityProvider>
-                    <RouterProvider router={router} />
-                </SecurityProvider>
-            </AntApp>
-        </Suspense></ErrorBoundary>
+            onError={(error: Error, errorInfo: any) => {
+                errorHandler.logError(error, {
+                    componentStack: errorInfo?.componentStack || undefined,
+                    message: `App Level Error: ${error.message}`,
+                })
+            }}
+        >
+            <Suspense fallback={<div>Loading...</div>}>
+                <AntApp>
+                    <SecurityProvider>
+                        <RouterProvider router={router} />
+                    </SecurityProvider>
+                </AntApp>
+            </Suspense>
+        </ErrorBoundary>
     )
 }
 
