@@ -64,10 +64,10 @@ export const Repositories = () => {
             onChange={onChangeTab}
             tabBarExtraContent={
                 <Button 
-                    type="text" 
-                    icon={<PlusOutlined />} 
-                    onClick={handleAddRepository}
                     disabled={isEditingNewRepository}
+                    icon={<PlusOutlined />}
+                    onClick={handleAddRepository}
+                    type="text"
                 >
                     {addRepositoryButtonLabel}
                 </Button>
@@ -77,8 +77,8 @@ export const Repositories = () => {
                 <div style={{ minHeight: '400px' }}>
                     <DesignRepositoriesConfiguration 
                         ref={formRef} 
-                        repositoryDataType={RepositoryDataType.DESIGN}
                         onEditingStateChange={setIsEditingNewRepository}
+                        repositoryDataType={RepositoryDataType.DESIGN}
                     />
                 </div>
             </Tabs.TabPane>
@@ -86,8 +86,8 @@ export const Repositories = () => {
                 <div style={{ minHeight: '400px' }}>
                     <DesignRepositoriesConfiguration 
                         ref={formRef} 
-                        repositoryDataType={RepositoryDataType.DEPLOYMENT}
                         onEditingStateChange={setIsEditingNewRepository}
+                        repositoryDataType={RepositoryDataType.DEPLOYMENT}
                     />
                 </div>
             </Tabs.TabPane>

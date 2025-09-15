@@ -48,7 +48,7 @@ const Checkbox: FC<InputProps> = ({
             }
             form.setFieldValue(name, value.value)
         }
-    }, [])
+    }, [value])
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} tooltip={tooltip} valuePropName={valuePropName}>
