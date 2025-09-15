@@ -43,10 +43,6 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
 
     }, [openlInfo])
 
-    const getLogoutUrl = () => {
-        return systemSettings?.entrypoint.logoutUrl || ''
-    }
-
     const hasAdminPermission = () => {
         return !!(userProfile && userProfile.administrator)
     }
@@ -64,7 +60,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }, [systemSettings])
 
     return (
-        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo, appVersion, getLogoutUrl }}>
+        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo, appVersion }}>
             <PermissionContext.Provider value={{ hasAdminPermission }}>
                 {children}
             </PermissionContext.Provider>

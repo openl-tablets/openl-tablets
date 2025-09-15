@@ -1,5 +1,6 @@
 package org.openl.studio.security;
 
+import java.util.List;
 import java.util.Map;
 import jakarta.servlet.Filter;
 
@@ -26,10 +27,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 import org.openl.rules.security.SimpleUser;
 import org.openl.studio.security.oauth2.LazyClientRegistrationRepository;
@@ -123,6 +126,14 @@ public class OAuth2SecurityConfig {
                 filterSecurityInterceptor);
     }
 
+    @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
+    public ExceptionTranslationFilter exceptionTranslationFilter(
+            @Qualifier("loginUrl") String loginUrl,
+            HttpSessionRequestCache httpSessionRequestCache) {
+        var authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(loginUrl);
+        return new ExceptionTranslationFilter(authenticationEntryPoint, httpSessionRequestCache);
+    }
+
     // ============================ Define needed beans for dependencies ======================================
 
     @Bean
@@ -135,12 +146,16 @@ public class OAuth2SecurityConfig {
         return "/oauth2/authorization/webstudio";
     }
 
-    // ======================== Logout ========================== 
 
-    @Bean
-    public String logoutUrl() {
-        return "/logout";
+    @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
+    public LogoutFilter logoutFilter(
+            List<LogoutHandler> logoutHandlers) {
+        var filter = new LogoutFilter("/", logoutHandlers.toArray(new LogoutHandler[0]));
+        filter.setFilterProcessesUrl("/logout");
+        return filter;
     }
+
+    // ======================== Logout ========================== 
 
     @Bean
     public LogoutHandler oauth2LogoutSuccessHandler(@Qualifier("registrationRepository") ClientRegistrationRepository registrationRepository) {

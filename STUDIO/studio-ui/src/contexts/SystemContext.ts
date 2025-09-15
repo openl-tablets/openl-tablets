@@ -8,12 +8,10 @@ type SystemContextType = {
     isExternalAuthSystem: boolean
     isUserManagementEnabled: boolean
     isGroupsManagementEnabled: boolean
-    getLogoutUrl: () => string
 }
 
 export const SystemContext = createContext<SystemContextType>({
     isExternalAuthSystem: false,
     isUserManagementEnabled: false,
     isGroupsManagementEnabled: false,
-    getLogoutUrl: () => '',
 })

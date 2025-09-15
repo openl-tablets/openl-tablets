@@ -2,10 +2,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "entrypoint": {
-    "logoutUrl": "/logout",
-    "loginUrl": "/oauth2/authorization/webstudio"
-  },
   "userMode": "EXTERNAL",
   "supportedFeatures": {
     "groupsManagement": true,

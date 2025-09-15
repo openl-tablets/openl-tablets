@@ -17,16 +17,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -63,13 +59,6 @@ public class CommonAuthenticationConfig {
         return new ExceptionTranslationFilter(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), httpSessionRequestCache);
     }
 
-    @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
-    public ExceptionTranslationFilter exceptionTranslationFilter(
-            @Qualifier("authenticationEntryPoint") AuthenticationEntryPoint authenticationEntryPoint,
-            HttpSessionRequestCache httpSessionRequestCache) {
-        return new ExceptionTranslationFilter(authenticationEntryPoint, httpSessionRequestCache);
-    }
-
     @Bean
     public HttpSessionRequestCache httpSessionRequestCache() {
         HttpSessionRequestCache cache = new HttpSessionRequestCache();
@@ -82,25 +71,9 @@ public class CommonAuthenticationConfig {
         return cache;
     }
 
-    // ======================== Logout ==========================
-
-    @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
-    public LogoutFilter logoutFilter(
-            List<LogoutHandler> logoutHandlers,
-            @Qualifier("logoutUrl") String logoutUrl) {
-        var filter = new LogoutFilter("/", logoutHandlers.toArray(new LogoutHandler[0]));
-        filter.setFilterProcessesUrl(logoutUrl);
-        return filter;
-    }
-
     @Bean
     public SessionAuthenticationStrategy sessionAuthenticationStrategy(SessionRegistry sessionRegistry) {
         return new RegisterSessionAuthenticationStrategy(sessionRegistry);
-    }
-
-    @Bean(initMethod = "afterPropertiesSet")
-    public LoginUrlAuthenticationEntryPoint authenticationEntryPoint(@Qualifier("loginUrl") String loginUrl) {
-        return new LoginUrlAuthenticationEntryPoint(loginUrl);
     }
 
     @Bean

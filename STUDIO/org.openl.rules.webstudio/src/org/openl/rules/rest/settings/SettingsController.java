@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.settings.model.EntrypointSettingsModel;
 import org.openl.rules.rest.settings.model.SettingsModel;
 import org.openl.rules.rest.settings.model.SupportedFeaturesModel;
 import org.openl.rules.rest.settings.model.UserManagementMode;
@@ -27,17 +26,11 @@ import org.openl.util.StringUtils;
 public class SettingsController {
 
     private final Environment environment;
-    private final Optional<String> logoutUrl;
-    private final Optional<String> loginUrl;
     private final BooleanSupplier mailSenderFeature;
 
     public SettingsController(Environment environment,
-                              @Qualifier("logoutUrl") Optional<String> logoutUrl,
-                              @Qualifier("loginUrl") Optional<String> loginUrl,
                               @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature) {
         this.environment = environment;
-        this.logoutUrl = logoutUrl;
-        this.loginUrl = loginUrl;
         this.mailSenderFeature = mailSenderFeature;
     }
 
@@ -46,10 +39,6 @@ public class SettingsController {
     public SettingsModel getSettings() {
         var userManagementMode = getUserManagementMode();
         return SettingsModel.builder()
-                .entrypoint(EntrypointSettingsModel.builder()
-                        .logoutUrl(logoutUrl.orElse(null))
-                        .loginUrl(loginUrl.orElse(null))
-                        .build())
                 .userMode(userManagementMode)
                 .supportedFeatures(SupportedFeaturesModel.builder()
                         .groupsManagement(userManagementMode == UserManagementMode.EXTERNAL)

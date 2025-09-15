@@ -31,8 +31,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 import org.openl.rules.security.SimpleUser;
 import org.openl.studio.security.saml.OpenLResponseAuthenticationConverter;
@@ -51,10 +54,12 @@ public class SamlSecurityConfig {
     public SecurityFilterChain logoutFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
             Saml2LogoutRequestFilter logoutFilter) {
-        
-        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/security_logout"),
+
+        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/logout"),
                 securityContextPersistenceFilter,
-                logoutFilter);
+                logoutFilter,
+                new LogoutFilter("/", (x,c,v) -> {} )
+        );
     }
 
     // SAML metadata endpoint
@@ -134,12 +139,15 @@ public class SamlSecurityConfig {
         return "/saml2/authenticate/webstudio";
     }
 
-    // ======================== Logout ==========================
-
-    @Bean
-    public String logoutUrl() {
-        return "/security_logout";
+    @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
+    public ExceptionTranslationFilter exceptionTranslationFilter(
+            @Qualifier("loginUrl") String loginUrl,
+            HttpSessionRequestCache httpSessionRequestCache) {
+        var authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(loginUrl);
+        return new ExceptionTranslationFilter(authenticationEntryPoint, httpSessionRequestCache);
     }
+
+    // ======================== Logout ==========================
 
     @Bean
     public SamlLogoutSuccessHandler samlLogoutHandler(@Qualifier("relyingPartyRegistrationResolver") RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
@@ -154,9 +162,11 @@ public class SamlSecurityConfig {
         
         var logoutRequestValidator = new OpenSaml5LogoutRequestValidator();
         var logoutResponseResolver = new OpenSaml5LogoutResponseResolver(relyingPartyRegistrationResolver);
-        
-        return new Saml2LogoutRequestFilter(relyingPartyRegistrationResolver, logoutRequestValidator, 
-                                          logoutResponseResolver, logoutHandler);
+
+        var logoutFilter = new Saml2LogoutRequestFilter(relyingPartyRegistrationResolver, logoutRequestValidator,
+                logoutResponseResolver, logoutHandler);
+        logoutFilter.setLogoutRequestMatcher(RequestMatchers.matcher("/logout"));
+        return logoutFilter;
     }
 
     // ============================== SAML ====================================================================

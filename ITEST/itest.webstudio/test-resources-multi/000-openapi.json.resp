@@ -981,25 +981,9 @@ Content-Type: application/json
           }
         }
       },
-      "EntrypointSettingsModel" : {
-        "type" : "object",
-        "properties" : {
-          "logoutUrl" : {
-            "type" : "string",
-            "description" : "***"
-          },
-          "loginUrl" : {
-            "type" : "string",
-            "description" : "***"
-          }
-        }
-      },
       "SettingsModel" : {
         "type" : "object",
         "properties" : {
-          "entrypoint" : {
-            "$ref" : "#/components/schemas/EntrypointSettingsModel"
-          },
           "supportedFeatures" : {
             "$ref" : "#/components/schemas/SupportedFeaturesModel"
           },
@@ -1016,7 +1000,7 @@ Content-Type: application/json
             }
           }
         },
-        "required" : [ "entrypoint", "supportedFeatures" ]
+        "required" : [ "supportedFeatures" ]
       },
       "SupportedFeaturesModel" : {
         "type" : "object",

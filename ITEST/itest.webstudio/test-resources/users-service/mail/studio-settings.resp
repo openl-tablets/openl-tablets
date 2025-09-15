@@ -2,10 +2,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "entrypoint": {
-    "logoutUrl": "/logout",
-    "loginUrl": "/login"
-  },
   "userMode": "INTERNAL",
   "supportedFeatures": {
     "groupsManagement": false,
