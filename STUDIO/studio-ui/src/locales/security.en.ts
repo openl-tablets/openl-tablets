@@ -18,7 +18,7 @@ i18next.addResourceBundle('en', 'security', {
         multi: 'Multi-User',
         ad: 'Active Directory',
         saml: 'SSO: SAML',
-        oauth2: 'SSO: OAuth2',
+        oauth2: 'SSO: OIDC (OAuth2)',
     },
     user_mode_description: {
         'single': '',
