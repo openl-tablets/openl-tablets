@@ -27,7 +27,7 @@ public @interface TableNameConstraint {
     /**
      * @return the error message
      */
-    String message() default "{webstudio.invalid.name}";
+    String message() default "{openl.constraints.tablename.invalid}";
 
     /**
      * @return the groups the constraint belongs to
