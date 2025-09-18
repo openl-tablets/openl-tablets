@@ -15,6 +15,7 @@ import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
+import Projects from '../containers/Projects'
 import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: 'help',
                 element: <Help />,
+            },
+            {
+                path: 'projects',
+                element: <Projects />,
             },
             {
                 path: 'forbidden',

@@ -1,0 +1,322 @@
+.projects-container {
+    display: flex;
+    height: 100vh;
+    background: #f5f5f5;
+
+    .projects-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 400px;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .projects-sidebar {
+        width: 400px;
+        background: white;
+        border-right: 1px solid #e8e8e8;
+        display: flex;
+        flex-direction: column;
+
+        .projects-header {
+            padding: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            background: white;
+
+            h2 {
+                margin: 0 0 12px 0;
+                color: #1890ff;
+            }
+        }
+
+        .projects-tree-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+    }
+
+    .projects-main-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+
+        .welcome-section {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+
+            .welcome-icon {
+                margin-bottom: 32px;
+
+                .logo-icon {
+                    width: 80px;
+                    height: 80px;
+                    background: #722ed1;
+                    border-radius: 8px;
+                    margin: 0 auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .logo-inner {
+                        width: 40px;
+                        height: 40px;
+                        border: 2px solid white;
+                        border-radius: 4px;
+                    }
+                }
+            }
+
+            .welcome-title {
+                margin-bottom: 16px !important;
+                color: #262626;
+                font-size: 32px;
+                font-weight: 600;
+            }
+
+            .welcome-subtitle {
+                display: block;
+                margin-bottom: 32px;
+                color: #8c8c8c;
+                font-size: 16px;
+            }
+
+            .welcome-actions {
+                display: flex;
+                gap: 16px;
+                justify-content: center;
+                margin-bottom: 48px;
+
+                .ant-btn {
+                    height: 48px;
+                    padding: 0 24px;
+                    font-size: 16px;
+                }
+            }
+
+            .recent-projects-section {
+                .recent-projects-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 24px;
+                    font-weight: 500;
+                    color: #262626;
+                }
+
+                .no-projects-found {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 16px;
+
+                    .no-projects-icon {
+                        width: 64px;
+                        height: 64px;
+                        background: #f5f5f5;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 24px;
+                        color: #8c8c8c;
+                    }
+
+                    .no-projects-text {
+                        color: #8c8c8c;
+                        font-size: 16px;
+                    }
+
+                    .ant-btn {
+                        height: 40px;
+                        padding: 0 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    .projects-tree {
+        margin: 0;
+        padding: 0;
+
+        .tree-section-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #262626;
+            padding: 2px 0;
+            font-size: 13px;
+
+            .ant-badge {
+                margin-left: auto;
+                
+                .ant-badge-count {
+                    background-color: #f0f0f0;
+                    color: #8c8c8c;
+                    border: none;
+                }
+            }
+        }
+
+        .repository-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+
+            .repository-name {
+                font-weight: 500;
+                color: #595959;
+                font-size: 13px;
+            }
+
+            .ant-badge {
+                margin-left: auto;
+                
+                .ant-badge-count {
+                    background-color: #f0f0f0;
+                    color: #8c8c8c;
+                    border: none;
+                }
+            }
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 0;
+            width: 100%;
+
+            .project-left {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .project-right {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .project-name {
+                color: #262626;
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 265px;
+            }
+
+            .repository-label {
+                color: #8c8c8c;
+                font-size: 12px;
+                font-style: italic;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 150px;
+            }
+
+            .ant-btn {
+                opacity: 0;
+                transition: opacity 0.2s;
+                padding: 2px 4px;
+                height: 20px;
+                min-width: 20px;
+            }
+
+            &:hover .ant-btn {
+                opacity: 1;
+            }
+        }
+
+        .ant-tree-node-content-wrapper {
+            padding: 2px 0;
+            border-radius: 3px;
+            transition: all 0.2s;
+            min-height: 24px;
+            width: 100%;
+
+            &:hover {
+                background-color: #f0f8ff;
+            }
+
+            &.ant-tree-node-selected {
+                background-color: #e6f7ff;
+            }
+        }
+
+        .ant-tree-iconEle {
+            display: flex;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+        }
+
+        .ant-tree-title {
+            width: 100%;
+            display: block;
+        }
+
+        .ant-tree {
+            margin: 0;
+            padding: 0;
+        }
+
+        .ant-tree-treenode {
+            padding: 1px 0;
+            width: 100%;
+        }
+
+        .ant-tree-indent-unit {
+            width: 12px;
+        }
+
+        [role="treeitem"] {
+            width: 100%;
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .projects-container {
+        flex-direction: column;
+
+        .projects-sidebar {
+            width: 100%;
+            height: 50vh;
+
+            .projects-header {
+                .ant-space {
+                    flex-direction: column;
+                    gap: 16px;
+                    align-items: stretch;
+                }
+            }
+        }
+
+        .projects-main-content {
+            height: 50vh;
+
+            .welcome-section {
+                padding: 20px;
+
+                .welcome-actions {
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+        }
+    }
+}
+

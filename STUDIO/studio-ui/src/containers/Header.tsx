@@ -45,6 +45,10 @@ export const Header = () => {
         {
             key: `${CONFIG.CONTEXT}/faces/pages/modules/repository/index.xhtml`,
             label: t('common:menu.repository'),
+        },
+        {
+            key: `${CONFIG.CONTEXT}/projects`,
+            label: t('common:menu.projects'),
         }
     ]
 
