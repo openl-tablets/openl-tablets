@@ -8,12 +8,14 @@ import { UserDetailsTab } from './users/UserDatailsTab'
 import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
 import { useUserStore } from 'store'
+import { useIsFormChanged } from '../hooks/useIsFormChanged'
 
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
     const [saving, setSaving] = useState(false)
+    const [form] = Form.useForm()
 
     useEffect(() => {
         fetchUserProfile()
@@ -85,8 +87,11 @@ export const UserProfile: React.FC = () => {
         }
     }, [userProfile])
 
+    const isFormChanged = useIsFormChanged({ form })
+
     return (
         <Form
+            form={form}
             labelWrap
             initialValues={initialValues}
             labelAlign="right"
@@ -108,6 +113,7 @@ export const UserProfile: React.FC = () => {
                     key="submit"
                     htmlType="submit"
                     loading={saving}
+                    disabled={!isFormChanged}
                     style={{ marginTop: 20 }}
                     type="primary"
                 >
