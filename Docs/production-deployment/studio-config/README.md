@@ -1,9 +1,9 @@
-# 🧪 OpenL WebStudio Sample Environment
+# 🧪 OpenL Studio Sample Environment
 
 This sample Docker Compose setup runs a fully integrated environment for **OpenL Tablets WebStudio**, preconfigured to connect to a Git repository and PostgreSQL database. It includes:
 
 - [Gitea](https://gitea.io) – a lightweight Git server
-- OpenL WebStudio – for rule editing and testing
+- OpenL Studio – for rule editing and testing
 - PostgreSQL – for storing WebStudio metadata
 - Init Containers – to bootstrap Gitea and database schemas
 
@@ -17,7 +17,7 @@ This sample Docker Compose setup runs a fully integrated environment for **OpenL
 |-------------|-----------------------------------------------------------------|
 | `gitea`     | Lightweight Git server for storing rules and metadata          |
 | `gitea-init`| Initializes the Gitea instance, creates user and repository    |
-| `webstudio` | OpenL WebStudio, preconfigured to connect to Gitea and Postgres|
+| `studio` | OpenL WebStudio, preconfigured to connect to Gitea and Postgres|
 | `postgres`  | PostgreSQL database used by WebStudio                          |
 | `init`      | One-time container to download JDBC driver and setup schemas   |
 

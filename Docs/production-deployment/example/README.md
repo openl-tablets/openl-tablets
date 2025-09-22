@@ -1,6 +1,6 @@
 # OpenL Rule Service Example
 
-This folder contains an example of a simple OpenL Tablets rule service that:
+This folder contains an example with several simple OpenL Rule Services that:
 
 - Illustrates how a multi-module OpenL Tablets project can be structured.
 - Demonstrates how to containerize and expose the service via Docker.

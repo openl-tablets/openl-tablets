@@ -138,7 +138,6 @@ services:
       
               if [ $? -ne 0 ]; then
                   echo "Error: Failed to push initial commit to repository $${GITEA_REPO_NAME}";
-                  # Dont exit fatally, maybe WebStudio can handle empty repo?
               else
                   echo "Successfully pushed initial projects.";
               fi
@@ -156,8 +155,8 @@ services:
       ' # End of sh -c script string
     # This init container runs once and exits. No restart needed.
 
-  webstudio:
-    container_name: webstudio
+  studio:
+    container_name: studio
     image: openltablets/webstudio:latest
     ports:
       - "8081:8080"
@@ -178,7 +177,7 @@ services:
       WEBSTUDIO_CONFIGURED: "true"
       
       ## DB
-      DB_URL: jdbc:postgresql://postgres-db:5432/webstudio
+      DB_URL: jdbc:postgresql://postgres-db:5432/studio
       DB_USER: openl_user
       DB_PASSWORD: openl_password
       

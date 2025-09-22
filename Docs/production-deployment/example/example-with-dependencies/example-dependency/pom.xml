@@ -20,9 +20,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
-                <configuration>
-                    <deploymentPackage>true</deploymentPackage>
-                </configuration>
             </plugin>
         </plugins>
     </build>
