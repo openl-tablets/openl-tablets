@@ -1,8 +1,8 @@
-# OpenL Tablets: Deployment in a Product Environment
+# OpenL Tablets: Production Deployment Guide
 
 ## Overview
 
-This document describes a structured approach for deploying OpenL Tablets rule services in a product-grade environment. It provides a recommended setup based on modern software development practices such as Git-based version control, Maven builds, containerization, and CI/CD pipelines.
+This document describes a structured approach for deploying OpenL Tablets rule services in production environments. It provides a recommended setup based on modern software development practices such as Git-based version control, Maven builds, containerization, and CI/CD pipelines.
 
 This setup is applicable for production usage and can serve as a base for operational rule platforms within organizations. It separates rule authoring, development, deployment, and runtime responsibilities to ensure quality, traceability, and automation.
 
@@ -36,7 +36,7 @@ This setup divides the delivery pipeline into four distinct stages. Each is illu
 ```mermaid
 graph LR
     classDef handoff fill:#fdf6e3,stroke:#b58900,stroke-width:2px,stroke-dasharray: 5;
-    A1["Rule Author (WebStudio)"] --> B["Git Repository"]
+    A1["Rule Author (OpenL Studio)"] --> B["Git Repository"]
     A2["OpenL Developer"] --> B
     B --> OUT1(["▶ Next: CI/CD"])
     class OUT1 handoff;
@@ -73,7 +73,7 @@ graph LR
 
 ## Rationale
 
-- WebStudio is used for editing, not execution
+- OpenL Studio is used for editing, not execution
 - Git serves as the single source of truth for rules and custom code
 - OpenL Developers manage reusable logic and structure
 - CI/CD provides traceability, automation, and artifact reproducibility
@@ -85,7 +85,7 @@ graph LR
 
 ### Rule Author
 
-- Uses WebStudio to edit and test rules
+- Uses OpenL Studio to edit and test rules
 - Commits changes to the Git repository
 
 ### OpenL Developer
@@ -122,7 +122,7 @@ Artifacts are deployed progressively across isolated environments.
 
 | Environment     | Purpose                   | Editable | Deployment Method     |
 |-----------------|---------------------------|----------|------------------------|
-| Tooling         | Rule editing and testing  | Rules only (via WebStudio) | CI-triggered            |
+| Tooling         | Rule editing and testing  | Rules only (via OpenL Studio) | CI-triggered            |
 | Development     | Integration testing       | No       | CI/CD automatic        |
 | Staging         | Pre-production validation | No       | Manual or gated promo  |
 | Production      | Live execution            | No       | Manual approval        |
@@ -138,7 +138,7 @@ graph LR
 
 ## Configuration Examples
 
-- [WebStudio Docker Compose Setup](production-deployment/studio-config/)
+- [OpenL Studio Docker Compose Setup](production-deployment/studio-config/)
 - [Minimal Rule Project with Maven and Docker](production-deployment/example/)
 
 ---

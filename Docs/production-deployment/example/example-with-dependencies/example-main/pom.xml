@@ -22,6 +22,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <deploymentPackage>true</deploymentPackage>
+                    <deploymentName>Example project with dependency</deploymentName>
                 </configuration>
             </plugin>
         </plugins>
