@@ -13,6 +13,7 @@ import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.settings.model.validation.CommentMessageTemplateConstraint;
 import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
 import org.openl.rules.rest.validation.PathConstraint;
+import org.openl.util.StringUtils;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AWSS3RepositorySettings.class, name = "repo-aws-s3"),
@@ -302,7 +303,9 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
-        flatFolderStructure = Boolean.parseBoolean(properties.getProperty(FLAT_FOLDER_STRUCTURE));
+
+        var flatFolderProperty = properties.getProperty(FLAT_FOLDER_STRUCTURE);
+        flatFolderStructure = StringUtils.isBlank(flatFolderProperty) || Boolean.parseBoolean(flatFolderProperty);
 
         mainBranchOnly = MAIN_BRANCH.equals(properties.getProperty(DEPLOY_FROM_MAIN_BRANCH));
 
