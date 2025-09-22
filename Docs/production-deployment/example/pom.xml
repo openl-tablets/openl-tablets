@@ -12,7 +12,11 @@
     <description>Example Prototype Parent Module</description>
 
     <properties>
-        <org.openl.version>5.27.12</org.openl.version>
+        <org.openl.version>5.27.13-jakarta</org.openl.version>
+        <spring.boot.version>3.5.3</spring.boot.version>
+        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
         <pluginManagement>
@@ -34,5 +38,26 @@
         <module>auth-extension</module>
         <module>applications</module>
     </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice</artifactId>
+                <version>${org.openl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${org.openl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

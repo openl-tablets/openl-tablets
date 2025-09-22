@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   gitea:
-    image: gitea/gitea:1.21 # Using a specific version is often safer than latest
+    image: gitea/gitea:1.21@sha256:0056032dc8c6ab70583e4a105b9ee0dc72dce4f4fbc8022c98bcec46b0273883
     container_name: gitea-server
     environment:
       # Basic Gitea settings
@@ -35,7 +35,7 @@ services:
       
   gitea-init:
     # Use the *same* Gitea image to get access to 'gitea' CLI
-    image: gitea/gitea:1.21
+    image: gitea/gitea:1.21@sha256:0056032dc8c6ab70583e4a105b9ee0dc72dce4f4fbc8022c98bcec46b0273883
     container_name: gitea-init-auto
     depends_on:
       gitea:
@@ -138,7 +138,6 @@ services:
       
               if [ $? -ne 0 ]; then
                   echo "Error: Failed to push initial commit to repository $${GITEA_REPO_NAME}";
-                  # Dont exit fatally, maybe WebStudio can handle empty repo?
               else
                   echo "Successfully pushed initial projects.";
               fi
@@ -156,9 +155,9 @@ services:
       ' # End of sh -c script string
     # This init container runs once and exits. No restart needed.
 
-  webstudio:
-    container_name: webstudio
-    image: openltablets/webstudio:latest
+  studio:
+    container_name: studio
+    image: openltablets/webstudio:5.27.12@sha256:35a4223afd3dc0158e4785155e2186cb5d6c1d7c337ef234d63962fcc78ada9f
     ports:
       - "8081:8080"
     depends_on:
@@ -178,7 +177,7 @@ services:
       WEBSTUDIO_CONFIGURED: "true"
       
       ## DB
-      DB_URL: jdbc:postgresql://postgres-db:5432/webstudio
+      DB_URL: jdbc:postgresql://postgres-db:5432/openl_studio
       DB_USER: openl_user
       DB_PASSWORD: openl_password
       
@@ -217,10 +216,10 @@ services:
       REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
   
   postgres:
-    image: postgres:17 
+    image: postgres:17@sha256:0b6428e8c09651398137d2b3308a6ad87e73ac15fc38729891c16d942e947d3d
     container_name: postgres-db
     environment:
-      POSTGRES_DB: webstudio # Database name to create
+      POSTGRES_DB: openl_studio # Database name to create
       POSTGRES_USER: openl_user # Replace with your desired username
       POSTGRES_PASSWORD: openl_password # Replace with a strong password
     volumes:
@@ -247,7 +246,7 @@ services:
         [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.7.jar
         echo "--- Initialization of the DB
 
-        CREATE SCHEMA studio;
+        CREATE SCHEMA openl_studio;
         CREATE SCHEMA repository;
         " > /initdb/init.sql
     volumes:

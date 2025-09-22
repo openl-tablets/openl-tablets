@@ -1,6 +1,6 @@
-# OpenL Rule Service Example
+# OpenL Rule Services Example
 
-This folder contains an example of a simple OpenL Tablets rule service that:
+This folder contains an example with several simple OpenL Rule Services that:
 
 - Illustrates how a multi-module OpenL Tablets project can be structured.
 - Demonstrates how to containerize and expose the service via Docker.
@@ -25,7 +25,7 @@ This folder contains an example of a simple OpenL Tablets rule service that:
 mvn clean package
 ```
 
-#### Start the containerized rule service
+#### Start the containerized OpenL Rule Services
 
 ```bash
 docker compose up --build
@@ -33,7 +33,7 @@ docker compose up --build
 
 Running this setup will:
 
-- Build the rule service from `rules.xml`
+- Build the Rule Services from `rules.xml`
 - Package it with the security extension and OpenAPI configuration
 - Start it on port `8080` (with debug port `1077` exposed as `1177`)
 
@@ -43,9 +43,9 @@ Running this setup will:
 
 This project includes a basic OpenAPI-based client authorization mechanism, implemented using custom extensions.
 
-- Uses HTTP headers `client-id` and `client-secret`
+- Uses Basic Authentication
 - Registers security schemes via `openapi-configuration.json`
-- Enforces checks using Java classes wired through `extension-example-security.xml`
+- Enforces checks using Java classes wired through Spring configuration
 
 For detailed documentation, see [Security Extensions](../../Security.md).
 
@@ -55,7 +55,7 @@ For detailed documentation, see [Security Extensions](../../Security.md).
 
 - Demonstrating header-based client authentication
 - Extending OpenL services with custom access control logic
-- Serving as a base for production-grade OpenL Tablets rule services
+- Serving as a base for production-grade OpenL Tablets Rule Services
 
 ---
 
@@ -63,14 +63,15 @@ For detailed documentation, see [Security Extensions](../../Security.md).
 
 - How to define and package rules using OpenL
 - How to run the rules as a Docker-based service
-- How to integrate OpenAPI client authentication
+- How to integrate client authentication
 - How to use custom Java classes and Spring configuration for authorization
+- How to make Unit tests for OpenL Rule Services
 
 ---
 
 ## Available endpoint
 
-After running the container, the rule service is available at:
+After running the container, the Rule Services are available at:
 
 ```
 http://localhost:8080/
@@ -79,7 +80,7 @@ http://localhost:8080/
 To test an endpoint:
 
 ```bash
-curl -X GET "http://localhost:8080/example-1/Ping"   -H "client-id: client_name"   -H "client-secret: client_secret"
+curl -X GET "http://localhost:8080/example-main/Ping"   -H "Authorization: Basic b3BlbmxfdXNlcjpvcGVubF9wYXNzd29yZA==" -v
 ```
 
 ---
@@ -87,7 +88,6 @@ curl -X GET "http://localhost:8080/example-1/Ping"   -H "client-id: client_name"
 ## Notes
 
 - This is a sample configuration and should be security-hardened before use in production.
-- Logging is verbose by default (`RULESERVICE_LOGGING_ENABLED=true`) for development purposes.
 - Debugging is enabled on port `1177`.
 
 ---

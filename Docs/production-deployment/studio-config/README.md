@@ -1,10 +1,10 @@
-# 🧪 OpenL WebStudio Sample Environment
+# 🧪 OpenL Studio Sample Environment
 
-This sample Docker Compose setup runs a fully integrated environment for **OpenL Tablets WebStudio**, preconfigured to connect to a Git repository and PostgreSQL database. It includes:
+This sample Docker Compose setup runs a fully integrated environment for **OpenL Studio**, preconfigured to connect to a Git repository and PostgreSQL database. It includes:
 
 - [Gitea](https://gitea.io) – a lightweight Git server
-- OpenL WebStudio – for rule editing and testing
-- PostgreSQL – for storing WebStudio metadata
+- OpenL Studio – for rule editing and testing
+- PostgreSQL – for storing OpenL Studio metadata
 - Init Containers – to bootstrap Gitea and database schemas
 
 ---
@@ -17,8 +17,8 @@ This sample Docker Compose setup runs a fully integrated environment for **OpenL
 |-------------|-----------------------------------------------------------------|
 | `gitea`     | Lightweight Git server for storing rules and metadata          |
 | `gitea-init`| Initializes the Gitea instance, creates user and repository    |
-| `webstudio` | OpenL WebStudio, preconfigured to connect to Gitea and Postgres|
-| `postgres`  | PostgreSQL database used by WebStudio                          |
+| `studio` | OpenL Studio, preconfigured to connect to Gitea and Postgres|
+| `postgres`  | PostgreSQL database used by Studio                          |
 | `init`      | One-time container to download JDBC driver and setup schemas   |
 
 ---
@@ -26,9 +26,8 @@ This sample Docker Compose setup runs a fully integrated environment for **OpenL
 ## Features
 
 - **Gitea pre-seeded with admin user and empty repo**
-- **WebStudio configured for Git-based rule projects**
+- **OpenL Studio configured for Git-based rule projects**
 - **PostgreSQL database with prepared schemas**
-- **Comment validation and templates for commit messages**
 - **Support for protected branches and structured commits**
 
 ---
@@ -40,7 +39,7 @@ This sample setup uses basic built-in authentication for demonstration purposes:
 USER_MODE=multi
 SECURITY_ADMINISTRATORS=admin
 ```
-Multi-user mode allows login using predefined WebStudio accounts.
+Multi-user mode allows login using predefined OpenL Studio accounts.
 
 The default admin user has full access to the system. Default credentials are admin/admin
 
@@ -66,40 +65,40 @@ This will:
 
 - Start all services
 - Initialize the Git repository and Gitea user
-- Set up WebStudio with database and Git connectivity
+- Set up OpenL Studio with database and Git connectivity
 
 ---
 
 ## Access Information
 
-| Service     | URL / Host              | Notes                                              |
-|-------------|-------------------------|----------------------------------------------------|
-| Gitea       | http://localhost:3000   | Login: `admin_user` / `admin_password`             |
-| WebStudio   | http://localhost:8081   | Login: `admin` / `admin` (multi-user mode enabled) |
-| PostgreSQL  | localhost:5432          | DB: `webstudio`, User: `openl_user` / `openl_password` |
+| Service      | URL / Host              | Notes                                                     |
+|--------------|-------------------------|-----------------------------------------------------------|
+| Gitea        | http://localhost:3000   | Login: `admin_user` / `admin_password`                    |
+| OpenL Studio | http://localhost:8081   | Login: `admin` / `admin` (multi-user mode enabled)        |
+| PostgreSQL   | localhost:5432          | DB: `openl_studio`, User: `openl_user` / `openl_password` |
 
 > Do not use default passwords in production. Update `compose.yaml` as needed.
 
 ---
 
-## WebStudio Git Repository Configuration
+## OpenL Studio Git Repository Configuration
 
-This setup defines a repository named `example` in WebStudio using environment variables. It enforces:
+This setup defines a repository named `example` in OpenL Studio using environment variables. It enforces:
 
 - A specific commit message format (e.g., `ABC-123: short message`)
 - Protected branches (`main`, `release-*`)
 - Git commit attribution with a named user and email
 
-For a detailed explanation of configuration parameters, refer to the [WebStudio Git Integration Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository).
+For a detailed explanation of configuration parameters, refer to the [OpenL Studio Git Integration Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository).
 
 ---
 
 ## Use Cases
 
 - Local testing of rule development lifecycle with Git
-- Evaluating multi-user WebStudio functionality
-- Integrating WebStudio with CI/CD pipelines
-- Serving as a base for custom rule service platforms
+- Evaluating multi-user OpenL Studio functionality
+- Integrating OpenL Studio with CI/CD pipelines
+- Serving as a base for custom OpenL Rule Services platforms
 
 ---
 

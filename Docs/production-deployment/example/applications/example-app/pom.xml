@@ -13,9 +13,16 @@
 
     <artifactId>example-app</artifactId>
     <name>OpenL Example Application</name>
-    <packaging>pom</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>example-simple</artifactId>
@@ -34,57 +41,52 @@
             <artifactId>auth-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.1</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-zip-dependencies</id>
-                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>repackage</goal>
                         </goals>
-                        <configuration>
-                            <includeTypes>zip</includeTypes>
-                            <includeClassifiers>deployment</includeClassifiers>
-                            <outputDirectory>${project.build.directory}/zips</outputDirectory>
-                            <stripVersion>true</stripVersion>
-                            <stripClassifier>true</stripClassifier>
-                        </configuration>
                     </execution>
-                    <!--
-                        Here example-simple is singled out because we don't want to copy here zip artefacts, which 
-                        already have been copied as a part of deployment artifacts in previous step.
-                        If you only use simple dependencies, remove <includeArtifactIds> tag from below.
-                    -->
+                </executions>
+                <configuration>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <!-- This step is only required for JUnit tests -->
                     <execution>
-                        <id>copy-simple-dependencies</id>
-                        <phase>prepare-package</phase>
+                        <id>create-openl-repository</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
+                            <!-- OpenL Project type is zip -->
                             <includeTypes>zip</includeTypes>
-                            <includeArtifactIds>example-simple</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/zips</outputDirectory>
-                            <stripVersion>true</stripVersion>
-                            <stripClassifier>true</stripClassifier>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-libs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeTypes>jar</includeTypes>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <!-- No need to pull transitive zip archive because OpenL archive contains all required dependencies -->
+                            <excludeTransitive>true</excludeTransitive>
+                            <outputDirectory>${project.build.directory}/openl-repository</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
