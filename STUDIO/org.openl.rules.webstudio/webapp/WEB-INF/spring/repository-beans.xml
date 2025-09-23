@@ -48,7 +48,7 @@
     </bean>
 
     <bean id="designRepositoryFactoryProxy"
-          class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy" destroy-method="destroy">
+          class="org.openl.rules.webstudio.web.repository.DefaultRepositoryFactoryProxy" destroy-method="destroy">
         <constructor-arg name="propertyResolver" ref="environment"/>
         <constructor-arg name="mode" value="DESIGN"/>
     </bean>
@@ -56,7 +56,7 @@
     <bean id="productionRepositoryFactoryProxy"
           class="org.openl.rules.webstudio.web.repository.SecuredRepositoryFactoryProxy" destroy-method="destroy">
         <constructor-arg name="delegate">
-            <bean class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy">
+            <bean class="org.openl.rules.webstudio.web.repository.DefaultRepositoryFactoryProxy">
                 <constructor-arg name="propertyResolver" ref="environment"/>
                 <constructor-arg name="mode" value="PRODUCTION"/>
             </bean>

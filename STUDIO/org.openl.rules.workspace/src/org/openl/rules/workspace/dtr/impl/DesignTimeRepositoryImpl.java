@@ -105,6 +105,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private String getBasePath() {
         String repoPrefix = Comments.REPOSITORY_PREFIX + "design";
         var basePath = propertyResolver.getProperty(repoPrefix + ".base.path");
+        if (basePath == null) {
+            basePath = propertyResolver.getProperty("repo-default.design.base.path");
+        }
         if (StringUtils.isNotEmpty(basePath) && !basePath.endsWith("/")) {
             basePath += "/";
         }

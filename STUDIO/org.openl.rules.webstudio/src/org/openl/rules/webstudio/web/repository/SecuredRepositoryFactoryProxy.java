@@ -4,11 +4,12 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
-public class SecuredRepositoryFactoryProxy extends RepositoryFactoryProxy {
-    private final RepositoryFactoryProxy delegate;
+public class SecuredRepositoryFactoryProxy implements RepositoryFactoryProxy {
+
+    private final DefaultRepositoryFactoryProxy delegate;
     private final SimpleRepositoryAclService simpleRepositoryAclService;
 
-    public SecuredRepositoryFactoryProxy(RepositoryFactoryProxy delegate,
+    public SecuredRepositoryFactoryProxy(DefaultRepositoryFactoryProxy delegate,
                                          SimpleRepositoryAclService simpleRepositoryAclService) {
         this.delegate = delegate;
         this.simpleRepositoryAclService = simpleRepositoryAclService;
