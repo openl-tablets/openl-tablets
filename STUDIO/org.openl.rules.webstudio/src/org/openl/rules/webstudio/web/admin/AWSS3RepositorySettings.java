@@ -15,6 +15,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 
 @Schema(allOf = RepositorySettings.class)
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -74,8 +75,8 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String sseAlgorithmPath;
     private final String listenerTimerPeriodPath;
 
-    AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix) {
-        super(properties, configPrefix);
+    AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
+        super(properties, configPrefix, repositoryMode);
         serviceEndpointPath = configPrefix + SERVICE_ENDPOINT_PATH_SUFFIX;
         bucketNamePath = configPrefix + BUCKET_NAME_PATH_SUFFIX;
         regionNamePath = configPrefix + REGION_NAME_PATH_SUFFIX;

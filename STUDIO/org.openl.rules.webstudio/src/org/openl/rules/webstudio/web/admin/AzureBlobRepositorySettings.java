@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 
 @Schema(allOf = RepositorySettings.class)
 public class AzureBlobRepositorySettings extends RepositorySettings {
@@ -47,8 +48,8 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
     private final String accountKeyProperty;
     private final String listenerTimerPeriodProperty;
 
-    AzureBlobRepositorySettings(PropertiesHolder properties, String configPrefix) {
-        super(properties, configPrefix);
+    AzureBlobRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
+        super(properties, configPrefix, repositoryMode);
         uriProperty = configPrefix + URI_PROPERTY_SUFFIX;
         accountNameProperty = configPrefix + ACCOUNT_NAME_PROPERTY_SUFFIX;
         accountKeyProperty = configPrefix + ACCOUNT_KEY_PROPERTY_SUFFIX;

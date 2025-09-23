@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.rest.settings.model.validation.NewBranchNamePatternConstraint;
 import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
 import org.openl.rules.rest.validation.PathConstraint;
@@ -22,7 +23,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final static String URI_SUFFIX = ".uri";
     private final static String LOGIN_SUFFIX = ".login";
     private final static String PASSWORD_SUFFIX = ".password";
-    private final static String LOCAL_REPOSITORY_PATH_SUFFIX = ".local-repository-path";
+    public final static String LOCAL_REPOSITORY_PATH_SUFFIX = ".local-repository-path";
     private final static String BRANCH_SUFFIX = ".branch";
     private final static String NEW_BRANCH_TEMPLATE_SUFFIX = ".new-branch.pattern";
     private final static String NEW_BRANCH_REGEX_SUFFIX = ".new-branch.regex";
@@ -133,8 +134,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String MAX_AUTHENTICATION_ATTEMPTS;
     private final String PROTECTED_BRANCHES;
 
-    GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
-        super(properties, configPrefix);
+    GitRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
+        super(properties, configPrefix, repositoryMode);
         URI = configPrefix + URI_SUFFIX;
         LOGIN = configPrefix + LOGIN_SUFFIX;
         PASSWORD = configPrefix + PASSWORD_SUFFIX;
