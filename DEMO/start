@@ -24,8 +24,8 @@ set -e # Exit immediately if a command exits with a non-zero status.
 SKIP_OS_JAVA=false #To ignore system Java and use a local JRE
 MAVEN_URL="https://repo1.maven.org/maven2"
 
-JAVA_MAJOR_VERSION="21"
-JETTY_VERSION="12.0.26"
+JAVA_MAJOR_VERSION="25"
+JETTY_VERSION="12.0.27"
 
 # JDBC Driver Versions
 POSTGRES_VERSION="42.7.7"
@@ -124,8 +124,8 @@ find_or_download_java() {
             return 1
         fi
         # Extract major version number (handles various version string formats)
-        local version_string=$("$java_path" -version 2>&1)
-        local major_version=$(echo "$version_string" | grep -o 'version "[0-9]\{1,2\}' | grep -o '[0-9]\{1,2\}')
+        local version_string=$("$java_path" --version)
+        local major_version=$(echo "$version_string" | grep -o -m 1 ' [0-9]\{1,2\}' | head -1)
 
         if [[ -n "$major_version" && "$major_version" -ge "$required_version" ]]; then
             echo "INFO: Found suitable Java version $major_version at $java_path."

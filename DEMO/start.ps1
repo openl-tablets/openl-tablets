@@ -21,8 +21,8 @@ $ErrorActionPreference = 'Stop'
 $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
-$JAVA_MAJOR_VERSION = "21"
-$JETTY_VERSION = "12.0.23"
+$JAVA_MAJOR_VERSION = "25"
+$JETTY_VERSION = "12.0.27"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.7"
@@ -80,8 +80,8 @@ function Find-OrDownloadJava {
     function Test-JavaVersion {
         param($javaPath)
         try {
-            $versionOutput = & $javaPath -version 2>&1
-            $versionString = $versionOutput | Select-String -Pattern 'version "(\d+)'
+            $versionOutput = & $javaPath --version
+            $versionString = $versionOutput | Select-String -Pattern ' (\d+)'
             $majorVersion = $versionString.Matches.Groups[1].Value
 
             if ($majorVersion -ge $requiredVersion) {
@@ -209,7 +209,7 @@ Download-Driver "$MAVEN_URL/com/microsoft/sqlserver/mssql-jdbc/$MSSQL_VERSION/ms
 # -----------------------------------------------------------------------------------
 function Download-War {
     param($componentName, $downloadUrl)
-    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.war"
+    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.zip"
     $targetDir = Join-Path $WEBAPPS_DIR $componentName
 
     # Check if the destination directory already exists
