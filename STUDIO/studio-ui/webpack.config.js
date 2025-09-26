@@ -2,12 +2,11 @@ const path = require('path')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
-    mode: 'development',
     entry: './src/index',
     output: {
         path: path.resolve(__dirname, 'dist/js'),
         filename: 'main.js',
-        publicPath: 'http://localhost:3100/',
+        publicPath: 'auto',
     },
     devServer: {
         static: {

@@ -49,8 +49,8 @@
     "webpack-dev-server": "^5.2.2"
   },
   "scripts": {
-    "start": "webpack-cli serve --stats-error-details",
-    "build": "NODE_ENV=production && license-checker-rseidelsohn --onlyAllow 'MIT;Apache-2.0' --production --excludePrivatePackages && webpack --mode production --config webpack.production.config.js",
+    "start": "webpack-cli serve --stats-error-details --config-node-env=development",
+    "build": "license-checker-rseidelsohn --onlyAllow MIT;Apache-2.0 --production --excludePrivatePackages && webpack --config-node-env=production",
     "serve": "serve dist -p 3002",
     "clean": "rm -rf dist",
     "lint": "eslint ./src && stylelint '**/*.scss'",
