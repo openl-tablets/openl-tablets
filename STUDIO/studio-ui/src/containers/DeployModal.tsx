@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Modal, Form, Button, Space } from 'antd'
-import { RocketOutlined, BranchesOutlined } from '@ant-design/icons'
+import { Modal, Form, Button, Space, notification, Spin } from 'antd'
+import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useGlobalEvents } from '../hooks'
 import { Select, TextArea } from '../components/form'
 import { apiCall } from '../services'
@@ -36,6 +36,7 @@ export const DeployModal: React.FC = () => {
     const [deploymentRepositories, setDeploymentRepositories] = useState<Repository[]>([])
     const [deploymentNames, setDeploymentNames] = useState<Array<{id: string, name: string}>>([])
     const [isNewDeployment, setIsNewDeployment] = useState<boolean>(false)
+    const [isDeploying, setIsDeploying] = useState<boolean>(false)
 
     const fetchDeploymentRepositories = async () => {
         const response: Repository[] = await apiCall('/production-repos')
@@ -90,6 +91,8 @@ export const DeployModal: React.FC = () => {
             const { repository, deploymentName, comment } = values
             const projectId = detail?.id
             
+            setIsDeploying(true)
+            
             if (isNewDeployment) {
                 // Create new deployment
                 await apiCall('/deployments', {
@@ -103,6 +106,11 @@ export const DeployModal: React.FC = () => {
                         productionRepositoryId: repository,
                         projectId,
                     }),
+                })
+                notification.success({
+                    message: t('deploy:notifications.deploy_configuration_added'),
+                    description: t('deploy:notifications.deploy_configuration_added_description'),
+                    placement: 'topRight',
                 })
             } else {
                 // Deploy to existing deployment
@@ -118,12 +126,24 @@ export const DeployModal: React.FC = () => {
                             projectId,
                         }),
                     })
+                    notification.success({
+                        message: t('deploy:notifications.deploy_configuration_added'),
+                        description: t('deploy:notifications.deploy_configuration_added_description'),
+                        placement: 'topRight',
+                    })
                 }
             }
             
             handleClose()
         } catch (info) {
             console.error('Validate Failed:', info)
+            notification.error({
+                message: t('deploy:notifications.deploy_failed'),
+                description: t('deploy:notifications.deploy_failed_description'),
+                placement: 'topRight',
+            })
+        } finally {
+            setIsDeploying(false)
         }
     }
 
@@ -170,11 +190,17 @@ export const DeployModal: React.FC = () => {
             open={visible}
             width={800}
             footer={[
-                <Button key="cancel" onClick={handleClose}>
+                <Button key="cancel" disabled={isDeploying} onClick={handleClose}>
                     {t('deploy:buttons.cancel')}
                 </Button>,
-                <Button key="deploy" onClick={handleDeploy} type="primary">
-                    {t('deploy:buttons.deploy')}
+                <Button 
+                    key="deploy" 
+                    icon={isDeploying ? <LoadingOutlined /> : <RocketOutlined />}
+                    loading={isDeploying}
+                    onClick={handleDeploy}
+                    type="primary"
+                >
+                    {isDeploying ? t('deploy:messages.deploying') : t('deploy:buttons.deploy')}
                 </Button>,
             ]}
             title={
@@ -184,48 +210,50 @@ export const DeployModal: React.FC = () => {
                 </div>
             }
         >
-            <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
-                <Form 
-                    labelWrap
-                    form={form}
-                    labelAlign="right"
-                    labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
-                    name="deploy_form"
-                    wrapperCol={{ flex: 1 }}
-                >
-                    <Select
-                        required
-                        label={t('deploy:repository.label')}
-                        name="repository"
-                        options={deploymentRepositoriesOptions}
-                        placeholder={t('deploy:repository.placeholder')}
-                        suffixIcon={<BranchesOutlined />}
-                    />
-                    <Select
-                        required
-                        showSearch
-                        defaultActiveFirstOption={false}
-                        disabled={!selectedRepository}
-                        filterOption={false}
-                        label={t('deploy:deployment_name.label')}
-                        name="deploymentName"
-                        notFoundContent={null}
-                        onBlur={onBlurDeploymentName}
-                        onChange={handleChangeDeploymentName}
-                        onSearch={handleSearchDeploymentName}
-                        options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
-                        placeholder={t('deploy:deployment_name.placeholder')}
-                        style={{ width: '100%' }}
-                        suffixIcon={null}
-                    />
-                    <TextArea
-                        required
-                        label={t('deploy:comment.label')}
-                        name="comment"
-                        placeholder={t('deploy:comment.placeholder')}
-                    />
-                </Form>
-            </Space>
+            <Spin spinning={isDeploying} tip={t('deploy:messages.deploying_configuration')}>
+                <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
+                    <Form 
+                        labelWrap
+                        form={form}
+                        labelAlign="right"
+                        labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
+                        name="deploy_form"
+                        wrapperCol={{ flex: 1 }}
+                    >
+                        <Select
+                            required
+                            label={t('deploy:repository.label')}
+                            name="repository"
+                            options={deploymentRepositoriesOptions}
+                            placeholder={t('deploy:repository.placeholder')}
+                            suffixIcon={<BranchesOutlined />}
+                        />
+                        <Select
+                            required
+                            showSearch
+                            defaultActiveFirstOption={false}
+                            disabled={!selectedRepository}
+                            filterOption={false}
+                            label={t('deploy:deployment_name.label')}
+                            name="deploymentName"
+                            notFoundContent={null}
+                            onBlur={onBlurDeploymentName}
+                            onChange={handleChangeDeploymentName}
+                            onSearch={handleSearchDeploymentName}
+                            options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
+                            placeholder={t('deploy:deployment_name.placeholder')}
+                            style={{ width: '100%' }}
+                            suffixIcon={null}
+                        />
+                        <TextArea
+                            required
+                            label={t('deploy:comment.label')}
+                            name="comment"
+                            placeholder={t('deploy:comment.placeholder')}
+                        />
+                    </Form>
+                </Space>
+            </Spin>
         </Modal>
     )
 }

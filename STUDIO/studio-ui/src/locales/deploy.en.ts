@@ -25,7 +25,14 @@ i18next.addResourceBundle('en', 'deploy', {
     },
     messages: {
         deploying: 'Deploying...',
+        deploying_configuration: 'Deploying configuration...',
         deploy_success: 'Deployment successful',
         deploy_error: 'Deployment failed',
+    },
+    notifications: {
+        deploy_configuration_added: 'Deploy Configuration added',
+        deploy_configuration_added_description: 'The deployment configuration has been successfully added.',
+        deploy_failed: 'Deploy Failed',
+        deploy_failed_description: 'Failed to deploy configuration. Please try again.',
     },
 })
