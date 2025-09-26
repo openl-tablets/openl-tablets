@@ -1,94 +1,48 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.core.env.PropertyResolver;
-
-import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
-import org.openl.util.IOUtils;
 
 /**
- * Repository Factory Proxy.
- * <p/>
- * Takes actual factory description from the environment in which the current application is running.
+ * Proxy interface for managing repository factory operations.
+ * This interface provides methods for repository instance management,
+ * configuration retrieval, and lifecycle operations.
  */
-public class RepositoryFactoryProxy {
+public interface RepositoryFactoryProxy {
 
-    private final Map<String, Repository> factories = new HashMap<>();
+    /**
+     * Retrieves the repository list configuration.
+     * 
+     * @return the repository configuration as a string
+     */
+    String getRepoListConfig();
 
-    private final PropertyResolver propertyResolver;
+    /**
+     * Creates or retrieves a repository instance for the specified configuration.
+     * 
+     * @param configName the name of the repository configuration
+     * @return the repository instance associated with the given configuration
+     */
+    Repository getRepositoryInstance(String configName);
 
-    private final String repoListConfig;
+    /**
+     * Releases resources associated with a repository configuration.
+     * 
+     * @param configName the name of the repository configuration to release
+     */
+    void releaseRepository(String configName);
 
-    public RepositoryFactoryProxy() {
-        propertyResolver = null;
-        repoListConfig = null;
-    }
+    /**
+     * Destroys the factory proxy and releases all associated resources.
+     * Should be called when the proxy is no longer needed.
+     */
+    void destroy();
 
-    public RepositoryFactoryProxy(PropertyResolver propertyResolver, RepositoryMode mode) {
-        switch (mode) {
-            case DESIGN:
-                repoListConfig = DESIGN_REPOSITORY_CONFIGS;
-                break;
-            case PRODUCTION:
-                repoListConfig = PRODUCTION_REPOSITORY_CONFIGS;
-                break;
-            default:
-                throw new IllegalArgumentException("Repository mode " + mode + " is not supported");
-        }
-        this.propertyResolver = propertyResolver;
-    }
+    /**
+     * Retrieves the base path for a repository configuration.
+     * 
+     * @param configName the name of the repository configuration
+     * @return the base path associated with the configuration
+     */
+    String getBasePath(String configName);
 
-    public String getRepoListConfig() {
-        return repoListConfig;
-    }
-
-    public Repository getRepositoryInstance(String configName) {
-        if (!factories.containsKey(Objects.requireNonNull(configName))) {
-            synchronized (this) {
-                if (!factories.containsKey(configName)) {
-                    factories.put(configName, RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
-                }
-            }
-        }
-
-        return factories.get(configName);
-    }
-
-    public void releaseRepository(String configName) {
-        synchronized (this) {
-            Repository repository = factories.remove(configName);
-            if (repository != null) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly(repository);
-            }
-        }
-    }
-
-    public void destroy() {
-        synchronized (this) {
-            for (Repository repository : factories.values()) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly(repository);
-            }
-            factories.clear();
-        }
-    }
-
-    public String getBasePath(String configName) {
-        String key = Comments.REPOSITORY_PREFIX + configName + ".base.path";
-        String basePath = propertyResolver.getProperty(key);
-        if (basePath == null) {
-            throw new IllegalArgumentException("Property " + key + " is absent");
-        }
-        return basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
-    }
 }

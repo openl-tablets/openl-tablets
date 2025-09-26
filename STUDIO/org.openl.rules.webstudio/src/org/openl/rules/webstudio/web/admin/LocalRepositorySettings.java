@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 @Schema(allOf = RepositorySettings.class)
@@ -22,8 +23,8 @@ public class LocalRepositorySettings extends RepositorySettings {
     private final String uriProperty;
     private final String baseDeployPathProperty;
 
-    public LocalRepositorySettings(PropertiesHolder properties, String configPrefix) {
-        super(properties, configPrefix);
+    public LocalRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
+        super(properties, configPrefix, repositoryMode);
         this.uriProperty = configPrefix + URI_SUFFIX;
         this.baseDeployPathProperty = configPrefix + BASE_DEPLOY_PATH_SUFFIX;
 

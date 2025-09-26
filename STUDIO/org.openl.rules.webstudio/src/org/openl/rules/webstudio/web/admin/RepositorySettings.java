@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.rest.settings.model.validation.CommentMessageTemplateConstraint;
 import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
 import org.openl.rules.rest.validation.PathConstraint;
+import org.openl.util.StringUtils;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AWSS3RepositorySettings.class, name = "repo-aws-s3"),
@@ -43,7 +45,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
     private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
     private static final String FLAT_FOLDER_STRUCTURE_SUFFIX = ".folder-structure.flat";
-    private static final String BASE_PATH_SUFFIX = ".base.path";
+    public static final String BASE_PATH_SUFFIX = ".base.path";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
@@ -146,8 +148,12 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @JsonIgnore
     private final String configPrefix;
 
-    RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
+    @JsonIgnore
+    private final RepositoryMode repositoryMode;
+
+    RepositorySettings(PropertiesHolder propertyResolver, String configPrefix, RepositoryMode repositoryMode) {
         this.configPrefix = configPrefix;
+        this.repositoryMode = repositoryMode;
         USE_CUSTOM_COMMENTS = configPrefix + USE_CUSTOM_COMMENTS_SUFFIX;
         COMMENT_VALIDATION_PATTERN = configPrefix + COMMENT_VALIDATION_PATTERN_SUFFIX;
         INVALID_COMMENT_MESSAGE = configPrefix + INVALID_COMMENT_MESSAGE_SUFFIX;
@@ -302,11 +308,18 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
-        flatFolderStructure = Boolean.parseBoolean(properties.getProperty(FLAT_FOLDER_STRUCTURE));
+
+        var flatFolderProperty = properties.getProperty(FLAT_FOLDER_STRUCTURE);
+        flatFolderStructure = StringUtils.isBlank(flatFolderProperty) || Boolean.parseBoolean(flatFolderProperty);
 
         mainBranchOnly = MAIN_BRANCH.equals(properties.getProperty(DEPLOY_FROM_MAIN_BRANCH));
 
         basePath = properties.getProperty(BASE_PATH);
+        if (StringUtils.isBlank(basePath) && repositoryMode != null) {
+            // Try to get default base path for repository mode.
+            var defaultBasePathName = RepositoryConfiguration.REPOSITORY_DEFAULT_PREFIX + repositoryMode.name().toLowerCase() + BASE_PATH_SUFFIX;
+            basePath = properties.getProperty(defaultBasePathName);
+        }
     }
 
     protected void store(PropertiesHolder propertiesHolder) {

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 @Schema(allOf = RepositorySettings.class)
@@ -40,8 +41,8 @@ public class CommonRepositorySettings extends RepositorySettings {
     private final String loginPath;
     private final String passwordPath;
 
-    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix) {
-        super(properties, configPrefix);
+    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
+        super(properties, configPrefix, repositoryMode);
         uriPath = configPrefix + URI_PATH_SUFFIX;
         loginPath = configPrefix + LOGIN_PATH_SUFFIX;
         passwordPath = configPrefix + PASSWORD_PATH_SUFFIX;

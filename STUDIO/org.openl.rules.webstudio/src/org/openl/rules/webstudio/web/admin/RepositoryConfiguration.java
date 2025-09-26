@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     private static final String REPOSITORY_NAME_SUFFIX = ".name";
     private static final String REPOSITORY_FACTORY_SUFFIX = ".factory";
+    public static final String REPOSITORY_DEFAULT_PREFIX = "repo-default.";
 
     @SettingPropertyName(suffix = REPOSITORY_NAME_SUFFIX)
     private String name;
@@ -66,6 +68,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
 
     private BiFunction<String, String, String> valueFinder;
 
+    @JsonIgnore
     private RepositoryMode repoMode;
 
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
@@ -96,7 +99,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         this.repoMode = repoMode;
 
         // Define default settings for the new repository
-        String defaultSettingsPrefix = "repo-default." + repoMode.getId();
+        String defaultSettingsPrefix = REPOSITORY_DEFAULT_PREFIX + repoMode.getId();
         properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
         properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
         if (repoMode.equals(RepositoryMode.DESIGN)) {
@@ -130,27 +133,53 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;
-        settings = createSettings(repositoryType, properties, nameWithPrefix);
+        settings = createSettings(repositoryType, properties, nameWithPrefix, false);
+    }
+
+    private RepositoryMode getRepoMode() {
+        if (repoMode != null) {
+            return repoMode;
+        }
+        Predicate<String> containsConfiguration = reposConfig -> {
+            var reposConfigs = StringUtils.split(properties.getProperty(reposConfig), ',');
+            if (reposConfigs != null) {
+                for (String designRepoConfig : reposConfigs) {
+                    if (configName.equalsIgnoreCase(designRepoConfig)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        if (containsConfiguration.test(AdministrationSettings.DESIGN_REPOSITORY_CONFIGS)) {
+            return RepositoryMode.DESIGN;
+        } else if (containsConfiguration.test(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS)) {
+            return RepositoryMode.PRODUCTION;
+        }
+        return null;
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
                                               PropertiesHolder properties,
-                                              String configPrefix) {
+                                              String configPrefix,
+                                              boolean createUniquePath) {
         // Generate a unique path for a just created GIT configuration
 
+        var repositoryMode = getRepoMode();
         return switch (repositoryType) {
-            case AWS_S3 -> new AWSS3RepositorySettings(properties, configPrefix);
-            case AZURE -> new AzureBlobRepositorySettings(properties, configPrefix);
+            case AWS_S3 -> new AWSS3RepositorySettings(properties, configPrefix, repositoryMode);
+            case AZURE -> new AzureBlobRepositorySettings(properties, configPrefix, repositoryMode);
             case GIT -> {
-                if (repoMode != null) {
+                if (createUniquePath) {
                     // Generate a unique path for a just created GIT configuration
-                    String defValue = properties.getProperty("repo-default." + repoMode.getId() + ".local-repository-path");
-                    properties.setProperty(nameWithPrefix + ".local-repository-path", valueFinder.apply("local-repository-path", defValue));
+                    String defValue = properties.getProperty(REPOSITORY_DEFAULT_PREFIX + repositoryMode.getId() + GitRepositorySettings.LOCAL_REPOSITORY_PATH_SUFFIX);
+                    properties.setProperty(nameWithPrefix + GitRepositorySettings.LOCAL_REPOSITORY_PATH_SUFFIX, valueFinder.apply("local-repository-path", defValue));
                 }
-                yield new GitRepositorySettings(properties, configPrefix);
+                yield new GitRepositorySettings(properties, configPrefix, repositoryMode);
             }
-            case LOCAL -> new LocalRepositorySettings(properties, configPrefix);
-            default -> new CommonRepositorySettings(properties, configPrefix);
+            case LOCAL -> new LocalRepositorySettings(properties, configPrefix, repositoryMode);
+            default -> new CommonRepositorySettings(properties, configPrefix, repositoryMode);
         };
     }
 
@@ -222,7 +251,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             errorMessage = null;
 
             properties.setProperty(REPOSITORY_REF, newRepositoryType.factoryId);
-            settings = createSettings(newRepositoryType, properties, nameWithPrefix);
+            settings = createSettings(newRepositoryType, properties, nameWithPrefix, true);
         }
     }
 
