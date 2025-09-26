@@ -36,7 +36,6 @@
                         <fileset>
                             <directory>${project.basedir}</directory>
                             <includes>
-                                <include>bun.lock</include>
                                 <include>dist/</include>
                                 <include>node_modules/</include>
                             </includes>
@@ -49,39 +48,34 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>install bun</id>
+                        <id>install Node</id>
                         <goals>
-                            <goal>install-bun</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
                     </execution>
                     <execution>
-                        <id>bun install</id>
+                        <id>npm install</id>
                         <goals>
-                            <goal>bun</goal>
+                            <goal>npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
                     </execution>
                     <execution>
-                        <id>bun run build</id>
+                        <id>npm run build</id>
                         <goals>
-                            <goal>bun</goal>
+                            <goal>npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>bun run test</id>
+                        <id>npm run test</id>
                         <goals>
-                            <goal>bun</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
                             <arguments>run test</arguments>
+                            <skip>${npm.test.skip}</skip>
                         </configuration>
                     </execution>
                 </executions>

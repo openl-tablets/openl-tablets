@@ -187,8 +187,9 @@
         <xmlsec.version>4.0.4</xmlsec.version>
         <jcodemodel.version>4.0.0</jcodemodel.version>
 
-        <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
-        <bun.version>v1.2.18</bun.version>
+        <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
+        <node.version>v24.9.0</node.version>
+        <npm.test.skip>false</npm.test.skip>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -421,7 +422,7 @@
                     <artifactId>frontend-maven-plugin</artifactId>
                     <version>${frontend-maven-plugin.version}</version>
                     <configuration>
-                        <bunVersion>${bun.version}</bunVersion>
+                        <nodeVersion>${node.version}</nodeVersion>
                         <installDirectory>${project.build.directory}</installDirectory>
                     </configuration>
                 </plugin>
@@ -505,6 +506,7 @@
                 <maven.test.skip>${skipTestsForQuick}</maven.test.skip>
                 <archetype.test.skip>${skipTestsForQuick}</archetype.test.skip>
                 <invoker.skip>${skipTestsForQuick}</invoker.skip>
+                <npm.test.skip>${skipTestsForQuick}</npm.test.skip>
             </properties>
         </profile>
         <profile>
@@ -518,6 +520,7 @@
                 <maven.test.skip>true</maven.test.skip>
                 <archetype.test.skip>true</archetype.test.skip>
                 <invoker.skip>true</invoker.skip>
+                <npm.test.skip>true</npm.test.skip>
             </properties>
         </profile>
         <profile>
