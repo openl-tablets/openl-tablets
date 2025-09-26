@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { RepositoryDataType } from './constants'
 import { apiCall } from '../../services'
-import { Modal, notification } from 'antd'
+import { notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { RepositoryResponse } from './index'
@@ -34,46 +34,35 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
     }
 
     const updateRepositoryConfiguration = async (values: any) => {
-        await apiCall(`/admin/settings/repos/${repositoryDataType}`, {
+        return await apiCall(`/admin/settings/repos/${repositoryDataType}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/merge-patch+json',
             },
             body: JSON.stringify(values)
         }, true).then(() => {
+            notification.success({
+                message: t('repository:notifications.configuration_applied'),
+                description: t('repository:notifications.configuration_applied_description'),
+            })
             window.location.reload()
         }).catch(error => {
             notification.error({ message: error.toString() })
+            throw error
         })
     }
 
     const deleteRepositoryConfiguration = async (id: string) => {
-        await apiCall(`/admin/settings/repos/${repositoryDataType}/${id}`, {
+        return await apiCall(`/admin/settings/repos/${repositoryDataType}/${id}`, {
             method: 'DELETE'
         }, true).then(() => {
+            notification.success({
+                message: t('repository:notifications.repository_deleted'),
+                description: t('repository:notifications.repository_deleted_description'),
+            })
             window.location.reload()
         }).catch(error => {
             notification.error({ message: error.toString() })
-        })
-    }
-
-    const handleDeleteRepository = async (id: string) => {
-        Modal.confirm({
-            title: t('repository:confirm_delete_repository'),
-            content: t('repository:confirm_delete_repository_message'),
-            onOk: () => {
-                deleteRepositoryConfiguration(id)
-            },
-        })
-    }
-
-    const handleApplyConfiguration = async (values: any) => {
-        Modal.confirm({
-            title: t('repository:confirm_apply_configuration'),
-            content: t('repository:confirm_apply_configuration_message'),
-            onOk: () => {
-                updateRepositoryConfiguration(values)
-            },
         })
     }
 
@@ -86,8 +75,6 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
         fetchRepositoryConfigurationTemplate,
         updateRepositoryConfiguration,
         deleteRepositoryConfiguration,
-        handleApplyConfiguration,
-        handleDeleteRepository,
         setURLSearchParam
     }
 }

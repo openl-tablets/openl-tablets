@@ -63,4 +63,16 @@ i18next.addResourceBundle('en', 'repository', {
     click_add_repository_to_create_first: 'Click "Add {{type}} Repository" to create your first repository.',
     design: 'Design',
     deployment: 'Deployment',
+    messages: {
+        waiting_for_repository_operation: 'Please wait while processing repository operation...',
+    },
+    buttons: {
+        apply_changes: 'Apply Changes',
+    },
+    notifications: {
+        repository_deleted: 'Repository deleted',
+        repository_deleted_description: 'The repository has been successfully deleted.',
+        configuration_applied: 'Configuration applied',
+        configuration_applied_description: 'Repository configuration changes have been successfully applied.',
+    },
 })
