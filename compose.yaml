@@ -128,9 +128,10 @@ services:
         " > /initdb/init.sql
 
         [ -e /openl-home/.properties ] && echo /openl-home/.properties exists || echo '.version=LATEST
-        demo.init=true # It is effective only when user.mode=single and other combinations are not supported.
-        user.mode=single
-        #user.mode=multi
+        # demo.init=true is effective only when user.mode=single and other combinations are not supported.
+        # demo.init=true
+        # user.mode=single
+        user.mode=multi
         db.url=jdbc:postgresql://postgres:5432/db?currentSchema=studio
         db.user=user
         db.password=s3cr3t
