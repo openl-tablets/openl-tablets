@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine as otel
+FROM alpine AS otel
 
 ENV OTEL_VER 2.20.1
 
@@ -22,7 +22,7 @@ gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
 apk del wget gnupg
 EOT
 
-FROM eclipse-temurin:24-jre-alpine as openl
+FROM eclipse-temurin:25-jre-alpine AS openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"
