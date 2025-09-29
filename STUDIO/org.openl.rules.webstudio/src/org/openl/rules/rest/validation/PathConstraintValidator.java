@@ -1,7 +1,6 @@
 package org.openl.rules.rest.validation;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -41,16 +40,9 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return false;
         }
         try {
-            var path = value;
-            if (allowLeadingSlash && value.startsWith("/")) {
-                path = path.substring(1);
-            }
-            if (allowTrailingSlash && value.endsWith("/")) {
-                path = path.substring(0, value.length() - 1);
-            }
             // Cross-platform path check
-            NameChecker.validatePath(path);
-        } catch (IOException e) {
+            NameChecker.validatePath(value);
+        } catch (IOException | IllegalArgumentException e) {
             context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
             return false;
         }
@@ -60,13 +52,6 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
         } catch (CorruptObjectException e) {
             context.buildConstraintViolationWithTemplate(StringUtils.capitalize(e.getMessage()))
                     .addConstraintViolation();
-        }
-        try {
-            // OS specific check
-            Paths.get(value);
-        } catch (IllegalArgumentException e) {
-            context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
-            return false;
         }
         return true;
     }

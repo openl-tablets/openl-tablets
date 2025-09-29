@@ -159,7 +159,7 @@ public class ProjectTagsBean {
                     }
                     WebStudioUtils.validate(NameChecker.checkName(tagName),
                             "Tag cannot contain forbidden characters (" + NameChecker
-                                    .getForbiddenCharacters() + "), start with space, end with space or dot.");
+                                    .FORBIDDEN_CHARS_STRING + "), start with space, end with space or dot.");
                     WebStudioUtils.validate(type.isExtensible(),
                             String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
                 }

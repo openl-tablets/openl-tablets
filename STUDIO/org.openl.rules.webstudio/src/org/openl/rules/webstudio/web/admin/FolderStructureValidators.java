@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.IOException;
+
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 
@@ -33,7 +34,7 @@ public class FolderStructureValidators {
         try {
             // Cross-platform path check
             NameChecker.validatePath(path);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             WebStudioUtils.throwValidationError(e.getMessage());
         }
 
