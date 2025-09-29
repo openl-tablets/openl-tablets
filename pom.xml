@@ -1169,7 +1169,7 @@
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
-                <version>0.9.0</version>
+                <version>1.5.2</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
