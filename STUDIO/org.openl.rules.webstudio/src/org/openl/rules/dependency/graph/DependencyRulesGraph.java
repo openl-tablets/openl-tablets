@@ -3,11 +3,13 @@ package org.openl.rules.dependency.graph;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Supplier;
 
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.EdgeFactory;
+import org.jgrapht.Graph;
+import org.jgrapht.GraphType;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
 import org.openl.binding.BindingDependencies;
@@ -22,41 +24,31 @@ import org.openl.types.impl.ExecutableMethod;
  *
  * @author DLiauchuk
  */
-public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, DirectedEdge<ExecutableMethod>> {
+public class DependencyRulesGraph implements Graph<ExecutableMethod, DirectedEdge<ExecutableMethod>> {
 
-    private DirectedGraph<ExecutableMethod, DirectedEdge<ExecutableMethod>> graph;
+    private final Graph<ExecutableMethod, DirectedEdge<ExecutableMethod>> graph = new DefaultDirectedGraph<>(null,
+            DirectedEdge::new,
+            false);
 
-    public DependencyRulesGraph(Set<ExecutableMethod> rulesMethods) {
-        createGraph();
+    private DependencyRulesGraph(Set<ExecutableMethod> rulesMethods) {
         fill(rulesMethods);
     }
 
-    public DependencyRulesGraph() {
-        createGraph();
-    }
-
-    private void createGraph() {
-        EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> edgeFactory = new DirectedEdgeFactory<>(
-                DirectedEdge.class);
-        graph = new DefaultDirectedGraph<>(edgeFactory);
-    }
-
     private void fill(Set<ExecutableMethod> rulesMethods) {
-        if (rulesMethods != null && !rulesMethods.isEmpty()) {
-            for (ExecutableMethod method : rulesMethods) {
-                graph.addVertex(method);
-                BindingDependencies dependencies = method.getDependencies();
-                if (dependencies != null) {
-                    Set<ExecutableMethod> dependentMethods = dependencies.getRulesMethods();
-                    if (dependentMethods != null) {
-                        for (ExecutableMethod dependentMethod : dependentMethods) {
-                            graph.addVertex(dependentMethod);
-                            graph.addEdge(method, dependentMethod);
-                        }
-                    }
-                }
-            }
-        }
+        Optional.ofNullable(rulesMethods)
+                .stream()
+                .flatMap(Collection::stream)
+                .forEach(method -> {
+                    graph.addVertex(method);
+                    Optional.ofNullable(method.getDependencies())
+                            .map(BindingDependencies::getRulesMethods)
+                            .stream()
+                            .flatMap(Collection::stream)
+                            .forEach(dependentMethod -> {
+                                graph.addVertex(dependentMethod);
+                                graph.addEdge(method, dependentMethod);
+                            });
+                });
     }
 
     @Override
@@ -74,6 +66,11 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     @Override
     public boolean addVertex(ExecutableMethod v) {
         return graph.addVertex(v);
+    }
+
+    @Override
+    public ExecutableMethod addVertex() {
+        return graph.addVertex();
     }
 
     @Override
@@ -113,8 +110,8 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     }
 
     @Override
-    public EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> getEdgeFactory() {
-        return graph.getEdgeFactory();
+    public Supplier<DirectedEdge<ExecutableMethod>> getEdgeSupplier() {
+        return DirectedEdge::new;
     }
 
     @Override
@@ -130,6 +127,26 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     @Override
     public double getEdgeWeight(DirectedEdge<ExecutableMethod> e) {
         return graph.getEdgeWeight(e);
+    }
+
+    @Override
+    public void setEdgeWeight(DirectedEdge<ExecutableMethod> e, double weight) {
+        graph.setEdgeWeight(e, weight);
+    }
+
+    @Override
+    public GraphType getType() {
+        return graph.getType();
+    }
+
+    @Override
+    public int degreeOf(ExecutableMethod vertex) {
+        return graph.degreeOf(vertex);
+    }
+
+    @Override
+    public Supplier<ExecutableMethod> getVertexSupplier() {
+        return graph.getVertexSupplier();
     }
 
     @Override
@@ -168,24 +185,20 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
         return graph.vertexSet();
     }
 
-    @Override
-    public int inDegreeOf(ExecutableMethod arg0) {
-        return graph.inDegreeOf(arg0);
+    public int inDegreeOf(ExecutableMethod vertex) {
+        return graph.inDegreeOf(vertex);
     }
 
-    @Override
-    public Set<DirectedEdge<ExecutableMethod>> incomingEdgesOf(ExecutableMethod arg0) {
-        return graph.incomingEdgesOf(arg0);
+    public Set<DirectedEdge<ExecutableMethod>> incomingEdgesOf(ExecutableMethod vertex) {
+        return graph.incomingEdgesOf(vertex);
     }
 
-    @Override
-    public int outDegreeOf(ExecutableMethod arg0) {
-        return graph.outDegreeOf(arg0);
+    public int outDegreeOf(ExecutableMethod vertex) {
+        return graph.outDegreeOf(vertex);
     }
 
-    @Override
-    public Set<DirectedEdge<ExecutableMethod>> outgoingEdgesOf(ExecutableMethod arg0) {
-        return graph.outgoingEdgesOf(arg0);
+    public Set<DirectedEdge<ExecutableMethod>> outgoingEdgesOf(ExecutableMethod vertex) {
+        return graph.outgoingEdgesOf(vertex);
     }
 
     /**

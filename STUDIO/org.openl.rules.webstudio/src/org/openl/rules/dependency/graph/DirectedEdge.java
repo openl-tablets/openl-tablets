@@ -1,35 +1,19 @@
 package org.openl.rules.dependency.graph;
 
+import org.jgrapht.graph.DefaultEdge;
+
 /**
  * @author Andrei Astrouski
  */
-public class DirectedEdge<V> {
-
-    private V sourceVertex;
-    private V targetVertex;
-
-    public DirectedEdge() {
-    }
-
-    public DirectedEdge(V sourceVertex, V targetVertex) {
-        this.sourceVertex = sourceVertex;
-        this.targetVertex = targetVertex;
-    }
+@SuppressWarnings("unchecked")
+public class DirectedEdge<V> extends DefaultEdge {
 
     public V getSourceVertex() {
-        return sourceVertex;
-    }
-
-    public void setSourceVertex(V sourceVertex) {
-        this.sourceVertex = sourceVertex;
+        return (V) getSource();
     }
 
     public V getTargetVertex() {
-        return targetVertex;
-    }
-
-    public void setTargetVertex(V targetVertex) {
-        this.targetVertex = targetVertex;
+        return (V) getTarget();
     }
 
 }
