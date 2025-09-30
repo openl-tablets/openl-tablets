@@ -1166,11 +1166,6 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jgrapht</groupId>
-                <artifactId>jgrapht-core</artifactId>
-                <version>1.5.2</version>
-            </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
                 <groupId>javax.cache</groupId>

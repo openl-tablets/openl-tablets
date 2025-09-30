@@ -37,7 +37,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
@@ -137,7 +136,6 @@ public class ProjectModel {
 
     private TreeNode projectRoot = null;
 
-    private DependencyRulesGraph dependencyGraph;
     private String historyStoragePath;
 
     private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
@@ -797,8 +795,6 @@ public class ProjectModel {
                 element = addToNode(element, tableSyntaxNode, treeSorter);
             }
         }
-        dependencyGraph = null;
-
         projectRoot = build(root);
 
         initProjectHistory();
@@ -1449,14 +1445,6 @@ public class ProjectModel {
         return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
                 .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
                 .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
-    }
-
-    public synchronized DependencyRulesGraph getDependencyGraph() {
-        if (dependencyGraph == null) {
-            Collection<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
-            dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
-        }
-        return dependencyGraph;
     }
 
     public synchronized List<File> getSources() {
