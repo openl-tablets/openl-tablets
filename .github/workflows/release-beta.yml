@@ -1,0 +1,156 @@
+# This workflow will build a project with Maven every day (aka Nightly Build)
+# and deploys the built docker images to the GitHub Packages.
+
+name: Release BETA version
+
+on:
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: false
+
+jobs:
+  deploy:
+
+    name: Release BETA
+
+    permissions:
+      packages: write
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - name: Checkout ${{ github.event.inputs.branch }}
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Java and cache
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: 'maven'
+
+      - name: Get tag
+        run: |
+          mvn -f DEV/org.openl.commons/pom.xml compile
+          PROPERTIES_FILE="DEV/org.openl.commons/target/classes/org/openl/info/openl.version.properties"
+          VERSION=$(grep 'openl.version' "$PROPERTIES_FILE" | cut -d'=' -f2 | xargs)
+          RELEASE_TAG=${VERSION/-SNAPSHOT/-beta.}
+          latestTag=$(git tag --list --sort=-version:refname ${RELEASE_TAG}* | head -n 1)
+          betaVersion=${latestTag/#$RELEASE_TAG/}
+          echo "RELEASE_TAG=${RELEASE_TAG}$((betaVersion + 1))" >> $GITHUB_ENV
+
+      - name: Set "${{ env.RELEASE_TAG }}" release version
+        run: |
+          mvn versions:set "-Dstyle.color=always" -DnewVersion=${RELEASE_TAG} -DgenerateBackupPoms=false
+          git add .
+          git commit -m "[beta] Release ${RELEASE_TAG}"
+          git tag ${RELEASE_TAG}
+
+      - name: Build & Deploy to local staging repository
+        run: >
+          mvn "-Dstyle.color=always"
+          deploy
+          -Psources,gpg-sign
+          -DskipTests
+          -T1C
+          -DaltDeploymentRepository=local-staging::default::file:./mvn-staging
+          -Duser.name=${{ github.actor }}
+        env:
+          SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+          SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
+
+      - name: Prepare for multi-platform docker build
+        run: |
+          echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker buildx create --use
+          docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build docker images ${{ env.RELEASE_TAG }}
+        run: |
+          echo Platforms: ${BUILD_PLATFORMS}
+          repo=openltablets
+          created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          version="org.opencontainers.image.version=x"
+          revision="org.opencontainers.image.revision=${GITHUB_SHA}"
+          echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          docker buildx build -t $repo/ws:${RELEASE_TAG} . \
+            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL RuleServices" \
+            --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
+          docker buildx build -t $repo/ws:${RELEASE_TAG}-all . \
+            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
+            --label "org.opencontainers.image.description=An OpenL web service with extra modules"
+          docker buildx build -t $repo/webstudio:${RELEASE_TAG} . \
+            --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL Studio" \
+            --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
+
+      - name: Create release on GitHub
+        id: create_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cd DEMO
+          echo "${RELEASE_TAG}" > ./openl.version
+          cp -r ../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp/. webapps/webservice
+          cp -r ../STUDIO/org.openl.rules.webstudio/target/webapp/. webapps/webstudio
+          zip -r ../openl-tablets-demo-${RELEASE_TAG}.zip .
+          cd ../mvn-staging
+          zip -r ../openl-maven-artifacts-${RELEASE_TAG}.zip .
+          cd ..
+          git push origin ${RELEASE_TAG}
+          DOWNLOAD_BASE=https://github.com/openl-tablets/openl-tablets/releases/download/${RELEASE_TAG}
+          gh release create "${RELEASE_TAG}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --prerelease \
+            --latest=false \
+            --title "OpenL Tablets ${RELEASE_TAG} Released" \
+            --notes-file - <<-EOF
+            **OpenL Tablets ${RELEASE_TAG} is available.**
+            This is a beta release and it will be removed after the final version is released.
+            The purpose of this release is to test and gather feedback before the public release.
+
+            See also: [Release Notes ${RELEASE_TAG}](//openl-tablets.org/release-notes?ver=${RELEASE_TAG}).
+
+            To run in the Docker:
+            \`docker run -p 8080:8080 openltablets/webstudio:${RELEASE_TAG}\`
+            \`docker run -p 8080:8080 openltablets/ws:${RELEASE_TAG}\`
+            \`docker run -p 8080:8080 openltablets/ws:${RELEASE_TAG}-all\`
+
+            All artifacts are ready for Downloads.
+            * [Download OpenL Studio](${DOWNLOAD_BASE}/org.openl.rules.webstudio-${RELEASE_TAG}.war)
+            * [Download OpenL Rule Services](${DOWNLOAD_BASE}/org.openl.rules.ruleservice.ws-${RELEASE_TAG}.war)
+            * [Download OpenL Rule Services (All)](${DOWNLOAD_BASE}/org.openl.rules.ruleservice.ws.all-${RELEASE_TAG}.war)
+            * [Download OpenL DEMO installer](${DOWNLOAD_BASE}/openl-tablets-demo-${RELEASE_TAG}.zip)
+            * [Download OpenL Maven artifacts](${DOWNLOAD_BASE}/openl-maven-artifacts-${RELEASE_TAG}.zip)
+
+            Enjoy!
+          EOF
+          gh release upload "${RELEASE_TAG}" "openl-tablets-demo-${RELEASE_TAG}.zip#openl-tablets-demo.zip" --clobber --repo "${GITHUB_REPOSITORY}"
+          gh release upload "${RELEASE_TAG}" "openl-maven-artifacts-${RELEASE_TAG}.zip#openl-maven-artifacts.zip" --clobber --repo "${GITHUB_REPOSITORY}"
+          gh release upload "${RELEASE_TAG}" "mvn-staging/org/openl/rules/org.openl.rules.webstudio/${RELEASE_TAG}/org.openl.rules.webstudio-${RELEASE_TAG}.war#webstudio.war" --clobber --repo "${GITHUB_REPOSITORY}"
+          gh release upload "${RELEASE_TAG}" "mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${RELEASE_TAG}/org.openl.rules.ruleservice.ws-${RELEASE_TAG}.war#webservice.war" --clobber --repo "${GITHUB_REPOSITORY}"
+          gh release upload "${RELEASE_TAG}" "mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${RELEASE_TAG}/org.openl.rules.ruleservice.ws.all-${RELEASE_TAG}.war#webservice-all.war" --clobber --repo "${GITHUB_REPOSITORY}"
