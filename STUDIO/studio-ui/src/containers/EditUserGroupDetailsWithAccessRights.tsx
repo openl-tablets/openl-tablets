@@ -78,6 +78,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const [selectedRepositories, setSelectedRepositories] = useState<string[]>([])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [designRepositories, setDesignRepositories] = React.useState<Repository[]>([])
+    const [loadingDesignRepositories, setLoadingDesignRepositories] = React.useState<boolean>(false)
     const [hasErrorOnTab, setHasErrorOnTab] = useState<Record<any, boolean>>({})
 
     const [isOpen, setIsOpen] = React.useState(false)
@@ -102,7 +103,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const fetchDesignRepositories = async () => {
-        const response: Repository[] = await apiCall('/repos')
+        setLoadingDesignRepositories(true)
+        const response: Repository[] = await apiCall('/repos').finally(() => setLoadingDesignRepositories(false))
         setDesignRepositories(response)
     }
 
@@ -124,15 +126,17 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     useEffect(() => {
-        fetchDesignRepositories()
-    }, [])
+        if ((isOpenFromParent || isOpen) && !designRepositories.length && !loadingDesignRepositories) {
+            fetchDesignRepositories()
+        }
+    }, [isOpenFromParent, isOpen, designRepositories, loadingDesignRepositories])
 
     useEffect(() => {
-        if (((user || newUser) && sid) || (group && group.id)) {
+        if (isOpen && (((user || newUser) && sid) || (group && group.id))) {
             fetchReposRoles()
             fetchProjectRoles()
         }
-    }, [group, sid])
+    }, [isOpen, group, sid])
 
     const getUserInitialValues = () => {
         const displayNameSelectInitialValue = () => {
