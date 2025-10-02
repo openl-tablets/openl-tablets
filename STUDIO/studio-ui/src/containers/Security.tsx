@@ -41,6 +41,7 @@ export const Security = () => {
     const [form] = Form.useForm()
     const [securitySettings, setSecuritySettings] = React.useState<any>(undefined)
     const [userGroups, setUserGroups] = React.useState<{label: string, value: string}[]>([])
+    const [loadingUserGroups, setLoadingUserGroups] = React.useState<boolean>(false)
     const userMode = Form.useWatch('userMode', form)
 
     const userModeOptions = [
@@ -87,7 +88,10 @@ export const Security = () => {
     }
 
     const fetchUserGroups = async () => {
-        const response = await apiCall('/admin/management/groups')
+        setLoadingUserGroups(true)
+        const response = await apiCall('/admin/management/groups').finally(() => {
+            setLoadingUserGroups(false)
+        })
         if (response && Object.keys(response).length) {
             const userGroups = Object.keys(response).map(group => ({
                 label: group,
@@ -122,7 +126,7 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        if (userMode && userMode !== SecurityUserMode.SINGLE && userGroups.length === 0) {
+        if (!loadingUserGroups && (userMode && userMode !== SecurityUserMode.SINGLE && userGroups.length === 0)) {
             fetchUserGroups()
         }
     }, [userMode])
