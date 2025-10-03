@@ -77,13 +77,13 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>6.2.5</spring.framework.version>
-        <spring.boot.version>3.4.5</spring.boot.version>
-        <spring.integration.version>6.5.0</spring.integration.version>
+        <spring.framework.version>6.2.11</spring.framework.version>
+        <spring.boot.version>3.5.6</spring.boot.version>
+        <spring.integration.version>6.5.2</spring.integration.version>
 
         <!-- Security -->
-        <spring.security.version>6.5.1</spring.security.version>
-        <opensaml.version>5.1.4</opensaml.version>
+        <spring.security.version>6.5.5</spring.security.version>
+        <opensaml.version>5.1.6</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.5</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
@@ -95,7 +95,7 @@
         <objenesis.version>3.4</objenesis.version>
 
         <!-- Kafka -->
-        <kafka.version>4.0.0</kafka.version>
+        <kafka.version>4.1.0</kafka.version>
         <snappy-java.version>1.1.10.8</snappy-java.version>
 
         <!-- Open Telemetry -->
@@ -128,7 +128,7 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.0.25</jetty.version>
+        <jetty.version>12.1.1</jetty.version>
 
         <!-- Repositories -->
         <amazonaws.version>2.34.9</amazonaws.version>
@@ -140,8 +140,8 @@
         <h2.version>2.4.240</h2.version>
         <mssql.version>12.10.1.jre11</mssql.version>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <hibernate.orm.version>6.6.21.Final</hibernate.orm.version>
-        <hibernate.validator.version>8.0.2.Final</hibernate.validator.version>
+        <hibernate.orm.version>6.6.31.Final</hibernate.orm.version>
+        <hibernate.validator.version>8.0.3.Final</hibernate.validator.version>
 
         <!-- Testing -->
         <junit.version>5.14.0</junit.version>
@@ -160,9 +160,9 @@
 
         <!-- Jakarta APIs -->
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
-        <jakarta.mail-api.version>2.1.3</jakarta.mail-api.version>
+        <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
 
         <!-- Cache -->
@@ -170,11 +170,11 @@
         <cache2k.version>2.6.1.Final</cache2k.version>
 
         <!-- Mail -->
-        <angus-mail.version>2.0.3</angus-mail.version>
-        <greenmail.version>2.1.4</greenmail.version>
+        <angus-mail.version>2.0.5</angus-mail.version>
+        <greenmail.version>2.1.6</greenmail.version>
 
         <!-- XML -->
-        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
 
         <!-- Commons and utils -->
         <commons-codec.version>1.19.0</commons-codec.version>
@@ -195,7 +195,7 @@
         <velocity.version>2.4.1</velocity.version>
         <guava.version>33.5.0-jre</guava.version>
         <xmlsec.version>4.0.4</xmlsec.version>
-        <jcodemodel.version>3.4.1</jcodemodel.version>
+        <jcodemodel.version>4.0.0</jcodemodel.version>
         <activiti.version>5.23.0</activiti.version>
 
         <!-- It needs to detect memory leaks. -->
@@ -1002,7 +1002,7 @@
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>jakarta.faces</artifactId>
-                <version>4.0.11</version>
+                <version>4.0.12</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.enterprise</groupId>
