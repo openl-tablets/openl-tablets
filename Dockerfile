@@ -6,7 +6,7 @@ FROM eclipse-temurin:${JDK} as jdk
 
 FROM alpine as otel
 
-ENV OTEL_VER 2.19.0
+ENV OTEL_VER 2.20.1
 
 RUN <<EOT
 set -euxv
