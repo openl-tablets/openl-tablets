@@ -1,0 +1,9 @@
+<project>
+    <name>Dependency Example</name>
+    <comment>This project doesn't expose any endpoints, but is used in a different project as a dependency</comment>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+</project>

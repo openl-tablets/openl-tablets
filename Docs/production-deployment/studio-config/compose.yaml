@@ -1,0 +1,260 @@
+version: '3.8'
+
+services:
+  gitea:
+    image: gitea/gitea:1.21@sha256:0056032dc8c6ab70583e4a105b9ee0dc72dce4f4fbc8022c98bcec46b0273883
+    container_name: gitea-server
+    environment:
+      # Basic Gitea settings
+      - DB_TYPE=sqlite3
+      - USER_UID=1000 # Match host user if needed for permissions later
+      - USER_GID=1000
+      # Disable SSH server as we'll use HTTP
+      - DISABLE_SSH=true
+      # IMPORTANT: Disable initial install page - init container handles setup
+      - RUN_MODE=prod # Disables install page if config exists
+      - INSTALL_LOCK=true # Prevent install page access
+      - SECRET_KEY=aVeryRandomSecretKeyChangeMe # Change this!
+      - ROOT_URL=http://localhost:3000
+      - APP_NAME="OpenL Gitea (Auto Setup)"
+      # Default admin user/pass - init container will create this
+      - GITEA_ADMIN_USER=admin_user # Define desired admin username
+      - GITEA_ADMIN_PASSWORD=admin_password # Define desired admin password
+      - GITEA_ADMIN_EMAIL=admin@example.com # Define desired admin email
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist Gitea data (repositories, database, config)
+      - gitea-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  gitea-init:
+    # Use the *same* Gitea image to get access to 'gitea' CLI
+    image: gitea/gitea:1.21@sha256:0056032dc8c6ab70583e4a105b9ee0dc72dce4f4fbc8022c98bcec46b0273883
+    container_name: gitea-init-auto
+    depends_on:
+      gitea:
+        # Wait for Gitea to be healthy before starting
+        condition: service_healthy
+    volumes:
+      # Mount the same volume to access config and data
+      - gitea-data:/data
+      - ../example/:/source_projects/:ro # Mount read-only
+    environment:
+      # Credentials MUST match those defined in the 'gitea' service environment
+      - GITEA_ADMIN_USER=admin_user
+      - GITEA_ADMIN_PASSWORD=admin_password
+      - GITEA_ADMIN_EMAIL=admin@example.com
+      - GITEA_REPO_NAME=design # Target repository name
+      - GITEA_INTERNAL_URL=http://gitea:3000 # Internal URL for API calls
+      # Define the target user Gitea runs as (usually 'git' in the image)
+      - GITEA_RUN_USER=git
+    command: >
+      sh -c '
+        echo "Waiting for Gitea configuration and service...";
+        while [ ! -f /data/gitea/conf/app.ini ]; do echo "Waiting for app.ini..."; sleep 1; done;
+
+        echo "Installing tools (curl, git)...";
+        # Install curl for API calls and git for repo operations
+        apk add --no-cache curl git;
+
+        echo "Waiting for Gitea service...";
+        until curl -sf $${GITEA_INTERNAL_URL}/api/v1/version > /dev/null; do
+            echo "Gitea service not ready yet...";
+            sleep 2;
+        done;
+        echo "Gitea is up!";
+
+        echo "Attempting to create admin user $${GITEA_ADMIN_USER} as user $${GITEA_RUN_USER}...";
+        su-exec $${GITEA_RUN_USER} gitea admin user create \
+          --admin \
+          --username "$${GITEA_ADMIN_USER}" \
+          --password "$${GITEA_ADMIN_PASSWORD}" \
+          --email "$${GITEA_ADMIN_EMAIL}" \
+          --config /data/gitea/conf/app.ini || echo "Admin user creation failed (maybe user already exists?)";
+
+        echo "Attempting to create repository $${GITEA_REPO_NAME} for user $${GITEA_ADMIN_USER}...";
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+          -H "Content-Type: application/json" \
+          -u "$${GITEA_ADMIN_USER}:$${GITEA_ADMIN_PASSWORD}" \
+          -d "{\"name\": \"$${GITEA_REPO_NAME}\", \"auto_init\": true, \"default_branch\": \"main\"}" \
+          "$${GITEA_INTERNAL_URL}/api/v1/user/repos");
+
+        echo "Gitea API for repo creation returned status code: $${STATUS_CODE}";
+
+        REPO_CREATED=false
+        if [ "$${STATUS_CODE}" -eq 201 ]; then
+          echo "Repository $${GITEA_REPO_NAME} created successfully.";
+          REPO_CREATED=true
+        elif [ "$${STATUS_CODE}" -eq 409 ]; then
+          echo "Repository $${GITEA_REPO_NAME} already exists.";
+        elif [ "$${STATUS_CODE}" -eq 401 ] || [ "$${STATUS_CODE}" -eq 403 ]; then
+          echo "Error: Authentication/Authorization failed creating repo. Check GITEA_ADMIN credentials or user creation step.";
+          exit 1;
+        else
+          echo "Error: Failed to create repository (Status code: $${STATUS_CODE})";
+          # Decide if we should proceed if repo creation failed but it might exist
+        fi;
+
+        # Only proceed if the repo was newly created by this script run
+        if [ "$${REPO_CREATED}" = true ] ; then
+          echo "Cloning the new repository...";
+          # Clone URL with embedded credentials (simple for demo, less secure)
+          CLONE_URL="http://$${GITEA_ADMIN_USER}:$${GITEA_ADMIN_PASSWORD}@gitea:3000/$${GITEA_ADMIN_USER}/$${GITEA_REPO_NAME}.git"
+          git clone "$${CLONE_URL}" /tmp/gitea_repo
+
+          if [ $? -ne 0 ]; then
+              echo "Error: Failed to clone repository $${GITEA_REPO_NAME}";
+              exit 1;
+          fi
+
+          cd /tmp/gitea_repo
+
+          echo "Configuring git user...";
+          git config --global user.email "$${GITEA_ADMIN_EMAIL}"
+          git config --global user.name "$${GITEA_ADMIN_USER} (init script)"
+          # Disable prompts for credentials if needed (URL embedding should handle it)
+          git config --global credential.helper store
+
+          echo "Copying project files from /source_projects...";
+          # Copy specific project folders (adjust as needed)
+          cp -r /source_projects .
+          find . -type d -name target -exec rm -rf {} +
+          echo "Adding, committing, and pushing initial project files...";
+          git add .
+          # Check if there are changes to commit
+          if git diff-index --quiet HEAD --; then
+              echo "No changes detected to commit.";
+          else
+              git commit -m "Initial commit of projects from init script"
+              git push origin main
+              git checkout -b develop
+              git push origin develop
+      
+              if [ $? -ne 0 ]; then
+                  echo "Error: Failed to push initial commit to repository $${GITEA_REPO_NAME}";
+              else
+                  echo "Successfully pushed initial projects.";
+              fi
+          fi
+
+          echo "Cleaning up temporary clone...";
+          cd / # Change out of the directory before removing it
+          rm -rf /tmp/gitea_repo
+        else
+          echo "Skipping initial project commit because repository was not newly created by this script."
+        fi
+      
+        echo "Gitea initialization script finished.";
+        exit 0;
+      ' # End of sh -c script string
+    # This init container runs once and exits. No restart needed.
+
+  studio:
+    container_name: studio
+    image: openltablets/webstudio:5.27.12@sha256:35a4223afd3dc0158e4785155e2186cb5d6c1d7c337ef234d63962fcc78ada9f
+    ports:
+      - "8081:8080"
+    depends_on:
+      gitea:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - jars:/opt/openl/lib
+      - openl-home:/opt/openl/shared
+    environment:
+      ## Security settings. 
+      USER_MODE: multi
+      SECURITY_ADMINISTRATORS: admin
+      
+      ## Avoid set up wizard. We don't need it since we configure studio though environment variables 
+      WEBSTUDIO_CONFIGURED: "true"
+      
+      ## DB
+      DB_URL: jdbc:postgresql://postgres-db:5432/openl_studio
+      DB_USER: openl_user
+      DB_PASSWORD: openl_password
+      
+      ## Repository config
+      # This is a list of unique IDs for design repositories. Settings for this repository are going to look like 
+      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPL_<property-name> 
+      DESIGN-REPOSITORY-CONFIGS: example
+      
+      ## First, let's set default values. We are going to use two predefined repositories: repo-default.design and repo-git. 
+      ## We are going to use them to avoid necessity to define each required settings. You can override any settings later, but keep in mind that all settings, 
+      ## which come before this are going to be overwritten.
+      REPOSITORY_EXAMPLE__REF_: repo-default.design
+      # "Connection timeout" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT__REF_: repo-git.connection-timeout
+      # "Changes check interval" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD__REF_: repo-git.listener-timer-period
+      
+      ## Here we define variables that are specific for our project
+      # "URL" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
+      # Fixed value indicating remote git repository type. Equates to "git" in "Type" field in settings.
+      REPOSITORY_EXAMPLE_FACTORY: "repo-git"
+      # "Name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_NAME: "Example"
+      # "Login" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_LOGIN: admin_user
+      # "Password" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_PASSWORD: admin_password
+      # "Local path" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
+      # "Default branch name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_BRANCH: develop
+      # "Flat folder structure" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
+      # "Protected branches" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
+  
+  postgres:
+    image: postgres:17@sha256:0b6428e8c09651398137d2b3308a6ad87e73ac15fc38729891c16d942e947d3d
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: openl_studio # Database name to create
+      POSTGRES_USER: openl_user # Replace with your desired username
+      POSTGRES_PASSWORD: openl_password # Replace with a strong password
+    volumes:
+      - initdb:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data # Persist database data
+    ports:
+      - "5432:5432" # Expose PostgreSQL port (optional, for external access/debugging)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      init:
+        condition: service_completed_successfully
+  init:
+    image: busybox
+    container_name: init
+    command:
+      - /bin/sh
+      - -c
+      - |
+        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.7.jar
+        echo "--- Initialization of the DB
+
+        CREATE SCHEMA openl_studio;
+        CREATE SCHEMA repository;
+        " > /initdb/init.sql
+    volumes:
+      - jars:/jars
+      - initdb:/initdb
+volumes:
+  gitea-data:
+  postgres-data:
+  openl-home:
+  jars:
+  initdb:

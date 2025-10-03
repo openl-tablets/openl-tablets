@@ -1,0 +1,15 @@
+<project>
+    <name>Example - Simple project </name>
+    <comment>This is an example of the simplest possible project. It doesn't have any dependencies and exposes only one method</comment>
+    
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+Ping.+</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+</project>
