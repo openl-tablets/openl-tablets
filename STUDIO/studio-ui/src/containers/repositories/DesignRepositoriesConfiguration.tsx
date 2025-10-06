@@ -16,7 +16,8 @@ interface DesignRepositoriesConfigurationProps {
 
 export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
     const { t } = useTranslation()
-    const { configuration: initialConfiguration = [],
+    const { isLoading: isConfigurationLoading,
+        configuration: initialConfiguration = [],
         fetchRepositoryConfigurationTemplate,
         deleteRepositoryConfiguration,
         updateRepositoryConfiguration,
@@ -30,6 +31,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const [defaultConfiguration, setDefaultConfiguration] = React.useState(null)
     const [isEditingNewRepository, setIsEditingNewRepository] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
+    const [isLoadingForm, setIsLoadingForm] = React.useState(false)
     const [form] = Form.useForm()
     const repositoryType = Form.useWatch('type', form)
 
@@ -140,36 +142,48 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         }
     }
 
-    const onChangeTab = (key: string) => {
-        const navigateTo = () => {
-            setActiveKey(key)
-            const selectedRepository = configuration.find(repo => repo.id === key)
-            if (!selectedRepository) {
-                return
-            }
-            setActiveRepository(selectedRepository)
-            form.setFieldsValue(selectedRepository)
-            setURLSearchParam(key)
+    const navigateTo = (key: string) => {
+        setActiveKey(key)
+        const selectedRepository = configuration.find(repo => repo.id === key)
+        if (!selectedRepository) {
+            return
+        }
+        setActiveRepository(selectedRepository)
+        form.setFieldsValue(selectedRepository)
+        setURLSearchParam(key)
 
-            if (tabType === 'card') {
-                setConfiguration(prev => prev.slice(0, -1))
-            }
-            
-            // Reset editing state when navigating to a different repository
-            setIsEditingNewRepository(false)
-            onEditingStateChange?.(false)
+        if (tabType === 'card') {
+            setConfiguration(prev => prev.slice(0, -1))
         }
 
+        // Reset editing state when navigating to a different repository
+        setIsEditingNewRepository(false)
+        onEditingStateChange?.(false)
+    }
+
+    const navigateToWithDelay = (key: string ) => {
+        setIsLoadingForm(true)
+        // Allow React to render the spinner
+        requestAnimationFrame(() => {
+            navigateTo(key)
+            // Ensure minimum visibility for better UX
+            setTimeout(() => {
+                setIsLoadingForm(false)
+            }, 200)
+        })
+    }
+
+    const onChangeTab = (key: string) => {
         if (form?.isFieldsTouched() || tabType === 'card') {
             Modal.confirm({
                 title: t('repository:confirm_leave_without_saving'),
                 content: t('repository:confirm_leave_without_saving_message'),
                 onOk: () => {
-                    navigateTo()
+                    navigateToWithDelay(key)
                 },
             })
         } else {
-            navigateTo()
+            navigateToWithDelay(key)
         }
     }
 
@@ -194,6 +208,10 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
 
     // Check if we have repositories
     const hasRepositories = initialConfiguration && Array.isArray(initialConfiguration) && initialConfiguration.length > 0
+
+    if (isConfigurationLoading) {
+        return <Spin spinning={true} style={{ margin: 'auto', width: '100%' }} />
+    }
 
     // If there are no repositories and no configuration in state, show a message
     if (!hasRepositories && (!configuration || configuration.length === 0)) {
@@ -225,7 +243,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     return (
         <Spin spinning={isLoading} tip={t('repository:messages.waiting_for_repository_operation')}>
             <Tabs
-                destroyInactiveTabPane
+                destroyOnHidden
                 hideAdd
                 activeKey={activeKey}
                 className="repositories-tabs"
@@ -237,29 +255,31 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                     label: typeof repository.name === 'string' ? repository.name : repository?.name?.value,
                     key: repository.id,
                     children: (
-                        <Form
-                            key={repositoryType}
-                            labelWrap
-                            form={form}
-                            initialValues={defaultConfiguration || activeRepository || undefined}
-                            labelAlign="right"
-                            labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
-                            onFinish={onFinish}
-                            wrapperCol={{ flex: 1 }}
-                        >
-                            <Divider orientation="left">{t('repository:common')}</Divider>
-                            <RepositoryConfigurationComponent configuration={configurationData} onChangeType={onChangeType} repositoryDataType={repositoryDataType} repositoryType={repositoryType} />
-                            {repositoryDataType === RepositoryDataType.DESIGN && (
-                                <DesignRepositoryCommentsConfiguration />
-                            )}
-                            {repositoryDataType === RepositoryDataType.DEPLOYMENT && (
-                                <Select label={t('repository:deployment_branch')} name={['settings', 'mainBranchOnly']} options={deploymentBranchOptions} />
-                            )}
-                            <Row justify="end">
-                                <Button htmlType="submit" loading={isLoading} type="primary">{t('repository:buttons.apply_changes')}</Button>
-                            </Row>
-                            <Input hidden name="id" />
-                        </Form>
+                        <Spin spinning={isLoadingForm}>
+                            <Form
+                                key={activeKey}
+                                labelWrap
+                                form={form}
+                                initialValues={defaultConfiguration || activeRepository || undefined}
+                                labelAlign="right"
+                                labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
+                                onFinish={onFinish}
+                                wrapperCol={{ flex: 1 }}
+                            >
+                                <Divider orientation="left">{t('repository:common')}</Divider>
+                                <RepositoryConfigurationComponent configuration={configurationData} onChangeType={onChangeType} repositoryDataType={repositoryDataType} repositoryType={repositoryType} />
+                                {repositoryDataType === RepositoryDataType.DESIGN && (
+                                    <DesignRepositoryCommentsConfiguration />
+                                )}
+                                {repositoryDataType === RepositoryDataType.DEPLOYMENT && (
+                                    <Select label={t('repository:deployment_branch')} name={['settings', 'mainBranchOnly']} options={deploymentBranchOptions} />
+                                )}
+                                <Row justify="end">
+                                    <Button htmlType="submit" loading={isLoading} type="primary">{t('repository:buttons.apply_changes')}</Button>
+                                </Row>
+                                <Input hidden name="id" />
+                            </Form>
+                        </Spin>
                     )
                 }))}
             />

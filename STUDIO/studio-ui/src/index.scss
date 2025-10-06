@@ -24,3 +24,11 @@ html, body {
     }
   }
 }
+
+// Ant Design Spin
+.ant-spin-container {
+  &.ant-spin-blur {
+    opacity: 0;
+    transition-duration: 0s;
+  }
+}
