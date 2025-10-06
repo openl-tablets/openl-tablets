@@ -10,6 +10,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
     const { t } = useTranslation()
     const [configuration, setConfiguration] = useState<RepositoryResponse | RepositoryResponse[] | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const setURLSearchParam = (repositoryID: string) => {
         searchParams.set('r', repositoryID)
@@ -17,7 +18,8 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
     }
 
     const fetchConfiguration = async () => {
-        const response = await apiCall(`/admin/settings/repos/${repositoryDataType}`)
+        setIsLoading(true)
+        const response = await apiCall(`/admin/settings/repos/${repositoryDataType}`).finally(() => setIsLoading(false))
         setConfiguration(response)
     }
 
@@ -71,6 +73,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
     }, [repositoryDataType])
 
     return {
+        isLoading,
         configuration,
         fetchRepositoryConfigurationTemplate,
         updateRepositoryConfiguration,

@@ -58,6 +58,14 @@ i18next.addResourceBundle('en', 'security', {
     first_name_max_length: 'First Name must be at most 125 characters long',
     last_name_max_length: 'Last Name must be at most 125 characters long',
     display_name_max_length: 'Display Name must be at most 255 characters long',
+    // Login page
+    sign_in_to_openl_studio: 'Sign in to OpenL Studio',
+    username_label: 'Username',
+    password_label: 'Password',
+    log_in_button: 'Log in',
+    login_failed_message: 'Login failed. Please verify your credentials and try again.',
+    username_required: 'Please enter your username',
+    password_required: 'Please enter your password',
     // Info modals
     confirm_apply_configuration: 'Are you sure you want to apply the configuration?',
     confirm_apply_configuration_message: 'All users working with OpenL Studio now will lose all unsaved changes. This will restart the application.',

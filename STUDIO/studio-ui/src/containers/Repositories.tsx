@@ -58,8 +58,8 @@ export const Repositories = () => {
         : t('repository:add_deployment_repository')
 
     return (
-        <Tabs 
-            destroyInactiveTabPane 
+        <Tabs
+            destroyOnHidden
             activeKey={repositoryTab} 
             onChange={onChangeTab}
             tabBarExtraContent={
