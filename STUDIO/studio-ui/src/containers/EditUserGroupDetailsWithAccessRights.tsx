@@ -109,7 +109,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const isNewGroup = useMemo(() => {
-        return !newUser && (!group || !group.id)
+        return !user && !newUser && (!group || !group.id)
     }, [group])
 
     const isNewUser = useMemo(() => {
@@ -132,11 +132,11 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }, [isOpenFromParent, isOpen, designRepositories, loadingDesignRepositories])
 
     useEffect(() => {
-        if (isOpen && (((user || newUser) && sid) || (group && group.id))) {
+        if ((isOpenFromParent || isOpen) && (((user || newUser) && sid) || (group && group.id))) {
             fetchReposRoles()
             fetchProjectRoles()
         }
-    }, [isOpen, group, sid])
+    }, [isOpenFromParent, isOpen, group, sid])
 
     const getUserInitialValues = () => {
         const displayNameSelectInitialValue = () => {
@@ -462,7 +462,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                             onClick={form.submit}
                             type="primary"
                         >
-                            {isNewGroup ? t('common:btn.invite') : t('common:btn.save')}
+                            {(isNewGroup || newUser) ? t('common:btn.invite') : t('common:btn.save')}
                         </Button>
                     </>
                 }
