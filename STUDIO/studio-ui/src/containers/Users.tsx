@@ -178,17 +178,15 @@ export const Users: React.FC = () => {
                     </Button>
                 </Row>
             )}
-            {isEditDrawerOpen && (
-                <EditUserGroupDetailsWithAccessRights
-                    isOpenFromParent={isEditDrawerOpen}
-                    isPrincipal={true}
-                    newUser={!selectedUser}
-                    onClose={hideEditUserDrawer}
-                    reloadUsers={fetchUsers}
-                    sid={selectedUser?.username}
-                    user={selectedUser}
-                />
-            )}
+            <EditUserGroupDetailsWithAccessRights
+                isOpenFromParent={isEditDrawerOpen}
+                isPrincipal={true}
+                newUser={!selectedUser}
+                onClose={hideEditUserDrawer}
+                reloadUsers={fetchUsers}
+                sid={selectedUser?.username}
+                user={selectedUser}
+            />
         </>
     )
 }
