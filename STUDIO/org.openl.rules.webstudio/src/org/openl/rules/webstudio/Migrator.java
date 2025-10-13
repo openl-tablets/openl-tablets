@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -431,60 +432,79 @@ public class Migrator {
         }
     }
     
+    private static <T> T runInSession(SessionFactory sessionFactory, Function<Session, T> consumer) {
+        try (Session session = sessionFactory.openSession()) {
+            return consumer.apply(session);
+        }
+    }
+    
     public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
         if (! applicationContext.containsBean("openlSessionFactory")) {
             //webstudio is not configured, skipping migration
             return;
         }
         SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
-        try (Session session = sessionFactory.openSession()) {
-            List<OpenLProject> allOpenLProjects = readAllProjectsAndTags(session);
-            if (!allOpenLProjects.isEmpty()) {
-                var migrationUserInfo = createMigrationUser(applicationContext.getEnvironment());
-                var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
-                var migrator = new ProjectTagsMigrator(designTimeRepository);
-                allOpenLProjects.forEach(openLProject -> {
-                    var projectTags = openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
-                    try {
-                        migrator.migrate(openLProject.getRepositoryId(), openLProject.getProjectPath(), projectTags, migrationUserInfo);
-                        deleteProjectTagsInDB(openLProject, session);
-                    } catch (IOException | ProjectException e) {
-                        LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.getProjectPath(), openLProject.getRepositoryId()), e);
-                    }
-                });
-            }
-
+        var allOpenLProjects = runInSession(sessionFactory, Migrator::readAllProjectsAndTags);
+        if (!allOpenLProjects.isEmpty()) {
+            var migrationUserInfo = createMigrationUserInfo(applicationContext.getEnvironment());
+            var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
+            var migrator = new ProjectTagsMigrator(designTimeRepository);
+            allOpenLProjects.forEach(openLProject -> {
+                LOG.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                try {
+                    migrator.migrate(openLProject.repositoryId, openLProject.projectPath, openLProject.tags, migrationUserInfo);
+                    runInSession(sessionFactory, session -> deleteProjectTagsInDB(session, openLProject.id));
+                    LOG.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                } catch (IOException | ProjectException e) {
+                    LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.projectPath, openLProject.repositoryId), e);
+                }
+            });
         }
     }
 
-    private static CommonUser createMigrationUser(Environment environment) {
+    private static UserInfo createMigrationUserInfo(Environment environment) {
         String migrationUsername = environment.getProperty(MIGRATION_USER_NAME_PROPERTY, "Studio Migration");
         String migrationUserEmail = environment.getProperty(MIGRATION_USER_EMAIL_PROPERTY, "");
-        UserInfo systemUserInfo = new UserInfo(migrationUsername, migrationUserEmail, migrationUsername);
-        return new CommonUser() {
-            @Override
-            public String getUserName() {
-                return migrationUsername;
-            }
-
-            @Override
-            public UserInfo getUserInfo() {
-                return systemUserInfo;
-            }
-        };
+        return new UserInfo(migrationUsername, migrationUserEmail, migrationUsername);
     }
 
-    private static void deleteProjectTagsInDB(OpenLProject openLProject, Session session) {
+    @SuppressWarnings("deprecation")
+    private static Void deleteProjectTagsInDB(Session session, Long id) {
         Transaction transaction = session.beginTransaction();
-        session.delete(openLProject);
+        OpenLProject openLProject = session.get(OpenLProject.class, id);
+        session.remove(openLProject);
         transaction.commit();
+        return null;
     }
 
-    private static List<OpenLProject> readAllProjectsAndTags(Session session) {
+    @SuppressWarnings("deprecation")
+    private static List<OpenLProjectWithTags> readAllProjectsAndTags(Session session) {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<OpenLProject> cq = cb.createQuery(OpenLProject.class);
         cq.from(OpenLProject.class);
-        return session.createQuery(cq).getResultList();
+        return session.createQuery(cq).getResultList()
+                .stream()
+                .map(openLProject -> 
+                        new OpenLProjectWithTags(
+                                openLProject.getRepositoryId(), 
+                                openLProject.getProjectPath(), 
+                                openLProject.getId(),
+                                openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName))))
+                .toList();
 
+    }
+    
+    private static class OpenLProjectWithTags {
+        private final String repositoryId;
+        private final String projectPath;
+        private final Long id;
+        private final Map<String, String> tags;
+
+        public OpenLProjectWithTags(String repositoryId, String projectPath, Long id, Map<String, String> tags) {
+            this.repositoryId = repositoryId;
+            this.projectPath = projectPath;
+            this.id = id;
+            this.tags = tags;
+        }
     }
 }
