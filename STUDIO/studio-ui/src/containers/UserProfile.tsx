@@ -87,7 +87,7 @@ export const UserProfile: React.FC = () => {
         }
     }, [userProfile])
 
-    const isFormChanged = useIsFormChanged({ form })
+    const isFormChanged = useIsFormChanged({ form, initialValues })
 
     return (
         <Form
