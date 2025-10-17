@@ -1,6 +1,6 @@
 FROM eclipse-temurin:24-jre-alpine AS layers
 WORKDIR /layer
-COPY target/example-app-0.1-SNAPSHOT.jar app.jar 
+COPY target/*-fat.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
 FROM eclipse-temurin:24-jre-alpine AS openl

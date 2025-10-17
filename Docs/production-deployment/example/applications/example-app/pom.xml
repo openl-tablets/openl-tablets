@@ -66,6 +66,7 @@
                     <layers>
                         <enabled>true</enabled>
                     </layers>
+                    <classifier>fat</classifier>
                 </configuration>
             </plugin>
 
