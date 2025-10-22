@@ -338,6 +338,26 @@ Content-Type: application/json
           }
         }
       },
+      "X1" : {
+        "type" : "object",
+        "properties" : {
+          "Step1" : {
+            "type" : "string"
+          }
+        }
+      },
+      "X2" : {
+        "type" : "object",
+        "properties" : {
+          "Step2" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "Step3" : {
+            "$ref" : "#/components/schemas/X1"
+          }
+        }
+      },
       "X2X5" : {
         "type" : "object",
         "allOf" : [ {
@@ -384,26 +404,6 @@ Content-Type: application/json
         }
       },
       "X6" : {
-        "type" : "object",
-        "properties" : {
-          "Step1" : {
-            "type" : "string"
-          }
-        }
-      },
-      "X2" : {
-        "type" : "object",
-        "properties" : {
-          "Step2" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Step3" : {
-            "$ref" : "#/components/schemas/X1"
-          }
-        }
-      },
-      "X1" : {
         "type" : "object",
         "properties" : {
           "Step1" : {
