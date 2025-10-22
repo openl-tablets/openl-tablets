@@ -5,11 +5,11 @@ Content-Type: application/json
   "openapi" : "3.0.1",
   "info" : {
     "description" : "Auto-generated OpenAPI schema from the OpenL rules",
-    "title" : "***",
+    "title" : "EPBDS-14901_EPBDS-14901",
     "version" : "1.0.0"
   },
   "servers" : [ {
-    "url" : "***"
+    "url" : "http://example.com/EPBDS-14901/EPBDS-14901"
   } ],
   "paths" : {
     "/Spr1" : {
