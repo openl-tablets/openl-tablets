@@ -1,0 +1,144 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "executionTimeMs": "##.##",
+  "numberOfTests": 4,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "TotalBalanceScoreTest",
+      "tableId": "409387032863ebdc11824a5af4d11ddc",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 1500.0,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }, {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "***",
+                "type": "string"
+              }
+            }
+          ]
+        }, {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 100.0,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }, {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "IT",
+              "schema": {
+                "$schema": "***",
+                "type": "string"
+              }
+            }
+          ]
+        }, {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.9,
+              "actualValue": 0.9,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 2000.0,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }, {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "***",
+                "type": "string"
+              }
+            }
+          ]
+        }, {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 600.0,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }, {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "FR",
+              "schema": {
+                "$schema": "***",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

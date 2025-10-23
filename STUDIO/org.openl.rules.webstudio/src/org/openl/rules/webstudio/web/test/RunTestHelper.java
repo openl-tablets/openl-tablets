@@ -21,6 +21,7 @@ import org.openl.types.IOpenMethod;
 
 @Service
 @SessionScope
+@Deprecated(forRemoval = true)
 public class RunTestHelper {
 
     // FIXME last parameters of the test suite should have temporary

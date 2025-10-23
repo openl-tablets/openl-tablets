@@ -462,13 +462,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectModel getProjectModel(RulesProject project) {
+        return getProjectModel(project, (String) null);
+    }
+
+    public ProjectModel getProjectModel(RulesProject project, @Nullable String moduleName) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
         var webstudio = getWebStudio();
 
         var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
-        var module = projectDescriptor.getModules().stream().findFirst().orElse(null);
+        var moduleSelector = projectDescriptor.getModules().stream();
+        if (moduleName != null) {
+            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
+        }
+        var module = moduleSelector.findFirst().orElse(null);
         return getProjectModel(project, module);
     }
 

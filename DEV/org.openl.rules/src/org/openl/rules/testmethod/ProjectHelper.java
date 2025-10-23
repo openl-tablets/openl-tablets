@@ -43,9 +43,8 @@ public final class ProjectHelper {
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
     private static boolean isTester(IOpenMethod tester) {
-        if (tester instanceof TestSuiteMethod) {
+        if (tester instanceof TestSuiteMethod testSuiteMethod) {
             try {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
                 return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable();
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
@@ -60,24 +59,22 @@ public final class ProjectHelper {
     /**
      * Get tests for tested method that have filled rules rows data for testing its functionality. Run methods and tests
      * with empty test cases are not being processed. If you need to get all test methods, including run methods and
-     * empty ones, use {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
+     * empty ones, use {@link #isTestForMethod(TestSuiteMethod, IOpenMethod)}.
      */
-    public static IOpenMethod[] testers(IOpenMethod tested, CompiledOpenClass openClass) {
+    public static TestSuiteMethod[] testers(IOpenMethod tested, CompiledOpenClass openClass) {
         return openClass.getOpenClassWithErrors().getMethods().stream()
                 .filter(ProjectHelper::isTester)
+                .map(TestSuiteMethod.class::cast)
                 .filter(tester -> isTestForMethod(tester, tested))
-                .toArray(IOpenMethod[]::new);
+                .toArray(TestSuiteMethod[]::new);
     }
 
     /**
      * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we
      * consider tester is test for tested method.
      */
-    public static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
-        if (!(tester instanceof TestSuiteMethod)) {
-            return false;
-        }
-        IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
+    public static boolean isTestForMethod(TestSuiteMethod tester, IOpenMethod tested) {
+        IOpenMethod toTest = tester.getTestedMethod();
         if (toTest.equals(tested)) {
             return true;
         }
@@ -95,22 +92,21 @@ public final class ProjectHelper {
     }
 
     public static String getTestInfo(IOpenMethod testMethod) {
-        if (!(testMethod instanceof TestSuiteMethod)) {
-            return null;
+        if (testMethod instanceof TestSuiteMethod testSuiteMethod) {
+            return getTestInfo(testSuiteMethod, testSuiteMethod.getNumberOfTestsCases());
         }
+        return null;
 
-        return getTestInfo(testMethod, ((TestSuiteMethod) testMethod).getNumberOfTestsCases());
     }
 
     public static String getTestInfo(TestSuite testSuite) {
         return getTestInfo(testSuite.getTestSuiteMethod(), testSuite.getNumberOfTests());
     }
 
-    private static String getTestInfo(IOpenMethod testMethod, int numberOfTests) {
+    private static String getTestInfo(TestSuiteMethod testMethod, int numberOfTests) {
         String info = null;
 
-        if (testMethod instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
+        if (testMethod instanceof TestSuiteMethod testSuite) {
             if (testSuite.isRunMethod()) {
                 if (numberOfTests < 1) {
                     info = "No runs";

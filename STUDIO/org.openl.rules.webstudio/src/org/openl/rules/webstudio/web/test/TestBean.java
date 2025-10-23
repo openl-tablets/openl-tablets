@@ -37,6 +37,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @RequestScope
+@Deprecated(forRemoval = true)
 public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
