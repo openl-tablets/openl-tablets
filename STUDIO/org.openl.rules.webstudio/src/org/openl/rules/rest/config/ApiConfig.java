@@ -25,6 +25,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -47,6 +48,7 @@ import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 @Configuration
 @Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
 @EnableWebMvc
+@EnableAsync
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
 

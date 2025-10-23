@@ -39,6 +39,7 @@ public final class Utils {
         return builder.toString();
     }
 
+    @Deprecated(forRemoval = true)
     static TestUnitsResults[] runTests(String id, String testRanges, boolean currentOpenedModule, HttpSession session) {
         TestUnitsResults[] results;
         ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
@@ -65,24 +66,25 @@ public final class Utils {
                 results[0] = model.runTest(testSuite, currentOpenedModule);
             } else {
                 // All tests for table
-                IOpenMethod[] tests = model.getTestMethods(uri, currentOpenedModule);
+                TestSuiteMethod[] tests = model.getTestMethods(uri, currentOpenedModule);
                 results = runAllTests(model, tests, currentOpenedModule);
             }
         } else {
             // All tests for project
-            IOpenMethod[] tests = currentOpenedModule ? model.getOpenedModuleTestMethods() : model.getAllTestMethods();
+            TestSuiteMethod[] tests = currentOpenedModule ? model.getOpenedModuleTestMethods() : model.getAllTestMethods();
             results = runAllTests(model, tests, currentOpenedModule);
         }
         return results;
     }
 
+    @Deprecated(forRemoval = true)
     private static TestUnitsResults[] runAllTests(ProjectModel model,
-                                                  IOpenMethod[] tests,
+                                                  TestSuiteMethod[] tests,
                                                   boolean currentOpenedModule) {
         if (Arrays.isNotEmpty(tests)) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tests[i];
+                TestSuiteMethod testSuiteMethod = tests[i];
                 IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
@@ -119,10 +121,12 @@ public final class Utils {
         return null;
     }
 
+    @Deprecated(forRemoval = true)
     public static void saveTestToSession(HttpSession session, TestSuite testSuite) {
         session.setAttribute(Utils.INPUT_ARGS_PARAMETER, testSuite);
     }
 
+    @Deprecated(forRemoval = true)
     public static TestSuite pollTestFromSession(HttpSession session) {
         TestSuite suite = (TestSuite) session.getAttribute(Utils.INPUT_ARGS_PARAMETER);
         session.removeAttribute(Utils.INPUT_ARGS_PARAMETER);

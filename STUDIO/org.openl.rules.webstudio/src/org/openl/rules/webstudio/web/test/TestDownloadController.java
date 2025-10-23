@@ -44,6 +44,7 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping("/test")
 @Tag(name = "Test")
+@Deprecated(forRemoval = true)
 public class TestDownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDownloadController.class);
