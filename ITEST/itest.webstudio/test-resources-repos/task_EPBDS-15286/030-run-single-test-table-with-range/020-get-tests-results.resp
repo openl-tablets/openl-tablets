@@ -1,0 +1,66 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "executionTimeMs": "##.##",
+  "numberOfTests": 2,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "BankRatingGroupTest",
+      "tableId": "94c99ffff3a802b2adad89c3ddd3ab6a",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 2,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R5",
+              "actualValue": "R5",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 0.25,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }
+          ]
+        }, {
+          "id": "5",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R1",
+              "actualValue": "R1",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 1.0,
+              "schema": {
+                "$schema": "***",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

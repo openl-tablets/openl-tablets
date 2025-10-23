@@ -360,5 +360,13 @@
             <groupId>org.cache2k</groupId>
             <artifactId>cache2k-jcache</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-module-swagger-2</artifactId>
+        </dependency>
     </dependencies>
 </project>

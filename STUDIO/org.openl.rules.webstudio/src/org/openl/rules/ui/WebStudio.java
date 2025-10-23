@@ -1161,6 +1161,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TABLE_FORMULAS_SHOW, showFormulas);
     }
 
+    @Deprecated(forRemoval = true)
     public int getTestsPerPage() {
         return testsPerPage;
     }

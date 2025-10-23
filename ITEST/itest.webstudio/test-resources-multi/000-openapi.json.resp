@@ -4,6 +4,166 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "TestsExecutionSummary": {
+        "type": "object",
+        "properties": {
+          "executionTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "numberOfFailures": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "numberOfTests": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "testCases": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestCaseExecutionResult"
+            }
+          }
+        }
+      },
+      "TestCaseExecutionResult": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "executionTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "numberOfFailures": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "numberOfTests": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "testUnits": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestUnitExecutionResult"
+            }
+          }
+        }
+      },
+      "TestUnitExecutionResult": {
+        "type": "object",
+        "properties": {
+          "contextParameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestParameterValue"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "errors": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription"
+            }
+          },
+          "executionTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestParameterValue"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": ["TR_EXCEPTION", "TR_NEQ", "TR_OK"]
+          },
+          "testAssertions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestAssertionExecutionResult"
+            }
+          }
+        }
+      },
+      "TestParameterValue": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          },
+          "schema" : {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
+      "TestAssertionExecutionResult": {
+        "type": "object",
+        "properties": {
+          "actualValue": {
+            "type": "object",
+            "description": "***"
+          },
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "expectedValue": {
+            "type": "object",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": ["TR_EXCEPTION", "TR_NEQ", "TR_OK"]
+          }
+        }
+      },
       "RedeployProjectModel": {
         "type": "object",
         "description": "***",
@@ -2988,6 +3148,216 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/projects/{projectId}/tests/summary": {
+      "get": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "406" : {
+            "description" : "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestsExecutionSummary"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "***",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["Projects (BETA)"]
+      }
+    },
+    "/projects/{projectId}/tests/run": {
+      "post": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "description": "***",
+            "in": "query",
+            "name": "tableId",
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "description": "***",
+            "in": "query",
+            "name": "testRanges",
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": ["Projects (BETA)"]
+      }
+    },
     "/deployments": {
       "get": {
         "description": "***",
@@ -11391,6 +11761,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "in": "query",
@@ -11523,6 +11894,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "description": "***",

@@ -186,8 +186,7 @@ public class ProjectModel {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
                     for (TableSyntaxNode tableSyntaxNode : nodes) {
                         IGridTable table = tableSyntaxNode.getGridTable();
-                        if (table.getGrid() instanceof CompositeGrid) {
-                            CompositeGrid compositeGrid = (CompositeGrid) table.getGrid();
+                        if (table.getGrid() instanceof CompositeGrid compositeGrid) {
                             if (findInCompositeGrid(compositeGrid, p1)) {
                                 return tableSyntaxNode;
                             }
@@ -205,7 +204,7 @@ public class ProjectModel {
         int count = 0;
         Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
                 .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
-                .collect(Collectors.toList());
+                .toList();
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
                 if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
@@ -359,8 +358,7 @@ public class ProjectModel {
     private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
         if (isInstanceOfTable(method, uri)) {
-            if (method instanceof ExecutableRulesMethod) {
-                ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+            if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                 // Skip Alias tables to find original one
                 if (executableRulesMethod.isAlias()) {
                     return null;
@@ -445,7 +443,7 @@ public class ProjectModel {
      * @param forTable uri for method table
      * @return test methods
      */
-    public IOpenMethod[] getTestMethods(String forTable, boolean currentOpenedModule) {
+    public TestSuiteMethod[] getTestMethods(String forTable, boolean currentOpenedModule) {
         IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
             return ProjectHelper.testers(method,
@@ -472,7 +470,8 @@ public class ProjectModel {
                 methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
             }
             for (IOpenMethod tester : methods) {
-                if (ProjectHelper.isTestForMethod(tester, method)) {
+                if (tester instanceof TestSuiteMethod testSuiteMethod
+                        && ProjectHelper.isTestForMethod(testSuiteMethod, method)) {
                     res.add(tester);
                 }
             }
@@ -778,11 +777,10 @@ public class ProjectModel {
         //
         for (TreeNodeBuilder<?> treeSorter : treeSorters) {
 
-            if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder) {
+            if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder) {
                 // Set to sorter information about open methods.
                 // author: Alexey Gamanovich
                 //
-                OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
                 tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
             }
             if (treeSorter instanceof WorksheetTreeNodeBuilder)
@@ -791,7 +789,7 @@ public class ProjectModel {
 
         for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
             ProjectTreeNode element = root;
-            for (TreeNodeBuilder treeSorter : treeSorters) {
+            for (var treeSorter : treeSorters) {
                 element = addToNode(element, tableSyntaxNode, treeSorter);
             }
         }
@@ -984,7 +982,7 @@ public class ProjectModel {
             LocalRepository repository = getLocalRepository();
 
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                XlsWorkbookSourceCodeModule sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
+                var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
 
                 Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
                 for (XlsWorkbookListener listener : listeners) {
@@ -1188,8 +1186,7 @@ public class ProjectModel {
 
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo) {
-            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
             XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (xlsModuleSyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(xlsModuleSyntaxNode);
@@ -1202,8 +1199,7 @@ public class ProjectModel {
 
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo) {
-            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+        if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
             XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (xlsModuleSyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(xlsModuleSyntaxNode);
@@ -1373,7 +1369,7 @@ public class ProjectModel {
                     .getDependencyLoaders()
                     .stream()
                     .filter(IDependencyLoader::isProjectLoader)
-                    .collect(Collectors.toList());
+                    .toList();
             for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
                 if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
                     foundOpenedProject = true;
@@ -1520,7 +1516,7 @@ public class ProjectModel {
         }
 
         for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
+            var module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (rulesRootPath != null && module.getSourceFile()
                     .getName()
                     .equals(FileUtils.getName(rulesRootPath.getPath()))) {
@@ -1555,7 +1551,7 @@ public class ProjectModel {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                XlsWorkbookSourceCodeModule sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
+                var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
 
                 Iterator<XlsWorkbookListener> iterator = sourceCodeModule.getListeners().iterator();
                 while (iterator.hasNext()) {
