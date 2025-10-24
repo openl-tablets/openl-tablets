@@ -37,7 +37,7 @@ public final class Statistics {
         });
     }
 
-    static <V, R> R process(V[] values, Processor<V, R> processor) {
+    public static <V, R> R process(V[] values, Processor<V, R> processor) {
         if (values == null || values.length == 0) {
             return null;
         }
@@ -47,8 +47,20 @@ public final class Statistics {
         return processor.result();
     }
 
+    static <V, R> R biProcess(V[] y, V[] x, Processor<V, R> processor) {
+        if (x == null || x.length == 0 || y == null || y.length == 0 || x.length != y.length) {
+            return null;
+        }
+        for (int i = 0; i < y.length; i++) {
+            processor.process(y[i], x[i]);
+        }
+        return processor.result();
+    }
+
     interface Processor<V, R> {
         void process(V value);
+
+        void process(V y, V x);
 
         R result();
     }
@@ -57,13 +69,24 @@ public final class Statistics {
         R result;
         int counter;
 
-        void processNonNull(V value) {
+        public void processNonNull(V value) {
+        }
+
+        public void processNonNull(V y, V x) {
         }
 
         @Override
         public void process(V value) {
             if (value != null) {
                 processNonNull(value);
+                counter++;
+            }
+        }
+
+        @Override
+        public void process(V y, V x) {
+            if (x != null && y != null) {
+                processNonNull(y, x);
                 counter++;
             }
         }
