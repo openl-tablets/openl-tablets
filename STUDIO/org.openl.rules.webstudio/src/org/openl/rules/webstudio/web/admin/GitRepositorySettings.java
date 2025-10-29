@@ -14,16 +14,14 @@ import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.rest.settings.model.validation.NewBranchNamePatternConstraint;
 import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
 import org.openl.rules.rest.validation.PathConstraint;
-import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
 @Schema(allOf = RepositorySettings.class)
 public class GitRepositorySettings extends RepositorySettings {
 
-    private final static String URI_SUFFIX = ".uri";
+    public final static String URI_SUFFIX = ".uri";
     private final static String LOGIN_SUFFIX = ".login";
     private final static String PASSWORD_SUFFIX = ".password";
-    public final static String LOCAL_REPOSITORY_PATH_SUFFIX = ".local-repository-path";
     private final static String BRANCH_SUFFIX = ".branch";
     private final static String NEW_BRANCH_TEMPLATE_SUFFIX = ".new-branch.pattern";
     private final static String NEW_BRANCH_REGEX_SUFFIX = ".new-branch.regex";
@@ -35,13 +33,11 @@ public class GitRepositorySettings extends RepositorySettings {
     private final static String MAX_AUTHENTICATION_ATTEMPTS_SUFFIX = ".max-authentication-attempts";
     private final static String PROTECTED_BRANCHES_SUFFIX = ".protected-branches";
 
-    @Parameter(description = "Remote repository")
-    @JsonView(Views.Base.class)
-    private boolean remoteRepository;
-
     @Parameter(description = "URL")
     @SettingPropertyName(suffix = URI_SUFFIX)
     @JsonView(Views.Base.class)
+    @NotBlank
+    @PathConstraint(allowLeadingSlash = true, allowedSchemes = {"http", "https"})
     private String uri;
 
     @Parameter(description = "Login")
@@ -53,13 +49,6 @@ public class GitRepositorySettings extends RepositorySettings {
     @SettingPropertyName(suffix = PASSWORD_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String password;
-
-    @Parameter(description = "Local path to directory for Git repository")
-    @SettingPropertyName(suffix = LOCAL_REPOSITORY_PATH_SUFFIX)
-    @JsonView(Views.Base.class)
-    @NotBlank
-    @PathConstraint(allowLeadingSlash = true)
-    private String localRepositoryPath;
 
     @Parameter(description = "The main branch to commit changes")
     @SettingPropertyName(suffix = BRANCH_SUFFIX)
@@ -122,7 +111,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String URI;
     private final String LOGIN;
     private final String PASSWORD;
-    private final String LOCAL_REPOSITORY_PATH;
     private final String BRANCH;
     private final String NEW_BRANCH_TEMPLATE;
     private final String NEW_BRANCH_REGEX;
@@ -139,7 +127,6 @@ public class GitRepositorySettings extends RepositorySettings {
         URI = configPrefix + URI_SUFFIX;
         LOGIN = configPrefix + LOGIN_SUFFIX;
         PASSWORD = configPrefix + PASSWORD_SUFFIX;
-        LOCAL_REPOSITORY_PATH = configPrefix + LOCAL_REPOSITORY_PATH_SUFFIX;
         BRANCH = configPrefix + BRANCH_SUFFIX;
         NEW_BRANCH_TEMPLATE = configPrefix + NEW_BRANCH_TEMPLATE_SUFFIX;
         NEW_BRANCH_REGEX = configPrefix + NEW_BRANCH_REGEX_SUFFIX;
@@ -155,18 +142,9 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
-        String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
-        String[] prefixParts = getConfigPrefix().split("\\.");
-        String id = prefixParts.length > 1 ? prefixParts[1] : "repository";
-        // prefixParts.length must be always > 1
-        String defaultLocalPath = localPath != null ? localPath
-                : properties.getProperty(
-                DynamicPropertySource.OPENL_HOME) + "/repositories/" + id;
-
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
         password = properties.getProperty(PASSWORD);
-        localRepositoryPath = defaultLocalPath;
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).map(Integer::parseInt)
@@ -184,16 +162,6 @@ public class GitRepositorySettings extends RepositorySettings {
         newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
         newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
         protectedBranches = properties.getProperty(PROTECTED_BRANCHES);
-
-        remoteRepository = StringUtils.isNotBlank(uri);
-    }
-
-    public boolean isRemoteRepository() {
-        return remoteRepository;
-    }
-
-    public void setRemoteRepository(boolean remoteRepository) {
-        this.remoteRepository = remoteRepository;
     }
 
     public String getUri() {
@@ -218,14 +186,6 @@ public class GitRepositorySettings extends RepositorySettings {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getLocalRepositoryPath() {
-        return localRepositoryPath;
-    }
-
-    public void setLocalRepositoryPath(String localRepositoryPath) {
-        this.localRepositoryPath = localRepositoryPath;
     }
 
     public String getBranch() {
@@ -314,12 +274,7 @@ public class GitRepositorySettings extends RepositorySettings {
 
         boolean clearLogin = StringUtils.isEmpty(login);
 
-        if (isRemoteRepository()) {
-            propertiesHolder.setProperty(URI, uri);
-        } else {
-            propertiesHolder.setProperty(URI, "");
-            clearLogin = true;
-        }
+        propertiesHolder.setProperty(URI, uri);
 
         if (clearLogin) {
             propertiesHolder.setProperty(LOGIN, "");
@@ -329,7 +284,6 @@ public class GitRepositorySettings extends RepositorySettings {
             propertiesHolder.setProperty(PASSWORD, getPassword());
         }
 
-        propertiesHolder.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         propertiesHolder.setProperty(BRANCH, branch);
         propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
         propertiesHolder.setProperty(NEW_BRANCH_REGEX, newBranchRegex);
@@ -349,7 +303,6 @@ public class GitRepositorySettings extends RepositorySettings {
         properties.revertProperties(URI,
                 LOGIN,
                 PASSWORD,
-                LOCAL_REPOSITORY_PATH,
                 BRANCH,
                 NEW_BRANCH_TEMPLATE,
                 NEW_BRANCH_REGEX,

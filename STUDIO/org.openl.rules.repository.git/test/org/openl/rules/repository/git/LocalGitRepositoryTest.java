@@ -12,6 +12,7 @@ import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,9 +38,12 @@ import org.openl.util.IOUtils;
 
 public class LocalGitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
+    private static final String REPO_ID = "designLocal";
 
     @TempDir
     private File root;
+    @TempDir
+    private Path localRepositoriesFolder;
     @AutoClose
     private GitRepository repo;
 
@@ -400,17 +404,21 @@ public class LocalGitRepositoryTest {
         repository.save(createFileData(path, text, comment), IOUtils.toInputStream(text));
     }
 
-    private GitRepository createRepository(File local) {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
+    private GitRepository createRepository(File local) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        String uri = local.getAbsolutePath();
+        newRepo.setUri(uri);
+        String repositoriesFolder = localRepositoriesFolder.toFile().getAbsolutePath();
+        newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = new File(root, "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, false, true));
 
-        return repo;
+        return newRepo;
     }
 }

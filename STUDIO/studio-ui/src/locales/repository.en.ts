@@ -8,7 +8,6 @@ i18next.addResourceBundle('en', 'repository', {
     url: 'URL',
     login: 'Login',
     password: 'Password',
-    local_path: 'Local path',
     branch: 'Branch',
     protected_branches: 'Protected branches',
     user_message_templates: 'User message templates',

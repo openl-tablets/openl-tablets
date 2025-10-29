@@ -173,8 +173,8 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             case GIT -> {
                 if (createUniquePath) {
                     // Generate a unique path for a just created GIT configuration
-                    String defValue = properties.getProperty(REPOSITORY_DEFAULT_PREFIX + repositoryMode.getId() + GitRepositorySettings.LOCAL_REPOSITORY_PATH_SUFFIX);
-                    properties.setProperty(nameWithPrefix + GitRepositorySettings.LOCAL_REPOSITORY_PATH_SUFFIX, valueFinder.apply("local-repository-path", defValue));
+                    String defValue = properties.getProperty(REPOSITORY_DEFAULT_PREFIX + repositoryMode.getId() + GitRepositorySettings.URI_SUFFIX);
+                    properties.setProperty(nameWithPrefix + GitRepositorySettings.URI_SUFFIX, valueFinder.apply("uri", defValue));
                 }
                 yield new GitRepositorySettings(properties, configPrefix, repositoryMode);
             }

@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.File;
 import java.net.ConnectException;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +11,7 @@ import java.util.ListIterator;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.eclipse.jgit.transport.URIish;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -53,17 +56,7 @@ public final class RepositoryValidators {
 
         // Check for path uniqueness. only for git
         if (RepositoryType.GIT.equals(repoConfig.getRepositoryType())) {
-            Path path = Paths.get(((GitRepositorySettings) repoConfig.getSettings()).getLocalRepositoryPath());
-            for (RepositoryConfiguration other : repositoryConfigurations) {
-                if (other != repoConfig && RepositoryType.GIT.equals(other.getRepositoryType())) {
-                    Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
-                    if (path.equals(otherPath)) {
-                        String msg = String
-                                .format("Repository local path '%s' already exists. Please, insert a new one.", path);
-                        throw new RepositoryValidationException(msg);
-                    }
-                }
-            }
+            validateGitUri(repoConfig, repositoryConfigurations);
         }
 
         RepositorySettings settings = repoConfig.getSettings();
@@ -74,6 +67,79 @@ public final class RepositoryValidators {
 
     }
 
+    private static void validateGitUri(RepositoryConfiguration repoConfig, List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
+        String uri = ((GitRepositorySettings) repoConfig.getSettings()).getUri();
+        URIish urIish;
+        try {
+            urIish = new URIish(uri);
+        } catch (URISyntaxException e) {
+            String msg = String
+                    .format("Repository URI '%s' is incorrect.", uri);
+            throw new RepositoryValidationException(msg);
+        }
+        if (! urIish.isRemote()) {
+            if (urIish.getScheme() != null) {
+                throw new RepositoryValidationException("Schemes are not allowed in local repositories");
+            }
+            Path path = normalizeLocalPath(uri);
+            for (RepositoryConfiguration other : repositoryConfigurations) {
+                if (other != repoConfig 
+                        && hasTheSameGitLocalPath(other, path)) {
+                        String msg = String
+                                .format("Repository local path '%s' already exists. Please, insert a new one.", uri);
+                        throw new RepositoryValidationException(msg);
+                    }
+
+            }
+        }
+    }
+
+    private static boolean hasTheSameGitLocalPath(RepositoryConfiguration configuration, Path path) {
+        if (! RepositoryType.GIT.equals(configuration.getRepositoryType())) {
+            return false;
+        }
+        String otherUri = ((GitRepositorySettings) configuration.getSettings()).getUri();
+        URIish otherUriish;
+        try {
+            otherUriish = new URIish(otherUri);
+        } catch (URISyntaxException e) {
+            //Misconfigured, but doesn't affect validation of current repo, so skip
+            return false;
+        }
+        if (!otherUriish.isRemote() && otherUriish.getScheme() == null) {
+            Path otherPath = normalizeLocalPath(otherUri);
+            if (File.separatorChar == '\\') {
+                //We don't allow quotes in URI, therefore for Windows systems we need to ignore case
+                return path.toString().equalsIgnoreCase(otherPath.toString());
+            } else {
+                return path.equals(otherPath);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private static Path normalizeLocalPath(String raw) {
+        String pathStr;
+        pathStr = raw;
+
+        // Windows: handle forms like "/C:/repo"
+        if (File.separatorChar == '\\') {
+            pathStr = pathStr.replace('/', '\\')
+                    .replaceFirst("^\\\\+([A-Za-z]:\\\\)", "$1"); 
+        }
+
+        Path p = Paths.get(pathStr).toAbsolutePath().normalize();
+
+        // Trim trailing separators (except root)
+        String s = p.toString().replaceAll("[/\\\\]+$", "");
+        if (s.isEmpty()) {
+            s = p.toString();
+        }
+
+        return Paths.get(s);
+    }
+    
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
                                                  List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();

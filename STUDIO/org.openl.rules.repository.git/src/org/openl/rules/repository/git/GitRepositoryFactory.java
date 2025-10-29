@@ -29,7 +29,8 @@ public class GitRepositoryFactory implements RepositoryFactory {
     public Repository create(Function<String, String> settings) {
         GitRepository repository = new GitRepository();
         RepositoryInstatiator.setParams(repository, settings);
-        repository.initialize();
+        GitRootFactory gitRootFactory = new GitRootFactory();
+        repository.initialize(gitRootFactory);
         return repository;
     }
 }

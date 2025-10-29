@@ -62,6 +62,7 @@ public class Migrator {
     private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
     private static final String MIGRATION_USER_EMAIL_PROPERTY = "migration.user.email";
     private static final String REPOSITORY_PREFIX = "repository.";
+    private static final String LOCAL_REPO_PATH_SUFFIX = ".local-repository-path";
 
     private Migrator() {
     }
@@ -122,6 +123,9 @@ public class Migrator {
 
         // remove all openl-projects.yaml files from locks root folder
         removeProjectIndexFiles(settings);
+
+        // Migrate '.local-repository-path' property to '.uri' if '.uri' is empty
+        migrateLocalRepositoryPath(settings, props);
     }
 
     private static void removeProjectIndexFiles(DynamicPropertySource settings) {
@@ -146,6 +150,24 @@ public class Migrator {
         } catch (IOException e) {
             LOG.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
         }
+    }
+    
+    private static void migrateLocalRepositoryPath(DynamicPropertySource settings, HashMap<String, String> props) {
+        Arrays.stream(settings.getPropertyNames())
+                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
+                        && propertyName.endsWith(LOCAL_REPO_PATH_SUFFIX))
+                .forEach(localRepositoryPathProperty -> {
+                    int start = REPOSITORY_PREFIX.length();
+                    int end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
+                    String repositoryId = localRepositoryPathProperty.substring(start, end);                    
+                    String uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
+                    var uri = settings.getProperty(uriPropName);
+                    if (StringUtils.isEmpty(uri)) {
+                        var localRepositoryPathValue = settings.getProperty(localRepositoryPathProperty);
+                        props.put(uriPropName, localRepositoryPathValue);
+                    }
+                    props.put(localRepositoryPathProperty, null);
+                });
     }
 
     private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {

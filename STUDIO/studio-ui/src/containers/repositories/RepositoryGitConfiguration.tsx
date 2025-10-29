@@ -5,11 +5,9 @@ import { Divider, Form } from 'antd'
 import {
     BranchModal,
     DefaultBranchModal,
-    LocalPathModal,
     MewBranchRegexErrorModal,
     NewBranchRegexModal,
     ProtectedBranchesModal,
-    RemoteRepositoryModal,
     URLModal,
 } from './InfoFieldModals'
 import { RepositoryDataType } from './constants'
@@ -21,40 +19,21 @@ interface RepositoryGitConfigurationProps {
 export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = ({ repositoryDataType }) => {
     const { t } = useTranslation()
     const form = Form.useFormInstance()
-    const isRemoteRepository = Form.useWatch(['settings', 'remoteRepository'], form)
 
     return (
         <>
-            <Checkbox label={t('repository:remote_repository')} name={['settings', 'remoteRepository']} tooltip={{ icon: RemoteRepositoryModal }} />
-            {isRemoteRepository && (
-                <>
-                    <Input
-                        label={t('repository:url')}
-                        name={['settings', 'uri']}
-                        rules={[{ required: true, message: t('common:validation.required') }]}
-                        tooltip={{ icon: URLModal }}
-                    />
-                    <Input label={t('repository:login')} name={['settings', 'login']} />
-                    <InputPassword label={t('repository:password')} name={['settings', 'password']} />
-                    
-                </>
-            )}
             <Input
-                label={t('repository:local_path')}
-                name={['settings', 'localRepositoryPath']}
+                label={t('repository:url')}
+                name={['settings', 'uri']}
                 rules={[{ required: true, message: t('common:validation.required') }]}
-                tooltip={{ icon: LocalPathModal }}
+                tooltip={{ icon: URLModal }}
             />
-            {isRemoteRepository && (
-                <Input label={t('repository:branch')} name={['settings', 'branch']} tooltip={{ icon: BranchModal }} />
-            )}
+            <Input label={t('repository:login')} name={['settings', 'login']} />
+            <InputPassword label={t('repository:password')} name={['settings', 'password']} />
+            <Input label={t('repository:branch')} name={['settings', 'branch']} tooltip={{ icon: BranchModal }} />
             <Input label={t('repository:protected_branches')} name={['settings', 'protectedBranches']} tooltip={{ icon: ProtectedBranchesModal }} />
-            {isRemoteRepository && (
-                <>
-                    <InputNumber label={t('repository:changes_check_interval')} name={['settings', 'listenerTimerPeriod']} />
-                    <InputNumber label={t('repository:connection_timeout')} name={['settings', 'connectionTimeout']} />
-                </>
-            )}
+            <InputNumber label={t('repository:changes_check_interval')} name={['settings', 'listenerTimerPeriod']} />
+            <InputNumber label={t('repository:connection_timeout')} name={['settings', 'connectionTimeout']} />
             {repositoryDataType === RepositoryDataType.DESIGN && (
                 <>
                     <Divider orientation="left">{t('repository:new_branch')}</Divider>

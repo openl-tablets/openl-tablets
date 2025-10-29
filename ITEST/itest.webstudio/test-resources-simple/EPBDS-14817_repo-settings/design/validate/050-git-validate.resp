@@ -21,7 +21,7 @@ Content-Type: application/json
     }, {
       "code": "openl.error.NotBlank",
       "message": "Cannot be empty.",
-      "field": "settings.localRepositoryPath"
+      "field": "settings.uri"
     }
   ]
 }

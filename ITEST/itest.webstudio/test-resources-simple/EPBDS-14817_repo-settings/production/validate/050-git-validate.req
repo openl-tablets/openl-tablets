@@ -7,11 +7,9 @@ Content-Type: application/json
   "settings": {
     "basePath": "",
     "mainBranchOnly": false,
-    "remoteRepository": false,
     "uri": "",
     "login": "",
     "password": "",
-    "localRepositoryPath": "",
     "branch": "",
     "tagPrefix": "",
     "listenerTimerPeriod": null,

@@ -1,6 +1,8 @@
 package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,5 +60,11 @@ final class TestGitUtils {
         }
 
         assertTrue(contains, "Files list does not contain the file '" + fileName + "'");
+    }
+    
+    static GitRootFactory mockGitRootFactory(String repositoryId, String uri, File gitRoot, String localRepositoriesFolder, boolean remote, boolean empty) throws IOException {
+        GitRootFactory gitRootFactory = mock(GitRootFactory.class);
+        when(gitRootFactory.create(repositoryId, uri, localRepositoriesFolder)).thenReturn(new GitRoot(remote, gitRoot, empty));
+        return gitRootFactory;
     }
 }

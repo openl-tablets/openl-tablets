@@ -27,9 +27,12 @@ public class GitMultiUserWorkTest {
 
     static final int MAX_THREADS = Math.min(6, Runtime.getRuntime().availableProcessors() * 2);
     private static final String FOLDER_IN_REPOSITORY = "rules/project";
+    private static final String REPO_ID = "design-multiuser";
 
     @TempDir
     private Path root;
+    @TempDir
+    private Path localRepositoriesFolder;
     @AutoClose
     private GitRepository repo;
 
@@ -90,18 +93,22 @@ public class GitMultiUserWorkTest {
         assertEquals(text, GitRepositoryTest.readText(repo.read(path)));
     }
 
-    private GitRepository createRepository(Path local) {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(local.toAbsolutePath().toString());
+    private GitRepository createRepository(Path local) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        String uri = local.toAbsolutePath().toString();
+        newRepo.setUri(uri);
+        String localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
+        newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = root.resolve("locks").toAbsolutePath().toString();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local.toFile(), localRepositoriesFolderString, false, true));
 
-        return repo;
+        return newRepo;
     }
 
 }
