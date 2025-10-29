@@ -17,9 +17,13 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.ZipUtils;
 
 public class MergeLfsRepoTest {
+    
+    private static final String REPO_ID = "design";
 
     @TempDir
     File gitRepo;
+    @TempDir
+    File localRepositoriesFolder;
     @AutoClose
     private GitRepository repo;
 
@@ -27,7 +31,7 @@ public class MergeLfsRepoTest {
     public void setUp() throws Exception {
         ZipUtils.extractAll(new File("target/test-classes/repositories/MergeLfsRepoTest.zip"), gitRepo);
 
-        repo = createRepository(gitRepo.getAbsolutePath());
+        repo = createRepository(gitRepo);
 
         Repository repository = repo.getClosableGit().getRepository();
         boolean installed = repository.getConfig().getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
@@ -50,13 +54,17 @@ public class MergeLfsRepoTest {
                 repo.forBranch("br7").check("DESIGN/rules/Example 3 - Auto Policy Calculation").getVersion());
     }
 
-    private GitRepository createRepository(String repoPath) {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(repoPath);
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.setBranch("main");
-        repo.initialize();
-        return repo;
+    private GitRepository createRepository(File gitRepo) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        var repoPath = gitRepo.getAbsolutePath();
+        newRepo.setUri(repoPath);
+        String localRepositoriesFolderString = localRepositoriesFolder.getAbsolutePath();
+        newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.setBranch("main");
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, repoPath, gitRepo, localRepositoriesFolderString, false, false));
+        return newRepo;
     }
 }

@@ -36,7 +36,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +58,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private static final String COPY_BRANCH_PREF = "_COPY";
     private static final Path TEST_CASES_ROOT = Paths.get("test-resources/EPBDS-8483");
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
+    private static final String REPO_ID = "designMerge";
 
     @TempDir
     private static File template;
@@ -89,27 +89,30 @@ public class GitRepositoryMergeConflictsInExcelTest {
     @BeforeEach
     public void setUp() throws IOException {
         File remote = new File(root, "remote");
-        File local = new File(root, "local");
+        File localRepositoriesFolder = new File(root, "repositories");
+        File local = new File(localRepositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
-        repo = createRepository(remote, local);
+        repo = createRepository(remote, local, localRepositoriesFolder.getAbsolutePath());
     }
 
-    private GitRepository createRepository(File remote, File local) {
-        GitRepository repo = new GitRepository();
-        repo.setUri(remote.toURI().toString());
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setBranch("master");
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+    private GitRepository createRepository(File remote, File local, String localRepositoriesFolder) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        String uri = remote.toURI().toString();
+        newRepo.setUri(uri);
+        newRepo.setLocalRepositoriesFolder(localRepositoriesFolder);
+        newRepo.setBranch("master");
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
         String locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, localRepositoriesFolder, true, true));
 
-        return repo;
+        return newRepo;
     }
 
     @Test

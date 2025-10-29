@@ -777,11 +777,6 @@ Content-Type: application/json
               "description" : "***",
               "minimum" : 1
             },
-            "localRepositoryPath" : {
-              "type": "string",
-              "description" : "***",
-              "minLength": 1
-            },
             "login" : {
               "type": "string",
               "description" : "***"
@@ -811,21 +806,18 @@ Content-Type: application/json
               "type": "string",
               "description" : "***"
             },
-            "remoteRepository" : {
-              "type": "boolean",
-              "description" : "***"
-            },
             "tagPrefix" : {
               "type": "string",
               "description" : "***"
             },
             "uri" : {
               "type": "string",
-              "description" : "***"
+              "description": "***",
+              "minLength": 1
             }
           }
         } ],
-        "required" : [ "connectionTimeout", "failedAuthenticationSeconds", "listenerTimerPeriod", "localRepositoryPath" ]
+        "required" : [ "connectionTimeout", "failedAuthenticationSeconds", "listenerTimerPeriod", "uri" ]
       },
       "LocalRepositorySettings" : {
         "type" : "object",

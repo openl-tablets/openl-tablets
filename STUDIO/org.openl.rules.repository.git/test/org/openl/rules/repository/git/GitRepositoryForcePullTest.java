@@ -38,6 +38,7 @@ import org.openl.util.FileUtils;
 public class GitRepositoryForcePullTest {
 
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
+    private static final String REPO_ID = "design";
 
     @TempDir
     private static File template;
@@ -72,10 +73,11 @@ public class GitRepositoryForcePullTest {
     @BeforeEach
     void setUp() throws IOException, GitAPIException {
         File remote = new File(root, "remote");
-        File local = new File(root, "local");
+        File repositoriesFolder = new File(root, "repositories");
+        File local = new File(repositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
-        repo = createRepository(remote, local);
+        repo = createRepository(remote, local, repositoriesFolder.getAbsolutePath());
 
         this.local2 = Git.cloneRepository()
                 .setURI(remote.toURI().toString())
@@ -83,21 +85,23 @@ public class GitRepositoryForcePullTest {
                 .call();
     }
 
-    private GitRepository createRepository(File remote, File local) {
-        GitRepository repo = new GitRepository();
-        repo.setUri(remote.toURI().toString());
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setBranch("master");
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+    private GitRepository createRepository(File remote, File local, String repositoriesFolder) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        String uri = remote.toURI().toString();
+        newRepo.setUri(uri);
+        newRepo.setLocalRepositoriesFolder(repositoriesFolder);
+        newRepo.setBranch("master");
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
         String locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, true, true));
 
-        return repo;
+        return newRepo;
     }
 
     @Test

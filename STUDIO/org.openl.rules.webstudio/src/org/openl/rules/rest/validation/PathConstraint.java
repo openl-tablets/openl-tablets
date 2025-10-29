@@ -23,5 +23,6 @@ public @interface PathConstraint {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
+    
+    String[] allowedSchemes() default {};
 }

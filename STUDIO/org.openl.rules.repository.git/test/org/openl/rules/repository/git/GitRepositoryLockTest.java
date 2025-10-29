@@ -25,9 +25,12 @@ import org.openl.util.IOUtils;
 
 public class GitRepositoryLockTest {
 
+    private static final String REPO_ID = "design-lock";
     @TempDir
     private Path root;
     private Path repoRoot;
+    @TempDir
+    private Path localRepositoriesFolder;
     @AutoClose
     private GitRepository repo;
 
@@ -84,17 +87,21 @@ public class GitRepositoryLockTest {
         return lockFile;
     }
 
-    private GitRepository createRepository(Path local) {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(local.toAbsolutePath().toString());
+    private GitRepository createRepository(Path local) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        String uri = local.toAbsolutePath().toString();
+        newRepo.setUri(uri);
+        String localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
+        newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = root.resolve("locks").toAbsolutePath().toString();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local.toFile(), localRepositoriesFolderString, false, true));
 
-        return repo;
+        return newRepo;
     }
 }

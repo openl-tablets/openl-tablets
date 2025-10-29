@@ -16,8 +16,6 @@ import static org.openl.rules.repository.git.TestGitUtils.writeText;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -61,10 +59,11 @@ import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
-public class GitRepositoryTest {
+class GitRepositoryTest {
     private static final String BRANCH = "test";
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
     private static final String TAG_PREFIX = "Rules_";
+    private static final String REPO_ID = "design";
 
     @TempDir
     private static File template;
@@ -72,12 +71,13 @@ public class GitRepositoryTest {
     private File root;
     private File remote;
     private File local;
+    private String repositoriesFolder;
     @AutoClose
     private GitRepository repo;
     private ChangesCounter changesCounter;
 
     @BeforeAll
-    public static void initTest() throws GitAPIException, IOException {
+    static void initTest() throws GitAPIException, IOException {
         // Initialize remote repository
         try (Git git = Git.init().setDirectory(template).call()) {
             Repository repository = git.getRepository();
@@ -132,20 +132,22 @@ public class GitRepositoryTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
 
         remote = new File(root, "remote");
-        local = new File(root, "local");
+        File repositoriesFolderFile = new File(root, "repositories");
+        repositoriesFolder = repositoriesFolderFile.toString();
+        local = new File(repositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
-        repo = createRepository(remote, local);
+        repo = createRepository(remote, local, true);
 
         changesCounter = new ChangesCounter();
         repo.setListener(changesCounter);
     }
 
     @Test
-    public void list() throws IOException {
+    void list() throws IOException {
         assertEquals(5, repo.list("").size());
 
         List<FileData> files = repo.list("rules/project1/");
@@ -175,7 +177,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void listFolders() throws IOException {
+    void listFolders() throws IOException {
         assertEquals(1, repo.listFolders("").size());
 
         List<FileData> folders = repo.listFolders("rules/");
@@ -187,7 +189,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void listFiles() throws IOException {
+    void listFiles() throws IOException {
         List<FileData> files = repo.listFiles("rules/project1/", "Rules_2");
         assertNotNull(files);
         assertEquals(2, files.size());
@@ -227,7 +229,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void check() throws IOException {
+    void check() throws IOException {
         FileData file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
         assertEquals("User 1", file1.getAuthor().getDisplayName());
@@ -259,7 +261,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void read() throws IOException {
+    void read() throws IOException {
         assertEquals("Hi.", readText(repo.read("rules/project1/file1")));
         assertEquals("Hello World.", readText(repo.read("rules/project1/file2")));
         assertEquals("In folder", readText(repo.read("rules/project1/folder/file3")));
@@ -268,7 +270,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void save() throws IOException {
+    void save() throws IOException {
         // Create a new file
         String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
@@ -297,7 +299,7 @@ public class GitRepositoryTest {
 
         // Clone remote repository to temp folder and check that changes we made before exist there
         File temp = new File(root, "temp");
-        try (GitRepository secondRepo = createRepository(remote, temp)) {
+        try (GitRepository secondRepo = createRepository(remote, temp, true)) {
             assertEquals(text, readText(secondRepo.read("rules/project1/folder/file4")));
         }
 
@@ -308,7 +310,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void saveFolder() throws IOException {
+    void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
                 new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                 new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
@@ -336,7 +338,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void delete() throws IOException {
+    void delete() throws IOException {
         FileData fileData = new FileData();
         fileData.setName("rules/project1/file2");
         fileData.setComment("Delete file 2");
@@ -408,7 +410,7 @@ public class GitRepositoryTest {
 
     @Test
     @Timeout(value = 10_000, unit = TimeUnit.MILLISECONDS)
-    public void deleteAndSwitchBranches() throws IOException, GitAPIException {
+    void deleteAndSwitchBranches() throws IOException, GitAPIException {
         repo.createBranch(FOLDER_IN_REPOSITORY, "test1");
         GitRepository repo2 = repo.forBranch("test1");
 
@@ -473,7 +475,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void listHistory() throws IOException {
+    void listHistory() throws IOException {
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());
         assertEquals("Rules_2", file2History.get(0).getVersion());
@@ -488,7 +490,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void checkHistory() throws IOException {
+    void checkHistory() throws IOException {
         assertEquals("Rules_2", repo.checkHistory("rules/project1/file2", "Rules_2").getVersion());
         assertEquals("Rules_3", repo.checkHistory("rules/project1/file2", "Rules_3").getVersion());
         assertNull(repo.checkHistory("rules/project1/file2", "Rules_1"));
@@ -507,7 +509,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void readHistory() throws IOException {
+    void readHistory() throws IOException {
         assertEquals("Hello.",
                 readText(repo.readHistory("rules/project1/file2", "Rules_2")));
         assertEquals("Hello World.",
@@ -516,7 +518,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void copyHistory() throws IOException {
+    void copyHistory() throws IOException {
         FileData dest = new FileData();
         dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
@@ -551,7 +553,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void changesShouldBeRolledBackOnError() throws Exception {
+    void changesShouldBeRolledBackOnError() throws Exception {
         try {
             FileData data = new FileData();
             data.setName("rules/project1/file2");
@@ -572,7 +574,7 @@ public class GitRepositoryTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    public void repoFolderExistsButEmpty() throws IOException {
+    void repoFolderExistsButEmpty() throws IOException {
         // Prepare the test: the folder with local repository name exists but it's empty
         repo.close();
 
@@ -584,26 +586,26 @@ public class GitRepositoryTest {
         }
 
         // Check that repo is cloned successfully
-        try (GitRepository repository = createRepository(remote, local)) {
+        try (GitRepository repository = createRepository(remote, local, true)) {
             assertEquals(5, repository.list("").size());
         }
         // Reuse cloned before repository. Must not fail.
-        try (GitRepository repository = createRepository(remote, local)) {
+        try (GitRepository repository = createRepository(remote, local, true)) {
             assertEquals(5, repository.list("").size());
         }
     }
 
     @Test
-    public void neededBranchWasNotClonedBefore() throws IOException {
+    void neededBranchWasNotClonedBefore() throws IOException {
         // Prepare the test: clone master branch
         File local = new File(root, "temp");
-        try (GitRepository repository = createRepository(remote, local, Constants.MASTER)) {
+        try (GitRepository repository = createRepository(remote, local, Constants.MASTER, true)) {
             assertEquals(2, repository.list("").size());
         }
 
         // Check: second time initialize the repo. At this time use the branch "test". It must be pulled
         // successfully and repository must be switched to that branch.
-        try (GitRepository repository = createRepository(remote, local)) {
+        try (GitRepository repository = createRepository(remote, local, false)) {
             assertEquals(5, repository.list("").size());
 
             // Check that changes are saved to correct branch.
@@ -617,18 +619,18 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void twoUsersAddFileSimultaneously() throws IOException {
+    void twoUsersAddFileSimultaneously() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
 
         // First user starts to save it's changes
-        try (GitRepository repository1 = createRepository(remote, local1)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true)) {
             String text = "New file";
 
             // Second user is quicker than first
             FileData saved2;
-            try (GitRepository repository2 = createRepository(remote, local2)) {
+            try (GitRepository repository2 = createRepository(remote, local2, true)) {
                 saved2 = repository2.save(createFileData("rules/project-second/file2", text),
                         IOUtils.toInputStream(text));
             }
@@ -653,7 +655,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFile() throws IOException {
+    void mergeConflictInFile() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
@@ -663,8 +665,8 @@ public class GitRepositoryTest {
 
         final String filePath = "rules/project1/file2";
 
-        try (GitRepository repository1 = createRepository(remote, local1);
-             GitRepository repository2 = createRepository(remote, local2)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true);
+             GitRepository repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(filePath).getVersion();
                 // First user commit
@@ -741,7 +743,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFileMultipleProjects() throws IOException {
+    void mergeConflictInFileMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
@@ -751,8 +753,8 @@ public class GitRepositoryTest {
 
         final String filePath = "rules/project1/file2";
 
-        try (GitRepository repository1 = createRepository(remote, local1);
-             GitRepository repository2 = createRepository(remote, local2)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true);
+             GitRepository repository2 = createRepository(remote, local2, true)) {
             baseCommit = repository1.check(filePath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
@@ -776,7 +778,7 @@ public class GitRepositoryTest {
             assertEquals(theirCommit, e.getTheirCommit());
             assertNotNull(e.getYourCommit());
 
-            try (GitRepository repository2 = createRepository(remote, local2)) {
+            try (GitRepository repository2 = createRepository(remote, local2, false)) {
                 assertNotEquals(e.getYourCommit(),
                         repository2.check(filePath).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
@@ -785,7 +787,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolder() throws IOException {
+    void mergeConflictInFolder() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
@@ -796,8 +798,8 @@ public class GitRepositoryTest {
         final String folderPath = "rules/project1";
 
         final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1);
-             GitRepository repository2 = createRepository(remote, local2)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true);
+             GitRepository repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
@@ -904,7 +906,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolderWithFileDeleting() throws IOException {
+    void mergeConflictInFolderWithFileDeleting() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
@@ -915,8 +917,8 @@ public class GitRepositoryTest {
         final String folderPath = "rules/project1";
 
         final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1);
-             GitRepository repository2 = createRepository(remote, local2)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true);
+             GitRepository repository2 = createRepository(remote, local2, true)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
@@ -989,7 +991,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolderMultipleProjects() throws IOException {
+    void mergeConflictInFolderMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");
@@ -1000,8 +1002,8 @@ public class GitRepositoryTest {
         final String folderPath = "rules/project1";
 
         final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1);
-             GitRepository repository2 = createRepository(remote, local2)) {
+        try (GitRepository repository1 = createRepository(remote, local1, true);
+             GitRepository repository2 = createRepository(remote, local2, true)) {
             baseCommit = repository1.check(folderPath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
@@ -1041,7 +1043,7 @@ public class GitRepositoryTest {
             assertEquals(theirCommit, e.getTheirCommit());
             assertNotNull(e.getYourCommit());
 
-            try (GitRepository repository2 = createRepository(remote, local2)) {
+            try (GitRepository repository2 = createRepository(remote, local2, false)) {
                 assertNotEquals(e.getYourCommit(),
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
@@ -1050,7 +1052,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testBranches() throws IOException {
+    void testBranches() throws IOException {
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
         assertListEquals(Arrays.asList("test", "project1/test1", "project1/test2"),
@@ -1070,36 +1072,36 @@ public class GitRepositoryTest {
 
         // Test that forBranch() fetches new branch if it has not been cloned before
         File temp = new File(root, "temp");
-        try (GitRepository repository = createRepository(remote, temp, Constants.MASTER)) {
+        try (GitRepository repository = createRepository(remote, temp, Constants.MASTER, true)) {
             GitRepository branchRepo = repository.forBranch("project1/test2");
             assertNotNull(branchRepo.check("rules/project1/file1"));
         }
     }
 
     @Test
-    public void pathToRepoInsteadOfUri() {
+    void pathToRepoInsteadOfUri() throws IOException {
         // Will use this path instead of uri. Git accepts that.
         String remote = new File(root, "remote").getAbsolutePath();
 
-        try (GitRepository repository = createRepository(remote, local, BRANCH)) {
+        try (GitRepository repository = createRepository(remote, local, BRANCH, true)) {
             assertNotNull(repository);
         }
-        try (GitRepository repository = createRepository(remote + "/", local, BRANCH)) {
+        try (GitRepository repository = createRepository(remote + "/", local, BRANCH, false)) {
             assertNotNull(repository);
         }
-        try (GitRepository repository = createRepository(new File(remote).toURI().toString(), local, BRANCH)) {
+        try (GitRepository repository = createRepository(new File(remote).toURI().toString(), local, BRANCH, false)) {
             assertNotNull(repository);
         }
     }
 
     @Test
-    public void testIsValidBranchName() {
+    void testIsValidBranchName() {
         assertTrue(repo.isValidBranchName("123"));
         assertFalse(repo.isValidBranchName("[~COM1/NUL]"));
     }
 
     @Test
-    public void testFetchChanges() throws IOException, GitAPIException {
+    void testFetchChanges() throws IOException, GitAPIException {
         ObjectId before = repo.getLastRevision();
         String newBranch = "new-branch";
 
@@ -1137,14 +1139,14 @@ public class GitRepositoryTest {
         assertEquals(3, file2History.size());
 
         // Check that after repo initialization all changes are fetched and fast forwarded
-        try (GitRepository repo2 = createRepository(remote, local2)) {
+        try (GitRepository repo2 = createRepository(remote, local2, false)) {
             file2History = repo2.listHistory("rules/project1/file2");
             assertEquals(3, file2History.size());
             assertTrue(repo2.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
         // Check that all branches are available when repository is cloned.
-        try (GitRepository repo3 = createRepository(remote, new File(root, "local3"))) {
+        try (GitRepository repo3 = createRepository(remote, new File(root, "local3"), true)) {
             assertTrue(repo3.getAvailableBranches().contains(newBranch), "Branch " + newBranch + " must be created");
         }
 
@@ -1159,13 +1161,13 @@ public class GitRepositoryTest {
         assertFalse(repo.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
 
         // Check that after repo initialization the branch is deleted on local repository.
-        try (GitRepository repo2 = createRepository(remote, local2, "master")) {
+        try (GitRepository repo2 = createRepository(remote, local2, "master", false)) {
             assertFalse(repo2.getAvailableBranches().contains(BRANCH), "Branch " + BRANCH + " must be deleted");
         }
     }
 
     @Test
-    public void testPullDoesntAutoMerge() throws IOException {
+    void testPullDoesntAutoMerge() throws IOException {
         final String newBranch = "new-branch";
         repo.createBranch(FOLDER_IN_REPOSITORY, newBranch);
         GitRepository newBranchRepo = repo.forBranch(newBranch);
@@ -1191,7 +1193,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testOnlySpecifiedBranchesAreMerged() throws IOException {
+    void testOnlySpecifiedBranchesAreMerged() throws IOException {
         final String branch1 = "branch1";
         repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
         GitRepository branch1Repo = repo.forBranch(branch1);
@@ -1235,7 +1237,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testResetUncommittedChanges() throws IOException {
+    void testResetUncommittedChanges() throws IOException {
         File parent;
         try (Git git = repo.getClosableGit()) {
             parent = git.getRepository().getDirectory().getParentFile();
@@ -1257,46 +1259,31 @@ public class GitRepositoryTest {
         assertTrue(existingFile.exists());
     }
 
-    @Test
-    public void testURIIdentity() throws URISyntaxException {
-        URI a = new URI("https://github.com/openl-tablets/openl-tablets.git");
-        URI b = new URI("https://github.com/openl-tablets/openl-tablets.git");
-        assertEquals(a, b);
-        assertTrue(GitRepository.isSame(a, b));
-
-        b = new URI("http://github.com/openl-tablets/openl-tablets.git/");
-        assertNotEquals(a, b);
-        assertTrue(GitRepository.isSame(a, b));
-
-        b = new URI("http://github.com/openl-tablets/openl-tablets.git?a=foo&b=bar");
-        assertNotEquals(a, b);
-        assertFalse(GitRepository.isSame(a, b));
+    private GitRepository createRepository(File remote, File local, boolean empty) throws IOException {
+        return createRepository(remote, local, BRANCH, empty);
     }
 
-    private GitRepository createRepository(File remote, File local) {
-        return createRepository(remote, local, BRANCH);
+    private GitRepository createRepository(File remote, File local, String branch, boolean empty) throws IOException {
+        return createRepository(remote.toURI().toString(), local, branch, empty);
     }
 
-    private GitRepository createRepository(File remote, File local, String branch) {
-        return createRepository(remote.toURI().toString(), local, branch);
-    }
-
-    private GitRepository createRepository(String remoteUri, File local, String branch) {
-        GitRepository repo = new GitRepository();
-        repo.setUri(remoteUri);
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setBranch(branch);
-        repo.setTagPrefix(TAG_PREFIX);
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+    private GitRepository createRepository(String remoteUri, File local, String branch, boolean empty) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        newRepo.setUri(remoteUri);
+        newRepo.setLocalRepositoriesFolder(repositoriesFolder);
+        newRepo.setBranch(branch);
+        newRepo.setTagPrefix(TAG_PREFIX);
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
         String locksRoot = new File(root, "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setGcAutoDetach(false);
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, empty));
 
-        return repo;
+        return newRepo;
     }
 
     private FileData getFileData(List<FileData> files, String fileName) {
@@ -1350,7 +1337,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testBranchDataSerialization() throws IOException {
+    void testBranchDataSerialization() throws IOException {
         var mapper = YamlMapperFactory.getYamlMapper();
         BranchesData branches = null;
         try (var stream = getClass().getResourceAsStream("/BranchesDataOldStyle.yaml")) {

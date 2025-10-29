@@ -22,6 +22,9 @@ public class ProjectVersionCacheMonitorTest {
 
     @TempDir
     private File root;
+    @TempDir
+    private File localRepositoriesFolder;
+    
     @AutoClose
     private Repository repo;
     private ProjectVersionCacheMonitor projectVersionCacheMonitor;
@@ -61,8 +64,12 @@ public class ProjectVersionCacheMonitorTest {
     private Repository createRepository(File local) {
         return new GitRepositoryFactory().create(s -> {
             switch (s) {
-                case "local-repository-path":
-                    return local.getAbsolutePath();
+                case "id":
+                    return "design";
+                case "uri":
+                    return local.toURI().toString();
+                case "local-repositories-folder":
+                    return localRepositoriesFolder.getAbsolutePath();
                 case "comment-template":
                     return "OpenL Studio: {commit-type}. {user-message}";
             }

@@ -6,11 +6,9 @@ Content-Type: application/json
   "settings": {
     "basePath": "deploy/",
     "mainBranchOnly": false,
-    "remoteRepository": false,
-    "uri": "",
+    "uri": "**/repositories/production",
     "login": "",
     "password": "",
-    "localRepositoryPath": "**/repositories/production",
     "branch": "",
     "tagPrefix": "",
     "listenerTimerPeriod": 10,

@@ -50,11 +50,12 @@ public class MergeCommitVersionsTest {
     }
 
     private GitRepository createRepository() {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(new File(REPO_URI).getAbsolutePath());
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.initialize();
-        return repo;
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId("design");
+        newRepo.setUri(new File(REPO_URI).getAbsolutePath());
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.initialize(new GitRootFactory());
+        return newRepo;
     }
 }

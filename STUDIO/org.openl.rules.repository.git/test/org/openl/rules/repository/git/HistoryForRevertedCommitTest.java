@@ -5,20 +5,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
 
 public class HistoryForRevertedCommitTest {
 
+    private static final String REPO_ID = "design-history";
     private static final String REPO_URI = "target/test-classes/repositories/HistoryForRevertedCommitTest";
 
     private GitRepository repo;
+    @TempDir
+    private Path localRepositoriesFolder;
 
     @BeforeEach
     public void setUp() throws GitAPIException, IOException {
@@ -95,13 +100,18 @@ public class HistoryForRevertedCommitTest {
         assertEquals("Merge branch 'improve-project3' into project3\n", history.get(4).getComment());
     }
 
-    private GitRepository createRepository() {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(new File(REPO_URI).getAbsolutePath());
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.setGcAutoDetach(false);
-        repo.setBranch("main");
-        repo.initialize();
-        return repo;
+    private GitRepository createRepository() throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        File localPath = new File(REPO_URI);
+        String uri = localPath.getAbsolutePath();
+        newRepo.setUri(uri);
+        String localRepositoriesFolderString = localRepositoriesFolder.toFile().getAbsolutePath();
+        newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.setGcAutoDetach(false);
+        newRepo.setBranch("main");
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, localPath, localRepositoriesFolderString, false, false));
+        return newRepo;
     }
 }

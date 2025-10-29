@@ -55,7 +55,6 @@ export interface GitRepositorySettings extends DefaultSettings {
     connectionTimeout: number // "format" : "int32", "minimum" : 1
     failedAuthenticationSeconds: number // "format" : "int32", "minimum" : 1
     listenerTimerPeriod: number // "format" : "int32", "minimum" : 1
-    localRepositoryPath: string
     login?: string
     maxAuthenticationAttempts?: number // "format" : "int32"
     newBranchRegex?: string
@@ -63,9 +62,8 @@ export interface GitRepositorySettings extends DefaultSettings {
     newBranchTemplate?: string
     password?: string
     protectedBranches?: string
-    remoteRepository?: boolean
     tagPrefix?: string
-    uri?: string
+    uri: string
 }
 
 export interface LocalRepositorySettings extends DefaultSettings {

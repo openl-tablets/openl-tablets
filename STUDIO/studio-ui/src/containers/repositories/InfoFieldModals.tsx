@@ -1,33 +1,6 @@
 import React from 'react'
 import InfoFieldModal from '../../components/modal/InfoFieldModal'
 
-export const LocalPathModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>A local path to directory for Git repository. OpenL Studio uses this specified path to upload Git repository from the server and works with it.</p>
-                <p>
-                    <b>NOTE:</b>
-                    {' '}
-                    Read/Write rights for specified directory is mandatory for OpenL Studio.
-                </p>
-
-            </>
-        )}
-    />
-)
-
-export const RemoteRepositoryModal = (
-    <InfoFieldModal
-        text={(
-            <ul>
-                <li>If checked, use remote Git repository. OpenL Studio will pull and push changes to it.</li>
-                <li>If unchecked, repository is stored in local file system only.</li>
-            </ul>
-        )}
-    />
-)
-
 // @ts-ignore
 export const ProtectedBranchesModal = (
     <InfoFieldModal

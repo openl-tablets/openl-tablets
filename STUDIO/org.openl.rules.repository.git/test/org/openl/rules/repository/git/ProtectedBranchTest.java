@@ -35,6 +35,7 @@ import org.openl.util.IOUtils;
 
 public class ProtectedBranchTest {
     private static final String BRANCH1 = "branch1";
+    private static final String REPO_ID = "design";
     @TempDir
     private static File template;
     @TempDir
@@ -66,17 +67,18 @@ public class ProtectedBranchTest {
     @BeforeEach
     public void setUp() throws IOException {
         File remote = new File(root, "remote");
-        File local = new File(root, "local");
+        File repositoriesFolder = new File(root, "repositories");
+        File local = new File(repositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
         String remoteUri = remote.toURI().toString();
 
         // Clone remote repository and modify pre-push hook, then close it.
-        try (GitRepository ignored = createRepository(remoteUri, local)) {
+        try (GitRepository ignored = createRepository(remoteUri, local, repositoriesFolder.getAbsolutePath(), true)) {
             writePrePushHook(local.getPath());
         }
         // Open the repository with a new pre-push hook
-        repo = createRepository(remoteUri, local);
+        repo = createRepository(remoteUri, local, repositoriesFolder.getAbsolutePath(), false);
     }
 
     @Test
@@ -114,18 +116,19 @@ public class ProtectedBranchTest {
         }
     }
 
-    private GitRepository createRepository(String remoteUri, File local) {
-        GitRepository repo = new GitRepository();
-        repo.setUri(remoteUri);
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
+    private GitRepository createRepository(String remoteUri, File local, String repositoriesFolder, boolean empty) throws IOException {
+        GitRepository newRepo = new GitRepository();
+        newRepo.setId(REPO_ID);
+        newRepo.setUri(remoteUri);
+        newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = new File(root, "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        repo.initialize();
+        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
+        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
+        newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, remoteUri, local, repositoriesFolder, true, empty));
 
-        return repo;
+        return newRepo;
     }
 
     /**
