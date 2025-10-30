@@ -143,7 +143,7 @@
         <xmlunit.version>2.10.4</xmlunit.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
-        <minio.version>8.5.17</minio.version>
+        <minio.version>8.6.0</minio.version>
         <ojdbc11.version>23.9.0.25.07</ojdbc11.version>
         <postgresql.version>42.7.8</postgresql.version>
         <mariadb.version>2.7.12</mariadb.version>
