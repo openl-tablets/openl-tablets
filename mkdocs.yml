@@ -123,12 +123,21 @@ plugins:
   #     enable_creation_date: true
   #     type: timeago
   # - git-authors
+  # - with-pdf:
+  #     author: OpenL Tablets Team
+  #     copyright: Copyright &copy; 2025 OpenL Tablets. Licensed under Apache License 2.0.
+  #     cover_title: OpenL Tablets Documentation
+  #     cover_subtitle: Business Rules Management System
+  #     output_path: assets/downloads/openl-tablets-documentation.pdf
+  #     enabled_if_env: ENABLE_PDF_EXPORT
 
 # Navigation
 nav:
   - Home:
       - Welcome: README.md
       - Migration Plan: MIGRATION_PLAN.md
+
+  - Downloads: downloads.md
 
   - Getting Started:
       - Quick Start: onboarding/codebase-tour.md
@@ -213,6 +222,10 @@ nav:
   - Operations:
       - operations/ci-cd.md
       - operations/docker-guide.md
+
+  - Examples:
+      - examples/index.md
+      - Production Deployment: examples/production/README.md
 
   - API Reference:
       - api/public-api-reference.md
