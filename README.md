@@ -1,59 +1,177 @@
 ![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
 ![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
-[![WebSite](https://img.shields.io/website?label=WebSite&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
+[![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
+![License](https://img.shields.io/badge/license-LGPL-blue.svg)
 
-# Easy Business Rules
+# OpenL Tablets - Easy Business Rules Management
 
-**OpenL Tablets** targets the infamous gap between business requirements (rules and policies) and software implementation.
+**OpenL Tablets** bridges the gap between business requirements (rules and policies) and software implementation, making business rules management accessible and efficient.
 
-Designed to be straightforward and intuitive for ***business people***, OpenL Tablets made its rules representation impressively close to documents usually created by business(it intends business requirements etc).
+[Website](https://openl-tablets.org) | [Documentation](Docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
 
-Users can focus on logic as all data, syntax and typing errors are checked while they write. Convenient tools help to ensure rules integrity while further using.
+## Table of Contents
 
-One-click deployment of rules as efficient, scalable and standardized services for ***SOA-based*** integration makes business logic simple to embed in application.
+- [About](#about)
+- [Key Features](#key-features)
+- [Getting Started](#getting-started)
+  - [Quick Start with Docker](#quick-start-with-docker)
+  - [Building from Source](#building-from-source)
+- [Documentation](#documentation)
+- [Use Cases](#use-cases)
+- [Community & Support](#community--support)
+- [Contributing](#contributing)
+- [License](#license)
 
-For Java developers, OpenL Tablets provides many rich usage scenarios in which all rules and business data are exposed through reflection-like API or wrapped as Java class.
+## About
 
-All of OpenL Tablets is open sourced under **LGPL** license.
+OpenL Tablets is an open-source business rules management system (BRMS) and decision engine that enables:
 
-[Visit our website](//openl-tablets.org)
+- **Business Users**: Create and manage rules using familiar spreadsheet-like interfaces
+- **Developers**: Integrate powerful rule engines into Java applications with minimal code
+- **Organizations**: Bridge the gap between business requirements and technical implementation
 
-## How to build
+Designed to be straightforward and intuitive for business people, OpenL Tablets represents rules in a format that closely resembles typical business documents and requirements. The system validates all data, syntax, and typing errors as you write, with convenient tools to ensure rule integrity.
 
-#### Requirements:
+## Key Features
 
-* JDK 21+
-* Maven 3.9.9
-* Docker 27.5.0
-* Docker compose 2.32.4
-* 1 GiB RAM free
-* 2 GiB Disk space free
+- **Excel-Based Rule Authoring**: Write business rules in Excel with a familiar spreadsheet interface
+- **Type-Safe Rule Engine**: Strong typing with compile-time validation of rules and data
+- **Web-Based IDE**: OpenL Studio provides a comprehensive web interface for rule development and testing
+- **SOA Integration**: One-click deployment of rules as web services (REST, SOAP)
+- **Version Control**: Built-in Git integration for rule versioning and collaboration
+- **Testing Framework**: Comprehensive testing capabilities with trace and debug features
+- **Java API**: Reflection-like API for Java developers to access rules programmatically
+- **Multiple Deployment Options**: Standalone, embedded, or as web services
+- **Rule Templates**: Decision tables, decision trees, scorecards, and more
+- **Production-Ready**: Scalable, efficient, and battle-tested in enterprise environments
 
-#### Build Maven artifacts:
+## Getting Started
 
-`mvn` - full build with tests
+### Quick Start with Docker
 
-Estimated build time: ~10...30 minutes (with all tests)
+The fastest way to try OpenL Tablets:
 
-`mvn -Dquick -DnoPerf -T1C` - rapid building with less amount of the tests
+```bash
+docker compose up
+```
 
-It is possible to use the following settings:
+Then open http://localhost in your browser to access:
+- **OpenL Studio** - Rule development environment
+- **Rule Services** - REST/SOAP web services
+- **Demo Application** - Example rules and use cases
 
-`-DnoPerf` - to run tests without extreme memory limitation
+### Building from Source
 
-`-DnoDocker` - to skip dockerized tests
+#### Requirements
 
-`-Dquick` - to skip heavy or not important tests
+- **JDK 21+**
+- **Maven 3.9.9**
+- **Docker 27.5.0** (for containerized tests)
+- **Docker Compose 2.32.4**
+- **1 GiB RAM** available
+- **2 GiB disk space**
 
-`-DskipTests` - to skip all tests
+#### Build Commands
 
+Full build with all tests (~10-30 minutes):
+```bash
+mvn clean verify
+```
 
-Artifacts:
-* **OpenL Studio** - STUDIO/org.openl.rules.webstudio/target/webapp.war
-* **RuleService WS** - WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war
-* **DEMO App** - DEMO/target/openl-tablets-demo.zip
+Quick build with fewer tests:
+```bash
+mvn -Dquick -DnoPerf -T1C
+```
 
-#### Run OpenL Docker images with the typical configuration:
+Build options:
+- `-DnoPerf` - Skip memory-intensive tests
+- `-DnoDocker` - Skip Docker-based tests
+- `-Dquick` - Skip heavy/non-critical tests
+- `-DskipTests` - Skip all tests
 
-`docker compose up` and open http://localhost in the browser.
+#### Artifacts
+
+After building, find the artifacts at:
+- **OpenL Studio**: `STUDIO/org.openl.rules.webstudio/target/webapp.war`
+- **Rule Service**: `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war`
+- **Demo Package**: `DEMO/target/openl-tablets-demo.zip`
+
+## Documentation
+
+- **[Configuration Guide](Docs/Configuration.md)** - System configuration and settings
+- **[Security Guide](Docs/Security.md)** - Authentication and authorization
+- **[Production Deployment](Docs/Production_Deployment.md)** - Deploying to production
+- **[OpenAPI Integration](Docs/OpenAPI.md)** - REST API documentation
+- **[OpenTelemetry](Docs/OpenTelemetry.md)** - Observability and monitoring
+- **[Developer Guide](Docs/developer-guide/)** - Contributing and development
+- **[All Documentation](Docs/)** - Complete documentation index
+
+## Use Cases
+
+OpenL Tablets is used across various industries for:
+
+### Insurance
+- Premium calculation
+- Underwriting rules
+- Policy eligibility
+- Claims processing
+
+### Finance
+- Loan origination
+- Credit scoring
+- Fraud detection
+- Pricing models
+
+### Healthcare
+- Treatment protocols
+- Insurance eligibility
+- Benefit calculations
+- Clinical decision support
+
+### Retail & E-commerce
+- Pricing engines
+- Promotion rules
+- Shipping calculations
+- Product recommendations
+
+## Community & Support
+
+### Getting Help
+
+- **Documentation**: Start with our [comprehensive docs](Docs/)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/openl-tablets/openl-tablets/issues)
+- **Discussions**: Ask questions and share ideas in [GitHub Discussions](https://github.com/openl-tablets/openl-tablets/discussions)
+- **Website**: Visit [openl-tablets.org](https://openl-tablets.org) for guides and tutorials
+
+### Stay Updated
+
+- **Watch** this repository for updates
+- **Star** the project if you find it useful
+- Follow releases for new features and improvements
+
+## Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+- **Report Bugs**: Use our [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
+- **Suggest Features**: Share your ideas via [feature requests](.github/ISSUE_TEMPLATE/feature_request.md)
+- **Submit Pull Requests**: Check our [contribution guidelines](CONTRIBUTING.md)
+- **Improve Documentation**: Help us make docs better
+- **Share Your Experience**: Write blog posts or tutorials
+
+Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+
+### Security
+
+Found a security vulnerability? Please review our [Security Policy](SECURITY.md) for responsible disclosure guidelines.
+
+## License
+
+OpenL Tablets is open source software licensed under the **GNU Lesser General Public License (LGPL)**.
+
+See the [pom.xml](pom.xml) file for license details.
+
+---
+
+**Made with ❤️ by the OpenL Tablets community**
