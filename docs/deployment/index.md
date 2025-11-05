@@ -65,9 +65,14 @@ OpenL Tablets consists of several components:
    - Horizontal scaling support
 
 3. **Database** - Rule and configuration storage
-   - PostgreSQL (recommended)
-   - MySQL/MariaDB (supported)
-   - H2 (development only)
+   - PostgreSQL (recommended) - **reuse existing clusters to save costs**
+   - MySQL/MariaDB (supported) - can also reuse existing infrastructure
+   - H2 (development only) - not for production
+
+   **💡 Cost Optimization**: OpenL Tablets generates minimal database load (~5-10% CPU typical).
+   Most organizations can reuse existing PostgreSQL/MySQL clusters instead of deploying dedicated instances,
+   significantly reducing infrastructure costs. Create separate databases (`openl_studio`, `openl_ruleservices`)
+   on your existing cluster.
 
 ### Optional Components
 
@@ -167,6 +172,63 @@ OpenL Tablets consists of several components:
 | Azure-native | [Azure Deployment](cloud/azure/) |
 | Traditional VMs | [VM Deployment](vm/) |
 | Mixed/Hybrid | [Kubernetes](kubernetes/) |
+
+## Database Deployment Options
+
+### Option 1: Reuse Existing PostgreSQL/MySQL (Recommended)
+
+**Best for**: Organizations with existing database infrastructure
+
+**Advantages**:
+- ✅ **Cost savings**: No new database instances needed
+- ✅ **Lower maintenance**: Leverage existing backup/monitoring/HA setup
+- ✅ **Resource efficiency**: OpenL generates minimal DB load (5-10% CPU typical)
+- ✅ **Faster deployment**: No need to provision new infrastructure
+
+**Setup**:
+```sql
+-- On your existing PostgreSQL cluster:
+CREATE DATABASE openl_studio;
+CREATE DATABASE openl_ruleservices;
+
+CREATE USER openl_user WITH PASSWORD 'secure_password';
+GRANT ALL PRIVILEGES ON DATABASE openl_studio TO openl_user;
+GRANT ALL PRIVILEGES ON DATABASE openl_ruleservices TO openl_user;
+```
+
+**Configuration**:
+```bash
+# Point to existing database
+DATABASE_URL=postgresql://openl_user:password@existing-db-host:5432/openl_studio
+```
+
+**Typical Resource Usage**:
+- CPU: 5-10% of 1 core (typical), 20-30% (peak)
+- Memory: ~500MB-1GB for OpenL data
+- Storage: 1-10GB (depends on project count)
+- Connections: 10-50 (with connection pooling)
+
+### Option 2: Dedicated Database Instance
+
+**Best for**: Organizations without existing DB infrastructure or requiring strict isolation
+
+**When to use**:
+- No existing PostgreSQL/MySQL infrastructure
+- Strict compliance/security requirements requiring isolation
+- Very high OpenL usage (100+ concurrent users, frequent deployments)
+- Dedicated DB performance tuning needed
+
+**Deployment**:
+- Cloud: Use managed services (AWS RDS, Azure Database, Google Cloud SQL)
+- On-premises: Deploy PostgreSQL in containers or VMs
+- Kubernetes: Use PostgreSQL operator (not in examples for simplicity)
+
+See platform-specific guides for dedicated database setup:
+- [Docker Deployment](docker/) - PostgreSQL container
+- [AWS Deployment](cloud/aws/) - Amazon RDS
+- [Azure Deployment](cloud/azure/) - Azure Database for PostgreSQL
+
+**Note**: Examples in this documentation show both options. Choose based on your infrastructure and requirements.
 
 ## Configuration
 
