@@ -149,7 +149,33 @@ nav:
       - user-guides/index.md
       - Installation Guide: user-guides/installation/index.md
       - Demo Package Guide: user-guides/demo-package/index.md
-      - Reference Guide: user-guides/reference/index.md
+      - Reference Guide:
+          - user-guides/reference/index.md
+          - Preface: user-guides/reference/preface.md
+          - Introduction: user-guides/reference/introduction.md
+          - Table Basics: user-guides/reference/table-basics.md
+          - Table Types:
+              - Decision Tables: user-guides/reference/table-types/decision-tables.md
+              - Datatype Tables: user-guides/reference/table-types/datatype-tables.md
+              - Data Tables: user-guides/reference/table-types/data-tables.md
+              - Test Tables: user-guides/reference/table-types/test-tables.md
+              - Run Tables: user-guides/reference/table-types/run-tables.md
+              - Method Tables: user-guides/reference/table-types/method-tables.md
+              - Configuration Tables: user-guides/reference/table-types/configuration-tables.md
+              - Properties Tables: user-guides/reference/table-types/properties-tables.md
+              - Spreadsheet Tables: user-guides/reference/table-types/spreadsheet-tables.md
+              - TBasic Tables: user-guides/reference/table-types/tbasic-tables.md
+              - Column Match Tables: user-guides/reference/table-types/column-match-tables.md
+              - Constants Tables: user-guides/reference/table-types/constants-tables.md
+              - Table Part: user-guides/reference/table-types/table-part.md
+          - Table Properties: user-guides/reference/table-properties.md
+          - Arrays: user-guides/reference/arrays.md
+          - Data Types: user-guides/reference/data-types.md
+          - Functions: user-guides/reference/functions.md
+          - Projects: user-guides/reference/projects.md
+          - Appendices:
+              - BEX Language: user-guides/reference/appendices/bex-language.md
+              - Function Reference: user-guides/reference/appendices/function-reference.md
       - WebStudio User Guide:
           - user-guides/webstudio/index.md
           - Preface: user-guides/webstudio/preface.md
