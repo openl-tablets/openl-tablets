@@ -26,11 +26,11 @@ This document tracks the migration of documentation from the external OpenLdocs 
 ## 📊 Progress Tracking
 
 ### Overall Status
-- **Total Batches**: 15 (Batch 4 split into 4a and 4b, added Batches 11-12 for refactoring)
+- **Total Batches**: 16 (Batch 4 split into 4a and 4b, added Batches 11-12 for refactoring, Batch 15 for deployment)
 - **Completed**: 14 (Batches 1-3, 4a, 4b, 5, 6, 7, 8, 9, 10, 11, 12, 13)
 - **In Progress**: 0
-- **Remaining**: 1
-- **Overall Progress**: 93% (14/15 batches)
+- **Remaining**: 2
+- **Overall Progress**: 88% (14/16 batches)
 
 ---
 
@@ -832,7 +832,61 @@ docs/user-guides/installation/
 
 ---
 
-#### ⏹️ Batch 14: Deprecation & Cleanup
+#### ⏹️ Batch 15: Enhanced Deployment Documentation
+**Status**: Not Started
+**Progress**: 0%
+
+**Rationale**: Inspired by Langfuse's comprehensive self-hosting documentation, create production-ready deployment guides for various platforms including Docker, Kubernetes, and cloud providers.
+
+**Tasks**:
+- [ ] Research Langfuse deployment documentation structure
+- [ ] Create comprehensive docker-compose examples (single-node, cluster, with dependencies)
+- [ ] Create Kubernetes/Helm deployment guide
+- [ ] Create AWS deployment guide (Terraform/CloudFormation)
+- [ ] Create Azure deployment guide (Terraform/ARM)
+- [ ] Create VM deployment guide (Ubuntu/RHEL)
+- [ ] Document environment variables and configuration
+- [ ] Create troubleshooting guide for each platform
+- [ ] Update navigation and cross-references
+- [ ] Validate all deployment examples
+
+**Planned Content**:
+```
+docs/deployment/
+├── index.md (overview of deployment options)
+├── docker/
+│   ├── index.md
+│   ├── docker-compose-simple.yaml
+│   ├── docker-compose-cluster.yaml
+│   ├── docker-compose-full.yaml (with monitoring, DB, etc.)
+│   └── README.md
+├── kubernetes/
+│   ├── index.md
+│   ├── helm-chart/
+│   ├── manifests/
+│   └── README.md
+├── cloud/
+│   ├── aws/
+│   │   ├── terraform/
+│   │   ├── cloudformation/
+│   │   └── README.md
+│   ├── azure/
+│   │   ├── terraform/
+│   │   ├── arm-templates/
+│   │   └── README.md
+│   └── index.md
+├── vm/
+│   ├── ubuntu.md
+│   ├── rhel.md
+│   └── index.md
+└── troubleshooting.md
+```
+
+**Dependencies**: Batches 8, 9, 12 ✅
+
+---
+
+#### ⏹️ Batch 16: Deprecation & Cleanup
 **Status**: Not Started
 **Progress**: 0%
 
@@ -843,7 +897,7 @@ docs/user-guides/installation/
 - [ ] Remove obsolete files
 - [ ] Final validation and testing
 
-**Dependencies**: Batches 1-13
+**Dependencies**: Batches 1-15
 
 ---
 
