@@ -11,6 +11,18 @@ assignees: ''
 
 A clear and concise description of what the bug is.
 
+## Interface/Integration Type
+
+Please select the component where you encountered this issue:
+
+- [ ] Rules Engine (DEV) - Core rule execution, compilation, or data binding
+- [ ] OpenL Studio (STUDIO) - Web-based IDE, rule editing, repository management
+- [ ] Services (WSFrontend) - Rule deployment as REST services or MCP (Model Context Protocol)
+- [ ] Maven Plugin - Build and deployment tools
+- [ ] Docker - Container deployment and configuration
+- [ ] Documentation - User guides, API docs, or examples
+- [ ] Other (please specify): 
+
 ## Steps to Reproduce
 
 Steps to reproduce the behavior:
@@ -60,6 +72,7 @@ If applicable, add screenshots to help explain your problem.
 Add any other context about the problem here, such as:
 - Configuration settings
 - Rule project specifics
+- Prompts used
 - Recent changes that might be related
 - Workarounds you've tried
 - Links to related issues
