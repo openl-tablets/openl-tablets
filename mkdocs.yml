@@ -152,7 +152,6 @@ nav:
           - System Requirements: user-guides/installation/system-requirements.md
           - Quick Start: user-guides/installation/quick-start.md
           - Configuration: user-guides/installation/configuration.md
-          - Docker Deployment: user-guides/installation/docker-deployment.md
           - Rule Services: user-guides/installation/rule-services.md
           - Integration: user-guides/installation/integration.md
           - Troubleshooting: user-guides/installation/troubleshooting.md
@@ -231,6 +230,29 @@ nav:
       - OpenAPI/REST: integration-guides/openapi.md
       - Apache CXF: integration-guides/cxf.md
       - OpenTelemetry: integration-guides/opentelemetry.md
+
+  - Deployment:
+      - deployment/index.md
+      - Docker:
+          - deployment/docker/index.md
+          - Quick Start: deployment/docker/quick-start.md
+          - README: deployment/docker/README.md
+          - Simple Deployment: deployment/docker/docker-compose-simple.yaml
+          - Multi-Container: deployment/docker/docker-compose-multi.yaml
+          - Full Stack: deployment/docker/docker-compose-full.yaml
+      - Kubernetes:
+          - deployment/kubernetes/index.md
+          - Manifests:
+              - Namespace: deployment/kubernetes/manifests/00-namespace.yaml
+              - Secrets: deployment/kubernetes/manifests/01-secrets.yaml
+              - Studio: deployment/kubernetes/manifests/studio-deployment.yaml
+              - Rule Services: deployment/kubernetes/manifests/ruleservices-deployment.yaml
+              - Ingress: deployment/kubernetes/manifests/ingress.yaml
+              - README: deployment/kubernetes/manifests/README.md
+      - Cloud:
+          - AWS: deployment/cloud/aws/index.md
+          - Azure: deployment/cloud/azure/index.md
+      - VM Deployment: deployment/vm/index.md
 
   - Configuration:
       - configuration/index.md
