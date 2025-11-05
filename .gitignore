@@ -49,3 +49,6 @@ CLAUDE.md
 /DEMO/jetty-home/
 /DEMO/webapps/*
 !/DEMO/webapps/ROOT/
+
+# MkDocs build output
+site/

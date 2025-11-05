@@ -1,0 +1,20 @@
+<project>
+    <name>Example With Dependency</name>
+    <comment>More complex project, shows how to structure project with dependencies</comment>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+Ping.+</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Dependency Example</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

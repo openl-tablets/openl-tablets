@@ -5,6 +5,9 @@ message: >-
   the metadata from this file.
 type: software
 authors:
+  - given-names: Sergey
+    family-names: Zyrianov
+    affiliation: EIS Group
   - given-names: Stanislav
     family-names: Shor
   - given-names: Yury

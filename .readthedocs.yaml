@@ -1,0 +1,55 @@
+# Read the Docs configuration file for OpenL Tablets
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+  jobs:
+    post_checkout:
+      # Cancel building pull requests when a new commit is pushed
+      - |
+        if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git show -s --format=%B $READTHEDOCS_GIT_IDENTIFIER | grep -q "\[skip rtd\]";
+        then
+          echo "Skipping Read the Docs build as requested in commit message";
+          exit 183;
+        fi
+    post_install:
+      # Install additional dependencies if needed
+      - echo "Build environment ready"
+
+# Build documentation in the "docs/" directory with MkDocs
+mkdocs:
+  configuration: mkdocs.yml
+  fail_on_warning: false
+
+# Python requirements
+python:
+  install:
+    - requirements: docs/requirements.txt
+
+# Optional but recommended, declare the Python requirements required
+# to build your documentation
+# See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+formats:
+  - pdf
+  - epub
+  - htmlzip
+
+# Search configuration
+search:
+  ranking:
+    api/public-api-reference.md: 2
+    user-guides/reference/index.md: 3
+    README.md: 5
+  ignore:
+    - MIGRATION_PLAN.md
+
+# Subproject configuration (if needed for versioning)
+# submodules:
+#   include: all
+#   recursive: true

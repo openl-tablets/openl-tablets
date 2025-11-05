@@ -1,0 +1,246 @@
+# OpenL Studio Deployment
+# This manifest deploys OpenL Studio to Kubernetes with persistent storage
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openl-studio
+  namespace: openl
+  labels:
+    app: openl-studio
+    component: webstudio
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openl-studio
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: openl-studio
+        component: webstudio
+    spec:
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - openl-studio
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: studio
+          image: openltablets/studio:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            # Database Configuration
+            - name: DATABASE_URL
+              value: "postgresql://openl-postgresql:5432/openl_studio"
+            - name: DATABASE_DRIVER
+              value: "org.postgresql.Driver"
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: db-username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: db-password
+
+            # Security Configuration
+            - name: SECURITY_MODE
+              value: "multi-user"
+            - name: ADMIN_USERNAME
+              value: "admin"
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: admin-password
+
+            # Workspace
+            - name: STUDIO_WORKSPACE
+              value: "/opt/openl/workspace"
+
+            # Java Options
+            - name: JAVA_OPTS
+              value: "-Xmx2g -Xms512m -XX:+UseG1GC"
+
+            # Logging
+            - name: LOGGING_LEVEL
+              value: "INFO"
+
+            # Repository Configuration
+            - name: REPOSITORY_TYPE
+              value: "git"
+            - name: REPOSITORY_PATH
+              value: "/opt/openl/workspace/repositories"
+
+            # Redis Session Management
+            - name: SPRING_SESSION_STORE_TYPE
+              value: "redis"
+            - name: SPRING_REDIS_HOST
+              value: "openl-redis-master"
+            - name: SPRING_REDIS_PORT
+              value: "6379"
+            - name: SPRING_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: redis-password
+
+            # Metrics
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info,prometheus"
+
+          volumeMounts:
+            - name: workspace
+              mountPath: /opt/openl/workspace
+            - name: logs
+              mountPath: /opt/openl/logs
+
+          # Resource limits and requests
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: studio-workspace-pvc
+        - name: logs
+          emptyDir: {}
+
+---
+# Service for OpenL Studio
+apiVersion: v1
+kind: Service
+metadata:
+  name: openl-studio
+  namespace: openl
+  labels:
+    app: openl-studio
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: openl-studio
+
+---
+# Persistent Volume Claim for Studio Workspace
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: studio-workspace-pvc
+  namespace: openl
+spec:
+  accessModes:
+    - ReadWriteMany  # Shared across replicas
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: nfs-storage  # Use appropriate storage class
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: openl-studio-hpa
+  namespace: openl
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: openl-studio
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: openl-studio-pdb
+  namespace: openl
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: openl-studio
