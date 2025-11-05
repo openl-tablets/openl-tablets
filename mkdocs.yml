@@ -174,9 +174,12 @@ nav:
 
   - Developer Guides:
       - developer-guides/index.md
-      - Getting Started: developer-guides/getting-started.md
-      - Core Concepts: developer-guides/core-concepts.md
-      - API Usage: developer-guides/api-usage.md
+      - Preface: developer-guides/preface.md
+      - Introducing OpenL Tablets: developer-guides/introduction.md
+      - OpenL Tablets Rules Projects: developer-guides/rules-projects.md
+      - Business Expression Language: developer-guides/business-language.md
+      - Externalized Configuration: developer-guides/externalized-config.md
+      - Extending OpenL Tablets: developer-guides/extending.md
 
   - Integration Guides:
       - integration-guides/index.md
