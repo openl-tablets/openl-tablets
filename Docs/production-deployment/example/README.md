@@ -47,7 +47,7 @@ This project includes a basic OpenAPI-based client authorization mechanism, impl
 - Registers security schemes via `openapi-configuration.json`
 - Enforces checks using Java classes wired through Spring configuration
 
-For detailed documentation, see [Security Extensions](../../Security.md).
+For detailed documentation, see [Security Extensions](../../Rule_Services_Security.md).
 
 ---
 
