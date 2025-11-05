@@ -147,7 +147,15 @@ nav:
 
   - User Guides:
       - user-guides/index.md
-      - Installation Guide: user-guides/installation/index.md
+      - Installation Guide:
+          - user-guides/installation/index.md
+          - System Requirements: user-guides/installation/system-requirements.md
+          - Quick Start: user-guides/installation/quick-start.md
+          - Configuration: user-guides/installation/configuration.md
+          - Docker Deployment: user-guides/installation/docker-deployment.md
+          - Rule Services: user-guides/installation/rule-services.md
+          - Integration: user-guides/installation/integration.md
+          - Troubleshooting: user-guides/installation/troubleshooting.md
       - Demo Package Guide: user-guides/demo-package/index.md
       - Reference Guide:
           - user-guides/reference/index.md
