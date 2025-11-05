@@ -194,7 +194,6 @@ nav:
       - Overview: configuration/overview.md
       - Security: configuration/security.md
       - Production Deployment: configuration/deployment.md
-      - Advanced Configuration: configuration/advanced.md
 
   - Architecture:
       - architecture/technology-stack.md
