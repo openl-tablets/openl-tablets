@@ -1,0 +1,537 @@
+# OpenL Tablets - Full Stack Production Deployment
+# High availability setup with load balancing, caching, and monitoring
+#
+# Components:
+#   - Nginx Load Balancer (port 80)
+#   - OpenL Studio (3 replicas)
+#   - OpenL Rule Services (3 replicas)
+#   - PostgreSQL (primary + replica)
+#   - Redis (session management & caching)
+#   - Prometheus (metrics)
+#   - Grafana (monitoring dashboards)
+#
+# Usage:
+#   docker-compose -f docker-compose-full.yaml up -d
+#
+# Access:
+#   OpenL Studio: http://localhost (via load balancer)
+#   Rule Services: http://localhost/ruleservices (via load balancer)
+#   Grafana: http://localhost:3000 (admin/admin)
+#   Prometheus: http://localhost:9090
+#
+# IMPORTANT:
+#   - Change all passwords before production use
+#   - Configure SSL/TLS for production
+#   - Review resource limits for your workload
+#   - Set up external secrets management
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # Load Balancer
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: openl-nginx
+    depends_on:
+      - studio-1
+      - studio-2
+      - studio-3
+      - ruleservices-1
+      - ruleservices-2
+      - ruleservices-3
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+
+  # ==========================================
+  # Database Layer
+  # ==========================================
+
+  # PostgreSQL Primary
+  postgres-primary:
+    image: postgres:16-alpine
+    container_name: openl-postgres-primary
+    environment:
+      - POSTGRES_DB=openl
+      - POSTGRES_USER=openl
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_REPLICATION_MODE=master
+      - POSTGRES_REPLICATION_USER=replicator
+      - POSTGRES_REPLICATION_PASSWORD=replicator_password
+    command: >
+      postgres
+      -c wal_level=replica
+      -c hot_standby=on
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby_feedback=on
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openl"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+
+  # PostgreSQL Replica (Read-only)
+  postgres-replica:
+    image: postgres:16-alpine
+    container_name: openl-postgres-replica
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DB=openl
+      - POSTGRES_USER=openl
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_MASTER_SERVICE=postgres-primary
+      - POSTGRES_REPLICATION_MODE=slave
+      - POSTGRES_REPLICATION_USER=replicator
+      - POSTGRES_REPLICATION_PASSWORD=replicator_password
+    volumes:
+      - postgres-replica-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openl"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+
+  # ==========================================
+  # Caching Layer
+  # ==========================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: openl-redis
+    command: redis-server --requirepass redis_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1'
+
+  # ==========================================
+  # OpenL Studio Instances
+  # ==========================================
+
+  studio-1:
+    image: openltablets/studio:latest
+    container_name: openl-studio-1
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_studio
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - SECURITY_MODE=multi-user
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - STUDIO_WORKSPACE=/opt/openl/workspace
+      - JAVA_OPTS=-Xmx2g -Xms512m -XX:+UseG1GC
+      - LOGGING_LEVEL=INFO
+      - REPOSITORY_TYPE=git
+      - REPOSITORY_PATH=/opt/openl/workspace/repositories
+      # Redis session management
+      - SPRING_SESSION_STORE_TYPE=redis
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      # Metrics
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - studio-workspace:/opt/openl/workspace
+      - studio-logs-1:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '2'
+
+  studio-2:
+    image: openltablets/studio:latest
+    container_name: openl-studio-2
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_studio
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - SECURITY_MODE=multi-user
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - STUDIO_WORKSPACE=/opt/openl/workspace
+      - JAVA_OPTS=-Xmx2g -Xms512m -XX:+UseG1GC
+      - LOGGING_LEVEL=INFO
+      - REPOSITORY_TYPE=git
+      - REPOSITORY_PATH=/opt/openl/workspace/repositories
+      - SPRING_SESSION_STORE_TYPE=redis
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - studio-workspace:/opt/openl/workspace
+      - studio-logs-2:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '2'
+
+  studio-3:
+    image: openltablets/studio:latest
+    container_name: openl-studio-3
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_studio
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - SECURITY_MODE=multi-user
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - STUDIO_WORKSPACE=/opt/openl/workspace
+      - JAVA_OPTS=-Xmx2g -Xms512m -XX:+UseG1GC
+      - LOGGING_LEVEL=INFO
+      - REPOSITORY_TYPE=git
+      - REPOSITORY_PATH=/opt/openl/workspace/repositories
+      - SPRING_SESSION_STORE_TYPE=redis
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - studio-workspace:/opt/openl/workspace
+      - studio-logs-3:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '2'
+
+  # ==========================================
+  # OpenL Rule Services Instances
+  # ==========================================
+
+  ruleservices-1:
+    image: openltablets/ruleservice:latest
+    container_name: openl-ruleservices-1
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_ruleservices
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - RULESERVICE_DEPLOYMENT_PATH=/opt/openl/deployments
+      - RULESERVICE_DATASOURCE_ENABLED=true
+      - JAVA_OPTS=-Xmx4g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+      - LOGGING_LEVEL=INFO
+      - RULESERVICE_API_ENABLED=true
+      - RULESERVICE_OPENAPI_ENABLED=true
+      - RULESERVICE_SWAGGER_ENABLED=true
+      # Redis caching
+      - RULESERVICE_CACHE_ENABLED=true
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      # Metrics
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - ruleservices-deployments:/opt/openl/deployments
+      - ruleservices-logs-1:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+          cpus: '4'
+
+  ruleservices-2:
+    image: openltablets/ruleservice:latest
+    container_name: openl-ruleservices-2
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_ruleservices
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - RULESERVICE_DEPLOYMENT_PATH=/opt/openl/deployments
+      - RULESERVICE_DATASOURCE_ENABLED=true
+      - JAVA_OPTS=-Xmx4g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+      - LOGGING_LEVEL=INFO
+      - RULESERVICE_API_ENABLED=true
+      - RULESERVICE_OPENAPI_ENABLED=true
+      - RULESERVICE_SWAGGER_ENABLED=true
+      - RULESERVICE_CACHE_ENABLED=true
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - ruleservices-deployments:/opt/openl/deployments
+      - ruleservices-logs-2:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+          cpus: '4'
+
+  ruleservices-3:
+    image: openltablets/ruleservice:latest
+    container_name: openl-ruleservices-3
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://openl:changeme@postgres-primary:5432/openl_ruleservices
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - RULESERVICE_DEPLOYMENT_PATH=/opt/openl/deployments
+      - RULESERVICE_DATASOURCE_ENABLED=true
+      - JAVA_OPTS=-Xmx4g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+      - LOGGING_LEVEL=INFO
+      - RULESERVICE_API_ENABLED=true
+      - RULESERVICE_OPENAPI_ENABLED=true
+      - RULESERVICE_SWAGGER_ENABLED=true
+      - RULESERVICE_CACHE_ENABLED=true
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=redis_password
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+    volumes:
+      - ruleservices-deployments:/opt/openl/deployments
+      - ruleservices-logs-3:/opt/openl/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+          cpus: '4'
+
+  # ==========================================
+  # Monitoring
+  # ==========================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: openl-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - openl-monitoring
+      - openl-frontend
+      - openl-backend
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: openl-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - openl-monitoring
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1'
+
+volumes:
+  # Database volumes
+  postgres-primary-data:
+    driver: local
+  postgres-replica-data:
+    driver: local
+
+  # Redis volume
+  redis-data:
+    driver: local
+
+  # Studio volumes (shared across instances)
+  studio-workspace:
+    driver: local
+  studio-logs-1:
+    driver: local
+  studio-logs-2:
+    driver: local
+  studio-logs-3:
+    driver: local
+
+  # Rule Services volumes (shared deployments)
+  ruleservices-deployments:
+    driver: local
+  ruleservices-logs-1:
+    driver: local
+  ruleservices-logs-2:
+    driver: local
+  ruleservices-logs-3:
+    driver: local
+
+  # Monitoring volumes
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  # Frontend network (public-facing services)
+  openl-frontend:
+    driver: bridge
+
+  # Backend network (internal services)
+  openl-backend:
+    driver: bridge
+    internal: false  # Set to true for complete isolation
+
+  # Monitoring network
+  openl-monitoring:
+    driver: bridge
