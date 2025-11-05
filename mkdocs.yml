@@ -194,6 +194,7 @@ nav:
 # Extra CSS and JavaScript
 extra_css:
   - assets/css/custom.css
+  - assets/css/openldocs-extra.css
 
 extra_javascript:
   - assets/js/custom.js

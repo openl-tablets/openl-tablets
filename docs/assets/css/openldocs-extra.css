@@ -1,0 +1,178 @@
+/*
+ * OpenLdocs Extra CSS - Migrated from OpenLdocs repository
+ * Source: https://github.com/EISTW/OpenLdocs/blob/master/docs/css/extra.css
+ *
+ * This file contains custom styling from the original OpenLdocs documentation.
+ * Some styles may need adjustment for the Material theme used in openl-tablets.
+ */
+
+/* Font settings */
+.md-typeset h1 {
+    font-size: 2.5em;
+    color: black;
+    font-weight: 400;
+/* note h1 is gray and 300 weight by the theme */
+}
+.md-typeset h2 {
+    font-size: 2.3em;
+    color: black;
+    font-weight: 400;
+/* note h2 is gray and 300 weight by the theme */
+}
+.md-typeset h3 {
+    font-size: 2em;
+}
+.md-typeset h4 {
+    font-size: 1.7em;
+/* note h4 is bolded by the theme */
+}
+.md-typeset h5 {
+    font-size: 1.3em;
+/* note h5 is capitalized by the theme */
+}
+.md-typeset h6 {
+    font-size: 1.25em;
+}
+
+/* Other stuff */
+--md-primary-fg-color: #6190e6;
+
+/* Settings for page content */
+.md-sidebar--secondary {
+  order: 0;
+}
+
+p.indexpage  {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0px;
+  font-size: 14px;
+  font-family: roboto;
+  }
+
+h2.indexpage  {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  padding: 0px;
+  font-size: 22px;
+  font-family: roboto;
+  }
+
+.rst-content h2 {
+    margin-bottom: 5px;
+  }
+
+/* only affects lists inside navigation */
+.wy-menu-vertical li {
+  margin-top: -5px;
+  margin-bottom: -7px;
+  padding: 0px;
+  }
+
+.wy-side-nav-search {
+    padding-top: 0px;
+    padding-right: .809em;
+    padding-bottom: 5px;
+    padding-left: .809em;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.wy-side-nav-search .wy-dropdown>a, .wy-side-nav-search>a {
+    font-size: 80%;
+    font-weight: 700;
+    padding: 4px 6px;
+    margin-bottom: 0em;
+}
+
+/* below is a descendent selector */
+.wy-menu-vertical header {
+    height: 25px;
+    line-height: 30px;
+    padding: 0 1.618em;
+    margin: 2px 0 3px;
+    display: block;
+}
+
+/* only affects p.caption inside navigation */
+.wy-menu-vertical p.caption {
+    height: 25px;
+    line-height: 30px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-top: 0px;
+    padding-right: 5px;
+    padding-bottom: 0px;
+    padding-left: 5px;
+    display: block;
+}
+
+/* icon sizing in the left menu */
+.icon-home {
+    width: 100px;
+    height: auto;
+}
+
+/* main document page: ensures pages fit to the available width and height */
+.wy-nav-content {
+    min-width: 100%;
+    min-height: 100vh;
+}
+
+/* Accessibility: Artifex color for main document links */
+.wy-nav-content a {
+    color: #007aff;
+}
+
+/* Artifex blue color for background elements. Official EIS light blue is #00a7e1*/
+.wy-side-nav-search, .wy-nav-top {
+    background-color: white;
+}
+
+/* Accessibility: ensures that the version number is readable against the background color */
+.wy-side-nav-search>div.version {
+    color:hsla(0,0%,100%,1);
+}
+
+.htmltag {
+    padding: 2px 5px;
+    background-color: #fbff68;
+    border-radius: 4px;
+    border: 1px solid #222;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+
+    /* main document page */
+    .wy-nav-content {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .htmltag {
+        color: #000;
+    }
+
+    th {
+        color: #fff;
+    }
+
+   /* correction
+  td {
+        background-color: #000 !important;
+    }
+
+    tr:nth-child(2n-1) td{
+        background-color: #333 !important;
+    }
+*/
+    pre {
+        color: #000;
+    }
+
+    .admonition {
+        color: #000;
+    }
+
+}
