@@ -4,9 +4,9 @@
 [![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
 ![License](https://img.shields.io/badge/license-LGPL-blue.svg)
 
-# OpenL Tablets - Easy Business Rules Management
+# OpenL Tablets - Easy Business Rules
 
-**OpenL Tablets** bridges the gap between business requirements (rules and policies) and software implementation, making business rules management accessible and efficient.
+**OpenL Tablets** bridges the gap between business rules and policies and software implementation, making business rules management accessible and efficient.
 
 [Website](https://openl-tablets.org) | [Documentation](Docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
 
@@ -27,24 +27,25 @@
 
 OpenL Tablets is an open-source business rules management system (BRMS) and decision engine that enables:
 
-- **Business Users**: Create and manage rules using familiar spreadsheet-like interfaces
-- **Developers**: Integrate powerful rule engines into Java applications with minimal code
-- **Organizations**: Bridge the gap between business requirements and technical implementation
+- **Business Users**: Create and manage rules using familiar spreadsheet-like interfaces or their agentic AI tool of choice
+- **Developers**: Integrate powerful rule engines into other applications with minimal code
+- **Organizations**: Bridge the gap between business policies and technical implementation
 
-Designed to be straightforward and intuitive for business people, OpenL Tablets represents rules in a format that closely resembles typical business documents and requirements. The system validates all data, syntax, and typing errors as you write, with convenient tools to ensure rule integrity.
+The system validates all data, syntax, and typing errors as you write, with convenient tools to ensure rule integrity.
 
 ## Key Features
 
 - **Excel-Based Rule Authoring**: Write business rules in Excel with a familiar spreadsheet interface
+- **AI Tools Support**: Write and edit business rules using MCP from AI tools
 - **Type-Safe Rule Engine**: Strong typing with compile-time validation of rules and data
-- **Web-Based IDE**: OpenL Studio provides a comprehensive web interface for rule development and testing
-- **SOA Integration**: One-click deployment of rules as web services (REST, SOAP)
-- **Version Control**: Built-in Git integration for rule versioning and collaboration
+- **Web-Based Editor**: OpenL Studio provides a comprehensive web interface for rule development and testing
+- **Integration**: One-click deployment of rules as REST services
+- **Version Control**: Built-in Git integration for rule versioning and collaboration, OpenL Projects manage multiple rulesets for different dates or regions
 - **Testing Framework**: Comprehensive testing capabilities with trace and debug features
 - **Java API**: Reflection-like API for Java developers to access rules programmatically
-- **Multiple Deployment Options**: Standalone, embedded, or as web services
-- **Rule Templates**: Decision tables, decision trees, scorecards, and more
-- **Production-Ready**: Scalable, efficient, and battle-tested in enterprise environments
+- **Multiple Deployment Options**: Standalone, embedded, or as services
+- **Rule Templates**: Decision tables, spreadsheet-like tables, decision trees, scorecards, and more
+- **Production-Ready**: Fast, scalable, efficient, and battle-tested in enterprise environments
 
 ## Getting Started
 
@@ -57,8 +58,8 @@ docker compose up
 ```
 
 Then open http://localhost in your browser to access:
-- **OpenL Studio** - Rule development environment
-- **Rule Services** - REST/SOAP web services
+- **OpenL Studio** - Rules development environment
+- **Rule Services** - REST services
 - **Demo Application** - Example rules and use cases
 
 ### Building from Source
@@ -115,7 +116,7 @@ OpenL Tablets is used across various industries for:
 - Premium calculation
 - Underwriting rules
 - Policy eligibility
-- Claims processing
+- Claims adjudication
 
 ### Finance
 - Loan origination
@@ -174,4 +175,4 @@ See the [pom.xml](pom.xml) file for license details.
 
 ---
 
-**Made with ❤️ by the OpenL Tablets community**
+**Made with ❤️ by the OpenL Tablets team**
