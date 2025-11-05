@@ -1,0 +1,238 @@
+site_name: OpenL Tablets Documentation
+site_description: Comprehensive documentation for OpenL Tablets Business Rules Management System
+site_author: OpenL Tablets Team
+site_url: https://openl-tablets.readthedocs.io
+
+repo_name: openl-tablets/openl-tablets
+repo_url: https://github.com/openl-tablets/openl-tablets
+edit_uri: edit/master/docs/
+
+copyright: Copyright &copy; 2025 OpenL Tablets. Licensed under Apache License 2.0.
+
+# Directory configuration
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - navigation.tracking
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+    - toc.integrate
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+# Extensions
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Anchor link to this section
+      toc_depth: 3
+
+  # Python Markdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+      lang:
+        - en
+  # Temporarily disabled due to build issues - will be enabled in later batches
+  # - minify:
+  #     minify_html: true
+  #     minify_js: true
+  #     minify_css: true
+  #     htmlmin_opts:
+  #       remove_comments: true
+  #     cache_safe: true
+  # - git-revision-date-localized:
+  #     enable_creation_date: true
+  #     type: timeago
+  # - git-authors
+
+# Navigation
+nav:
+  - Home:
+      - Welcome: README.md
+      - Migration Plan: MIGRATION_PLAN.md
+
+  - Getting Started:
+      - Quick Start: onboarding/codebase-tour.md
+      - Development Setup: onboarding/development-setup.md
+      - Common Tasks: onboarding/common-tasks.md
+      - Troubleshooting: onboarding/troubleshooting.md
+
+  - User Guides:
+      - user-guides/index.md
+      - Installation Guide: user-guides/installation/index.md
+      - Demo Package Guide: user-guides/demo-package/index.md
+      - Reference Guide: user-guides/reference/index.md
+      - WebStudio User Guide: user-guides/webstudio/index.md
+      - Rule Services Guide: user-guides/rule-services/index.md
+
+  - Developer Guides:
+      - developer-guides/index.md
+      - Getting Started: developer-guides/getting-started.md
+      - Core Concepts: developer-guides/core-concepts.md
+      - API Usage: developer-guides/api-usage.md
+
+  - Integration Guides:
+      - integration-guides/index.md
+      - Activiti Integration: integration-guides/activiti.md
+      - Spring Framework: integration-guides/spring.md
+      - OpenAPI/REST: integration-guides/openapi.md
+      - Apache CXF: integration-guides/cxf.md
+      - OpenTelemetry: integration-guides/opentelemetry.md
+
+  - Configuration:
+      - configuration/index.md
+      - Overview: configuration/overview.md
+      - Security: configuration/security.md
+      - Production Deployment: configuration/deployment.md
+      - Advanced Configuration: configuration/advanced.md
+
+  - Architecture:
+      - architecture/technology-stack.md
+      - architecture/dependencies.md
+      - architecture/legacy-system-map.md
+
+  - Module Analysis:
+      - analysis/dev-module-overview.md
+      - analysis/repository-layer-overview.md
+      - analysis/studio-wsfrontend-util-overview.md
+
+  - Guides:
+      - guides/testing-guide.md
+      - guides/migration-guide.md
+      - guides/performance-tuning.md
+
+  - Operations:
+      - operations/ci-cd.md
+      - operations/docker-guide.md
+
+  - API Reference:
+      - api/public-api-reference.md
+
+  - Contributing:
+      - Claude Workflows: claude-workflows.md
+      - Documentation Plan: documentation-plan.md
+
+# Extra CSS and JavaScript
+extra_css:
+  - assets/css/custom.css
+
+extra_javascript:
+  - assets/js/custom.js
+
+# Extra configuration
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/openl-tablets/openl-tablets
+      name: GitHub Repository
+    - icon: fontawesome/solid/globe
+      link: https://openl-tablets.org
+      name: Official Website
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            <a href="https://github.com/openl-tablets/openl-tablets/issues/new" target="_blank" rel="noopener">opening an issue</a>.
+
+# Validation
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: warn
+    absolute_links: info
+    unrecognized_links: info

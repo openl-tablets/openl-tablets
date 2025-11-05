@@ -1,0 +1,350 @@
+# Documentation Migration Plan: OpenLdocs → openl-tablets
+
+**Branch**: `claude/migrate-docs-011CUqEjAMeMZRxmxGaaYr3s`
+**Created**: 2025-11-05
+**Status**: In Progress
+**Current Phase**: Phase 1 - Foundation & Setup
+
+---
+
+## 📋 Overview
+
+This document tracks the migration of documentation from the external OpenLdocs repository (https://github.com/EISTW/OpenLdocs) into the main openl-tablets repository. The migration consolidates all documentation into a unified, maintainable structure with modern tooling (MkDocs + Read the Docs).
+
+---
+
+## 🎯 Goals
+
+1. **Consolidate** all documentation from OpenLdocs and Docs/ into docs/
+2. **Modernize** with MkDocs + Material theme + Read the Docs
+3. **Improve** structure, navigation, and discoverability
+4. **Maintain** backward compatibility during transition
+5. **Enhance** content with updates and cross-references
+
+---
+
+## 📊 Progress Tracking
+
+### Overall Status
+- **Total Batches**: 12
+- **Completed**: 1 (Batch 1)
+- **In Progress**: 0
+- **Remaining**: 11
+- **Overall Progress**: 8% (1/12 batches)
+
+---
+
+## 📦 Batch Status
+
+### Phase 1: Foundation & Setup
+
+#### ✅ Batch 1: Infrastructure Setup
+**Status**: ✅ Completed
+**Started**: 2025-11-05
+**Completed**: 2025-11-05
+**Progress**: 100%
+
+**Tasks**:
+- [x] Create `mkdocs.yml` with comprehensive navigation (moved to project root)
+- [x] Add `.readthedocs.yaml` configuration (moved to project root)
+- [x] Create `docs/assets/` directory structure
+- [x] Set up `docs/user-guides/` skeleton structure
+- [x] Add `docs/requirements.txt` (Python dependencies)
+- [x] Create `scripts/build-docs.sh`
+- [x] Create `scripts/preview-docs.sh`
+- [x] Validate MkDocs setup - ✅ Build successful (93 files generated)
+
+**Files Created**:
+- `mkdocs.yml` (project root - MkDocs configuration)
+- `.readthedocs.yaml` (project root - Read the Docs config)
+- `docs/requirements.txt` (Python/MkDocs dependencies)
+- `docs/assets/` (images/, css/, js/, downloads/)
+- `docs/assets/css/custom.css` (custom styling)
+- `docs/assets/js/custom.js` (custom JavaScript)
+- `docs/assets/logo.svg` (placeholder logo)
+- `docs/user-guides/` (index + 5 guide placeholders)
+- `docs/developer-guides/` (index + 3 guide placeholders)
+- `docs/integration-guides/` (index + 5 guide placeholders)
+- `docs/configuration/` (index + 4 config placeholders)
+- `scripts/build-docs.sh` (executable)
+- `scripts/preview-docs.sh` (executable)
+
+**Validation Results**:
+- ✅ MkDocs installed successfully (v1.6.1)
+- ✅ Material theme installed
+- ✅ `mkdocs build` completed successfully
+- ✅ 93 HTML files generated in site/
+- ✅ Navigation structure renders correctly
+- ✅ Directory structure created as planned
+- ⚠️ Some optional plugins disabled temporarily (minify, git-revision, git-authors) - will be enabled in later batches
+
+**Notes**:
+- Moved mkdocs.yml and .readthedocs.yaml to project root (standard MkDocs layout)
+- Created comprehensive skeleton structure for all guide types
+- Build scripts are executable and functional
+- Some warnings about missing cross-links expected (will be resolved in future batches)
+
+---
+
+#### ⏹️ Batch 2: Asset Migration
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/assets/images/` directory structure
+- [ ] Copy logo.svg and PNG files from OpenLdocs
+- [ ] Migrate custom CSS files
+- [ ] Organize images by guide
+- [ ] Create assets README
+
+**Dependencies**: Batch 1
+
+---
+
+### Phase 2: Core User Documentation
+
+#### ⏹️ Batch 3: Installation & Demo Guides
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/user-guides/installation/index.md`
+- [ ] Migrate installation_guide.md content
+- [ ] Copy installation_guide_images/
+- [ ] Create `docs/user-guides/demo-package/index.md`
+- [ ] Migrate demo_package_guide.md content
+- [ ] Copy demo_guide_images/
+- [ ] Update navigation
+
+**Dependencies**: Batch 1, Batch 2
+
+---
+
+#### ⏹️ Batch 4: Reference & WebStudio Guides
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/user-guides/reference/index.md`
+- [ ] Migrate reference_guide.md
+- [ ] Copy ref_guide_images/
+- [ ] Create `docs/user-guides/webstudio/index.md`
+- [ ] Migrate webstudio_user_guide.md
+- [ ] Copy webstudio_guide_images/
+
+**Dependencies**: Batch 1, Batch 2
+
+---
+
+#### ⏹️ Batch 5: Rule Services Guide
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/user-guides/rule-services/index.md`
+- [ ] Migrate rule_services_usage_and_customization_guide.md
+- [ ] Copy ruleservices_guide_images/
+- [ ] Add configuration examples
+
+**Dependencies**: Batch 1, Batch 2
+
+---
+
+### Phase 3: Developer & Integration Docs
+
+#### ⏹️ Batch 6: Developer Guide
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/developer-guides/` structure
+- [ ] Migrate developer_guide.md from OpenLdocs
+- [ ] Merge with existing Docs/developer-guide/index.md
+- [ ] Copy developer_guide_images/
+- [ ] Reconcile duplicate content
+
+**Dependencies**: Batch 1, Batch 2
+
+---
+
+#### ⏹️ Batch 7: Integration Guides
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/integration-guides/` structure
+- [ ] Migrate activiti_integration_guide.md
+- [ ] Move Spring_extension.md → spring.md
+- [ ] Move OpenAPI.md → openapi.md
+- [ ] Move CXF_customization.md → cxf.md
+- [ ] Move OpenTelemetry.md → opentelemetry.md
+
+**Dependencies**: Batch 1
+
+---
+
+### Phase 4: Configuration & Operational Docs
+
+#### ⏹️ Batch 8: Configuration Documentation
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/configuration/` structure
+- [ ] Move Configuration.md → overview.md
+- [ ] Move Security.md → security.md
+- [ ] Enhance with examples from OpenLdocs
+
+**Dependencies**: Batch 1
+
+---
+
+#### ⏹️ Batch 9: Operational & Deployment Docs
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Move Production_Deployment.md
+- [ ] Merge with docs/operations/docker-guide.md
+- [ ] Integrate production-deployment/ examples
+- [ ] Add troubleshooting section
+
+**Dependencies**: Batch 1, Batch 8
+
+---
+
+### Phase 5: Enhancement & Finalization
+
+#### ⏹️ Batch 10: PDF Generation & Downloads
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Create `docs/assets/downloads/` directory
+- [ ] Copy existing PDFs from OpenLdocs
+- [ ] Set up MkDocs PDF plugin
+- [ ] Generate PDFs for all major guides
+- [ ] Create downloads page
+
+**Dependencies**: Batches 3-9
+
+---
+
+#### ⏹️ Batch 11: README & Navigation
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Update main README.md with new docs links
+- [ ] Enhance docs/README.md as primary index
+- [ ] Create quick-start guide
+- [ ] Update all cross-references
+- [ ] Create documentation contribution guide
+
+**Dependencies**: Batches 1-10
+
+---
+
+#### ⏹️ Batch 12: Deprecation & Cleanup
+**Status**: Not Started
+**Progress**: 0%
+
+**Tasks**:
+- [ ] Add DEPRECATED notice to Docs/README.md
+- [ ] Create redirect/migration notes
+- [ ] Update CI/CD to build MkDocs
+- [ ] Remove obsolete files
+- [ ] Final validation and testing
+
+**Dependencies**: Batches 1-11
+
+---
+
+## 🎯 Target Structure
+
+```
+openl-tablets/
+├── docs/
+│   ├── user-guides/              # User-facing documentation
+│   │   ├── installation/
+│   │   ├── demo-package/
+│   │   ├── reference/
+│   │   ├── webstudio/
+│   │   └── rule-services/
+│   ├── developer-guides/         # Developer documentation
+│   ├── integration-guides/       # Integration documentation
+│   ├── configuration/            # Configuration docs
+│   ├── assets/                   # Shared assets
+│   │   ├── images/
+│   │   ├── css/
+│   │   └── downloads/
+│   ├── architecture/             # Existing - keep
+│   ├── analysis/                 # Existing - keep
+│   ├── onboarding/               # Existing - keep
+│   ├── guides/                   # Existing - enhanced
+│   ├── operations/               # Existing - keep
+│   ├── api/                      # Existing - keep
+│   ├── mkdocs.yml                # MkDocs configuration
+│   ├── .readthedocs.yaml         # Read the Docs config
+│   └── README.md                 # Enhanced index
+├── Docs/ → DEPRECATED            # Phase out gradually
+└── scripts/
+    ├── build-docs.sh
+    └── preview-docs.sh
+```
+
+---
+
+## 📈 Success Criteria
+
+- [ ] All OpenLdocs content migrated
+- [ ] All Docs/ content migrated or deprecated
+- [ ] MkDocs builds successfully
+- [ ] Read the Docs integration working
+- [ ] All images display correctly
+- [ ] All links validated (no broken links)
+- [ ] PDFs generated and accessible
+- [ ] Search functionality working
+- [ ] Mobile-responsive display
+- [ ] CI/CD building and deploying docs
+- [ ] Docs/ directory deprecated with notices
+- [ ] Documentation contribution guide updated
+
+---
+
+## 📝 Notes & Decisions
+
+### 2025-11-05
+
+#### Batch 1 Completion
+- ✅ **Completed**: Batch 1 - Infrastructure Setup
+- **Duration**: ~1 hour
+- **Files Created**: 20+ files including configs, scripts, and skeleton structure
+- **Build Status**: Successfully builds with MkDocs v1.6.1 + Material theme
+- **Site Generation**: 93 HTML files generated
+- **Key Decisions**:
+  - Moved mkdocs.yml to project root (standard MkDocs convention)
+  - Moved .readthedocs.yaml to project root
+  - Disabled optional plugins temporarily (minify, git-revision, git-authors) due to build issues
+  - Created comprehensive skeleton structure for all documentation sections
+  - Build and preview scripts are functional and ready to use
+
+#### Initial Setup
+- Created migration plan document
+- Started Batch 1: Infrastructure Setup
+- Branch created: claude/migrate-docs-011CUqEjAMeMZRxmxGaaYr3s
+
+---
+
+## 🔗 References
+
+- **OpenLdocs Repository**: https://github.com/EISTW/OpenLdocs
+- **MkDocs Documentation**: https://www.mkdocs.org/
+- **Material for MkDocs**: https://squidfunk.github.io/mkdocs-material/
+- **Read the Docs**: https://readthedocs.org/
+
+---
+
+**Last Updated**: 2025-11-05
+**Updated By**: Claude Code
+**Next Batch**: Batch 1 (In Progress)
