@@ -8,7 +8,7 @@
 
 **OpenL Tablets** bridges the gap between business rules and policies and software implementation, making business rules management accessible and efficient.
 
-[Website](https://openl-tablets.org) | [Documentation](Docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
+[Website](https://openl-tablets.org) | [Documentation](docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
 
 ## Table of Contents
 
@@ -100,13 +100,28 @@ After building, find the artifacts at:
 
 ## Documentation
 
-- **[Configuration Guide](Docs/Configuration.md)** - System configuration and settings
-- **[Security Guide](Docs/Security.md)** - Authentication and authorization
-- **[Production Deployment](Docs/Production_Deployment.md)** - Deploying to production
-- **[OpenAPI Integration](Docs/OpenAPI.md)** - REST API documentation
-- **[OpenTelemetry](Docs/OpenTelemetry.md)** - Observability and monitoring
-- **[Developer Guide](Docs/developer-guide/)** - Contributing and development
-- **[All Documentation](Docs/)** - Complete documentation index
+### User Guides
+- **[Installation Guide](docs/user-guides/installation/)** - Installing OpenL Tablets
+- **[Demo Package Guide](docs/user-guides/demo-package/)** - Getting started with examples
+- **[Reference Guide](docs/user-guides/reference/)** - Complete OpenL Tablets reference
+- **[WebStudio User Guide](docs/user-guides/webstudio/)** - Using OpenL Studio
+- **[Rule Services Guide](docs/user-guides/rule-services/)** - Deploying rule services
+
+### Developer Guides
+- **[Developer Guide](docs/developer-guides/)** - Development with OpenL Tablets
+- **[Integration Guides](docs/integration-guides/)** - Integrating with frameworks
+- **[API Reference](docs/api/public-api-reference.md)** - Public API documentation
+
+### Configuration & Operations
+- **[Configuration](docs/configuration/)** - System configuration and settings
+- **[Security](docs/configuration/security.md)** - Authentication and authorization
+- **[Production Deployment](docs/configuration/deployment.md)** - Deploying to production
+- **[Examples](docs/examples/)** - Production deployment examples
+
+### Additional Resources
+- **[Downloads](docs/downloads.md)** - Download PDF documentation
+- **[Architecture](docs/architecture/)** - System architecture documentation
+- **[All Documentation](docs/)** - Complete documentation index
 
 ## Use Cases
 
@@ -140,7 +155,7 @@ OpenL Tablets is used across various industries for:
 
 ### Getting Help
 
-- **Documentation**: Start with our [comprehensive docs](Docs/)
+- **Documentation**: Start with our [comprehensive docs](docs/)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/openl-tablets/openl-tablets/issues)
 - **Discussions**: Ask questions and share ideas in [GitHub Discussions](https://github.com/openl-tablets/openl-tablets/discussions)
 - **Website**: Visit [openl-tablets.org](https://openl-tablets.org) for guides and tutorials
