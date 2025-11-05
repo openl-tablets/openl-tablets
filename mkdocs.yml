@@ -136,6 +136,8 @@ nav:
   - Home:
       - Welcome: README.md
       - Migration Plan: MIGRATION_PLAN.md
+      - Migration Guide: MIGRATION_GUIDE.md
+      - Contributing to Docs: CONTRIBUTING_DOCS.md
 
   - Downloads: downloads.md
 
@@ -236,7 +238,6 @@ nav:
       - Docker:
           - deployment/docker/index.md
           - Quick Start: deployment/docker/quick-start.md
-          - README: deployment/docker/README.md
           - Simple Deployment: deployment/docker/docker-compose-simple.yaml
           - Multi-Container: deployment/docker/docker-compose-multi.yaml
           - Full Stack: deployment/docker/docker-compose-full.yaml
