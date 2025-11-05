@@ -26,11 +26,11 @@ This document tracks the migration of documentation from the external OpenLdocs 
 ## 📊 Progress Tracking
 
 ### Overall Status
-- **Total Batches**: 13 (Batch 4 split into 4a and 4b)
+- **Total Batches**: 15 (Batch 4 split into 4a and 4b, added Batches 11-12 for refactoring)
 - **Completed**: 11 (Batches 1-3, 4a, 4b, 5, 6, 7, 8, 9, 10)
 - **In Progress**: 0
-- **Remaining**: 2
-- **Overall Progress**: 85% (11/13 batches)
+- **Remaining**: 4
+- **Overall Progress**: 73% (11/15 batches)
 
 ---
 
@@ -637,7 +637,81 @@ docs/examples/production/
 
 ---
 
-#### ⏹️ Batch 11: README & Navigation
+#### ⏹️ Batch 11: Refactor Reference Guide (Multi-File Structure)
+**Status**: Not Started
+**Progress**: 0%
+
+**Rationale**: The Reference Guide was migrated in Batch 4a as a single 4,450-line file, which is too large for maintainability. Following the multi-file pattern established in Batch 4b (WebStudio), this batch splits it into logical sections.
+
+**Tasks**:
+- [ ] Analyze Reference Guide structure and identify logical sections
+- [ ] Split docs/user-guides/reference/index.md into multiple files (estimated 15-20 files)
+- [ ] Create hierarchical directory structure (main sections + appendices)
+- [ ] Update image paths for new file locations
+- [ ] Create navigation index.md
+- [ ] Update mkdocs.yml with hierarchical navigation
+- [ ] Validate all internal links
+- [ ] Validate MkDocs build
+
+**Estimated Structure**:
+```
+docs/user-guides/reference/
+├── index.md (navigation overview)
+├── preface.md
+├── introduction.md
+├── syntax-basics.md
+├── table-types/
+│   ├── decision-tables.md
+│   ├── data-tables.md
+│   ├── test-tables.md
+│   ├── run-tables.md
+│   └── ... (other table types)
+├── data-types.md
+├── operators-expressions.md
+├── functions-methods.md
+└── appendices/
+    ├── grammar-reference.md
+    ├── function-reference.md
+    └── ...
+```
+
+**Dependencies**: Batch 4a ✅
+
+---
+
+#### ⏹️ Batch 12: Refactor Installation Guide (Multi-File Structure)
+**Status**: Not Started
+**Progress**: 0%
+
+**Rationale**: The Installation Guide (437 lines) would benefit from splitting into platform-specific and scenario-specific sections for easier navigation and maintenance.
+
+**Tasks**:
+- [ ] Analyze Installation Guide structure
+- [ ] Split docs/user-guides/installation/index.md into logical files (estimated 5-7 files)
+- [ ] Create sections for different platforms and scenarios
+- [ ] Update image paths if needed
+- [ ] Create navigation index.md
+- [ ] Update mkdocs.yml navigation
+- [ ] Validate MkDocs build
+
+**Estimated Structure**:
+```
+docs/user-guides/installation/
+├── index.md (overview and prerequisites)
+├── system-requirements.md
+├── quick-start.md
+├── standalone-installation.md
+├── docker-installation.md
+├── database-configuration.md
+├── production-setup.md
+└── troubleshooting.md
+```
+
+**Dependencies**: Batch 3 ✅
+
+---
+
+#### ⏹️ Batch 13: README & Navigation
 **Status**: Not Started
 **Progress**: 0%
 
@@ -648,11 +722,11 @@ docs/examples/production/
 - [ ] Update all cross-references
 - [ ] Create documentation contribution guide
 
-**Dependencies**: Batches 1-10
+**Dependencies**: Batches 1-12
 
 ---
 
-#### ⏹️ Batch 12: Deprecation & Cleanup
+#### ⏹️ Batch 14: Deprecation & Cleanup
 **Status**: Not Started
 **Progress**: 0%
 
@@ -663,7 +737,7 @@ docs/examples/production/
 - [ ] Remove obsolete files
 - [ ] Final validation and testing
 
-**Dependencies**: Batches 1-11
+**Dependencies**: Batches 1-13
 
 ---
 
@@ -722,6 +796,18 @@ openl-tablets/
 ## 📝 Notes & Decisions
 
 ### 2025-11-05
+
+#### Plan Update: Added Refactoring Batches
+- **Action**: Added Batches 11-12 for refactoring large single-file guides
+- **Reason**: Reference Guide (4,450 lines) and Installation Guide (437 lines) were migrated as monolithic files in earlier batches, which goes against the multi-file pattern established in Batch 4b
+- **Impact**:
+  - Total batches increased from 13 to 15
+  - Overall progress adjusted to 73% (11/15)
+  - Previous Batches 11-12 renumbered to 13-14
+- **Batches Added**:
+  - Batch 11: Refactor Reference Guide (split into 15-20 files)
+  - Batch 12: Refactor Installation Guide (split into 5-7 files)
+- **Pattern**: Following WebStudio multi-file structure (Batch 4b) for consistency
 
 #### Batch 10 Completion
 - ✅ **Completed**: Batch 10 - PDF Generation & Downloads
