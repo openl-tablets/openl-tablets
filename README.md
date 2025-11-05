@@ -8,7 +8,7 @@
 
 **OpenL Tablets** bridges the gap between business rules and policies and software implementation, making business rules management accessible and efficient.
 
-[Website](https://openl-tablets.org) | [Documentation](Docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
+[Website](https://openl-tablets.org) | [Documentation](docs/) | [Getting Started](#getting-started) | [Contributing](CONTRIBUTING.md)
 
 ## Table of Contents
 
@@ -100,13 +100,26 @@ After building, find the artifacts at:
 
 ## Documentation
 
-- **[Configuration Guide](Docs/Configuration.md)** - System configuration and settings
-- **[Security Guide](Docs/Security.md)** - Authentication and authorization
-- **[Production Deployment](Docs/Production_Deployment.md)** - Deploying to production
-- **[OpenAPI Integration](Docs/OpenAPI.md)** - REST API documentation
-- **[OpenTelemetry](Docs/OpenTelemetry.md)** - Observability and monitoring
-- **[Developer Guide](Docs/developer-guide/)** - Contributing and development
-- **[All Documentation](Docs/)** - Complete documentation index
+### For Contributors (Working ON OpenL Tablets)
+- **[Codebase Tour](docs/onboarding/codebase-tour.md)** - Quick overview of the repository structure
+- **[Development Setup](docs/onboarding/development-setup.md)** - Setting up your development environment
+- **[Common Tasks](docs/onboarding/common-tasks.md)** - Frequently performed development tasks
+- **[Troubleshooting](docs/onboarding/troubleshooting.md)** - Common issues and solutions
+- **[Architecture](docs/architecture/)** - System architecture and technology stack
+- **[Module Analysis](docs/analysis/)** - Deep dives into each module
+- **[Testing Guide](docs/guides/testing-guide.md)** - Testing best practices
+- **[Migration Guide](docs/guides/migration-guide.md)** - Version upgrades and migrations
+- **[CI/CD Pipeline](docs/operations/ci-cd.md)** - Build and release process
+- **[CLAUDE.md](/CLAUDE.md)** - Coding conventions and architecture principles
+
+### For End Users (Using OpenL Tablets)
+- **[User Guides](docs/user-guides/)** - Installation, reference, WebStudio, and rule services guides
+- **[Integration Guides](docs/integration-guides/)** - Integrating with Spring, OpenAPI, CXF, etc.
+- **[Configuration](docs/configuration/)** - System configuration and security
+- **[Production Deployment](docs/configuration/deployment.md)** - Deploying to production
+- **[Examples](docs/examples/)** - Production deployment examples
+- **[Downloads](docs/downloads.md)** - PDF documentation downloads
+- **[Complete Documentation Index](docs/)** - All documentation
 
 ## Use Cases
 
@@ -140,7 +153,7 @@ OpenL Tablets is used across various industries for:
 
 ### Getting Help
 
-- **Documentation**: Start with our [comprehensive docs](Docs/)
+- **Documentation**: Start with our [comprehensive docs](docs/)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/openl-tablets/openl-tablets/issues)
 - **Discussions**: Ask questions and share ideas in [GitHub Discussions](https://github.com/openl-tablets/openl-tablets/discussions)
 - **Website**: Visit [openl-tablets.org](https://openl-tablets.org) for guides and tutorials

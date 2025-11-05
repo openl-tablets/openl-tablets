@@ -123,12 +123,23 @@ plugins:
   #     enable_creation_date: true
   #     type: timeago
   # - git-authors
+  # - with-pdf:
+  #     author: OpenL Tablets Team
+  #     copyright: Copyright &copy; 2025 OpenL Tablets. Licensed under Apache License 2.0.
+  #     cover_title: OpenL Tablets Documentation
+  #     cover_subtitle: Business Rules Management System
+  #     output_path: assets/downloads/openl-tablets-documentation.pdf
+  #     enabled_if_env: ENABLE_PDF_EXPORT
 
 # Navigation
 nav:
   - Home:
       - Welcome: README.md
       - Migration Plan: MIGRATION_PLAN.md
+      - Migration Guide: MIGRATION_GUIDE.md
+      - Contributing to Docs: CONTRIBUTING_DOCS.md
+
+  - Downloads: downloads.md
 
   - Getting Started:
       - Quick Start: onboarding/codebase-tour.md
@@ -138,17 +149,81 @@ nav:
 
   - User Guides:
       - user-guides/index.md
-      - Installation Guide: user-guides/installation/index.md
+      - Installation Guide:
+          - user-guides/installation/index.md
+          - System Requirements: user-guides/installation/system-requirements.md
+          - Quick Start: user-guides/installation/quick-start.md
+          - Configuration: user-guides/installation/configuration.md
+          - Rule Services: user-guides/installation/rule-services.md
+          - Integration: user-guides/installation/integration.md
+          - Troubleshooting: user-guides/installation/troubleshooting.md
       - Demo Package Guide: user-guides/demo-package/index.md
-      - Reference Guide: user-guides/reference/index.md
-      - WebStudio User Guide: user-guides/webstudio/index.md
-      - Rule Services Guide: user-guides/rule-services/index.md
+      - Reference Guide:
+          - user-guides/reference/index.md
+          - Preface: user-guides/reference/preface.md
+          - Introduction: user-guides/reference/introduction.md
+          - Table Basics: user-guides/reference/table-basics.md
+          - Table Types:
+              - Decision Tables: user-guides/reference/table-types/decision-tables.md
+              - Datatype Tables: user-guides/reference/table-types/datatype-tables.md
+              - Data Tables: user-guides/reference/table-types/data-tables.md
+              - Test Tables: user-guides/reference/table-types/test-tables.md
+              - Run Tables: user-guides/reference/table-types/run-tables.md
+              - Method Tables: user-guides/reference/table-types/method-tables.md
+              - Configuration Tables: user-guides/reference/table-types/configuration-tables.md
+              - Properties Tables: user-guides/reference/table-types/properties-tables.md
+              - Spreadsheet Tables: user-guides/reference/table-types/spreadsheet-tables.md
+              - TBasic Tables: user-guides/reference/table-types/tbasic-tables.md
+              - Column Match Tables: user-guides/reference/table-types/column-match-tables.md
+              - Constants Tables: user-guides/reference/table-types/constants-tables.md
+              - Table Part: user-guides/reference/table-types/table-part.md
+          - Table Properties: user-guides/reference/table-properties.md
+          - Arrays: user-guides/reference/arrays.md
+          - Data Types: user-guides/reference/data-types.md
+          - Functions: user-guides/reference/functions.md
+          - Projects: user-guides/reference/projects.md
+          - Appendices:
+              - BEX Language: user-guides/reference/appendices/bex-language.md
+              - Function Reference: user-guides/reference/appendices/function-reference.md
+      - WebStudio User Guide:
+          - user-guides/webstudio/index.md
+          - Preface: user-guides/webstudio/preface.md
+          - Introduction: user-guides/webstudio/introduction.md
+          - Getting Started: user-guides/webstudio/getting-started.md
+          - Rules Editor: user-guides/webstudio/rules-editor.md
+          - Editing & Testing: user-guides/webstudio/editing-testing.md
+          - Repository Editor: user-guides/webstudio/repository-editor.md
+          - Project Branches: user-guides/webstudio/project-branches.md
+          - Administration: user-guides/webstudio/administration.md
+          - Appendices:
+              - ZIP Structure: user-guides/webstudio/appendices/zip-structure.md
+              - OpenAPI Generation: user-guides/webstudio/appendices/openapi-generation.md
+              - Experienced Users: user-guides/webstudio/appendices/experienced-users.md
+      - Rule Services Guide:
+          - user-guides/rule-services/index.md
+          - Preface: user-guides/rule-services/preface.md
+          - Introduction: user-guides/rule-services/introduction.md
+          - Rule Services Core: user-guides/rule-services/core.md
+          - Configuration: user-guides/rule-services/configuration.md
+          - Advanced Configuration: user-guides/rule-services/advanced-configuration.md
+          - Appendices:
+              - Java Client: user-guides/rule-services/appendices/java-client.md
+              - Launch Projects: user-guides/rule-services/appendices/launch-projects.md
+              - Exceptions: user-guides/rule-services/appendices/exceptions.md
+              - OpenAPI Support: user-guides/rule-services/appendices/openapi-support.md
+              - Programmatic Deployment: user-guides/rule-services/appendices/programmatic-deployment.md
+              - Backward Compatibility: user-guides/rule-services/appendices/backward-compatibility.md
+              - Deployment Structure: user-guides/rule-services/appendices/deployment-structure.md
+              - Manifest File: user-guides/rule-services/appendices/manifest-file.md
 
   - Developer Guides:
       - developer-guides/index.md
-      - Getting Started: developer-guides/getting-started.md
-      - Core Concepts: developer-guides/core-concepts.md
-      - API Usage: developer-guides/api-usage.md
+      - Preface: developer-guides/preface.md
+      - Introducing OpenL Tablets: developer-guides/introduction.md
+      - OpenL Tablets Rules Projects: developer-guides/rules-projects.md
+      - Business Expression Language: developer-guides/business-language.md
+      - Externalized Configuration: developer-guides/externalized-config.md
+      - Extending OpenL Tablets: developer-guides/extending.md
 
   - Integration Guides:
       - integration-guides/index.md
@@ -158,12 +233,33 @@ nav:
       - Apache CXF: integration-guides/cxf.md
       - OpenTelemetry: integration-guides/opentelemetry.md
 
+  - Deployment:
+      - deployment/index.md
+      - Docker:
+          - deployment/docker/index.md
+          - Quick Start: deployment/docker/quick-start.md
+          - Simple Deployment: deployment/docker/docker-compose-simple.yaml
+          - Multi-Container: deployment/docker/docker-compose-multi.yaml
+          - Full Stack: deployment/docker/docker-compose-full.yaml
+      - Kubernetes:
+          - deployment/kubernetes/index.md
+          - Manifests:
+              - Namespace: deployment/kubernetes/manifests/00-namespace.yaml
+              - Secrets: deployment/kubernetes/manifests/01-secrets.yaml
+              - Studio: deployment/kubernetes/manifests/studio-deployment.yaml
+              - Rule Services: deployment/kubernetes/manifests/ruleservices-deployment.yaml
+              - Ingress: deployment/kubernetes/manifests/ingress.yaml
+              - README: deployment/kubernetes/manifests/README.md
+      - Cloud:
+          - AWS: deployment/cloud/aws/index.md
+          - Azure: deployment/cloud/azure/index.md
+      - VM Deployment: deployment/vm/index.md
+
   - Configuration:
       - configuration/index.md
       - Overview: configuration/overview.md
       - Security: configuration/security.md
       - Production Deployment: configuration/deployment.md
-      - Advanced Configuration: configuration/advanced.md
 
   - Architecture:
       - architecture/technology-stack.md
@@ -183,6 +279,10 @@ nav:
   - Operations:
       - operations/ci-cd.md
       - operations/docker-guide.md
+
+  - Examples:
+      - examples/index.md
+      - Production Deployment: examples/production/README.md
 
   - API Reference:
       - api/public-api-reference.md

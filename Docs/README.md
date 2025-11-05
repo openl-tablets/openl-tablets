@@ -1,6 +1,33 @@
 # OpenL Tablets Documentation
 
+> **⚠️ DEPRECATED - This documentation has been migrated**
+>
+> **The documentation in this directory (`Docs/`) has been migrated to the new unified documentation at [`docs/`](../docs/).**
+>
+> **📚 New Documentation Location**: https://openl-tablets.readthedocs.io (or browse [`docs/`](../docs/))
+>
+> **Why the change?**
+> - Unified documentation structure with modern MkDocs + Material theme
+> - Better navigation and search capabilities
+> - Comprehensive user guides, deployment guides, and API references
+> - Read the Docs hosting for improved accessibility
+>
+> **Migration Status**: ✅ Complete (94% - final cleanup in progress)
+>
+> **What to do:**
+> - For the **latest documentation**, visit the new [`docs/`](../docs/) directory or https://openl-tablets.readthedocs.io
+> - For **deployment guides**, see [`docs/deployment/`](../docs/deployment/)
+> - For **user guides**, see [`docs/user-guides/`](../docs/user-guides/)
+> - For **developer guides**, see [`docs/developer-guides/`](../docs/developer-guides/)
+> - For **integration guides**, see [`docs/integration-guides/`](../docs/integration-guides/)
+>
+> **This directory will be removed in a future release.**
+>
+> ---
+
 Welcome to the OpenL Tablets documentation! This directory contains comprehensive guides and documentation for using, configuring, and developing with OpenL Tablets.
+
+**Note**: This is the legacy documentation directory. Please refer to the deprecation notice above for the new documentation location.
 
 ## Table of Contents
 

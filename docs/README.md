@@ -8,7 +8,36 @@
 
 ## 📚 Documentation Index
 
-Welcome to the OpenL Tablets documentation! This guide helps you navigate the comprehensive documentation for developers, contributors, and architects.
+Welcome to the OpenL Tablets documentation! This comprehensive guide serves both end users and developers, providing everything from user guides to deep technical documentation for contributors and architects.
+
+---
+
+## 👥 For End Users
+
+### User Guides
+Comprehensive guides for using OpenL Tablets:
+- **[Installation Guide](user-guides/installation/)** - System requirements, installation procedures, and configuration
+- **[Demo Package Guide](user-guides/demo-package/)** - Quick start with demo examples and tutorials
+- **[Reference Guide](user-guides/reference/)** - Complete language reference, table types, and syntax
+- **[WebStudio User Guide](user-guides/webstudio/)** - Using OpenL Studio for rule authoring and management
+- **[Rule Services Guide](user-guides/rule-services/)** - Deploying and configuring OpenL Tablets Rule Services
+
+### Integration Guides
+Integration patterns with popular frameworks:
+- **[Activiti Integration](integration-guides/activiti.md)** - Business process management integration
+- **[Spring Framework](integration-guides/spring.md)** - Spring Boot and Spring integration
+- **[OpenAPI/REST](integration-guides/openapi.md)** - REST API generation and OpenAPI support
+- **[Apache CXF](integration-guides/cxf.md)** - SOAP web services and CXF customization
+- **[OpenTelemetry](integration-guides/opentelemetry.md)** - Observability and monitoring
+
+### Configuration & Deployment
+- **[Configuration](configuration/)** - System configuration reference
+- **[Security](configuration/security.md)** - Authentication, authorization, and security best practices
+- **[Production Deployment](configuration/deployment.md)** - Production environment setup and best practices
+- **[Examples](examples/)** - Production deployment examples and patterns
+
+### Downloads
+- **[PDF Documentation](downloads.md)** - Download complete guides in PDF format for offline reading
 
 ---
 
@@ -44,6 +73,14 @@ Welcome to the OpenL Tablets documentation! This guide helps you navigate the co
 - **[/Util/CLAUDE.md](/Util/CLAUDE.md)** - Utilities and tools conventions
 - **[/STUDIO/studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)** - React/TypeScript frontend conventions
 - **[Claude Code Workflows](claude-workflows.md)** - How to use Claude Code with this repository
+
+### Developer Guides
+- **[Developer Guide](developer-guides/)** - Comprehensive guide for developers working with OpenL Tablets
+- **[Introduction](developer-guides/introduction.md)** - Overview of OpenL Tablets technology and architecture
+- **[Rules Projects](developer-guides/rules-projects.md)** - Creating and managing OpenL rules projects
+- **[Business Language](developer-guides/business-language.md)** - OpenL Tablets Business Expression Language
+- **[Externalized Configuration](developer-guides/externalized-config.md)** - External configuration patterns
+- **[Extending OpenL Tablets](developer-guides/extending.md)** - Customization and extension points
 
 ### Architecture Documentation
 - **[Technology Stack](architecture/technology-stack.md)** - Complete technology inventory (Java, Spring, React, etc.)
@@ -193,14 +230,27 @@ OpenL Tablets is organized into 5 major module groups:
 
 ### Coverage
 - **Total Modules**: 68+ documented
-- **Documentation Files**: 27+ major files
-- **Lines of Documentation**: 30,000+
-- **Code Examples**: 300+
-- **Diagrams/Tables**: 100+
+- **Documentation Files**: 100+ major files
+- **Lines of Documentation**: 40,000+
+- **User Guide Pages**: 50+ pages
+- **Code Examples**: 500+
+- **Images/Diagrams**: 300+
+- **PDF Downloads**: Available for all major guides
 
 ### Module Coverage
 | Area | Coverage | Status |
 |------|----------|--------|
+| **User Documentation** | | |
+| Installation Guide | ✅ 100% | Complete |
+| Demo Package Guide | ✅ 100% | Complete |
+| Reference Guide | ✅ 100% | Complete (refactoring planned) |
+| WebStudio User Guide | ✅ 100% | Complete |
+| Rule Services Guide | ✅ 100% | Complete |
+| **Developer Documentation** | | |
+| Developer Guide | ✅ 100% | Complete |
+| Integration Guides | ✅ 100% | Complete |
+| Configuration & Deployment | ✅ 100% | Complete |
+| **Technical Documentation** | | |
 | Core Engine (DEV) | ✅ 100% | Complete |
 | Repository Layer (STUDIO) | ✅ 100% | Complete |
 | Web Studio (STUDIO) | ✅ 100% | Complete |
@@ -209,9 +259,9 @@ OpenL Tablets is organized into 5 major module groups:
 | Integration Tests (ITEST) | ✅ 100% | Complete |
 | Architecture | ✅ 100% | Complete |
 | Onboarding | ✅ 100% | Complete |
-| Guides | ✅ 100% | Complete ✨ |
-| Operations | ✅ 100% | Complete ✨ |
-| API Reference | ✅ 100% | Complete ✨ |
+| Guides | ✅ 100% | Complete |
+| Operations | ✅ 100% | Complete |
+| API Reference | ✅ 100% | Complete |
 
 ---
 
