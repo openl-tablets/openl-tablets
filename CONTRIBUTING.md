@@ -4,6 +4,7 @@ Thank you for your interest in contributing to OpenL Tablets! We welcome contrib
 
 ## Table of Contents
 
+- [Quick Start](#quick-start-5-minutes)
 - [Code of Conduct](#code-of-conduct)
 - [How Can I Contribute?](#how-can-i-contribute)
   - [Reporting Bugs](#reporting-bugs)
@@ -14,6 +15,151 @@ Thank you for your interest in contributing to OpenL Tablets! We welcome contrib
 - [Testing Requirements](#testing-requirements)
 - [Commit Message Guidelines](#commit-message-guidelines)
 - [Documentation](#documentation)
+
+## Quick Start (5 Minutes)
+
+Get started with OpenL Tablets development in just 5 minutes!
+
+### Prerequisites
+
+- **JDK 21+** (Java Development Kit)
+- **Maven 3.9.9+**
+- **Docker** (for local databases)
+- **Node.js 18+** (for npm scripts)
+
+### One-Command Setup
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/openl-tablets/openl-tablets.git
+cd openl-tablets
+
+# 2. Install npm dependencies (for developer scripts)
+npm install
+
+# 3. Start infrastructure + OpenL Studio
+npm run dx
+```
+
+This will:
+- Start local PostgreSQL database
+- Build OpenL Tablets (quick mode)
+- Launch OpenL Studio
+
+**Access OpenL Studio**: Open http://localhost:8080 in your browser
+
+### Daily Development Commands
+
+```bash
+# Start/Stop Infrastructure
+npm run infra:up         # Start databases (PostgreSQL, MySQL, MariaDB)
+npm run infra:down       # Stop all databases
+npm run infra:logs       # View database logs
+npm run infra:ps         # Check database status
+
+# Development
+npm run dev:studio       # Start OpenL Studio only
+npm run dev:ws           # Start Rule Services only
+npm run dev:ui           # Start React UI dev server
+
+# Building
+npm run build            # Full build with all tests
+npm run build:quick      # Quick build (recommended for development)
+npm run build:no-tests   # Build without tests
+
+# Testing
+npm test                 # Run unit tests
+npm run test:integration # Run integration tests
+npm run test:ui          # Run React UI tests
+
+# Code Quality
+npm run format           # Auto-format code
+npm run format:check     # Check formatting
+npm run lint             # Run linter
+
+# Clean
+npm run clean            # Clean build artifacts and stop databases
+npm run clean:all        # Full clean including node_modules
+```
+
+### VS Code Setup
+
+1. **Install Recommended Extensions**
+   - Open the project in VS Code
+   - When prompted, click "Install All" for recommended extensions
+   - Or manually install from `.vscode/extensions.json`
+
+2. **Launch Configurations**
+   - Press `F5` or use Run & Debug panel
+   - Select "OpenL Studio (WebStudio)" to debug
+   - Or select "Full Stack" to run both Studio and Services
+
+3. **Useful Shortcuts**
+   - `Ctrl+Shift+B` - Run Maven build task
+   - `F5` - Start debugging
+   - `Ctrl+Shift+T` - Run tests
+
+### Using Different Databases
+
+The project supports multiple databases for development:
+
+```bash
+# PostgreSQL (default) - Port 5432
+# MySQL - Port 3306
+# MariaDB - Port 3307
+
+# Database Management UIs (optional)
+docker compose -f docker-compose.dev.yml --profile tools up -d
+
+# Access:
+# pgAdmin: http://localhost:5050 (admin@openl.local / admin)
+# Adminer: http://localhost:8082
+```
+
+### Environment Configuration
+
+Create a `.env` file for custom configuration:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to customize:
+- Database connection
+- Server port
+- Logging levels
+- Repository paths
+
+### Troubleshooting Quick Start
+
+**Port 8080 already in use?**
+```bash
+# Change port in .env file
+echo "SERVER_PORT=8082" >> .env
+```
+
+**Database connection errors?**
+```bash
+# Restart databases
+npm run infra:restart
+
+# Check database status
+npm run infra:ps
+```
+
+**Build failures?**
+```bash
+# Clean and rebuild
+npm run clean
+npm run build:quick
+```
+
+**Need help?**
+- Check [GitHub Discussions](https://github.com/openl-tablets/openl-tablets/discussions)
+- Review [Full Development Setup](#development-setup) below
+- See [CLAUDE.md](CLAUDE.md) for AI-assisted development tips
+
+---
 
 ## Code of Conduct
 
