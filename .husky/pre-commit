@@ -27,7 +27,7 @@ if [ -n "$STAGED_JAVA_FILES" ]; then
     # Run Spotless check only on staged files
     # Note: Spotless applies to all files, so we run a quick check
     if command -v mvn >/dev/null 2>&1; then
-        if ! mvn spotless:check -q 2>/dev/null; then
+        if ! mvn spotless:check -q; then
             echo "❌ Code formatting issues detected!"
             echo ""
             echo "Run 'mvn spotless:apply' or 'npm run format' to fix formatting."

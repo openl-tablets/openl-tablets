@@ -13,37 +13,3 @@
 # Default owners for everything in the repository
 # These owners will be requested for review unless a later match takes precedence
 * @ymolchan @vpikus
-
-# Documentation
-/Docs/ @ymolchan @vpikus
-/README.md @ymolchan @vpikus
-/CONTRIBUTING.md @ymolchan @vpikus
-/SECURITY.md @ymolchan @vpikus
-/CODE_OF_CONDUCT.md @ymolchan @vpikus
-
-# Core Engine
-/DEV/ @ymolchan @vpikus
-
-# OpenL Studio
-/STUDIO/ @ymolchan @vpikus
-
-# Rule Services
-/WSFrontend/ @ymolchan @vpikus
-
-# Demo Applications
-/DEMO/ @ymolchan @vpikus
-
-# Integration Tests
-/ITEST/ @ymolchan @vpikus
-
-# Build and CI Configuration
-/pom.xml @ymolchan @vpikus
-/.github/ @ymolchan @vpikus
-/docker-compose.yml @ymolchan @vpikus
-/Dockerfile @ymolchan @vpikus
-
-# Maven Utilities and Plugins
-/Util/ @ymolchan @vpikus
-
-# Security-related files
-/SECURITY.md @ymolchan @vpikus

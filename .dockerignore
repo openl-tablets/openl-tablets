@@ -79,16 +79,13 @@ docker-compose*.yml
 # Backup files
 *.bak
 *.backup
-*~
 
 # OS
-.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
 
 # Python
 __pycache__/
@@ -109,7 +106,6 @@ vendor/bundle/
 *.tar
 *.tar.gz
 *.tgz
-*.zip
 *.rar
 *.7z
 

@@ -72,6 +72,6 @@ This agent provides automated code review feedback for OpenL Tablets pull reques
 This agent is automatically invoked during pull request reviews.
 
 Manual invocation:
-```
+```text
 @claude Please review this code for quality and best practices
 ```
