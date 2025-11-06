@@ -1,5 +1,10 @@
 ![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
+![Build Matrix](https://github.com/openl-tablets/openl-tablets/actions/workflows/build-matrix.yml/badge.svg)
+![CodeQL](https://github.com/openl-tablets/openl-tablets/actions/workflows/codeql.yml/badge.svg)
 ![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)
+[![codecov](https://codecov.io/gh/openl-tablets/openl-tablets/branch/master/graph/badge.svg)](https://codecov.io/gh/openl-tablets/openl-tablets)
+![Java Version](https://img.shields.io/badge/Java-21%2B-orange)
+![Docker Pulls](https://img.shields.io/docker/pulls/openltablets/openl-tablets)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
 [![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
 ![License](https://img.shields.io/badge/license-LGPL-blue.svg)
@@ -13,9 +18,12 @@
 ## Table of Contents
 
 - [About](#about)
+- [Why OpenL Tablets?](#why-openl-tablets)
 - [Key Features](#key-features)
+- [Architecture Overview](#architecture-overview)
 - [Getting Started](#getting-started)
   - [Quick Start with Docker](#quick-start-with-docker)
+  - [Developer Quick Start](#developer-quick-start)
   - [Building from Source](#building-from-source)
 - [Documentation](#documentation)
 - [Use Cases](#use-cases)
@@ -33,6 +41,19 @@ OpenL Tablets is an open-source business rules management system (BRMS) and deci
 
 The system validates all data, syntax, and typing errors as you write, with convenient tools to ensure rule integrity.
 
+## Why OpenL Tablets?
+
+| Challenge | OpenL Solution |
+|-----------|----------------|
+| **Business-IT Gap** | Business users write rules in Excel; developers integrate them seamlessly |
+| **Rule Complexity** | Type-safe engine with compile-time validation catches errors before deployment |
+| **Deployment Speed** | One-click deployment of rules as REST services |
+| **Version Control** | Built-in Git integration for rule versioning and collaboration |
+| **Testing** | Comprehensive testing framework with trace and debug capabilities |
+| **Performance** | Compiles Excel rules to native Java bytecode for maximum speed |
+| **Maintenance** | Change rules without code deployments; hot-reload in production |
+| **Enterprise Ready** | Battle-tested in insurance, finance, healthcare, and retail |
+
 ## Key Features
 
 - **Excel-Based Rule Authoring**: Write business rules in Excel with a familiar spreadsheet interface
@@ -46,6 +67,40 @@ The system validates all data, syntax, and typing errors as you write, with conv
 - **Multiple Deployment Options**: Standalone, embedded, or as services
 - **Rule Templates**: Decision tables, spreadsheet-like tables, decision trees, scorecards, and more
 - **Production-Ready**: Fast, scalable, efficient, and battle-tested in enterprise environments
+
+## Architecture Overview
+
+OpenL Tablets follows a modular architecture designed for flexibility and extensibility:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    OpenL Studio (Web IDE)                    │
+│              React + Spring Boot + WebSocket                 │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────┴──────────────────────────────────────┐
+│               Rule Services (WSFrontend)                     │
+│         REST/SOAP Services + OpenAPI + Hot Reload            │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────┴──────────────────────────────────────┐
+│                  Rules Engine (DEV)                          │
+│  Parser → Binder → Type System → Bytecode Generator → VM    │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────┴──────────────────────────────────────┐
+│            Data Sources (Excel, Database, Git)               │
+│              PostgreSQL · MySQL · MariaDB · H2               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Core Modules:**
+- **DEV** (50+ modules): Core rules engine, compiler, type system, bytecode generation
+- **STUDIO**: Web-based IDE with project management, testing, and debugging
+- **WSFrontend**: REST/SOAP service deployment with OpenAPI documentation
+- **Util**: Developer tools, Maven plugins, test utilities
+
+For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Getting Started
 
@@ -61,6 +116,46 @@ Then open http://localhost in your browser to access:
 - **OpenL Studio** - Rules development environment
 - **Rule Services** - REST services
 - **Demo Application** - Example rules and use cases
+
+### Developer Quick Start
+
+For contributors and developers working on OpenL Tablets:
+
+**5-Minute Setup:**
+```bash
+# 1. Clone and install dependencies
+git clone https://github.com/openl-tablets/openl-tablets.git
+cd openl-tablets
+npm install
+
+# 2. Start local databases and run OpenL Studio
+npm run dx
+```
+
+The `npm run dx` command handles everything:
+- Starts PostgreSQL, MySQL, and MariaDB in Docker
+- Waits for databases to be ready
+- Launches OpenL Studio with hot reload
+
+**Common Development Commands:**
+```bash
+# Quick build (recommended)
+npm run build:quick
+
+# Run tests
+npm run test
+
+# Format code
+npm run format
+
+# Start just the infrastructure
+npm run infra:up
+
+# Stop infrastructure
+npm run infra:down
+```
+
+For detailed setup instructions, see [Development Setup](docs/onboarding/development-setup.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Building from Source
 
