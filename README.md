@@ -7,7 +7,7 @@
 
 **Empower your business users to manage complex rules in Excel. Deploy them as enterprise-grade services. No coding required.**
 
-[Get Started in 2 Minutes](#quick-start) | [Try the Demo](https://openl-tablets.org/demo) | [Read the Docs](docs/user-guides/) | [Download](https://openl-tablets.org/downloads)
+[Get Started in 2 Minutes](#quick-start) | [Try the Demo](https://demo.openl-tablets.org/) | [Read the Docs](docs/user-guides/) | [Download](https://openl-tablets.org/downloads)
 
 ---
 
