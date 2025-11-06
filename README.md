@@ -1,13 +1,13 @@
-![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
-![Build Matrix](https://github.com/openl-tablets/openl-tablets/actions/workflows/build-matrix.yml/badge.svg)
-![CodeQL](https://github.com/openl-tablets/openl-tablets/actions/workflows/codeql.yml/badge.svg)
-![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)
+[![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)](https://github.com/openl-tablets/openl-tablets/actions/workflows/build.yml)
+[![Build Matrix](https://github.com/openl-tablets/openl-tablets/actions/workflows/build-matrix.yml/badge.svg)](https://github.com/openl-tablets/openl-tablets/actions/workflows/build-matrix.yml)
+[![CodeQL](https://github.com/openl-tablets/openl-tablets/actions/workflows/codeql.yml/badge.svg)](https://github.com/openl-tablets/openl-tablets/actions/workflows/codeql.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)](https://central.sonatype.com/search?q=org.openl)
 [![codecov](https://codecov.io/gh/openl-tablets/openl-tablets/branch/master/graph/badge.svg)](https://codecov.io/gh/openl-tablets/openl-tablets)
-![Java Version](https://img.shields.io/badge/Java-21%2B-orange)
-![Docker Pulls](https://img.shields.io/docker/pulls/openltablets/openl-tablets)
-![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
+[![Java Version](https://img.shields.io/badge/Java-21%2B-orange)](https://www.oracle.com/java/technologies/downloads/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/openltablets/openl-studio)](https://hub.docker.com/u/openltablets)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)](https://github.com/openl-tablets/openl-tablets/graphs/commit-activity)
 [![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
-![License](https://img.shields.io/badge/license-LGPL-blue.svg)
+[![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/openl-tablets/openl-tablets/blob/master/LICENSE)
 
 # OpenL Tablets - Easy Business Rules
 
