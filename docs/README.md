@@ -1,7 +1,7 @@
 # OpenL Tablets Documentation
 
 **Version**: 6.0.0-SNAPSHOT
-**Last Updated**: 2025-11-05
+**Last Updated**: 2025-11-06
 **Repository**: https://github.com/openl-tablets/openl-tablets
 
 ---
@@ -24,17 +24,20 @@ Comprehensive guides for using OpenL Tablets:
 
 ### Integration Guides
 Integration patterns with popular frameworks:
+- **[REST API Guide](API_GUIDE.md)** - 📌 **NEW!** Comprehensive REST API documentation, examples, and integration patterns
 - **[Activiti Integration](integration-guides/activiti.md)** - Business process management integration
 - **[Spring Framework](integration-guides/spring.md)** - Spring Boot and Spring integration
 - **[OpenAPI/REST](integration-guides/openapi.md)** - REST API generation and OpenAPI support
-- **[Apache CXF](integration-guides/cxf.md)** - SOAP web services and CXF customization
+- **[Apache CXF](integration-guides/cxf.md)** - ⚠️ **DEPRECATED** SOAP web services and CXF customization (use REST instead)
 - **[OpenTelemetry](integration-guides/opentelemetry.md)** - Observability and monitoring
 
 ### Configuration & Deployment
+- **[Production Deployment Guide](DEPLOYMENT.md)** - 📌 **NEW!** Comprehensive deployment guide (Docker, Kubernetes, AWS, Azure, GCP)
 - **[Configuration](configuration/)** - System configuration reference
 - **[Security](configuration/security.md)** - Authentication, authorization, and security best practices
 - **[Production Deployment](configuration/deployment.md)** - Production environment setup and best practices
 - **[Examples](examples/)** - Production deployment examples and patterns
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - 📌 **NEW!** Common issues, diagnostics, and solutions
 
 ### Downloads
 - **[PDF Documentation](downloads.md)** - Download complete guides in PDF format for offline reading
@@ -56,10 +59,11 @@ Integration patterns with popular frameworks:
 4. **Testing**: [Testing Guide](guides/testing-guide.md) - Testing best practices
 
 ### For Architects
-1. **System Map**: [Legacy System Map](architecture/legacy-system-map.md) - Complete system overview
-2. **Dependencies**: [Dependency Graph](architecture/dependencies.md) - Module relationships
-3. **Module Analysis**: [Analysis Documentation](#module-analysis) - Deep dives into each module
-4. **Migration Status**: [Legacy System Map](architecture/legacy-system-map.md) - Modernization tracking
+1. **Architecture Overview**: [ARCHITECTURE.md](ARCHITECTURE.md) - 📌 **NEW!** Complete system architecture, patterns, and design
+2. **System Map**: [Legacy System Map](architecture/legacy-system-map.md) - Complete system overview
+3. **Dependencies**: [Dependency Graph](architecture/dependencies.md) - Module relationships
+4. **Module Analysis**: [Analysis Documentation](#module-analysis) - Deep dives into each module
+5. **Migration Status**: [Legacy System Map](architecture/legacy-system-map.md) - Modernization tracking
 
 ---
 
@@ -83,6 +87,7 @@ Integration patterns with popular frameworks:
 - **[Extending OpenL Tablets](developer-guides/extending.md)** - Customization and extension points
 
 ### Architecture Documentation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - 📌 **NEW!** Complete system architecture with diagrams, patterns, and performance characteristics
 - **[Technology Stack](architecture/technology-stack.md)** - Complete technology inventory (Java, Spring, React, etc.)
 - **[Dependencies](architecture/dependencies.md)** - Module dependency graph and external dependencies
 - **[Legacy System Map](architecture/legacy-system-map.md)** - Legacy vs modern components, migration status
@@ -92,6 +97,7 @@ Integration patterns with popular frameworks:
 - **[Development Setup](onboarding/development-setup.md)** - Prerequisites, build procedures, IDE configuration
 - **[Common Tasks](onboarding/common-tasks.md)** - Frequently performed development tasks
 - **[Troubleshooting](onboarding/troubleshooting.md)** - Common issues and solutions
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - 📌 **NEW!** Comprehensive troubleshooting guide with diagnostics and fixes
 
 ### Module Analysis
 Deep-dive documentation for each major module group:
@@ -106,10 +112,12 @@ Practical guides for specific tasks:
 - **[Performance Tuning Guide](guides/performance-tuning.md)** - ✅ JVM tuning, caching, database optimization, monitoring
 
 ### Operations & DevOps
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - 📌 **NEW!** Production deployment (Docker, K8s, cloud platforms, HA, monitoring)
 - **[CI/CD Pipeline](operations/ci-cd.md)** - ✅ GitHub Actions workflows, build pipeline, release process
 - **[Docker Guide](operations/docker-guide.md)** - ✅ Docker images, compose setup, deployment, troubleshooting
 
 ### API Reference
+- **[API_GUIDE.md](API_GUIDE.md)** - 📌 **NEW!** Complete REST API guide with examples in 7 languages (SOAP deprecated)
 - **[Public API Reference](api/public-api-reference.md)** - ✅ Studio API, Rule Services API, Admin API, OpenAPI integration
 
 ### Planning & Progress
@@ -146,12 +154,12 @@ OpenL Tablets is organized into 5 major module groups:
 
 ### 3. WSFrontend - Rule Services
 **Location**: `/WSFrontend/`
-**Purpose**: Rule deployment and web services (REST/SOAP)
+**Purpose**: Rule deployment and web services (REST preferred, SOAP deprecated)
 **Documentation**: [WSFrontend Overview](analysis/studio-wsfrontend-util-overview.md) | [WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)
 
 **Key Submodules**:
 - `org.openl.rules.ruleservice` - Core service engine
-- `org.openl.rules.ruleservice.ws` - Web services (REST/SOAP)
+- `org.openl.rules.ruleservice.ws` - Web services (REST preferred, ⚠️ SOAP deprecated)
 - `org.openl.rules.ruleservice.kafka` - Kafka integration
 - `org.openl.rules.ruleservice.deployer` - Service deployer
 
@@ -329,7 +337,8 @@ See [LICENSE](../LICENSE) for details.
 
 ---
 
-**Last Updated**: 2025-11-05
-**Documentation Version**: 2.0
-**Status**: Complete
-**Quality**: Production-ready
+**Last Updated**: 2025-11-06
+**Documentation Version**: 2.1
+**Status**: Complete ✅
+**Quality**: Production-ready 🚀
+**New in v2.1**: ARCHITECTURE.md, DEPLOYMENT.md, API_GUIDE.md, TROUBLESHOOTING.md, SOAP marked deprecated

@@ -1,0 +1,48 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# OpenL Tablets Pre-Commit Hook
+# Runs before each commit to ensure code quality
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if committing to main/master branch
+current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+if [ "$current_branch" = "master" ] || [ "$current_branch" = "main" ]; then
+    echo "⚠️  You are about to commit to the $current_branch branch."
+    echo "Are you sure you want to continue? (y/n)"
+    read -r response
+    if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+        echo "❌ Commit cancelled."
+        exit 1
+    fi
+fi
+
+# Get list of staged Java files
+STAGED_JAVA_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.java$' || true)
+
+if [ -n "$STAGED_JAVA_FILES" ]; then
+    echo "📝 Checking Java code formatting..."
+
+    # Run Spotless check only on staged files
+    # Note: Spotless applies to all files, so we run a quick check
+    if command -v mvn >/dev/null 2>&1; then
+        if ! mvn spotless:check -q 2>/dev/null; then
+            echo "❌ Code formatting issues detected!"
+            echo ""
+            echo "Run 'mvn spotless:apply' or 'npm run format' to fix formatting."
+            echo "Then stage the changes and commit again."
+            echo ""
+            echo "To skip this check (not recommended), use: git commit --no-verify"
+            exit 1
+        fi
+        echo "✅ Code formatting check passed"
+    else
+        echo "⚠️  Maven not found, skipping format check"
+    fi
+else
+    echo "ℹ️  No Java files to check"
+fi
+
+echo "✅ Pre-commit checks passed!"
+exit 0
