@@ -2,7 +2,8 @@
 . "$(dirname "$0")/_/husky.sh"
 
 # OpenL Tablets Prepare Commit Message Hook
-# Validates commit message format (Conventional Commits)
+# Validates commit message format
+# Supports both GitHub (Conventional Commits) and GitLab (EPBDS-XXX Jira format)
 
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
@@ -25,41 +26,67 @@ if echo "$COMMIT_MSG" | grep -q "^#"; then
   exit 0
 fi
 
-# Conventional commit pattern
-# Format: <type>(<scope>): <description>
-# Types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, security
-# Scopes: DEV, STUDIO, WSFrontend, Util, ITEST, DEMO (optional)
-commit_regex='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\([A-Z][A-Za-z0-9-]*\))?: .{1,100}'
+# Detect remote repository to determine format
+# Check if we're pushing to GitLab (contains EPBDS repo) or GitHub
+REMOTE_URL=$(git config --get remote.origin.url 2>/dev/null || echo "")
 
-if ! echo "$COMMIT_MSG" | grep -qE "$commit_regex"; then
-    echo "❌ Invalid commit message format!"
-    echo ""
-    echo "Expected format: <type>(<scope>): <description>"
-    echo ""
-    echo "Examples:"
-    echo "  feat(STUDIO): add dark mode toggle"
-    echo "  fix(DEV): resolve memory leak in parser"
-    echo "  docs: update README with quick start"
-    echo "  refactor(WSFrontend): extract service logic"
-    echo ""
-    echo "Valid types:"
-    echo "  feat     - New feature"
-    echo "  fix      - Bug fix"
-    echo "  docs     - Documentation changes"
-    echo "  style    - Code style changes (formatting, etc.)"
-    echo "  refactor - Code refactoring"
-    echo "  perf     - Performance improvements"
-    echo "  test     - Test additions/changes"
-    echo "  chore    - Build/tooling changes"
-    echo "  ci       - CI/CD changes"
-    echo "  build    - Build system changes"
-    echo "  security - Security fixes"
-    echo ""
-    echo "Valid scopes (optional):"
-    echo "  DEV, STUDIO, WSFrontend, Util, ITEST, DEMO"
-    echo ""
-    echo "To skip this check, use: git commit --no-verify"
-    exit 1
+# GitLab Jira ticket pattern: EPBDS-1234 description
+# Format: EPBDS-<number> <description>
+gitlab_jira_regex='^EPBDS-[0-9]+ .{1,100}'
+
+# GitHub Conventional Commits pattern
+# Format: <type>(<scope>): <description>
+github_conventional_regex='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\([A-Z][A-Za-z0-9-]*\))?: .{1,100}'
+
+# Check GitLab Jira format first
+if echo "$COMMIT_MSG" | grep -qE "$gitlab_jira_regex"; then
+    echo "✅ GitLab Jira format detected: EPBDS-XXX"
+    exit 0
 fi
 
-exit 0
+# Check GitHub Conventional Commits format
+if echo "$COMMIT_MSG" | grep -qE "$github_conventional_regex"; then
+    echo "✅ GitHub Conventional Commits format detected"
+    exit 0
+fi
+
+# If neither format matches, show error with both options
+echo "❌ Invalid commit message format!"
+echo ""
+echo "This repository supports two commit message formats:"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "1️⃣  GitLab/Jira Format (for GitLab repository)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Format: EPBDS-<number> <description>"
+echo ""
+echo "Examples:"
+echo "  EPBDS-1234 Add dark mode toggle to settings"
+echo "  EPBDS-5678 Fix memory leak in rule parser"
+echo "  EPBDS-9012 Update README with installation steps"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "2️⃣  GitHub Conventional Commits Format"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Format: <type>(<scope>): <description>"
+echo ""
+echo "Examples:"
+echo "  feat(STUDIO): add dark mode toggle"
+echo "  fix(DEV): resolve memory leak in parser"
+echo "  docs: update README with quick start"
+echo "  refactor(WSFrontend): extract service logic"
+echo ""
+echo "Valid types:"
+echo "  feat, fix, docs, style, refactor, perf, test,"
+echo "  chore, ci, build, security"
+echo ""
+echo "Valid scopes (optional):"
+echo "  DEV, STUDIO, WSFrontend, Util, ITEST, DEMO"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Your commit message:"
+echo "  $COMMIT_MSG"
+echo ""
+echo "To skip this check, use: git commit --no-verify"
+exit 1

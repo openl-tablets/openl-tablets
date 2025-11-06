@@ -51,3 +51,30 @@ bun.lock
 
 # MkDocs build output
 site/
+
+# Local development environment
+.env
+.env.local
+.env.*.local
+
+# Docker volumes and data
+docker-data/
+postgres-data/
+mysql-data/
+
+# GitHub Actions artifacts
+.github/artifacts/
+
+# Test coverage and reports
+coverage/
+test-results/
+performance-results/
+**/target/site/jacoco/
+**/target/surefire-reports/*.png
+**/target/failsafe-reports/*.png
+
+# Code quality temporary files
+.checkstyle
+.spotless
+.pmd
+.cpd
