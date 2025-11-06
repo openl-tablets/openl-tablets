@@ -20,9 +20,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved developer guide
 - CITATION.cff for academic citations
 - Dependabot configuration for automated dependency updates
+- AI assistant configuration files:
+  - .claude/ directory with settings, hooks, and agents
+  - .cursor/ directory with context-specific rules
+  - Module-specific CLAUDE.md files for all major modules (DEV, STUDIO, WSFrontend, Util, studio-ui)
+- Developer experience enhancements:
+  - .vscode/ configuration (settings, extensions, launch configs)
+  - .editorconfig for consistent code formatting
+  - .dockerignore for optimized Docker builds
+  - docker-compose.dev.yml for local development environment
+  - .env.example with configuration templates
+- GitHub workflow enhancements:
+  - CodeQL security analysis workflow
+  - PR title validation (conventional commits)
+  - Stale issue management workflow
+  - Spell checking automation (codespell)
+  - Dependency vulnerability scanning
+  - Build matrix testing across platforms and databases
+- Code quality tooling:
+  - checkstyle.xml configuration
+  - .husky/ git hooks for pre-commit checks
 
 ### Changed
 - Enhanced README.md structure with table of contents, features, use cases, and community sections
+- Deprecated old Docs/ directory in favor of modern docs/ structure
+- Migrated WebStudio references to OpenL Studio in documentation
+
+### Documentation
+- Migrated comprehensive documentation from legacy OpenLdocs repository:
+  - 200+ documentation files with 40,000+ lines of content
+  - 300+ images migrated and organized by category
+  - Modern MkDocs-based structure with Material theme
+  - Read the Docs integration (.readthedocs.yaml)
+- User guides:
+  - Installation Guide (multi-file structure with deployment scenarios)
+  - Demo Package Guide
+  - Reference Guide (24-file structure covering all table types)
+  - WebStudio User Guide (12-file structure)
+  - Rule Services Guide (15-file structure with appendices)
+- Developer guides:
+  - Complete developer guide (7-file structure)
+  - Integration guides (Activiti, Spring, OpenAPI, CXF, OpenTelemetry)
+  - Module-specific conventions (DEV, STUDIO, WSFrontend, Util)
+- Configuration and deployment:
+  - Configuration overview and security
+  - Production deployment guide
+  - Docker deployment (simple, multi-container, full HA)
+  - Kubernetes deployment with manifests
+  - Cloud deployment guides (AWS, Azure)
+  - VM deployment guide
+- Examples and references:
+  - Production deployment examples (32 files)
+  - API documentation structure
+  - Migration guide from old to new documentation
+  - Contributing to documentation guide
 
 ## [6.0.0-SNAPSHOT]
 
