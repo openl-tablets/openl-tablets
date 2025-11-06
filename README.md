@@ -20,7 +20,6 @@
 - [About](#about)
 - [Why OpenL Tablets?](#why-openl-tablets)
 - [Key Features](#key-features)
-- [Architecture Overview](#architecture-overview)
 - [Getting Started](#getting-started)
   - [Quick Start with Docker](#quick-start-with-docker)
   - [Developer Quick Start](#developer-quick-start)
@@ -67,40 +66,6 @@ The system validates all data, syntax, and typing errors as you write, with conv
 - **Multiple Deployment Options**: Standalone, embedded, or as services
 - **Rule Templates**: Decision tables, spreadsheet-like tables, decision trees, scorecards, and more
 - **Production-Ready**: Fast, scalable, efficient, and battle-tested in enterprise environments
-
-## Architecture Overview
-
-OpenL Tablets follows a modular architecture designed for flexibility and extensibility:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    OpenL Studio (Web IDE)                    │
-│              React + Spring Boot + WebSocket                 │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────────────────┐
-│               Rule Services (WSFrontend)                     │
-│         REST/SOAP Services + OpenAPI + Hot Reload            │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────────────────┐
-│                  Rules Engine (DEV)                          │
-│  Parser → Binder → Type System → Bytecode Generator → VM    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────────────────┐
-│            Data Sources (Excel, Database, Git)               │
-│              PostgreSQL · MySQL · MariaDB · H2               │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Core Modules:**
-- **DEV** (50+ modules): Core rules engine, compiler, type system, bytecode generation
-- **STUDIO**: Web-based IDE with project management, testing, and debugging
-- **WSFrontend**: REST/SOAP service deployment with OpenAPI documentation
-- **Util**: Developer tools, Maven plugins, test utilities
-
-For detailed architecture documentation, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Getting Started
 

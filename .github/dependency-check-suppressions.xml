@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+    This file contains suppression rules for OWASP Dependency-Check.
+    Use this to suppress false positives or known issues that are not applicable.
+
+    Documentation: https://jeremylong.github.io/DependencyCheck/general/suppression.html
+
+    Example suppression:
+    <suppress>
+        <notes><![CDATA[
+        Description of why this is suppressed
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.example/.*$</packageUrl>
+        <cve>CVE-2021-12345</cve>
+    </suppress>
+    -->
+
+    <!-- Example: Suppress false positive for internal test dependencies -->
+    <!--
+    <suppress>
+        <notes><![CDATA[
+        Test dependencies are not deployed to production
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/.*@.*test.*$</packageUrl>
+        <vulnerabilityName regex="true">.*</vulnerabilityName>
+    </suppress>
+    -->
+
+    <!-- Add your suppressions below -->
+
+</suppressions>

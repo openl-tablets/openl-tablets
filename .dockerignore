@@ -1,0 +1,119 @@
+# Docker ignore file - Excludes files from Docker build context
+# Reduces build context size and improves build performance
+
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# IDE
+.idea
+.vscode
+.eclipse
+.settings
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+
+# Build outputs
+**/target/
+**/dist/
+**/build/
+**/*.war
+**/*.jar
+**/*.zip
+
+# Logs
+*.log
+**/logs/
+**/*.log.*
+
+# Node
+**/node_modules/
+**/.npm/
+**/package-lock.json
+**/yarn.lock
+
+# Documentation
+*.md
+!README.md
+docs/
+Docs/
+DEMO/
+
+# CI/CD
+.travis.yml
+.circleci/
+.jenkins/
+azure-pipelines.yml
+
+# Tests
+**/test-results/
+**/coverage/
+**/.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Configuration (local)
+.env
+.env.local
+.env.*.local
+**/application-local.properties
+**/application-dev.properties
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# Keep essential files
+!.mvn/
+!mvnw
+!mvnw.cmd
