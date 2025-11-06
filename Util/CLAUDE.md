@@ -232,7 +232,7 @@ mvn archetype:generate \
 ```
 
 **Generated Structure**:
-```
+```text
 my-rules-project/
 ├── pom.xml
 ├── src/

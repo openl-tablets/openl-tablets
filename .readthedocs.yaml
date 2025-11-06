@@ -25,7 +25,7 @@ build:
 # Build documentation in the "docs/" directory with MkDocs
 mkdocs:
   configuration: mkdocs.yml
-  fail_on_warning: false
+  fail_on_warning: true
 
 # Python requirements
 python:

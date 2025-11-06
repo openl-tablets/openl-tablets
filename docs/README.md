@@ -2,7 +2,7 @@
 
 **Version**: 6.0.0-SNAPSHOT
 **Last Updated**: 2025-11-06
-**Repository**: https://github.com/openl-tablets/openl-tablets
+**Repository**: <https://github.com/openl-tablets/openl-tablets>
 
 ---
 
@@ -301,8 +301,8 @@ OpenL Tablets is organized into 5 major module groups:
 ## 📞 Support & Contact
 
 ### For Questions
-- **GitHub Issues**: https://github.com/openl-tablets/openl-tablets/issues
-- **Discussions**: https://github.com/openl-tablets/openl-tablets/discussions
+- **GitHub Issues**: <https://github.com/openl-tablets/openl-tablets/issues>
+- **Discussions**: <https://github.com/openl-tablets/openl-tablets/discussions>
 
 ### For Documentation Issues
 - Report outdated or incorrect information via GitHub issues

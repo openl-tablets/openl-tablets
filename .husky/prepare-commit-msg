@@ -32,11 +32,11 @@ REMOTE_URL=$(git config --get remote.origin.url 2>/dev/null || echo "")
 
 # GitLab Jira ticket pattern: EPBDS-1234 description
 # Format: EPBDS-<number> <description>
-gitlab_jira_regex='^EPBDS-[0-9]+ .{1,100}'
+gitlab_jira_regex='^EPBDS-[0-9]+ .{3,100}$'
 
 # GitHub Conventional Commits pattern
 # Format: <type>(<scope>): <description>
-github_conventional_regex='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\([A-Z][A-Za-z0-9-]*\))?: .{1,100}'
+github_conventional_regex='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\([A-Z][A-Za-z0-9-]*\))?: .{3,100}$'
 
 # Check GitLab Jira format first
 if echo "$COMMIT_MSG" | grep -qE "$gitlab_jira_regex"; then
