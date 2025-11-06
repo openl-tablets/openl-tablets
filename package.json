@@ -31,7 +31,8 @@
     "docker:build:studio": "docker build -f STUDIO/Dockerfile -t openl-webstudio:dev STUDIO",
     "docker:build:ws": "docker build -f WSFrontend/Dockerfile -t openl-ruleservice:dev WSFrontend",
     "demo": "docker compose up",
-    "prepare": "command -v husky >/dev/null 2>&1 && husky install || echo 'Husky not installed, skipping git hooks'"
+    "prepare": "husky install",
+    "postinstall": "npm run prepare || echo 'Husky setup skipped'"
   },
   "repository": {
     "type": "git",

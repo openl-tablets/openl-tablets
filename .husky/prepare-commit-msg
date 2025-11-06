@@ -1,0 +1,65 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# OpenL Tablets Prepare Commit Message Hook
+# Validates commit message format (Conventional Commits)
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# Skip if amending, merging, or using commit template
+if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "template" ]; then
+  exit 0
+fi
+
+# Skip for --amend commits
+if [ "$COMMIT_SOURCE" = "commit" ]; then
+  exit 0
+fi
+
+# Read the commit message
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Check if message starts with a comment (interactive rebase, etc.)
+if echo "$COMMIT_MSG" | grep -q "^#"; then
+  exit 0
+fi
+
+# Conventional commit pattern
+# Format: <type>(<scope>): <description>
+# Types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, security
+# Scopes: DEV, STUDIO, WSFrontend, Util, ITEST, DEMO (optional)
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\([A-Z][A-Za-z0-9-]*\))?: .{1,100}'
+
+if ! echo "$COMMIT_MSG" | grep -qE "$commit_regex"; then
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "Expected format: <type>(<scope>): <description>"
+    echo ""
+    echo "Examples:"
+    echo "  feat(STUDIO): add dark mode toggle"
+    echo "  fix(DEV): resolve memory leak in parser"
+    echo "  docs: update README with quick start"
+    echo "  refactor(WSFrontend): extract service logic"
+    echo ""
+    echo "Valid types:"
+    echo "  feat     - New feature"
+    echo "  fix      - Bug fix"
+    echo "  docs     - Documentation changes"
+    echo "  style    - Code style changes (formatting, etc.)"
+    echo "  refactor - Code refactoring"
+    echo "  perf     - Performance improvements"
+    echo "  test     - Test additions/changes"
+    echo "  chore    - Build/tooling changes"
+    echo "  ci       - CI/CD changes"
+    echo "  build    - Build system changes"
+    echo "  security - Security fixes"
+    echo ""
+    echo "Valid scopes (optional):"
+    echo "  DEV, STUDIO, WSFrontend, Util, ITEST, DEMO"
+    echo ""
+    echo "To skip this check, use: git commit --no-verify"
+    exit 1
+fi
+
+exit 0
