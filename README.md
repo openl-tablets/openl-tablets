@@ -48,16 +48,17 @@ OpenL Tablets is an open-source **Business Rules Management System (BRMS)** that
 ## How It Works
 
 ```
-Excel Rules → OpenL Tablets → Production REST API
+Rules in Excel → OpenL Tablets → Production REST API
 ```
 
-1. **Business Analyst** writes decision logic in Excel
+1. **User** writes decision logic in Excel
    - Decision tables, spreadsheet calculations, scorecards
    - Test with sample data right in the interface
 
 2. **OpenL Tablets** validates and compiles
    - Type checking catches errors immediately
    - Generates optimized Java bytecode
+   - Versions and creates audit trail
 
 3. **Deploy as REST Service**
    - One-click deployment to production
@@ -84,71 +85,6 @@ That's it! You now have:
 - ✅ **OpenL Studio** - Web-based rule editor
 - ✅ **Rule Services** - REST API engine
 - ✅ **Sample Rules** - Pre-loaded examples
-
-### Deploy Your First Rule
-
-1. **Create a rule in Excel**
-   ```
-   | Premium Calculation |
-   |-------------------- |
-   | Age | Risk | Premium |
-   | 18-25 | High | $1200 |
-   | 26-40 | Medium | $800 |
-   | 41+ | Low | $600 |
-   ```
-
-2. **Upload to OpenL Studio**
-   - Upload your Excel file
-   - Test with sample inputs
-   - Click "Deploy"
-
-3. **Call your new API**
-   ```bash
-   curl -X POST http://localhost:8080/api/calculatePremium \
-     -H "Content-Type: application/json" \
-     -d '{"age": 30, "risk": "Medium"}'
-
-   # Response: {"premium": 800}
-   ```
-
-**[See Complete Getting Started Guide →](docs/user-guides/installation/)**
-
----
-
-## Real-World Use Cases
-
-### 🏥 Insurance Company: Premium Calculation
-
-**Challenge**: Underwriters spent weeks updating premium tables. Changes required developer deployment.
-
-**Solution**: Business analysts manage 100+ decision tables in Excel. Deploy updates in minutes, not weeks.
-
-**Result**:
-- 90% faster rule updates
-- Zero developer involvement for rule changes
-- $500K annual savings in development costs
-
-### 🏦 Bank: Loan Origination
-
-**Challenge**: Complex credit scoring rules scattered across multiple systems. Hard to test and audit.
-
-**Solution**: Centralized all credit rules in OpenL. Business analysts test scenarios before production.
-
-**Result**:
-- 50% reduction in loan processing time
-- Full audit trail for compliance
-- Ability to A/B test lending strategies
-
-### 💊 Healthcare: Treatment Protocols
-
-**Challenge**: Clinical decision support rules embedded in code. Required IT for any protocol updates.
-
-**Solution**: Doctors manage treatment protocols directly in Excel format they understand.
-
-**Result**:
-- Same-day protocol updates (vs 2-3 weeks)
-- Better clinician adoption (familiar interface)
-- Reduced medical errors
 
 ---
 
@@ -266,33 +202,8 @@ docker pull openltablets/openl-studio:latest
 docker pull openltablets/openl-rule-service:latest
 ```
 
-### Maven Dependency
-
-```xml
-<dependency>
-    <groupId>org.openl</groupId>
-    <artifactId>org.openl.core</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
-</dependency>
-```
-
 **[See Installation Guide →](docs/user-guides/installation/)**
 
----
-
-## Success Stories
-
-> "OpenL Tablets transformed how we manage pricing rules. Business analysts can now update prices in minutes instead of waiting weeks for IT."
->
-> — **Senior Director, Fortune 500 Insurance Company**
-
-> "We process 5 million credit decisions per day. OpenL Tablets gives us the performance we need with the flexibility business demands."
->
-> — **VP Technology, Major Bank**
-
-> "The Excel interface was a game-changer. Our underwriters adopted it immediately without any training."
->
-> — **Chief Underwriter, Property & Casualty Insurer**
 
 ---
 
@@ -303,9 +214,7 @@ We welcome contributions! OpenL Tablets is built by a global community of develo
 **Ways to contribute:**
 - 🐛 Report bugs and suggest features
 - 📝 Improve documentation
-- 💻 Submit code improvements
-- 🌍 Translate to other languages
-- 📣 Share your success story
+- 💻 Submit code and documentation improvements
 
 **[Read Contributing Guidelines →](CONTRIBUTING.md)**
 
