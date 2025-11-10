@@ -415,3 +415,80 @@ export interface DetailedValidationResult extends ValidationResult {
   /** Auto-fixable error count */
   autoFixableCount?: number;
 }
+
+// =============================================================================
+// Phase 3: Versioning & Execution Types
+// =============================================================================
+
+/** Version file request */
+export interface VersionFileRequest {
+  projectId: string;
+  currentFileName: string;
+  newFileName?: string;
+  comment?: string;
+}
+
+/** Version file result */
+export interface VersionFileResult {
+  success: boolean;
+  newFileName?: string;
+  message?: string;
+  suggestedVersions?: string[];
+}
+
+/** Copy table request */
+export interface CopyTableRequest {
+  projectId: string;
+  tableId: string;
+  newName?: string;
+  targetFile?: string;
+  comment?: string;
+}
+
+/** Copy table result */
+export interface CopyTableResult {
+  success: boolean;
+  newTableId?: string;
+  message?: string;
+}
+
+/** Execute rule request */
+export interface ExecuteRuleRequest {
+  projectId: string;
+  ruleName: string;
+  inputData: Record<string, unknown>;
+}
+
+/** Execute rule result */
+export interface ExecuteRuleResult {
+  success: boolean;
+  output?: unknown;
+  executionTime?: number;
+  error?: string;
+}
+
+/** Compare versions request */
+export interface CompareVersionsRequest {
+  projectId: string;
+  version1: string;
+  version2: string;
+}
+
+/** Version difference */
+export interface VersionDifference {
+  added: string[];
+  modified: string[];
+  removed: string[];
+}
+
+/** Compare versions result */
+export interface CompareVersionsResult {
+  tables: VersionDifference;
+  files: VersionDifference;
+  summary: {
+    totalChanges: number;
+    tablesAdded: number;
+    tablesModified: number;
+    tablesRemoved: number;
+  };
+}

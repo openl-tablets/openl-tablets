@@ -318,6 +318,52 @@ export const TOOLS: ToolDefinition[] = [
       requiresAuth: true,
     },
   },
+
+  // =============================================================================
+  // Phase 3: Versioning & Execution Tools
+  // =============================================================================
+  {
+    name: "version_file",
+    description: "Create a new version of an Excel file with rules (auto-increments version number)",
+    inputSchema: zodToJsonSchema(schemas.versionFileSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "copy_table",
+    description: "Copy a rule/table within a project or to another file",
+    inputSchema: zodToJsonSchema(schemas.copyTableSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "execute_rule",
+    description: "Execute a rule with input data to test its behavior and validate changes",
+    inputSchema: zodToJsonSchema(schemas.executeRuleSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "compare_versions",
+    description: "Compare two versions of a project to see what changed (added, modified, removed tables)",
+    inputSchema: zodToJsonSchema(schemas.compareVersionsSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.VERSION_CONTROL,
+      requiresAuth: true,
+    },
+  },
 ];
 
 /**

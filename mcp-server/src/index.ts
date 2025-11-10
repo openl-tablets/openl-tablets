@@ -358,6 +358,73 @@ class OpenLMCPServer {
           break;
         }
 
+        // Phase 3: Versioning & Execution tools
+        case "version_file": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, currentFileName, newFileName, comment } = args as {
+            projectId: string;
+            currentFileName: string;
+            newFileName?: string;
+            comment?: string;
+          };
+          result = await this.client.versionFile({
+            projectId,
+            currentFileName,
+            newFileName,
+            comment,
+          });
+          break;
+        }
+
+        case "copy_table": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId, newName, targetFile, comment } = args as {
+            projectId: string;
+            tableId: string;
+            newName?: string;
+            targetFile?: string;
+            comment?: string;
+          };
+          result = await this.client.copyTable({
+            projectId,
+            tableId,
+            newName,
+            targetFile,
+            comment,
+          });
+          break;
+        }
+
+        case "execute_rule": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, ruleName, inputData } = args as {
+            projectId: string;
+            ruleName: string;
+            inputData: Record<string, unknown>;
+          };
+          result = await this.client.executeRule({
+            projectId,
+            ruleName,
+            inputData,
+          });
+          break;
+        }
+
+        case "compare_versions": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, version1, version2 } = args as {
+            projectId: string;
+            version1: string;
+            version2: string;
+          };
+          result = await this.client.compareVersions({
+            projectId,
+            version1,
+            version2,
+          });
+          break;
+        }
+
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }

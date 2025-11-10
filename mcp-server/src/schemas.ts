@@ -160,3 +160,34 @@ export const getProjectErrorsSchema = z.object({
   includeWarnings: z.boolean().optional().describe("Include warnings in the result (default: true)"),
 });
 
+// =============================================================================
+// Phase 3: Versioning & Execution Schemas
+// =============================================================================
+
+export const versionFileSchema = z.object({
+  projectId: projectIdSchema,
+  currentFileName: z.string().describe("Current Excel file name to version"),
+  newFileName: z.string().optional().describe("New file name for the version (auto-generated if not provided)"),
+  comment: commentSchema,
+});
+
+export const copyTableSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: tableIdSchema,
+  newName: z.string().optional().describe("New name for the copied table (auto-generated if not provided)"),
+  targetFile: z.string().optional().describe("Target Excel file to copy the table to (same file if not provided)"),
+  comment: commentSchema,
+});
+
+export const executeRuleSchema = z.object({
+  projectId: projectIdSchema,
+  ruleName: z.string().describe("Name of the rule/method to execute"),
+  inputData: z.record(z.any()).describe("Input data for rule execution as JSON object"),
+});
+
+export const compareVersionsSchema = z.object({
+  projectId: projectIdSchema,
+  version1: z.string().describe("First version to compare"),
+  version2: z.string().describe("Second version to compare"),
+});
+

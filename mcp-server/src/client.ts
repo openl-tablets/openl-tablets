@@ -637,4 +637,137 @@ export class OpenLClient {
       autoFixableCount,
     };
   }
+
+  // =============================================================================
+  // Phase 3: Versioning & Execution
+  // =============================================================================
+
+  /**
+   * Version an Excel file with rules
+   * Creates a copy of the file with a new version number
+   *
+   * @param request - Version file request
+   * @returns Version result with new file name
+   */
+  async versionFile(request: Types.VersionFileRequest): Promise<Types.VersionFileResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    // Generate suggested version names if not provided
+    let newFileName = request.newFileName;
+    if (!newFileName) {
+      // Extract version pattern from current file name
+      const match = request.currentFileName.match(/(.+?)_v?(\d+)\.xlsx?$/i);
+      if (match) {
+        const baseName = match[1];
+        const currentVersion = parseInt(match[2], 10);
+        newFileName = `${baseName}_v${currentVersion + 1}.xlsx`;
+      } else {
+        // No version found, add _v1
+        newFileName = request.currentFileName.replace(/\.xlsx?$/i, "_v1.xlsx");
+      }
+    }
+
+    try {
+      // Copy file with new name
+      await this.axiosInstance.post(
+        `/design-repositories/${repository}/projects/${projectName}/files/${request.currentFileName}/copy`,
+        { newFileName, comment: request.comment }
+      );
+
+      return {
+        success: true,
+        newFileName,
+        message: `File versioned successfully: ${request.currentFileName} → ${newFileName}`,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: `Failed to version file: ${sanitizeError(error)}`,
+      };
+    }
+  }
+
+  /**
+   * Copy a table/rule within a project
+   *
+   * @param request - Copy table request
+   * @returns Copy result with new table ID
+   */
+  async copyTable(request: Types.CopyTableRequest): Promise<Types.CopyTableResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    try {
+      const response = await this.axiosInstance.post(
+        `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/copy`,
+        {
+          newName: request.newName,
+          targetFile: request.targetFile,
+          comment: request.comment,
+        }
+      );
+
+      return {
+        success: true,
+        newTableId: response.data.id,
+        message: `Table copied successfully${request.newName ? ` as '${request.newName}'` : ""}`,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: `Failed to copy table: ${sanitizeError(error)}`,
+      };
+    }
+  }
+
+  /**
+   * Execute a rule with input data
+   *
+   * @param request - Execute rule request
+   * @returns Execution result with output data
+   */
+  async executeRule(request: Types.ExecuteRuleRequest): Promise<Types.ExecuteRuleResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    try {
+      const startTime = Date.now();
+      const response = await this.axiosInstance.post(
+        `/design-repositories/${repository}/projects/${projectName}/rules/${request.ruleName}/execute`,
+        request.inputData
+      );
+      const executionTime = Date.now() - startTime;
+
+      return {
+        success: true,
+        output: response.data,
+        executionTime,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: sanitizeError(error),
+      };
+    }
+  }
+
+  /**
+   * Compare two versions of a project
+   *
+   * @param request - Compare versions request
+   * @returns Comparison result with differences
+   */
+  async compareVersions(request: Types.CompareVersionsRequest): Promise<Types.CompareVersionsResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    const response = await this.axiosInstance.get<Types.CompareVersionsResult>(
+      `/design-repositories/${repository}/projects/${projectName}/versions/compare`,
+      {
+        params: {
+          version1: request.version1,
+          version2: request.version2,
+        },
+      }
+    );
+
+    return response.data;
+  }
 }
