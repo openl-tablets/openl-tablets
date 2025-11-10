@@ -3,8 +3,6 @@ package org.openl.rules.rest;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -150,15 +148,6 @@ public class ManagementController {
             var prodPermission = prodRole.getCumulativePermission();
             prodRepoAclService.addRootPermissions(sid, prodPermission);
         }
-    }
-
-    @Operation(description = "mgmt.get-roles.desc", summary = "mgmt.get-roles.summary")
-    @GetMapping("/roles")
-    @AdminPrivilege
-    @Deprecated
-    public Map<AclRole, String> roles() {
-        return Stream.of(AclRole.values())
-                .collect(StreamUtils.toLinkedMap(Function.identity(), AclRole::getDescription));
     }
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
