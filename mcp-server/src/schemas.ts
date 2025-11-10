@@ -144,3 +144,19 @@ export const createRuleSchema = z.object({
   comment: commentSchema,
 });
 
+// =============================================================================
+// Phase 2: Testing & Validation Schemas
+// =============================================================================
+
+export const runTestSchema = z.object({
+  projectId: projectIdSchema,
+  testIds: z.array(z.string()).optional().describe("Specific test IDs to run"),
+  tableIds: z.array(z.string()).optional().describe("Run tests related to these table IDs"),
+  runAll: z.boolean().optional().describe("Run all tests (default: false)"),
+});
+
+export const getProjectErrorsSchema = z.object({
+  projectId: projectIdSchema,
+  includeWarnings: z.boolean().optional().describe("Include warnings in the result (default: true)"),
+});
+

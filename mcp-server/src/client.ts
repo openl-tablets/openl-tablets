@@ -549,4 +549,92 @@ export class OpenLClient {
     );
     return response.data;
   }
+
+  /**
+   * Run specific tests with smart selection
+   * Can run specific test IDs, tests related to tables, or all tests
+   *
+   * @param request - Test execution request with selection criteria
+   * @returns Test suite execution results
+   */
+  async runTest(request: Types.RunTestRequest): Promise<Types.TestSuiteResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    // Build request body based on selection criteria
+    const body: Record<string, unknown> = {};
+
+    if (request.testIds && request.testIds.length > 0) {
+      body.testIds = request.testIds;
+    }
+
+    if (request.tableIds && request.tableIds.length > 0) {
+      body.tableIds = request.tableIds;
+    }
+
+    // If runAll is true or no specific selection, run all tests
+    const endpoint = request.runAll || (!request.testIds && !request.tableIds)
+      ? `/design-repositories/${repository}/projects/${projectName}/tests/run`
+      : `/design-repositories/${repository}/projects/${projectName}/tests/run-selected`;
+
+    const response = await this.axiosInstance.post<Types.TestSuiteResult>(
+      endpoint,
+      Object.keys(body).length > 0 ? body : undefined
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get detailed project errors with categorization and fix suggestions
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param includeWarnings - Include warnings in result (default: true)
+   * @returns Detailed validation result with error categorization
+   */
+  async getProjectErrors(
+    projectId: string,
+    includeWarnings: boolean = true
+  ): Promise<Types.DetailedValidationResult> {
+    // Get validation result
+    const validation = await this.validateProject(projectId);
+
+    // Categorize errors
+    const typeErrors: Types.ValidationError[] = [];
+    const syntaxErrors: Types.ValidationError[] = [];
+    const referenceErrors: Types.ValidationError[] = [];
+    const validationErrors: Types.ValidationError[] = [];
+
+    validation.errors.forEach((error) => {
+      const message = error.message.toLowerCase();
+      if (message.includes("type") || message.includes("cannot convert")) {
+        typeErrors.push(error);
+      } else if (message.includes("syntax") || message.includes("unexpected")) {
+        syntaxErrors.push(error);
+      } else if (message.includes("not found") || message.includes("reference")) {
+        referenceErrors.push(error);
+      } else {
+        validationErrors.push(error);
+      }
+    });
+
+    // Count auto-fixable errors (type conversions, simple syntax)
+    const autoFixableCount = typeErrors.length + syntaxErrors.filter(
+      (e) => e.message.includes("bracket") || e.message.includes("parenthes")
+    ).length;
+
+    return {
+      valid: validation.valid,
+      errors: validation.errors,
+      warnings: includeWarnings ? validation.warnings : [],
+      errorCount: validation.errors.length,
+      warningCount: validation.warnings.length,
+      errorsByCategory: {
+        typeErrors,
+        syntaxErrors,
+        referenceErrors,
+        validationErrors,
+      },
+      autoFixableCount,
+    };
+  }
 }

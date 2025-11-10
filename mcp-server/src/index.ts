@@ -331,6 +331,33 @@ class OpenLMCPServer {
           break;
         }
 
+        case "run_test": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, testIds, tableIds, runAll } = args as {
+            projectId: string;
+            testIds?: string[];
+            tableIds?: string[];
+            runAll?: boolean;
+          };
+          result = await this.client.runTest({
+            projectId,
+            testIds,
+            tableIds,
+            runAll,
+          });
+          break;
+        }
+
+        case "get_project_errors": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, includeWarnings } = args as {
+            projectId: string;
+            includeWarnings?: boolean;
+          };
+          result = await this.client.getProjectErrors(projectId, includeWarnings);
+          break;
+        }
+
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }

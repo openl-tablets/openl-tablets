@@ -383,3 +383,35 @@ export interface CreateRuleResult {
   tableId?: string;
   message?: string;
 }
+
+// =============================================================================
+// Phase 2: Testing & Validation Types
+// =============================================================================
+
+/** Test execution request with smart selection */
+export interface RunTestRequest {
+  projectId: string;
+  /** Specific test IDs to run (optional) */
+  testIds?: string[];
+  /** Run tests related to specific tables (optional) */
+  tableIds?: string[];
+  /** Run all tests if true */
+  runAll?: boolean;
+}
+
+/** Enhanced validation result with detailed errors */
+export interface DetailedValidationResult extends ValidationResult {
+  /** Total error count */
+  errorCount: number;
+  /** Total warning count */
+  warningCount: number;
+  /** Errors grouped by category */
+  errorsByCategory?: {
+    typeErrors: ValidationError[];
+    syntaxErrors: ValidationError[];
+    referenceErrors: ValidationError[];
+    validationErrors: ValidationError[];
+  };
+  /** Auto-fixable error count */
+  autoFixableCount?: number;
+}

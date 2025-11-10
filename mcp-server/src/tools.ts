@@ -289,9 +289,29 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
+    name: "run_test",
+    description: "Run specific tests with smart selection - can run selected test IDs, tests related to specific tables, or all tests",
+    inputSchema: zodToJsonSchema(schemas.runTestSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+    },
+  },
+  {
     name: "validate_project",
     description: "Validate project for errors and warnings before deployment",
     inputSchema: zodToJsonSchema(schemas.validateProjectSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "get_project_errors",
+    description: "Get detailed project errors with categorization (type, syntax, reference errors) and auto-fix suggestions",
+    inputSchema: zodToJsonSchema(schemas.getProjectErrorsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
