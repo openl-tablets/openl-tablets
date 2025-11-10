@@ -354,7 +354,20 @@ public class OpenLClassLoader extends GroovyClassLoader {
 
     /**
      * Clears all internal caches and references to allow garbage collection.
-     * Should be called when the classloader is no longer needed to prevent memory leaks.
+     * This method performs a lightweight cleanup by clearing collection references only.
+     *
+     * <p><b>Important:</b> This method does NOT close groovyClassLoaders. If you need to close
+     * resources, use {@link #close()} instead, which properly closes all groovy classloaders
+     * before clearing references.</p>
+     *
+     * <p>Use this method only when:
+     * <ul>
+     *     <li>The groovyClassLoaders have already been closed externally, or</li>
+     *     <li>You need to clear references without closing resources (rare cases)</li>
+     * </ul>
+     * In most cases, prefer calling {@link #close()} which handles both closing and clearing.</p>
+     *
+     * @see #close()
      */
     public void clearReferences() {
         if (log.isDebugEnabled()) {
@@ -363,7 +376,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
         }
         generatedClasses.clear();
         bundleClassLoaders.clear();
-        // Note: groovyClassLoaders should be closed before clearing
+        // Note: groovyClassLoaders are NOT closed here - use close() if they need to be closed
     }
 
     @Override
