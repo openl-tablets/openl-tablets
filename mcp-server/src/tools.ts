@@ -58,21 +58,6 @@ export interface ToolDefinition {
  */
 export const TOOLS: ToolDefinition[] = [
   // =============================================================================
-  // System Tools
-  // =============================================================================
-  {
-    name: "health_check",
-    description:
-      "Check OpenL Tablets server connectivity and authentication status",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.SYSTEM,
-      requiresAuth: true,
-    },
-  },
-
-  // =============================================================================
   // Repository Tools
   // =============================================================================
   {
@@ -153,16 +138,6 @@ export const TOOLS: ToolDefinition[] = [
       modifiesState: true,
     },
   },
-  {
-    name: "get_project_history",
-    description: "Get version history for a project",
-    inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.VERSION_CONTROL,
-      requiresAuth: true,
-    },
-  },
 
   // =============================================================================
   // File Management Tools
@@ -186,21 +161,6 @@ export const TOOLS: ToolDefinition[] = [
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
-    },
-  },
-
-  // =============================================================================
-  // Version Control Tools
-  // =============================================================================
-  {
-    name: "create_branch",
-    description: "Create a new branch in a project",
-    inputSchema: zodToJsonSchema(schemas.createBranchSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.VERSION_CONTROL,
-      requiresAuth: true,
-      modifiesState: true,
     },
   },
 
@@ -362,6 +322,21 @@ export const TOOLS: ToolDefinition[] = [
       version: "1.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
       requiresAuth: true,
+    },
+  },
+
+  // =============================================================================
+  // Phase 4: Advanced Features
+  // =============================================================================
+  {
+    name: "revert_version",
+    description: "Revert project to a previous version (creates new version with old content, preserves history)",
+    inputSchema: zodToJsonSchema(schemas.revertVersionSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.VERSION_CONTROL,
+      requiresAuth: true,
+      modifiesState: true,
     },
   },
 ];

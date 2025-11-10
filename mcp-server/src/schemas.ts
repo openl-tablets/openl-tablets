@@ -191,3 +191,13 @@ export const compareVersionsSchema = z.object({
   version2: z.string().describe("Second version to compare"),
 });
 
+// =============================================================================
+// Phase 4: Advanced Features
+// =============================================================================
+
+export const revertVersionSchema = z.object({
+  projectId: projectIdSchema,
+  targetVersion: z.string().describe("Version to revert to"),
+  comment: commentSchema,
+});
+

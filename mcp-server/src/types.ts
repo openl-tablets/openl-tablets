@@ -492,3 +492,22 @@ export interface CompareVersionsResult {
     tablesRemoved: number;
   };
 }
+
+// =============================================================================
+// Phase 4: Advanced Features
+// =============================================================================
+
+/** Revert version request */
+export interface RevertVersionRequest {
+  projectId: string;
+  targetVersion: string;
+  comment?: string;
+}
+
+/** Revert version result */
+export interface RevertVersionResult {
+  success: boolean;
+  newVersion?: string;
+  message?: string;
+  validationErrors?: ValidationError[];
+}

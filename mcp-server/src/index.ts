@@ -130,12 +130,6 @@ class OpenLMCPServer {
 
       // Route tool calls to appropriate client methods
       switch (name) {
-        // System tools
-        case "health_check": {
-          result = await this.client.healthCheck();
-          break;
-        }
-
         // Repository tools
         case "list_repositories": {
           result = await this.client.listRepositories();
@@ -215,24 +209,6 @@ class OpenLMCPServer {
             fileContent: fileBuffer.toString("base64"),
             size: fileBuffer.length,
           };
-          break;
-        }
-
-        case "get_project_history": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.getProjectHistory(projectId);
-          break;
-        }
-
-        case "create_branch": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, branchName, comment } = args as {
-            projectId: string;
-            branchName: string;
-            comment?: string;
-          };
-          result = await this.client.createBranch(projectId, branchName, comment);
           break;
         }
 
@@ -421,6 +397,22 @@ class OpenLMCPServer {
             projectId,
             version1,
             version2,
+          });
+          break;
+        }
+
+        // Phase 4: Advanced Features
+        case "revert_version": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, targetVersion, comment } = args as {
+            projectId: string;
+            targetVersion: string;
+            comment?: string;
+          };
+          result = await this.client.revertVersion({
+            projectId,
+            targetVersion,
+            comment,
           });
           break;
         }

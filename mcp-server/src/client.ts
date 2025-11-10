@@ -770,4 +770,57 @@ export class OpenLClient {
 
     return response.data;
   }
+
+  // =============================================================================
+  // Phase 4: Advanced Features
+  // =============================================================================
+
+  /**
+   * Revert project to a previous version
+   * Creates a new version with the content from the target version
+   *
+   * @param request - Revert version request
+   * @returns Revert result with new version info
+   */
+  async revertVersion(request: Types.RevertVersionRequest): Promise<Types.RevertVersionResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    try {
+      // Step 1: Get the target version content
+      await this.axiosInstance.get(
+        `/design-repositories/${repository}/projects/${projectName}/versions/${request.targetVersion}`
+      );
+
+      // Step 2: Validate the project
+      const validation = await this.validateProject(request.projectId);
+
+      if (!validation.valid) {
+        return {
+          success: false,
+          message: `Project has validation errors. Fix them before reverting.`,
+          validationErrors: validation.errors,
+        };
+      }
+
+      // Step 3: Create new version with old content (revert)
+      const revertResponse = await this.axiosInstance.post(
+        `/design-repositories/${repository}/projects/${projectName}/revert`,
+        {
+          targetVersion: request.targetVersion,
+          comment: request.comment || `Revert to version ${request.targetVersion}`,
+        }
+      );
+
+      return {
+        success: true,
+        newVersion: revertResponse.data.version,
+        message: `Successfully reverted to version ${request.targetVersion}. New version: ${revertResponse.data.version}`,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: `Failed to revert: ${sanitizeError(error)}`,
+      };
+    }
+  }
 }
