@@ -393,9 +393,10 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 groovyClassLoaders.forEach(IOUtils::closeQuietly);
             } finally {
                 // Clear all collections to allow garbage collection and prevent memory leaks
-                groovyClassLoaders.clear();
-                bundleClassLoaders.clear();
-                generatedClasses.clear(); // CRITICAL: Clear the bytecode map to allow class unloading
+                // The primary issue is circular references preventing ClassLoader GC, not the byte arrays themselves
+                groovyClassLoaders.clear();         // Remove references to child classloaders
+                bundleClassLoaders.clear();         // CRITICAL: Break circular references between OpenLClassLoaders
+                generatedClasses.clear();           // Free heap memory occupied by bytecode arrays
                 if (log.isDebugEnabled()) {
                     log.debug("OpenLClassLoader closed and all references cleared");
                 }
