@@ -4,7 +4,7 @@
 # OpenL Tablets & Jetty Runner Script
 #
 # This script automates the download, setup, and execution of OpenL Tablets
-# WebStudio and RuleServices on an embedded Jetty server. The 'webapps' folder
+# OpenL Studio and RuleServices on an embedded Jetty server. The 'webapps' folder
 # will be created in the same directory as this script.
 #
 # Usage:

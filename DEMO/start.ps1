@@ -2,7 +2,7 @@
 # OpenL Tablets & Jetty Runner Script for Windows
 #
 # This script automates the download, setup, and execution of OpenL Tablets
-# WebStudio and RuleServices on an embedded Jetty server.
+# OpenL Studio and RuleServices on an embedded Jetty server.
 #
 # Usage:
 #   Double-click the 'start.cmd' file.

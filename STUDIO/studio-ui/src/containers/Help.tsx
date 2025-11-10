@@ -9,7 +9,7 @@ const documentationItems = [
     'Installation Guide',
     'Reference Guide',
     'Developer Guide',
-    'WebStudio User Guide',
+    'OpenL Studio User Guide',
     'Rule Services Usage and Customization Guide'
 ]
 
