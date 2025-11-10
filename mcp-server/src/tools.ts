@@ -112,20 +112,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "get_project",
-    description: "Get detailed project information",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
+    description: "Get comprehensive project information including details, modules, dependencies, and metadata",
+    inputSchema: zodToJsonSchema(schemas.getProjectSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "get_project_info",
-    description: "Get project info including modules and dependencies",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },
@@ -144,7 +134,18 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "close_project",
     description: "Close an open project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
+    inputSchema: zodToJsonSchema(schemas.projectActionSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "save_project",
+    description: "Save project changes, creating a new version in repository (validates before saving)",
+    inputSchema: zodToJsonSchema(schemas.saveProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -155,10 +156,35 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "get_project_history",
     description: "Get version history for a project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
+    inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
+      requiresAuth: true,
+    },
+  },
+
+  // =============================================================================
+  // File Management Tools
+  // =============================================================================
+  {
+    name: "upload_file",
+    description: "Upload an Excel file with rules to a project (.xlsx or .xls only)",
+    inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "download_file",
+    description: "Download an Excel file from a project",
+    inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },
   },
@@ -183,10 +209,10 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "list_tables",
-    description: "List all tables/rules in a project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
+    description: "List all tables/rules in a project with optional filters for type, name, and file",
+    inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.RULES,
       requiresAuth: true,
     },
@@ -205,6 +231,17 @@ export const TOOLS: ToolDefinition[] = [
     name: "update_table",
     description: "Update table content",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "create_rule",
+    description: "Create a new rule/table in a project (Decision Table, Spreadsheet, Datatype, Test, etc.)",
+    inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.RULES,

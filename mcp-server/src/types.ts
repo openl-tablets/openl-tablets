@@ -321,3 +321,65 @@ export interface ValidationWarning {
   location?: string;
   table?: string;
 }
+
+// =============================================================================
+// Phase 1: New Types for Extended Functionality
+// =============================================================================
+
+/** Comprehensive project details combining Project and ProjectInfo */
+export interface ComprehensiveProject extends ProjectViewModel {
+  /** Modules in the project */
+  modules?: Array<{
+    name: string;
+    rulesRootPath?: string;
+  }>;
+  /** Project dependencies */
+  dependencies?: Array<{
+    name: string;
+    autoIncluded?: boolean;
+  }>;
+  /** Classpath entries */
+  classpath?: string[];
+}
+
+/** Filters for listing tables */
+export interface TableFilters {
+  /** Filter by table type (datatype, spreadsheet, simplerules, etc.) */
+  tableType?: TableType;
+  /** Filter by table name pattern */
+  name?: string;
+  /** Filter by Excel file name */
+  file?: string;
+}
+
+/** Save project result */
+export interface SaveProjectResult {
+  success: boolean;
+  version?: string;
+  message?: string;
+  validationErrors?: ValidationError[];
+}
+
+/** File upload result */
+export interface FileUploadResult {
+  success: boolean;
+  fileName: string;
+  size?: number;
+  message?: string;
+}
+
+/** Rule creation request */
+export interface CreateRuleRequest {
+  name: string;
+  ruleType: TableType;
+  file?: string;
+  properties?: Record<string, unknown>;
+  comment?: string;
+}
+
+/** Rule creation result */
+export interface CreateRuleResult {
+  success: boolean;
+  tableId?: string;
+  message?: string;
+}

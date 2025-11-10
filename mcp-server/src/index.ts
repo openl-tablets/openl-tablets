@@ -163,13 +163,6 @@ class OpenLMCPServer {
           break;
         }
 
-        case "get_project_info": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.getProjectInfo(projectId);
-          break;
-        }
-
         case "open_project": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
           const { projectId } = args as { projectId: string };
@@ -181,6 +174,47 @@ class OpenLMCPServer {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
           const { projectId } = args as { projectId: string };
           result = await this.client.closeProject(projectId);
+          break;
+        }
+
+        case "save_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, comment } = args as {
+            projectId: string;
+            comment?: string;
+          };
+          result = await this.client.saveProject(projectId, comment);
+          break;
+        }
+
+        // File management tools
+        case "upload_file": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, fileName, fileContent, comment } = args as {
+            projectId: string;
+            fileName: string;
+            fileContent: string;
+            comment?: string;
+          };
+          // Decode base64 file content
+          const buffer = Buffer.from(fileContent, "base64");
+          result = await this.client.uploadFile(projectId, fileName, buffer, comment);
+          break;
+        }
+
+        case "download_file": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, fileName } = args as {
+            projectId: string;
+            fileName: string;
+          };
+          const fileBuffer = await this.client.downloadFile(projectId, fileName);
+          // Return base64-encoded content
+          result = {
+            fileName,
+            fileContent: fileBuffer.toString("base64"),
+            size: fileBuffer.length,
+          };
           break;
         }
 
@@ -205,8 +239,17 @@ class OpenLMCPServer {
         // Rules (Tables) tools
         case "list_tables": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.listTables(projectId);
+          const { projectId, tableType, name, file } = args as {
+            projectId: string;
+            tableType?: string;
+            name?: string;
+            file?: string;
+          };
+          const filters: Types.TableFilters = {};
+          if (tableType) filters.tableType = tableType as Types.TableType;
+          if (name) filters.name = name;
+          if (file) filters.file = file;
+          result = await this.client.listTables(projectId, filters);
           break;
         }
 
@@ -229,6 +272,24 @@ class OpenLMCPServer {
             comment?: string;
           };
           result = await this.client.updateTable(projectId, tableId, view, comment);
+          break;
+        }
+
+        case "create_rule": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, name, ruleType, file, comment } = args as {
+            projectId: string;
+            name: string;
+            ruleType: Types.TableType;
+            file?: string;
+            comment?: string;
+          };
+          result = await this.client.createRule(projectId, {
+            name,
+            ruleType,
+            file,
+            comment,
+          });
           break;
         }
 

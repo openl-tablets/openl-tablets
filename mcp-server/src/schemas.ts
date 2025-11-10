@@ -55,6 +55,9 @@ export const projectActionSchema = z.object({
 
 export const listTablesSchema = z.object({
   projectId: projectIdSchema,
+  tableType: z.string().optional().describe("Filter by table type (datatype, spreadsheet, simplerules, etc.)"),
+  name: z.string().optional().describe("Filter by table name pattern"),
+  file: z.string().optional().describe("Filter by Excel file name"),
 });
 
 export const getTableSchema = z.object({
@@ -101,5 +104,43 @@ export const runAllTestsSchema = z.object({
 
 export const validateProjectSchema = z.object({
   projectId: projectIdSchema,
+});
+
+// =============================================================================
+// Phase 1: New Tool Schemas
+// =============================================================================
+
+export const saveProjectSchema = z.object({
+  projectId: projectIdSchema,
+  comment: commentSchema,
+});
+
+export const uploadFileSchema = z.object({
+  projectId: projectIdSchema,
+  fileName: z.string().describe("Name of the Excel file to upload (.xlsx or .xls)"),
+  fileContent: z.string().describe("Base64-encoded file content"),
+  comment: commentSchema,
+});
+
+export const downloadFileSchema = z.object({
+  projectId: projectIdSchema,
+  fileName: z.string().describe("Name of the Excel file to download"),
+});
+
+export const createRuleSchema = z.object({
+  projectId: projectIdSchema,
+  name: z.string().describe("Name of the rule/table to create"),
+  ruleType: z.enum([
+    "datatype",
+    "vocabulary",
+    "spreadsheet",
+    "simplerules",
+    "smartrules",
+    "method",
+    "data",
+    "test",
+  ]).describe("Type of rule to create"),
+  file: z.string().optional().describe("Excel file to create the rule in (optional)"),
+  comment: commentSchema,
 });
 

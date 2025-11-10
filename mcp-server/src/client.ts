@@ -136,31 +136,32 @@ export class OpenLClient {
   }
 
   /**
-   * Get detailed project information
+   * Get comprehensive project information including details, modules, and dependencies
+   * Combines both project details and project info into a single response
    *
    * @param projectId - Project ID in format "repository-projectName"
-   * @returns Project details
+   * @returns Comprehensive project details
    */
-  async getProject(projectId: string): Promise<Types.Project> {
+  async getProject(projectId: string): Promise<Types.ComprehensiveProject> {
     const [repository, projectName] = this.parseProjectId(projectId);
-    const response = await this.axiosInstance.get<Types.Project>(
-      `/design-repositories/${repository}/projects/${projectName}`
-    );
-    return response.data;
-  }
 
-  /**
-   * Get project information including modules and dependencies
-   *
-   * @param projectId - Project ID in format "repository-projectName"
-   * @returns Project information
-   */
-  async getProjectInfo(projectId: string): Promise<Types.ProjectInfo> {
-    const [repository, projectName] = this.parseProjectId(projectId);
-    const response = await this.axiosInstance.get<Types.ProjectInfo>(
-      `/design-repositories/${repository}/projects/${projectName}/info`
-    );
-    return response.data;
+    // Fetch both project details and info in parallel
+    const [projectResponse, infoResponse] = await Promise.all([
+      this.axiosInstance.get<Types.Project>(
+        `/design-repositories/${repository}/projects/${projectName}`
+      ),
+      this.axiosInstance.get<Types.ProjectInfo>(
+        `/design-repositories/${repository}/projects/${projectName}/info`
+      ),
+    ]);
+
+    // Merge the responses
+    return {
+      ...projectResponse.data,
+      modules: infoResponse.data.modules,
+      dependencies: infoResponse.data.dependencies,
+      classpath: infoResponse.data.classpath,
+    };
   }
 
   /**
@@ -192,6 +193,45 @@ export class OpenLClient {
   }
 
   /**
+   * Save project changes, creating a new version in the repository
+   * This method validates the project before saving
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param comment - Optional comment describing the changes
+   * @returns Save result with validation status
+   */
+  async saveProject(
+    projectId: string,
+    comment?: string
+  ): Promise<Types.SaveProjectResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+
+    // First validate the project
+    const validation = await this.validateProject(projectId);
+
+    // If there are errors, return them without saving
+    if (!validation.valid) {
+      return {
+        success: false,
+        message: `Project has ${validation.errors.length} validation error(s). Fix errors before saving.`,
+        validationErrors: validation.errors,
+      };
+    }
+
+    // Save the project
+    const response = await this.axiosInstance.post(
+      `/design-repositories/${repository}/projects/${projectName}/save`,
+      { comment }
+    );
+
+    return {
+      success: true,
+      version: response.data.version,
+      message: "Project saved successfully",
+    };
+  }
+
+  /**
    * Get project version history
    *
    * @param projectId - Project ID in format "repository-projectName"
@@ -203,6 +243,81 @@ export class OpenLClient {
       `/design-repositories/${repository}/projects/${projectName}/history`
     );
     return response.data;
+  }
+
+  // =============================================================================
+  // File Management
+  // =============================================================================
+
+  /**
+   * Upload an Excel file with rules to a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param fileName - Name of the file to upload
+   * @param fileContent - File content as Buffer or string
+   * @param comment - Optional comment
+   * @returns Upload result
+   */
+  async uploadFile(
+    projectId: string,
+    fileName: string,
+    fileContent: Buffer | string,
+    comment?: string
+  ): Promise<Types.FileUploadResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+
+    // Validate file extension
+    if (!fileName.match(/\.(xlsx|xls)$/i)) {
+      return {
+        success: false,
+        fileName,
+        message: "Only Excel files (.xlsx, .xls) are supported",
+      };
+    }
+
+    // Convert to Buffer if string
+    const buffer = Buffer.isBuffer(fileContent) ? fileContent : Buffer.from(fileContent);
+
+    // Upload file using axios with buffer
+    // Note: The actual implementation depends on OpenL Tablets API requirements
+    // This is a placeholder that may need adjustment based on the actual API
+    await this.axiosInstance.post(
+      `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
+      buffer,
+      {
+        headers: {
+          "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        params: comment ? { comment } : undefined,
+      }
+    );
+
+    return {
+      success: true,
+      fileName,
+      size: buffer.length,
+      message: "File uploaded successfully",
+    };
+  }
+
+  /**
+   * Download an Excel file from a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param fileName - Name of the file to download
+   * @returns File content as Buffer
+   */
+  async downloadFile(projectId: string, fileName: string): Promise<Buffer> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+
+    const response = await this.axiosInstance.get<ArrayBuffer>(
+      `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
+      {
+        responseType: "arraybuffer",
+      }
+    );
+
+    return Buffer.from(response.data);
   }
 
   /**
@@ -231,17 +346,54 @@ export class OpenLClient {
   // =============================================================================
 
   /**
-   * List all tables/rules in a project
+   * List all tables/rules in a project with optional filters
    *
    * @param projectId - Project ID in format "repository-projectName"
+   * @param filters - Optional filters for table type, name, and file
    * @returns Array of table metadata
    */
-  async listTables(projectId: string): Promise<Types.TableMetadata[]> {
+  async listTables(
+    projectId: string,
+    filters?: Types.TableFilters
+  ): Promise<Types.TableMetadata[]> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.get<Types.TableMetadata[]>(
-      `/design-repositories/${repository}/projects/${projectName}/tables`
+      `/design-repositories/${repository}/projects/${projectName}/tables`,
+      { params: filters }
     );
     return response.data;
+  }
+
+  /**
+   * Create a new rule/table in a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param request - Rule creation request with name, type, and properties
+   * @returns Creation result with table ID
+   */
+  async createRule(
+    projectId: string,
+    request: Types.CreateRuleRequest
+  ): Promise<Types.CreateRuleResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+
+    try {
+      const response = await this.axiosInstance.post(
+        `/design-repositories/${repository}/projects/${projectName}/tables`,
+        request
+      );
+
+      return {
+        success: true,
+        tableId: response.data.id,
+        message: `Rule '${request.name}' created successfully`,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: `Failed to create rule: ${sanitizeError(error)}`,
+      };
+    }
   }
 
   /**
