@@ -365,4 +365,246 @@ export class OpenLClient {
       };
     }
   }
+
+  // =============================================================================
+  // Project Creation & Management
+  // =============================================================================
+
+  /**
+   * Create a new project in a repository
+   *
+   * @param repository - Repository name
+   * @param projectName - Name for the new project
+   * @param comment - Creation comment
+   * @param projectTemplate - Optional template to use
+   * @returns Created project information
+   */
+  async createProject(
+    repository: string,
+    projectName: string,
+    comment?: string,
+    projectTemplate?: string
+  ): Promise<Types.Project> {
+    const response = await this.axiosInstance.post<Types.Project>(
+      `/design-repositories/${repository}/projects`,
+      {
+        name: projectName,
+        comment,
+        template: projectTemplate,
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Delete a project from a repository
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param comment - Deletion comment
+   * @returns Success status
+   */
+  async deleteProject(projectId: string, comment?: string): Promise<boolean> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    await this.axiosInstance.delete(
+      `/design-repositories/${repository}/projects/${projectName}`,
+      { data: { comment } }
+    );
+    return true;
+  }
+
+  // =============================================================================
+  // File Management
+  // =============================================================================
+
+  /**
+   * Upload a file to a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param filePath - Path where file should be stored
+   * @param content - Base64 encoded file content
+   * @param comment - Upload comment
+   * @returns Success status
+   */
+  async uploadFile(
+    projectId: string,
+    filePath: string,
+    content: string,
+    comment?: string
+  ): Promise<boolean> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    await this.axiosInstance.post(
+      `/design-repositories/${repository}/projects/${projectName}/files`,
+      {
+        path: filePath,
+        content,
+        comment,
+      }
+    );
+    return true;
+  }
+
+  /**
+   * List files in a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @returns Array of file information
+   */
+  async listFiles(projectId: string): Promise<Types.FileInfo[]> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.get<Types.FileInfo[]>(
+      `/design-repositories/${repository}/projects/${projectName}/files`
+    );
+    return response.data;
+  }
+
+  /**
+   * Delete a file from a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param filePath - Path to file to delete
+   * @param comment - Deletion comment
+   * @returns Success status
+   */
+  async deleteFile(
+    projectId: string,
+    filePath: string,
+    comment?: string
+  ): Promise<boolean> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    await this.axiosInstance.delete(
+      `/design-repositories/${repository}/projects/${projectName}/files/${encodeURIComponent(filePath)}`,
+      { data: { comment } }
+    );
+    return true;
+  }
+
+  // =============================================================================
+  // Table/Rule Creation & Deletion
+  // =============================================================================
+
+  /**
+   * Create a new table/rule in a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param tableName - Name for the new table
+   * @param tableType - Type of table to create
+   * @param file - Excel file where table should be created
+   * @param comment - Creation comment
+   * @returns Created table view
+   */
+  async createTable(
+    projectId: string,
+    tableName: string,
+    tableType: string,
+    file: string,
+    comment?: string
+  ): Promise<Types.TableView> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.post<Types.TableView>(
+      `/design-repositories/${repository}/projects/${projectName}/tables`,
+      {
+        name: tableName,
+        type: tableType,
+        file,
+        comment,
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Delete a table/rule from a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param tableId - Table identifier
+   * @param comment - Deletion comment
+   * @returns Success status
+   */
+  async deleteTable(
+    projectId: string,
+    tableId: string,
+    comment?: string
+  ): Promise<boolean> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    await this.axiosInstance.delete(
+      `/design-repositories/${repository}/projects/${projectName}/tables/${tableId}`,
+      { data: { comment } }
+    );
+    return true;
+  }
+
+  // =============================================================================
+  // Testing & Validation
+  // =============================================================================
+
+  /**
+   * Run a specific test table
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param testTableId - ID of the test table to run
+   * @returns Test execution result
+   */
+  async runTest(
+    projectId: string,
+    testTableId: string
+  ): Promise<Types.TestResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.post<Types.TestResult>(
+      `/design-repositories/${repository}/projects/${projectName}/tests/${testTableId}/run`
+    );
+    return response.data;
+  }
+
+  /**
+   * Run all tests in a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @returns Test suite execution results
+   */
+  async runAllTests(projectId: string): Promise<Types.TestSuiteResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.post<Types.TestSuiteResult>(
+      `/design-repositories/${repository}/projects/${projectName}/tests/run`
+    );
+    return response.data;
+  }
+
+  /**
+   * Validate a project for errors
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @returns Validation results with errors and warnings
+   */
+  async validateProject(projectId: string): Promise<Types.ValidationResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.get<Types.ValidationResult>(
+      `/design-repositories/${repository}/projects/${projectName}/validation`
+    );
+    return response.data;
+  }
+
+  // =============================================================================
+  // Rule Execution
+  // =============================================================================
+
+  /**
+   * Execute rules with provided input data
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param tableName - Name of the rule table to execute
+   * @param inputData - Input data for rule execution
+   * @returns Rule execution result
+   */
+  async executeRules(
+    projectId: string,
+    tableName: string,
+    inputData: Record<string, unknown>
+  ): Promise<Types.RuleExecutionResult> {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    const response = await this.axiosInstance.post<Types.RuleExecutionResult>(
+      `/design-repositories/${repository}/projects/${projectName}/execute/${tableName}`,
+      inputData
+    );
+    return response.data;
+  }
 }

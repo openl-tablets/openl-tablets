@@ -273,3 +273,78 @@ export interface ProjectFilters {
   status?: string;
   tag?: string;
 }
+
+// =============================================================================
+// Additional API Types for New Tools
+// =============================================================================
+
+/** File information in project */
+export interface FileInfo {
+  name: string;
+  path: string;
+  size?: number;
+  modifiedAt?: string;
+  modifiedBy?: string;
+}
+
+/** Test execution result */
+export interface TestResult {
+  testName: string;
+  status: "PASSED" | "FAILED" | "ERROR";
+  message?: string;
+  executionTime?: number;
+  failureDetails?: string;
+}
+
+/** Test suite result */
+export interface TestSuiteResult {
+  projectName: string;
+  totalTests: number;
+  passed: number;
+  failed: number;
+  errors: number;
+  executionTime: number;
+  tests: TestResult[];
+}
+
+/** Project validation result */
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+
+/** Validation error */
+export interface ValidationError {
+  severity: "ERROR";
+  message: string;
+  location?: string;
+  table?: string;
+  line?: number;
+}
+
+/** Validation warning */
+export interface ValidationWarning {
+  severity: "WARNING";
+  message: string;
+  location?: string;
+  table?: string;
+}
+
+/** Rule execution result */
+export interface RuleExecutionResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any;
+  executionTime: number;
+  traces?: ExecutionTrace[];
+}
+
+/** Execution trace for debugging */
+export interface ExecutionTrace {
+  step: number;
+  rule: string;
+  condition?: string;
+  action?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result?: any;
+}

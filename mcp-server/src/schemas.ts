@@ -90,3 +90,95 @@ export const deployProjectSchema = z.object({
   deploymentRepository: z.string().describe("Target deployment repository"),
   version: z.string().optional().describe("Specific version to deploy (optional)"),
 });
+
+// =============================================================================
+// Project Creation & Management
+// =============================================================================
+
+export const createProjectSchema = z.object({
+  repository: repositoryNameSchema,
+  projectName: projectNameSchema,
+  comment: commentSchema,
+  projectTemplate: z.string().optional().describe("Template to use for new project"),
+});
+
+export const deleteProjectSchema = z.object({
+  projectId: projectIdSchema,
+  comment: commentSchema,
+});
+
+// =============================================================================
+// File Management
+// =============================================================================
+
+export const uploadFileSchema = z.object({
+  projectId: projectIdSchema,
+  filePath: z.string().describe("Path where file should be stored in project"),
+  content: z.string().describe("Base64 encoded file content"),
+  comment: commentSchema,
+});
+
+export const listFilesSchema = z.object({
+  projectId: projectIdSchema,
+});
+
+export const deleteFileSchema = z.object({
+  projectId: projectIdSchema,
+  filePath: z.string().describe("Path to file to delete"),
+  comment: commentSchema,
+});
+
+// =============================================================================
+// Table/Rule Creation & Deletion
+// =============================================================================
+
+export const createTableSchema = z.object({
+  projectId: projectIdSchema,
+  tableName: z.string().describe("Name for the new table"),
+  tableType: z.enum([
+    "datatype",
+    "vocabulary",
+    "spreadsheet",
+    "simplerules",
+    "smartrules",
+    "method",
+    "test",
+    "data",
+  ]).describe("Type of table to create"),
+  file: z.string().describe("Excel file where table should be created"),
+  comment: commentSchema,
+});
+
+export const deleteTableSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: tableIdSchema,
+  comment: commentSchema,
+});
+
+// =============================================================================
+// Testing & Validation
+// =============================================================================
+
+export const runTestSchema = z.object({
+  projectId: projectIdSchema,
+  testTableId: z.string().describe("ID of the test table to run"),
+});
+
+export const runAllTestsSchema = z.object({
+  projectId: projectIdSchema,
+});
+
+export const validateProjectSchema = z.object({
+  projectId: projectIdSchema,
+});
+
+// =============================================================================
+// Rule Execution
+// =============================================================================
+
+export const executeRulesSchema = z.object({
+  projectId: projectIdSchema,
+  tableName: z.string().describe("Name of the rule table to execute"),
+  inputData: z.record(z.any()).describe("Input data for rule execution"),
+});
+
