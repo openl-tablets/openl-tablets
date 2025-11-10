@@ -558,6 +558,11 @@ class OpenLMCPServer {
       try {
         const { name, arguments: args } = request.params;
 
+        // Type guard for args
+        if (!args) {
+          throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+        }
+
         switch (name) {
           case "list_repositories": {
             const repos = await this.client.listRepositories();
@@ -584,7 +589,7 @@ class OpenLMCPServer {
           }
 
           case "get_project": {
-            const project = await this.client.getProject(args.projectId);
+            const project = await this.client.getProject(args.projectId as string);
             return {
               content: [
                 {
@@ -596,7 +601,10 @@ class OpenLMCPServer {
           }
 
           case "get_project_info": {
-            const info = await this.client.getProjectInfo(args.repository, args.projectName);
+            const info = await this.client.getProjectInfo(
+              args.repository as string,
+              args.projectName as string
+            );
             return {
               content: [
                 {
@@ -608,7 +616,7 @@ class OpenLMCPServer {
           }
 
           case "open_project": {
-            await this.client.openProject(args.projectId);
+            await this.client.openProject(args.projectId as string);
             return {
               content: [
                 {
@@ -620,7 +628,7 @@ class OpenLMCPServer {
           }
 
           case "close_project": {
-            await this.client.closeProject(args.projectId);
+            await this.client.closeProject(args.projectId as string);
             return {
               content: [
                 {
@@ -632,7 +640,7 @@ class OpenLMCPServer {
           }
 
           case "list_tables": {
-            const tables = await this.client.listTables(args.projectId);
+            const tables = await this.client.listTables(args.projectId as string);
             return {
               content: [
                 {
@@ -644,7 +652,10 @@ class OpenLMCPServer {
           }
 
           case "get_table": {
-            const table = await this.client.getTable(args.projectId, args.tableId);
+            const table = await this.client.getTable(
+              args.projectId as string,
+              args.tableId as string
+            );
             return {
               content: [
                 {
@@ -656,7 +667,12 @@ class OpenLMCPServer {
           }
 
           case "update_table": {
-            await this.client.updateTable(args.projectId, args.tableId, args.view, args.comment);
+            await this.client.updateTable(
+              args.projectId as string,
+              args.tableId as string,
+              args.view as Types.EditableTableView,
+              args.comment as string | undefined
+            );
             return {
               content: [
                 {
@@ -668,7 +684,10 @@ class OpenLMCPServer {
           }
 
           case "get_project_history": {
-            const history = await this.client.getProjectHistory(args.repository, args.projectName);
+            const history = await this.client.getProjectHistory(
+              args.repository as string,
+              args.projectName as string
+            );
             return {
               content: [
                 {
@@ -680,7 +699,7 @@ class OpenLMCPServer {
           }
 
           case "list_branches": {
-            const branches = await this.client.listBranches(args.repository);
+            const branches = await this.client.listBranches(args.repository as string);
             return {
               content: [
                 {
@@ -692,7 +711,11 @@ class OpenLMCPServer {
           }
 
           case "create_branch": {
-            await this.client.createBranch(args.projectId, args.branchName, args.comment);
+            await this.client.createBranch(
+              args.projectId as string,
+              args.branchName as string,
+              args.comment as string | undefined
+            );
             return {
               content: [
                 {
@@ -716,7 +739,13 @@ class OpenLMCPServer {
           }
 
           case "deploy_project": {
-            await this.client.deployProject(args as Types.DeployRequest);
+            const deployRequest: Types.DeployRequest = {
+              projectName: args.projectName as string,
+              repository: args.repository as string,
+              deploymentRepository: args.deploymentRepository as string,
+              version: args.version as string | undefined,
+            };
+            await this.client.deployProject(deployRequest);
             return {
               content: [
                 {
