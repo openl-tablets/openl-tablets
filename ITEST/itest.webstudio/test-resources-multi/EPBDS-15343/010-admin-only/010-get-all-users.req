@@ -1,0 +1,3 @@
+GET /rest/users HTTP/1.1
+Authorization: Basic RVBCRFNfMTUzNDNfMTpFUEJEU18xNTM0M18x
+
