@@ -280,6 +280,7 @@ public class ManagementController {
     public Set<String> searchExternalGroup(
             @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        SecurityChecker.allow(Privileges.ADMIN);
         return extGroupService.findAllByName(searchTerm, pageSize)
                 .stream()
                 .map(org.openl.rules.security.Group::getName)

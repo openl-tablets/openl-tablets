@@ -111,6 +111,7 @@ public class UsersController {
     @Operation(description = "users.get-users.desc", summary = "users.get-users.summary")
     @GetMapping
     public List<UserModel> getAllUsers() {
+        SecurityChecker.allow(Privileges.ADMIN);
         return userManagementService.getAllUsers().stream().map(this::mapUser).collect(Collectors.toList());
     }
 
@@ -286,6 +287,7 @@ public class UsersController {
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
+        SecurityChecker.allow(Privileges.ADMIN);
         checkUserExists(username);
         userManagementService.deleteUser(username);
         if (aclService != null) {
