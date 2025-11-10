@@ -163,6 +163,7 @@ public class ManagementController {
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
     @GetMapping("/groups/external")
+    @AdminPrivilege
     public Set<String> searchExternalGroup(
             @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
