@@ -1785,13 +1785,6 @@ Content-Type: application/json
             "type": "array",
             "uniqueItems": true
           },
-          "repositoryTypeToRole": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string",
-              "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
-            }
-          },
           "numberOfMembers": {
             "$ref": "#/components/schemas/NumberOfMembers"
           }
