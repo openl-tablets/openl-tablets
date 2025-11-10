@@ -1,0 +1,36 @@
+{
+  "name": "openl-tablets-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for OpenL Tablets Rules Management System",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "openl-tablets-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "mcp",
+    "openl-tablets",
+    "rules-engine",
+    "brms"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.7.9",
+    "form-data": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

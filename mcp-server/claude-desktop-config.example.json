@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "openl-tablets": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_USERNAME": "admin",
+        "OPENL_PASSWORD": "admin"
+      }
+    }
+  }
+}
