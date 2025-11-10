@@ -2,6 +2,8 @@
 
 Model Context Protocol (MCP) server for [OpenL Tablets](https://github.com/openl-tablets/openl-tablets) Business Rules Management System. This server provides AI assistants with the ability to interact with OpenL Tablets rules projects through a standardized interface.
 
+Built with MCP SDK v1.21.1, featuring type-safe schema validation, comprehensive error handling, and support for multiple authentication methods including OAuth 2.1.
+
 ## Features
 
 ### Resources
@@ -10,6 +12,11 @@ Model Context Protocol (MCP) server for [OpenL Tablets](https://github.com/openl
 - **Deployments** - Monitor deployed projects
 
 ### Tools
+
+All tools include metadata (`_meta`) with version information, categorization, and operation characteristics for better client integration.
+
+#### System
+- `health_check` - Check server connectivity and authentication status
 
 #### Repository Management
 - `list_repositories` - List all design repositories
@@ -32,6 +39,15 @@ Model Context Protocol (MCP) server for [OpenL Tablets](https://github.com/openl
 #### Deployment
 - `list_deployments` - List all deployments
 - `deploy_project` - Deploy a project to production
+
+### Technical Features
+
+- **Type-Safe Schemas**: Zod-based input validation with automatic TypeScript type inference
+- **Enhanced Error Handling**: Detailed error messages with endpoint, method, and tool context
+- **Tool Metadata**: Each tool includes version, category, and operation flags
+- **Multiple Authentication Methods**: Basic Auth, API Key, and OAuth 2.1 support
+- **Request Tracking**: Optional Client Document ID for request correlation
+- **Automatic Token Management**: OAuth 2.1 tokens are cached and automatically refreshed
 
 ## Installation
 
@@ -60,35 +76,57 @@ npm run build
 
 ## Configuration
 
+The server supports multiple authentication methods and configuration options. See [AUTHENTICATION.md](./AUTHENTICATION.md) for comprehensive authentication setup guides.
+
+### Quick Start Configuration
+
 Configure the server using environment variables:
 
 ```bash
 # Required: OpenL Tablets WebStudio URL
 export OPENL_BASE_URL="http://localhost:8080/webstudio/rest"
 
-# Authentication: Use either username/password OR API key
-export OPENL_USERNAME="your-username"
-export OPENL_PASSWORD="your-password"
+# Authentication Method 1: Basic Auth (username/password)
+export OPENL_USERNAME="admin"
+export OPENL_PASSWORD="admin"
 
-# OR use API key authentication
-export OPENL_API_KEY="your-api-key"
+# Authentication Method 2: API Key
+# export OPENL_API_KEY="your-api-key"
+
+# Authentication Method 3: OAuth 2.1
+# export OPENL_OAUTH2_CLIENT_ID="your-client-id"
+# export OPENL_OAUTH2_CLIENT_SECRET="your-client-secret"
+# export OPENL_OAUTH2_TOKEN_URL="https://auth.example.com/oauth/token"
+# export OPENL_OAUTH2_SCOPE="openl:read openl:write"
+
+# Optional: Client Document ID for request tracking
+export OPENL_CLIENT_DOCUMENT_ID="mcp-server-1"
+
+# Optional: Request timeout in milliseconds (default: 30000)
+export OPENL_TIMEOUT="60000"
 ```
 
 ### Configuration Files
 
-Create a `.env` file in the MCP server directory:
+Create a `.env` file in the MCP server directory (see `.env.example` for template):
 
 ```env
 OPENL_BASE_URL=http://localhost:8080/webstudio/rest
 OPENL_USERNAME=admin
 OPENL_PASSWORD=admin
+OPENL_CLIENT_DOCUMENT_ID=mcp-server-1
 ```
 
-Or for API key authentication:
+For production with OAuth 2.1:
 
 ```env
-OPENL_BASE_URL=http://localhost:8080/webstudio/rest
-OPENL_API_KEY=your-api-key-here
+OPENL_BASE_URL=https://openl-production.example.com/webstudio/rest
+OPENL_OAUTH2_CLIENT_ID=your-client-id
+OPENL_OAUTH2_CLIENT_SECRET=your-client-secret
+OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
+OPENL_OAUTH2_SCOPE=openl:read openl:write
+OPENL_CLIENT_DOCUMENT_ID=mcp-server-1
+OPENL_TIMEOUT=60000
 ```
 
 ## Usage
@@ -114,27 +152,70 @@ Add to your Claude Desktop configuration file:
 **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
 
+**Basic Authentication**:
 ```json
 {
   "mcpServers": {
     "openl-tablets": {
       "command": "node",
-      "args": ["/path/to/openl-tablets/mcp-server/dist/index.js"],
+      "args": ["/absolute/path/to/openl-tablets/mcp-server/dist/index.js"],
       "env": {
         "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
         "OPENL_USERNAME": "admin",
-        "OPENL_PASSWORD": "admin"
+        "OPENL_PASSWORD": "admin",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
       }
     }
   }
 }
 ```
 
+**OAuth 2.1 Authentication**:
+```json
+{
+  "mcpServers": {
+    "openl-tablets": {
+      "command": "node",
+      "args": ["/absolute/path/to/openl-tablets/mcp-server/dist/index.js"],
+      "env": {
+        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
+        "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
+        "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
+        "OPENL_OAUTH2_SCOPE": "openl:read openl:write",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
+      }
+    }
+  }
+}
+```
+
+See [claude-desktop-config.example.json](./claude-desktop-config.example.json) for additional configuration examples.
+
 #### Other MCP Clients
 
 The server uses stdio transport and can be integrated with any MCP-compatible client. Provide the path to `dist/index.js` and set the required environment variables.
 
 ## Tool Usage Examples
+
+### Check Server Health
+
+```typescript
+// Request
+{
+  "name": "health_check",
+  "arguments": {}
+}
+
+// Response
+{
+  "status": "healthy",
+  "baseUrl": "http://localhost:8080/webstudio/rest",
+  "authMethod": "OAuth 2.1",
+  "timestamp": "2025-11-10T12:30:00.000Z",
+  "serverReachable": true
+}
+```
 
 ### List All Projects
 
@@ -280,12 +361,23 @@ OpenL Tablets supports various table types:
 ```
 mcp-server/
 ├── src/
-│   ├── index.ts      # Main server implementation
-│   └── types.ts      # TypeScript type definitions
-├── dist/             # Compiled JavaScript (generated)
+│   ├── index.ts          # Main MCP server implementation
+│   ├── schemas.ts        # Zod schemas for tool input validation
+│   └── types.ts          # TypeScript type definitions
+├── tests/                # Test suites (Jest)
+│   ├── openl-client.test.ts
+│   ├── mcp-server.test.ts
+│   └── mocks/
+├── dist/                 # Compiled JavaScript (generated)
 ├── package.json
 ├── tsconfig.json
-└── README.md
+├── jest.config.js
+├── .env.example
+├── claude-desktop-config.example.json
+├── README.md
+├── AUTHENTICATION.md     # Authentication setup guide
+├── TESTING.md            # Testing documentation
+└── EXAMPLES.md           # Usage examples
 ```
 
 ### Building
@@ -294,28 +386,72 @@ mcp-server/
 npm run build
 ```
 
+### Testing
+
+Run the comprehensive test suite:
+
+```bash
+npm test                  # Run all tests
+npm run test:watch        # Watch mode
+npm run test:coverage     # With coverage report
+```
+
+See [TESTING.md](./TESTING.md) for detailed testing documentation.
+
+### Linting
+
+```bash
+npm run lint              # Check for issues
+npm run lint:fix          # Fix auto-fixable issues
+```
+
 ### Type Checking
 
-The project uses TypeScript with strict type checking. All OpenL Tablets API types are defined in `src/types.ts`.
+The project uses TypeScript with strict type checking:
+- **API Types**: OpenL Tablets API types in `src/types.ts`
+- **Schema Validation**: Zod schemas in `src/schemas.ts` with automatic TypeScript type inference
+- **MCP SDK**: Full type support from `@modelcontextprotocol/sdk` v1.21.1
 
 ## Troubleshooting
+
+### Health Check
+
+Use the `health_check` tool to verify connectivity and authentication:
+
+```typescript
+{
+  "name": "health_check",
+  "arguments": {}
+}
+```
+
+This will report server status, authentication method, and connectivity issues.
 
 ### Connection Issues
 
 If you encounter connection errors:
 
-1. Verify OpenL Tablets WebStudio is running
-2. Check the `OPENL_BASE_URL` is correct
-3. Ensure the REST API path is `/webstudio/rest`
-4. Verify network connectivity
+1. Run `health_check` tool to diagnose the issue
+2. Verify OpenL Tablets WebStudio is running
+3. Check the `OPENL_BASE_URL` is correct
+4. Ensure the REST API path is `/webstudio/rest`
+5. Verify network connectivity
+6. Review enhanced error messages for endpoint and method details
 
 ### Authentication Errors
 
 If you receive 401/403 errors:
 
-1. Verify username/password or API key
-2. Check user has appropriate permissions in OpenL Tablets
-3. Ensure the user can access the WebStudio interface
+1. Run `health_check` to see which authentication method is active
+2. Verify credentials:
+   - **Basic Auth**: Check username/password
+   - **API Key**: Verify API key is valid
+   - **OAuth 2.1**: Check token URL, client ID/secret, and scope
+3. Check user has appropriate permissions in OpenL Tablets
+4. For OAuth 2.1: Token refresh happens automatically, check logs for token acquisition issues
+5. Ensure the user can access the WebStudio interface
+
+See [AUTHENTICATION.md](./AUTHENTICATION.md) for detailed authentication troubleshooting.
 
 ### Project Not Found
 
@@ -324,6 +460,7 @@ If projects cannot be found:
 1. Ensure the project is in a design repository
 2. Check the project ID format: `{repo-name}-{project-name}`
 3. Verify the project exists in OpenL Tablets WebStudio
+4. Review error message for endpoint details
 
 ### Table Access Issues
 
@@ -332,6 +469,7 @@ To access tables:
 1. Project must be OPENED first using `open_project`
 2. Use the correct `projectId` and `tableId`
 3. Check user has edit permissions for modifications
+4. Enhanced error messages will indicate which operation failed
 
 ## Architecture
 
@@ -359,11 +497,116 @@ OpenL Tablets
 
 ## Security Considerations
 
-- Store credentials securely (use environment variables, not hardcoded)
-- Use HTTPS for production OpenL Tablets instances
-- Implement proper access control in OpenL Tablets
-- API keys are preferred over username/password
-- Never commit credentials to version control
+### Authentication Best Practices
+
+- **Production Systems**: Use OAuth 2.1 for enterprise deployments
+- **Development**: Basic Auth or API Key for local development
+- **Credential Storage**: Always use environment variables, never hardcode credentials
+- **Transport Security**: Use HTTPS for all production OpenL Tablets instances
+- **Version Control**: Never commit credentials to version control
+- **Access Control**: Implement proper user permissions in OpenL Tablets
+
+### Authentication Method Security
+
+1. **OAuth 2.1** (Most Secure)
+   - Automatic token rotation
+   - Short-lived access tokens
+   - Secure token storage in memory
+   - Support for refresh tokens
+   - Industry-standard protocol
+
+2. **API Key** (Recommended for non-OAuth systems)
+   - Long-lived credentials
+   - Rotate keys regularly
+   - Store securely in environment variables
+
+3. **Basic Auth** (Development Only)
+   - Username/password transmitted with each request
+   - Use only over HTTPS in production
+   - Prefer OAuth 2.1 or API Key for production
+
+### Request Tracking
+
+Use `OPENL_CLIENT_DOCUMENT_ID` to:
+- Track requests across distributed systems
+- Correlate MCP operations with OpenL Tablets logs
+- Debug issues in production environments
+- Identify which client instance made changes
+
+See [AUTHENTICATION.md](./AUTHENTICATION.md) for comprehensive security guidelines.
+
+## MCP Best Practices Implementation
+
+This server follows the latest MCP specification (2025) and implements recommended best practices:
+
+### Schema Validation (Zod)
+
+All tool inputs are validated using Zod schemas:
+- **Type Safety**: Automatic TypeScript type inference from schemas
+- **Runtime Validation**: Input validation before processing
+- **Better Error Messages**: Clear validation errors for invalid inputs
+- **Schema Documentation**: Self-documenting API through schema descriptions
+
+Example from `src/schemas.ts`:
+```typescript
+export const listProjectsSchema = z.object({
+  repository: z.string().optional().describe("Filter by repository name"),
+  status: z.string().optional().describe("Filter by project status"),
+  tag: z.string().optional().describe("Filter by tag name"),
+});
+```
+
+### Tool Metadata
+
+Each tool includes `_meta` fields for better client integration:
+- **version**: Semantic versioning for tool evolution
+- **category**: Logical grouping (system, repository, project, rules, deployment)
+- **requiresAuth**: Indicates authentication requirement
+- **modifiesState**: Marks state-changing operations
+
+Example:
+```typescript
+{
+  name: "deploy_project",
+  _meta: {
+    version: "1.0.0",
+    category: "deployment",
+    requiresAuth: true,
+    modifiesState: true
+  }
+}
+```
+
+### Enhanced Error Handling
+
+Errors include contextual information:
+- **HTTP Status**: Response status code
+- **Endpoint**: The API endpoint that failed
+- **Method**: HTTP method (GET, POST, PUT, DELETE)
+- **Tool Name**: Which MCP tool was executing
+- **Error Message**: Detailed error description
+
+Example error:
+```
+OpenL Tablets API error (404): Project not found [GET /design-repositories/design/projects/myproject]
+Tool: get_project
+```
+
+### Health Check Tool
+
+The `health_check` tool provides:
+- Server connectivity verification
+- Authentication method detection
+- Real-time status reporting
+- Troubleshooting information
+
+### SDK Version
+
+Built with `@modelcontextprotocol/sdk` v1.21.1, ensuring:
+- Latest protocol features
+- Improved error handling
+- Better TypeScript support
+- Performance optimizations
 
 ## Contributing
 
@@ -379,6 +622,7 @@ This MCP server follows the same license as the OpenL Tablets project.
 - [OpenL Tablets Documentation](https://openl-tablets.org/)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
+- [Zod Documentation](https://zod.dev/)
 
 ## Support
 

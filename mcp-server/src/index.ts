@@ -17,9 +17,11 @@ import {
   ErrorCode,
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError } from "axios";
 import FormData from "form-data";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import type * as Types from "./types.js";
+import * as schemas from "./schemas.js";
 
 /**
  * OpenL Tablets API Client with OAuth 2.1 and Client Document ID support
@@ -361,6 +363,45 @@ class OpenLClient {
     const response = await this.client.get("/production-repos");
     return response.data;
   }
+
+  // Health Check
+  async healthCheck(): Promise<{
+    status: string;
+    baseUrl: string;
+    authMethod: string;
+    timestamp: string;
+    serverReachable: boolean;
+    error?: string;
+  }> {
+    const authMethod = this.config.oauth2
+      ? "OAuth 2.1"
+      : this.config.apiKey
+      ? "API Key"
+      : this.config.username
+      ? "Basic Auth"
+      : "None";
+
+    try {
+      // Try to list repositories as a connectivity test
+      await this.listRepositories();
+      return {
+        status: "healthy",
+        baseUrl: this.baseUrl,
+        authMethod,
+        timestamp: new Date().toISOString(),
+        serverReachable: true,
+      };
+    } catch (error: any) {
+      return {
+        status: "unhealthy",
+        baseUrl: this.baseUrl,
+        authMethod,
+        timestamp: new Date().toISOString(),
+        serverReachable: false,
+        error: error.message || "Unknown error",
+      };
+    }
+  }
 }
 
 /**
@@ -512,238 +553,158 @@ class OpenLMCPServer {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
         {
+          name: "health_check",
+          description: "Check OpenL Tablets server connectivity and authentication status",
+          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "system",
+            requiresAuth: true,
+          },
+        },
+        {
           name: "list_repositories",
           description: "List all design repositories in OpenL Tablets",
-          inputSchema: {
-            type: "object",
-            properties: {},
+          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "repository",
+            requiresAuth: true,
           },
         },
         {
           name: "list_projects",
           description: "List projects with optional filters (repository, status, tag)",
-          inputSchema: {
-            type: "object",
-            properties: {
-              repository: {
-                type: "string",
-                description: "Filter by repository name",
-              },
-              status: {
-                type: "string",
-                description: "Filter by project status (OPENED, CLOSED, etc.)",
-              },
-              tag: {
-                type: "string",
-                description: "Filter by tag name",
-              },
-            },
+          inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "project",
+            requiresAuth: true,
           },
         },
         {
           name: "get_project",
           description: "Get detailed information about a specific project",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID in format: repository_name-project_name",
-              },
-            },
-            required: ["projectId"],
+          inputSchema: zodToJsonSchema(schemas.getProjectSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "project",
+            requiresAuth: true,
           },
         },
         {
           name: "get_project_info",
           description: "Get project info including modules and dependencies",
-          inputSchema: {
-            type: "object",
-            properties: {
-              repository: {
-                type: "string",
-                description: "Repository name",
-              },
-              projectName: {
-                type: "string",
-                description: "Project name",
-              },
-            },
-            required: ["repository", "projectName"],
+          inputSchema: zodToJsonSchema(schemas.getProjectInfoSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "project",
+            requiresAuth: true,
           },
         },
         {
           name: "open_project",
           description: "Open a project for viewing or editing",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID in format: repository_name-project_name",
-              },
-            },
-            required: ["projectId"],
+          inputSchema: zodToJsonSchema(schemas.projectActionSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "project",
+            requiresAuth: true,
+            modifiesState: true,
           },
         },
         {
           name: "close_project",
           description: "Close an open project",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID in format: repository_name-project_name",
-              },
-            },
-            required: ["projectId"],
+          inputSchema: zodToJsonSchema(schemas.projectActionSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "project",
+            requiresAuth: true,
+            modifiesState: true,
           },
         },
         {
           name: "list_tables",
           description: "List all tables (rules) in a project",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID in format: repository_name-project_name",
-              },
-            },
-            required: ["projectId"],
+          inputSchema: zodToJsonSchema(schemas.listTablesSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "rules",
+            requiresAuth: true,
           },
         },
         {
           name: "get_table",
           description: "Get detailed table (rule) data including structure and content",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID in format: repository_name-project_name",
-              },
-              tableId: {
-                type: "string",
-                description: "Table ID",
-              },
-            },
-            required: ["projectId", "tableId"],
+          inputSchema: zodToJsonSchema(schemas.getTableSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "rules",
+            requiresAuth: true,
           },
         },
         {
           name: "update_table",
           description: "Update a table (rule) with new data",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID",
-              },
-              tableId: {
-                type: "string",
-                description: "Table ID",
-              },
-              view: {
-                type: "object",
-                description: "Table view data to update",
-              },
-              comment: {
-                type: "string",
-                description: "Commit comment",
-              },
-            },
-            required: ["projectId", "tableId", "view"],
+          inputSchema: zodToJsonSchema(schemas.updateTableSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "rules",
+            requiresAuth: true,
+            modifiesState: true,
           },
         },
         {
           name: "get_project_history",
           description: "Get version history for a project",
-          inputSchema: {
-            type: "object",
-            properties: {
-              repository: {
-                type: "string",
-                description: "Repository name",
-              },
-              projectName: {
-                type: "string",
-                description: "Project name",
-              },
-            },
-            required: ["repository", "projectName"],
+          inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "version-control",
+            requiresAuth: true,
           },
         },
         {
           name: "list_branches",
           description: "List branches for a repository (if supported)",
-          inputSchema: {
-            type: "object",
-            properties: {
-              repository: {
-                type: "string",
-                description: "Repository name",
-              },
-            },
-            required: ["repository"],
+          inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "version-control",
+            requiresAuth: true,
           },
         },
         {
           name: "create_branch",
           description: "Create a new branch for a project",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectId: {
-                type: "string",
-                description: "Project ID",
-              },
-              branchName: {
-                type: "string",
-                description: "New branch name",
-              },
-              comment: {
-                type: "string",
-                description: "Branch creation comment",
-              },
-            },
-            required: ["projectId", "branchName"],
+          inputSchema: zodToJsonSchema(schemas.createBranchSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "version-control",
+            requiresAuth: true,
+            modifiesState: true,
           },
         },
         {
           name: "list_deployments",
           description: "List all project deployments",
-          inputSchema: {
-            type: "object",
-            properties: {},
+          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "deployment",
+            requiresAuth: true,
           },
         },
         {
           name: "deploy_project",
           description: "Deploy a project to production",
-          inputSchema: {
-            type: "object",
-            properties: {
-              projectName: {
-                type: "string",
-                description: "Project name to deploy",
-              },
-              repository: {
-                type: "string",
-                description: "Source repository",
-              },
-              deploymentRepository: {
-                type: "string",
-                description: "Target deployment repository",
-              },
-              version: {
-                type: "string",
-                description: "Specific version to deploy (optional)",
-              },
-            },
-            required: ["projectName", "repository", "deploymentRepository"],
+          inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as any,
+          _meta: {
+            version: "1.0.0",
+            category: "deployment",
+            requiresAuth: true,
+            modifiesState: true,
           },
         },
       ],
@@ -759,6 +720,18 @@ class OpenLMCPServer {
         }
 
         switch (name) {
+          case "health_check": {
+            const health = await this.client.healthCheck();
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(health, null, 2),
+                },
+              ],
+            };
+          }
+
           case "list_repositories": {
             const repos = await this.client.listRepositories();
             return {
@@ -958,9 +931,22 @@ class OpenLMCPServer {
         if (axios.isAxiosError(error)) {
           const status = error.response?.status;
           const message = error.response?.data?.message || error.message;
+          const endpoint = error.config?.url;
+          const method = error.config?.method?.toUpperCase();
+
+          // Enhanced error message with context
+          const errorDetails = {
+            status,
+            message,
+            endpoint,
+            method,
+            tool: name,
+          };
+
           throw new McpError(
             ErrorCode.InternalError,
-            `OpenL Tablets API error (${status}): ${message}`
+            `OpenL Tablets API error (${status}): ${message} [${method} ${endpoint}]`,
+            errorDetails
           );
         }
         throw error;
