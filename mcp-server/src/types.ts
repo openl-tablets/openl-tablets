@@ -235,3 +235,35 @@ export interface ProjectUpdateRequest {
   status?: ProjectStatus;
   comment?: string;
 }
+
+// =============================================================================
+// Type Aliases for API Client
+// =============================================================================
+
+/** Repository information */
+export type Repository = RepositoryInfo;
+
+/** Project summary for list operations */
+export type ProjectSummary = ProjectViewModel;
+
+/** Full project details */
+export type Project = ProjectViewModel;
+
+/** Project history entry */
+export type ProjectHistory = ProjectHistoryItem;
+
+/** Table metadata for list operations */
+export type TableMetadata = SummaryTableView;
+
+/** Full table view with data */
+export type TableView = EditableTableView;
+
+/** Deployment result */
+export type DeploymentResult = DeploymentInfo;
+
+/** Filters for listing projects */
+export interface ProjectFilters {
+  repository?: string;
+  status?: string;
+  tag?: string;
+}

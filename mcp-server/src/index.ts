@@ -3,8 +3,18 @@
 /**
  * OpenL Tablets MCP Server
  *
- * Provides Model Context Protocol interface for OpenL Tablets Rules Management System.
- * Exposes tools and resources for managing rules projects, tables, and deployments.
+ * Model Context Protocol server for OpenL Tablets Rules Management System.
+ * Provides tools and resources for managing rules projects, tables, and deployments.
+ *
+ * Features:
+ * - Multiple authentication methods (Basic Auth, API Key, OAuth 2.1)
+ * - Type-safe input validation with Zod
+ * - Automatic token management
+ * - Request tracking with Client Document ID
+ * - Comprehensive error handling
+ *
+ * @see https://github.com/openl-tablets/openl-tablets
+ * @see https://modelcontextprotocol.io/
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -17,950 +27,397 @@ import {
   ErrorCode,
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
-import axios, { AxiosInstance, AxiosError } from "axios";
-import FormData from "form-data";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import axios from "axios";
+
+// Import our modular components
+import { OpenLClient } from "./client.js";
+import { TOOLS } from "./tools.js";
+import { SERVER_INFO } from "./constants.js";
 import type * as Types from "./types.js";
-import * as schemas from "./schemas.js";
 
 /**
- * OpenL Tablets API Client with OAuth 2.1 and Client Document ID support
- */
-class OpenLClient {
-  private client: AxiosInstance;
-  private baseUrl: string;
-  private config: Types.OpenLConfig;
-  private oauth2Token?: Types.OAuth2Token;
-  private tokenRefreshPromise?: Promise<Types.OAuth2Token>;
-
-  constructor(config: Types.OpenLConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, "");
-    this.config = config;
-
-    // Setup basic auth if provided
-    const auth: any = {};
-    if (config.username && config.password) {
-      auth.username = config.username;
-      auth.password = config.password;
-    }
-
-    // Create axios instance
-    this.client = axios.create({
-      baseURL: this.baseUrl,
-      auth: Object.keys(auth).length > 0 ? auth : undefined,
-      timeout: config.timeout || 30000,
-      headers: {
-        "Content-Type": "application/json",
-        ...(config.apiKey ? { "X-API-Key": config.apiKey } : {}),
-        ...(config.clientDocumentId ? { "X-Client-Document-ID": config.clientDocumentId } : {}),
-      },
-    });
-
-    // Setup request interceptor for OAuth 2.1
-    this.client.interceptors.request.use(
-      async (config) => {
-        // If OAuth 2.1 is configured, add bearer token
-        if (this.config.oauth2) {
-          const token = await this.getValidToken();
-          if (token) {
-            config.headers.Authorization = `Bearer ${token.access_token}`;
-          }
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    // Setup response interceptor to handle token refresh on 401
-    this.client.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-
-        // If 401 and OAuth is configured, try to refresh token
-        if (
-          error.response?.status === 401 &&
-          this.config.oauth2 &&
-          !originalRequest._retry
-        ) {
-          originalRequest._retry = true;
-
-          try {
-            // Refresh the token
-            await this.refreshOAuth2Token();
-            // Retry the original request
-            return this.client(originalRequest);
-          } catch (refreshError) {
-            return Promise.reject(refreshError);
-          }
-        }
-
-        return Promise.reject(error);
-      }
-    );
-  }
-
-  /**
-   * Get a valid OAuth 2.1 token, refreshing if necessary
-   */
-  private async getValidToken(): Promise<Types.OAuth2Token | null> {
-    if (!this.config.oauth2) {
-      return null;
-    }
-
-    // If we have a token and it's still valid, return it
-    if (this.oauth2Token && this.isTokenValid(this.oauth2Token)) {
-      return this.oauth2Token;
-    }
-
-    // If a refresh is already in progress, wait for it
-    if (this.tokenRefreshPromise) {
-      return this.tokenRefreshPromise;
-    }
-
-    // Otherwise, get a new token
-    this.tokenRefreshPromise = this.obtainOAuth2Token();
-    try {
-      this.oauth2Token = await this.tokenRefreshPromise;
-      return this.oauth2Token;
-    } finally {
-      this.tokenRefreshPromise = undefined;
-    }
-  }
-
-  /**
-   * Check if a token is still valid (with 60 second buffer)
-   */
-  private isTokenValid(token: Types.OAuth2Token): boolean {
-    if (!token.expires_at) {
-      return true; // No expiration info, assume valid
-    }
-    const now = Date.now() / 1000;
-    const buffer = 60; // 60 second buffer
-    return token.expires_at > now + buffer;
-  }
-
-  /**
-   * Obtain a new OAuth 2.1 token
-   */
-  private async obtainOAuth2Token(): Promise<Types.OAuth2Token> {
-    if (!this.config.oauth2) {
-      throw new Error("OAuth 2.1 not configured");
-    }
-
-    const { clientId, clientSecret, tokenUrl, scope, grantType } = this.config.oauth2;
-
-    const params = new URLSearchParams();
-    params.append("client_id", clientId);
-    params.append("client_secret", clientSecret);
-    params.append("grant_type", grantType || "client_credentials");
-
-    if (scope) {
-      params.append("scope", scope);
-    }
-
-    try {
-      const response = await axios.post(tokenUrl, params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
-
-      const token: Types.OAuth2Token = response.data;
-
-      // Calculate expiration timestamp if expires_in is provided
-      if (token.expires_in) {
-        token.expires_at = Date.now() / 1000 + token.expires_in;
-      }
-
-      return token;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to obtain OAuth 2.1 token: ${error.response?.data?.error_description || error.message}`
-      );
-    }
-  }
-
-  /**
-   * Refresh OAuth 2.1 token
-   */
-  private async refreshOAuth2Token(): Promise<Types.OAuth2Token> {
-    if (!this.config.oauth2) {
-      throw new Error("OAuth 2.1 not configured");
-    }
-
-    // If we have a refresh token, use it
-    if (this.oauth2Token?.refresh_token || this.config.oauth2.refreshToken) {
-      const { clientId, clientSecret, tokenUrl } = this.config.oauth2;
-      const refreshToken = this.oauth2Token?.refresh_token || this.config.oauth2.refreshToken;
-
-      const params = new URLSearchParams();
-      params.append("client_id", clientId);
-      params.append("client_secret", clientSecret);
-      params.append("grant_type", "refresh_token");
-      params.append("refresh_token", refreshToken!);
-
-      try {
-        const response = await axios.post(tokenUrl, params, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-
-        const token: Types.OAuth2Token = response.data;
-
-        if (token.expires_in) {
-          token.expires_at = Date.now() / 1000 + token.expires_in;
-        }
-
-        this.oauth2Token = token;
-        return token;
-      } catch (error: any) {
-        // If refresh fails, try to get a new token
-        return this.obtainOAuth2Token();
-      }
-    }
-
-    // Otherwise, get a new token
-    return this.obtainOAuth2Token();
-  }
-
-  // Repository Management
-  async listRepositories(): Promise<Types.RepositoryInfo[]> {
-    const response = await this.client.get("/repos");
-    return response.data;
-  }
-
-  async getRepositoryFeatures(repoName: string): Promise<any> {
-    const response = await this.client.get(`/repos/${repoName}/features`);
-    return response.data;
-  }
-
-  async listBranches(repoName: string): Promise<string[]> {
-    const response = await this.client.get(`/repos/${repoName}/branches`);
-    return response.data;
-  }
-
-  // Project Management
-  async listProjects(filters?: {
-    repository?: string;
-    status?: string;
-    tag?: string;
-  }): Promise<Types.ProjectViewModel[]> {
-    const params = new URLSearchParams();
-    if (filters?.repository) params.append("repository", filters.repository);
-    if (filters?.status) params.append("status", filters.status);
-    if (filters?.tag) params.append("tag", filters.tag);
-
-    const response = await this.client.get(`/projects${params.toString() ? `?${params}` : ""}`);
-    return response.data;
-  }
-
-  async getProject(projectId: string): Promise<Types.ProjectViewModel> {
-    const response = await this.client.get(`/projects/${projectId}`);
-    return response.data;
-  }
-
-  async getProjectInfo(repoName: string, projectName: string): Promise<Types.ProjectInfo> {
-    const response = await this.client.get(
-      `/user-workspace/${repoName}/projects/${projectName}/info`
-    );
-    return response.data;
-  }
-
-  async openProject(projectId: string): Promise<void> {
-    await this.client.patch(`/projects/${projectId}`, { status: "OPENED" });
-  }
-
-  async closeProject(projectId: string): Promise<void> {
-    await this.client.patch(`/projects/${projectId}`, { status: "CLOSED" });
-  }
-
-  async createProject(
-    repoName: string,
-    projectName: string,
-    zipBuffer: Buffer,
-    comment?: string
-  ): Promise<void> {
-    const formData = new FormData();
-    formData.append("file", zipBuffer, { filename: `${projectName}.zip` });
-    if (comment) {
-      formData.append("comment", comment);
-    }
-
-    await this.client.put(`/repos/${repoName}/projects/${projectName}`, formData, {
-      headers: formData.getHeaders(),
-    });
-  }
-
-  async getProjectHistory(
-    repoName: string,
-    projectName: string
-  ): Promise<Types.ProjectHistoryItem[]> {
-    const response = await this.client.get(
-      `/repos/${repoName}/projects/${projectName}/history`
-    );
-    return response.data;
-  }
-
-  async createBranch(projectId: string, branchName: string, comment?: string): Promise<void> {
-    await this.client.post(`/projects/${projectId}/branches`, {
-      name: branchName,
-      comment,
-    });
-  }
-
-  // Table Management
-  async listTables(projectId: string): Promise<Types.SummaryTableView[]> {
-    const response = await this.client.get(`/projects/${projectId}/tables`);
-    return response.data;
-  }
-
-  async getTable(projectId: string, tableId: string): Promise<Types.EditableTableView> {
-    const response = await this.client.get(`/projects/${projectId}/tables/${tableId}`);
-    return response.data;
-  }
-
-  async updateTable(
-    projectId: string,
-    tableId: string,
-    view: Types.EditableTableView,
-    comment?: string
-  ): Promise<void> {
-    await this.client.put(`/projects/${projectId}/tables/${tableId}`, {
-      view,
-      comment,
-    });
-  }
-
-  async appendTableLines(
-    projectId: string,
-    tableId: string,
-    lines: any[],
-    comment?: string
-  ): Promise<void> {
-    await this.client.post(`/projects/${projectId}/tables/${tableId}/lines`, {
-      lines,
-      comment,
-    });
-  }
-
-  // Deployment Management
-  async listDeployments(): Promise<Types.DeploymentInfo[]> {
-    const response = await this.client.get("/deployments");
-    return response.data;
-  }
-
-  async deployProject(request: Types.DeployRequest): Promise<void> {
-    await this.client.post("/deployments", request);
-  }
-
-  async redeployProject(deploymentId: string): Promise<void> {
-    await this.client.post(`/deployments/${deploymentId}`);
-  }
-
-  async listProductionRepositories(): Promise<Types.RepositoryInfo[]> {
-    const response = await this.client.get("/production-repos");
-    return response.data;
-  }
-
-  // Health Check
-  async healthCheck(): Promise<{
-    status: string;
-    baseUrl: string;
-    authMethod: string;
-    timestamp: string;
-    serverReachable: boolean;
-    error?: string;
-  }> {
-    const authMethod = this.config.oauth2
-      ? "OAuth 2.1"
-      : this.config.apiKey
-      ? "API Key"
-      : this.config.username
-      ? "Basic Auth"
-      : "None";
-
-    try {
-      // Try to list repositories as a connectivity test
-      await this.listRepositories();
-      return {
-        status: "healthy",
-        baseUrl: this.baseUrl,
-        authMethod,
-        timestamp: new Date().toISOString(),
-        serverReachable: true,
-      };
-    } catch (error: any) {
-      return {
-        status: "unhealthy",
-        baseUrl: this.baseUrl,
-        authMethod,
-        timestamp: new Date().toISOString(),
-        serverReachable: false,
-        error: error.message || "Unknown error",
-      };
-    }
-  }
-}
-
-/**
- * MCP Server Implementation
+ * MCP Server for OpenL Tablets
+ *
+ * Handles MCP protocol communication and routes requests to the OpenL client.
  */
 class OpenLMCPServer {
   private server: Server;
   private client: OpenLClient;
 
-  constructor() {
+  /**
+   * Create a new MCP server instance
+   *
+   * @param config - OpenL Tablets configuration
+   */
+  constructor(config: Types.OpenLConfig) {
+    // Initialize OpenL API client
+    this.client = new OpenLClient(config);
+
+    // Initialize MCP server
     this.server = new Server(
       {
-        name: "openl-tablets-server",
-        version: "1.0.0",
+        name: SERVER_INFO.NAME,
+        version: SERVER_INFO.VERSION,
       },
       {
         capabilities: {
-          resources: {},
           tools: {},
+          resources: {},
         },
       }
     );
 
-    // Initialize client from environment variables
-    const baseUrl = process.env.OPENL_BASE_URL || "http://localhost:8080/webstudio/rest";
-    const username = process.env.OPENL_USERNAME;
-    const password = process.env.OPENL_PASSWORD;
-    const apiKey = process.env.OPENL_API_KEY;
-    const clientDocumentId = process.env.OPENL_CLIENT_DOCUMENT_ID;
-    const timeout = process.env.OPENL_TIMEOUT ? parseInt(process.env.OPENL_TIMEOUT) : undefined;
-
-    // OAuth 2.1 configuration
-    let oauth2: Types.OAuth2Config | undefined;
-    if (process.env.OPENL_OAUTH2_CLIENT_ID && process.env.OPENL_OAUTH2_TOKEN_URL) {
-      oauth2 = {
-        clientId: process.env.OPENL_OAUTH2_CLIENT_ID,
-        clientSecret: process.env.OPENL_OAUTH2_CLIENT_SECRET || "",
-        tokenUrl: process.env.OPENL_OAUTH2_TOKEN_URL,
-        authorizationUrl: process.env.OPENL_OAUTH2_AUTHORIZATION_URL,
-        scope: process.env.OPENL_OAUTH2_SCOPE,
-        grantType: (process.env.OPENL_OAUTH2_GRANT_TYPE as any) || "client_credentials",
-        refreshToken: process.env.OPENL_OAUTH2_REFRESH_TOKEN,
-      };
-    }
-
-    this.client = new OpenLClient({
-      baseUrl,
-      username,
-      password,
-      apiKey,
-      oauth2,
-      clientDocumentId,
-      timeout,
-    });
-
     this.setupHandlers();
-    this.setupErrorHandling();
   }
 
-  private setupErrorHandling(): void {
-    this.server.onerror = (error) => {
-      console.error("[MCP Error]", error);
-    };
-
-    process.on("SIGINT", async () => {
-      await this.server.close();
-      process.exit(0);
-    });
-  }
-
+  /**
+   * Setup MCP request handlers
+   */
   private setupHandlers(): void {
-    this.setupResourceHandlers();
-    this.setupToolHandlers();
-  }
+    // List available tools
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools: TOOLS,
+    }));
 
-  private setupResourceHandlers(): void {
+    // Handle tool execution
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) =>
+      this.handleToolCall(request.params.name, request.params.arguments)
+    );
+
     // List available resources
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
       resources: [
         {
           uri: "openl://repositories",
-          name: "Repositories",
-          description: "List of all design repositories",
+          name: "OpenL Repositories",
+          description: "All design repositories in OpenL Tablets",
           mimeType: "application/json",
         },
         {
           uri: "openl://projects",
-          name: "Projects",
-          description: "List of all projects across repositories",
+          name: "OpenL Projects",
+          description: "All projects across repositories",
           mimeType: "application/json",
         },
         {
           uri: "openl://deployments",
-          name: "Deployments",
-          description: "List of all project deployments",
+          name: "OpenL Deployments",
+          description: "All deployment repositories and deployed projects",
           mimeType: "application/json",
         },
       ],
     }));
 
-    // Read resource content
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-      const uri = request.params.uri;
-
-      if (uri === "openl://repositories") {
-        const repos = await this.client.listRepositories();
-        return {
-          contents: [
-            {
-              uri,
-              mimeType: "application/json",
-              text: JSON.stringify(repos, null, 2),
-            },
-          ],
-        };
-      }
-
-      if (uri === "openl://projects") {
-        const projects = await this.client.listProjects();
-        return {
-          contents: [
-            {
-              uri,
-              mimeType: "application/json",
-              text: JSON.stringify(projects, null, 2),
-            },
-          ],
-        };
-      }
-
-      if (uri === "openl://deployments") {
-        const deployments = await this.client.listDeployments();
-        return {
-          contents: [
-            {
-              uri,
-              mimeType: "application/json",
-              text: JSON.stringify(deployments, null, 2),
-            },
-          ],
-        };
-      }
-
-      throw new McpError(ErrorCode.InvalidRequest, `Unknown resource: ${uri}`);
-    });
+    // Handle resource reads
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
+      this.handleResourceRead(request.params.uri)
+    );
   }
 
-  private setupToolHandlers(): void {
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
-        {
-          name: "health_check",
-          description: "Check OpenL Tablets server connectivity and authentication status",
-          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "system",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "list_repositories",
-          description: "List all design repositories in OpenL Tablets",
-          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "repository",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "list_projects",
-          description: "List projects with optional filters (repository, status, tag)",
-          inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "project",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "get_project",
-          description: "Get detailed information about a specific project",
-          inputSchema: zodToJsonSchema(schemas.getProjectSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "project",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "get_project_info",
-          description: "Get project info including modules and dependencies",
-          inputSchema: zodToJsonSchema(schemas.getProjectInfoSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "project",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "open_project",
-          description: "Open a project for viewing or editing",
-          inputSchema: zodToJsonSchema(schemas.projectActionSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "project",
-            requiresAuth: true,
-            modifiesState: true,
-          },
-        },
-        {
-          name: "close_project",
-          description: "Close an open project",
-          inputSchema: zodToJsonSchema(schemas.projectActionSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "project",
-            requiresAuth: true,
-            modifiesState: true,
-          },
-        },
-        {
-          name: "list_tables",
-          description: "List all tables (rules) in a project",
-          inputSchema: zodToJsonSchema(schemas.listTablesSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "rules",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "get_table",
-          description: "Get detailed table (rule) data including structure and content",
-          inputSchema: zodToJsonSchema(schemas.getTableSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "rules",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "update_table",
-          description: "Update a table (rule) with new data",
-          inputSchema: zodToJsonSchema(schemas.updateTableSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "rules",
-            requiresAuth: true,
-            modifiesState: true,
-          },
-        },
-        {
-          name: "get_project_history",
-          description: "Get version history for a project",
-          inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "version-control",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "list_branches",
-          description: "List branches for a repository (if supported)",
-          inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "version-control",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "create_branch",
-          description: "Create a new branch for a project",
-          inputSchema: zodToJsonSchema(schemas.createBranchSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "version-control",
-            requiresAuth: true,
-            modifiesState: true,
-          },
-        },
-        {
-          name: "list_deployments",
-          description: "List all project deployments",
-          inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "deployment",
-            requiresAuth: true,
-          },
-        },
-        {
-          name: "deploy_project",
-          description: "Deploy a project to production",
-          inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as any,
-          _meta: {
-            version: "1.0.0",
-            category: "deployment",
-            requiresAuth: true,
-            modifiesState: true,
-          },
-        },
-      ],
-    }));
+  /**
+   * Handle tool execution requests
+   *
+   * @param name - Tool name
+   * @param args - Tool arguments
+   * @returns Tool execution result
+   */
+  private async handleToolCall(
+    name: string,
+    args: any
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      let result: any;
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      try {
-        const { name, arguments: args } = request.params;
-
-        // Type guard for args
-        if (!args) {
-          throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+      // Route tool calls to appropriate client methods
+      switch (name) {
+        // System tools
+        case "health_check": {
+          result = await this.client.healthCheck();
+          break;
         }
 
-        switch (name) {
-          case "health_check": {
-            const health = await this.client.healthCheck();
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(health, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "list_repositories": {
-            const repos = await this.client.listRepositories();
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(repos, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "list_projects": {
-            const projects = await this.client.listProjects(args);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(projects, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "get_project": {
-            const project = await this.client.getProject(args.projectId as string);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(project, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "get_project_info": {
-            const info = await this.client.getProjectInfo(
-              args.repository as string,
-              args.projectName as string
-            );
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(info, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "open_project": {
-            await this.client.openProject(args.projectId as string);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Project ${args.projectId} opened successfully`,
-                },
-              ],
-            };
-          }
-
-          case "close_project": {
-            await this.client.closeProject(args.projectId as string);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Project ${args.projectId} closed successfully`,
-                },
-              ],
-            };
-          }
-
-          case "list_tables": {
-            const tables = await this.client.listTables(args.projectId as string);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(tables, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "get_table": {
-            const table = await this.client.getTable(
-              args.projectId as string,
-              args.tableId as string
-            );
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(table, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "update_table": {
-            await this.client.updateTable(
-              args.projectId as string,
-              args.tableId as string,
-              args.view as Types.EditableTableView,
-              args.comment as string | undefined
-            );
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Table ${args.tableId} updated successfully`,
-                },
-              ],
-            };
-          }
-
-          case "get_project_history": {
-            const history = await this.client.getProjectHistory(
-              args.repository as string,
-              args.projectName as string
-            );
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(history, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "list_branches": {
-            const branches = await this.client.listBranches(args.repository as string);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(branches, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "create_branch": {
-            await this.client.createBranch(
-              args.projectId as string,
-              args.branchName as string,
-              args.comment as string | undefined
-            );
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Branch ${args.branchName} created successfully`,
-                },
-              ],
-            };
-          }
-
-          case "list_deployments": {
-            const deployments = await this.client.listDeployments();
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: JSON.stringify(deployments, null, 2),
-                },
-              ],
-            };
-          }
-
-          case "deploy_project": {
-            const deployRequest: Types.DeployRequest = {
-              projectName: args.projectName as string,
-              repository: args.repository as string,
-              deploymentRepository: args.deploymentRepository as string,
-              version: args.version as string | undefined,
-            };
-            await this.client.deployProject(deployRequest);
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `Project ${args.projectName} deployed successfully`,
-                },
-              ],
-            };
-          }
-
-          default:
-            throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
+        // Repository tools
+        case "list_repositories": {
+          result = await this.client.listRepositories();
+          break;
         }
-      } catch (error: any) {
-        if (axios.isAxiosError(error)) {
-          const status = error.response?.status;
-          const message = error.response?.data?.message || error.message;
-          const endpoint = error.config?.url;
-          const method = error.config?.method?.toUpperCase();
 
-          // Enhanced error message with context
-          const errorDetails = {
-            status,
-            message,
-            endpoint,
-            method,
-            tool: name,
+        case "list_branches": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { repository } = args as { repository: string };
+          result = await this.client.listBranches(repository);
+          break;
+        }
+
+        // Project tools
+        case "list_projects": {
+          const filters = args as Types.ProjectFilters | undefined;
+          result = await this.client.listProjects(filters);
+          break;
+        }
+
+        case "get_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.getProject(projectId);
+          break;
+        }
+
+        case "get_project_info": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.getProjectInfo(projectId);
+          break;
+        }
+
+        case "open_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.openProject(projectId);
+          break;
+        }
+
+        case "close_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.closeProject(projectId);
+          break;
+        }
+
+        case "get_project_history": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.getProjectHistory(projectId);
+          break;
+        }
+
+        case "create_branch": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, branchName, comment } = args as {
+            projectId: string;
+            branchName: string;
+            comment?: string;
           };
-
-          throw new McpError(
-            ErrorCode.InternalError,
-            `OpenL Tablets API error (${status}): ${message} [${method} ${endpoint}]`,
-            errorDetails
-          );
+          result = await this.client.createBranch(projectId, branchName, comment);
+          break;
         }
+
+        // Rules (Tables) tools
+        case "list_tables": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.listTables(projectId);
+          break;
+        }
+
+        case "get_table": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId } = args as {
+            projectId: string;
+            tableId: string;
+          };
+          result = await this.client.getTable(projectId, tableId);
+          break;
+        }
+
+        case "update_table": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId, view, comment } = args as {
+            projectId: string;
+            tableId: string;
+            view: Types.EditableTableView;
+            comment?: string;
+          };
+          result = await this.client.updateTable(projectId, tableId, view, comment);
+          break;
+        }
+
+        // Deployment tools
+        case "list_deployments": {
+          result = await this.client.listDeployments();
+          break;
+        }
+
+        case "deploy_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectName, repository, deploymentRepository, version } = args as {
+            projectName: string;
+            repository: string;
+            deploymentRepository: string;
+            version?: string;
+          };
+          result = await this.client.deployProject(
+            projectName,
+            repository,
+            deploymentRepository,
+            version
+          );
+          break;
+        }
+
+        default:
+          throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
+      }
+
+      // Return formatted result
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    } catch (error: any) {
+      // Enhanced error handling with context
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+        const endpoint = error.config?.url;
+        const method = error.config?.method?.toUpperCase();
+
+        const errorDetails = {
+          status,
+          message,
+          endpoint,
+          method,
+          tool: name,
+        };
+
+        throw new McpError(
+          ErrorCode.InternalError,
+          `OpenL Tablets API error (${status}): ${message} [${method} ${endpoint}]`,
+          errorDetails
+        );
+      }
+
+      // Re-throw McpErrors as-is
+      if (error instanceof McpError) {
         throw error;
       }
-    });
+
+      // Wrap other errors
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Error executing ${name}: ${error.message || "Unknown error"}`,
+        { tool: name, error: error.toString() }
+      );
+    }
   }
 
-  async run(): Promise<void> {
+  /**
+   * Handle resource read requests
+   *
+   * @param uri - Resource URI
+   * @returns Resource content
+   */
+  private async handleResourceRead(
+    uri: string
+  ): Promise<{ contents: Array<{ uri: string; mimeType: string; text: string }> }> {
+    try {
+      let data: any;
+
+      switch (uri) {
+        case "openl://repositories": {
+          data = await this.client.listRepositories();
+          break;
+        }
+
+        case "openl://projects": {
+          data = await this.client.listProjects();
+          break;
+        }
+
+        case "openl://deployments": {
+          data = await this.client.listDeployments();
+          break;
+        }
+
+        default:
+          throw new McpError(ErrorCode.InvalidRequest, `Unknown resource: ${uri}`);
+      }
+
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: "application/json",
+            text: JSON.stringify(data, null, 2),
+          },
+        ],
+      };
+    } catch (error: any) {
+      if (error instanceof McpError) {
+        throw error;
+      }
+
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Error reading resource ${uri}: ${error.message || "Unknown error"}`
+      );
+    }
+  }
+
+  /**
+   * Start the MCP server
+   */
+  async start(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error("OpenL Tablets MCP Server running on stdio");
+  }
+}
+
+/**
+ * Load configuration from environment variables
+ *
+ * @returns OpenL Tablets configuration
+ */
+function loadConfigFromEnv(): Types.OpenLConfig {
+  const baseUrl = process.env.OPENL_BASE_URL;
+  if (!baseUrl) {
+    throw new Error("OPENL_BASE_URL environment variable is required");
+  }
+
+  const config: Types.OpenLConfig = {
+    baseUrl,
+    username: process.env.OPENL_USERNAME,
+    password: process.env.OPENL_PASSWORD,
+    apiKey: process.env.OPENL_API_KEY,
+    clientDocumentId: process.env.OPENL_CLIENT_DOCUMENT_ID,
+    timeout: process.env.OPENL_TIMEOUT
+      ? parseInt(process.env.OPENL_TIMEOUT, 10)
+      : undefined,
+  };
+
+  // OAuth 2.1 configuration
+  if (process.env.OPENL_OAUTH2_CLIENT_ID) {
+    config.oauth2 = {
+      clientId: process.env.OPENL_OAUTH2_CLIENT_ID,
+      clientSecret: process.env.OPENL_OAUTH2_CLIENT_SECRET || "",
+      tokenUrl: process.env.OPENL_OAUTH2_TOKEN_URL || "",
+      authorizationUrl: process.env.OPENL_OAUTH2_AUTHORIZATION_URL,
+      scope: process.env.OPENL_OAUTH2_SCOPE,
+      grantType: (process.env.OPENL_OAUTH2_GRANT_TYPE as any) || "client_credentials",
+      refreshToken: process.env.OPENL_OAUTH2_REFRESH_TOKEN,
+    };
+  }
+
+  return config;
+}
+
+/**
+ * Main entry point
+ */
+async function main() {
+  try {
+    const config = loadConfigFromEnv();
+    const server = new OpenLMCPServer(config);
+    await server.start();
+  } catch (error: any) {
+    console.error("Failed to start OpenL Tablets MCP server:", error.message);
+    process.exit(1);
   }
 }
 
 // Start the server
-const server = new OpenLMCPServer();
-server.run().catch(console.error);
+main();

@@ -358,27 +358,45 @@ OpenL Tablets supports various table types:
 
 ### Project Structure
 
+The codebase is organized into modular components for maintainability and extensibility:
+
 ```
 mcp-server/
 ├── src/
-│   ├── index.ts          # Main MCP server implementation
+│   ├── index.ts          # Main MCP server entry point
+│   ├── client.ts         # OpenL Tablets API client
+│   ├── auth.ts           # Authentication manager (OAuth 2.1, API Key, Basic Auth)
+│   ├── tools.ts          # MCP tool definitions and metadata
 │   ├── schemas.ts        # Zod schemas for tool input validation
-│   └── types.ts          # TypeScript type definitions
+│   ├── types.ts          # TypeScript type definitions
+│   └── constants.ts      # Configuration constants and defaults
 ├── tests/                # Test suites (Jest)
 │   ├── openl-client.test.ts
 │   ├── mcp-server.test.ts
-│   └── mocks/
+│   └── mocks/            # Mock data for testing
 ├── dist/                 # Compiled JavaScript (generated)
 ├── package.json
 ├── tsconfig.json
 ├── jest.config.js
+├── eslint.config.mjs
 ├── .env.example
 ├── claude-desktop-config.example.json
-├── README.md
+├── README.md             # This file
 ├── AUTHENTICATION.md     # Authentication setup guide
 ├── TESTING.md            # Testing documentation
-└── EXAMPLES.md           # Usage examples
+├── EXAMPLES.md           # Usage examples
+└── CONTRIBUTING.md       # Development and contribution guide
 ```
+
+#### Module Responsibilities
+
+- **index.ts**: MCP server setup, tool handlers, resource providers
+- **client.ts**: High-level API client for OpenL Tablets REST API
+- **auth.ts**: Authentication lifecycle, token management, request/response interceptors
+- **tools.ts**: Tool definitions with metadata, categorization, and versioning
+- **schemas.ts**: Zod schemas for type-safe input validation
+- **types.ts**: TypeScript interfaces for OpenL Tablets API and internal types
+- **constants.ts**: Configuration defaults, endpoint paths, and constants
 
 ### Building
 
@@ -411,6 +429,25 @@ The project uses TypeScript with strict type checking:
 - **API Types**: OpenL Tablets API types in `src/types.ts`
 - **Schema Validation**: Zod schemas in `src/schemas.ts` with automatic TypeScript type inference
 - **MCP SDK**: Full type support from `@modelcontextprotocol/sdk` v1.21.1
+
+### Extending the Server
+
+The modular architecture makes it easy to extend the server with new functionality:
+
+**Adding a New Tool**:
+1. Define the input schema in `src/schemas.ts`
+2. Add the tool definition to `src/tools.ts`
+3. Add the API method (if needed) to `src/client.ts`
+4. Add the tool handler in `src/index.ts`
+5. Add tests and documentation
+
+**Adding Authentication Methods**:
+1. Update types in `src/types.ts`
+2. Modify `src/auth.ts` to implement the new authentication
+3. Update `getAuthMethod()` for health checks
+4. Document in `AUTHENTICATION.md`
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed extension guidelines.
 
 ## Troubleshooting
 

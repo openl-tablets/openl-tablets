@@ -1,5 +1,18 @@
 /**
- * Zod schemas for MCP tool inputs
+ * Zod Schemas for MCP Tool Input Validation
+ *
+ * This module defines all input schemas for OpenL Tablets MCP tools using Zod.
+ * Benefits:
+ * - Type-safe input validation with runtime checks
+ * - Automatic TypeScript type inference
+ * - Self-documenting API through schema descriptions
+ * - Clear validation error messages
+ *
+ * To add a new tool schema:
+ * 1. Define the schema using z.object() with descriptive field names
+ * 2. Add .describe() to each field for documentation
+ * 3. Export the schema
+ * 4. Reference it in tools.ts
  */
 
 import { z } from "zod";
