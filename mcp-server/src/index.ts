@@ -27,12 +27,12 @@ import {
   ErrorCode,
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
-import axios from "axios";
 
 // Import our modular components
 import { OpenLClient } from "./client.js";
 import { TOOLS } from "./tools.js";
 import { SERVER_INFO } from "./constants.js";
+import { isAxiosError, sanitizeError, safeStringify } from "./utils.js";
 import type * as Types from "./types.js";
 
 /**
@@ -118,15 +118,15 @@ class OpenLMCPServer {
    * Handle tool execution requests
    *
    * @param name - Tool name
-   * @param args - Tool arguments
+   * @param args - Tool arguments (validated by Zod schemas)
    * @returns Tool execution result
    */
   private async handleToolCall(
     name: string,
-    args: any
+    args: unknown
   ): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      let result: any;
+      let result: unknown;
 
       // Route tool calls to appropriate client methods
       switch (name) {
@@ -264,21 +264,20 @@ class OpenLMCPServer {
         content: [
           {
             type: "text",
-            text: JSON.stringify(result, null, 2),
+            text: safeStringify(result, 2),
           },
         ],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Enhanced error handling with context
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         const status = error.response?.status;
-        const message = error.response?.data?.message || error.message;
+        const sanitizedMessage = sanitizeError(error);
         const endpoint = error.config?.url;
         const method = error.config?.method?.toUpperCase();
 
         const errorDetails = {
           status,
-          message,
           endpoint,
           method,
           tool: name,
@@ -286,7 +285,7 @@ class OpenLMCPServer {
 
         throw new McpError(
           ErrorCode.InternalError,
-          `OpenL Tablets API error (${status}): ${message} [${method} ${endpoint}]`,
+          `OpenL Tablets API error (${status}): ${sanitizedMessage} [${method} ${endpoint}]`,
           errorDetails
         );
       }
@@ -296,11 +295,12 @@ class OpenLMCPServer {
         throw error;
       }
 
-      // Wrap other errors
+      // Wrap other errors with sanitization
+      const sanitizedMessage = sanitizeError(error);
       throw new McpError(
         ErrorCode.InternalError,
-        `Error executing ${name}: ${error.message || "Unknown error"}`,
-        { tool: name, error: error.toString() }
+        `Error executing ${name}: ${sanitizedMessage}`,
+        { tool: name }
       );
     }
   }
@@ -315,7 +315,7 @@ class OpenLMCPServer {
     uri: string
   ): Promise<{ contents: Array<{ uri: string; mimeType: string; text: string }> }> {
     try {
-      let data: any;
+      let data: unknown;
 
       switch (uri) {
         case "openl://repositories": {
@@ -342,18 +342,19 @@ class OpenLMCPServer {
           {
             uri,
             mimeType: "application/json",
-            text: JSON.stringify(data, null, 2),
+            text: safeStringify(data, 2),
           },
         ],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof McpError) {
         throw error;
       }
 
+      const sanitizedMessage = sanitizeError(error);
       throw new McpError(
         ErrorCode.InternalError,
-        `Error reading resource ${uri}: ${error.message || "Unknown error"}`
+        `Error reading resource ${uri}: ${sanitizedMessage}`
       );
     }
   }
@@ -371,11 +372,29 @@ class OpenLMCPServer {
  * Load configuration from environment variables
  *
  * @returns OpenL Tablets configuration
+ * @throws Error if required configuration is missing or invalid
  */
 function loadConfigFromEnv(): Types.OpenLConfig {
   const baseUrl = process.env.OPENL_BASE_URL;
   if (!baseUrl) {
     throw new Error("OPENL_BASE_URL environment variable is required");
+  }
+
+  // Validate base URL format
+  try {
+    new URL(baseUrl);
+  } catch {
+    throw new Error(`Invalid OPENL_BASE_URL format: ${baseUrl}`);
+  }
+
+  // Parse and validate timeout
+  let timeout: number | undefined;
+  if (process.env.OPENL_TIMEOUT) {
+    const parsedTimeout = parseInt(process.env.OPENL_TIMEOUT, 10);
+    if (isNaN(parsedTimeout) || parsedTimeout <= 0) {
+      throw new Error(`Invalid OPENL_TIMEOUT value: ${process.env.OPENL_TIMEOUT}`);
+    }
+    timeout = parsedTimeout;
   }
 
   const config: Types.OpenLConfig = {
@@ -384,22 +403,52 @@ function loadConfigFromEnv(): Types.OpenLConfig {
     password: process.env.OPENL_PASSWORD,
     apiKey: process.env.OPENL_API_KEY,
     clientDocumentId: process.env.OPENL_CLIENT_DOCUMENT_ID,
-    timeout: process.env.OPENL_TIMEOUT
-      ? parseInt(process.env.OPENL_TIMEOUT, 10)
-      : undefined,
+    timeout,
   };
 
   // OAuth 2.1 configuration
   if (process.env.OPENL_OAUTH2_CLIENT_ID) {
+    const clientSecret = process.env.OPENL_OAUTH2_CLIENT_SECRET;
+    const tokenUrl = process.env.OPENL_OAUTH2_TOKEN_URL;
+
+    if (!clientSecret) {
+      throw new Error("OPENL_OAUTH2_CLIENT_SECRET is required when using OAuth 2.1");
+    }
+
+    if (!tokenUrl) {
+      throw new Error("OPENL_OAUTH2_TOKEN_URL is required when using OAuth 2.1");
+    }
+
+    // Validate token URL format
+    try {
+      new URL(tokenUrl);
+    } catch {
+      throw new Error(`Invalid OPENL_OAUTH2_TOKEN_URL format: ${tokenUrl}`);
+    }
+
+    const grantType = process.env.OPENL_OAUTH2_GRANT_TYPE;
+    const validGrantTypes = ["client_credentials", "authorization_code", "refresh_token"];
+
     config.oauth2 = {
       clientId: process.env.OPENL_OAUTH2_CLIENT_ID,
-      clientSecret: process.env.OPENL_OAUTH2_CLIENT_SECRET || "",
-      tokenUrl: process.env.OPENL_OAUTH2_TOKEN_URL || "",
+      clientSecret,
+      tokenUrl,
       authorizationUrl: process.env.OPENL_OAUTH2_AUTHORIZATION_URL,
       scope: process.env.OPENL_OAUTH2_SCOPE,
-      grantType: (process.env.OPENL_OAUTH2_GRANT_TYPE as any) || "client_credentials",
+      grantType:
+        grantType && validGrantTypes.includes(grantType)
+          ? (grantType as "client_credentials" | "authorization_code" | "refresh_token")
+          : "client_credentials",
       refreshToken: process.env.OPENL_OAUTH2_REFRESH_TOKEN,
     };
+  }
+
+  // Validate at least one authentication method is configured
+  if (!config.username && !config.apiKey && !config.oauth2) {
+    throw new Error(
+      "At least one authentication method must be configured " +
+        "(username/password, API key, or OAuth 2.1)"
+    );
   }
 
   return config;
@@ -408,13 +457,14 @@ function loadConfigFromEnv(): Types.OpenLConfig {
 /**
  * Main entry point
  */
-async function main() {
+async function main(): Promise<void> {
   try {
     const config = loadConfigFromEnv();
     const server = new OpenLMCPServer(config);
     await server.start();
-  } catch (error: any) {
-    console.error("Failed to start OpenL Tablets MCP server:", error.message);
+  } catch (error: unknown) {
+    const sanitizedMessage = sanitizeError(error);
+    console.error("Failed to start OpenL Tablets MCP server:", sanitizedMessage);
     process.exit(1);
   }
 }

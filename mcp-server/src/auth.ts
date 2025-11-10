@@ -11,6 +11,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import FormData from "form-data";
 import * as Types from "./types.js";
 import { DEFAULTS, HEADERS } from "./constants.js";
+import { sanitizeError } from "./utils.js";
 
 /**
  * Authentication manager for OpenL Tablets API
@@ -83,6 +84,7 @@ export class AuthenticationManager {
     config: InternalAxiosRequestConfig
   ): Promise<InternalAxiosRequestConfig> {
     if (!config.headers) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       config.headers = {} as any;
     }
 
@@ -205,10 +207,9 @@ export class AuthenticationManager {
       }
 
       return token;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to obtain OAuth 2.1 token: ${error.message || "Unknown error"}`
-      );
+    } catch (error: unknown) {
+      const sanitizedMessage = sanitizeError(error);
+      throw new Error(`Failed to obtain OAuth 2.1 token: ${sanitizedMessage}`);
     }
   }
 

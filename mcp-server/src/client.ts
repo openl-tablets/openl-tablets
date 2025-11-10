@@ -6,10 +6,10 @@
  */
 
 import axios, { AxiosInstance } from "axios";
-import FormData from "form-data";
 import * as Types from "./types.js";
 import { AuthenticationManager } from "./auth.js";
 import { DEFAULTS, PROJECT_ID_PATTERN } from "./constants.js";
+import { validateTimeout, sanitizeError } from "./utils.js";
 
 /**
  * Client for OpenL Tablets WebStudio REST API
@@ -38,10 +38,13 @@ export class OpenLClient {
   constructor(config: Types.OpenLConfig) {
     this.baseUrl = config.baseUrl;
 
+    // Validate and set timeout
+    const timeout = validateTimeout(config.timeout, DEFAULTS.TIMEOUT);
+
     // Create Axios instance with default configuration
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
-      timeout: config.timeout || DEFAULTS.TIMEOUT,
+      timeout,
       headers: {
         "Content-Type": "application/json",
       },
@@ -351,14 +354,14 @@ export class OpenLClient {
         timestamp: new Date().toISOString(),
         serverReachable: true,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         status: "unhealthy",
         baseUrl: this.baseUrl,
         authMethod,
         timestamp: new Date().toISOString(),
         serverReachable: false,
-        error: error.message || "Unknown error",
+        error: sanitizeError(error),
       };
     }
   }

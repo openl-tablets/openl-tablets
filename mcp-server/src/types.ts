@@ -102,6 +102,7 @@ export interface SummaryTableView {
   tableType: TableType;
   kind: TableKind;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties?: Record<string, any>;
   returnType?: string;
   signature?: string;
@@ -112,6 +113,7 @@ export interface SummaryTableView {
 export interface TableProperty {
   name: string;
   type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
   description?: string;
 }
@@ -133,12 +135,14 @@ export interface DatatypeView extends EditableTableView {
   fields?: Array<{
     name: string;
     type: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultValue?: any;
   }>;
   parentType?: string;
 }
 
 export interface SpreadsheetView extends EditableTableView {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows?: any[][];
   columnNames?: string[];
   columnTypes?: string[];
@@ -146,7 +150,9 @@ export interface SpreadsheetView extends EditableTableView {
 
 export interface SimpleRulesView extends EditableTableView {
   rules?: Array<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conditions?: Record<string, any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     actions?: Record<string, any>;
   }>;
   conditionColumns?: string[];

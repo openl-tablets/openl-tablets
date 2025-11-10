@@ -40,7 +40,7 @@ export interface ToolDefinition {
   /** Human-readable description */
   description: string;
   /** JSON Schema for input validation */
-  inputSchema: any;
+  inputSchema: Record<string, unknown>;
   /** Tool metadata */
   _meta: ToolMetadata;
 }
@@ -64,7 +64,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "health_check",
     description:
       "Check OpenL Tablets server connectivity and authentication status",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.SYSTEM,
@@ -78,7 +78,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_repositories",
     description: "List all design repositories in OpenL Tablets",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.REPOSITORY,
@@ -88,7 +88,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_branches",
     description: "List branches in a repository",
-    inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.REPOSITORY,
@@ -103,7 +103,7 @@ export const TOOLS: ToolDefinition[] = [
     name: "list_projects",
     description:
       "List projects with optional filters (repository, status, tag)",
-    inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -113,7 +113,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "get_project",
     description: "Get detailed project information",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -123,7 +123,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "get_project_info",
     description: "Get project info including modules and dependencies",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -133,7 +133,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "open_project",
     description: "Open a project for viewing/editing",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -144,7 +144,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "close_project",
     description: "Close an open project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
@@ -155,7 +155,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "get_project_history",
     description: "Get version history for a project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
@@ -169,7 +169,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "create_branch",
     description: "Create a new branch in a project",
-    inputSchema: zodToJsonSchema(schemas.createBranchSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.createBranchSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
@@ -184,7 +184,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_tables",
     description: "List all tables/rules in a project",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.RULES,
@@ -194,7 +194,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "get_table",
     description: "Get detailed table data and structure",
-    inputSchema: zodToJsonSchema(schemas.getTableSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.getTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.RULES,
@@ -204,7 +204,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "update_table",
     description: "Update table content",
-    inputSchema: zodToJsonSchema(schemas.updateTableSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.RULES,
@@ -219,7 +219,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_deployments",
     description: "List all deployments",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as any,
+    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.DEPLOYMENT,
@@ -229,7 +229,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "deploy_project",
     description: "Deploy a project to production",
-    inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as any,
+    inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.DEPLOYMENT,
