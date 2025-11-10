@@ -239,109 +239,11 @@ export const TOOLS: ToolDefinition[] = [
   },
 
   // =============================================================================
-  // Project Creation & Management Tools
-  // =============================================================================
-  {
-    name: "create_project",
-    description: "Create a new project in a repository",
-    inputSchema: zodToJsonSchema(schemas.createProjectSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "delete_project",
-    description: "Delete a project from a repository",
-    inputSchema: zodToJsonSchema(schemas.deleteProjectSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-
-  // =============================================================================
-  // File Management Tools
-  // =============================================================================
-  {
-    name: "upload_file",
-    description: "Upload a file (e.g., Excel with rules) to a project",
-    inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "list_files",
-    description: "List all files in a project",
-    inputSchema: zodToJsonSchema(schemas.listFilesSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "delete_file",
-    description: "Delete a file from a project",
-    inputSchema: zodToJsonSchema(schemas.deleteFileSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-
-  // =============================================================================
-  // Table/Rule Creation & Deletion Tools
-  // =============================================================================
-  {
-    name: "create_table",
-    description: "Create a new table/rule in a project",
-    inputSchema: zodToJsonSchema(schemas.createTableSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "delete_table",
-    description: "Delete a table/rule from a project",
-    inputSchema: zodToJsonSchema(schemas.deleteTableSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-
-  // =============================================================================
   // Testing & Validation Tools
   // =============================================================================
   {
-    name: "run_test",
-    description: "Run a specific test table to validate rules",
-    inputSchema: zodToJsonSchema(schemas.runTestSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-    },
-  },
-  {
     name: "run_all_tests",
-    description: "Run all tests in a project",
+    description: "Run all tests in a project to validate rules correctness",
     inputSchema: zodToJsonSchema(schemas.runAllTestsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -351,25 +253,11 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "validate_project",
-    description: "Validate project for errors before deployment",
+    description: "Validate project for errors and warnings before deployment",
     inputSchema: zodToJsonSchema(schemas.validateProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-
-  // =============================================================================
-  // Rule Execution Tools
-  // =============================================================================
-  {
-    name: "execute_rules",
-    description: "Execute rules with provided input data",
-    inputSchema: zodToJsonSchema(schemas.executeRulesSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
       requiresAuth: true,
     },
   },

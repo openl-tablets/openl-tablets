@@ -255,6 +255,21 @@ class OpenLMCPServer {
           break;
         }
 
+        // Testing & Validation tools
+        case "run_all_tests": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.runAllTests(projectId);
+          break;
+        }
+
+        case "validate_project": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as { projectId: string };
+          result = await this.client.validateProject(projectId);
+          break;
+        }
+
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }

@@ -275,17 +275,8 @@ export interface ProjectFilters {
 }
 
 // =============================================================================
-// Additional API Types for New Tools
+// Testing & Validation Types
 // =============================================================================
-
-/** File information in project */
-export interface FileInfo {
-  name: string;
-  path: string;
-  size?: number;
-  modifiedAt?: string;
-  modifiedBy?: string;
-}
 
 /** Test execution result */
 export interface TestResult {
@@ -329,22 +320,4 @@ export interface ValidationWarning {
   message: string;
   location?: string;
   table?: string;
-}
-
-/** Rule execution result */
-export interface RuleExecutionResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result: any;
-  executionTime: number;
-  traces?: ExecutionTrace[];
-}
-
-/** Execution trace for debugging */
-export interface ExecutionTrace {
-  step: number;
-  rule: string;
-  condition?: string;
-  action?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result?: any;
 }

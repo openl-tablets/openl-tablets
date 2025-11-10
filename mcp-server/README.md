@@ -35,6 +35,8 @@ All tools include metadata (`_meta`) with version information, categorization, a
 - `list_tables` - List all tables/rules in a project
 - `get_table` - Get detailed table data and structure
 - `update_table` - Update table content
+- `run_all_tests` - Run all tests in a project to validate rules correctness
+- `validate_project` - Validate project for errors and warnings before deployment
 
 #### Deployment
 - `list_deployments` - List all deployments
