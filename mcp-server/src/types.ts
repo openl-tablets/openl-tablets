@@ -2,11 +2,40 @@
  * TypeScript types for OpenL Tablets REST API
  */
 
+export type AuthMethod = "basic" | "apiKey" | "oauth2";
+
+export interface OAuth2Config {
+  clientId: string;
+  clientSecret: string;
+  tokenUrl: string;
+  authorizationUrl?: string;
+  scope?: string;
+  grantType?: "client_credentials" | "authorization_code" | "refresh_token";
+  refreshToken?: string;
+}
+
+export interface OAuth2Token {
+  access_token: string;
+  token_type: string;
+  expires_in?: number;
+  refresh_token?: string;
+  scope?: string;
+  expires_at?: number; // Calculated expiration timestamp
+}
+
 export interface OpenLConfig {
   baseUrl: string;
+  // Basic Authentication
   username?: string;
   password?: string;
+  // API Key Authentication
   apiKey?: string;
+  // OAuth 2.1 Authentication
+  oauth2?: OAuth2Config;
+  // Client Document ID (for request tracking)
+  clientDocumentId?: string;
+  // Request timeout in milliseconds
+  timeout?: number;
 }
 
 export interface ProjectId {

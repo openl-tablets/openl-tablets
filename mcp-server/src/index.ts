@@ -22,29 +22,205 @@ import FormData from "form-data";
 import type * as Types from "./types.js";
 
 /**
- * OpenL Tablets API Client
+ * OpenL Tablets API Client with OAuth 2.1 and Client Document ID support
  */
 class OpenLClient {
   private client: AxiosInstance;
   private baseUrl: string;
+  private config: Types.OpenLConfig;
+  private oauth2Token?: Types.OAuth2Token;
+  private tokenRefreshPromise?: Promise<Types.OAuth2Token>;
 
   constructor(config: Types.OpenLConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
+    this.config = config;
 
+    // Setup basic auth if provided
     const auth: any = {};
     if (config.username && config.password) {
       auth.username = config.username;
       auth.password = config.password;
     }
 
+    // Create axios instance
     this.client = axios.create({
       baseURL: this.baseUrl,
       auth: Object.keys(auth).length > 0 ? auth : undefined,
+      timeout: config.timeout || 30000,
       headers: {
         "Content-Type": "application/json",
         ...(config.apiKey ? { "X-API-Key": config.apiKey } : {}),
+        ...(config.clientDocumentId ? { "X-Client-Document-ID": config.clientDocumentId } : {}),
       },
     });
+
+    // Setup request interceptor for OAuth 2.1
+    this.client.interceptors.request.use(
+      async (config) => {
+        // If OAuth 2.1 is configured, add bearer token
+        if (this.config.oauth2) {
+          const token = await this.getValidToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token.access_token}`;
+          }
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Setup response interceptor to handle token refresh on 401
+    this.client.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // If 401 and OAuth is configured, try to refresh token
+        if (
+          error.response?.status === 401 &&
+          this.config.oauth2 &&
+          !originalRequest._retry
+        ) {
+          originalRequest._retry = true;
+
+          try {
+            // Refresh the token
+            await this.refreshOAuth2Token();
+            // Retry the original request
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Get a valid OAuth 2.1 token, refreshing if necessary
+   */
+  private async getValidToken(): Promise<Types.OAuth2Token | null> {
+    if (!this.config.oauth2) {
+      return null;
+    }
+
+    // If we have a token and it's still valid, return it
+    if (this.oauth2Token && this.isTokenValid(this.oauth2Token)) {
+      return this.oauth2Token;
+    }
+
+    // If a refresh is already in progress, wait for it
+    if (this.tokenRefreshPromise) {
+      return this.tokenRefreshPromise;
+    }
+
+    // Otherwise, get a new token
+    this.tokenRefreshPromise = this.obtainOAuth2Token();
+    try {
+      this.oauth2Token = await this.tokenRefreshPromise;
+      return this.oauth2Token;
+    } finally {
+      this.tokenRefreshPromise = undefined;
+    }
+  }
+
+  /**
+   * Check if a token is still valid (with 60 second buffer)
+   */
+  private isTokenValid(token: Types.OAuth2Token): boolean {
+    if (!token.expires_at) {
+      return true; // No expiration info, assume valid
+    }
+    const now = Date.now() / 1000;
+    const buffer = 60; // 60 second buffer
+    return token.expires_at > now + buffer;
+  }
+
+  /**
+   * Obtain a new OAuth 2.1 token
+   */
+  private async obtainOAuth2Token(): Promise<Types.OAuth2Token> {
+    if (!this.config.oauth2) {
+      throw new Error("OAuth 2.1 not configured");
+    }
+
+    const { clientId, clientSecret, tokenUrl, scope, grantType } = this.config.oauth2;
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId);
+    params.append("client_secret", clientSecret);
+    params.append("grant_type", grantType || "client_credentials");
+
+    if (scope) {
+      params.append("scope", scope);
+    }
+
+    try {
+      const response = await axios.post(tokenUrl, params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      const token: Types.OAuth2Token = response.data;
+
+      // Calculate expiration timestamp if expires_in is provided
+      if (token.expires_in) {
+        token.expires_at = Date.now() / 1000 + token.expires_in;
+      }
+
+      return token;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to obtain OAuth 2.1 token: ${error.response?.data?.error_description || error.message}`
+      );
+    }
+  }
+
+  /**
+   * Refresh OAuth 2.1 token
+   */
+  private async refreshOAuth2Token(): Promise<Types.OAuth2Token> {
+    if (!this.config.oauth2) {
+      throw new Error("OAuth 2.1 not configured");
+    }
+
+    // If we have a refresh token, use it
+    if (this.oauth2Token?.refresh_token || this.config.oauth2.refreshToken) {
+      const { clientId, clientSecret, tokenUrl } = this.config.oauth2;
+      const refreshToken = this.oauth2Token?.refresh_token || this.config.oauth2.refreshToken;
+
+      const params = new URLSearchParams();
+      params.append("client_id", clientId);
+      params.append("client_secret", clientSecret);
+      params.append("grant_type", "refresh_token");
+      params.append("refresh_token", refreshToken!);
+
+      try {
+        const response = await axios.post(tokenUrl, params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        const token: Types.OAuth2Token = response.data;
+
+        if (token.expires_in) {
+          token.expires_at = Date.now() / 1000 + token.expires_in;
+        }
+
+        this.oauth2Token = token;
+        return token;
+      } catch (error: any) {
+        // If refresh fails, try to get a new token
+        return this.obtainOAuth2Token();
+      }
+    }
+
+    // Otherwise, get a new token
+    return this.obtainOAuth2Token();
   }
 
   // Repository Management
@@ -213,12 +389,31 @@ class OpenLMCPServer {
     const username = process.env.OPENL_USERNAME;
     const password = process.env.OPENL_PASSWORD;
     const apiKey = process.env.OPENL_API_KEY;
+    const clientDocumentId = process.env.OPENL_CLIENT_DOCUMENT_ID;
+    const timeout = process.env.OPENL_TIMEOUT ? parseInt(process.env.OPENL_TIMEOUT) : undefined;
+
+    // OAuth 2.1 configuration
+    let oauth2: Types.OAuth2Config | undefined;
+    if (process.env.OPENL_OAUTH2_CLIENT_ID && process.env.OPENL_OAUTH2_TOKEN_URL) {
+      oauth2 = {
+        clientId: process.env.OPENL_OAUTH2_CLIENT_ID,
+        clientSecret: process.env.OPENL_OAUTH2_CLIENT_SECRET || "",
+        tokenUrl: process.env.OPENL_OAUTH2_TOKEN_URL,
+        authorizationUrl: process.env.OPENL_OAUTH2_AUTHORIZATION_URL,
+        scope: process.env.OPENL_OAUTH2_SCOPE,
+        grantType: (process.env.OPENL_OAUTH2_GRANT_TYPE as any) || "client_credentials",
+        refreshToken: process.env.OPENL_OAUTH2_REFRESH_TOKEN,
+      };
+    }
 
     this.client = new OpenLClient({
       baseUrl,
       username,
       password,
       apiKey,
+      oauth2,
+      clientDocumentId,
+      timeout,
     });
 
     this.setupHandlers();

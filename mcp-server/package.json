@@ -12,9 +12,9 @@
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
     "watch": "tsc --watch",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix"
   },
