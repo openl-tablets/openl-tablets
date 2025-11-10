@@ -369,7 +369,8 @@ mcp-server/
 │   ├── tools.ts          # MCP tool definitions and metadata
 │   ├── schemas.ts        # Zod schemas for tool input validation
 │   ├── types.ts          # TypeScript type definitions
-│   └── constants.ts      # Configuration constants and defaults
+│   ├── constants.ts      # Configuration constants and defaults
+│   └── utils.ts          # Security and utility functions
 ├── tests/                # Test suites (Jest)
 │   ├── openl-client.test.ts
 │   ├── mcp-server.test.ts
@@ -397,6 +398,7 @@ mcp-server/
 - **schemas.ts**: Zod schemas for type-safe input validation
 - **types.ts**: TypeScript interfaces for OpenL Tablets API and internal types
 - **constants.ts**: Configuration defaults, endpoint paths, and constants
+- **utils.ts**: Security utilities (error sanitization, input validation, safe JSON)
 
 ### Building
 
