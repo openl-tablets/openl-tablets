@@ -1,7 +1,6 @@
 package org.openl.rules.rest;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -50,25 +47,20 @@ import org.openl.util.StringUtils;
 @Tag(name = "Management")
 public class ManagementController {
 
-    private final Environment environment;
     private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
-    private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
     private final JdbcMutableAclService aclService;
     private final RepositoryAclServiceProvider aclServiceProvider;
 
     @Autowired
-    public ManagementController(Environment environment, GroupDao groupDao,
+    public ManagementController(GroupDao groupDao,
                                 GroupManagementService groupManagementService,
-                                BeanValidationProvider validationProvider,
                                 ExternalGroupService extGroupService,
                                 @Autowired(required = false) JdbcMutableAclService aclService,
                                 RepositoryAclServiceProvider aclServiceProvider) {
-        this.environment = environment;
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
-        this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
         this.aclService = aclService;
         this.aclServiceProvider = aclServiceProvider;
@@ -90,34 +82,6 @@ public class ManagementController {
         long internal = groupManagementService.countUsersInGroup(group.getName());
         long external = extGroupService.countUsersInGroup(group.getName());
         uiGroup.numberOfMembers = new NumberOfMembers(internal, external);
-    }
-
-    private UIGroup buildUIGroup(Group group) {
-        UIGroup uiGroup = new UIGroup(group);
-        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DESIGN, group, uiGroup);
-        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_PROD, group, uiGroup);
-        buildnumberOfMembers(group, uiGroup);
-        return uiGroup;
-    }
-
-    private void buildUIRoles(String repoType, Group group, UIGroup uiGroup) {
-        var repositoryAclService = aclServiceProvider.getAclService(repoType);
-        var groupPermissions = repositoryAclService.listRootPermissions(new GrantedAuthoritySid(group.getName()));
-        if (groupPermissions.size() > 1) {
-            throw new IllegalStateException("Only one permission set is expected for the group.");
-        }
-        var permission = groupPermissions.stream().findFirst();
-        if (permission.isPresent()) {
-            var role = AclRole.getRole(permission.get().getMask());
-            if (role != null) {
-                if (uiGroup.repositoryTypeToRole == null) {
-                    uiGroup.repositoryTypeToRole = new LinkedHashMap<>();
-                }
-                uiGroup.repositoryTypeToRole.put(repoType, role);
-            } else {
-                throw new IllegalStateException("Role is expected.");
-            }
-        }
     }
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
@@ -223,8 +187,6 @@ public class ManagementController {
 
         @Parameter(description = "mgmt.schema.group.privileges")
         public Set<String> privileges;
-
-        public Map<String, AclRole> repositoryTypeToRole;
 
         public NumberOfMembers numberOfMembers;
     }
