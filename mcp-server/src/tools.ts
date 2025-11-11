@@ -108,7 +108,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "open_project",
     description: "Open a project for viewing and editing. Locks the project for exclusive access and loads all tables and resources. Must be called before making any changes to project rules or files.",
-    inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
+    inputSchema: zodToJsonSchema(schemas.projectActionSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
