@@ -4,6 +4,126 @@ Model Context Protocol (MCP) server for [OpenL Tablets](https://github.com/openl
 
 Built with MCP SDK v1.21.1, featuring type-safe schema validation, comprehensive error handling, and support for multiple authentication methods including OAuth 2.1.
 
+## Versioning in OpenL Tablets
+
+OpenL Tablets has **two independent versioning systems** that work together to provide comprehensive rule management:
+
+### 1. Git-Based Repository Versioning
+
+Every save/upload operation creates a Git commit automatically:
+- **Version identifier**: Git commit hash (e.g., "7a3f2b1c...")
+- **File names never change** between versions
+- **Complete project snapshot** in each commit
+- **Full audit trail** with author, timestamp, and comment
+
+**Related Tools**:
+- `get_file_history` - List all Git commits that modified a specific file
+- `get_project_history` - List all commits across entire project
+- `download_file` - Download specific version using commit hash
+- `compare_versions` - Compare two commits to see what changed
+- `revert_version` - Revert to previous commit (creates new commit preserving history)
+- `save_project` - Create new commit with changes
+- `upload_file` - Upload file and create new commit
+
+### 2. Dimension Properties Versioning
+
+Multiple versions of the **same rule** coexist, differentiated by business context properties:
+
+**Geographic Properties**:
+- `state` - US state (CA, NY, TX, CW=country-wide)
+- `country` - Country code (US, CA, UK)
+- `region` - US region (West, East, South)
+- `caProvince` - Canadian province (ON, BC, QC)
+
+**Business Properties**:
+- `lob` - Line of Business (Auto, Home, Life)
+- `currency` - Currency code (USD, EUR, GBP)
+
+**Temporal Properties**:
+- `effectiveDate` - When rule becomes legally active
+- `expirationDate` - When rule expires
+- `startRequestDate` - When rule is operationally introduced
+- `endRequestDate` - When rule is operationally retired
+
+**Scenario Properties**:
+- `version` - Version name (v1, draft, Q1_2025)
+- `active` - Active flag (true/false)
+- `origin` - Base vs Deviation
+- `nature` - User-defined custom values
+
+**Related Tools**:
+- `get_file_name_pattern` - Get dimension properties file naming pattern from rules.xml
+- `set_file_name_pattern` - Set pattern determining how properties encode in file names
+- `get_table_properties` - Get dimension properties for specific table
+- `set_table_properties` - Set dimension properties for rule versioning
+
+**Runtime Selection**: OpenL automatically selects the appropriate rule version based on request context (date, state, lob, etc.).
+
+**How They Work Together**:
+- Git commits track file changes over time (Timeline: Jan 1 → Feb 1 → Mar 1)
+- Within each commit, multiple rule versions coexist based on dimension properties (CA rules, TX rules, NY rules)
+- At runtime, OpenL selects correct commit AND correct rule version
+
+## Table Types
+
+OpenL Tablets supports multiple table types for different purposes. The **most commonly used** are Decision Tables and Spreadsheet Tables.
+
+### Decision Tables (5 Variants) ⭐ Most Common
+
+Decision tables implement conditional logic and business rules. OpenL Tablets provides 5 different decision table types, each optimized for specific use cases:
+
+#### 1. Rules Table (Standard Decision Table)
+- **Format**: `Rules <ReturnType> ruleName(<params>)`
+- **Features**: Explicit column markers (C1, C2, A1, RET1), complex Boolean logic, multiple action columns
+- **Use when**: Need maximum flexibility, complex conditions, or multiple actions
+- **Example**: Insurance premium with complex risk calculations
+
+#### 2. SimpleRules Table
+- **Format**: `SimpleRules <ReturnType> ruleName(<params>)`
+- **Features**: No column markers, positional parameter matching (left-to-right)
+- **Use when**: Simple decision logic, parameters naturally map left-to-right
+- **Example**: Discount calculation based on customer tier and purchase amount
+
+#### 3. SmartRules Table
+- **Format**: `SmartRules <ReturnType> ruleName(<params>)`
+- **Features**: No column markers, matches parameters by name (flexible column order)
+- **Use when**: Want flexible Excel layout, parameters have descriptive names
+- **Example**: Policy validation with many parameters in any order
+
+#### 4. SimpleLookup Table
+- **Format**: `SimpleLookup <ReturnType> ruleName(<params>)`
+- **Features**: Two-dimensional matrix with horizontal (HC1, HC2...) and vertical conditions
+- **Use when**: Need rate table or cross-reference table varying by two factors
+- **Example**: Premium rates by risk level × age bracket
+
+#### 5. SmartLookup Table
+- **Format**: `SmartLookup <ReturnType> ruleName(<params>)`
+- **Features**: Two-dimensional lookup with smart parameter matching
+- **Use when**: Need 2D lookup with flexible parameter naming
+- **Example**: Tax rates by state × income bracket
+
+### Spreadsheet Tables ⭐ Most Common
+
+- **Format**: `Spreadsheet <ReturnType> spreadsheetName(<params>)`
+- **Purpose**: Multi-step calculations requiring intermediate values and audit trails
+- **Features**: Grid with row/column names, formulas reference cells using `$columnName` or `$rowName$columnName`
+- **Return types**:
+  - `SpreadsheetResult` - Returns entire calculated matrix with all intermediate values
+  - Specific type (int, double) - Returns final calculated value
+- **Use when**: Complex calculations, financial computations, need calculation breakdown
+- **Example**: Insurance premium calculation showing base amount, adjustments, discounts, and final premium
+
+### Other Table Types (Rarely Used)
+
+- **Method** - Custom Java-like methods for complex algorithms
+- **TBasic** - Flow control algorithms with loops and conditionals
+- **Data** - Relational data storage for test data and reference data
+- **Datatype** - Custom data structure definitions (domain objects like Customer, Policy)
+- **Test** - Unit testing tables with input parameters and expected results
+- **Run** - Test suite execution tables
+- **Properties** - Category/module-level dimension properties configuration
+- **Configuration** - Environment settings and configuration
+
 ## Features
 
 ### Resources
@@ -11,36 +131,57 @@ Built with MCP SDK v1.21.1, featuring type-safe schema validation, comprehensive
 - **Projects** - View all projects across repositories
 - **Deployments** - Monitor deployed projects
 
-### Tools
+### Tools (24 Total)
 
 All tools include metadata (`_meta`) with version information, categorization, and operation characteristics for better client integration.
 
-#### System
-- `health_check` - Check server connectivity and authentication status
+#### Repository Management (2 tools)
+- `list_repositories` - List all design repositories with types and status
+- `list_branches` - List all Git branches in a repository
 
-#### Repository Management
-- `list_repositories` - List all design repositories
-- `list_branches` - List branches for a repository
+#### Project Management (6 tools)
+- `list_projects` - List projects with optional filters (repository, status, tag)
+- `get_project` - Get comprehensive project information including modules and dependencies
+- `open_project` - Open project for editing (locks for exclusive access)
+- `close_project` - Close project and release resources
+- `save_project` - Save changes and create new Git commit
+- `validate_project` - Validate project for compilation errors and warnings
 
-#### Project Management
-- `list_projects` - List projects with filters (repository, status, tag)
-- `get_project` - Get detailed project information
-- `get_project_info` - Get project info including modules and dependencies
-- `open_project` - Open a project for viewing/editing
-- `close_project` - Close an open project
-- `get_project_history` - Get version history
-- `create_branch` - Create a new branch
+#### File Management (3 tools)
+- `upload_file` - Upload Excel file and create Git commit
+- `download_file` - Download file (latest or specific version by commit hash)
+- `get_file_history` - Get Git commit history for specific file
 
-#### Rules (Tables) Management
-- `list_tables` - List all tables/rules in a project
-- `get_table` - Get detailed table data and structure
-- `update_table` - Update table content
-- `run_all_tests` - Run all tests in a project to validate rules correctness
-- `validate_project` - Validate project for errors and warnings before deployment
+#### Rules (Tables) Management (8 tools)
+- `list_tables` - List all tables/rules with optional filters (type, name, file)
+- `get_table` - Get detailed table structure and data
+- `update_table` - Update table content (conditions, actions, rows)
+- `create_rule` - Create new table (Decision Tables, Spreadsheet, or other types)
+- `copy_table` - Copy table within project or to different file
+- `execute_rule` - Execute rule with input data to test behavior
+- `run_test` - Run specific tests with smart selection
+- `run_all_tests` - Run all tests in project
 
-#### Deployment
-- `list_deployments` - List all deployments
-- `deploy_project` - Deploy a project to production
+#### Version Control (3 tools)
+- `get_project_history` - Get Git commit history for entire project
+- `compare_versions` - Compare two Git commits to see changes
+- `revert_version` - Revert to previous Git commit (preserves history)
+
+#### Deployment (2 tools)
+- `list_deployments` - List all active deployments
+- `deploy_project` - Deploy project to production environment
+
+#### Testing & Validation (2 tools, also listed above)
+- `validate_project` - Validate for errors before deployment
+- `get_project_errors` - Get detailed error analysis with categorization
+
+#### Dimension Properties (4 tools)
+- `get_file_name_pattern` - Get dimension properties file naming pattern
+- `set_file_name_pattern` - Set pattern for encoding properties in file names
+- `get_table_properties` - Get dimension properties for specific table
+- `set_table_properties` - Set dimension properties for rule versioning
+
+**Note**: Tools are organized by primary category. Some tools (like `validate_project`) serve multiple purposes.
 
 ### Technical Features
 
@@ -200,25 +341,6 @@ The server uses stdio transport and can be integrated with any MCP-compatible cl
 
 ## Tool Usage Examples
 
-### Check Server Health
-
-```typescript
-// Request
-{
-  "name": "health_check",
-  "arguments": {}
-}
-
-// Response
-{
-  "status": "healthy",
-  "baseUrl": "http://localhost:8080/webstudio/rest",
-  "authMethod": "OAuth 2.1",
-  "timestamp": "2025-11-10T12:30:00.000Z",
-  "serverReachable": true
-}
-```
-
 ### List All Projects
 
 ```typescript
@@ -344,17 +466,12 @@ Examples:
 - `design-insurance-rules`
 - `production-loan-calculator`
 
-### Table Types
+### Table Type Reference
 
-OpenL Tablets supports various table types:
-- `datatype` - Custom data type definitions
-- `vocabulary` - Enumeration/vocabulary tables
-- `spreadsheet` - Spreadsheet calculation tables
-- `simplerules` - Simple decision tables
-- `smartrules` - Smart decision tables
-- `method` - Method tables
-- `test` - Test tables
-- `data` - Data tables
+See the **Table Types** section above for comprehensive information on all supported table types including:
+- Decision Tables (5 variants): Rules, SimpleRules, SmartRules, SimpleLookup, SmartLookup
+- Spreadsheet Tables for multi-step calculations
+- Other types: Method, TBasic, Data, Datatype, Test, Run, Properties, Configuration
 
 ## Development
 
@@ -455,26 +572,13 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed extension guidelines.
 
 ## Troubleshooting
 
-### Health Check
-
-Use the `health_check` tool to verify connectivity and authentication:
-
-```typescript
-{
-  "name": "health_check",
-  "arguments": {}
-}
-```
-
-This will report server status, authentication method, and connectivity issues.
-
 ### Connection Issues
 
 If you encounter connection errors:
 
-1. Run `health_check` tool to diagnose the issue
+1. Try listing repositories with `list_repositories` to verify connectivity
 2. Verify OpenL Tablets WebStudio is running
-3. Check the `OPENL_BASE_URL` is correct
+3. Check the `OPENL_BASE_URL` is correct (should end with `/webstudio/rest`)
 4. Ensure the REST API path is `/webstudio/rest`
 5. Verify network connectivity
 6. Review enhanced error messages for endpoint and method details
@@ -483,14 +587,14 @@ If you encounter connection errors:
 
 If you receive 401/403 errors:
 
-1. Run `health_check` to see which authentication method is active
-2. Verify credentials:
-   - **Basic Auth**: Check username/password
-   - **API Key**: Verify API key is valid
-   - **OAuth 2.1**: Check token URL, client ID/secret, and scope
-3. Check user has appropriate permissions in OpenL Tablets
-4. For OAuth 2.1: Token refresh happens automatically, check logs for token acquisition issues
-5. Ensure the user can access the WebStudio interface
+1. Verify credentials in environment variables or configuration:
+   - **Basic Auth**: Check `OPENL_USERNAME` and `OPENL_PASSWORD`
+   - **API Key**: Verify `OPENL_API_KEY` is valid
+   - **OAuth 2.1**: Check `OPENL_OAUTH2_TOKEN_URL`, `OPENL_OAUTH2_CLIENT_ID`, `OPENL_OAUTH2_CLIENT_SECRET`, and `OPENL_OAUTH2_SCOPE`
+2. Check user has appropriate permissions in OpenL Tablets
+3. For OAuth 2.1: Token refresh happens automatically, check logs for token acquisition issues
+4. Ensure the user can access the WebStudio interface directly
+5. Try a simple read operation like `list_projects` to test authentication
 
 See [AUTHENTICATION.md](./AUTHENTICATION.md) for detailed authentication troubleshooting.
 
@@ -633,13 +737,17 @@ OpenL Tablets API error (404): Project not found [GET /design-repositories/desig
 Tool: get_project
 ```
 
-### Health Check Tool
+### Comprehensive Tool Coverage
 
-The `health_check` tool provides:
-- Server connectivity verification
-- Authentication method detection
-- Real-time status reporting
-- Troubleshooting information
+The server provides 24 tools covering:
+- Repository and branch management
+- Project lifecycle operations
+- File upload/download with versioning
+- Table/rule creation and modification
+- Testing and validation
+- Deployment to production
+- Git-based version control
+- Dimension properties for rule versioning
 
 ### SDK Version
 
