@@ -4,9 +4,10 @@ import { Checkbox, Input, InputNumber, InputPassword } from '../../components'
 import { Divider, Form } from 'antd'
 import {
     BranchModal,
-    DefaultBranchModal, FlatFolderStructureModal,
+    DefaultBranchModal,
     LocalPathModal,
-    MewBranchRegexErrorModal, NewBranchRegexModal,
+    MewBranchRegexErrorModal,
+    NewBranchRegexModal,
     ProtectedBranchesModal,
     RemoteRepositoryModal,
     URLModal,
@@ -21,7 +22,6 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
     const { t } = useTranslation()
     const form = Form.useFormInstance()
     const isRemoteRepository = Form.useWatch(['settings', 'remoteRepository'], form)
-    const isFlatFolderStructure = Form.useWatch(['settings', 'flatFolderStructure'], form)
 
     return (
         <>
@@ -61,11 +61,6 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
                     <Input label={t('repository:default_branch_name')} name={['settings', 'newBranchTemplate']} tooltip={{ icon: DefaultBranchModal }} />
                     <Input label={t('repository:branch_name_pattern')} name={['settings', 'newBranchRegex']} tooltip={{ icon: NewBranchRegexModal }} />
                     <Input label={t('repository:invalid_branch_name_message_hint')} name={['settings', 'newBranchRegexError']} tooltip={{ icon: MewBranchRegexErrorModal }} />
-                    <Divider orientation="left">{t('repository:folder_structure')}</Divider>
-                    <Checkbox label={t('repository:flat_folder_structure')} name={['settings', 'flatFolderStructure']} tooltip={{ icon: FlatFolderStructureModal }} />
-                    {isFlatFolderStructure && (
-                        <Input label={t('repository:path')} name={['settings', 'basePath']} />
-                    )}
                 </>
             )}
 

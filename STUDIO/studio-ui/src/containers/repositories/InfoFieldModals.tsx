@@ -227,13 +227,3 @@ export const MessageRestoreFromOldVersionModal = (
         )}
     />
 )
-
-export const FlatFolderStructureModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>If flat structure is used, all projects are stored in a given folder. If non-flat structure is used, projects locations can be modified.</p>
-            </>
-        )}
-    />
-)
