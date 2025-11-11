@@ -1,269 +1,283 @@
-# Get Project Errors - Prompt Template
+# Analyzing and Fixing Project Errors
 
-## Purpose
-Provide detailed error analysis with fix suggestions to help AI assistant resolve issues.
+Guide AI assistants to understand, categorize, and fix project errors efficiently.
 
-## Prompt
+## Quick Error Analysis Workflow
 
-## Project Error Analysis
-
-**Project:** `{project_name}`
-**Status:** {error_count} errors, {warning_count} warnings
-
----
-
-### Error Summary
-
-**Severity breakdown:**
-- 🔴 **Errors:** {error_count} (must fix before save/deploy)
-- 🟡 **Warnings:** {warning_count} (recommended to fix)
-- 🟢 **Info:** {info_count} (optional improvements)
-
-**Categories:**
-- Type errors: {type_error_count}
-- Syntax errors: {syntax_error_count}
-- Reference errors: {reference_error_count}
-- Validation errors: {validation_error_count}
-
----
-
-### Errors (Must Fix)
-
-{for each error:}
-#### Error {index}: {error_type}
-
-**Message:** {error_message}
-
-**Location:**
-- File: `{file_name}`
-- Table: `{table_name}` ({table_type})
-- Line: {line_number}, Column: {column_number}
-- Cell: {cell_reference} {if applicable}
-
-**Severity:** 🔴 ERROR
-
-**Code snippet:**
 ```
-{code_context_before}
-→ {problematic_code}  ⚠️ Error here
-{code_context_after}
+1. Get errors
+   get_project_errors(projectId) → See all errors with details
+
+2. Categorize
+   Group by type: type errors, syntax errors, reference errors
+
+3. Fix patterns
+   Apply common fixes for each error type
+
+4. Validate
+   validate_project(projectId) → Confirm fixes worked
+
+5. Test
+   run_all_tests(projectId) → Ensure nothing broke
 ```
 
-**Problem explanation:**
-{detailed_explanation}
+## Common Error Types & Quick Fixes
 
-**Root cause:**
-{root_cause_analysis}
+### 1. Type Mismatch Errors
 
----
+**Pattern**: `Cannot convert String to Integer` or `Type mismatch: expected X, got Y`
 
-**💡 Suggested fix:**
-
-{fix_suggestion_explanation}
-
-**Option 1: Quick fix** (recommended)
-```
-{quick_fix_code}
-```
-
-**Option 2: Alternative approach**
-```
-{alternative_fix_code}
-```
-
-**Option 3: Refactor** (if structural issue)
-```
-{refactoring_suggestion}
-```
-
----
-
-**Why this works:**
-{explanation_of_fix}
-
-**Would you like me to apply this fix?** (yes/no/show-alternatives)
-
----
-
-{end for}
-
----
-
-### Common Error Patterns & Fixes
-
-#### 1. Type Mismatch Errors
-
-**Pattern:** `Cannot convert String to Integer`
-
-**Common causes:**
+**Common Causes**:
 - Column data type doesn't match rule signature
 - Input data format incorrect
 - Missing type conversion
 
-**Fix:**
-```java
-// Before (error)
-Integer age = customerData;  // customerData is String
+**Quick Fixes**:
+```
+Option 1: Add type conversion
+  Integer.parseInt(stringValue)
+  Double.parseDouble(stringValue)
 
-// After (fixed)
-Integer age = Integer.parseInt(customerData);
+Option 2: Change column type
+  Update table to match expected type
+
+Option 3: Fix rule signature
+  Change parameter type to match data
+```
+
+**Example**:
+```
+Error: Cannot convert "30" (String) to int
+Fix: Integer.parseInt(age) or change column to int type
 ```
 
 ---
 
-#### 2. Reference Errors
+### 2. Reference Errors
 
-**Pattern:** `Datatype 'Customer' not found`
+**Pattern**: `Datatype 'Customer' not found` or `Table 'RuleName' not found`
 
-**Common causes:**
-- Referenced datatype not defined
-- Typo in datatype name
-- Datatype in different module not imported
+**Common Causes**:
+- Referenced datatype/table doesn't exist
+- Typo in name (case-sensitive)
+- Table in different module not imported
 
-**Fix:**
-1. Check if datatype exists: Use `list_tables` with filter `tableType=datatype`
-2. If missing, create it: Use `create_rule` to create datatype
-3. If exists, check spelling matches exactly (case-sensitive)
+**Quick Fixes**:
+```
+Step 1: Check if exists
+  list_tables(projectId, tableType: "Datatype", name: "Customer")
+
+Step 2: If missing, create it
+  create_rule(projectId, name: "Customer", tableType: "Datatype", ...)
+
+Step 3: If exists, fix spelling
+  Check exact name (case-sensitive: "Customer" ≠ "customer")
+```
+
+**Example**:
+```
+Error: Datatype 'Policy' not found
+Fix 1: Create Policy datatype if missing
+Fix 2: Correct spelling if typo ("Polcy" → "Policy")
+```
 
 ---
 
-#### 3. Syntax Errors
+### 3. Syntax Errors
 
-**Pattern:** `Unexpected token at line 15`
+**Pattern**: `Unexpected token` or `Invalid syntax at line X`
 
-**Common causes:**
+**Common Causes**:
 - Excel formula syntax error
 - Invalid OpenL syntax
-- Missing brackets/parentheses
+- Missing/unbalanced brackets
+- Special characters in wrong places
 
-**Fix:**
-- Review Excel formula syntax
-- Check OpenL Tablets syntax guide
-- Validate brackets are balanced
+**Quick Fixes**:
+```
+Check:
+- Balanced parentheses: ( )
+- Balanced brackets: [ ]
+- Balanced braces: { }
+- Valid Excel formula syntax
+- OpenL Tablets syntax rules
+```
+
+**Example**:
+```
+Error: Unexpected token at line 15
+Common issues:
+- Missing closing parenthesis
+- Extra bracket
+- Invalid Excel formula: =SUM(A1:A10 (missing )
+```
 
 ---
 
-#### 4. Circular Reference Errors
+### 4. Circular Reference Errors
 
-**Pattern:** `Circular dependency detected: RuleA → RuleB → RuleA`
+**Pattern**: `Circular dependency detected: RuleA → RuleB → RuleA`
 
-**Common causes:**
+**Common Causes**:
 - Rule calls itself indirectly
 - Two rules call each other
 - Dependency cycle in datatypes
 
-**Fix:**
-1. Identify the cycle: {cycle_path}
-2. Break the cycle by:
-   - Extract common logic to separate rule
-   - Use method table for shared functionality
-   - Redesign rule dependencies
-
----
-
-### Warnings (Recommended to Fix)
-
-{for each warning:}
-#### Warning {index}: {warning_type}
-
-**Message:** {warning_message}
-
-**Location:**
-- File: `{file_name}`
-- Table: `{table_name}`
-
-**Severity:** 🟡 WARNING
-
-**Impact:**
-{impact_description}
-
-**Recommendation:**
-{recommendation}
-
-**Fix (optional):**
+**Quick Fixes**:
 ```
-{suggested_fix}
+Step 1: Identify cycle
+  Review dependency chain shown in error
+
+Step 2: Break cycle
+  Option A: Extract shared logic to new rule
+  Option B: Use Method table for shared functionality
+  Option C: Redesign to remove circular dependency
 ```
 
-{end for}
+**Example**:
+```
+Error: calculatePremium → getRiskFactor → calculatePremium
+Fix: Extract risk calculation to separate rule: determineRisk()
+```
 
 ---
 
-### Automated Fix Options
+### 5. Validation Errors
 
-I can help fix these errors:
+**Pattern**: `Rule validation failed` or `Invalid rule configuration`
 
-**Auto-fixable errors:** {auto_fixable_count}/{error_count}
+**Common Causes**:
+- Business logic errors
+- Invalid dimension properties
+- Missing required configuration
+- Conflicting rules
 
-1. **Fix all type conversion errors** ({type_error_count} errors)
-   - Add appropriate type conversions
-   - Update column types
+**Quick Fixes**:
+```
+Step 1: Review error details
+  Check specific validation message
 
-2. **Fix naming/reference errors** ({reference_error_count} errors)
-   - Correct typos in datatype references
-   - Add missing imports
-
-3. **Fix syntax errors** ({syntax_error_count} errors)
-   - Correct Excel formula syntax
-   - Balance brackets
-
-4. **Fix one by one** (manual review)
-   - Review and approve each fix
-
-**What would you like to do?**
-- (1-4) Select auto-fix option
-- (custom) I'll fix them manually
-- (help) Explain a specific error
+Step 2: Fix configuration
+  Correct dimension properties
+  Fix rule logic
+  Remove conflicts
+```
 
 ---
 
-### Error-Free Checklist
+## Error Resolution Strategies
 
-To make your project error-free:
+### Strategy 1: Fix by Category (Fastest)
 
-- [ ] Fix all {error_count} errors listed above
-- [ ] Review {warning_count} warnings
-- [ ] Run `validate_project` again to confirm
-- [ ] Run `run_all_tests` to ensure rules work correctly
-- [ ] Save project with `save_project`
+```
+1. Group errors by type
+2. Fix all type errors together (same pattern)
+3. Fix all reference errors together
+4. Fix all syntax errors together
+5. Validate after each category
+```
 
----
+### Strategy 2: Fix by Severity (Safest)
 
-### Next Steps
+```
+1. Fix blocking errors first (prevent save/deploy)
+2. Fix warnings next (improve quality)
+3. Address info messages last (optimizations)
+```
 
-**Recommended workflow:**
+### Strategy 3: Fix by File (Organized)
 
-1. **Fix errors** - Start with auto-fixable errors
-2. **Validate** - Run `validate_project` to confirm fixes
-3. **Test** - Run `run_all_tests` to ensure correctness
-4. **Save** - Use `save_project` to persist changes
-5. **Deploy** - Use `deploy_project` when ready
+```
+1. Group errors by file/table
+2. Fix all errors in one file
+3. Move to next file
+4. Validate after each file
+```
 
-**Start with auto-fix?** (yes/no)
+## Error-Free Workflow
 
----
+```
+1. Get all errors
+   get_project_errors(projectId)
 
-## Error Categories Explained
+2. Analyze and categorize
+   Type errors: X
+   Reference errors: Y
+   Syntax errors: Z
 
-### Type Errors
-**What:** Data type mismatches (String vs Integer, etc.)
-**Fix:** Add type conversions or fix column types
+3. Apply fixes
+   Fix each error using patterns above
 
-### Syntax Errors
-**What:** Invalid code syntax, formula errors
-**Fix:** Correct syntax according to OpenL/Excel rules
+4. Validate fixes
+   validate_project(projectId) → Should return success
 
-### Reference Errors
-**What:** Referenced table/datatype doesn't exist
-**Fix:** Create missing dependencies or fix names
+5. Run tests
+   run_all_tests(projectId) → Ensure all passing
 
-### Validation Errors
-**What:** Business rule validation failures
-**Fix:** Correct rule logic or data
+6. Save
+   save_project(projectId)
+```
 
----
+## Troubleshooting Complex Errors
 
-**Total errors to fix:** {error_count}
-**Estimated fix time:** ~{estimated_fix_time} minutes
+### Multiple Related Errors
 
-**Ready to start fixing?** (yes/no)
+If one error causes cascading errors:
+1. Fix the root cause first
+2. Re-validate to see if others disappear
+3. Fix remaining errors
+
+### Persistent Errors After Fix
+
+If error persists after fix:
+1. Verify fix was applied correctly
+2. Check if error message changed
+3. Review related code
+4. Try alternative fix approach
+
+### Unclear Error Messages
+
+If error message is unclear:
+1. Check file and line number
+2. Review surrounding code context
+3. Look for recent changes in that area
+4. Compare to similar working code
+
+## Prevention Best Practices
+
+**DO**:
+- Validate frequently during development
+- Fix errors immediately when they appear
+- Test after every significant change
+- Use consistent naming conventions
+- Document complex logic
+
+**DON'T**:
+- Accumulate errors (fix as you go)
+- Skip validation before saving
+- Ignore warnings (they become errors)
+- Deploy with any errors present
+- Guess at fixes (understand the error first)
+
+## Quick Reference: Error → Fix Mapping
+
+| Error Type | Quick Fix Tool/Action |
+|------------|----------------------|
+| Type mismatch | Add type conversion or change column type |
+| Datatype not found | `create_rule` with `tableType: "Datatype"` |
+| Table not found | Check spelling or create missing table |
+| Syntax error | Review Excel formula syntax, balance brackets |
+| Circular dependency | Extract shared logic to new rule |
+| Missing parameter | Add parameter to rule signature |
+| Invalid property | Check dimension properties values |
+| Compilation error | Review code syntax, fix Java-like errors |
+
+## After Fixing All Errors
+
+```
+Final Checklist:
+✓ validate_project → Success (0 errors)
+✓ run_all_tests → All passing
+✓ save_project → Create commit
+✓ Ready for deployment
+```

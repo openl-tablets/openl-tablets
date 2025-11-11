@@ -1,303 +1,290 @@
-# Execute Rule - Prompt Template
+# Executing Rules for Testing
 
-## Purpose
-Help AI assistant construct valid test data and execute rules to verify behavior.
+Guide AI assistants to construct test data and execute rules to verify behavior.
 
-## Prompt
+## When to Execute Rules
 
-## Rule Execution Setup
+Use `execute_rule` tool in these scenarios:
+- **After creating a new rule** - Verify it works as expected
+- **After modifying a rule** - Ensure changes work correctly
+- **Before saving** - Quick validation of logic
+- **During debugging** - Understand rule behavior
+- **Creating test data** - See what inputs produce what outputs
 
-**Rule to execute:** `{rule_name}`
-**Type:** {rule_type}
+## Quick Execution Workflow
 
----
+```
+1. Get rule signature
+   get_table(projectId, tableId) → See parameters and return type
 
-### Rule Signature
+2. Construct test data
+   Build JSON with values for all parameters
 
-```java
-{return_type} {rule_name}({parameters})
+3. Execute rule
+   execute_rule(projectId, ruleName, parameters: {...})
+
+4. Review output
+   Check if result matches expectations
+
+5. Iterate if needed
+   Adjust rule or test data and re-execute
 ```
 
-**Return type:** `{return_type}`
-**Parameters:**
+## Test Data Construction Patterns
 
-{for each parameter:}
-- **{parameter_name}**: `{parameter_type}` {required_indicator}
-  - Description: {parameter_description}
-  - Valid values: {valid_values_or_range}
-  - Example: `{example_value}`
-{end for}
+### Simple Types (String, int, double, boolean)
 
----
-
-### Input Data Required
-
-To execute this rule, provide values for all parameters:
-
-#### Parameter Details
-
-{for each parameter:}
-##### {index}. {parameter_name} ({parameter_type})
-
-**Type:** `{parameter_type}`
-**Required:** {is_required}
-
-{if simple_type:}
-**Format:** {format_description}
-**Example:** `{example_value}`
-
-**Your value:** _______________
-
-{else if datatype:}
-**Structure:** This is a custom datatype with these fields:
-```json
-{datatype_structure_json}
-```
-
-**Example:**
-```json
-{example_datatype_instance}
-```
-
-**Your value (JSON):**
-```json
-{user_to_fill}
-```
-
-{else if array:}
-**Element type:** `{array_element_type}`
-**Format:** Array of {array_element_type}
-
-**Example:**
-```json
-{example_array}
-```
-
-**Your value (JSON):**
-```json
-{user_to_fill}
-```
-
-{end if}
-
-{end for}
-
----
-
-### Quick Test Data Templates
-
-I can generate test data for common scenarios:
-
-#### Template 1: Typical Case ✅ Recommended
-**Scenario:** {typical_scenario_description}
-**Input data:**
-```json
-{typical_test_data}
-```
-**Expected output:** ~{expected_output_typical}
-
-#### Template 2: Edge Case - Minimum Values
-**Scenario:** {minimum_scenario_description}
-**Input data:**
-```json
-{minimum_test_data}
-```
-**Expected output:** ~{expected_output_minimum}
-
-#### Template 3: Edge Case - Maximum Values
-**Scenario:** {maximum_scenario_description}
-**Input data:**
-```json
-{maximum_test_data}
-```
-**Expected output:** ~{expected_output_maximum}
-
-#### Template 4: Error Case
-**Scenario:** {error_scenario_description}
-**Input data:**
-```json
-{error_test_data}
-```
-**Expected output:** Error or validation failure
-
-#### Template 5: Custom
-**Your scenario:** ___________________________
-**Input data:**
+**Format**: Direct values in JSON
 ```json
 {
-  // Fill in your custom test data
+  "driverType": "SAFE",
+  "age": 30,
+  "premium": 1000.50,
+  "eligible": true
 }
 ```
 
----
+### Custom Datatypes (Objects)
 
-### Test Data Selection
-
-**What would you like to do?**
-
-1. Use Template 1 (typical case) ⚡ Quick test
-2. Use Template 2 (minimum values)
-3. Use Template 3 (maximum values)
-4. Use Template 4 (error case)
-5. Provide custom test data
-6. Generate random valid data
-7. Use data from existing test table
-
-**Your choice:** (1-7)
-
----
-
-### Data Validation
-
-Before executing, I'll validate your input data:
-
-**Validation checks:**
-- ✓ All required parameters provided
-- ✓ Data types match parameter types
-- ✓ Values within valid ranges
-- ✓ Referenced datatypes are complete
-- ✓ Arrays have correct element types
-
-{if validation_errors:}
-⚠️ **Validation errors found:**
-{list_validation_errors}
-
-**Please fix these before execution.**
-{end if}
-
----
-
-### Execution Options
-
-**Execution mode:**
-
-1. **Execute once** - Run with single input
-2. **Execute batch** - Run with multiple inputs (array)
-3. **Execute and compare** - Run and compare to expected output
-4. **Execute with tracing** - Run with detailed execution trace (debug mode)
-
-**Select mode:** (1-4)
-
----
-
-### Expected Output
-
-**Based on the rule logic, expected output:**
-
-**Return type:** `{return_type}`
-
-{if simple_return_type:}
-**Expected value:** ~`{estimated_output}`
-{else if datatype_return:}
-**Expected structure:**
-```json
-{return_datatype_structure}
-```
-{else if array_return:}
-**Expected:** Array of `{array_element_type}`
-{end if}
-
-**Confidence:** {confidence_level} (based on rule analysis)
-
----
-
-### Execution Preview
-
-**Ready to execute:**
-
+**Format**: JSON object matching datatype structure
 ```json
 {
-  "rule": "{rule_name}",
-  "parameters": {
-    {parameter_values_preview}
+  "customer": {
+    "name": "John Doe",
+    "age": 30,
+    "state": "CA"
   },
-  "expected_output": {expected_output_preview},
-  "execution_mode": "{selected_mode}"
+  "policy": {
+    "type": "Auto",
+    "effectiveDate": "01/01/2025"
+  }
 }
 ```
 
-**Execute now?** (yes/no/modify)
+**Steps**:
+1. Use `list_tables` with filter `tableType=Datatype` to find datatype definition
+2. Use `get_table` to see datatype structure
+3. Build JSON matching all required fields
 
----
+### Arrays
 
-### After Execution
+**Format**: JSON array with elements of specified type
+```json
+{
+  "drivers": [
+    {"name": "John", "age": 30},
+    {"name": "Jane", "age": 28}
+  ],
+  "states": ["CA", "NY", "TX"]
+}
+```
 
-I will show you:
+### Dates
 
-1. **Actual output:**
-   ```json
-   {actual_output}
-   ```
+**Format**: String in MM/DD/YYYY or YYYY-MM-DD format
+```json
+{
+  "effectiveDate": "01/01/2025",
+  "expirationDate": "2025-12-31"
+}
+```
 
-2. **Execution time:** {execution_time_ms} ms
+## Test Data Templates
 
-3. **Comparison to expected:**
-   - Match: {match_status} ✅/❌
-   - Differences: {differences_if_any}
+### Template 1: Typical Case (Use This First)
 
-4. **Execution trace** (if enabled):
-   - Rules called
-   - Intermediate values
-   - Decision path taken
+Start with typical, valid values that should work:
+```json
+{
+  "paramName1": "typical value",
+  "paramName2": 100,
+  "paramName3": true
+}
+```
 
-5. **Analysis:**
-   - Does output match expected? {yes/no}
-   - Any unexpected behavior? {yes/no}
-   - Recommendations: {recommendations}
+**Expected**: Normal, successful execution
 
----
+### Template 2: Boundary Values
 
-### Use Cases for Rule Execution
+Test edge cases:
+```json
+{
+  "age": 18,          // Minimum
+  "amount": 0,        // Zero
+  "percentage": 1.0   // Maximum
+}
+```
 
-✅ **When to execute rules:**
-- After creating a new rule - verify it works
-- After modifying a rule - ensure changes work correctly
-- Before saving - quick validation
-- Debugging - understand rule behavior
-- Creating test data - see what inputs produce what outputs
+**Expected**: Should still work, might return edge case results
 
-✅ **Benefits:**
-- Immediate feedback on rule changes
-- No need to deploy to test
-- Fast iteration during development
-- Helps create test tables with expected outputs
+### Template 3: Invalid Data (Error Testing)
 
----
+Test with invalid inputs:
+```json
+{
+  "age": -5,          // Negative (invalid)
+  "state": "XX",      // Invalid state
+  "amount": null      // Null value
+}
+```
 
-### Quick Execution Workflow
+**Expected**: Validation error or rule handles gracefully
 
-**For rapid testing:**
+## Common Execution Scenarios
 
-1. I suggest typical test data
-2. You approve or modify
-3. I execute the rule
-4. We review output together
-5. If incorrect, we fix the rule
-6. Repeat until correct
-7. Save the working rule
+### Scenario 1: Test Decision Table
 
-**Start quick execution?** (yes/no)
+**Rule**: `calculateDiscount(String tier, double amount)`
 
----
+**Test Data**:
+```json
+{
+  "tier": "GOLD",
+  "amount": 1500.00
+}
+```
 
-## Test Data Generation Tips
+**Execute**:
+```
+execute_rule(
+  projectId: "design-Pricing",
+  ruleName: "calculateDiscount",
+  parameters: {"tier": "GOLD", "amount": 1500.00}
+)
+```
 
-### For Decision Tables
-- Test each condition combination
-- Test boundary values
-- Test default cases
+**Expected Output**: Discount value (e.g., 0.15 for 15%)
 
-### For Spreadsheets
-- Test with zero values
-- Test with negative values (if applicable)
-- Test extreme values
+### Scenario 2: Test Spreadsheet Calculation
 
-### For Datatypes
-- Ensure all required fields populated
-- Test with null/optional fields
+**Rule**: `calculatePremium(int baseAmount, String riskLevel)`
 
----
+**Test Data**:
+```json
+{
+  "baseAmount": 1000,
+  "riskLevel": "HIGH"
+}
+```
 
-**Ready to execute `{rule_name}`?** (yes/no)
+**Execute**:
+```
+execute_rule(
+  projectId: "design-Insurance",
+  ruleName: "calculatePremium",
+  parameters: {"baseAmount": 1000, "riskLevel": "HIGH"}
+)
+```
 
-**Need help with test data?** (yes/no)
+**Expected Output**: If return type is `SpreadsheetResult`, returns full calculation matrix. If return type is `int`, returns final premium value.
+
+### Scenario 3: Test Rule with Custom Datatype
+
+**Rule**: `validatePolicy(Policy policy, Driver driver)`
+
+**Get Datatype Structure First**:
+```
+list_tables(projectId, tableType: "Datatype", name: "Policy")
+get_table(projectId, tableId: "Policy")
+```
+
+**Build Test Data** matching datatype:
+```json
+{
+  "policy": {
+    "type": "Auto",
+    "state": "CA",
+    "effectiveDate": "01/01/2025"
+  },
+  "driver": {
+    "name": "John Doe",
+    "age": 30,
+    "licenseNumber": "D1234567"
+  }
+}
+```
+
+**Execute**:
+```
+execute_rule(
+  projectId: "design-Underwriting",
+  ruleName: "validatePolicy",
+  parameters: {...}
+)
+```
+
+**Expected Output**: Boolean (true/false) or validation result object
+
+## Return Type Interpretation
+
+**Simple types** (int, double, String, boolean):
+- Rule returns single value directly
+
+**SpreadsheetResult**:
+- Returns entire calculation matrix
+- All intermediate values accessible
+- Use to see calculation breakdown
+
+**Custom datatypes**:
+- Returns object matching datatype structure
+- Check all fields in result
+
+**Arrays**:
+- Returns array of elements
+- May be empty if no matches found
+
+## Troubleshooting Execution
+
+### Error: "Parameter type mismatch"
+- Check parameter types in rule signature
+- Ensure JSON values match expected types
+- Convert strings to numbers if needed
+
+### Error: "Datatype not found"
+- Use `list_tables` to find datatype
+- Check spelling (case-sensitive)
+- Ensure datatype exists in project
+
+### Error: "Missing required parameter"
+- Check rule signature for all required parameters
+- Provide values for all parameters
+- Use null for optional parameters if needed
+
+### Unexpected Output
+- Review rule logic with `get_table`
+- Check test data values
+- Execute with different test data to isolate issue
+- Compare to existing test tables
+
+## Best Practices
+
+**DO**:
+- Start with typical test data
+- Test edge cases and boundaries
+- Execute after every rule change
+- Use execution results to create test tables
+- Iterate quickly during development
+
+**DON'T**:
+- Skip execution before saving
+- Use only one test case
+- Assume rule works without testing
+- Deploy without executing rules first
+
+## Integration with Testing
+
+**Quick Test Cycle**:
+```
+1. Modify rule → update_table()
+2. Execute rule → execute_rule() with test data
+3. If passing → Create test table
+4. Run tests → run_test()
+5. Save → save_project()
+```
+
+**Creating Test Tables from Execution**:
+1. Execute rule with various inputs
+2. Note inputs that work correctly
+3. Create Test table with those inputs as test cases
+4. Set expected outputs based on execution results
+5. Run test to validate
