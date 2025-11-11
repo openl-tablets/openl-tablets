@@ -328,6 +328,30 @@ export const TOOLS: ToolDefinition[] = [
       modifiesState: true,
     },
   },
+
+  // =============================================================================
+  // Phase 2: Git Version History Tools
+  // =============================================================================
+  {
+    name: "get_file_history",
+    description: "Get Git commit history for a specific file. Returns list of commits with hashes, authors, timestamps, and commit types. Use this to see all versions of a file over time.",
+    inputSchema: zodToJsonSchema(schemas.getFileHistorySchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.VERSION_CONTROL,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "get_project_history",
+    description: "Get Git commit history for entire project. Returns chronological list of all commits with metadata about files and tables changed. Supports pagination and branch filtering.",
+    inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.VERSION_CONTROL,
+      requiresAuth: true,
+    },
+  },
 ];
 
 /**

@@ -508,3 +508,64 @@ export interface RevertVersionResult {
   message?: string;
   validationErrors?: ValidationError[];
 }
+
+// =============================================================================
+// Phase 2: Git Version History Types
+// =============================================================================
+
+/** Commit type from OpenL operations */
+export type CommitType = "SAVE" | "ARCHIVE" | "RESTORE" | "ERASE" | "MERGE";
+
+/** Get file history request */
+export interface GetFileHistoryRequest {
+  projectId: string;
+  filePath: string;
+  limit?: number;        // Max commits to return (default: 50)
+  offset?: number;       // Skip first N commits (for pagination)
+}
+
+/** File history commit entry */
+export interface FileHistoryCommit {
+  commitHash: string;
+  author: { name: string; email: string };
+  timestamp: string;
+  comment: string;
+  commitType: CommitType;
+  size?: number;
+}
+
+/** Get file history result */
+export interface GetFileHistoryResult {
+  filePath: string;
+  commits: FileHistoryCommit[];
+  total: number;         // Total commits available
+  hasMore: boolean;      // More commits available
+}
+
+/** Get project history request */
+export interface GetProjectHistoryRequest {
+  projectId: string;
+  limit?: number;
+  offset?: number;
+  branch?: string;   // Optional: specific branch (default: current branch)
+}
+
+/** Project history commit entry */
+export interface ProjectHistoryCommit {
+  commitHash: string;
+  author: { name: string; email: string };
+  timestamp: string;
+  comment: string;
+  commitType: CommitType;
+  filesChanged: number;
+  tablesChanged?: number;
+}
+
+/** Get project history result */
+export interface GetProjectHistoryResult {
+  projectId: string;
+  branch: string;
+  commits: ProjectHistoryCommit[];
+  total: number;
+  hasMore: boolean;
+}

@@ -241,20 +241,6 @@ export class OpenLClient {
     };
   }
 
-  /**
-   * Get project version history
-   *
-   * @param projectId - Project ID in format "repository-projectName"
-   * @returns Array of project history entries
-   */
-  async getProjectHistory(projectId: string): Promise<Types.ProjectHistory[]> {
-    const [repository, projectName] = this.parseProjectId(projectId);
-    const response = await this.axiosInstance.get<Types.ProjectHistory[]>(
-      `/design-repositories/${repository}/projects/${projectName}/history`
-    );
-    return response.data;
-  }
-
   // =============================================================================
   // File Management
   // =============================================================================
@@ -806,5 +792,99 @@ export class OpenLClient {
         message: `Failed to revert: ${sanitizeError(error)}`,
       };
     }
+  }
+
+  // =============================================================================
+  // Phase 2: Git Version History Methods
+  // =============================================================================
+
+  /**
+   * Parse commit type from comment
+   *
+   * @param comment - Commit comment
+   * @returns Commit type
+   */
+  private parseCommitType(comment?: string): Types.CommitType {
+    if (!comment) return "SAVE";
+    if (comment.includes("Type: ARCHIVE")) return "ARCHIVE";
+    if (comment.includes("Type: RESTORE")) return "RESTORE";
+    if (comment.includes("Type: ERASE")) return "ERASE";
+    if (comment.includes("Type: MERGE")) return "MERGE";
+    return "SAVE";
+  }
+
+  /**
+   * Get Git commit history for a specific file
+   *
+   * @param request - File history request
+   * @returns File commit history with pagination
+   */
+  async getFileHistory(request: Types.GetFileHistoryRequest): Promise<Types.GetFileHistoryResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    const response = await this.axiosInstance.get(
+      `/design-repositories/${repository}/projects/${projectName}/files/${request.filePath}/history`,
+      {
+        params: {
+          limit: request.limit || 50,
+          offset: request.offset || 0,
+        },
+      }
+    );
+
+    const commits = response.data.commits?.map((fileData: Types.FileData) => ({
+      commitHash: fileData.version || "",
+      author: fileData.author || { name: "unknown", email: "" },
+      timestamp: fileData.modifiedAt || new Date().toISOString(),
+      comment: fileData.comment || "",
+      commitType: this.parseCommitType(fileData.comment),
+      size: fileData.size,
+    })) || [];
+
+    return {
+      filePath: request.filePath,
+      commits,
+      total: response.data.total || commits.length,
+      hasMore: (request.offset || 0) + commits.length < (response.data.total || commits.length),
+    };
+  }
+
+  /**
+   * Get Git commit history for entire project
+   *
+   * @param request - Project history request
+   * @returns Project commit history with pagination
+   */
+  async getProjectHistory(request: Types.GetProjectHistoryRequest): Promise<Types.GetProjectHistoryResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    const response = await this.axiosInstance.get(
+      `/design-repositories/${repository}/projects/${projectName}/history`,
+      {
+        params: {
+          limit: request.limit || 50,
+          offset: request.offset || 0,
+          branch: request.branch,
+        },
+      }
+    );
+
+    const commits = response.data.commits?.map((commit: any) => ({
+      commitHash: commit.version || "",
+      author: commit.author || { name: "unknown", email: "" },
+      timestamp: commit.modifiedAt || new Date().toISOString(),
+      comment: commit.comment || "",
+      commitType: this.parseCommitType(commit.comment),
+      filesChanged: commit.filesChanged || 0,
+      tablesChanged: commit.tablesChanged,
+    })) || [];
+
+    return {
+      projectId: request.projectId,
+      branch: response.data.branch || request.branch || "main",
+      commits,
+      total: response.data.total || commits.length,
+      hasMore: (request.offset || 0) + commits.length < (response.data.total || commits.length),
+    };
   }
 }

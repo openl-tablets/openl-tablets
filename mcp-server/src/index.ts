@@ -402,6 +402,41 @@ class OpenLMCPServer {
           break;
         }
 
+        // Phase 2: Git Version History
+        case "get_file_history": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, filePath, limit, offset } = args as {
+            projectId: string;
+            filePath: string;
+            limit?: number;
+            offset?: number;
+          };
+          result = await this.client.getFileHistory({
+            projectId,
+            filePath,
+            limit,
+            offset,
+          });
+          break;
+        }
+
+        case "get_project_history": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, limit, offset, branch } = args as {
+            projectId: string;
+            limit?: number;
+            offset?: number;
+            branch?: string;
+          };
+          result = await this.client.getProjectHistory({
+            projectId,
+            limit,
+            offset,
+            branch,
+          });
+          break;
+        }
+
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }

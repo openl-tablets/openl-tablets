@@ -72,11 +72,6 @@ export const updateTableSchema = z.object({
   comment: commentSchema,
 });
 
-export const getProjectHistorySchema = z.object({
-  repository: repositoryNameSchema,
-  projectName: projectNameSchema,
-});
-
 export const listBranchesSchema = z.object({
   repository: repositoryNameSchema,
 });
@@ -193,5 +188,23 @@ export const revertVersionSchema = z.object({
   projectId: projectIdSchema,
   targetVersion: z.string().describe("Git commit hash to revert to (e.g., '7a3f2b1c...')"),
   comment: commentSchema,
+});
+
+// =============================================================================
+// Phase 2: Git Version History Schemas
+// =============================================================================
+
+export const getFileHistorySchema = z.object({
+  projectId: projectIdSchema,
+  filePath: z.string().min(1).describe("File path within project (e.g., 'rules/Insurance.xlsx')"),
+  limit: z.number().int().positive().max(200).optional().describe("Maximum number of commits to return (default: 50, max: 200)"),
+  offset: z.number().int().nonnegative().optional().describe("Number of commits to skip for pagination (default: 0)"),
+});
+
+export const getProjectHistorySchema = z.object({
+  projectId: projectIdSchema,
+  limit: z.number().int().positive().max(200).optional().describe("Maximum commits to return (default: 50, max: 200)"),
+  offset: z.number().int().nonnegative().optional().describe("Commits to skip for pagination (default: 0)"),
+  branch: z.string().optional().describe("Git branch name (default: current branch)"),
 });
 
