@@ -62,7 +62,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "list_repositories",
-    description: "List all design repositories in OpenL Tablets",
+    description: "List all design repositories in OpenL Tablets. Returns repository names, types, and status information. Use this to discover available repositories before accessing projects.",
     inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -72,7 +72,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "list_branches",
-    description: "List branches in a repository",
+    description: "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
     inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -87,7 +87,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_projects",
     description:
-      "List projects with optional filters (repository, status, tag)",
+      "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), and metadata. Use this to discover and filter projects before opening them for editing.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -97,7 +97,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "get_project",
-    description: "Get comprehensive project information including details, modules, dependencies, and metadata",
+    description: "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Use this to understand project organization before making changes.",
     inputSchema: zodToJsonSchema(schemas.getProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",
@@ -107,7 +107,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "open_project",
-    description: "Open a project for viewing/editing",
+    description: "Open a project for viewing and editing. Locks the project for exclusive access and loads all tables and resources. Must be called before making any changes to project rules or files.",
     inputSchema: zodToJsonSchema(schemas.projectIdSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -118,7 +118,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "close_project",
-    description: "Close an open project",
+    description: "Close an open project and release its resources. Unlocks the project for other users. Use this after completing edits to free up server resources and allow concurrent access.",
     inputSchema: zodToJsonSchema(schemas.projectActionSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -129,7 +129,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "save_project",
-    description: "Save project changes, creating a new version in repository (validates before saving)",
+    description: "Save all project changes and create a new Git commit. Validates project before saving to ensure no errors. Returns commit hash, author, and timestamp for version tracking.",
     inputSchema: zodToJsonSchema(schemas.saveProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -144,7 +144,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "upload_file",
-    description: "Upload an Excel file with rules to a project (.xlsx or .xls only)",
+    description: "Upload an Excel file (.xlsx or .xls) containing rules to a project. Creates a new Git commit with the file. Returns commit hash, file size, and upload confirmation. Use this to add or replace Excel rule files.",
     inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -179,7 +179,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "get_table",
-    description: "Get detailed table data and structure",
+    description: "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data. Use this to understand existing rules before modifying them.",
     inputSchema: zodToJsonSchema(schemas.getTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -189,7 +189,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "update_table",
-    description: "Update table content",
+    description: "Update table content including conditions, actions, and data rows. Modifies the table structure in memory (requires save_project to persist changes). Returns success confirmation and updated table metadata.",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -215,7 +215,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "list_deployments",
-    description: "List all deployments",
+    description: "List all active deployments across production environments. Returns deployment names, repositories, versions, and status information. Use this to see what's currently deployed before making deployment decisions.",
     inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -225,7 +225,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "deploy_project",
-    description: "Deploy a project to production",
+    description: "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Returns deployment status and confirmation. Requires validated project with no errors.",
     inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -240,7 +240,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "run_all_tests",
-    description: "Run all tests in a project to validate rules correctness",
+    description: "Run all test tables in a project to validate rules correctness. Returns test results with pass/fail status, expected vs actual values, and execution time. Use this before deployment to ensure all rules work as expected.",
     inputSchema: zodToJsonSchema(schemas.runAllTestsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -250,7 +250,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "run_test",
-    description: "Run specific tests with smart selection - can run selected test IDs, tests related to specific tables, or all tests",
+    description: "Run specific tests with smart selection. Can run by test IDs, tests for specific tables, or all tests. Returns detailed results with pass/fail status and failure reasons. Use this to validate changes to specific rules before full testing.",
     inputSchema: zodToJsonSchema(schemas.runTestSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -260,7 +260,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "validate_project",
-    description: "Validate project for errors and warnings before deployment",
+    description: "Validate entire project for compilation errors, type errors, and warnings. Returns validation status and detailed error list if issues found. Required before deployment; use this to catch issues early.",
     inputSchema: zodToJsonSchema(schemas.validateProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -270,7 +270,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "get_project_errors",
-    description: "Get detailed project errors with categorization (type, syntax, reference errors) and auto-fix suggestions",
+    description: "Get comprehensive project error analysis with detailed categorization (type errors, syntax errors, reference errors) and auto-fix suggestions. Returns error severity, locations, and actionable guidance. Use this to understand and fix validation failures.",
     inputSchema: zodToJsonSchema(schemas.getProjectErrorsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -284,7 +284,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "copy_table",
-    description: "Copy a rule/table within a project or to another file",
+    description: "Copy a rule/table within the same project or to a different Excel file. Creates a duplicate with optional new name and dimension properties. Returns new table ID and location. Use this to create rule variations or backups.",
     inputSchema: zodToJsonSchema(schemas.copyTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -295,7 +295,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "execute_rule",
-    description: "Execute a rule with input data to test its behavior and validate changes",
+    description: "Execute a rule with input data to test its behavior and validate changes. Runs the rule with provided parameters and returns calculated result. Use this to verify rule logic before deploying changes.",
     inputSchema: zodToJsonSchema(schemas.executeRuleSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -305,7 +305,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "compare_versions",
-    description: "Compare two Git commit versions of a project using commit hashes to see what changed (added, modified, removed tables)",
+    description: "Compare two Git commit versions of a project using commit hashes. Returns detailed diff showing added, modified, and removed tables/files with specific changes. Use this to review what changed between versions before reverting or deploying.",
     inputSchema: zodToJsonSchema(schemas.compareVersionsSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",
@@ -319,7 +319,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "revert_version",
-    description: "Revert project to a previous Git commit version using commit hash (creates new commit with old content, preserves history)",
+    description: "Revert project to a previous Git commit using commit hash. Creates a new commit that restores old content while preserving full history. Returns new commit hash. Use this to roll back problematic changes while maintaining audit trail.",
     inputSchema: zodToJsonSchema(schemas.revertVersionSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",

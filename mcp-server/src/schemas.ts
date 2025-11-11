@@ -21,23 +21,23 @@ import { z } from "zod";
 export { z };
 
 // Project ID format: repository-name_project-name or repository-name-project-name
-export const projectIdSchema = z.string().describe("Project ID in format: repository_name-project_name");
+export const projectIdSchema = z.string().describe("Project ID in format 'repository_name-project_name' (e.g., 'design-InsuranceRules', 'production-AutoPremium')");
 
-export const repositoryNameSchema = z.string().describe("Repository name");
+export const repositoryNameSchema = z.string().describe("Repository name (e.g., 'design', 'production', 'test')");
 
-export const projectNameSchema = z.string().describe("Project name");
+export const projectNameSchema = z.string().describe("Project name within the repository (e.g., 'InsuranceRules', 'AutoPremium', 'ClaimProcessing')");
 
-export const tableIdSchema = z.string().describe("Table ID");
+export const tableIdSchema = z.string().describe("Table identifier - unique ID assigned by OpenL Tablets when table is created (e.g., 'calculatePremium_1234')");
 
-export const branchNameSchema = z.string().describe("Branch name");
+export const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'development', 'feature/new-rules')");
 
-export const commentSchema = z.string().optional().describe("Commit comment for the change");
+export const commentSchema = z.string().optional().describe("Commit comment describing the change (e.g., 'Updated CA premium rates', 'Fixed calculation bug')");
 
 // Tool input schemas
 export const listProjectsSchema = z.object({
-  repository: z.string().optional().describe("Filter by repository name"),
-  status: z.string().optional().describe("Filter by project status (OPENED, CLOSED, etc.)"),
-  tag: z.string().optional().describe("Filter by tag name"),
+  repository: z.string().optional().describe("Filter by repository name (e.g., 'design', 'production'). Omit to show projects from all repositories."),
+  status: z.string().optional().describe("Filter by project status: 'OPENED' (currently being edited), 'CLOSED' (not locked), or other status values."),
+  tag: z.string().optional().describe("Filter by tag name (e.g., 'v1.0', 'production', 'QA-approved'). Omit to show all tagged and untagged projects."),
 });
 
 export const getProjectSchema = z.object({
@@ -55,9 +55,9 @@ export const projectActionSchema = z.object({
 
 export const listTablesSchema = z.object({
   projectId: projectIdSchema,
-  tableType: z.string().optional().describe("Filter by table type (datatype, spreadsheet, simplerules, etc.)"),
-  name: z.string().optional().describe("Filter by table name pattern"),
-  file: z.string().optional().describe("Filter by Excel file name"),
+  tableType: z.string().optional().describe("Filter by table type: 'Rules', 'SimpleRules', 'SmartRules', 'SimpleLookup', 'SmartLookup', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'Method', etc. Omit to show all types."),
+  name: z.string().optional().describe("Filter by table name pattern using wildcards (e.g., 'calculate*', '*Premium*', 'validate*'). Omit to show all tables."),
+  file: z.string().optional().describe("Filter by Excel file name (e.g., 'rules/Insurance.xlsx', 'Premium.xlsx'). Omit to show tables from all files."),
 });
 
 export const getTableSchema = z.object({
@@ -68,7 +68,7 @@ export const getTableSchema = z.object({
 export const updateTableSchema = z.object({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  view: z.record(z.any()).describe("Table view data to update"),
+  view: z.record(z.any()).describe("Table view data to update - JSON object containing table structure with conditions, actions, and data rows. Structure varies by table type."),
   comment: commentSchema,
 });
 
@@ -85,8 +85,8 @@ export const createBranchSchema = z.object({
 export const deployProjectSchema = z.object({
   projectName: projectNameSchema,
   repository: repositoryNameSchema,
-  deploymentRepository: z.string().describe("Target deployment repository"),
-  version: z.string().optional().describe("Specific version to deploy (optional)"),
+  deploymentRepository: z.string().describe("Target deployment repository name (e.g., 'production-deploy', 'staging-deploy'). Must be configured in OpenL Tablets."),
+  version: z.string().optional().describe("Specific Git commit hash to deploy (e.g., '7a3f2b1c...'). Omit to deploy latest version (HEAD)."),
 });
 
 // =============================================================================
@@ -150,14 +150,14 @@ export const createRuleSchema = z.object({
 
 export const runTestSchema = z.object({
   projectId: projectIdSchema,
-  testIds: z.array(z.string()).optional().describe("Specific test IDs to run"),
-  tableIds: z.array(z.string()).optional().describe("Run tests related to these table IDs"),
-  runAll: z.boolean().optional().describe("Run all tests (default: false)"),
+  testIds: z.array(z.string()).optional().describe("Specific test IDs to run (e.g., ['test_calculatePremium_001', 'test_validate_002']). Mutually exclusive with tableIds and runAll."),
+  tableIds: z.array(z.string()).optional().describe("Run all tests related to these table IDs (e.g., ['calculatePremium_1234']). Tests table being tested, not test table IDs."),
+  runAll: z.boolean().optional().describe("Run all tests in the project (default: false). Set to true to run comprehensive test suite."),
 });
 
 export const getProjectErrorsSchema = z.object({
   projectId: projectIdSchema,
-  includeWarnings: z.boolean().optional().describe("Include warnings in the result (default: true)"),
+  includeWarnings: z.boolean().optional().describe("Include warnings along with errors (default: true). Set to false to show only critical errors that block deployment."),
 });
 
 // =============================================================================
@@ -167,15 +167,15 @@ export const getProjectErrorsSchema = z.object({
 export const copyTableSchema = z.object({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  newName: z.string().optional().describe("New name for the copied table (auto-generated if not provided)"),
-  targetFile: z.string().optional().describe("Target Excel file to copy the table to (same file if not provided)"),
+  newName: z.string().optional().describe("New name for the copied table (e.g., 'calculatePremium_v2', 'validatePolicy_backup'). Auto-generated if omitted."),
+  targetFile: z.string().optional().describe("Target Excel file path (e.g., 'rules/Premium_v2.xlsx'). Copies to same file if omitted."),
   comment: commentSchema,
 });
 
 export const executeRuleSchema = z.object({
   projectId: projectIdSchema,
-  ruleName: z.string().describe("Name of the rule/method to execute"),
-  inputData: z.record(z.any()).describe("Input data for rule execution as JSON object"),
+  ruleName: z.string().describe("Name of the rule/method to execute (e.g., 'calculatePremium', 'validatePolicy'). Must match exact table name."),
+  inputData: z.record(z.any()).describe("Input data for rule execution as JSON object with parameter names as keys (e.g., { \"driverType\": \"SAFE\", \"age\": 30, \"vehicleValue\": 25000 })"),
 });
 
 export const compareVersionsSchema = z.object({
