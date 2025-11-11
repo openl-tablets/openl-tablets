@@ -93,7 +93,7 @@ export class OpenLClient {
    */
   async listBranches(repository: string): Promise<string[]> {
     const response = await this.axiosInstance.get<string[]>(
-      `/repos/${repository}/branches`
+      `/repos/${encodeURIComponent(repository)}/branches`
     );
     return response.data;
   }
@@ -282,7 +282,7 @@ export class OpenLClient {
     // Note: The actual implementation depends on OpenL Tablets API requirements
     // This is a placeholder that may need adjustment based on the actual API
     const response = await this.axiosInstance.post(
-      `${projectPath}/files/${fileName}`,
+      `${projectPath}/files/${encodeURIComponent(fileName)}`,
       buffer,
       {
         headers: {
@@ -329,7 +329,7 @@ export class OpenLClient {
     }
 
     const response = await this.axiosInstance.get<ArrayBuffer>(
-      `${projectPath}/files/${fileName}`,
+      `${projectPath}/files/${encodeURIComponent(fileName)}`,
       {
         responseType: "arraybuffer",
         params,
@@ -444,7 +444,7 @@ export class OpenLClient {
   async getTable(projectId: string, tableId: string): Promise<Types.TableView> {
     const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.get<Types.TableView>(
-      `${projectPath}/tables/${tableId}`
+      `${projectPath}/tables/${encodeURIComponent(tableId)}`
     );
     return response.data;
   }
@@ -466,7 +466,7 @@ export class OpenLClient {
   ): Promise<Types.TableView> {
     const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.put<Types.TableView>(
-      `${projectPath}/tables/${tableId}`,
+      `${projectPath}/tables/${encodeURIComponent(tableId)}`,
       { view, comment }
     );
     return response.data;
@@ -504,7 +504,7 @@ export class OpenLClient {
     version?: string
   ): Promise<Types.DeploymentResult> {
     const response = await this.axiosInstance.post<Types.DeploymentResult>(
-      `/deployments/${deploymentRepository}`,
+      `/deployments/${encodeURIComponent(deploymentRepository)}`,
       {
         projectName,
         repository,
@@ -691,7 +691,7 @@ export class OpenLClient {
 
     try {
       const response = await this.axiosInstance.post(
-        `${projectPath}/tables/${request.tableId}/copy`,
+        `${projectPath}/tables/${encodeURIComponent(request.tableId)}/copy`,
         {
           newName: request.newName,
           targetFile: request.targetFile,
@@ -724,7 +724,7 @@ export class OpenLClient {
     try {
       const startTime = Date.now();
       const response = await this.axiosInstance.post(
-        `${projectPath}/rules/${request.ruleName}/execute`,
+        `${projectPath}/rules/${encodeURIComponent(request.ruleName)}/execute`,
         request.inputData
       );
       const executionTime = Date.now() - startTime;
@@ -781,7 +781,7 @@ export class OpenLClient {
     try {
       // Step 1: Get the target version content
       await this.axiosInstance.get(
-        `${projectPath}/versions/${request.targetVersion}`
+        `${projectPath}/versions/${encodeURIComponent(request.targetVersion)}`
       );
 
       // Step 2: Validate the project
@@ -846,7 +846,7 @@ export class OpenLClient {
     const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `${projectPath}/files/${request.filePath}/history`,
+      `${projectPath}/files/${encodeURIComponent(request.filePath)}/history`,
       {
         params: {
           limit: request.limit || 50,
@@ -992,7 +992,7 @@ export class OpenLClient {
     const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `${projectPath}/tables/${request.tableId}/properties`
+      `${projectPath}/tables/${encodeURIComponent(request.tableId)}/properties`
     );
 
     return {
@@ -1012,7 +1012,7 @@ export class OpenLClient {
     const projectPath = this.buildProjectPath(request.projectId);
 
     await this.axiosInstance.put(
-      `${projectPath}/tables/${request.tableId}/properties`,
+      `${projectPath}/tables/${encodeURIComponent(request.tableId)}/properties`,
       {
         properties: request.properties,
         comment: request.comment || "Update table dimension properties",
