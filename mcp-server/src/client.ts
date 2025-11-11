@@ -80,7 +80,7 @@ export class OpenLClient {
    */
   async listRepositories(): Promise<Types.Repository[]> {
     const response = await this.axiosInstance.get<Types.Repository[]>(
-      "/design-repositories"
+      "/repos"
     );
     return response.data;
   }
@@ -93,7 +93,7 @@ export class OpenLClient {
    */
   async listBranches(repository: string): Promise<string[]> {
     const response = await this.axiosInstance.get<string[]>(
-      `/design-repositories/${repository}/branches`
+      `/repos/${repository}/branches`
     );
     return response.data;
   }
@@ -148,10 +148,10 @@ export class OpenLClient {
     // Fetch both project details and info in parallel
     const [projectResponse, infoResponse] = await Promise.all([
       this.axiosInstance.get<Types.Project>(
-        `/design-repositories/${repository}/projects/${projectName}`
+        `/repos/${repository}/projects/${projectName}`
       ),
       this.axiosInstance.get<Types.ProjectInfo>(
-        `/design-repositories/${repository}/projects/${projectName}/info`
+        `/repos/${repository}/projects/${projectName}/info`
       ),
     ]);
 
@@ -173,7 +173,7 @@ export class OpenLClient {
   async openProject(projectId: string): Promise<boolean> {
     const [repository, projectName] = this.parseProjectId(projectId);
     await this.axiosInstance.post(
-      `/design-repositories/${repository}/projects/${projectName}/open`
+      `/repos/${repository}/projects/${projectName}/open`
     );
     return true;
   }
@@ -187,7 +187,7 @@ export class OpenLClient {
   async closeProject(projectId: string): Promise<boolean> {
     const [repository, projectName] = this.parseProjectId(projectId);
     await this.axiosInstance.post(
-      `/design-repositories/${repository}/projects/${projectName}/close`
+      `/repos/${repository}/projects/${projectName}/close`
     );
     return true;
   }
@@ -220,7 +220,7 @@ export class OpenLClient {
 
     // Save the project
     const response = await this.axiosInstance.post(
-      `/design-repositories/${repository}/projects/${projectName}/save`,
+      `/repos/${repository}/projects/${projectName}/save`,
       { comment }
     );
 
@@ -278,7 +278,7 @@ export class OpenLClient {
     // Note: The actual implementation depends on OpenL Tablets API requirements
     // This is a placeholder that may need adjustment based on the actual API
     const response = await this.axiosInstance.post(
-      `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
+      `/repos/${repository}/projects/${projectName}/files/${fileName}`,
       buffer,
       {
         headers: {
@@ -325,7 +325,7 @@ export class OpenLClient {
     }
 
     const response = await this.axiosInstance.get<ArrayBuffer>(
-      `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
+      `/repos/${repository}/projects/${projectName}/files/${fileName}`,
       {
         responseType: "arraybuffer",
         params,
@@ -350,7 +350,7 @@ export class OpenLClient {
   ): Promise<boolean> {
     const [repository, projectName] = this.parseProjectId(projectId);
     await this.axiosInstance.post(
-      `/design-repositories/${repository}/projects/${projectName}/branches`,
+      `/repos/${repository}/projects/${projectName}/branches`,
       { name: branchName, comment }
     );
     return true;
@@ -373,7 +373,7 @@ export class OpenLClient {
   ): Promise<Types.TableMetadata[]> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.get<Types.TableMetadata[]>(
-      `/design-repositories/${repository}/projects/${projectName}/tables`,
+      `/repos/${repository}/projects/${projectName}/tables`,
       { params: filters }
     );
     return response.data;
@@ -401,7 +401,7 @@ export class OpenLClient {
       }
 
       const response = await this.axiosInstance.post(
-        `/design-repositories/${repository}/projects/${projectName}/tables`,
+        `/repos/${repository}/projects/${projectName}/tables`,
         {
           name: request.name,
           type: request.tableType,
@@ -440,7 +440,7 @@ export class OpenLClient {
   async getTable(projectId: string, tableId: string): Promise<Types.TableView> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.get<Types.TableView>(
-      `/design-repositories/${repository}/projects/${projectName}/tables/${tableId}`
+      `/repos/${repository}/projects/${projectName}/tables/${tableId}`
     );
     return response.data;
   }
@@ -462,7 +462,7 @@ export class OpenLClient {
   ): Promise<Types.TableView> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.put<Types.TableView>(
-      `/design-repositories/${repository}/projects/${projectName}/tables/${tableId}`,
+      `/repos/${repository}/projects/${projectName}/tables/${tableId}`,
       { view, comment }
     );
     return response.data;
@@ -565,7 +565,7 @@ export class OpenLClient {
   async runAllTests(projectId: string): Promise<Types.TestSuiteResult> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.post<Types.TestSuiteResult>(
-      `/design-repositories/${repository}/projects/${projectName}/tests/run`
+      `/repos/${repository}/projects/${projectName}/tests/run`
     );
     return response.data;
   }
@@ -579,7 +579,7 @@ export class OpenLClient {
   async validateProject(projectId: string): Promise<Types.ValidationResult> {
     const [repository, projectName] = this.parseProjectId(projectId);
     const response = await this.axiosInstance.get<Types.ValidationResult>(
-      `/design-repositories/${repository}/projects/${projectName}/validation`
+      `/repos/${repository}/projects/${projectName}/validation`
     );
     return response.data;
   }
@@ -607,8 +607,8 @@ export class OpenLClient {
 
     // If runAll is true or no specific selection, run all tests
     const endpoint = request.runAll || (!request.testIds && !request.tableIds)
-      ? `/design-repositories/${repository}/projects/${projectName}/tests/run`
-      : `/design-repositories/${repository}/projects/${projectName}/tests/run-selected`;
+      ? `/repos/${repository}/projects/${projectName}/tests/run`
+      : `/repos/${repository}/projects/${projectName}/tests/run-selected`;
 
     const response = await this.axiosInstance.post<Types.TestSuiteResult>(
       endpoint,
@@ -687,7 +687,7 @@ export class OpenLClient {
 
     try {
       const response = await this.axiosInstance.post(
-        `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/copy`,
+        `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/copy`,
         {
           newName: request.newName,
           targetFile: request.targetFile,
@@ -720,7 +720,7 @@ export class OpenLClient {
     try {
       const startTime = Date.now();
       const response = await this.axiosInstance.post(
-        `/design-repositories/${repository}/projects/${projectName}/rules/${request.ruleName}/execute`,
+        `/repos/${repository}/projects/${projectName}/rules/${request.ruleName}/execute`,
         request.inputData
       );
       const executionTime = Date.now() - startTime;
@@ -748,7 +748,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     const response = await this.axiosInstance.get<Types.CompareVersionsResult>(
-      `/design-repositories/${repository}/projects/${projectName}/versions/compare`,
+      `/repos/${repository}/projects/${projectName}/versions/compare`,
       {
         params: {
           base: request.baseCommitHash,
@@ -777,7 +777,7 @@ export class OpenLClient {
     try {
       // Step 1: Get the target version content
       await this.axiosInstance.get(
-        `/design-repositories/${repository}/projects/${projectName}/versions/${request.targetVersion}`
+        `/repos/${repository}/projects/${projectName}/versions/${request.targetVersion}`
       );
 
       // Step 2: Validate the project
@@ -793,7 +793,7 @@ export class OpenLClient {
 
       // Step 3: Create new version with old content (revert)
       const revertResponse = await this.axiosInstance.post(
-        `/design-repositories/${repository}/projects/${projectName}/revert`,
+        `/repos/${repository}/projects/${projectName}/revert`,
         {
           targetVersion: request.targetVersion,
           comment: request.comment || `Revert to version ${request.targetVersion}`,
@@ -842,7 +842,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/design-repositories/${repository}/projects/${projectName}/files/${request.filePath}/history`,
+      `/repos/${repository}/projects/${projectName}/files/${request.filePath}/history`,
       {
         params: {
           limit: request.limit || 50,
@@ -878,7 +878,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/design-repositories/${repository}/projects/${projectName}/history`,
+      `/repos/${repository}/projects/${projectName}/history`,
       {
         params: {
           limit: request.limit || 50,
@@ -945,7 +945,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/design-repositories/${repository}/projects/${projectName}/rules.xml`
+      `/repos/${repository}/projects/${projectName}/rules.xml`
     );
 
     const pattern = this.extractFileNamePattern(response.data);
@@ -967,7 +967,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     await this.axiosInstance.put(
-      `/design-repositories/${repository}/projects/${projectName}/rules.xml/pattern`,
+      `/repos/${repository}/projects/${projectName}/rules.xml/pattern`,
       { pattern: request.pattern }
     );
 
@@ -988,7 +988,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/properties`
+      `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/properties`
     );
 
     return {
@@ -1008,7 +1008,7 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(request.projectId);
 
     await this.axiosInstance.put(
-      `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/properties`,
+      `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/properties`,
       {
         properties: request.properties,
         comment: request.comment || "Update table dimension properties",
