@@ -1,5 +1,6 @@
 package org.openl.excel.parser.event.style;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
@@ -7,12 +8,14 @@ import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellPropertyType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellUtil;
 
 class PoiCellStyle implements CellStyle {
     private final short index;
@@ -295,5 +298,23 @@ class PoiCellStyle implements CellStyle {
     @Override
     public boolean getShrinkToFit() {
         return format.getShrinkToFit();
+    }
+
+    private EnumMap<CellPropertyType, Object> _cachedProperties;
+
+    @Override
+    public EnumMap<CellPropertyType, Object> getFormatProperties() {
+        EnumMap<CellPropertyType, Object> props = this._cachedProperties;
+        if (props == null) {
+            props = CellUtil.getFormatProperties(this);
+            this._cachedProperties = props;
+        }
+
+        return props;
+    }
+
+    @Override
+    public void invalidateCachedProperties() {
+        this._cachedProperties = null;
     }
 }
