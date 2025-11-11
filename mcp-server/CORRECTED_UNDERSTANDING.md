@@ -2,7 +2,10 @@
 
 ## Executive Summary
 
-After thorough review of OpenL Tablets documentation, I now understand there are **TWO INDEPENDENT VERSIONING SYSTEMS** and **FIVE DIFFERENT DECISION TABLE TYPES** that my implementation must support correctly.
+After thorough review of OpenL Tablets documentation, I now understand there are **TWO INDEPENDENT VERSIONING SYSTEMS** and **MULTIPLE TABLE TYPES** (including 5 decision table variants, spreadsheet tables, and others) that my implementation must support correctly.
+
+**Most commonly used table types**: Decision Tables and Spreadsheet Tables
+**Rarely used but available**: Method, TBasic, Data, Datatype, Test, Run, Properties, Configuration, Column Match, and Table Part tables
 
 ---
 
@@ -186,11 +189,22 @@ Repository Versioning (Git):
 
 ---
 
-## PART 2: FIVE DECISION TABLE TYPES
+## PART 2: OPENL TABLETS TABLE TYPES
 
-My original analysis only described the **Rules Table** structure. OpenL Tablets actually supports **5 different decision table types**, each with different Excel structures.
+OpenL Tablets supports **multiple table types** for different purposes. The two most commonly used are:
 
-### Type 1: Rules Table (Standard Decision Table)
+1. **Decision Tables** (5 variants) - For decision logic and conditional rules
+2. **Spreadsheet Tables** - For multi-step calculations and computational workflows
+
+Other table types exist but are used rarely: Method, TBasic, Data, Datatype, Test, Run, Properties, Configuration, Column Match, and Table Part.
+
+---
+
+### A. DECISION TABLES (Most Common - 5 Variants)
+
+Decision tables determine outcomes through conditional logic. OpenL Tablets supports **5 different decision table types**, each with different Excel structures and parameter matching strategies.
+
+#### Type 1: Rules Table (Standard Decision Table)
 
 **Header Format**:
 ```
@@ -239,7 +253,7 @@ Row 7: "RISKY"            18          1500                1500
 - Can have multiple action columns
 - External condition/action/return definitions supported
 
-### Type 2: Simple Rules Table
+#### Type 2: Simple Rules Table
 
 **Header Format**:
 ```
@@ -283,7 +297,7 @@ Row 7: "RISKY"            18          1500
 - No need for complex actions
 - Faster to create than Rules table
 
-### Type 3: Smart Rules Table
+#### Type 3: Smart Rules Table
 
 **Header Format**:
 ```
@@ -345,7 +359,7 @@ Collects all matching rule results into an array.
 - Want flexibility in Excel layout
 - Working with complex objects (field matching)
 
-### Type 4: Simple Lookup Table
+#### Type 4: Simple Lookup Table
 
 **Header Format**:
 ```
@@ -396,7 +410,7 @@ Row 8: "HIGH" 1200  1500  1800  2000  2200
 - Cross-reference tables
 - Rate tables varying by two factors
 
-### Type 5: Smart Lookup Table
+#### Type 5: Smart Lookup Table
 
 **Header Format**:
 ```
@@ -465,6 +479,213 @@ SmartLookup String[] Collect getApplicableRules(...)
 
 ---
 
+### B. SPREADSHEET TABLES (Most Common - Calculations)
+
+**Purpose**: Multi-step calculations requiring intermediate values and audit trails
+
+**Header Format**:
+```
+Spreadsheet <ReturnType> spreadsheetName(<ParamType1> param1, ...)
+```
+
+**Excel Structure**:
+- **First column**: Step names (row identifiers)
+- **First row**: Column names (A, B, C, Premium, etc.)
+- **Cells**: Values, formulas, or references to other cells
+- **Cell references**: `$columnName` or `$rowName$columnName`
+
+**Example**:
+```
+Spreadsheet int calculatePremium(int baseAmount, String risk)
+
+       | A          | B        | Premium
+-------+------------+----------+---------
+Step1  | baseAmount | 1000     | $A
+Step2  | risk       | "HIGH"   | $B
+Step3  | factor     | 1.5      | $A * $factor
+Result |            |          | $Premium$Step3
+```
+
+**Return Types**:
+
+1. **SpreadsheetResult**: Returns entire calculated matrix
+   - All cells accessible through result object
+   - Useful for showing calculation breakdown
+   - Example: `SpreadsheetResult calculateDetails(...)`
+
+2. **Single Value**: Returns specific cell or final calculation
+   - Last row/column value returned
+   - Example: `int calculatePremium(...)` returns final numeric value
+
+**When to Use**:
+- Complex calculations with multiple steps
+- Need to show intermediate values
+- Audit trail required
+- Insurance premium calculations
+- Financial computations with breakdown
+- Multi-stage pricing logic
+
+**Key Differences from Decision Tables**:
+- Decision tables: Conditional logic (if-then rules)
+- Spreadsheets: Sequential calculations (step-by-step formulas)
+- Spreadsheets can call decision tables within cells
+- Decision tables cannot call spreadsheets
+
+**Formulas**:
+- Mathematical expressions: `$A * 1.5 + $B`
+- Rule calls: `getPremiumRate($risk, $age)`
+- Functions: `SUM($range)`, `IF(condition, true, false)`
+- Cell references: Relative (`$A`) or absolute (`$Step1$A`)
+
+---
+
+### C. OTHER TABLE TYPES (Rarely Used)
+
+OpenL Tablets includes additional table types for specialized purposes. These are less commonly used but available when needed.
+
+#### 1. Method Tables
+
+**Purpose**: Define custom methods with Java-like syntax
+
+**Header Format**: `Method <ReturnType> methodName(<params>)`
+
+**Use Case**: Complex algorithms that don't fit decision table or spreadsheet patterns
+
+**Example**:
+```
+Method int complexCalculation(int x, int y) {
+    int result = 0;
+    for (int i = 0; i < x; i++) {
+        result += y * i;
+    }
+    return result;
+}
+```
+
+#### 2. TBasic Tables
+
+**Purpose**: Implement algorithms with complex flow control
+
+**Features**:
+- Loops (for, while)
+- Conditional execution (if, switch)
+- Breaking/continuing loops
+- Step-by-step execution control
+
+**Use Case**: Algorithms requiring imperative programming constructs
+
+#### 3. Data Tables
+
+**Purpose**: Store relational data as arrays
+
+**Header Format**:
+- Simple: `Data <type> tableName`
+- Complex: `Data <CustomType> tableName`
+
+**Structure**:
+```
+Data Person employees
+
+Name      | Age | Department
+----------|-----|------------
+"John"    | 30  | "IT"
+"Jane"    | 25  | "Sales"
+"Bob"     | 35  | "Finance"
+```
+
+**Use Case**:
+- Test data for unit tests
+- Reference data (lookup values)
+- Configuration data
+- Reusable datasets across multiple test cases
+
+#### 4. Datatype Tables
+
+**Purpose**: Define custom data structures
+
+**Header Format**: `Datatype TypeName` or `Datatype TypeName extends ParentType`
+
+**Structure**:
+```
+Datatype Person
+
+Type     | Name       | Default
+---------|------------|--------
+String   | firstName  | ""
+String   | lastName   | ""
+int      | age        | 0
+Address  | address    | null
+```
+
+**Features**:
+- Hierarchical nesting (datatypes within datatypes)
+- Default values
+- Inheritance
+- Vocabulary types (restricted value lists)
+
+**Use Case**: Define business domain objects (Customer, Policy, Claim, etc.)
+
+#### 5. Test Tables
+
+**Purpose**: Unit testing rules
+
+**Header Format**: `Test <methodName>`
+
+**Structure**: Input parameters + expected results
+
+#### 6. Run Tables
+
+**Purpose**: Execute test suites
+
+**Header Format**: `Run`
+
+#### 7. Properties Tables
+
+**Purpose**: Define category or module-level dimension properties
+
+**Header Format**: `Properties`
+
+**Scope**: Category or Module (inherited by contained tables)
+
+#### 8. Configuration Tables
+
+**Purpose**: Configure OpenL environment settings
+
+**Header Format**: `Configuration`
+
+#### 9. Column Match Tables
+
+**Purpose**: Advanced matching logic for columns
+
+**Rarely used**: Specialized matching scenarios
+
+#### 10. Table Part
+
+**Purpose**: Foundational component for other tables
+
+**Usage**: Internal infrastructure, not typically used directly
+
+---
+
+### Table Type Usage Summary
+
+| Table Type | Usage Frequency | Primary Purpose |
+|------------|----------------|-----------------|
+| **Decision Tables** | ⭐⭐⭐⭐⭐ Very Common | Conditional logic, rules |
+| **Spreadsheet** | ⭐⭐⭐⭐⭐ Very Common | Multi-step calculations |
+| **Data** | ⭐⭐⭐ Moderate | Test data, reference data |
+| **Datatype** | ⭐⭐⭐ Moderate | Domain object definitions |
+| **Test** | ⭐⭐⭐ Moderate | Unit testing |
+| **Properties** | ⭐⭐ Occasional | Dimension properties config |
+| **Method** | ⭐ Rare | Custom imperative code |
+| **TBasic** | ⭐ Rare | Complex flow control |
+| **Run** | ⭐ Rare | Test suite execution |
+| **Configuration** | ⭐ Rare | Environment settings |
+| **Column Match** | ⭐ Rare | Advanced matching |
+| **Table Part** | ⭐ Rare | Internal infrastructure |
+
+---
+
 ## Impact on MCP Implementation
 
 ### Tools That Need Correction
@@ -483,16 +704,17 @@ This tool is based on hallucination. There is no "copy file and increment versio
 - `get_file_version` - Download specific commit version
 - File name patterns are for dimension properties, not sequential versions
 
-#### 2. `create_rule` - UPDATE for 5 table types ⚠️
+#### 2. `create_rule` - UPDATE for multiple table types ⚠️
 
-Current implementation doesn't specify which decision table type to create.
+Current implementation doesn't specify which table type to create. Should support Decision Tables (5 types) and Spreadsheet tables as primary types, with optional support for other table types.
 
 **Correct Implementation**:
 ```typescript
 async createRule(request: {
   projectId: string;
   tableName: string;
-  tableType: "Rules" | "SimpleRules" | "SmartRules" | "SimpleLookup" | "SmartLookup";
+  tableType: "Rules" | "SimpleRules" | "SmartRules" | "SimpleLookup" | "SmartLookup" |
+             "Spreadsheet" | "Method" | "TBasic" | "Data" | "Datatype";
   returnType: string;
   parameters: Array<{ type: string; name: string }>;
 
@@ -635,42 +857,61 @@ async listRuleVersions(
 
 ### Prompt Templates to Update
 
-#### `create_rule.md` - Explain all 5 table types
+#### `create_rule.md` - Explain Decision Tables and Spreadsheet tables
 
 ```markdown
-# Creating Rules in OpenL Tablets
+# Creating Tables in OpenL Tablets
 
-You are helping the user create a decision table. OpenL Tablets supports 5 different decision table types:
+You are helping the user create a table in OpenL Tablets. There are two main categories:
 
-## 1. Rules Table (Standard)
+## A. DECISION TABLES (For Conditional Logic)
+
+OpenL Tablets supports 5 different decision table types:
+
+### 1. Rules Table (Standard)
 - **Use when**: Need complex Boolean conditions, multiple action columns, or full control
 - **Format**: `Rules <ReturnType> ruleName(<params>)`
 - **Structure**: Explicit column markers (C1, C2, A1, RET1)
 - **Example**: Insurance premium with complex risk calculations
 
-## 2. Simple Rules Table
+### 2. Simple Rules Table
 - **Use when**: Simple decision logic, parameters map left-to-right
 - **Format**: `SimpleRules <ReturnType> ruleName(<params>)`
 - **Structure**: No column markers, positional parameter matching
 - **Example**: Discount calculation based on customer tier and amount
 
-## 3. Smart Rules Table
+### 3. Smart Rules Table
 - **Use when**: Want flexible column ordering, descriptive parameter names
 - **Format**: `SmartRules <ReturnType> ruleName(<params>)`
 - **Structure**: No column markers, matches parameters by title
 - **Example**: Policy validation with many parameters
 
-## 4. Simple Lookup Table
+### 4. Simple Lookup Table
 - **Use when**: Two-dimensional lookup (like rate table)
 - **Format**: `SimpleLookup <ReturnType> ruleName(<params>)`
 - **Structure**: Horizontal conditions (HC1, HC2...) across top, vertical on left
 - **Example**: Premium rates varying by risk level and age bracket
 
-## 5. Smart Lookup Table
+### 5. Smart Lookup Table
 - **Use when**: Two-dimensional lookup with flexible parameter matching
 - **Format**: `SmartLookup <ReturnType> ruleName(<params>)`
 - **Structure**: Horizontal conditions with smart vertical matching
 - **Example**: Tax rates by state and income bracket
+
+## B. SPREADSHEET TABLES (For Calculations)
+
+- **Use when**: Multi-step calculations, need intermediate values, audit trail
+- **Format**: `Spreadsheet <ReturnType> spreadsheetName(<params>)`
+- **Structure**: Grid with row/column names, formulas reference cells using $columnName
+- **Return types**:
+  - `SpreadsheetResult` returns entire calculation matrix
+  - Specific type (int, double) returns final value
+- **Example**: Insurance premium calculation with breakdown of base, adjustments, discounts
+
+## Which to Choose?
+
+- **Decision Table**: If-then rules, conditional logic, choose outcome based on conditions
+- **Spreadsheet**: Step-by-step calculations, formulas, intermediate values
 
 Ask the user which type best fits their needs based on their business logic.
 
