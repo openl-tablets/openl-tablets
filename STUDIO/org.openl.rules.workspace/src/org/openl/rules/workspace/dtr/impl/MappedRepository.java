@@ -11,8 +11,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -41,6 +44,8 @@ import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -819,32 +824,116 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
      * @return generated mapping
      */
-    private ProjectIndex generateExternalToInternalMap(Repository delegate,
-                                                       String baseFolder) throws IOException {
+    private ProjectIndex generateExternalToInternalMap(Repository delegate, String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
-        List<FileData> allFiles = delegate.list("");
-        for (FileData fileData : allFiles) {
-            String fullName = fileData.getName();
-            String[] nameParts = fullName.split("/");
-            if (nameParts.length == 0) {
-                continue;
-            }
-            String fileName = nameParts[nameParts.length - 1];
-            if ("rules.xml".equals(fileName)) {
-                FileItem fileItem = delegate.read(fullName);
-                try (InputStream stream = fileItem.getStream()) {
-                    String projectName = getProjectName(stream);
-                    String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+        Queue<FileData> folderQueue = new LinkedList<>(delegate.listFolders(""));
 
-                    int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
-                    String path = fullName.substring(0, fullName.length() - cutSize);
-                    ProjectInfo project = new ProjectInfo(externalPath.substring(baseFolder.length()), path);
-                    project.setModifiedAt(fileItem.getData().getModifiedAt());
-                    externalToInternal.getProjects().add(project);
-                }
+        while (!folderQueue.isEmpty()) {
+            FileData folderData = folderQueue.poll();
+            String folderPath = folderData.getName();
+
+            ProjectInfo projectInfo = tryResolveProjectFromDescriptor(externalToInternal, folderPath, delegate, baseFolder);
+            if (projectInfo == null) {
+                projectInfo = tryResolveProjectFromExcelFiles(externalToInternal, folderPath, delegate, baseFolder);
+            }
+
+            if (projectInfo == null) {
+                // No project found, add subfolders for further exploration
+                folderQueue.addAll(delegate.listFolders(folderPath + "/"));
+            } else {
+                externalToInternal.getProjects().add(projectInfo);
             }
         }
+
         return externalToInternal;
+    }
+
+    /**
+     * Attempts to resolve a project from a rules.xml descriptor file.
+     *
+     * @param folderPath         the folder path to check
+     * @param delegate           the repository
+     * @param baseFolder         the base folder for external paths
+     * @return the resolved ProjectInfo, or null if no project was resolved
+     * @throws IOException if an error occurs while reading the descriptor
+     */
+    private ProjectInfo tryResolveProjectFromDescriptor(ProjectIndex externalToInternal,
+                                                        String folderPath,
+                                                        Repository delegate,
+                                                        String baseFolder) throws IOException {
+        String descriptorPath = folderPath + "/rules.xml";
+        FileData rulesDescriptor = delegate.check(descriptorPath);
+
+        if (rulesDescriptor == null) {
+            return null;
+        }
+
+        FileItem fileItem = delegate.read(descriptorPath);
+        try (InputStream stream = fileItem.getStream()) {
+            String projectName = getProjectName(stream);
+            if (projectName != null) {
+                String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+                ProjectInfo projectInfo = new ProjectInfo(
+                        externalPath.substring(baseFolder.length()),
+                        folderPath
+                );
+                projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
+                return projectInfo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Attempts to resolve a project by finding Excel files in the folder.
+     * Only looks for Excel files directly in the specified folder, not in subfolders.
+     *
+     * @param folderPath         the folder path to check
+     * @param delegate           the repository
+     * @param baseFolder         the base folder for external paths
+     * @return the resolved ProjectInfo, or null if no project was resolved
+     * @throws IOException if an error occurs while listing or reading files
+     */
+    private ProjectInfo tryResolveProjectFromExcelFiles(ProjectIndex externalToInternal,
+                                                        String folderPath,
+                                                        Repository delegate,
+                                                        String baseFolder) throws IOException {
+        List<FileData> allFiles = delegate.list(folderPath + "/");
+
+        for (FileData fileData : allFiles) {
+            if (isExcelFileInFolderRoot(fileData, folderPath)) {
+                FileItem fileItem = delegate.read(fileData.getName());
+                String projectName = FileUtils.getName(folderPath);
+                String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+                ProjectInfo projectInfo = new ProjectInfo(
+                        externalPath.substring(baseFolder.length()),
+                        folderPath
+                );
+                projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
+                return projectInfo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if a file is an Excel file located directly in the specified folder.
+     *
+     * @param fileData   the file to check
+     * @param folderPath the folder path to compare against
+     * @return true if the file is an Excel file in the folder root, false otherwise
+     */
+    private boolean isExcelFileInFolderRoot(FileData fileData, String folderPath) {
+        String filePath = fileData.getName();
+        // Ensure the file is directly in folderPath, not in a subfolder
+        String parentPath = filePath.substring(0, filePath.lastIndexOf('/'));
+        if (!Objects.equals(parentPath, folderPath)) {
+            return false;
+        }
+        String fileName = FileUtils.getName(filePath);
+        return FileTypeHelper.isExcelFile(fileName);
     }
 
     private void refreshMappingWithLock() throws IOException {
