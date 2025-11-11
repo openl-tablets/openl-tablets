@@ -123,3 +123,87 @@ export function extractErrorDetails(error: unknown): {
     message: "An unknown error occurred",
   };
 }
+
+/**
+ * Parse project ID from OpenL API response
+ *
+ * OpenL Tablets API 6.0.0+ returns project IDs as base64-encoded strings in the format:
+ * "repository:projectName" (e.g., "design:Example 1 - Bank Rating")
+ *
+ * Older versions may return project IDs as objects with {repository, projectName} structure.
+ *
+ * This function handles both formats and returns a consistent structure.
+ *
+ * @param id - Project ID from API (string or object)
+ * @returns Parsed project ID with repository and projectName
+ * @throws Error if the ID format is invalid
+ */
+export function parseProjectId(id: string | { repository: string; projectName: string }): {
+  repository: string;
+  projectName: string;
+} {
+  // Handle object format (older API versions or test mocks)
+  if (typeof id === "object" && id !== null && "repository" in id && "projectName" in id) {
+    return {
+      repository: id.repository,
+      projectName: id.projectName,
+    };
+  }
+
+  // Handle string format (OpenL Tablets 6.0.0+)
+  if (typeof id === "string") {
+    try {
+      // Decode base64
+      const decoded = Buffer.from(id, "base64").toString("utf-8");
+
+      // Parse "repository:projectName" format
+      const colonIndex = decoded.indexOf(":");
+      if (colonIndex === -1) {
+        throw new Error(`Invalid project ID format: missing colon separator in "${decoded}"`);
+      }
+
+      const repository = decoded.substring(0, colonIndex);
+      const projectName = decoded.substring(colonIndex + 1);
+
+      if (!repository || !projectName) {
+        throw new Error(`Invalid project ID format: empty repository or project name in "${decoded}"`);
+      }
+
+      return { repository, projectName };
+    } catch (error) {
+      // If base64 decode fails, it might be a plain string already
+      // Try parsing as "repository:projectName" format
+      const colonIndex = id.indexOf(":");
+      if (colonIndex !== -1) {
+        const repository = id.substring(0, colonIndex);
+        const projectName = id.substring(colonIndex + 1);
+
+        if (repository && projectName) {
+          return { repository, projectName };
+        }
+      }
+
+      throw new Error(
+        `Invalid project ID format: "${id}". Expected base64-encoded "repository:projectName" or object {repository, projectName}`
+      );
+    }
+  }
+
+  throw new Error(
+    `Invalid project ID type: ${typeof id}. Expected string or object with {repository, projectName}`
+  );
+}
+
+/**
+ * Create a user-friendly project ID string from repository and project name
+ *
+ * Format: "repository-projectName" (e.g., "design-Example 1 - Bank Rating")
+ * This format is easier for humans to read than base64 encoding.
+ *
+ * @param repository - Repository name
+ * @param projectName - Project name
+ * @returns User-friendly project ID string
+ */
+export function createProjectId(repository: string, projectName: string): string {
+  return `${repository}-${projectName}`;
+}

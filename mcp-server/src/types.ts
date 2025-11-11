@@ -65,7 +65,8 @@ export interface ProjectViewModel {
   branch?: string;
   revision?: string;
   path: string;
-  id: ProjectId;
+  // OpenL 6.0.0+ returns base64-encoded string, older versions return object
+  id: ProjectId | string;
   status: ProjectStatus;
   tags?: Record<string, string>;
   comment?: string;

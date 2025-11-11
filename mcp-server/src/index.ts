@@ -32,7 +32,7 @@ import {
 import { OpenLClient } from "./client.js";
 import { TOOLS } from "./tools.js";
 import { SERVER_INFO } from "./constants.js";
-import { isAxiosError, sanitizeError, safeStringify } from "./utils.js";
+import { isAxiosError, sanitizeError, safeStringify, parseProjectId, createProjectId } from "./utils.js";
 import type * as Types from "./types.js";
 
 /**
@@ -153,10 +153,14 @@ class OpenLMCPServer {
           const filters = args as Types.ProjectFilters | undefined;
           const projects = await this.client.listProjects(filters);
           // Transform projects to include a flat projectId field for easier use
-          result = projects.map((project) => ({
-            ...project,
-            projectId: `${project.id.repository}-${project.id.projectName}`,
-          }));
+          // Handle both OpenL 6.0.0+ (base64 string) and older versions (object) formats
+          result = projects.map((project) => {
+            const { repository, projectName } = parseProjectId(project.id);
+            return {
+              ...project,
+              projectId: createProjectId(repository, projectName),
+            };
+          });
           break;
         }
 
