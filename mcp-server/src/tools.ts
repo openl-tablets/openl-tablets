@@ -200,10 +200,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "create_rule",
-    description: "Create a new rule/table in a project (Decision Table, Spreadsheet, Datatype, Test, etc.)",
+    description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties.",
     inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.RULES,
       requiresAuth: true,
       modifiesState: true,

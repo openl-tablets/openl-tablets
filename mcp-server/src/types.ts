@@ -74,17 +74,23 @@ export interface ProjectViewModel {
 }
 
 export type TableType =
-  | "datatype"
-  | "vocabulary"
-  | "spreadsheet"
-  | "simplerules"
-  | "smartrules"
-  | "tbasic"
-  | "method"
-  | "properties"
-  | "data"
-  | "test"
-  | "run";
+  // Decision Tables (most common - 5 variants)
+  | "Rules"           // Standard decision table with explicit C/A/RET columns
+  | "SimpleRules"     // Simplified decision table with positional matching
+  | "SmartRules"      // Flexible decision table with smart parameter matching
+  | "SimpleLookup"    // Two-dimensional lookup table
+  | "SmartLookup"     // Two-dimensional lookup with smart matching
+  // Spreadsheet (most common - calculations)
+  | "Spreadsheet"     // Multi-step calculations with formulas
+  // Other types (rarely used)
+  | "Method"          // Custom Java-like methods
+  | "TBasic"          // Complex flow control algorithms
+  | "Data"            // Relational data tables
+  | "Datatype"        // Custom data structure definitions
+  | "Test"            // Unit test tables
+  | "Run"             // Test suite execution
+  | "Properties"      // Dimension properties configuration
+  | "Configuration";  // Environment settings
 
 export type TableKind =
   | "XLS_DT"
@@ -384,16 +390,24 @@ export interface FileUploadResult {
 /** Rule creation request */
 export interface CreateRuleRequest {
   name: string;
-  ruleType: TableType;
-  file?: string;
-  properties?: Record<string, unknown>;
-  comment?: string;
+  tableType: TableType;           // Type of table to create
+  returnType?: string;            // Return type (e.g., 'int', 'String', 'SpreadsheetResult')
+  parameters?: Array<{            // Method parameters
+    type: string;                 // Parameter type (e.g., 'String', 'int', 'Policy')
+    name: string;                 // Parameter name (e.g., 'driverType', 'age')
+  }>;
+  file?: string;                  // Target Excel file (optional, uses default if not specified)
+  properties?: Record<string, unknown>;  // Dimension properties (state, lob, effectiveDate, etc.)
+  comment?: string;               // Commit comment
 }
 
 /** Rule creation result */
 export interface CreateRuleResult {
   success: boolean;
   tableId?: string;
+  tableName?: string;
+  tableType?: TableType;
+  file?: string;
   message?: string;
 }
 

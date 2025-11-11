@@ -393,20 +393,39 @@ export class OpenLClient {
     const [repository, projectName] = this.parseProjectId(projectId);
 
     try {
+      // Build table signature if parameters provided
+      let signature = request.name;
+      if (request.returnType && request.parameters) {
+        const params = request.parameters.map(p => `${p.type} ${p.name}`).join(", ");
+        signature = `${request.returnType} ${request.name}(${params})`;
+      }
+
       const response = await this.axiosInstance.post(
         `/design-repositories/${repository}/projects/${projectName}/tables`,
-        request
+        {
+          name: request.name,
+          type: request.tableType,
+          signature,
+          returnType: request.returnType,
+          parameters: request.parameters,
+          properties: request.properties,
+          file: request.file,
+          comment: request.comment,
+        }
       );
 
       return {
         success: true,
-        tableId: response.data.id,
-        message: `Rule '${request.name}' created successfully`,
+        tableId: response.data.id || `${request.name}-${request.tableType}`,
+        tableName: request.name,
+        tableType: request.tableType,
+        file: response.data.file || request.file,
+        message: `Created ${request.tableType} table '${request.name}' successfully`,
       };
     } catch (error: unknown) {
       return {
         success: false,
-        message: `Failed to create rule: ${sanitizeError(error)}`,
+        message: `Failed to create ${request.tableType} table '${request.name}': ${sanitizeError(error)}`,
       };
     }
   }

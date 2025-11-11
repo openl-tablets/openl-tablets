@@ -255,17 +255,23 @@ class OpenLMCPServer {
 
         case "create_rule": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, name, ruleType, file, comment } = args as {
+          const { projectId, name, tableType, returnType, parameters, file, properties, comment } = args as {
             projectId: string;
             name: string;
-            ruleType: Types.TableType;
+            tableType: Types.TableType;
+            returnType?: string;
+            parameters?: Array<{ type: string; name: string }>;
             file?: string;
+            properties?: Record<string, unknown>;
             comment?: string;
           };
           result = await this.client.createRule(projectId, {
             name,
-            ruleType,
+            tableType,
+            returnType,
+            parameters,
             file,
+            properties,
             comment,
           });
           break;

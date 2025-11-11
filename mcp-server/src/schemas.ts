@@ -125,18 +125,22 @@ export const downloadFileSchema = z.object({
 
 export const createRuleSchema = z.object({
   projectId: projectIdSchema,
-  name: z.string().describe("Name of the rule/table to create"),
-  ruleType: z.enum([
-    "datatype",
-    "vocabulary",
-    "spreadsheet",
-    "simplerules",
-    "smartrules",
-    "method",
-    "data",
-    "test",
-  ]).describe("Type of rule to create"),
-  file: z.string().optional().describe("Excel file to create the rule in (optional)"),
+  name: z.string().min(1).describe("Table name (must be valid Java identifier, e.g., 'calculatePremium')"),
+  tableType: z.enum([
+    // Decision Tables (most common)
+    "Rules", "SimpleRules", "SmartRules", "SimpleLookup", "SmartLookup",
+    // Spreadsheet (most common)
+    "Spreadsheet",
+    // Other types (rarely used)
+    "Method", "TBasic", "Data", "Datatype", "Test", "Run", "Properties", "Configuration"
+  ]).describe("Type of table to create. Most common: Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup (decision tables) or Spreadsheet (calculations)"),
+  returnType: z.string().optional().describe("Return type (e.g., 'int', 'String', 'SpreadsheetResult', or custom type like 'Policy')"),
+  parameters: z.array(z.object({
+    type: z.string().describe("Parameter type (e.g., 'String', 'int', 'double', 'Policy')"),
+    name: z.string().describe("Parameter name (e.g., 'driverType', 'age', 'policy')")
+  })).optional().describe("Method parameters for the table signature"),
+  file: z.string().optional().describe("Target Excel file (e.g., 'rules/Insurance.xlsx'). If not specified, uses default file."),
+  properties: z.record(z.any()).optional().describe("Dimension properties (e.g., { state: 'CA', lob: 'Auto', effectiveDate: '01/01/2025' })"),
   comment: commentSchema,
 });
 
