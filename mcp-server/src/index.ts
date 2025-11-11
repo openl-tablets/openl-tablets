@@ -75,8 +75,13 @@ class OpenLMCPServer {
    */
   private setupHandlers(): void {
     // List available tools
+    // Note: Strip _meta from tools as it's not part of MCP spec
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: TOOLS,
+      tools: TOOLS.map(({ name, description, inputSchema }) => ({
+        name,
+        description,
+        inputSchema,
+      })),
     }));
 
     // Handle tool execution
