@@ -70,7 +70,7 @@ public class OpenApiResource {
     private OpenAPI getOpenAPI(UriInfo uriInfo) throws IOException {
         // Load default configuration
         ObjectMapper openApiMapper = Json.mapper().copy().setDefaultMergeable(true);
-        var openAPI = openApiMapper.readValue(getClass().getResource("/openapi-default.json"), OpenAPI.class);
+        var openAPI = openApiMapper.readValue(getClass().getResourceAsStream("/openapi-default.json"), OpenAPI.class);
         openAPI.getInfo().setTitle(service.getName());
         var servers = new ArrayList<Server>();
         servers.add(new Server().url(StringUtils.substringBeforeLast(uriInfo.getRequestUri().toString(), "/")));
@@ -78,13 +78,13 @@ public class OpenApiResource {
 
         // Load custom override configuration
         // https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration
-        var custom = getClass().getResource("/openapi-configuration.json");
+        var custom = getClass().getResourceAsStream("/openapi-configuration.json");
         if (custom != null) {
             var res = openApiMapper.readerForUpdating(new ConfigWrapper(openAPI)).readValue(custom);
             openAPI = ((ConfigWrapper) res).openAPI;
         }
         if (authenticationEnabled) {
-            openAPI = openApiMapper.readerForUpdating(openAPI).readValue(getClass().getResource("/openapi-security.json"));
+            openAPI = openApiMapper.readerForUpdating(openAPI).readValue(getClass().getResourceAsStream("/openapi-security.json"));
         }
 
         openAPI = OpenAPIConfiguration.generateOpenAPI(openAPI, app, mapper);

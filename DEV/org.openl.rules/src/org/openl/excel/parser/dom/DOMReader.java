@@ -207,7 +207,7 @@ public class DOMReader implements ExcelReader {
 
                 @Override
                 public ICellFont getFont(int row, int column) {
-                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndexAsInt());
+                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
                     return new XlsCellFont(font, workbook);
                 }
 

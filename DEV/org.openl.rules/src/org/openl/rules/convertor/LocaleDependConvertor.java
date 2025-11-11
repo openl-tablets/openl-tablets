@@ -17,7 +17,10 @@ class LocaleDependConvertor {
             String country = System.getProperty("org.openl.locale.country");
             String lang = System.getProperty("org.openl.locale.lang");
 
-            locale = new Locale(lang == null ? LOCALE_LANG : lang, country == null ? LOCALE_COUNTRY : country);
+            locale = new Locale.Builder()
+                    .setLanguage(lang == null ? LOCALE_LANG : lang)
+                    .setRegion(country == null ? LOCALE_COUNTRY : country)
+                    .build();
         }
 
         return locale;

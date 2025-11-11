@@ -1,7 +1,6 @@
 package org.openl.rules.core.ce;
 
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -12,10 +11,7 @@ import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
-            new WorkerThreadFactory(),
-            null,
-            false);
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
@@ -39,16 +35,6 @@ public final class ServiceMT {
             action.fork();
         } else {
             forkJoinPool.execute(action);
-        }
-    }
-
-    public void execute(ForkJoinTask<?> task) {
-        forkJoinPool.execute(task);
-    }
-
-    public void executeAll(ForkJoinTask<?>... tasks) {
-        for (ForkJoinTask<?> task : tasks) {
-            forkJoinPool.execute(task);
         }
     }
 

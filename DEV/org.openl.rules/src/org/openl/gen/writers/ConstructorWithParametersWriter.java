@@ -42,7 +42,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             methodVisitor = classWriter
                     .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V", false);
         } else {
             // Parent fields are not empty only if parent class is datatype and constructor exists in generated class.
             methodVisitor = classWriter
@@ -64,7 +64,8 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
                     parentName,
                     "<init>",
-                    getMethodSignatureForByteCode(parentFields));
+                    getMethodSignatureForByteCode(parentFields),
+                    false);
         }
 
         // Set all fields that is not presented in parent

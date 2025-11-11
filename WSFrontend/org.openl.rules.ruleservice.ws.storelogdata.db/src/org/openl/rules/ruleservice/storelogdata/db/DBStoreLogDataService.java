@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.storelogdata.db;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,8 +100,9 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                         entities.add(new DefaultEntity());
                     } else {
                         try {
-                            entities.add(entityClass.newInstance());
-                        } catch (InstantiationException | IllegalAccessException e) {
+                            entities.add(entityClass.getDeclaredConstructor().newInstance());
+                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                                 InvocationTargetException e) {
                             throw new StoreLogDataException(
                                     String
                                             .format("Failed to instantiate entity class '%s'%s.",

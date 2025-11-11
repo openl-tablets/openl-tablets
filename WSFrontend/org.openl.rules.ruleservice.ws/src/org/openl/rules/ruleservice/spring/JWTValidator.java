@@ -1,7 +1,8 @@
 package org.openl.rules.ruleservice.spring;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -41,7 +42,7 @@ public class JWTValidator implements AuthorizationChecker {
     private final JwtConsumer jwtConsumer;
 
     @Autowired
-    public JWTValidator(Environment env) throws JoseException, IOException {
+    public JWTValidator(Environment env) throws JoseException, IOException, URISyntaxException {
         var expectedIssuers = StringUtils.split(env.getProperty("ruleservice.authentication.iss"), ',');
         if (CollectionUtils.isEmpty(expectedIssuers)) {
             throw new IllegalArgumentException("The 'ruleservice.authentication.iss' property should contain an issuer id");
@@ -58,14 +59,14 @@ public class JWTValidator implements AuthorizationChecker {
             // and multi-thread safe.
             jwksResolver = new HttpsJwksVerificationKeyResolver(new HttpsJwks(jwkPropertyUrl));
         } else {
-            try (var resource = new URL(jwkPropertyUrl).openStream()) {
+            try (var resource = new URI(jwkPropertyUrl).toURL().openStream()) {
                 var json = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
                 var jwks = new JsonWebKeySet(json);
                 jwksResolver = new JwksVerificationKeyResolver(jwks.getJsonWebKeys());
             }
         }
 
-        var jwtConsumer = new JwtConsumerBuilder()
+        this.jwtConsumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime() // the JWT must have an expiration time
                 .setAllowedClockSkewInSeconds(30) // allow some leeway in validating time based claims to account for clock skew
                 .setExpectedIssuer(env.getProperty("ruleservice.authentication.iss")) // whom the JWT needs to have been issued by
@@ -73,8 +74,6 @@ public class JWTValidator implements AuthorizationChecker {
                 .setVerificationKeyResolver(jwksResolver) // verify the signature with the public key
                 .setJwsAlgorithmConstraints(AlgorithmConstraints.DISALLOW_NONE) // allow all algorithms
                 .build(); // create the JwtConsumer instance
-
-        this.jwtConsumer = jwtConsumer;
     }
 
     @Override

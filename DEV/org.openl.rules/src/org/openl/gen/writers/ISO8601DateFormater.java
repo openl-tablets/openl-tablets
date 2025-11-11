@@ -6,16 +6,9 @@ import java.util.Locale;
 
 public class ISO8601DateFormater {
     private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    private static final String ISO8601_SHORT_DATE_FORMAT = "yyyy-MM-dd";
 
     public static String format(Date date) {
-        SimpleDateFormat dateFormat;
-        boolean zeroTime = date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0;
-        if (!zeroTime) {
-            dateFormat = new SimpleDateFormat(ISO8601_DATE_FORMAT, Locale.US);
-        } else {
-            dateFormat = new SimpleDateFormat(ISO8601_SHORT_DATE_FORMAT, Locale.US);
-        }
-        return dateFormat.format(date);
+        var formatted = new SimpleDateFormat(ISO8601_DATE_FORMAT, Locale.US).format(date);
+        return formatted.endsWith("T00:00:00Z") ? formatted.substring(0, formatted.length() - 10) : formatted;
     }
 }

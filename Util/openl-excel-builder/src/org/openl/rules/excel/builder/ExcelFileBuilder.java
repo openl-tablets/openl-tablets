@@ -115,8 +115,7 @@ public class ExcelFileBuilder {
      * @param outputStream
      */
     private static void writeDataTypes(Set<DatatypeModel> datatypeModels, OutputStream outputStream) {
-        SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
             TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
@@ -128,16 +127,11 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Error on generating DataTypes workbook occurred.", e);
-        } finally {
-            if (tempWorkbook != null) {
-                tempWorkbook.dispose();
-            }
         }
     }
 
     private static void writeDataTables(List<DataModel> dataModels, OutputStream outputStream) {
-        SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             SXSSFSheet dtSheet = workbook.createSheet(DATA_SHEET);
             TableStyle datatypeStyles = stylesMap.get(DATA_SHEET);
@@ -149,10 +143,6 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Error on generating Data tables workbook occurred.", e);
-        } finally {
-            if (tempWorkbook != null) {
-                tempWorkbook.dispose();
-            }
         }
     }
 
@@ -163,8 +153,7 @@ public class ExcelFileBuilder {
      * @param outputStream
      */
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
-        SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
             writeSpreadsheets(spreadsheetModels, workbook, sprStyles);
@@ -172,10 +161,6 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
-        } finally {
-            if (tempWorkbook != null) {
-                tempWorkbook.dispose();
-            }
         }
     }
 
@@ -226,8 +211,7 @@ public class ExcelFileBuilder {
                                               List<DataModel> dataModels,
                                               OutputStream outputStream,
                                               EnvironmentModel environmentModel) {
-        SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
             TableStyle envStyle = stylesMap.get(ENV_SHEET);
@@ -239,10 +223,6 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
-        } finally {
-            if (tempWorkbook != null) {
-                tempWorkbook.dispose();
-            }
         }
     }
 
@@ -264,8 +244,7 @@ public class ExcelFileBuilder {
      * @param fos          - output stream.
      */
     private static void writeProject(ProjectModel projectModel, OutputStream fos) {
-        SXSSFWorkbook tempWorkbook = null;
-        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
 
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
@@ -294,10 +273,6 @@ public class ExcelFileBuilder {
             workbook.write(fos);
         } catch (IOException e) {
             LOGGER.error("Error on generating workbook occurred.", e);
-        } finally {
-            if (tempWorkbook != null) {
-                tempWorkbook.dispose();
-            }
         }
     }
 

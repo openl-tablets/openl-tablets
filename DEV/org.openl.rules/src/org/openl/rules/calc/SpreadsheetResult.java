@@ -2,6 +2,7 @@ package org.openl.rules.calc;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -732,8 +733,8 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertMap(Map<?, ?> v, Function<Object, Object> function) {
         Map<Object, Object> newMap;
         try {
-            newMap = (Map<Object, Object>) v.getClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            newMap = (Map<Object, Object>) v.getClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             return v;
         }
         for (Entry<?, ?> e : v.entrySet()) {
@@ -745,8 +746,8 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertCollection(Collection<?> v, Function<Object, Object> function) {
         Collection<Object> newCollection;
         try {
-            newCollection = (Collection<Object>) v.getClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            newCollection = (Collection<Object>) v.getClass().getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             return v;
         }
         for (Object o : v) {

@@ -497,23 +497,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     }
                     if (v instanceof Collection) {
                         try {
-                            var newCollection = (Collection<Object>) v.getClass().newInstance();
+                            var newCollection = (Collection<Object>) v.getClass().getDeclaredConstructor().newInstance();
                             for (var o : (Collection<?>)v) {
                                 newCollection.add(apply(o, Object.class));
                             }
                             return newCollection;
-                        } catch (InstantiationException | IllegalAccessException e) {
+                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                             return v;
                         }
                     }
                     if (v instanceof Map) {
                         try {
-                            var newCollection = (Map<Object, Object>) v.getClass().newInstance();
+                            var newCollection = (Map<Object, Object>) v.getClass().getDeclaredConstructor().newInstance();
                             for (var o : ((Map<?, ?>)v).entrySet()) {
                                 newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
                             }
                             return newCollection;
-                        } catch (InstantiationException | IllegalAccessException e) {
+                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                             return v;
                         }
                     }

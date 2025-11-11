@@ -227,11 +227,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
         var response = new ApiResponse();
         if (StringUtils.isNotBlank(apiResponse.ref())) {
             response.set$ref(apiResponse.ref());
-            if (StringUtils.isNotBlank(apiResponse.responseCode())) {
-                responses.addApiResponse(apiResponse.responseCode(), response);
-            } else {
-                responses._default(response);
-            }
+            responses.addApiResponse(StringUtils.isNotBlank(apiResponse.responseCode()) ? apiResponse.responseCode() : ApiResponses.DEFAULT, response);
         } else {
             if (StringUtils.isNotBlank(apiResponse.description())) {
                 response.setDescription(apiPropertyResolver.resolve(apiResponse.description()));
@@ -253,14 +249,10 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             if (StringUtils.isNotBlank(response.getDescription()) || response.getContent() != null || response
                     .getHeaders() != null) {
                 var links = AnnotationsUtils.getLinks(apiResponse.links());
-                if (links.size() > 0) {
+                if (!links.isEmpty()) {
                     response.setLinks(links);
                 }
-                if (StringUtils.isNotBlank(apiResponse.responseCode())) {
-                    responses.addApiResponse(apiResponse.responseCode(), response);
-                } else {
-                    responses._default(response);
-                }
+                responses.addApiResponse(StringUtils.isNotBlank(apiResponse.responseCode()) ? apiResponse.responseCode() : ApiResponses.DEFAULT, response);
             }
         }
         fillHeaderScheme(response);
@@ -289,7 +281,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
         if (OpenApiUtils.isVoid(returnType)) {
             if (genericResponseCode) {
                 if (responses.isEmpty()) {
-                    responses._default(createDefaultApiResponse());
+                    responses.addApiResponse(ApiResponses.DEFAULT, createDefaultApiResponse());
                 }
             } else {
                 var responseCode = Optional.ofNullable(methodInfo.getHttpStatus())
@@ -307,18 +299,15 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             if (schema != null) {
                 var content = createContent(schema, methodInfo.getProduces());
                 if (responses.isEmpty()) {
-                    if (genericResponseCode) {
-                        responses._default(createDefaultApiResponse().content(content));
-                    } else {
-                        var responseCode = Optional.ofNullable(methodInfo.getHttpStatus())
-                                .map(HttpStatus::value)
-                                .map(String::valueOf)
-                                .orElse("200");
-                        responses.addApiResponse(responseCode, createDefaultApiResponse().content(content));
-                    }
+                    var responseCode = genericResponseCode ? ApiResponses.DEFAULT
+                            : Optional.ofNullable(methodInfo.getHttpStatus())
+                            .map(HttpStatus::value)
+                            .map(String::valueOf)
+                            .orElse("200");
+                    responses.addApiResponse(responseCode, createDefaultApiResponse().content(content));
                 } else {
                     if (methodInfo.getHttpStatus() == null) {
-                        var defaultResponse = responses.getDefault();
+                        var defaultResponse = responses.get(ApiResponses.DEFAULT);
                         if (defaultResponse != null) {
                             extendApiResponse(defaultResponse, content, schema);
                         } else {

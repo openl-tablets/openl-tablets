@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +35,6 @@ import org.springframework.core.env.Environment;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
@@ -89,21 +87,20 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
-            defaultKafkaDeploy = YAML.readValue(getClass().getResource("/kafka-deploy-default.yaml"), BaseKafkaConfig.class);
+            defaultKafkaDeploy = YAML.readValue(getClass().getResourceAsStream("/kafka-deploy-default.yaml"), BaseKafkaConfig.class);
         }
         return defaultKafkaDeploy;
     }
 
     private BaseKafkaConfig getImmutableKafkaDeploy() throws IOException {
         if (immutableKafkaDeploy == null) {
-            immutableKafkaDeploy = YAML.readValue(getClass().getResource("/kafka-deploy-override.yaml"), BaseKafkaConfig.class);
+            immutableKafkaDeploy = YAML.readValue(getClass().getResourceAsStream("/kafka-deploy-override.yaml"), BaseKafkaConfig.class);
         }
         return immutableKafkaDeploy;
     }
 
     private boolean requiredFieldIsMissed(Object value) {
-        if (value instanceof String) {
-            String v = (String) value;
+        if (value instanceof String v) {
             return StringUtils.isEmpty(v.trim());
         }
         return value == null;
@@ -121,8 +118,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         if (!missedRequiredFields.isEmpty()) {
             String missedRequiredFieldsString = missedRequiredFields.stream()
                     .collect(Collectors.joining(",", "[", "]"));
-            if (config instanceof KafkaMethodConfig) {
-                KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) config;
+            if (config instanceof KafkaMethodConfig kafkaMethodConfig) {
                 throw new KafkaServiceConfigurationException(
                         String.format("Missed mandatory configs %s in method '%s' configuration.",
                                 missedRequiredFieldsString,
@@ -170,11 +166,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private <T> T getConfiguredValueDeserializer(OpenLService service,
                                                  ObjectMapper objectMapper,
                                                  Method method,
-                                                 String className) throws RuleServiceInstantiationException,
-            ClassNotFoundException,
-            IllegalAccessException,
-            InstantiationException,
-            InvocationTargetException {
+                                                 String className) throws Exception {
         if (className == null) {
             return null;
         }
@@ -184,17 +176,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class, Method.class);
             return constructor.newInstance(service, objectMapper, method);
         } catch (NoSuchMethodException e) {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         }
     }
 
     private <T> T getConfiguredValueSerializer(OpenLService service,
                                                ObjectMapper objectMapper,
-                                               String className) throws RuleServiceInstantiationException,
-            ClassNotFoundException,
-            IllegalAccessException,
-            InstantiationException,
-            InvocationTargetException {
+                                               String className) throws Exception {
         if (className == null) {
             return null;
         }
@@ -204,21 +192,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class);
             return constructor.newInstance(service, objectMapper);
         } catch (NoSuchMethodException e) {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         }
     }
 
     private <T> T getConfiguredKeySerializerOrDeserializer(OpenLService service,
-                                                           String className) throws RuleServiceInstantiationException,
-            ClassNotFoundException,
-            IllegalAccessException,
-            InstantiationException {
+                                                           String className) throws Exception {
         if (className == null) {
             return null;
         }
         @SuppressWarnings("unchecked")
         Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
-        return clazz.newInstance();
+        return clazz.getDeclaredConstructor().newInstance();
     }
 
     private KafkaProducer<String, Object> buildProducer(OpenLService service,

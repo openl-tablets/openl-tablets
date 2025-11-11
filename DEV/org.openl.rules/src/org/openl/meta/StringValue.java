@@ -1,6 +1,6 @@
 package org.openl.meta;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -139,10 +139,9 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
             this.metaInfo = (ValueMetaInfo) metaInfo;
         } else {
             try {
-                ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
+                this.metaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
                         metaInfo.getDisplayName(IMetaInfo.LONG),
-                        new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
-                this.metaInfo = valueMetaInfo;
+                        new URLSourceCodeModule(new URI(metaInfo.getSourceUrl()).toURL()));
             } catch (Exception e) {
                 LOG.debug("Failed to set meta info for StringValue '{}'", value, e);
                 this.metaInfo = null;

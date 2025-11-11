@@ -85,7 +85,7 @@ public final class PoiExcelHelper {
         Font font = null;
         if (cell != null) {
             CellStyle style = cell.getCellStyle();
-            int fontIndex = style.getFontIndexAsInt();
+            int fontIndex = style.getFontIndex();
             font = cell.getSheet().getWorkbook().getFontAt(fontIndex);
         }
         return font;

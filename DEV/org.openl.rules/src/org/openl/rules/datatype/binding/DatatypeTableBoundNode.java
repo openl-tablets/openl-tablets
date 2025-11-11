@@ -11,6 +11,7 @@ import static org.openl.rules.datatype.binding.DatatypeHelper.TYPE_COLUMN_TITLE;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -362,8 +363,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         Object instance = null;
         try {
-            instance = datatypeClass.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
+            instance = datatypeClass.getDeclaredConstructor().newInstance();
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             LOG.debug("Error occurred: ", e);
             String errorMessage = String.format(
                     "Default constructor is not found in class '%s' or the class is not instantiatable. " + "Please, update the class to be compatible with the datatype.",

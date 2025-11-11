@@ -1,6 +1,6 @@
 package org.openl.excel.grid;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -271,7 +271,7 @@ public class SequentialXlsLoader {
                     try {
                         String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
                                 StringTool.encodeURL(include));
-                        src = new URLSourceCodeModule(new URL(newURL));
+                        src = new URLSourceCodeModule(new URI(newURL).toURL());
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
                         continue;

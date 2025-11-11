@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -68,7 +69,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         // This reflection implementation for JBoss vfs
         String urlString = resourceURL.toString();
         urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
-        Object jarFile = new URL(urlString).openConnection().getContent();
+        Object jarFile = new URI(urlString).toURL().openConnection().getContent();
         Class<?> clazz = jarFile.getClass();
         if ("org.jboss.vfs.VirtualFile".equals(clazz.getName())) {
             Method getNameMethod = clazz.getMethod("getName");

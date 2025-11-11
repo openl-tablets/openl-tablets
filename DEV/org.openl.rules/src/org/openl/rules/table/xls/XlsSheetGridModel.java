@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellPropertyType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
@@ -439,14 +440,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellAlignment(int col, int row, HorizontalAlignment alignment) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, alignment);
+        CellUtil.setCellStyleProperty(cell, CellPropertyType.ALIGNMENT, alignment);
     }
 
     @Override
     public void setCellIndent(int col, int row, int indent) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellUtil.setCellStyleProperty(cell, CellUtil.INDENTION, (short) indent);
+        CellUtil.setCellStyleProperty(cell, CellPropertyType.INDENTION, (short) indent);
     }
 
     @Override
@@ -491,7 +492,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
         Font newFont = workbook.createFont();
-        int fontIndex = cell.getCellStyle().getFontIndexAsInt();
+        int fontIndex = cell.getCellStyle().getFontIndex();
         Font fromFont = workbook.getFontAt(fontIndex);
 
         newFont.setBold(fromFont.getBold());
