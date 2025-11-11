@@ -208,3 +208,28 @@ export const getProjectHistorySchema = z.object({
   branch: z.string().optional().describe("Git branch name (default: current branch)"),
 });
 
+// =============================================================================
+// Phase 3: Dimension Properties Schemas
+// =============================================================================
+
+export const getFileNamePatternSchema = z.object({
+  projectId: projectIdSchema,
+});
+
+export const setFileNamePatternSchema = z.object({
+  projectId: projectIdSchema,
+  pattern: z.string().describe("File name pattern with property placeholders (e.g., '.*-%state%-%effectiveDate:MMddyyyy%-%lob%')"),
+});
+
+export const getTablePropertiesSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: tableIdSchema,
+});
+
+export const setTablePropertiesSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: tableIdSchema,
+  properties: z.record(z.any()).describe("Dimension properties object (e.g., { state: 'CA', lob: 'Auto', effectiveDate: '01/01/2025' })"),
+  comment: commentSchema,
+});
+

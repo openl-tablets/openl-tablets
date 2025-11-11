@@ -352,6 +352,52 @@ export const TOOLS: ToolDefinition[] = [
       requiresAuth: true,
     },
   },
+
+  // =============================================================================
+  // Phase 3: Dimension Properties Tools
+  // =============================================================================
+  {
+    name: "get_file_name_pattern",
+    description: "Get dimension properties file naming pattern from rules.xml. Returns pattern and list of properties used in file names (state, lob, effectiveDate, etc.).",
+    inputSchema: zodToJsonSchema(schemas.getFileNamePatternSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "set_file_name_pattern",
+    description: "Set dimension properties file naming pattern in rules.xml. Pattern determines how properties are encoded in file names (e.g., '%state%-%lob%' creates 'CA-Auto.xlsx').",
+    inputSchema: zodToJsonSchema(schemas.setFileNamePatternSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "get_table_properties",
+    description: "Get dimension properties for a specific table. Returns properties like state, lob, effectiveDate that determine when and where this rule version applies.",
+    inputSchema: zodToJsonSchema(schemas.getTablePropertiesSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "set_table_properties",
+    description: "Set dimension properties for a table. Properties define business context (state, lob, effectiveDate, etc.) for rule versioning within the same Git commit.",
+    inputSchema: zodToJsonSchema(schemas.setTablePropertiesSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
 ];
 
 /**

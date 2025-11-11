@@ -887,4 +887,120 @@ export class OpenLClient {
       hasMore: (request.offset || 0) + commits.length < (response.data.total || commits.length),
     };
   }
+
+  // =============================================================================
+  // Phase 3: Dimension Properties Methods
+  // =============================================================================
+
+  /**
+   * Extract file name pattern from rules.xml content
+   *
+   * @param xmlContent - XML content from rules.xml
+   * @returns File name pattern or null
+   */
+  private extractFileNamePattern(xmlContent: string): string | null {
+    const match = xmlContent.match(/<properties-file-name-pattern>(.*?)<\/properties-file-name-pattern>/);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Extract property names from file name pattern
+   *
+   * @param pattern - File name pattern
+   * @returns Array of property names
+   */
+  private extractPropertiesFromPattern(pattern: string | null): string[] {
+    if (!pattern) return [];
+    const matches = pattern.match(/%([^:%]+)(?::[^%]+)?%/g);
+    if (!matches) return [];
+    return matches.map(m => m.replace(/%([^:%]+)(?::[^%]+)?%/, "$1"));
+  }
+
+  /**
+   * Get dimension properties file naming pattern
+   *
+   * @param request - Get file name pattern request
+   * @returns File name pattern and extracted properties
+   */
+  async getFileNamePattern(request: Types.GetFileNamePatternRequest): Promise<Types.GetFileNamePatternResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    const response = await this.axiosInstance.get(
+      `/design-repositories/${repository}/projects/${projectName}/rules.xml`
+    );
+
+    const pattern = this.extractFileNamePattern(response.data);
+    const properties = this.extractPropertiesFromPattern(pattern);
+
+    return {
+      pattern,
+      properties,
+    };
+  }
+
+  /**
+   * Set dimension properties file naming pattern
+   *
+   * @param request - Set file name pattern request
+   * @returns Success status and pattern
+   */
+  async setFileNamePattern(request: Types.SetFileNamePatternRequest): Promise<Types.SetFileNamePatternResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    await this.axiosInstance.put(
+      `/design-repositories/${repository}/projects/${projectName}/rules.xml/pattern`,
+      { pattern: request.pattern }
+    );
+
+    return {
+      success: true,
+      pattern: request.pattern,
+      message: "File name pattern updated successfully",
+    };
+  }
+
+  /**
+   * Get dimension properties for a table
+   *
+   * @param request - Get table properties request
+   * @returns Table properties
+   */
+  async getTableProperties(request: Types.GetTablePropertiesRequest): Promise<Types.GetTablePropertiesResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    const response = await this.axiosInstance.get(
+      `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/properties`
+    );
+
+    return {
+      tableId: request.tableId,
+      tableName: response.data.name || "",
+      properties: response.data.properties || {},
+    };
+  }
+
+  /**
+   * Set dimension properties for a table
+   *
+   * @param request - Set table properties request
+   * @returns Success status and properties
+   */
+  async setTableProperties(request: Types.SetTablePropertiesRequest): Promise<Types.SetTablePropertiesResult> {
+    const [repository, projectName] = this.parseProjectId(request.projectId);
+
+    await this.axiosInstance.put(
+      `/design-repositories/${repository}/projects/${projectName}/tables/${request.tableId}/properties`,
+      {
+        properties: request.properties,
+        comment: request.comment || "Update table dimension properties",
+      }
+    );
+
+    return {
+      success: true,
+      tableId: request.tableId,
+      properties: request.properties,
+      message: "Table properties updated successfully",
+    };
+  }
 }

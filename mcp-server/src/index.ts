@@ -437,6 +437,53 @@ class OpenLMCPServer {
           break;
         }
 
+        // Phase 3: Dimension Properties
+        case "get_file_name_pattern": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId } = args as {
+            projectId: string;
+          };
+          result = await this.client.getFileNamePattern({ projectId });
+          break;
+        }
+
+        case "set_file_name_pattern": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, pattern } = args as {
+            projectId: string;
+            pattern: string;
+          };
+          result = await this.client.setFileNamePattern({ projectId, pattern });
+          break;
+        }
+
+        case "get_table_properties": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId } = args as {
+            projectId: string;
+            tableId: string;
+          };
+          result = await this.client.getTableProperties({ projectId, tableId });
+          break;
+        }
+
+        case "set_table_properties": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId, properties, comment } = args as {
+            projectId: string;
+            tableId: string;
+            properties: Record<string, any>;
+            comment?: string;
+          };
+          result = await this.client.setTableProperties({
+            projectId,
+            tableId,
+            properties,
+            comment,
+          });
+          break;
+        }
+
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
       }
