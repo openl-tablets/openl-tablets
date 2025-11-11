@@ -14,7 +14,6 @@ export interface DefaultSettings {
     defaultCommentRestore?: string
     defaultCommentRestoredFrom?: string
     defaultCommentSave?: string
-    flatFolderStructure?: boolean
     invalidCommentMessage: string
     mainBranchOnly?: boolean
     useCustomComments?: boolean

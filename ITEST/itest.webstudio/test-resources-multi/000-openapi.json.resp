@@ -607,10 +607,6 @@ Content-Type: application/json
             "type": "string",
             "description" : "***"
           },
-          "flatFolderStructure" : {
-            "type": "boolean",
-            "description" : "***"
-          },
           "invalidCommentMessage" : {
             "type": "string",
             "description" : "***"

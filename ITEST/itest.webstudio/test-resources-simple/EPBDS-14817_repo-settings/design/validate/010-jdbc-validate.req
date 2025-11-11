@@ -16,7 +16,6 @@ Content-Type: application/json
     "defaultCommentErase": "",
     "defaultCommentCopiedFrom": "",
     "defaultCommentRestoredFrom": "",
-    "flatFolderStructure": false,
     "basePath": "",
     "login": "",
     "password": "",

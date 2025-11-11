@@ -44,12 +44,10 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String DEFAULT_COMMENT_ERASE_SUFFIX = ".comment-template.user-message.default.erase";
     private static final String DEFAULT_COMMENT_COPIED_FROM_SUFFIX = ".comment-template.user-message.default.copied-from";
     private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
-    private static final String FLAT_FOLDER_STRUCTURE_SUFFIX = ".folder-structure.flat";
     public static final String BASE_PATH_SUFFIX = ".base.path";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
-    private final String FLAT_FOLDER_STRUCTURE;
     private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
@@ -129,11 +127,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     @JsonView(Views.Design.class)
     private String defaultCommentRestoredFrom;
 
-    @Parameter(description = "Flat folder structure.")
-    @SettingPropertyName(suffix = FLAT_FOLDER_STRUCTURE_SUFFIX)
-    @JsonView(Views.Design.class)
-    private boolean flatFolderStructure;
-
     @Parameter(description = "Path")
     @PathConstraint(allowTrailingSlash = true)
     @SettingPropertyName(suffix = BASE_PATH_SUFFIX)
@@ -166,7 +159,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         DEFAULT_COMMENT_ERASE = configPrefix + DEFAULT_COMMENT_ERASE_SUFFIX;
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + DEFAULT_COMMENT_COPIED_FROM_SUFFIX;
         DEFAULT_COMMENT_RESTORED_FROM = configPrefix + DEFAULT_COMMENT_RESTORED_FROM_SUFFIX;
-        FLAT_FOLDER_STRUCTURE = configPrefix + FLAT_FOLDER_STRUCTURE_SUFFIX;
         BASE_PATH = configPrefix + BASE_PATH_SUFFIX;
         DEPLOY_FROM_MAIN_BRANCH = configPrefix + DEPLOY_FROM_MAIN_BRANCH_SUFFIX;
 
@@ -287,14 +279,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         ;
     }
 
-    public boolean isFlatFolderStructure() {
-        return flatFolderStructure;
-    }
-
-    public void setFlatFolderStructure(boolean flatFolderStructure) {
-        this.flatFolderStructure = flatFolderStructure;
-    }
-
     private void load(PropertiesHolder properties) {
         useCustomComments = Boolean.parseBoolean(properties.getProperty(USE_CUSTOM_COMMENTS));
         commentValidationPattern = properties.getProperty(COMMENT_VALIDATION_PATTERN);
@@ -308,9 +292,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         defaultCommentErase = properties.getProperty(DEFAULT_COMMENT_ERASE);
         defaultCommentCopiedFrom = properties.getProperty(DEFAULT_COMMENT_COPIED_FROM);
         defaultCommentRestoredFrom = properties.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
-
-        var flatFolderProperty = properties.getProperty(FLAT_FOLDER_STRUCTURE);
-        flatFolderStructure = StringUtils.isBlank(flatFolderProperty) || Boolean.parseBoolean(flatFolderProperty);
 
         mainBranchOnly = MAIN_BRANCH.equals(properties.getProperty(DEPLOY_FROM_MAIN_BRANCH));
 
@@ -337,7 +318,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
         propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
         propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
-        propertiesHolder.setProperty(FLAT_FOLDER_STRUCTURE, flatFolderStructure);
 
         propertiesHolder.setProperty(DEPLOY_FROM_MAIN_BRANCH, mainBranchOnly ? MAIN_BRANCH : null);
     }
@@ -356,7 +336,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
                 DEFAULT_COMMENT_COPIED_FROM,
                 DEFAULT_COMMENT_RESTORED_FROM,
                 BASE_PATH,
-                FLAT_FOLDER_STRUCTURE,
                 DEPLOY_FROM_MAIN_BRANCH);
         load(properties);
     }
