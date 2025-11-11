@@ -224,10 +224,20 @@ export class OpenLClient {
       { comment }
     );
 
+    // Extract commit information from response (FileData structure)
+    const fileData = response.data;
+    const commitHash = fileData.version || fileData.commitHash;
+
     return {
       success: true,
-      version: response.data.version,
-      message: "Project saved successfully",
+      commitHash,
+      version: commitHash,  // Same as commitHash for backward compatibility
+      author: fileData.author ? {
+        name: fileData.author.name || "unknown",
+        email: fileData.author.email || ""
+      } : undefined,
+      timestamp: fileData.modifiedAt || new Date().toISOString(),
+      message: `Project saved successfully at commit ${commitHash?.substring(0, 8) || "unknown"}`,
     };
   }
 
@@ -281,7 +291,7 @@ export class OpenLClient {
     // Upload file using axios with buffer
     // Note: The actual implementation depends on OpenL Tablets API requirements
     // This is a placeholder that may need adjustment based on the actual API
-    await this.axiosInstance.post(
+    const response = await this.axiosInstance.post(
       `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
       buffer,
       {
@@ -292,11 +302,22 @@ export class OpenLClient {
       }
     );
 
+    // Extract commit information from response (FileData structure)
+    const fileData = response.data || {};
+    const commitHash = fileData.version || fileData.commitHash;
+
     return {
       success: true,
       fileName,
-      size: buffer.length,
-      message: "File uploaded successfully",
+      commitHash,
+      version: commitHash,  // Same as commitHash for backward compatibility
+      author: fileData.author ? {
+        name: fileData.author.name || "unknown",
+        email: fileData.author.email || ""
+      } : undefined,
+      timestamp: fileData.modifiedAt || new Date().toISOString(),
+      size: fileData.size || buffer.length,
+      message: `File uploaded successfully at commit ${commitHash?.substring(0, 8) || "unknown"}`,
     };
   }
 
@@ -305,15 +326,23 @@ export class OpenLClient {
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @param fileName - Name of the file to download
+   * @param version - Optional Git commit hash to download specific version
    * @returns File content as Buffer
    */
-  async downloadFile(projectId: string, fileName: string): Promise<Buffer> {
+  async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const [repository, projectName] = this.parseProjectId(projectId);
+
+    // Build request params
+    const params: any = {};
+    if (version) {
+      params.version = version;  // Git commit hash
+    }
 
     const response = await this.axiosInstance.get<ArrayBuffer>(
       `/design-repositories/${repository}/projects/${projectName}/files/${fileName}`,
       {
         responseType: "arraybuffer",
+        params,
       }
     );
 
@@ -643,51 +672,6 @@ export class OpenLClient {
   // =============================================================================
 
   /**
-   * Version an Excel file with rules
-   * Creates a copy of the file with a new version number
-   *
-   * @param request - Version file request
-   * @returns Version result with new file name
-   */
-  async versionFile(request: Types.VersionFileRequest): Promise<Types.VersionFileResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
-
-    // Generate suggested version names if not provided
-    let newFileName = request.newFileName;
-    if (!newFileName) {
-      // Extract version pattern from current file name
-      const match = request.currentFileName.match(/(.+?)_v?(\d+)\.xlsx?$/i);
-      if (match) {
-        const baseName = match[1];
-        const currentVersion = parseInt(match[2], 10);
-        newFileName = `${baseName}_v${currentVersion + 1}.xlsx`;
-      } else {
-        // No version found, add _v1
-        newFileName = request.currentFileName.replace(/\.xlsx?$/i, "_v1.xlsx");
-      }
-    }
-
-    try {
-      // Copy file with new name
-      await this.axiosInstance.post(
-        `/design-repositories/${repository}/projects/${projectName}/files/${request.currentFileName}/copy`,
-        { newFileName, comment: request.comment }
-      );
-
-      return {
-        success: true,
-        newFileName,
-        message: `File versioned successfully: ${request.currentFileName} → ${newFileName}`,
-      };
-    } catch (error: unknown) {
-      return {
-        success: false,
-        message: `Failed to version file: ${sanitizeError(error)}`,
-      };
-    }
-  }
-
-  /**
    * Copy a table/rule within a project
    *
    * @param request - Copy table request
@@ -762,8 +746,8 @@ export class OpenLClient {
       `/design-repositories/${repository}/projects/${projectName}/versions/compare`,
       {
         params: {
-          version1: request.version1,
-          version2: request.version2,
+          base: request.baseCommitHash,
+          target: request.targetCommitHash,
         },
       }
     );

@@ -155,10 +155,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "download_file",
-    description: "Download an Excel file from a project",
+    description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content.",
     inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },
@@ -283,17 +283,6 @@ export const TOOLS: ToolDefinition[] = [
   // Phase 3: Versioning & Execution Tools
   // =============================================================================
   {
-    name: "version_file",
-    description: "Create a new version of an Excel file with rules (auto-increments version number)",
-    inputSchema: zodToJsonSchema(schemas.versionFileSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
     name: "copy_table",
     description: "Copy a rule/table within a project or to another file",
     inputSchema: zodToJsonSchema(schemas.copyTableSchema) as Record<string, unknown>,
@@ -316,10 +305,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "compare_versions",
-    description: "Compare two versions of a project to see what changed (added, modified, removed tables)",
+    description: "Compare two Git commit versions of a project using commit hashes to see what changed (added, modified, removed tables)",
     inputSchema: zodToJsonSchema(schemas.compareVersionsSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
       requiresAuth: true,
     },
@@ -330,10 +319,10 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "revert_version",
-    description: "Revert project to a previous version (creates new version with old content, preserves history)",
+    description: "Revert project to a previous Git commit version using commit hash (creates new commit with old content, preserves history)",
     inputSchema: zodToJsonSchema(schemas.revertVersionSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.VERSION_CONTROL,
       requiresAuth: true,
       modifiesState: true,

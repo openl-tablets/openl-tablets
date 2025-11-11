@@ -355,7 +355,13 @@ export interface TableFilters {
 /** Save project result */
 export interface SaveProjectResult {
   success: boolean;
-  version?: string;
+  commitHash?: string;       // Git commit hash (e.g., "7a3f2b1c...")
+  version?: string;          // Same as commitHash
+  author?: {
+    name: string;
+    email: string;
+  };
+  timestamp?: string;        // ISO timestamp
   message?: string;
   validationErrors?: ValidationError[];
 }
@@ -364,6 +370,13 @@ export interface SaveProjectResult {
 export interface FileUploadResult {
   success: boolean;
   fileName: string;
+  commitHash?: string;       // Git commit hash created by upload
+  version?: string;          // Same as commitHash
+  author?: {
+    name: string;
+    email: string;
+  };
+  timestamp?: string;        // ISO timestamp
   size?: number;
   message?: string;
 }
@@ -420,22 +433,6 @@ export interface DetailedValidationResult extends ValidationResult {
 // Phase 3: Versioning & Execution Types
 // =============================================================================
 
-/** Version file request */
-export interface VersionFileRequest {
-  projectId: string;
-  currentFileName: string;
-  newFileName?: string;
-  comment?: string;
-}
-
-/** Version file result */
-export interface VersionFileResult {
-  success: boolean;
-  newFileName?: string;
-  message?: string;
-  suggestedVersions?: string[];
-}
-
 /** Copy table request */
 export interface CopyTableRequest {
   projectId: string;
@@ -470,8 +467,8 @@ export interface ExecuteRuleResult {
 /** Compare versions request */
 export interface CompareVersionsRequest {
   projectId: string;
-  version1: string;
-  version2: string;
+  baseCommitHash: string;     // Git commit hash to compare from
+  targetCommitHash: string;   // Git commit hash to compare to
 }
 
 /** Version difference */
@@ -500,14 +497,14 @@ export interface CompareVersionsResult {
 /** Revert version request */
 export interface RevertVersionRequest {
   projectId: string;
-  targetVersion: string;
+  targetVersion: string;       // Git commit hash to revert to
   comment?: string;
 }
 
 /** Revert version result */
 export interface RevertVersionResult {
   success: boolean;
-  newVersion?: string;
+  newVersion?: string;         // New Git commit hash created by revert
   message?: string;
   validationErrors?: ValidationError[];
 }

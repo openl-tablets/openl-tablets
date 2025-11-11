@@ -124,7 +124,8 @@ export const uploadFileSchema = z.object({
 
 export const downloadFileSchema = z.object({
   projectId: projectIdSchema,
-  fileName: z.string().describe("Name of the Excel file to download"),
+  fileName: z.string().describe("Name of the Excel file to download (e.g., 'rules/Insurance.xlsx')"),
+  version: z.string().optional().describe("Git commit hash to download specific version (e.g., '7a3f2b1c...'). Omit for latest version (HEAD)"),
 });
 
 export const createRuleSchema = z.object({
@@ -164,13 +165,6 @@ export const getProjectErrorsSchema = z.object({
 // Phase 3: Versioning & Execution Schemas
 // =============================================================================
 
-export const versionFileSchema = z.object({
-  projectId: projectIdSchema,
-  currentFileName: z.string().describe("Current Excel file name to version"),
-  newFileName: z.string().optional().describe("New file name for the version (auto-generated if not provided)"),
-  comment: commentSchema,
-});
-
 export const copyTableSchema = z.object({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
@@ -187,8 +181,8 @@ export const executeRuleSchema = z.object({
 
 export const compareVersionsSchema = z.object({
   projectId: projectIdSchema,
-  version1: z.string().describe("First version to compare"),
-  version2: z.string().describe("Second version to compare"),
+  baseCommitHash: z.string().describe("Base Git commit hash to compare from (e.g., '7a3f2b1c...')"),
+  targetCommitHash: z.string().describe("Target Git commit hash to compare to (e.g., '9e5d8a2f...')"),
 });
 
 // =============================================================================
@@ -197,7 +191,7 @@ export const compareVersionsSchema = z.object({
 
 export const revertVersionSchema = z.object({
   projectId: projectIdSchema,
-  targetVersion: z.string().describe("Version to revert to"),
+  targetVersion: z.string().describe("Git commit hash to revert to (e.g., '7a3f2b1c...')"),
   comment: commentSchema,
 });
 

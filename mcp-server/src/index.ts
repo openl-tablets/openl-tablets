@@ -198,16 +198,18 @@ class OpenLMCPServer {
 
         case "download_file": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, fileName } = args as {
+          const { projectId, fileName, version } = args as {
             projectId: string;
             fileName: string;
+            version?: string;
           };
-          const fileBuffer = await this.client.downloadFile(projectId, fileName);
+          const fileBuffer = await this.client.downloadFile(projectId, fileName, version);
           // Return base64-encoded content
           result = {
             fileName,
             fileContent: fileBuffer.toString("base64"),
             size: fileBuffer.length,
+            version: version || "HEAD",  // Indicate which version was downloaded
           };
           break;
         }
@@ -335,23 +337,6 @@ class OpenLMCPServer {
         }
 
         // Phase 3: Versioning & Execution tools
-        case "version_file": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, currentFileName, newFileName, comment } = args as {
-            projectId: string;
-            currentFileName: string;
-            newFileName?: string;
-            comment?: string;
-          };
-          result = await this.client.versionFile({
-            projectId,
-            currentFileName,
-            newFileName,
-            comment,
-          });
-          break;
-        }
-
         case "copy_table": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
           const { projectId, tableId, newName, targetFile, comment } = args as {
@@ -388,15 +373,15 @@ class OpenLMCPServer {
 
         case "compare_versions": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, version1, version2 } = args as {
+          const { projectId, baseCommitHash, targetCommitHash } = args as {
             projectId: string;
-            version1: string;
-            version2: string;
+            baseCommitHash: string;
+            targetCommitHash: string;
           };
           result = await this.client.compareVersions({
             projectId,
-            version1,
-            version2,
+            baseCommitHash,
+            targetCommitHash,
           });
           break;
         }
