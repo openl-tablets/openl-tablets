@@ -151,7 +151,12 @@ class OpenLMCPServer {
         // Project tools
         case "list_projects": {
           const filters = args as Types.ProjectFilters | undefined;
-          result = await this.client.listProjects(filters);
+          const projects = await this.client.listProjects(filters);
+          // Transform projects to include a flat projectId field for easier use
+          result = projects.map((project) => ({
+            ...project,
+            projectId: `${project.id.repository}-${project.id.projectName}`,
+          }));
           break;
         }
 

@@ -120,6 +120,18 @@ export class OpenLClient {
   }
 
   /**
+   * Build URL-safe project path
+   * Encodes repository and project name to handle spaces and special characters
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @returns URL-encoded project path
+   */
+  private buildProjectPath(projectId: string): string {
+    const [repository, projectName] = this.parseProjectId(projectId);
+    return `/repos/${encodeURIComponent(repository)}/projects/${encodeURIComponent(projectName)}`;
+  }
+
+  /**
    * List all projects with optional filters
    *
    * @param filters - Optional filters for repository, status, and tag
@@ -143,16 +155,12 @@ export class OpenLClient {
    * @returns Comprehensive project details
    */
   async getProject(projectId: string): Promise<Types.ComprehensiveProject> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
 
     // Fetch both project details and info in parallel
     const [projectResponse, infoResponse] = await Promise.all([
-      this.axiosInstance.get<Types.Project>(
-        `/repos/${repository}/projects/${projectName}`
-      ),
-      this.axiosInstance.get<Types.ProjectInfo>(
-        `/repos/${repository}/projects/${projectName}/info`
-      ),
+      this.axiosInstance.get<Types.Project>(projectPath),
+      this.axiosInstance.get<Types.ProjectInfo>(`${projectPath}/info`),
     ]);
 
     // Merge the responses
@@ -171,10 +179,8 @@ export class OpenLClient {
    * @returns Success status
    */
   async openProject(projectId: string): Promise<boolean> {
-    const [repository, projectName] = this.parseProjectId(projectId);
-    await this.axiosInstance.post(
-      `/repos/${repository}/projects/${projectName}/open`
-    );
+    const projectPath = this.buildProjectPath(projectId);
+    await this.axiosInstance.post(`${projectPath}/open`);
     return true;
   }
 
@@ -185,10 +191,8 @@ export class OpenLClient {
    * @returns Success status
    */
   async closeProject(projectId: string): Promise<boolean> {
-    const [repository, projectName] = this.parseProjectId(projectId);
-    await this.axiosInstance.post(
-      `/repos/${repository}/projects/${projectName}/close`
-    );
+    const projectPath = this.buildProjectPath(projectId);
+    await this.axiosInstance.post(`${projectPath}/close`);
     return true;
   }
 
@@ -204,7 +208,7 @@ export class OpenLClient {
     projectId: string,
     comment?: string
   ): Promise<Types.SaveProjectResult> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
 
     // First validate the project
     const validation = await this.validateProject(projectId);
@@ -220,7 +224,7 @@ export class OpenLClient {
 
     // Save the project
     const response = await this.axiosInstance.post(
-      `/repos/${repository}/projects/${projectName}/save`,
+      `${projectPath}/save`,
       { comment }
     );
 
@@ -260,7 +264,7 @@ export class OpenLClient {
     fileContent: Buffer | string,
     comment?: string
   ): Promise<Types.FileUploadResult> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
 
     // Validate file extension
     if (!fileName.match(/\.(xlsx|xls)$/i)) {
@@ -278,7 +282,7 @@ export class OpenLClient {
     // Note: The actual implementation depends on OpenL Tablets API requirements
     // This is a placeholder that may need adjustment based on the actual API
     const response = await this.axiosInstance.post(
-      `/repos/${repository}/projects/${projectName}/files/${fileName}`,
+      `${projectPath}/files/${fileName}`,
       buffer,
       {
         headers: {
@@ -316,7 +320,7 @@ export class OpenLClient {
    * @returns File content as Buffer
    */
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
 
     // Build request params
     const params: any = {};
@@ -325,7 +329,7 @@ export class OpenLClient {
     }
 
     const response = await this.axiosInstance.get<ArrayBuffer>(
-      `/repos/${repository}/projects/${projectName}/files/${fileName}`,
+      `${projectPath}/files/${fileName}`,
       {
         responseType: "arraybuffer",
         params,
@@ -348,9 +352,9 @@ export class OpenLClient {
     branchName: string,
     comment?: string
   ): Promise<boolean> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     await this.axiosInstance.post(
-      `/repos/${repository}/projects/${projectName}/branches`,
+      `${projectPath}/branches`,
       { name: branchName, comment }
     );
     return true;
@@ -371,9 +375,9 @@ export class OpenLClient {
     projectId: string,
     filters?: Types.TableFilters
   ): Promise<Types.TableMetadata[]> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.get<Types.TableMetadata[]>(
-      `/repos/${repository}/projects/${projectName}/tables`,
+      `${projectPath}/tables`,
       { params: filters }
     );
     return response.data;
@@ -390,7 +394,7 @@ export class OpenLClient {
     projectId: string,
     request: Types.CreateRuleRequest
   ): Promise<Types.CreateRuleResult> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
 
     try {
       // Build table signature if parameters provided
@@ -401,7 +405,7 @@ export class OpenLClient {
       }
 
       const response = await this.axiosInstance.post(
-        `/repos/${repository}/projects/${projectName}/tables`,
+        `${projectPath}/tables`,
         {
           name: request.name,
           type: request.tableType,
@@ -438,9 +442,9 @@ export class OpenLClient {
    * @returns Complete table view with data and structure
    */
   async getTable(projectId: string, tableId: string): Promise<Types.TableView> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.get<Types.TableView>(
-      `/repos/${repository}/projects/${projectName}/tables/${tableId}`
+      `${projectPath}/tables/${tableId}`
     );
     return response.data;
   }
@@ -460,9 +464,9 @@ export class OpenLClient {
     view: Types.EditableTableView,
     comment?: string
   ): Promise<Types.TableView> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.put<Types.TableView>(
-      `/repos/${repository}/projects/${projectName}/tables/${tableId}`,
+      `${projectPath}/tables/${tableId}`,
       { view, comment }
     );
     return response.data;
@@ -563,9 +567,9 @@ export class OpenLClient {
    * @returns Test suite execution results
    */
   async runAllTests(projectId: string): Promise<Types.TestSuiteResult> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.post<Types.TestSuiteResult>(
-      `/repos/${repository}/projects/${projectName}/tests/run`
+      `${projectPath}/tests/run`
     );
     return response.data;
   }
@@ -577,9 +581,9 @@ export class OpenLClient {
    * @returns Validation results with errors and warnings
    */
   async validateProject(projectId: string): Promise<Types.ValidationResult> {
-    const [repository, projectName] = this.parseProjectId(projectId);
+    const projectPath = this.buildProjectPath(projectId);
     const response = await this.axiosInstance.get<Types.ValidationResult>(
-      `/repos/${repository}/projects/${projectName}/validation`
+      `${projectPath}/validation`
     );
     return response.data;
   }
@@ -592,7 +596,7 @@ export class OpenLClient {
    * @returns Test suite execution results
    */
   async runTest(request: Types.RunTestRequest): Promise<Types.TestSuiteResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     // Build request body based on selection criteria
     const body: Record<string, unknown> = {};
@@ -607,8 +611,8 @@ export class OpenLClient {
 
     // If runAll is true or no specific selection, run all tests
     const endpoint = request.runAll || (!request.testIds && !request.tableIds)
-      ? `/repos/${repository}/projects/${projectName}/tests/run`
-      : `/repos/${repository}/projects/${projectName}/tests/run-selected`;
+      ? `${projectPath}/tests/run`
+      : `${projectPath}/tests/run-selected`;
 
     const response = await this.axiosInstance.post<Types.TestSuiteResult>(
       endpoint,
@@ -683,11 +687,11 @@ export class OpenLClient {
    * @returns Copy result with new table ID
    */
   async copyTable(request: Types.CopyTableRequest): Promise<Types.CopyTableResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     try {
       const response = await this.axiosInstance.post(
-        `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/copy`,
+        `${projectPath}/tables/${request.tableId}/copy`,
         {
           newName: request.newName,
           targetFile: request.targetFile,
@@ -715,12 +719,12 @@ export class OpenLClient {
    * @returns Execution result with output data
    */
   async executeRule(request: Types.ExecuteRuleRequest): Promise<Types.ExecuteRuleResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     try {
       const startTime = Date.now();
       const response = await this.axiosInstance.post(
-        `/repos/${repository}/projects/${projectName}/rules/${request.ruleName}/execute`,
+        `${projectPath}/rules/${request.ruleName}/execute`,
         request.inputData
       );
       const executionTime = Date.now() - startTime;
@@ -745,10 +749,10 @@ export class OpenLClient {
    * @returns Comparison result with differences
    */
   async compareVersions(request: Types.CompareVersionsRequest): Promise<Types.CompareVersionsResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get<Types.CompareVersionsResult>(
-      `/repos/${repository}/projects/${projectName}/versions/compare`,
+      `${projectPath}/versions/compare`,
       {
         params: {
           base: request.baseCommitHash,
@@ -772,12 +776,12 @@ export class OpenLClient {
    * @returns Revert result with new version info
    */
   async revertVersion(request: Types.RevertVersionRequest): Promise<Types.RevertVersionResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     try {
       // Step 1: Get the target version content
       await this.axiosInstance.get(
-        `/repos/${repository}/projects/${projectName}/versions/${request.targetVersion}`
+        `${projectPath}/versions/${request.targetVersion}`
       );
 
       // Step 2: Validate the project
@@ -793,7 +797,7 @@ export class OpenLClient {
 
       // Step 3: Create new version with old content (revert)
       const revertResponse = await this.axiosInstance.post(
-        `/repos/${repository}/projects/${projectName}/revert`,
+        `${projectPath}/revert`,
         {
           targetVersion: request.targetVersion,
           comment: request.comment || `Revert to version ${request.targetVersion}`,
@@ -839,10 +843,10 @@ export class OpenLClient {
    * @returns File commit history with pagination
    */
   async getFileHistory(request: Types.GetFileHistoryRequest): Promise<Types.GetFileHistoryResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/repos/${repository}/projects/${projectName}/files/${request.filePath}/history`,
+      `${projectPath}/files/${request.filePath}/history`,
       {
         params: {
           limit: request.limit || 50,
@@ -875,10 +879,10 @@ export class OpenLClient {
    * @returns Project commit history with pagination
    */
   async getProjectHistory(request: Types.GetProjectHistoryRequest): Promise<Types.GetProjectHistoryResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/repos/${repository}/projects/${projectName}/history`,
+      `${projectPath}/history`,
       {
         params: {
           limit: request.limit || 50,
@@ -942,10 +946,10 @@ export class OpenLClient {
    * @returns File name pattern and extracted properties
    */
   async getFileNamePattern(request: Types.GetFileNamePatternRequest): Promise<Types.GetFileNamePatternResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/repos/${repository}/projects/${projectName}/rules.xml`
+      `${projectPath}/rules.xml`
     );
 
     const pattern = this.extractFileNamePattern(response.data);
@@ -964,10 +968,10 @@ export class OpenLClient {
    * @returns Success status and pattern
    */
   async setFileNamePattern(request: Types.SetFileNamePatternRequest): Promise<Types.SetFileNamePatternResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     await this.axiosInstance.put(
-      `/repos/${repository}/projects/${projectName}/rules.xml/pattern`,
+      `${projectPath}/rules.xml/pattern`,
       { pattern: request.pattern }
     );
 
@@ -985,10 +989,10 @@ export class OpenLClient {
    * @returns Table properties
    */
   async getTableProperties(request: Types.GetTablePropertiesRequest): Promise<Types.GetTablePropertiesResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     const response = await this.axiosInstance.get(
-      `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/properties`
+      `${projectPath}/tables/${request.tableId}/properties`
     );
 
     return {
@@ -1005,10 +1009,10 @@ export class OpenLClient {
    * @returns Success status and properties
    */
   async setTableProperties(request: Types.SetTablePropertiesRequest): Promise<Types.SetTablePropertiesResult> {
-    const [repository, projectName] = this.parseProjectId(request.projectId);
+    const projectPath = this.buildProjectPath(request.projectId);
 
     await this.axiosInstance.put(
-      `/repos/${repository}/projects/${projectName}/tables/${request.tableId}/properties`,
+      `${projectPath}/tables/${request.tableId}/properties`,
       {
         properties: request.properties,
         comment: request.comment || "Update table dimension properties",

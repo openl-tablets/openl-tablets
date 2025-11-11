@@ -87,10 +87,10 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "list_projects",
     description:
-      "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), and metadata. Use this to discover and filter projects before opening them for editing.",
+      "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "1.1.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },
