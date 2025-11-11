@@ -53,9 +53,9 @@ Row 6: "RISKY"    25      1.5          1500
 ### 2. Simple Rules Table
 
 **When to Use:**
-- Simple decision logic
+- Decision logic with conditions (supports ==, <, >, <=, >=, ranges, ANY)
 - Parameters naturally map left-to-right
-- No need for complex actions
+- No need for multiple action columns
 - Discount calculation based on customer tier and amount
 
 **Header Format:**
@@ -76,7 +76,8 @@ Row 6: "BRONZE" ANY        0.05
 **Key Features:**
 - No column markers needed
 - Positional parameter matching (left-to-right)
-- Simpler structure than Rules table
+- **Supports complex conditions**: ==, <, >, <=, >=, ranges, ANY wildcards
+- Simpler structure than Rules table (no C1/A1/RET markers)
 - Faster to create
 
 **Example Parameters:**
@@ -97,7 +98,8 @@ Row 6: "BRONZE" ANY        0.05
 ### 3. Smart Rules Table
 
 **When to Use:**
-- Column order may change
+- Decision logic with conditions (supports ==, <, >, <=, >=, ranges, ANY)
+- Column order may change or needs flexibility
 - Parameters have descriptive names
 - Want flexibility in Excel layout
 - Policy validation with many parameters
@@ -117,10 +119,11 @@ Row 5: < 25          "STANDARD"     false
 ```
 
 **Key Features:**
-- Smart parameter matching by title
-- Flexible column order
-- Works with complex objects (matches field names)
-- Column titles can be reordered
+- Smart parameter matching by column title (not positional)
+- **Supports complex conditions**: ==, <, >, <=, >=, ranges, ANY wildcards
+- Flexible column order (columns can be rearranged)
+- Works with complex objects (matches object field names)
+- Most flexible decision table variant
 
 **Example Parameters:**
 ```json
