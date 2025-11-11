@@ -77,12 +77,12 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>6.2.11</spring.framework.version>
-        <spring.boot.version>3.5.6</spring.boot.version>
-        <spring.integration.version>6.5.2</spring.integration.version>
+        <spring.framework.version>6.2.15</spring.framework.version>
+        <spring.boot.version>3.5.8</spring.boot.version>
+        <spring.integration.version>6.5.4</spring.integration.version>
 
         <!-- Security -->
-        <spring.security.version>6.5.5</spring.security.version>
+        <spring.security.version>6.5.7</spring.security.version>
         <opensaml.version>5.1.6</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
@@ -127,7 +127,7 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.1.1</jetty.version>
+        <jetty.version>12.1.5</jetty.version>
 
         <!-- Repositories -->
         <amazonaws.version>2.40.8</amazonaws.version>
@@ -170,7 +170,7 @@
 
         <!-- Mail -->
         <angus-mail.version>2.0.5</angus-mail.version>
-        <greenmail.version>2.1.6</greenmail.version>
+        <greenmail.version>2.1.7</greenmail.version>
 
         <!-- XML -->
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>

@@ -21,8 +21,8 @@ $ErrorActionPreference = 'Stop'
 $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 
-$JAVA_MAJOR_VERSION = "21"
-$JETTY_VERSION = "12.0.23"
+$JAVA_MAJOR_VERSION = "25"
+$JETTY_VERSION = "12.1.5"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.7"
