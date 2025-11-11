@@ -126,11 +126,6 @@ Decision tables implement conditional logic and business rules. OpenL Tablets pr
 
 ## Features
 
-### Resources
-- **Repositories** - Browse design repositories
-- **Projects** - View all projects across repositories
-- **Deployments** - Monitor deployed projects
-
 ### Tools (24 Total)
 
 All tools include metadata (`_meta`) with version information, categorization, and operation characteristics for better client integration.
