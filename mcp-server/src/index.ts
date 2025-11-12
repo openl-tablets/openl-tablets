@@ -24,6 +24,8 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
   ErrorCode,
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -33,6 +35,7 @@ import { OpenLClient } from "./client.js";
 import { TOOLS } from "./tools.js";
 import { SERVER_INFO } from "./constants.js";
 import { isAxiosError, sanitizeError, safeStringify, parseProjectId, createProjectId } from "./utils.js";
+import { PROMPTS, loadPromptContent, getPromptDefinition } from "./prompts-registry.js";
 import type * as Types from "./types.js";
 
 /**
@@ -63,6 +66,7 @@ class OpenLMCPServer {
         capabilities: {
           tools: {},
           resources: {},
+          prompts: {},
         },
       }
     );
@@ -117,6 +121,46 @@ class OpenLMCPServer {
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
       this.handleResourceRead(request.params.uri)
     );
+
+    // List available prompts
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+      prompts: PROMPTS,
+    }));
+
+    // Get specific prompt with optional arguments
+    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      const prompt = getPromptDefinition(name);
+      if (!prompt) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Prompt not found: ${name}`
+        );
+      }
+
+      try {
+        const content = loadPromptContent(name, args);
+
+        return {
+          description: prompt.description,
+          messages: [
+            {
+              role: "assistant" as const,
+              content: {
+                type: "text" as const,
+                text: content,
+              },
+            },
+          ],
+        };
+      } catch (error) {
+        throw new McpError(
+          ErrorCode.InternalError,
+          `Failed to load prompt: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    });
   }
 
   /**

@@ -65,6 +65,56 @@ See [prompts/create_rule.md](./prompts/create_rule.md) for detailed table type g
 **Dimension Properties** (4): get/set_file_name_pattern, get/set_table_properties
 **Testing** (2): validate_project, get_project_errors
 
+## Prompts (11 Total)
+
+Expert guidance templates for complex OpenL Tablets workflows. Prompts provide contextual assistance, best practices, and step-by-step instructions directly in Claude Desktop or MCP Inspector.
+
+### Available Prompts
+
+| Prompt | Description | Arguments |
+|--------|-------------|-----------|
+| **create_rule** | Comprehensive guide for creating OpenL tables (decision tables, spreadsheets, datatypes) with examples for all 5 decision table variants | None |
+| **datatype_vocabulary** | Guide for defining custom datatypes (domain objects) and vocabularies (enumerations) with inheritance and validation | None |
+| **create_test** | Step-by-step guide for creating OpenL test tables with proper 3-row structure and validation | `tableName`, `tableType` |
+| **update_test** | Guide for modifying existing tests, adding test cases, and updating expected values | `testId`, `tableName` |
+| **run_test** | Test selection logic and workflow for efficient test execution (single, multiple, or all tests) | `scope`, `tableIds` |
+| **dimension_properties** | Explanation of OpenL dimension properties (state, lob, dates) vs Git versioning with runtime selection logic | None |
+| **execute_rule** | Guide for constructing test data and executing OpenL rules with proper JSON formatting | `ruleName`, `projectId` |
+| **deploy_project** | Deployment workflow with mandatory validation checks and environment selection | `projectId`, `environment` |
+| **get_project_errors** | Error analysis workflow with pattern matching and fix recommendations | `projectId` |
+| **file_history** | Guide for viewing Git-based file version history and commit navigation | `filePath`, `projectId` |
+| **project_history** | Guide for viewing project-wide Git commit history | `projectId` |
+
+### Using Prompts
+
+**In Claude Desktop:**
+```
+"Use the create_rule prompt"
+"Show me the dimension_properties prompt"
+```
+
+**With Arguments:**
+```
+"Use create_test prompt with tableName=calculatePremium"
+"Show deploy_project prompt for projectId=design-Insurance"
+```
+
+**In MCP Inspector:**
+1. Navigate to "Prompts" tab
+2. Select prompt from list
+3. Provide arguments if needed
+4. View rendered guidance
+
+### Prompt Content
+
+Prompts are stored as markdown files in `prompts/` directory:
+- **Comprehensive**: Cover all aspects of the workflow
+- **Examples**: Real-world code samples and patterns
+- **Best Practices**: OpenL-specific recommendations
+- **Decision Guides**: Help choose the right approach
+
+See individual prompt files for detailed content.
+
 ## Configuration
 
 ### Environment Variables
