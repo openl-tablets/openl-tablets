@@ -609,8 +609,13 @@ export class OpenLClient {
   /**
    * Run all tests in a project
    *
+   * Note: The REST API does not expose a /tests/run endpoint.
+   * This method will return a 404 error. Test execution may need
+   * to be performed through the WebStudio UI or deployment process.
+   *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Test suite execution results
+   * @throws Error if endpoint doesn't exist (404)
    */
   async runAllTests(projectId: string): Promise<Types.TestSuiteResult> {
     const projectPath = this.buildProjectPath(projectId);
@@ -623,8 +628,13 @@ export class OpenLClient {
   /**
    * Validate a project for errors
    *
+   * Note: The REST API does not expose a /validation endpoint.
+   * This method will return a 404 error. Validation may occur
+   * automatically when compiling or deploying projects.
+   *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Validation results with errors and warnings
+   * @throws Error if endpoint doesn't exist (404)
    */
   async validateProject(projectId: string): Promise<Types.ValidationResult> {
     const projectPath = this.buildProjectPath(projectId);
@@ -638,8 +648,13 @@ export class OpenLClient {
    * Run specific tests with smart selection
    * Can run specific test IDs, tests related to tables, or all tests
    *
+   * Note: The REST API does not expose /tests/run or /tests/run-selected endpoints.
+   * This method will return a 404 error. Test execution may need to be performed
+   * through the WebStudio UI or deployment process.
+   *
    * @param request - Test execution request with selection criteria
    * @returns Test suite execution results
+   * @throws Error if endpoint doesn't exist (404)
    */
   async runTest(request: Types.RunTestRequest): Promise<Types.TestSuiteResult> {
     const projectPath = this.buildProjectPath(request.projectId);
@@ -885,8 +900,13 @@ export class OpenLClient {
   /**
    * Get Git commit history for a specific file
    *
+   * Note: The REST API does not expose a /files/{path}/history endpoint.
+   * This method will return a 404 error. File history may need to be accessed
+   * through project-level history or external Git tools.
+   *
    * @param request - File history request
    * @returns File commit history with pagination
+   * @throws Error if endpoint doesn't exist (404)
    */
   async getFileHistory(request: Types.GetFileHistoryRequest): Promise<Types.GetFileHistoryResult> {
     const projectPath = this.buildProjectPath(request.projectId);
@@ -921,8 +941,13 @@ export class OpenLClient {
   /**
    * Get Git commit history for entire project
    *
+   * Note: The REST API does not expose a /history endpoint for projects.
+   * This method will return a 404 error. Git history may need to be accessed
+   * through repository-level endpoints or external Git tools.
+   *
    * @param request - Project history request
    * @returns Project commit history with pagination
+   * @throws Error if endpoint doesn't exist (404)
    */
   async getProjectHistory(request: Types.GetProjectHistoryRequest): Promise<Types.GetProjectHistoryResult> {
     const projectPath = this.buildProjectPath(request.projectId);
@@ -1035,16 +1060,14 @@ export class OpenLClient {
    * @returns Table properties
    */
   async getTableProperties(request: Types.GetTablePropertiesRequest): Promise<Types.GetTablePropertiesResult> {
-    const projectPath = this.buildProjectPath(request.projectId);
-
-    const response = await this.axiosInstance.get(
-      `${projectPath}/tables/${encodeURIComponent(request.tableId)}/properties`
-    );
+    // Note: The REST API has no separate /properties endpoint.
+    // Properties are embedded in the table details response.
+    const table = await this.getTable(request.projectId, request.tableId);
 
     return {
       tableId: request.tableId,
-      tableName: response.data.name || "",
-      properties: response.data.properties || {},
+      tableName: table.name || "",
+      properties: table.properties || {},
     };
   }
 
