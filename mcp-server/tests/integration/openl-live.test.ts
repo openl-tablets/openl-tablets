@@ -15,7 +15,7 @@ import { OpenLClient } from '../../src/client.js';
 import type * as Types from '../../src/types.js';
 
 // Skip tests if not configured for live testing
-const shouldSkip = process.env.SKIP_LIVE_TESTS === 'true' || process.env.CI === 'true';
+const shouldSkip = process.env.SKIP_LIVE_TESTS !== 'false';
 
 const describeIntegration = shouldSkip ? describe.skip : describe;
 

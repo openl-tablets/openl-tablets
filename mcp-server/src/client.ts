@@ -203,70 +203,43 @@ export class OpenLClient {
   }
 
   /**
-   * Get comprehensive project information including details, modules, and dependencies
-   *
-   * OpenL 6.0.0+ changed API - no longer has /info endpoint, all data in main response
+   * Get project details by ID
    *
    * @param projectId - Project ID in format "repository-projectName"
-   * @returns Comprehensive project details
+   * @returns Project details
    */
   async getProject(projectId: string): Promise<Types.ComprehensiveProject> {
-    // OpenL 6.0.0+ uses list endpoint with filtering
-    // GET /projects/{id} returns 404, so we use GET /projects and filter
-    const [repository, projectName] = this.parseProjectId(projectId);
-
-    const allProjects = await this.listProjects({ repository });
-    const project = allProjects.find(p => {
-      const parsed = parseProjectIdUtil(p.id);
-      return parsed.repository === repository && parsed.projectName === projectName;
-    });
-
-    if (!project) {
-      throw new Error(`Project not found: ${projectName} in repository ${repository}`);
-    }
-
-    // Cast to ComprehensiveProject (in OpenL 6.0.0+ the structure is the same)
-    return project as any;
+    const projectPath = this.buildProjectPath(projectId);
+    const response = await this.axiosInstance.get<Types.Project>(projectPath);
+    return response.data as Types.ComprehensiveProject;
   }
 
   /**
    * Open a project for viewing/editing
    *
-   * OpenL 6.0.0+ changed project lifecycle - projects may be auto-opened
-   * This method checks if project exists and is accessible
+   * Note: The REST API has no /open endpoint. Projects are always accessible.
+   * This method verifies project exists and is accessible.
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Success status
    */
   async openProject(projectId: string): Promise<boolean> {
-    // In OpenL 6.0.0+, /open endpoint returns 404
-    // Instead, verify project exists and is accessible by calling get_project
-    try {
-      await this.getProject(projectId);
-      return true;
-    } catch (error) {
-      throw new Error(`Cannot open project: ${sanitizeError(error)}`);
-    }
+    await this.getProject(projectId);
+    return true;
   }
 
   /**
    * Close an open project
    *
-   * OpenL 6.0.0+ changed project lifecycle - close endpoint may not exist
-   * This method is now a no-op for compatibility
+   * Note: The REST API has no /close endpoint. Projects don't need explicit closing.
+   * This method verifies project exists for compatibility.
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Success status
    */
   async closeProject(projectId: string): Promise<boolean> {
-    // In OpenL 6.0.0+, /close endpoint may return 404
-    // Just verify project exists
-    try {
-      await this.getProject(projectId);
-      return true;
-    } catch (error) {
-      throw new Error(`Cannot close project: ${sanitizeError(error)}`);
-    }
+    await this.getProject(projectId);
+    return true;
   }
 
   /**
