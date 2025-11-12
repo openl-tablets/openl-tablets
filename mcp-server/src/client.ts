@@ -9,7 +9,7 @@ import axios, { AxiosInstance } from "axios";
 import * as Types from "./types.js";
 import { AuthenticationManager } from "./auth.js";
 import { DEFAULTS, PROJECT_ID_PATTERN } from "./constants.js";
-import { validateTimeout, sanitizeError } from "./utils.js";
+import { validateTimeout, sanitizeError, parseProjectId as parseProjectIdUtil } from "./utils.js";
 
 /**
  * Client for OpenL Tablets WebStudio REST API
@@ -105,18 +105,45 @@ export class OpenLClient {
   /**
    * Parse a project ID into repository and project name
    *
-   * @param projectId - Project ID in format "repository-projectName"
+   * Accepts multiple formats for user convenience:
+   * 1. Dash format: "repository-projectName" (user-friendly from list_projects)
+   * 2. Base64 format: "ZGVzaWduOkV4YW1wbGUgMSAtIEJhbmsgUmF0aW5n" (from OpenL 6.0.0+ API)
+   * 3. Colon format: "repository:projectName" (decoded base64)
+   *
+   * @param projectId - Project ID in any supported format
    * @returns Tuple of [repository, projectName]
    * @throws Error if project ID format is invalid
    */
   private parseProjectId(projectId: string): [string, string] {
+    // Check if it's a colon format (to distinguish from dash format)
+    // Colon format should not be parsed as dash format even if it contains dashes
+    if (projectId.includes(':')) {
+      try {
+        const parsed = parseProjectIdUtil(projectId);
+        return [parsed.repository, parsed.projectName];
+      } catch (error) {
+        // Fall through to try other formats
+      }
+    }
+
+    // Try dash format (user-friendly format from list_projects)
     const match = projectId.match(PROJECT_ID_PATTERN);
-    if (!match) {
+    if (match) {
+      return [match[1], match[2]];
+    }
+
+    // Fall back to utility parser for base64 format
+    try {
+      const parsed = parseProjectIdUtil(projectId);
+      return [parsed.repository, parsed.projectName];
+    } catch (error) {
       throw new Error(
-        `Invalid project ID format: ${projectId}. Expected: repository-projectName`
+        `Invalid project ID format: ${projectId}. Expected formats:\n` +
+        `  - "repository-projectName" (e.g., "design-Example 1 - Bank Rating")\n` +
+        `  - "repository:projectName" (e.g., "design:Example 1 - Bank Rating")\n` +
+        `  - Base64-encoded string from OpenL API 6.0.0+`
       );
     }
-    return [match[1], match[2]];
   }
 
   /**
