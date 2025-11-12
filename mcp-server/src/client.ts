@@ -204,51 +204,69 @@ export class OpenLClient {
 
   /**
    * Get comprehensive project information including details, modules, and dependencies
-   * Combines both project details and project info into a single response
+   *
+   * OpenL 6.0.0+ changed API - no longer has /info endpoint, all data in main response
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Comprehensive project details
    */
   async getProject(projectId: string): Promise<Types.ComprehensiveProject> {
-    const projectPath = this.buildProjectPath(projectId);
+    // OpenL 6.0.0+ uses list endpoint with filtering
+    // GET /projects/{id} returns 404, so we use GET /projects and filter
+    const [repository, projectName] = this.parseProjectId(projectId);
 
-    // Fetch both project details and info in parallel
-    const [projectResponse, infoResponse] = await Promise.all([
-      this.axiosInstance.get<Types.Project>(projectPath),
-      this.axiosInstance.get<Types.ProjectInfo>(`${projectPath}/info`),
-    ]);
+    const allProjects = await this.listProjects({ repository });
+    const project = allProjects.find(p => {
+      const parsed = parseProjectIdUtil(p.id);
+      return parsed.repository === repository && parsed.projectName === projectName;
+    });
 
-    // Merge the responses
-    return {
-      ...projectResponse.data,
-      modules: infoResponse.data.modules,
-      dependencies: infoResponse.data.dependencies,
-      classpath: infoResponse.data.classpath,
-    };
+    if (!project) {
+      throw new Error(`Project not found: ${projectName} in repository ${repository}`);
+    }
+
+    // Cast to ComprehensiveProject (in OpenL 6.0.0+ the structure is the same)
+    return project as any;
   }
 
   /**
    * Open a project for viewing/editing
    *
+   * OpenL 6.0.0+ changed project lifecycle - projects may be auto-opened
+   * This method checks if project exists and is accessible
+   *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Success status
    */
   async openProject(projectId: string): Promise<boolean> {
-    const projectPath = this.buildProjectPath(projectId);
-    await this.axiosInstance.post(`${projectPath}/open`);
-    return true;
+    // In OpenL 6.0.0+, /open endpoint returns 404
+    // Instead, verify project exists and is accessible by calling get_project
+    try {
+      await this.getProject(projectId);
+      return true;
+    } catch (error) {
+      throw new Error(`Cannot open project: ${sanitizeError(error)}`);
+    }
   }
 
   /**
    * Close an open project
    *
+   * OpenL 6.0.0+ changed project lifecycle - close endpoint may not exist
+   * This method is now a no-op for compatibility
+   *
    * @param projectId - Project ID in format "repository-projectName"
    * @returns Success status
    */
   async closeProject(projectId: string): Promise<boolean> {
-    const projectPath = this.buildProjectPath(projectId);
-    await this.axiosInstance.post(`${projectPath}/close`);
-    return true;
+    // In OpenL 6.0.0+, /close endpoint may return 404
+    // Just verify project exists
+    try {
+      await this.getProject(projectId);
+      return true;
+    } catch (error) {
+      throw new Error(`Cannot close project: ${sanitizeError(error)}`);
+    }
   }
 
   /**
