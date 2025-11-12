@@ -1,3 +1,8 @@
+---
+name: create_rule
+description: Comprehensive guide for creating decision tables, spreadsheets, and other OpenL table types
+---
+
 # Creating Tables in OpenL Tablets
 
 You are helping the user create a table in OpenL Tablets. There are **two main categories** of tables:

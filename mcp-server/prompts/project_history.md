@@ -1,4 +1,17 @@
+---
+name: project_history
+description: OpenL project-level history and version control operations
+arguments:
+  - name: projectId
+    description: ID of the project to view history for
+    required: false
+---
+
 # OpenL Project History vs File History
+
+{if projectId}
+## Project History: **{projectId}**
+{end if}
 
 ## When to Use
 
@@ -19,23 +32,23 @@
 
 **Project audit:**
 ```
-get_project_history(limit=50) → All commits, all files
+get_project_history({if projectId}projectId="{projectId}", {end if}limit=50) → All commits, all files
 ```
 
 **Find specific change:**
 ```
-get_project_history(limit=200) → search commit comments
+get_project_history({if projectId}projectId="{projectId}", {end if}limit=200) → search commit comments
 ```
 
 **Compare project states:**
 ```
-1. get_project_history() → get commitHashes
+1. get_project_history({if projectId}projectId="{projectId}"{end if}) → get commitHashes
 2. compare_versions(baseCommitHash, targetCommitHash)
 ```
 
 **Revert project:**
 ```
-1. get_project_history() → find stable commitHash
+1. get_project_history({if projectId}projectId="{projectId}"{end if}) → find stable commitHash
 2. revert_version(targetVersion=commitHash)
 ```
 

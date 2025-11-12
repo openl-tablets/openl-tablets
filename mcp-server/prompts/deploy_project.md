@@ -1,12 +1,34 @@
+---
+name: deploy_project
+description: OpenL deployment workflow with validation checks and environment selection
+arguments:
+  - name: projectId
+    description: ID of project to deploy
+    required: false
+  - name: environment
+    description: Target environment (dev, test, staging, prod)
+    required: false
+---
+
 # OpenL Deployment Workflow
 
+{if projectId}
+## Deploying Project: **{projectId}**
+{end if}
+{if environment}
+
+**Target Environment**: {environment}
+
+### Environment-Specific Checks for {environment}:
+{end if}
+
 BEFORE any deployment (MANDATORY):
-1. `validate_project()` → MUST pass (0 errors)
-2. `run_test(runAllTests: true)` → ALL must pass
-3. `get_project_errors()` → MUST be 0
+1. `validate_project({if projectId}projectId="{projectId}"{end if})` → MUST pass (0 errors)
+2. `run_test({if projectId}projectId="{projectId}", {end if}runAllTests: true)` → ALL must pass
+3. `get_project_errors({if projectId}projectId="{projectId}"{end if})` → MUST be 0
 
 WHEN deploying, SELECT environment path:
-- New feature/major change → dev → test → staging → prod
+- New feature/major change → dev → test → staging → prod{if environment} (You're targeting: {environment}){end if}
 - Bug fix → test → staging → prod
 - Minor update → test → prod
 - Critical hotfix → test → prod (expedited)

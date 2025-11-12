@@ -6,7 +6,7 @@
  */
 
 import { describe, test, expect } from "@jest/globals";
-import { existsSync, readdirSync } from "fs";
+import { existsSync, readdirSync, readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -456,5 +456,216 @@ describe("MCP Protocol compatibility", () => {
     const deserialized = JSON.parse(serialized);
 
     expect(deserialized).toEqual(PROMPTS);
+  });
+});
+
+describe("Frontmatter support (Approach 2)", () => {
+  describe("YAML frontmatter parsing", () => {
+    test("all prompt files should have valid frontmatter", () => {
+      PROMPTS.forEach((prompt) => {
+        const filePath = join(__dirname, "..", "prompts", `${prompt.name}.md`);
+        const content = readFileSync(filePath, "utf-8");
+
+        // Should start with ---
+        expect(content.startsWith("---\n")).toBe(true);
+
+        // Should have closing ---
+        const firstLineEnd = content.indexOf("\n");
+        const closingDelimiter = content.indexOf("\n---\n", firstLineEnd);
+        expect(closingDelimiter).toBeGreaterThan(0);
+      });
+    });
+
+    test("frontmatter should contain name field matching filename", () => {
+      PROMPTS.forEach((prompt) => {
+        const filePath = join(__dirname, "..", "prompts", `${prompt.name}.md`);
+        const content = readFileSync(filePath, "utf-8");
+
+        // Extract frontmatter
+        const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+        expect(match).not.toBeNull();
+
+        // Should contain name field
+        expect(match![1]).toContain(`name: ${prompt.name}`);
+      });
+    });
+
+    test("frontmatter should have description field", () => {
+      PROMPTS.forEach((prompt) => {
+        const filePath = join(__dirname, "..", "prompts", `${prompt.name}.md`);
+        const content = readFileSync(filePath, "utf-8");
+
+        const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+        expect(match).not.toBeNull();
+        expect(match![1]).toContain("description:");
+      });
+    });
+
+    test("prompts with arguments should have arguments field in frontmatter", () => {
+      const promptsWithArgs = ["create_test", "execute_rule", "deploy_project",
+                                "update_test", "run_test", "get_project_errors",
+                                "file_history", "project_history"];
+
+      promptsWithArgs.forEach((promptName) => {
+        const filePath = join(__dirname, "..", "prompts", `${promptName}.md`);
+        const content = readFileSync(filePath, "utf-8");
+
+        const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+        expect(match).not.toBeNull();
+        expect(match![1]).toContain("arguments:");
+      });
+    });
+
+    test("loadPromptContent should strip frontmatter from output", () => {
+      PROMPTS.forEach((prompt) => {
+        const content = loadPromptContent(prompt.name);
+
+        // Content should not start with ---
+        expect(content.startsWith("---")).toBe(false);
+
+        // Should not contain frontmatter markers in the body
+        expect(content.startsWith("#")).toBe(true); // Should start with markdown header
+      });
+    });
+  });
+
+  describe("Argument substitution with frontmatter", () => {
+    test("should substitute simple variables in create_test", () => {
+      const content = loadPromptContent("create_test", {
+        tableName: "calculatePremium",
+      });
+
+      expect(content).toContain("calculatePremium");
+      expect(content).toContain("Creating Test for: **calculatePremium**");
+    });
+
+    test("should substitute multiple arguments in create_test", () => {
+      const content = loadPromptContent("create_test", {
+        tableName: "validateDriver",
+        tableType: "SimpleRules",
+      });
+
+      expect(content).toContain("validateDriver");
+      expect(content).toContain("Table Type: SimpleRules");
+    });
+
+    test("should substitute arguments in execute_rule", () => {
+      const content = loadPromptContent("execute_rule", {
+        ruleName: "calculatePremium",
+        projectId: "auto-insurance",
+      });
+
+      expect(content).toContain("Executing Rule: `calculatePremium`");
+      expect(content).toContain("Project**: auto-insurance");
+    });
+
+    test("should substitute arguments in deploy_project", () => {
+      const content = loadPromptContent("deploy_project", {
+        projectId: "auto-insurance",
+        environment: "staging",
+      });
+
+      expect(content).toContain("Deploying Project: **auto-insurance**");
+      expect(content).toContain("Target Environment**: staging");
+    });
+
+    test("should handle conditional blocks correctly", () => {
+      // Without argument - conditional should be removed
+      const withoutArg = loadPromptContent("create_test");
+      expect(withoutArg).not.toContain("{if tableName}");
+      expect(withoutArg).not.toContain("{end if}");
+
+      // With argument - conditional content should be included
+      const withArg = loadPromptContent("create_test", { tableName: "test" });
+      expect(withArg).toContain("Creating Test for:");
+    });
+
+    test("should substitute arguments in file_history", () => {
+      const content = loadPromptContent("file_history", {
+        filePath: "rules/AutoPremium.xlsx",
+        projectId: "auto-insurance",
+      });
+
+      expect(content).toContain("File History: `rules/AutoPremium.xlsx`");
+      expect(content).toContain("Project**: auto-insurance");
+    });
+
+    test("should substitute arguments in project_history", () => {
+      const content = loadPromptContent("project_history", {
+        projectId: "auto-insurance",
+      });
+
+      expect(content).toContain("Project History: **auto-insurance**");
+    });
+  });
+
+  describe("Backward compatibility", () => {
+    test("prompts without arguments should work unchanged", () => {
+      const promptsWithoutArgs = ["create_rule", "datatype_vocabulary", "dimension_properties"];
+
+      promptsWithoutArgs.forEach((promptName) => {
+        expect(() => loadPromptContent(promptName)).not.toThrow();
+        const content = loadPromptContent(promptName);
+        expect(content.length).toBeGreaterThan(0);
+      });
+    });
+
+    test("prompts with optional arguments should work without arguments", () => {
+      const promptsWithOptionalArgs = ["create_test", "execute_rule", "deploy_project"];
+
+      promptsWithOptionalArgs.forEach((promptName) => {
+        expect(() => loadPromptContent(promptName)).not.toThrow();
+        const content = loadPromptContent(promptName);
+        expect(content.length).toBeGreaterThan(0);
+
+        // Should not have unprocessed placeholders (except in code examples)
+        const placeholders = content.match(/\{if \w+\}/g);
+        expect(placeholders).toBeNull(); // All should be processed
+      });
+    });
+
+    test("should handle partial arguments gracefully", () => {
+      // Provide only one of multiple arguments
+      const content = loadPromptContent("create_test", {
+        tableName: "testRule",
+        // tableType omitted
+      });
+
+      expect(content).toContain("testRule");
+      expect(content).not.toContain("{tableName}"); // Should be substituted
+      // tableType conditional should be removed since not provided
+    });
+  });
+
+  describe("Frontmatter structure validation", () => {
+    test("arguments in frontmatter should have required structure", () => {
+      const promptsWithArgs = PROMPTS.filter(p => p.arguments && p.arguments.length > 0);
+
+      promptsWithArgs.forEach((prompt) => {
+        prompt.arguments!.forEach((arg) => {
+          expect(arg).toHaveProperty("name");
+          expect(arg).toHaveProperty("description");
+          expect(typeof arg.name).toBe("string");
+          expect(typeof arg.description).toBe("string");
+
+          if (arg.required !== undefined) {
+            expect(typeof arg.required).toBe("boolean");
+          }
+        });
+      });
+    });
+
+    test("all arguments should be optional (required: false)", () => {
+      const promptsWithArgs = PROMPTS.filter(p => p.arguments && p.arguments.length > 0);
+
+      promptsWithArgs.forEach((prompt) => {
+        prompt.arguments!.forEach((arg) => {
+          // If required is specified, it should be false
+          if (arg.required !== undefined) {
+            expect(arg.required).toBe(false);
+          }
+        });
+      });
+    });
   });
 });

@@ -1,10 +1,23 @@
+---
+name: get_project_errors
+description: Error analysis workflow with pattern matching and fix recommendations
+arguments:
+  - name: projectId
+    description: ID of project to analyze
+    required: false
+---
+
 # OpenL Error Analysis
 
+{if projectId}
+## Analyzing Errors for: **{projectId}**
+{end if}
+
 ## Workflow
-1. `get_project_errors()` → See all OpenL validation errors
+1. `get_project_errors({if projectId}projectId="{projectId}"{end if})` → See all OpenL validation errors
 2. Categorize by OpenL error pattern
 3. Apply OpenL-specific fix
-4. `validate_project()` → Confirm (0 errors)
+4. `validate_project({if projectId}projectId="{projectId}"{end if})` → Confirm (0 errors)
 
 ## OpenL Error Patterns → Fixes
 

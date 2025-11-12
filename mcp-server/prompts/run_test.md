@@ -1,4 +1,24 @@
+---
+name: run_test
+description: Test selection logic and workflow for efficient test execution
+arguments:
+  - name: scope
+    description: Test scope (single, multiple, all)
+    required: false
+  - name: tableIds
+    description: Comma-separated list of table IDs being tested
+    required: false
+---
+
 # Test Selection Logic
+
+{if scope}
+## Test Scope: {scope}
+{end if}
+{if tableIds}
+
+**Tables to Test**: {tableIds}
+{end if}
 
 WHEN rules are modified, SELECT test scope:
 - 1 rule → `tableIds: ["RuleTableId_1234"]` (run all tests FOR this table)

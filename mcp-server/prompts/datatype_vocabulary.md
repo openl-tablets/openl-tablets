@@ -1,3 +1,8 @@
+---
+name: datatype_vocabulary
+description: Creating custom data structures (Datatypes) and enumerations (Vocabularies) in OpenL
+---
+
 # Datatypes and Vocabularies in OpenL Tablets
 
 Two table types for defining data structures:

@@ -32,11 +32,13 @@
     "@modelcontextprotocol/sdk": "^1.21.1",
     "axios": "^1.7.9",
     "form-data": "^4.0.1",
+    "yaml": "^2.8.1",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",

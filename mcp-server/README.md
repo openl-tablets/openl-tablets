@@ -115,6 +115,47 @@ Prompts are stored as markdown files in `prompts/` directory:
 
 See individual prompt files for detailed content.
 
+### Prompt Structure (YAML Frontmatter)
+
+Each prompt file uses YAML frontmatter for metadata and argument definitions:
+
+```markdown
+---
+name: create_test
+description: Guide for creating OpenL test tables with proper structure and validation
+arguments:
+  - name: tableName
+    description: Name of the table being tested
+    required: false
+  - name: tableType
+    description: Type of table (Rules, SimpleRules, Spreadsheet, etc.)
+    required: false
+---
+
+# Creating Test Tables in OpenL Tablets
+
+{if tableName}
+## Creating Test for: **{tableName}**
+{end if}
+
+Content with {variable} placeholders and {if condition}...{end if} blocks...
+```
+
+**Frontmatter fields:**
+- `name`: Prompt identifier (must match filename)
+- `description`: Brief summary shown in MCP Inspector
+- `arguments`: Optional array of argument definitions
+
+**Template syntax:**
+- `{variable}`: Simple substitution
+- `{if variable}...{end if}`: Conditional blocks (shown only when argument provided)
+
+**Benefits:**
+- **Dynamic content**: Prompts adapt to context
+- **Type safety**: Arguments validated by MCP protocol
+- **Backward compatible**: All arguments are optional
+- **Self-documenting**: Frontmatter serves as API documentation
+
 ## Configuration
 
 ### Environment Variables

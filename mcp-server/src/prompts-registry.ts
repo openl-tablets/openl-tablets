@@ -8,6 +8,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import YAML from "yaml";
 
 /**
  * MCP Prompt definition
@@ -20,6 +21,23 @@ export interface PromptDefinition {
   /** Description of what this prompt helps with */
   description?: string;
   /** Optional arguments that can be passed to the prompt */
+  arguments?: Array<{
+    name: string;
+    description: string;
+    required?: boolean;
+  }>;
+}
+
+/**
+ * Prompt frontmatter metadata
+ * Parsed from YAML frontmatter in prompt markdown files
+ */
+export interface PromptFrontmatter {
+  /** Prompt name (should match filename) */
+  name: string;
+  /** Optional description */
+  description?: string;
+  /** Optional arguments */
   arguments?: Array<{
     name: string;
     description: string;
@@ -185,6 +203,48 @@ const __dirname = dirname(__filename);
 const promptsDir = join(__dirname, "..", "prompts");
 
 /**
+ * Parse prompt file with optional YAML frontmatter
+ *
+ * Frontmatter format:
+ * ---
+ * name: prompt_name
+ * description: Description
+ * arguments:
+ *   - name: argName
+ *     description: Arg description
+ * ---
+ * Markdown content here...
+ *
+ * @param content - Raw file content
+ * @returns Parsed frontmatter and body
+ */
+function parsePromptFile(content: string): {
+  frontmatter: PromptFrontmatter | null;
+  body: string;
+} {
+  // Match YAML frontmatter: ---\n...\n---
+  const frontmatterPattern = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+  const match = content.match(frontmatterPattern);
+
+  if (match) {
+    try {
+      const frontmatter = YAML.parse(match[1]) as PromptFrontmatter;
+      const body = match[2].trim(); // Trim leading/trailing whitespace
+      return { frontmatter, body };
+    } catch (error) {
+      // If YAML parsing fails, treat entire file as body
+      console.warn(
+        `Failed to parse YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`
+      );
+      return { frontmatter: null, body: content };
+    }
+  }
+
+  // No frontmatter found
+  return { frontmatter: null, body: content };
+}
+
+/**
  * Load prompt content from markdown file
  *
  * @param name - Name of the prompt (without .md extension)
@@ -198,21 +258,21 @@ export function loadPromptContent(
 ): string {
   const filePath = join(promptsDir, `${name}.md`);
 
-  let content: string;
+  let rawContent: string;
   try {
-    content = readFileSync(filePath, "utf-8");
+    rawContent = readFileSync(filePath, "utf-8");
   } catch (error) {
     throw new Error(
       `Failed to load prompt '${name}': ${error instanceof Error ? error.message : String(error)}`
     );
   }
 
-  // Apply argument substitution if provided
-  if (args) {
-    content = substituteArguments(content, args);
-  }
+  // Parse frontmatter (if present) and extract body
+  const { body } = parsePromptFile(rawContent);
 
-  return content;
+  // Always apply substitution to process conditionals
+  // (even when no args provided, to remove unused conditional blocks)
+  return substituteArguments(body, args || {});
 }
 
 /**

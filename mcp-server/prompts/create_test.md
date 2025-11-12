@@ -1,8 +1,34 @@
+---
+name: create_test
+description: Guide for creating OpenL test tables with proper structure and validation
+arguments:
+  - name: tableName
+    description: Name of the table being tested
+    required: false
+  - name: tableType
+    description: Type of table (Rules, SimpleRules, Spreadsheet, etc.)
+    required: false
+---
+
 # Creating Test Tables in OpenL Tablets
 
+{if tableName}
+## Creating Test for: **{tableName}**
+
+You're creating a test table for the `{tableName}` rule.
+
+{end if}
+{if tableType}
+### Table Type: {tableType}
+
+Since you're testing a **{tableType}** table, pay attention to:
+- Parameter matching strategy specific to {tableType}
+- Expected return type and structure
+
+{end if}
 ## When to Create Test Tables
 
-- After creating/modifying decision table → Validate rule behavior
+- After creating/modifying {if tableName}{tableName}{end if} → Validate rule behavior
 - Before save/deploy → MANDATORY testing (catches errors early)
 - Regression testing → Prevent bugs from reappearing
 - Edge case testing → Validate boundary conditions

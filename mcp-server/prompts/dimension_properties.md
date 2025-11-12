@@ -1,3 +1,8 @@
+---
+name: dimension_properties
+description: OpenL dimension properties system for business context versioning and runtime rule selection
+---
+
 # OpenL Dimension Properties (Business Versioning)
 
 OpenL has TWO INDEPENDENT versioning systems:

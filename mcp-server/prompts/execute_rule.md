@@ -1,7 +1,27 @@
+---
+name: execute_rule
+description: Guide for constructing test data and executing OpenL rules
+arguments:
+  - name: ruleName
+    description: Name of the rule to execute
+    required: false
+  - name: projectId
+    description: ID of the project containing the rule
+    required: false
+---
+
 # OpenL Rule Execution
 
+{if ruleName}
+## Executing Rule: `{ruleName}`
+{end if}
+{if projectId}
+
+**Project**: {projectId}
+{end if}
+
 WHEN to execute:
-- After creating/modifying OpenL table → Verify behavior
+- After creating/modifying {if ruleName}{ruleName}{end if} OpenL table → Verify behavior
 - Before saving → Quick validation
 - During debugging → Understand OpenL table logic
 
@@ -56,7 +76,7 @@ IF returnType = specific type (int, double, etc.) → Returns final cell value
 
 ## Workflow
 
-1. `get_table()` → See OpenL table signature (returnType, parameters)
+1. `get_table({if ruleName}tableId="{ruleName}"{end if})` → See OpenL table signature (returnType, parameters)
 2. Build JSON matching OpenL parameter types
-3. `execute_rule(ruleName, parameters: {...})`
+3. `execute_rule({if ruleName}ruleName="{ruleName}", {end if}parameters: {...})`
 4. Review output (matches OpenL returnType?)

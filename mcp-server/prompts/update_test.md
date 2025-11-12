@@ -1,8 +1,28 @@
+---
+name: update_test
+description: Guide for modifying existing tests, adding test cases, and updating expected values
+arguments:
+  - name: testId
+    description: ID of the test table to update
+    required: false
+  - name: tableName
+    description: Name of the table being tested
+    required: false
+---
+
 # Updating Test Tables
+
+{if testId}
+## Updating Test: **{testId}**
+{end if}
+{if tableName}
+
+**Testing Table**: {tableName}
+{end if}
 
 ## When to Update
 
-- Test fails → Fix expected values (_res_ or _error_)
+- Test fails → Fix expected values (_res_ or _error_){if tableName} for {tableName}{end if}
 - Add test cases → Cover new scenarios
 - Rule modified → Add edge cases
 - Remove obsolete tests → Clean up outdated cases
