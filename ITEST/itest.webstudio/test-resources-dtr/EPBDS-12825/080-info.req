@@ -1,2 +1,2 @@
-GET /web/user-workspace/design-flat/projects/EPBDS-12825/info HTTP/1.1
+GET /web/user-workspace/design-flat/projects/EPBDS-12825%3Adf7715ffd0598873c83ce5ce97af946d4bff56770fb75119af818b77eb1e04de/info HTTP/1.1
 

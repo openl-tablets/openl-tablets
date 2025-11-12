@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIx/branches HTTP/1.1
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=/branches HTTP/1.1
 Authorization: Bearer ${USER1_ACCESS_TOKEN}
 Content-Type: application/json
 
