@@ -147,15 +147,43 @@ export class OpenLClient {
   }
 
   /**
-   * Build URL-safe project path
-   * Encodes repository and project name to handle spaces and special characters
+   * Convert project ID to base64-encoded format
    *
-   * @param projectId - Project ID in format "repository-projectName"
+   * OpenL 6.0.0+ uses base64-encoded IDs in URL paths.
+   * Format: base64("repository:projectName")
+   *
+   * @param projectId - Project ID in any format
+   * @returns Base64-encoded project ID
+   */
+  private toBase64ProjectId(projectId: string): string {
+    // If already base64 (no dash/colon in first part), return as-is
+    // Base64 strings don't contain : or - in the encoded output typically
+    if (!projectId.includes('-') && !projectId.includes(':')) {
+      // Already base64 format
+      return projectId;
+    }
+
+    // Parse to get repository and projectName
+    const [repository, projectName] = this.parseProjectId(projectId);
+
+    // Encode as "repository:projectName" in base64
+    const colonFormat = `${repository}:${projectName}`;
+    return Buffer.from(colonFormat, 'utf-8').toString('base64');
+  }
+
+  /**
+   * Build URL-safe project path for OpenL 6.0.0+ API
+   *
+   * OpenL 6.0.0+ changed the API structure to use base64-encoded project IDs:
+   * - Old: /repos/{repository}/projects/{projectName}
+   * - New: /projects/{base64-id}
+   *
+   * @param projectId - Project ID in any format
    * @returns URL-encoded project path
    */
   private buildProjectPath(projectId: string): string {
-    const [repository, projectName] = this.parseProjectId(projectId);
-    return `/repos/${encodeURIComponent(repository)}/projects/${encodeURIComponent(projectName)}`;
+    const base64Id = this.toBase64ProjectId(projectId);
+    return `/projects/${encodeURIComponent(base64Id)}`;
   }
 
   /**
