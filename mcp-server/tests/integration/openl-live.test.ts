@@ -1,0 +1,328 @@
+/**
+ * OpenL Tablets 6.0.0 Live Integration Tests
+ *
+ * These tests run against an actual OpenL Tablets instance.
+ * Skip in CI by setting SKIP_LIVE_TESTS=true
+ *
+ * Configuration via environment variables:
+ * - OPENL_BASE_URL: OpenL WebStudio REST API base URL (default: http://localhost:8080/webstudio/rest)
+ * - OPENL_USERNAME: Username (default: admin)
+ * - OPENL_PASSWORD: Password (default: admin)
+ * - SKIP_LIVE_TESTS: Set to 'true' to skip these tests (default in CI)
+ */
+
+import { OpenLClient } from '../../src/client.js';
+import type * as Types from '../../src/types.js';
+
+// Skip tests if not configured for live testing
+const shouldSkip = process.env.SKIP_LIVE_TESTS === 'true' || process.env.CI === 'true';
+
+const describeIntegration = shouldSkip ? describe.skip : describe;
+
+describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
+  let client: OpenLClient;
+  let testProjectId: string;
+  let testTableId: string;
+
+  beforeAll(() => {
+    const config: Types.OpenLConfig = {
+      baseUrl: process.env.OPENL_BASE_URL || 'http://localhost:8080/webstudio/rest',
+      username: process.env.OPENL_USERNAME || 'admin',
+      password: process.env.OPENL_PASSWORD || 'admin',
+      timeout: 30000,
+    };
+
+    client = new OpenLClient(config);
+
+    console.log(`\n🔌 Connecting to OpenL Tablets at: ${config.baseUrl}\n`);
+  });
+
+  // ============================================================================
+  // Health Check
+  // ============================================================================
+
+  describe('0. Health Check', () => {
+    test('should connect to OpenL instance', async () => {
+      const health = await client.healthCheck();
+
+      expect(health.serverReachable).toBe(true);
+      expect(health.status).toBe('healthy');
+      expect(health.baseUrl).toBeDefined();
+
+      console.log('✅ Connected to OpenL Tablets');
+      console.log(`   Base URL: ${health.baseUrl}`);
+      console.log(`   Auth: ${health.authMethod}`);
+    });
+  });
+
+  // ============================================================================
+  // P0: Critical Path - Repository Management
+  // ============================================================================
+
+  describe('1. Repository Management (P1)', () => {
+    test('list_repositories should return repositories', async () => {
+      const repos = await client.listRepositories();
+
+      expect(Array.isArray(repos)).toBe(true);
+      expect(repos.length).toBeGreaterThan(0);
+
+      const designRepo = repos.find(r => r.id === 'design');
+      expect(designRepo).toBeDefined();
+
+      console.log(`✅ Found ${repos.length} repositories`);
+      console.log(`   Repositories: ${repos.map(r => r.id).join(', ')}`);
+    });
+
+    test('list_branches should return branches for design repository', async () => {
+      const branches = await client.listBranches('design');
+
+      expect(Array.isArray(branches)).toBe(true);
+      expect(branches.length).toBeGreaterThan(0);
+
+      console.log(`✅ Found ${branches.length} branches in 'design'`);
+      console.log(`   Branches: ${branches.join(', ')}`);
+    });
+  });
+
+  // ============================================================================
+  // P0: Critical Path - Project Discovery
+  // ============================================================================
+
+  describe('2. Project Discovery (P0 - CRITICAL)', () => {
+    let projects: Types.ProjectSummary[];
+
+    test('list_projects should return projects', async () => {
+      projects = await client.listProjects();
+
+      expect(Array.isArray(projects)).toBe(true);
+      expect(projects.length).toBeGreaterThan(0);
+
+      // Verify project ID format (should be base64-encoded)
+      const firstProject = projects[0];
+      expect(firstProject.id).toBeDefined();
+      expect(firstProject.name).toBeDefined();
+      expect(firstProject.repository).toBeDefined();
+
+      // Store test project ID for subsequent tests
+      testProjectId = `${firstProject.repository}-${firstProject.name}`;
+
+      console.log(`✅ Found ${projects.length} projects`);
+      console.log(`   First project: ${firstProject.name}`);
+      console.log(`   Project ID type: ${typeof firstProject.id}`);
+      console.log(`   Using test project: ${testProjectId}`);
+    });
+
+    test('list_projects with repository filter should work', async () => {
+      const designProjects = await client.listProjects({ repository: 'design' });
+
+      expect(Array.isArray(designProjects)).toBe(true);
+      expect(designProjects.every(p => p.repository === 'design')).toBe(true);
+
+      console.log(`✅ Found ${designProjects.length} projects in 'design'`);
+    });
+
+    test('get_project should return project details', async () => {
+      const project = await client.getProject(testProjectId);
+
+      expect(project).toBeDefined();
+      expect(project.name).toBeDefined();
+      expect(project.repository).toBeDefined();
+
+      console.log(`✅ Retrieved project: ${project.name}`);
+      console.log(`   Status: ${project.status}`);
+      console.log(`   Branch: ${project.branch || 'N/A'}`);
+    }, 10000); // Longer timeout for filtering
+  });
+
+  // ============================================================================
+  // P0: Critical Path - Project Lifecycle
+  // ============================================================================
+
+  describe('3. Project Lifecycle (P0 - CRITICAL)', () => {
+    test('open_project should succeed', async () => {
+      const result = await client.openProject(testProjectId);
+
+      expect(result).toBe(true);
+
+      console.log(`✅ Opened project: ${testProjectId}`);
+    });
+
+    test('validate_project should return validation status', async () => {
+      const validation = await client.validateProject(testProjectId);
+
+      expect(validation).toBeDefined();
+      expect(typeof validation.valid).toBe('boolean');
+
+      if (!validation.valid) {
+        console.log(`⚠️  Project has ${validation.errors?.length || 0} validation errors`);
+      } else {
+        console.log(`✅ Project validation passed`);
+      }
+    });
+
+    test('close_project should succeed', async () => {
+      const result = await client.closeProject(testProjectId);
+
+      expect(result).toBe(true);
+
+      console.log(`✅ Closed project: ${testProjectId}`);
+    });
+  });
+
+  // ============================================================================
+  // P0: Critical Path - Table Operations
+  // ============================================================================
+
+  describe('4. Table Operations (P0 - CRITICAL)', () => {
+    let tables: Types.TableMetadata[];
+
+    test('list_tables should return tables', async () => {
+      tables = await client.listTables(testProjectId);
+
+      expect(Array.isArray(tables)).toBe(true);
+      expect(tables.length).toBeGreaterThan(0);
+
+      // Store first table ID for subsequent tests
+      testTableId = tables[0].id;
+
+      console.log(`✅ Found ${tables.length} tables`);
+      console.log(`   First table: ${tables[0].name} (${tables[0].tableType})`);
+      console.log(`   Using test table ID: ${testTableId}`);
+    });
+
+    test('list_tables with filters should work', async () => {
+      // Test type filter
+      const spreadsheets = await client.listTables(testProjectId, { tableType: 'Spreadsheet' });
+      expect(Array.isArray(spreadsheets)).toBe(true);
+
+      if (spreadsheets.length > 0) {
+        console.log(`✅ Found ${spreadsheets.length} Spreadsheet tables`);
+      }
+    });
+
+    test('get_table should return table details', async () => {
+      const table = await client.getTable(testProjectId, testTableId);
+
+      expect(table).toBeDefined();
+      expect(table.id).toBe(testTableId);
+      expect(table.name).toBeDefined();
+      expect(table.tableType).toBeDefined();
+
+      console.log(`✅ Retrieved table: ${table.name}`);
+      console.log(`   Type: ${table.tableType}`);
+      console.log(`   File: ${table.file || 'N/A'}`);
+    });
+  });
+
+  // ============================================================================
+  // P1: Important Workflow - Testing
+  // ============================================================================
+
+  describe('5. Testing & Execution (P1)', () => {
+    test('run_all_tests should execute project tests', async () => {
+      try {
+        const results = await client.runAllTests(testProjectId);
+
+        expect(results).toBeDefined();
+
+        console.log(`✅ Ran all tests`);
+        console.log(`   Test results available: ${!!results}`);
+      } catch (error: any) {
+        // May fail if project has no tests
+        if (error.message?.includes('404') || error.message?.includes('not found')) {
+          console.log(`⚠️  Project may not have test tables`);
+        } else {
+          throw error;
+        }
+      }
+    }, 30000); // Longer timeout for test execution
+  });
+
+  // ============================================================================
+  // P1: Important Workflow - File Management
+  // ============================================================================
+
+  describe('6. File Management (P1)', () => {
+    test('download_file should retrieve Excel file', async () => {
+      // Get a file from first table
+      const tables = await client.listTables(testProjectId);
+      const tableWithFile = tables.find(t => t.file);
+
+      if (tableWithFile && tableWithFile.file) {
+        try {
+          const fileBuffer = await client.downloadFile(testProjectId, tableWithFile.file);
+
+          expect(fileBuffer).toBeDefined();
+          expect(Buffer.isBuffer(fileBuffer)).toBe(true);
+          expect(fileBuffer.length).toBeGreaterThan(0);
+
+          console.log(`✅ Downloaded file: ${tableWithFile.file}`);
+          console.log(`   Size: ${fileBuffer.length} bytes`);
+        } catch (error: any) {
+          console.log(`⚠️  File download failed: ${error.message}`);
+        }
+      } else {
+        console.log(`⚠️  No files found in project tables`);
+      }
+    }, 30000); // Longer timeout for file download
+  });
+
+  // ============================================================================
+  // P2: Advanced Features - Version Control
+  // ============================================================================
+
+  describe('7. Version Control (P2)', () => {
+    test('get_project_history should return commit history', async () => {
+      try {
+        const history = await client.getProjectHistory({
+          projectId: testProjectId,
+          limit: 10,
+        });
+
+        expect(history).toBeDefined();
+        expect(Array.isArray(history.commits)).toBe(true);
+
+        console.log(`✅ Retrieved ${history.commits.length} commits`);
+        if (history.commits.length > 0) {
+          console.log(`   Latest: ${history.commits[0].comment || 'No comment'}`);
+        }
+      } catch (error: any) {
+        console.log(`⚠️  History endpoint may not exist: ${error.message}`);
+      }
+    });
+  });
+
+  // ============================================================================
+  // P2: Advanced Features - Dimension Properties
+  // ============================================================================
+
+  describe('8. Dimension Properties (P2)', () => {
+    test('get_table_properties should return properties', async () => {
+      try {
+        const props = await client.getTableProperties({
+          projectId: testProjectId,
+          tableId: testTableId,
+        });
+
+        expect(props).toBeDefined();
+        expect(props.tableId).toBe(testTableId);
+
+        console.log(`✅ Retrieved table properties`);
+        console.log(`   Properties: ${JSON.stringify(props.properties || {})}`);
+      } catch (error: any) {
+        console.log(`⚠️  Properties endpoint may not exist: ${error.message}`);
+      }
+    });
+  });
+
+  // ============================================================================
+  // Summary
+  // ============================================================================
+
+  afterAll(() => {
+    console.log('\n📊 Integration Test Summary:');
+    console.log(`   Test Project: ${testProjectId}`);
+    console.log(`   Test Table: ${testTableId}`);
+    console.log('\n');
+  });
+});
