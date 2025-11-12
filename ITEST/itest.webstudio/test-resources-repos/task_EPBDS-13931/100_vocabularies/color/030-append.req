@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/da1f4603fa80458412457592fd5f6459/lines HTTP/1.1
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==/tables/da1f4603fa80458412457592fd5f6459/lines HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

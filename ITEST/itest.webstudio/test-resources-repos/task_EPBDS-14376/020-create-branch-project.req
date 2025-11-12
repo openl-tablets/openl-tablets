@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY=/branches HTTP/1.1
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ==/branches HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

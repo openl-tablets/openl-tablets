@@ -7,27 +7,16 @@ Content-Type: application/json
       "revisionNo": "*",
       "shortRevisionNo": "*",
       "createdAt": "*",
+      "fullComment": "Project EPBDS-12825 is created.",
       "author": {
         "email": "default@example.com",
         "displayName": "DEFAULT"
       },
       "deleted": true,
       "technicalRevision": false
-    },
-    {
-      "revisionNo": "*",
-      "shortRevisionNo": "*",
-      "createdAt": "*",
-      "fullComment": "Project EPBDS-12825 is created.",
-      "author": {
-        "email": "default@example.com",
-        "displayName": "DEFAULT"
-      },
-      "deleted": false,
-      "technicalRevision": false
     }
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 2
+  "numberOfElements": 1
 }

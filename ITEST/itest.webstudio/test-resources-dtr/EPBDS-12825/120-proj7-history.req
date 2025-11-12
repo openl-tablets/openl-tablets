@@ -1,3 +1,3 @@
-GET /rest/repos/design-flat/projects/EPBDS-12825/history HTTP/1.1
+GET /rest/repos/design-flat/projects/EPBDS-12825%3Adf7715ffd0598873c83ce5ce97af946d4bff56770fb75119af818b77eb1e04de/history HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 
