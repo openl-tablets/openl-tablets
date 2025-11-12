@@ -174,6 +174,7 @@ public class ProjectManagementController {
             }
             // TODO: Project should be closed for all users
             project.delete(comment);
+            getWebStudio().reset();
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
@@ -200,6 +201,7 @@ public class ProjectManagementController {
             }
             project.erase(getUserWorkspace().getUser(), comment);
             aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
+            getWebStudio().reset();
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
