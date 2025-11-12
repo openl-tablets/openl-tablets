@@ -59,6 +59,7 @@ public class Migrator {
 
     private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
     private static final String MIGRATION_USER_EMAIL_PROPERTY = "migration.user.email";
+    private static final String REPOSITORY_PREFIX = "repository.";
 
     private Migrator() {
     }
@@ -81,6 +82,9 @@ public class Migrator {
         }
         if (stringFromVersion.compareTo("5.26.1") < 0) {
             migrateTo5_26_1(settings, props);
+        }
+        if (stringFromVersion.compareTo("6.0.0") < 0) {
+            migrateTo6_0_0(settings, props);
         }
 
         if ("saml".equals(Props.text("user.mode"))) {
@@ -105,6 +109,16 @@ public class Migrator {
         }
     }
 
+    private static void migrateTo6_0_0(DynamicPropertySource settings, HashMap<String, String> props) {
+        // remove `.folder-structure.flat` property
+        Arrays.stream(settings.getPropertyNames())
+                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".folder-structure.flat"))
+                .forEach( propertyToRemove -> {
+                    // remove property
+                    props.put(propertyToRemove, null);
+                });
+    }
+
     private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {
         migrateRepositoryFactories(settings, props);
         migrateProductionRepository(settings, props);
@@ -114,7 +128,7 @@ public class Migrator {
         String factorySuffix = ".factory";
 
         Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(factorySuffix))
+                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(factorySuffix))
                 .forEach(factoryKey -> {
                     var factory = settings.getProperty(factoryKey);
                     if (StringUtils.isNotBlank(factory)) {
@@ -185,7 +199,7 @@ public class Migrator {
     // 5.26.0
     private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
-                .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
+                .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".comment-template"))
                 .forEach(propertyName -> {
                     var commentTemplate = settings.getProperty(propertyName);
                     if (commentTemplate != null && commentTemplate.contains("{username}")) {
