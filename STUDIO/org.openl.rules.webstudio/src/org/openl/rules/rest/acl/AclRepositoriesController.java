@@ -155,6 +155,20 @@ public class AclRepositoriesController {
         });
     }
 
+    @Operation(summary = "Delete an ACL rule for the repository root by the requested criteria")
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
+    @AdminPrivilege
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping(value = "/roots/{root-id}")
+    public void deleteAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
+                                               @NotNull @SidExistsConstraint Sid sid) {
+        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
+        aclService.removeRootPermissions(sid);
+    }
+
     private Stream<AclRepositoryModel> mapAclRepositoryModelForRoot(AclRepositoryType type, @Nonnull Sid sid) {
         return aclServiceProvider.getAclService(type.getType()).listRootPermissions(sid).stream()
                 .map(permission -> AclRepositoryModel.rootRepositoryBuilder()
