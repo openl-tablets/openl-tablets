@@ -217,28 +217,43 @@ export class OpenLClient {
   /**
    * Open a project for viewing/editing
    *
-   * Note: The REST API has no /open endpoint. Projects are always accessible.
-   * This method verifies project exists and is accessible.
+   * Updates project status to OPENED using PATCH /projects/{projectId}
    *
    * @param projectId - Project ID in format "repository-projectName"
-   * @returns Success status
+   * @param options - Optional branch, revision, and comment
+   * @returns Success status (204 No Content on success)
    */
-  async openProject(projectId: string): Promise<boolean> {
-    await this.getProject(projectId);
+  async openProject(
+    projectId: string,
+    options?: { branch?: string; revision?: string; comment?: string; selectedBranches?: string[] }
+  ): Promise<boolean> {
+    const projectPath = this.buildProjectPath(projectId);
+    const updateModel: Types.ProjectStatusUpdateModel = {
+      status: "OPENED",
+      ...options,
+    };
+
+    await this.axiosInstance.patch(projectPath, updateModel);
     return true;
   }
 
   /**
    * Close an open project
    *
-   * Note: The REST API has no /close endpoint. Projects don't need explicit closing.
-   * This method verifies project exists for compatibility.
+   * Updates project status to CLOSED using PATCH /projects/{projectId}
    *
    * @param projectId - Project ID in format "repository-projectName"
-   * @returns Success status
+   * @param comment - Optional comment describing why the project is being closed
+   * @returns Success status (204 No Content on success)
    */
-  async closeProject(projectId: string): Promise<boolean> {
-    await this.getProject(projectId);
+  async closeProject(projectId: string, comment?: string): Promise<boolean> {
+    const projectPath = this.buildProjectPath(projectId);
+    const updateModel: Types.ProjectStatusUpdateModel = {
+      status: "CLOSED",
+      comment,
+    };
+
+    await this.axiosInstance.patch(projectPath, updateModel);
     return true;
   }
 
@@ -402,18 +417,22 @@ export class OpenLClient {
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @param branchName - Name for the new branch
-   * @param comment - Optional comment describing the branch
+   * @param revision - Optional Git revision to branch from
    * @returns Success status
    */
   async createBranch(
     projectId: string,
     branchName: string,
-    comment?: string
+    revision?: string
   ): Promise<boolean> {
     const projectPath = this.buildProjectPath(projectId);
+    const request: Types.BranchCreateRequest = {
+      branch: branchName,
+      revision,
+    };
     await this.axiosInstance.post(
       `${projectPath}/branches`,
-      { name: branchName, comment }
+      request
     );
     return true;
   }
@@ -548,41 +567,61 @@ export class OpenLClient {
   // =============================================================================
 
   /**
-   * List all deployments
+   * List all deployments with optional repository filter
    *
+   * @param repository - Optional repository ID to filter deployments
    * @returns Array of deployment information
    */
-  async listDeployments(): Promise<Types.DeploymentInfo[]> {
-    const response = await this.axiosInstance.get<Types.DeploymentInfo[]>(
-      "/deployments"
+  async listDeployments(repository?: string): Promise<Types.DeploymentViewModel_Short[]> {
+    const response = await this.axiosInstance.get<Types.DeploymentViewModel_Short[]>(
+      "/deployments",
+      { params: repository ? { repository } : undefined }
     );
     return response.data;
   }
 
   /**
-   * Deploy a project to a deployment repository
+   * Deploy a project to production repository
    *
-   * @param projectName - Name of the project to deploy
-   * @param repository - Source repository containing the project
-   * @param deploymentRepository - Target deployment repository
-   * @param version - Optional specific version to deploy
-   * @returns Deployment result
+   * @param request - Deployment request with project ID, deployment name, and target repository
+   * @returns Success status (204 No Content on success)
    */
-  async deployProject(
-    projectName: string,
-    repository: string,
-    deploymentRepository: string,
-    version?: string
-  ): Promise<Types.DeploymentResult> {
-    const response = await this.axiosInstance.post<Types.DeploymentResult>(
-      `/deployments/${encodeURIComponent(deploymentRepository)}`,
+  async deployProject(request: Types.DeployProjectRequest): Promise<void> {
+    // Ensure projectId is in base64 format
+    const base64ProjectId = this.toBase64ProjectId(request.projectId);
+
+    await this.axiosInstance.post(
+      "/deployments",
       {
-        projectName,
-        repository,
-        version,
+        projectId: base64ProjectId,
+        deploymentName: request.deploymentName,
+        productionRepositoryId: request.productionRepositoryId,
+        comment: request.comment,
       }
     );
-    return response.data;
+  }
+
+  /**
+   * Redeploy an existing deployment
+   *
+   * @param deploymentId - Deployment ID to redeploy
+   * @param request - Redeploy request with project ID and optional comment
+   * @returns Success status (204 No Content on success)
+   */
+  async redeployProject(
+    deploymentId: string,
+    request: Types.RedeployProjectRequest
+  ): Promise<void> {
+    // Ensure projectId is in base64 format
+    const base64ProjectId = this.toBase64ProjectId(request.projectId);
+
+    await this.axiosInstance.post(
+      `/deployments/${encodeURIComponent(deploymentId)}`,
+      {
+        projectId: base64ProjectId,
+        comment: request.comment,
+      }
+    );
   }
 
   // =============================================================================
@@ -966,44 +1005,59 @@ export class OpenLClient {
   /**
    * Get Git commit history for entire project
    *
-   * Note: The REST API does not expose a /history endpoint for projects.
-   * This method will return a 404 error. Git history may need to be accessed
-   * through repository-level endpoints or external Git tools.
+   * Uses the OpenAPI 3.0.1 endpoint structure:
+   * - /repos/{repo}/projects/{project-name}/history
+   * - /repos/{repo}/branches/{branch}/projects/{project-name}/history
    *
-   * @param request - Project history request
-   * @returns Project commit history with pagination
-   * @throws Error if endpoint doesn't exist (404)
+   * @param request - Project history request with pagination parameters
+   * @returns Project commit history with paginated response
    */
   async getProjectHistory(request: Types.GetProjectHistoryRequest): Promise<Types.GetProjectHistoryResult> {
-    const projectPath = this.buildProjectPath(request.projectId);
+    // Parse project ID to get repository and project name
+    const [repository, projectName] = this.parseProjectId(request.projectId);
 
-    const response = await this.axiosInstance.get(
-      `${projectPath}/history`,
-      {
-        params: {
-          limit: request.limit || 50,
-          offset: request.offset || 0,
-          branch: request.branch,
-        },
-      }
+    // Build the endpoint URL based on whether a branch is specified
+    let endpoint: string;
+    if (request.branch) {
+      endpoint = `/repos/${encodeURIComponent(repository)}/branches/${encodeURIComponent(request.branch)}/projects/${encodeURIComponent(projectName)}/history`;
+    } else {
+      endpoint = `/repos/${encodeURIComponent(repository)}/projects/${encodeURIComponent(projectName)}/history`;
+    }
+
+    // Build query parameters using OpenAPI 3.0.1 parameter names
+    const params: Record<string, unknown> = {
+      page: request.page ?? 0,
+      size: request.size ?? 50,
+    };
+    if (request.search) {
+      params.search = request.search;
+    }
+    if (request.techRevs !== undefined) {
+      params.techRevs = request.techRevs;
+    }
+
+    const response = await this.axiosInstance.get<Types.PageResponseProjectRevision_Short>(
+      endpoint,
+      { params }
     );
 
-    const commits = response.data.commits?.map((commit: any) => ({
-      commitHash: commit.version || "",
-      author: commit.author || { name: "unknown", email: "" },
-      timestamp: commit.modifiedAt || new Date().toISOString(),
-      comment: commit.comment || "",
-      commitType: this.parseCommitType(commit.comment),
-      filesChanged: commit.filesChanged || 0,
-      tablesChanged: commit.tablesChanged,
-    })) || [];
+    // Convert PageResponseProjectRevision_Short to legacy GetProjectHistoryResult format
+    const commits = response.data.content.map((revision) => ({
+      commitHash: revision.commitHash || revision.version || "",
+      author: revision.author || { name: "unknown", email: "" },
+      timestamp: revision.modifiedAt || new Date().toISOString(),
+      comment: revision.comment || "",
+      commitType: this.parseCommitType(revision.comment),
+      filesChanged: revision.filesChanged || 0,
+      tablesChanged: revision.tablesChanged,
+    }));
 
     return {
       projectId: request.projectId,
-      branch: response.data.branch || request.branch || "main",
+      branch: request.branch || "main",
       commits,
-      total: response.data.total || commits.length,
-      hasMore: (request.offset || 0) + commits.length < (response.data.total || commits.length),
+      total: response.data.totalElements || response.data.numberOfElements,
+      hasMore: (response.data.pageNumber + 1) < (response.data.totalPages || 1),
     };
   }
 
