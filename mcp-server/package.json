@@ -27,7 +27,7 @@
     "brms"
   ],
   "author": "",
-  "license": "MIT",
+  "license": "LGPL-3.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.21.1",
     "axios": "^1.7.9",
