@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/openl-tablets/openl-tablets/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: OpenL Tablets Website
+    url: https://openl-tablets.org
+    about: Visit our website for documentation and guides
+  - name: Security Vulnerability
+    url: https://github.com/openl-tablets/openl-tablets/security/advisories/new
+    about: Report a security vulnerability (private disclosure)

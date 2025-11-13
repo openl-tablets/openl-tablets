@@ -1,0 +1,142 @@
+{
+  // Java configuration
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.saveActions.organizeImports": true,
+  "java.import.gradle.enabled": false,
+  "java.import.maven.enabled": true,
+
+  // Editor settings
+  "editor.formatOnSave": true,
+  "editor.rulers": [120],
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+
+  // Language-specific settings
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.tabSize": 4
+  },
+
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml",
+    "editor.tabSize": 2
+  },
+
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.wordWrap": "on"
+  },
+
+  // Files to exclude from explorer
+  "files.exclude": {
+    "**/target": true,
+    "**/.idea": true,
+    "**/*.iml": true,
+    "**/.settings": true,
+    "**/.classpath": true,
+    "**/.project": true
+  },
+
+  // Files to exclude from search
+  "search.exclude": {
+    "**/target": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/*.class": true,
+    "**/*.jar": true
+  },
+
+  // Maven settings
+  "maven.terminal.useJavaHome": true,
+  "maven.executable.path": "mvn",
+  "maven.terminal.favorites": [
+    {
+      "command": "clean install",
+      "description": "Full build with tests"
+    },
+    {
+      "command": "clean install -Dquick -DnoPerf -T1C",
+      "description": "Quick build"
+    },
+    {
+      "command": "clean install -DskipTests",
+      "description": "Build without tests"
+    },
+    {
+      "command": "test",
+      "description": "Run tests"
+    }
+  ],
+
+  // Git settings
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+
+  // Terminal settings
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.cwd": "${workspaceFolder}",
+
+  // Files associations
+  "files.associations": {
+    "*.mdc": "markdown",
+    "*.jj": "java"
+  },
+
+  // Auto-save
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Breadcrumbs
+  "breadcrumbs.enabled": true,
+
+  // Minimap
+  "editor.minimap.enabled": true,
+  "editor.minimap.maxColumn": 120,
+
+  // Prettier
+  "prettier.tabWidth": 2,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+
+  // Code lens
+  "java.references.includeDecompiledSources": false,
+  "java.implementationsCodeLens.enabled": true,
+
+  // Recommendations
+  "extensions.ignoreRecommendations": false,
+
+  // OpenL Tablets specific
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/node_modules/**": true
+  }
+}

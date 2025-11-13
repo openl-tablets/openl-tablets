@@ -1,0 +1,60 @@
+# OpenL Tablets Namespace
+# Create a dedicated namespace for OpenL Tablets deployment
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openl
+  labels:
+    name: openl
+    environment: production
+    # Pod Security Standards
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Resource Quota for the namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: openl-resource-quota
+  namespace: openl
+spec:
+  hard:
+    requests.cpu: "32"
+    requests.memory: "64Gi"
+    limits.cpu: "64"
+    limits.memory: "128Gi"
+    persistentvolumeclaims: "20"
+    services.loadbalancers: "2"
+
+---
+# Limit Range for default resource limits
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: openl-limit-range
+  namespace: openl
+spec:
+  limits:
+    - max:
+        cpu: "8"
+        memory: "16Gi"
+      min:
+        cpu: "100m"
+        memory: "128Mi"
+      default:
+        cpu: "1"
+        memory: "2Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "1Gi"
+      type: Container
+    - max:
+        cpu: "16"
+        memory: "32Gi"
+      min:
+        cpu: "200m"
+        memory: "256Mi"
+      type: Pod
