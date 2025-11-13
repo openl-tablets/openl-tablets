@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
@@ -31,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -47,6 +48,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.util.FileUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
@@ -113,10 +115,37 @@ public class Migrator {
         // remove `.folder-structure.flat` property
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".folder-structure.flat"))
-                .forEach( propertyToRemove -> {
+                .forEach(propertyToRemove -> {
                     // remove property
                     props.put(propertyToRemove, null);
                 });
+
+        // remove all openl-projects.yaml files from locks root folder
+        removeProjectIndexFiles(settings);
+    }
+
+    private static void removeProjectIndexFiles(DynamicPropertySource settings) {
+        String locksRoot = settings.getProperty("repository.settings.locks.root");
+        if (locksRoot == null || StringUtils.isBlank(locksRoot)) {
+            return;
+        }
+
+        Path locksPath = Paths.get(locksRoot);
+        if (!Files.exists(locksPath)) {
+            return;
+        }
+
+        BiPredicate<Path, BasicFileAttributes> matcher = (path, attrs) -> {
+            if (!attrs.isRegularFile()) {
+                return false;
+            }
+            return path.getFileName().toString().equals("openl-projects.yaml");
+        };
+        try (Stream<Path> paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
+            paths.forEach(FileUtils::deleteQuietly);
+        } catch (IOException e) {
+            LOG.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
+        }
     }
 
     private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {
@@ -445,15 +474,15 @@ public class Migrator {
             }
         }
     }
-    
+
     private static <T> T runInSession(SessionFactory sessionFactory, Function<Session, T> consumer) {
         try (Session session = sessionFactory.openSession()) {
             return consumer.apply(session);
         }
     }
-    
+
     public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
-        if (! applicationContext.containsBean("openlSessionFactory")) {
+        if (!applicationContext.containsBean("openlSessionFactory")) {
             //webstudio is not configured, skipping migration
             return;
         }
@@ -498,16 +527,16 @@ public class Migrator {
         cq.from(OpenLProject.class);
         return session.createQuery(cq).getResultList()
                 .stream()
-                .map(openLProject -> 
+                .map(openLProject ->
                         new OpenLProjectWithTags(
-                                openLProject.getRepositoryId(), 
-                                openLProject.getProjectPath(), 
+                                openLProject.getRepositoryId(),
+                                openLProject.getProjectPath(),
                                 openLProject.getId(),
                                 openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName))))
                 .toList();
 
     }
-    
+
     private static class OpenLProjectWithTags {
         private final String repositoryId;
         private final String projectPath;
