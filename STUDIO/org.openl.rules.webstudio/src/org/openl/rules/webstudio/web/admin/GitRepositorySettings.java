@@ -359,9 +359,4 @@ public class GitRepositorySettings extends RepositorySettings {
                 PROTECTED_BRANCHES);
         load(properties);
     }
-
-    @Override
-    public RepositorySettingsValidators getValidators() {
-        return new GitRepositorySettingsValidators();
-    }
 }

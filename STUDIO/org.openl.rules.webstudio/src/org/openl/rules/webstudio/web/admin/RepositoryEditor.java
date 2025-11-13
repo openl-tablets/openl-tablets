@@ -120,18 +120,6 @@ public class RepositoryEditor {
         }
     }
 
-    public void validate() throws RepositoryValidationException {
-        for (RepositoryConfiguration config : repositoryConfigurations) {
-            if (forbiddenIds.contains(config.getConfigName())) {
-                String msg = String.format("Repository name '%s' already exists. Please, choose another name.",
-                        config.getName());
-                throw new RepositoryValidationException(msg);
-            }
-            RepositoryValidators.validate(config, repositoryConfigurations);
-            RepositoryValidators.validateConnection(config, repositoryFactoryProxy);
-        }
-    }
-
     public void save() {
         save(null);
     }

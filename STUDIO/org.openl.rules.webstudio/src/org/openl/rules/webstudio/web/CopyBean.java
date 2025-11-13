@@ -45,7 +45,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -390,7 +389,14 @@ public class CopyBean {
         }
         String newBranchName = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Branch name cannot be empty.");
-        RepositorySettingsValidators.validateBranchName(newBranchName);
+        WebStudioUtils.validate(newBranchName.matches("[^\\\\:*?\"<>|{}~^\\s]*"),
+                "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^");
+        WebStudioUtils.validate(newBranchName.matches("(.(?<![./]{2}))+"),
+                "Invalid branch name. Should not contain consecutive symbols '.' or '/'.");
+        WebStudioUtils.validate(newBranchName.matches("^[^./].*[^./]"),
+                "Invalid branch name. Cannot start with '.' or '/'.");
+        WebStudioUtils.validate(!newBranchName.contains(".lock/") && !newBranchName.endsWith(".lock"),
+                "Invalid branch name. Should not contain '.lock/' or end with '.lock'.");
 
         String customRegex = propertyResolver
                 .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");

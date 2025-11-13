@@ -4,36 +4,20 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
-import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 
 public final class RepositoryValidators {
 
     private RepositoryValidators() {
-    }
-
-    /**
-     * Same as {@link #validate(RepositoryConfiguration, java.util.List)} but don't check for name uniqueness (for
-     * example for Design repository).
-     *
-     * @param config Repository configuration
-     * @throws RepositoryValidationException if repository was configured incorrectly
-     */
-    public static void validate(RepositoryConfiguration config) throws RepositoryValidationException {
-        validate(config, Collections.emptyList());
     }
 
     /**
@@ -125,18 +109,13 @@ public final class RepositoryValidators {
     }
 
     public static void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
-        validateConnection(repoConfig, null);
-    }
-
-    public static void validateConnection(RepositoryConfiguration repoConfig,
-                                   RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
-            if (repositoryFactoryProxy != null) {
-                /* Close connection to repository before checking connection */
-                repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            var propertiesToValidate = repoConfig.getPropertiesToValidate();
+            var prefix = Comments.REPOSITORY_PREFIX + repoConfig.getConfigName();
+            try (var repository = RepositoryInstatiator.newRepository(prefix, propertiesToValidate::getProperty)) {
+                // Validate instantiation
+                repository.validateConnection();
             }
-
-            validateInstantiation(repoConfig);
         } catch (Exception e) {
             throw new RepositoryValidationException(
                     String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)),
@@ -144,17 +123,7 @@ public final class RepositoryValidators {
         }
     }
 
-    private static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
-        PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-        try (Repository repository = RepositoryInstatiator
-                .newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
-            // Validate instantiation
-            repository.validateConnection();
-        }
-    }
-
-    public static String getMostSpecificMessage(Exception e) {
+    static String getMostSpecificMessage(Exception e) {
         final List<Throwable> list = ExceptionUtils.getThrowableList(e);
         Throwable cause = list.isEmpty() ? null : list.get(list.size() - 1);
         if (cause == null) {

@@ -349,11 +349,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
         return configPrefix;
     }
 
-    @JsonIgnore
-    public RepositorySettingsValidators getValidators() {
-        return new RepositorySettingsValidators();
-    }
-
     public static class Views {
         public interface Base {
         }
