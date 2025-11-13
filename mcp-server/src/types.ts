@@ -624,7 +624,7 @@ export interface PageResponseProjectRevision_Short {
   totalPages?: number;
 }
 
-/** Project history commit entry (legacy) */
+/** Project history commit entry */
 export interface ProjectHistoryCommit {
   commitHash: string;
   author: { name: string; email: string };
@@ -635,7 +635,7 @@ export interface ProjectHistoryCommit {
   tablesChanged?: number;
 }
 
-/** Get project history result (legacy) */
+/** Get project history result */
 export interface GetProjectHistoryResult {
   projectId: string;
   branch: string;
