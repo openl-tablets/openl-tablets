@@ -1,46 +1,90 @@
 # Studio UI
 
-## Project source structure
+## Project structure
 
-- `components/`: This directory contains shared or generic UI components that can be used across your application.
-- `constants/`: This directory contains constants that are used across your application.
-- `containers/`: This directory is used to group your stateful container components if you're using Redux or a similar state management library.
-- `hooks/`: This directory contains custom React hooks.
-- `layouts/`: This directory contains components that dictate the major page structure.
-- `pages/`: This directory contains components that are directly used as routes. These are the top-level components, each corresponding to a different route in your application.
-- `routes/`: This directory contains all the route definitions for your application.
-- `services/`: This directory contains service utilities, such as API clients or other services that you use to perform the main business logic.
-- `store/`: This directory contains Redux-specific pieces, such as actions and reducers.
-- `utils/`: This directory contains utility functions that can be used across your application.
+- `src/App.tsx`: React entry that wires routing, providers and global state checks.
+- `src/components/`: Reusable presentation components (forms, menus, icons, modals).
+- `src/constants/`: Shared constants for roles, repositories, system flags, etc.
+- `src/containers/`: Feature-level screens that orchestrate data fetching and state.
+- `src/contexts/`: React contexts (`PermissionContext`, `SystemContext`) consumed across the app.
+- `src/hooks/`: Shared hooks (`useIsFormChanged`, `useWebSocket`, etc.).
+- `src/layouts/`: Layout wrappers such as `DefaultLayout` and `AdministrationLayout`.
+- `src/locales/`: i18next resource bundles (English lives in `*.en.ts` files).
+- `src/providers/`: Cross-cutting providers (`SecurityProvider`).
+- `src/routes/`: Router configuration built with `createBrowserRouter`.
+- `src/services/`: Runtime config, REST wrapper, websocket client.
+- `src/store/`: Zustand stores (`appStore`, `userStore`, `notificationStore`).
+- `src/utils/`: Cross-cutting helpers (error handling, global scripts).
+- `src/pages/`: Standalone routes such as `LoginPage`, `403`, `404`, `500`.
+- `src/types/`: TypeScript definitions aligned with backend DTOs.
+- `src/index.tsx`: React entry point, registers i18n bundles and mounts the app.
+- `src/index.scss`: Global styles and Ant Design overrides.
+- `src/setPublicPath.ts`: Configures webpack public path at runtime.
 
-### Installing NodeJS.
+Supporting files:
+- `public/`: Static HTML shell and icons.
+- `webpack.config.js`, `eslint.config.js`, `tsconfig.json`: build and linting configuration.
+- `pom.xml`: Maven module that invokes the frontend toolchain via `frontend-maven-plugin`.
 
-To run the Studio UI, you need to have Node.js installed. You can download it from [Node.js official website](https://nodejs.org/).
-The required version is Node.js 24.
+For a deeper architectural overview, see `AGENTS.md`.
 
-### Installing dependencies.
+---
+
+## Prerequisites
+
+- Node.js 24.x (used for local builds only; the backend ships bundles produced by npm).
+- Java 21 and Maven (matching the root `maven-compiler-plugin` release). The Maven build installs Node/npm automatically and runs the npm scripts.
+
+---
+
+## Quick start
 
 ```bash
-  npm install
+# 1. Sync dependencies through Maven
+mvn clean install -DskipTests
+
+# 2. Launch the backend stack if you want a full environment (optional)
+docker compose up --build
+
+# 3. Start the React dev server (http://localhost:3100 by default)
+npm run start
 ```
 
-### Running the development server.
+- `npm run start` proxies API calls to `http://localhost:8080` as configured in `package.json`. Adjust with `npm run start -- --proxy http://your-host`.
+- For a production bundle run `npm run build` (license check included). The Maven build re-runs this automatically during packaging.
 
-```bash
-  npm run start
-```
+---
 
-### Docker configuration for development mode
+## Docker integration
 
-1. Open `compose.yaml`
-2. Uncomment next lines
+When developing against the backend in Docker, point the containerised WebStudio to the local dev server by editing the root `compose.yaml`:
+
 ```yaml
-_REACT_UI_ROOT_: http://localhost:3100
+services:
+  webstudio:
+    environment:
+      _REACT_UI_ROOT_: http://localhost:3100
 ```
 
-### Build and Run OpenL Studio Backend
+Rebuild or restart the stack after changing the environment variable:
 
 ```bash
-  mvn -DskipTests -T1C
-  docker compose up --build
+docker compose up --build
 ```
+
+---
+
+## Useful npm scripts
+
+- `npm run start` – webpack dev server with hot reload.
+- `npm run build` – production build with license compliance check.
+- `npm run serve` – static server for the `dist/` output (`serve -p 3002`).
+- `npm run lint` / `npm run lint:fix` – ESLint + Stylelint.
+
+---
+
+## Troubleshooting
+
+- If `npm install` keeps reinstalling dependencies unexpectedly, ensure you ran the Maven sync (`mvn clean install ...`) first; the Maven plugin will overwrite `node_modules/`.
+- Websocket connection errors usually mean the backend isn’t exposing `${CONTEXT}/web/ws`; check reverse proxy rules.
+- Missing translations? Import the relevant locale bundle in `src/locales/index.ts` and restart the dev server so webpack picks up the new module.
