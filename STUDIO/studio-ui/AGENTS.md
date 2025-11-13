@@ -31,7 +31,7 @@
 
 The `studio-ui` module delivers the modern React experience for OpenL Studio. It replaces legacy JSF screens for system configuration, user and group management, repository administration, notifications, and auxiliary utilities while still coexisting with JSF pages for editor/repository flows.
 
-**Key capabilities:**
+### Key capabilities:
 
 - Authenticate users and expose administration features based on their permissions.
 - Manage system, security, repository, tags, notification, and mail settings inside a unified React SPA.
