@@ -206,6 +206,31 @@ export interface DeploymentInfo {
   deployedBy?: string;
 }
 
+/** Deployment view model (short version from OpenAPI 3.0.1) */
+export interface DeploymentViewModel_Short {
+  id: string;
+  name: string;
+  projectId: string;
+  productionRepositoryId: string;
+  deployedAt?: string;
+  deployedBy?: string;
+  status?: string;
+}
+
+/** Deploy project request (OpenAPI 3.0.1) */
+export interface DeployProjectRequest {
+  projectId: string;              // Base64-encoded project ID
+  deploymentName: string;         // Name for the deployment
+  productionRepositoryId: string;
+  comment?: string;
+}
+
+/** Redeploy project request (OpenAPI 3.0.1) */
+export interface RedeployProjectRequest {
+  projectId: string;              // Base64-encoded project ID
+  comment?: string;
+}
+
 export interface ProjectInfo {
   name: string;
   repository: string;
@@ -239,14 +264,24 @@ export interface DeployRequest {
   deploymentRepository: string;
 }
 
+/** Branch create request (OpenAPI 3.0.1) */
 export interface BranchCreateRequest {
-  name: string;
-  comment?: string;
+  branch: string;       // Branch name (required)
+  revision?: string;    // Revision to branch from (optional)
 }
 
 export interface ProjectUpdateRequest {
   status?: ProjectStatus;
   comment?: string;
+}
+
+/** Project status update model (OpenAPI 3.0.1) */
+export interface ProjectStatusUpdateModel {
+  status: "OPENED" | "CLOSED";
+  branch?: string;
+  revision?: string;
+  comment?: string;
+  selectedBranches?: string[];
 }
 
 // =============================================================================
@@ -560,12 +595,36 @@ export interface GetFileHistoryResult {
 /** Get project history request */
 export interface GetProjectHistoryRequest {
   projectId: string;
-  limit?: number;
-  offset?: number;
-  branch?: string;   // Optional: specific branch (default: current branch)
+  page?: number;        // Page number (default: 0, min: 0)
+  size?: number;        // Page size (default: 50, min: 1)
+  search?: string;      // Regex search term
+  techRevs?: boolean;   // Include non-project revisions (default: false)
+  branch?: string;      // Optional: specific branch (default: current branch)
 }
 
-/** Project history commit entry */
+/** Project revision (short version from OpenAPI 3.0.1) */
+export interface ProjectRevision_Short {
+  commitHash: string;
+  version?: string;     // Alias for commitHash
+  author: { name: string; email: string };
+  modifiedAt: string;   // ISO timestamp
+  comment: string;
+  commitType?: CommitType;
+  filesChanged?: number;
+  tablesChanged?: number;
+}
+
+/** Paginated response for project history (OpenAPI 3.0.1) */
+export interface PageResponseProjectRevision_Short {
+  content: ProjectRevision_Short[];
+  numberOfElements: number;
+  pageNumber: number;
+  pageSize: number;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+/** Project history commit entry (legacy) */
 export interface ProjectHistoryCommit {
   commitHash: string;
   author: { name: string; email: string };
@@ -576,7 +635,7 @@ export interface ProjectHistoryCommit {
   tablesChanged?: number;
 }
 
-/** Get project history result */
+/** Get project history result (legacy) */
 export interface GetProjectHistoryResult {
   projectId: string;
   branch: string;
