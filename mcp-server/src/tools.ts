@@ -200,7 +200,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "create_rule",
-    description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties.",
+    description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties. NOTE: This endpoint may not be supported in all OpenL versions (returns 405 in OpenL 6.0.0). Alternative: Use upload_file to upload Excel files with table definitions, or use OpenL WebStudio UI.",
     inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",

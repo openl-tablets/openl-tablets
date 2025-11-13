@@ -368,6 +368,18 @@ export class OpenLClient {
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const projectPath = this.buildProjectPath(projectId);
 
+    // Extract project name from projectId (format: "repository-projectName")
+    // Some file paths from list_tables include the project directory as prefix
+    // e.g., "Example 1 - Bank Rating/Bank Rating.xlsx"
+    // We need to strip this prefix to get the actual file path
+    const projectName = projectId.split('-').slice(1).join('-');
+
+    let normalizedFileName = fileName;
+    const projectPrefix = projectName + '/';
+    if (fileName.startsWith(projectPrefix)) {
+      normalizedFileName = fileName.substring(projectPrefix.length);
+    }
+
     // Build request params
     const params: any = {};
     if (version) {
@@ -375,7 +387,7 @@ export class OpenLClient {
     }
 
     const response = await this.axiosInstance.get<ArrayBuffer>(
-      `${projectPath}/files/${encodeURIComponent(fileName)}`,
+      `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
       {
         responseType: "arraybuffer",
         params,
@@ -473,9 +485,22 @@ export class OpenLClient {
         message: `Created ${request.tableType} table '${request.name}' successfully`,
       };
     } catch (error: unknown) {
+      const errorMsg = sanitizeError(error);
+
+      // Check if this is a 405 Method Not Allowed error
+      if (errorMsg.includes('405')) {
+        return {
+          success: false,
+          message: `Table creation via REST API is not supported in OpenL Tablets 6.0.0. ` +
+                  `Tables must be created by uploading/modifying Excel files directly. ` +
+                  `Use upload_file to upload an Excel file with the table definition, or ` +
+                  `use the OpenL WebStudio UI to create tables interactively.`,
+        };
+      }
+
       return {
         success: false,
-        message: `Failed to create ${request.tableType} table '${request.name}': ${sanitizeError(error)}`,
+        message: `Failed to create ${request.tableType} table '${request.name}': ${errorMsg}`,
       };
     }
   }
