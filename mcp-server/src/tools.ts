@@ -216,26 +216,9 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   // Testing & Validation Tools
   // =============================================================================
-  {
-    name: "run_all_tests",
-    description: "Run all test tables in a project to validate rules correctness. Returns test results with pass/fail status, expected vs actual values, and execution time. Use this before deployment to ensure all rules work as expected.",
-    inputSchema: zodToJsonSchema(schemas.runAllTestsSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "run_test",
-    description: "Run specific tests with smart selection. Can run by test IDs, tests for specific tables, or all tests. Returns detailed results with pass/fail status and failure reasons. Use this to validate changes to specific rules before full testing.",
-    inputSchema: zodToJsonSchema(schemas.runTestSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-    },
-  },
+  // Note: run_all_tests and run_test have been removed because the OpenL Tablets
+  // REST API does not expose /tests/run or /tests/run-selected endpoints.
+  // Use execute_rule to manually test individual rules with input data instead.
   {
     name: "validate_project",
     description: "Validate entire project for compilation errors, type errors, and warnings. Returns validation status and detailed error list if issues found. Required before deployment; use this to catch issues early.",

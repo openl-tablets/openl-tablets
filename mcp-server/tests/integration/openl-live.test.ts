@@ -218,16 +218,10 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('5. Testing & Execution (P1)', () => {
-    test('run_all_tests endpoint does not exist (expected 404)', async () => {
-      // Note: The /tests/run endpoint doesn't exist in the REST API
-      try {
-        await client.runAllTests(testProjectId);
-        // If we get here, the endpoint unexpectedly exists
-        console.log(`⚠️  Test execution endpoint exists (unexpected)`);
-      } catch (error: any) {
-        expect(error.message).toContain('404');
-        console.log(`✅ Test execution endpoint returns 404 as expected`);
-      }
+    // Note: run_all_tests and run_test tools removed - endpoints don't exist in API
+    // Use execute_rule to manually test individual rules with input data instead
+    test('Test tools removed (endpoints do not exist)', () => {
+      console.log(`✅ Test tools (run_all_tests, run_test) removed - use execute_rule instead`);
     });
   });
 

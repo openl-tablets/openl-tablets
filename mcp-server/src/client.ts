@@ -811,25 +811,8 @@ export class OpenLClient {
   // =============================================================================
   // Testing & Validation
   // =============================================================================
-
-  /**
-   * Run all tests in a project
-   *
-   * Note: The REST API does not expose a /tests/run endpoint.
-   * This method will return a 404 error. Test execution may need
-   * to be performed through the WebStudio UI or deployment process.
-   *
-   * @param projectId - Project ID in format "repository-projectName"
-   * @returns Test suite execution results
-   * @throws Error if endpoint doesn't exist (404)
-   */
-  async runAllTests(projectId: string): Promise<Types.TestSuiteResult> {
-    const projectPath = this.buildProjectPath(projectId);
-    const response = await this.axiosInstance.post<Types.TestSuiteResult>(
-      `${projectPath}/tests/run`
-    );
-    return response.data;
-  }
+  // Note: runAllTests() and runTest() methods removed - endpoints don't exist in API
+  // Use executeRule() to manually test individual rules instead
 
   /**
    * Validate a project for errors
@@ -847,45 +830,6 @@ export class OpenLClient {
     const response = await this.axiosInstance.get<Types.ValidationResult>(
       `${projectPath}/validation`
     );
-    return response.data;
-  }
-
-  /**
-   * Run specific tests with smart selection
-   * Can run specific test IDs, tests related to tables, or all tests
-   *
-   * Note: The REST API does not expose /tests/run or /tests/run-selected endpoints.
-   * This method will return a 404 error. Test execution may need to be performed
-   * through the WebStudio UI or deployment process.
-   *
-   * @param request - Test execution request with selection criteria
-   * @returns Test suite execution results
-   * @throws Error if endpoint doesn't exist (404)
-   */
-  async runTest(request: Types.RunTestRequest): Promise<Types.TestSuiteResult> {
-    const projectPath = this.buildProjectPath(request.projectId);
-
-    // Build request body based on selection criteria
-    const body: Record<string, unknown> = {};
-
-    if (request.testIds && request.testIds.length > 0) {
-      body.testIds = request.testIds;
-    }
-
-    if (request.tableIds && request.tableIds.length > 0) {
-      body.tableIds = request.tableIds;
-    }
-
-    // If runAll is true or no specific selection, run all tests
-    const endpoint = request.runAll || (!request.testIds && !request.tableIds)
-      ? `${projectPath}/tests/run`
-      : `${projectPath}/tests/run-selected`;
-
-    const response = await this.axiosInstance.post<Types.TestSuiteResult>(
-      endpoint,
-      Object.keys(body).length > 0 ? body : undefined
-    );
-
     return response.data;
   }
 

@@ -359,12 +359,7 @@ class OpenLMCPServer {
         }
 
         // Testing & Validation tools
-        case "run_all_tests": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.runAllTests(projectId);
-          break;
-        }
+        // Note: run_all_tests removed - endpoint doesn't exist in API
 
         case "validate_project": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
@@ -373,22 +368,7 @@ class OpenLMCPServer {
           break;
         }
 
-        case "run_test": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, testIds, tableIds, runAll } = args as {
-            projectId: string;
-            testIds?: string[];
-            tableIds?: string[];
-            runAll?: boolean;
-          };
-          result = await this.client.runTest({
-            projectId,
-            testIds,
-            tableIds,
-            runAll,
-          });
-          break;
-        }
+        // Note: run_test removed - endpoint doesn't exist in API
 
         case "get_project_errors": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");

@@ -102,10 +102,7 @@ export const deployProjectSchema = z.object({
 // =============================================================================
 // Testing & Validation (Critical Missing Tools)
 // =============================================================================
-
-export const runAllTestsSchema = z.object({
-  projectId: projectIdSchema,
-});
+// Note: runAllTestsSchema and runTestSchema removed - endpoints don't exist in API
 
 export const validateProjectSchema = z.object({
   projectId: projectIdSchema,
@@ -157,13 +154,7 @@ export const createRuleSchema = z.object({
 // =============================================================================
 // Phase 2: Testing & Validation Schemas
 // =============================================================================
-
-export const runTestSchema = z.object({
-  projectId: projectIdSchema,
-  testIds: z.array(z.string()).optional().describe("Specific test IDs to run (e.g., ['test_calculatePremium_001', 'test_validate_002']). Mutually exclusive with tableIds and runAll."),
-  tableIds: z.array(z.string()).optional().describe("Run all tests related to these table IDs (e.g., ['calculatePremium_1234']). Tests table being tested, not test table IDs."),
-  runAll: z.boolean().optional().describe("Run all tests in the project (default: false). Set to true to run comprehensive test suite."),
-});
+// Note: runTestSchema removed - endpoint doesn't exist in API
 
 export const getProjectErrorsSchema = z.object({
   projectId: projectIdSchema,
