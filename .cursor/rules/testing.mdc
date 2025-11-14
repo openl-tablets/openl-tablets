@@ -1,0 +1,567 @@
+# Testing Guidelines
+
+Comprehensive testing guidelines for OpenL Tablets project.
+
+## Test Independence
+
+**Critical Rule**: Each test should be isolated and runnable independently.
+
+- ✅ Tests can run in any order
+- ✅ Tests can run in parallel
+- ✅ Tests clean up after themselves
+- ❌ Tests do NOT depend on other tests
+
+## Testing Frameworks
+
+### Unit Tests
+- **TestNG**: Primary testing framework
+- **JUnit 5**: Supported in newer modules
+- **Mockito**: Mocking framework
+
+### Integration Tests
+- **Spring Boot Test**: For Spring applications
+- **TestContainers**: For database and infrastructure tests
+- **Docker Compose**: For full stack testing
+
+### Frontend Tests
+- **Jest**: JavaScript/TypeScript testing
+- **React Testing Library**: React component testing
+
+## Test Naming Conventions
+
+### Java Test Classes
+```java
+// Pattern: <ClassName>Test.java
+public class CalculationEngineTest { }
+public class ProjectControllerTest { }
+```
+
+### Test Methods
+
+**Pattern**: `test<Scenario>_<Condition>_<ExpectedResult>()`
+
+```java
+@Test
+public void testCalculatePremium_validPolicy_returnsPremium() {
+    // Test logic
+}
+
+@Test
+public void testCalculatePremium_invalidPolicy_throwsException() {
+    // Test logic
+}
+
+@Test
+public void testParseRules_emptyFile_returnsEmptyModule() {
+    // Test logic
+}
+```
+
+### Integration Test Classes
+```java
+// Pattern: <Feature>IntegrationTest.java
+public class RepositoryIntegrationTest { }
+public class DeploymentIntegrationTest { }
+```
+
+## Test Structure (AAA Pattern)
+
+Use Arrange-Act-Assert pattern:
+
+```java
+@Test
+void testCalculatePremium_validPolicy_returnsPremium() {
+    // Arrange
+    Policy policy = new Policy();
+    policy.setCoverage(100000);
+    CalculationEngine engine = new CalculationEngine();
+
+    // Act
+    Double premium = engine.calculatePremium(policy);
+
+    // Assert
+    assertNotNull(premium);
+    assertTrue(premium > 0);
+    assertEquals(1250.50, premium, 0.01);
+}
+```
+
+## Test Categories
+
+### Unit Tests
+
+**Characteristics**:
+- Fast (< 1 second)
+- No external dependencies
+- No I/O operations
+- Use mocks for dependencies
+
+**Example**:
+```java
+@Test
+void testValidatePolicy_validInput_returnsTrue() {
+    PolicyValidator validator = new PolicyValidator();
+    Policy policy = createValidPolicy();
+
+    boolean result = validator.validate(policy);
+
+    assertTrue(result);
+}
+```
+
+### Integration Tests
+
+**Characteristics**:
+- Test multiple components together
+- May use real database (TestContainers)
+- May use Docker
+- Slower than unit tests
+
+**Skip with**: `-DskipTests` or `-DnoDocker`
+
+**Example**:
+```java
+@SpringBootTest
+@Testcontainers
+class RepositoryIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
+
+    @Test
+    void testSaveProject_validProject_persistsToDatabase() {
+        // Test with real database
+    }
+}
+```
+
+### Performance Tests
+
+**Characteristics**:
+- Measure execution time
+- Memory usage tracking
+- Stress testing
+
+**Skip with**: `-DnoPerf`
+
+**Example**:
+```java
+@Test
+@Tag("performance")
+void testLargeDecisionTable_1000Rules_completesInUnder1Second() {
+    long startTime = System.nanoTime();
+
+    // Execute large rule set
+    engine.execute(largeRuleSet);
+
+    long duration = System.nanoTime() - startTime;
+    assertTrue(duration < 1_000_000_000L, "Execution took too long");
+}
+```
+
+## Mocking
+
+### Using Mockito
+
+```java
+import static org.mockito.Mockito.*;
+
+@Test
+void testServiceMethod_mockedDependency_callsRepository() {
+    // Create mock
+    ProjectRepository repository = mock(ProjectRepository.class);
+    when(repository.findById("123")).thenReturn(Optional.of(project));
+
+    // Inject mock
+    ProjectService service = new ProjectService(repository);
+
+    // Test
+    Project result = service.getProject("123");
+
+    // Verify
+    verify(repository).findById("123");
+    assertNotNull(result);
+}
+```
+
+### Spy vs Mock
+
+```java
+// Mock: Completely fake object
+ProjectRepository mockRepo = mock(ProjectRepository.class);
+
+// Spy: Real object with selective stubbing
+ProjectRepository spyRepo = spy(new ProjectRepositoryImpl());
+when(spyRepo.findById(anyString())).thenReturn(Optional.of(project));
+```
+
+## Test Data Management
+
+### Test Fixtures
+
+Use `@BeforeEach` for test setup:
+
+```java
+class ProjectServiceTest {
+
+    private ProjectService service;
+    private Project testProject;
+
+    @BeforeEach
+    void setUp() {
+        service = new ProjectService();
+        testProject = createTestProject();
+    }
+
+    @Test
+    void testSomething() {
+        // Use testProject
+    }
+}
+```
+
+### Builder Pattern for Test Data
+
+```java
+public class PolicyBuilder {
+    private Policy policy = new Policy();
+
+    public PolicyBuilder withPolicyNumber(String number) {
+        policy.setPolicyNumber(number);
+        return this;
+    }
+
+    public PolicyBuilder withCoverage(int coverage) {
+        policy.setCoverage(coverage);
+        return this;
+    }
+
+    public Policy build() {
+        return policy;
+    }
+}
+
+// Usage in tests
+Policy policy = new PolicyBuilder()
+    .withPolicyNumber("POL-123")
+    .withCoverage(100000)
+    .build();
+```
+
+## Database Testing
+
+### Using TestContainers
+
+```java
+@SpringBootTest
+@Testcontainers
+class DatabaseIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
+        .withDatabaseName("testdb")
+        .withUsername("test")
+        .withPassword("test");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Test
+    void testDatabaseOperation() {
+        // Test with real PostgreSQL
+    }
+}
+```
+
+### Transaction Rollback
+
+```java
+@SpringBootTest
+@Transactional  // Automatically rolls back after each test
+class TransactionalTest {
+
+    @Test
+    void testDataPersistence() {
+        // Changes are rolled back after test
+    }
+}
+```
+
+## Frontend Testing (Jest + React Testing Library)
+
+### Component Tests
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ProjectList } from './ProjectList';
+
+describe('ProjectList', () => {
+    test('renders project list', async () => {
+        render(<ProjectList />);
+
+        const heading = await screen.findByText(/Projects/i);
+        expect(heading).toBeInTheDocument();
+    });
+
+    test('filters projects on search', () => {
+        render(<ProjectList projects={mockProjects} />);
+
+        const searchInput = screen.getByPlaceholderText(/search/i);
+        fireEvent.change(searchInput, { target: { value: 'test' } });
+
+        expect(screen.getByText('Test Project')).toBeInTheDocument();
+        expect(screen.queryByText('Other Project')).not.toBeInTheDocument();
+    });
+});
+```
+
+### API Mocking
+
+```typescript
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+const server = setupServer(
+    rest.get('/api/projects', (req, res, ctx) => {
+        return res(ctx.json([
+            { id: '1', name: 'Project 1' },
+            { id: '2', name: 'Project 2' }
+        ]));
+    })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+## Coverage Requirements
+
+### Minimum Coverage Targets
+
+- **Overall**: 50% line coverage
+- **Business Logic**: 70% line coverage
+- **Critical Paths**: 90% line coverage
+
+### Measuring Coverage
+
+```bash
+# Generate coverage report with JaCoCo
+mvn test jacoco:report
+
+# View report
+open target/site/jacoco/index.html
+```
+
+### Coverage Configuration
+
+In `pom.xml`:
+```xml
+<plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>jacoco-check</id>
+            <goals>
+                <goal>check</goal>
+            </goals>
+            <configuration>
+                <rules>
+                    <rule>
+                        <element>PACKAGE</element>
+                        <limits>
+                            <limit>
+                                <counter>LINE</counter>
+                                <value>COVEREDRATIO</value>
+                                <minimum>0.50</minimum>
+                            </limit>
+                        </limits>
+                    </rule>
+                </rules>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+## Best Practices
+
+### ✅ DO
+
+- Write tests before or during development (TDD recommended)
+- Test edge cases and error conditions
+- Use descriptive test names
+- Keep tests simple and focused
+- Clean up resources after tests
+- Use meaningful assertions
+- Mock external dependencies
+
+### ❌ DON'T
+
+- Create test dependencies (test order matters)
+- Leave commented-out tests
+- Test implementation details
+- Use Thread.sleep() (use awaitility or similar)
+- Ignore flaky tests (fix them!)
+- Hard-code sensitive data
+
+## Common Testing Patterns
+
+### Testing Exceptions
+
+```java
+@Test
+void testInvalidInput_throwsException() {
+    assertThrows(IllegalArgumentException.class, () -> {
+        service.processInvalidInput(null);
+    });
+}
+
+// With message verification
+@Test
+void testInvalidInput_throwsExceptionWithMessage() {
+    Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        service.processInvalidInput(null);
+    });
+
+    assertTrue(exception.getMessage().contains("Input cannot be null"));
+}
+```
+
+### Testing Async Operations
+
+```java
+@Test
+void testAsyncOperation_completesSuccessfully() {
+    CompletableFuture<String> future = service.asyncOperation();
+
+    String result = future.join();  // Wait for completion
+
+    assertEquals("expected", result);
+}
+```
+
+### Parameterized Tests
+
+```java
+@ParameterizedTest
+@ValueSource(ints = {100, 200, 500, 1000})
+void testDifferentCoverages_allCalculateCorrectly(int coverage) {
+    Policy policy = new Policy();
+    policy.setCoverage(coverage);
+
+    Double premium = engine.calculatePremium(policy);
+
+    assertNotNull(premium);
+    assertTrue(premium > 0);
+}
+
+@ParameterizedTest
+@CsvSource({
+    "100, 10",
+    "500, 50",
+    "1000, 100"
+})
+void testCoverageAndPremium(int coverage, double expectedPremium) {
+    Policy policy = new Policy();
+    policy.setCoverage(coverage);
+
+    Double premium = engine.calculatePremium(policy);
+
+    assertEquals(expectedPremium, premium, 0.01);
+}
+```
+
+## Running Tests
+
+### Maven Commands
+
+```bash
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest=ProjectServiceTest
+
+# Run specific test method
+mvn test -Dtest=ProjectServiceTest#testGetProject
+
+# Run tests with coverage
+mvn test jacoco:report
+
+# Run integration tests only
+mvn verify -DskipTests=false
+
+# Skip tests
+mvn install -DskipTests
+
+# Skip heavy tests
+mvn install -Dquick
+
+# Skip performance tests
+mvn install -DnoPerf
+
+# Skip Docker tests
+mvn install -DnoDocker
+```
+
+### IDE Support
+
+- **IntelliJ IDEA**: Right-click test class/method → Run
+- **Eclipse**: Right-click test → Run As → TestNG Test
+- **VS Code**: CodeLens "Run Test" above test methods
+
+## Continuous Integration
+
+Tests run automatically on:
+- Pull requests
+- Pushes to master/develop
+- Nightly builds
+
+See `.github/workflows/build.yml` for CI configuration.
+
+## Troubleshooting
+
+### Flaky Tests
+
+**Symptoms**: Tests pass/fail randomly
+
+**Common Causes**:
+- Race conditions
+- Time-dependent assertions
+- Resource leaks
+- Shared state between tests
+
+**Solutions**:
+- Use awaitility for async operations
+- Reset state in `@AfterEach`
+- Increase timeouts cautiously
+- Fix root cause, don't ignore!
+
+### Slow Tests
+
+**Solutions**:
+- Use mocks instead of real dependencies
+- Profile with JProfiler or VisualVM
+- Mark slow tests with `@Tag("slow")`
+- Run slow tests separately
+
+### Test Pollution
+
+**Symptoms**: Tests pass alone but fail together
+
+**Cause**: Shared state between tests
+
+**Solution**: Ensure proper cleanup in `@AfterEach`
+
+## Related Documentation
+
+- Coverage reports: `target/site/jacoco/index.html`
+- TestNG documentation: https://testng.org/
+- Mockito documentation: https://site.mockito.org/
+- TestContainers: https://testcontainers.org/

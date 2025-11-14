@@ -1,0 +1,151 @@
+# Prometheus Configuration for OpenL Tablets Monitoring
+# Scrapes metrics from OpenL Studio and Rule Services instances
+
+# Global configuration
+global:
+  scrape_interval: 15s       # How frequently to scrape targets
+  evaluation_interval: 15s   # How frequently to evaluate rules
+  scrape_timeout: 10s       # Timeout for each scrape
+
+  # Attach these labels to any time series or alerts
+  external_labels:
+    cluster: 'openl-tablets'
+    environment: 'production'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+# rule_files:
+#   - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # ==========================================
+  # Prometheus Self-Monitoring
+  # ==========================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ==========================================
+  # OpenL Studio Instances
+  # ==========================================
+  - job_name: 'openl-studio'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'studio-1:8080'
+          - 'studio-2:8080'
+          - 'studio-3:8080'
+        labels:
+          service: 'openl-studio'
+          component: 'webstudio'
+
+    # Relabeling to add instance labels
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [__address__]
+        regex: '([^:]+):.*'
+        replacement: '${1}'
+        target_label: hostname
+
+  # ==========================================
+  # OpenL Rule Services Instances
+  # ==========================================
+  - job_name: 'openl-ruleservices'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'ruleservices-1:8080'
+          - 'ruleservices-2:8080'
+          - 'ruleservices-3:8080'
+        labels:
+          service: 'openl-ruleservices'
+          component: 'execution-engine'
+
+    # Relabeling to add instance labels
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [__address__]
+        regex: '([^:]+):.*'
+        replacement: '${1}'
+        target_label: hostname
+
+  # ==========================================
+  # PostgreSQL Database (with postgres_exporter)
+  # ==========================================
+  # Requires postgres_exporter sidecar container
+  # - job_name: 'postgresql'
+  #   static_configs:
+  #     - targets:
+  #         - 'postgres-exporter:9187'
+  #       labels:
+  #         service: 'postgresql'
+  #         database: 'openl'
+
+  # ==========================================
+  # Redis Cache (with redis_exporter)
+  # ==========================================
+  # Requires redis_exporter sidecar container
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets:
+  #         - 'redis-exporter:9121'
+  #       labels:
+  #         service: 'redis'
+  #         cache: 'openl-cache'
+
+  # ==========================================
+  # Nginx Load Balancer (with nginx_exporter)
+  # ==========================================
+  # Requires nginx-prometheus-exporter sidecar container
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets:
+  #         - 'nginx-exporter:9113'
+  #       labels:
+  #         service: 'nginx'
+  #         component: 'load-balancer'
+
+  # ==========================================
+  # Docker Host Metrics (with node_exporter)
+  # ==========================================
+  # Requires node_exporter container on host
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets:
+  #         - 'node-exporter:9100'
+  #       labels:
+  #         service: 'docker-host'
+  #         component: 'infrastructure'
+
+  # ==========================================
+  # JVM Metrics (alternative to Spring Actuator)
+  # ==========================================
+  # If using JMX exporter instead of Spring Actuator
+  # - job_name: 'jmx-studio'
+  #   static_configs:
+  #     - targets:
+  #         - 'studio-1:5555'
+  #         - 'studio-2:5555'
+  #         - 'studio-3:5555'
+  #       labels:
+  #         service: 'openl-studio-jmx'
+
+  # - job_name: 'jmx-ruleservices'
+  #   static_configs:
+  #     - targets:
+  #         - 'ruleservices-1:5555'
+  #         - 'ruleservices-2:5555'
+  #         - 'ruleservices-3:5555'
+  #       labels:
+  #         service: 'openl-ruleservices-jmx'

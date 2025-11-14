@@ -1,0 +1,287 @@
+# DEV Module Patterns
+
+The DEV module contains the core OpenL Tablets rule engine, including parsing, type system, binding, and compilation.
+
+## Module Structure
+
+```
+DEV/
+├── org.openl.core/          # Language core
+├── org.openl.rules/         # Rules engine
+├── org.openl.data.bind/     # Data binding
+└── [other modules]/         # Supporting modules
+```
+
+## Key Components
+
+### Type System
+
+OpenL has its own type system parallel to Java:
+
+- **`IOpenClass`**: Equivalent to Java `Class` (not `java.lang.Class`)
+- **`IOpenMethod`**: Equivalent to Java `Method`
+- **`IOpenField`**: Equivalent to Java `Field`
+
+**Why?** Enables dynamic types from Excel tables that don't exist at Java compile time.
+
+**Rule**: Always use OpenL types internally; convert to/from Java types at boundaries.
+
+Example:
+```java
+// Good
+IOpenClass type = OpenClassUtils.getRootClass(object.getClass());
+
+// Avoid
+Class<?> javaClass = object.getClass();
+```
+
+### Parsing Layer
+
+Location: `DEV/org.openl.rules/src/org/openl/rules/lang/xls/`
+
+**Key Classes**:
+- `XlsWorkbookSourceCodeModule`: Excel file wrapper
+- `XlsSheetSourceCodeModule`: Excel sheet wrapper
+- `TableSyntaxNode`: Parsed table representation
+
+**Pattern**: Parsers convert Excel cells to syntax trees without type resolution.
+
+### Binding Layer
+
+Location: `DEV/org.openl.rules/src/org/openl/binding/`
+
+**Key Classes**:
+- `IBoundNode`: Bound syntax node with type information
+- `NodeBinder`: Converts syntax nodes to bound nodes
+- `IBindingContext`: Context for type resolution
+
+**Critical**: Binding is compile-time only. Never mix binding logic into runtime execution.
+
+Example:
+```java
+// Binding phase (compile-time)
+IBoundNode boundNode = nodeBinder.bind(syntaxNode, bindingContext);
+
+// Execution phase (runtime)
+Object result = boundNode.evaluate(runtimeEnv, target);
+```
+
+### Compilation & Bytecode Generation
+
+Location: `DEV/org.openl.rules/src/org/openl/rules/runtime/`
+
+**Key Libraries**:
+- ASM 9.8 for bytecode manipulation
+- Byte Buddy 1.17.7 for dynamic proxies
+
+**Critical Areas** (handle with care):
+- Bytecode generation requires ASM expertise
+- Errors cause runtime failures
+- Verify with ASMifier for correct bytecode
+- Test with various JVM versions
+
+Example pattern:
+```java
+ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "methodName", "()V", null, null);
+// Generate bytecode...
+mv.visitEnd();
+```
+
+### Extension Points
+
+OpenL is designed for extensibility:
+
+1. **Node Binders**: Add new syntax support
+   - Implement `INodeBinder` interface
+   - Register in `XlsDefinitions`
+
+2. **Type Providers**: Add new type sources
+   - Implement `IOpenClass`
+   - Register type resolver
+
+3. **Table Types**: Add new table types
+   - Extend `AXlsTableBinder`
+   - Define table structure
+
+4. **Instantiation Strategies**: Custom project loading
+   - Implement `RulesInstantiationStrategy`
+
+**Rule**: Use existing extension points rather than modifying core classes.
+
+## Common Patterns
+
+### Factory Pattern
+
+Used extensively:
+```java
+RulesEngineFactory<MyRules> factory =
+    new RulesEngineFactory<>("rules.xlsx", MyRules.class);
+MyRules rules = factory.newEngineInstance();
+```
+
+### Visitor Pattern
+
+For traversing syntax trees:
+```java
+interface ISyntaxNode {
+    void accept(ISyntaxNodeVisitor visitor);
+}
+
+class MyVisitor implements ISyntaxNodeVisitor {
+    public void visit(ISyntaxNode node) {
+        // Process node
+    }
+}
+```
+
+### Builder Pattern
+
+For complex construction:
+```java
+SimpleProjectEngineFactory<T> factory =
+    new SimpleProjectEngineFactoryBuilder<T>()
+        .setProject(projectPath)
+        .setInterfaceClass(interfaceClass)
+        .setExecutionMode(true)
+        .build();
+```
+
+## Critical Areas (Handle with Care)
+
+### 1. Core Type System
+**Location**: `/DEV/org.openl.rules/src/org/openl/types/`
+
+**Why Critical**: Foundation of entire engine
+
+**Rules**:
+- Never break `IOpenClass`, `IOpenMethod`, `IOpenField` contracts
+- Changes ripple through entire codebase
+- Test exhaustively with all table types
+
+### 2. Parser & Grammar
+**Location**: `/DEV/org.openl.rules/grammar/bexgrammar.jj`
+
+**Why Critical**: Defines language syntax
+
+**Rules**:
+- Requires JavaCC knowledge
+- Grammar changes affect all rules
+- Maintain backward compatibility
+- Extensive regression testing required
+
+### 3. Bytecode Generation
+**Location**: `/DEV/org.openl.rules/src/org/openl/rules/runtime/`
+
+**Why Critical**: Generates executable code
+
+**Rules**:
+- Requires ASM library expertise
+- Errors cause runtime failures
+- Verify with ASMifier
+- Test with various JVM versions (Java 21, 23)
+
+### 4. Binding System
+**Location**: `/DEV/org.openl.rules/src/org/openl/binding/`
+
+**Why Critical**: Type resolution and method binding
+
+**Rules**:
+- Complex overload resolution logic
+- Performance-sensitive
+- Handle type conversions carefully
+- Maintain type safety guarantees
+
+## Deprecated APIs
+
+**Do NOT use**:
+- `OpenL.getInstance()` - Static singleton anti-pattern
+- Legacy source code modules - Use newer abstractions
+- Deprecated operator methods - Use annotation-based
+
+## Testing Requirements
+
+### Unit Tests
+
+Test public APIs thoroughly:
+```java
+@Test
+void testParseAsModule_validExcel_returnsModuleSyntaxNode() {
+    // Arrange
+    IOpenSourceCodeModule source = createTestSource();
+
+    // Act
+    XlsModuleSyntaxNode result = parser.parseAsModule(source);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals("MyModule", result.getName());
+}
+```
+
+### Test Naming
+- Test classes: `<ClassName>Test.java`
+- Test methods: `test<Scenario>_<Condition>_<ExpectedResult>()`
+
+### Coverage Requirements
+- All public APIs must have unit tests
+- Include edge cases and error conditions
+- Test with various Excel formats
+
+## Performance Considerations
+
+### Compilation Performance
+
+**Bottlenecks**:
+- Excel parsing (Apache POI)
+- Type resolution
+- Method binding
+- Bytecode generation
+
+**Optimization Tips**:
+- Use rule indexing for large decision tables
+- Cache compiled classes
+- Lazy-load modules when possible
+
+### Runtime Performance
+
+**Optimization**:
+- Bytecode generation provides native JVM performance
+- Use method dispatch optimization
+- Cache runtime contexts
+
+**Avoid**:
+- Reflection in hot paths
+- Unnecessary object creation
+- Synchronization where not needed
+
+## Memory Considerations
+
+**Known Issues**:
+- Cache implementation in `JavaOpenClassCache` (needs review)
+- String interning in `RuleRowHelper` (needs review)
+
+**Best Practices**:
+- Use weak references for caches
+- Avoid holding references to large objects
+- Profile with JVM tools (VisualVM, YourKit)
+
+## Security Considerations
+
+**Critical**:
+- Security blocking for system class access in `TypeResolver`
+- Validate user inputs in parsing layer
+- Sanitize file paths before processing
+
+## Documentation
+
+- JavaDoc for all public APIs
+- Explain "why" not just "what"
+- Include usage examples for complex APIs
+- Document side effects and thread safety
+
+## Related Documentation
+
+- Main conventions: `/DEV/CLAUDE.md`
+- Architecture: `/docs/architecture/`
+- Analysis: `/docs/analysis/dev-module-overview.md`

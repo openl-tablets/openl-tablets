@@ -1,0 +1,147 @@
+# OpenL Tablets Project Structure
+
+OpenL Tablets is a Business Rules Management System (BRMS) built with Java.
+
+## Multi-Module Maven Project
+
+OpenL Tablets is organized as a Maven multi-module project with the following key modules:
+
+### Core Modules
+
+- **DEV/**: Core rule engine, compiler, and data binding
+  - `org.openl.rules`: Core rules engine with parsing, binding, and compilation
+  - `org.openl.core`: Language core and type system
+  - `org.openl.data.bind`: Data binding and type resolution
+  - Location: `/DEV/`
+
+- **STUDIO/**: Web-based IDE for rule authoring
+  - `org.openl.rules.webstudio`: Main WebStudio application
+  - Spring Boot 3.5.6 + React UI (studio-ui/)
+  - Location: `/STUDIO/`
+
+- **WSFrontend/**: REST/SOAP services layer
+  - `org.openl.rules.ruleservice.ws`: Web services deployment
+  - `org.openl.rules.ruleservice`: Core rule service engine
+  - Location: `/WSFrontend/`
+
+- **Util/**: Shared utilities
+  - Location: `/Util/`
+
+- **ITEST/**: Integration tests
+  - Location: `/ITEST/`
+
+## Technology Stack
+
+### Core Technologies
+- **Java**: 21 (minimum JDK 21, supports up to Java 23)
+- **Maven**: 3.9.9 for build management
+- **Spring Framework**: 6.2.11
+- **Spring Boot**: 3.5.6
+- **Spring Security**: 6.5.5
+
+### Web Technologies
+- **Jetty**: 12.1.3 (embedded web server)
+- **React**: 18.3.1 (STUDIO/studio-ui frontend)
+- **TypeScript**: 5.8.3
+
+### Data & Persistence
+- **Hibernate**: JPA implementation
+- **PostgreSQL**: Recommended for production
+- **Oracle**: Supported
+- **MySQL**: Supported
+- **H2**: Development/testing
+
+### Other Key Libraries
+- **ASM**: 9.8 (bytecode manipulation)
+- **Apache POI**: Excel file processing
+- **Apache CXF**: Web services
+- **Jackson**: JSON processing
+
+## Key Domain Concepts
+
+### Rule Tables
+Excel-based business rules that compile to Java bytecode. OpenL Tablets parses Excel files and generates executable Java code.
+
+### Decision Tables
+Tabular decision logic where conditions are evaluated top-to-bottom and actions are executed when conditions match.
+
+### Test Tables
+Automated rule testing framework integrated into Excel files. Business users can write tests alongside rules.
+
+### Projects
+Version-controlled rule sets stored in Git repositories. Projects can have multiple versions for different dates or regions.
+
+### Repositories
+Git-based rule storage with branching, merging, and deployment support.
+
+## Architecture Layers
+
+1. **Parsing Layer**: Converts Excel to syntax trees
+2. **Binding Layer**: Type resolution and method binding
+3. **Compilation Layer**: Generates Java bytecode using ASM
+4. **Runtime Layer**: Executes compiled rules
+5. **Service Layer**: Exposes rules as REST/SOAP services
+
+## Module-Specific Documentation
+
+For detailed guidelines on specific modules, see:
+- `.cursor/rules/dev-module.mdc` - DEV module patterns
+- `.cursor/rules/studio-module.mdc` - STUDIO module patterns
+- `.cursor/rules/wsfrontend-module.mdc` - WSFrontend patterns
+- `.cursor/rules/testing.mdc` - Testing guidelines
+- `.cursor/rules/database.mdc` - Database patterns
+- `.cursor/rules/deployment.mdc` - Deployment configurations
+
+## Important Files
+
+- `/pom.xml` - Parent POM with dependency management
+- `/CLAUDE.md` - Main Claude Code conventions
+- `/DEV/CLAUDE.md` - DEV module conventions
+- `/STUDIO/CLAUDE.md` - STUDIO module conventions
+- `/WSFrontend/CLAUDE.md` - WSFrontend conventions
+- `/CONTRIBUTING.md` - Contribution guidelines
+
+## Common Tasks
+
+### Building
+```bash
+mvn clean install              # Full build with tests
+mvn clean install -Dquick      # Quick build, fewer tests
+mvn clean install -DskipTests  # Build without tests
+```
+
+### Running
+```bash
+# OpenL Studio
+mvn -pl STUDIO/org.openl.rules.webstudio spring-boot:run
+
+# Rule Services
+mvn -pl WSFrontend/org.openl.rules.ruleservice.ws spring-boot:run
+```
+
+### Testing
+```bash
+mvn test                       # Unit tests
+mvn verify                     # Integration tests
+```
+
+## Coding Standards
+
+- **Line Length**: 120 characters maximum
+- **Indentation**: 4 spaces for Java, 2 spaces for XML/YAML
+- **Naming**: Standard Java conventions (camelCase for methods, PascalCase for classes)
+- **Comments**: JavaDoc for public APIs, inline comments for complex logic
+
+## Git Workflow
+
+- **Main Branch**: `master` (protected)
+- **Feature Branches**: `feature/<description>` or `claude/<description>-<session-id>`
+- **Commit Messages**: Conventional commits format (feat, fix, docs, etc.)
+
+## Key Architectural Principles
+
+1. **Type Safety**: Strong typing with compile-time validation
+2. **Bytecode Generation**: Rules compile to native Java bytecode for performance
+3. **Excel as DSL**: Excel is the domain-specific language for business rules
+4. **Separation of Concerns**: Clear boundaries between parsing, binding, compilation, and runtime
+5. **Extensibility**: Plugin architecture for custom table types and node binders

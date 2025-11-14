@@ -1,0 +1,83 @@
+name: Validate PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Support both Conventional Commits and EPBDS-XXX Jira format
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            chore
+            ci
+            build
+            security
+            EPBDS-\d+
+          scopes: |
+            DEV
+            STUDIO
+            WSFrontend
+            Util
+            ITEST
+            DEMO
+          requireScope: false
+          subjectPattern: ^.{1,100}$
+          validateSingleCommit: false
+          ignoreLabels: |
+            bot
+            dependencies
+            skip-validation
+
+      - name: Comment on PR (on failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ PR Title Validation Failed
+
+            Your PR title doesn't follow the required format.
+
+            ### Supported Formats:
+
+            **1️⃣ GitLab/Jira Format:**
+            \`\`\`
+            EPBDS-1234 Add dark mode toggle to settings
+            EPBDS-5678 Fix memory leak in rule parser
+            \`\`\`
+
+            **2️⃣ GitHub Conventional Commits:**
+            \`\`\`
+            feat(STUDIO): add dark mode toggle
+            fix(DEV): resolve memory leak in parser
+            docs: update README with quick start
+            \`\`\`
+
+            Valid types: \`feat\`, \`fix\`, \`docs\`, \`style\`, \`refactor\`, \`perf\`, \`test\`, \`chore\`, \`ci\`, \`build\`, \`security\`
+
+            Valid scopes (optional): \`DEV\`, \`STUDIO\`, \`WSFrontend\`, \`Util\`, \`ITEST\`, \`DEMO\`
+
+            Please update your PR title to match one of these formats.
+
+            To skip validation, add the \`skip-validation\` label to this PR.`
+            })

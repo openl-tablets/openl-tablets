@@ -1,0 +1,209 @@
+# OpenL Tablets Ingress Configuration
+# Exposes OpenL Studio and Rule Services via HTTP/HTTPS
+
+---
+# Nginx Ingress with SSL/TLS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openl-ingress
+  namespace: openl
+  annotations:
+    # Nginx-specific annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+
+    # Session affinity (sticky sessions)
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+
+    # SSL/TLS with cert-manager
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+
+spec:
+  ingressClassName: nginx
+
+  tls:
+    - hosts:
+        - openl.example.com
+      secretName: openl-tls-secret
+
+  rules:
+    - host: openl.example.com
+      http:
+        paths:
+          # OpenL Studio
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openl-studio
+                port:
+                  number: 8080
+
+          # OpenL Rule Services
+          - path: /ruleservices
+            pathType: Prefix
+            backend:
+              service:
+                name: openl-ruleservices
+                port:
+                  number: 8080
+
+---
+# Alternative: Traefik Ingress
+# Uncomment to use Traefik instead of Nginx
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: openl-ingress-traefik
+#   namespace: openl
+#   annotations:
+#     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+#     traefik.ingress.kubernetes.io/router.tls: "true"
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     traefik.ingress.kubernetes.io/router.middlewares: openl-ratelimit@kubernetescrd
+# spec:
+#   ingressClassName: traefik
+#   tls:
+#     - hosts:
+#         - openl.example.com
+#       secretName: openl-tls-secret
+#   rules:
+#     - host: openl.example.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: openl-studio
+#                 port:
+#                   number: 8080
+#           - path: /ruleservices
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: openl-ruleservices
+#                 port:
+#                   number: 8080
+
+---
+# TLS Certificate (Let's Encrypt via cert-manager)
+# This will be automatically created by cert-manager if configured
+
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: openl-tls-cert
+#   namespace: openl
+# spec:
+#   secretName: openl-tls-secret
+#   issuerRef:
+#     name: letsencrypt-prod
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - openl.example.com
+#   usages:
+#     - digital signature
+#     - key encipherment
+
+---
+# Self-signed certificate for development
+# Use this for testing without cert-manager
+
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: openl-tls-secret
+#   namespace: openl
+# type: kubernetes.io/tls
+# data:
+#   tls.crt: |
+#     LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...  # base64 encoded cert
+#   tls.key: |
+#     LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVkt...  # base64 encoded key
+
+---
+# Middleware for Traefik (rate limiting)
+# Uncomment if using Traefik
+
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: ratelimit
+#   namespace: openl
+# spec:
+#   rateLimit:
+#     average: 100
+#     burst: 50
+#     period: 1s
+
+---
+# Example: Separate ingresses for Studio and Rule Services
+# Use this if you want different hostnames or configurations
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: openl-studio-ingress
+#   namespace: openl
+#   annotations:
+#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+# spec:
+#   ingressClassName: nginx
+#   tls:
+#     - hosts:
+#         - studio.openl.example.com
+#       secretName: openl-studio-tls
+#   rules:
+#     - host: studio.openl.example.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: openl-studio
+#                 port:
+#                   number: 8080
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: openl-ruleservices-ingress
+#   namespace: openl
+#   annotations:
+#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"  # Longer timeout for rules
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+# spec:
+#   ingressClassName: nginx
+#   tls:
+#     - hosts:
+#         - api.openl.example.com
+#       secretName: openl-ruleservices-tls
+#   rules:
+#     - host: api.openl.example.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: openl-ruleservices
+#                 port:
+#                   number: 8080
