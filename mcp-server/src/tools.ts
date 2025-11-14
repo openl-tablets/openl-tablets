@@ -107,7 +107,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "update_project_status",
-    description: "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening (OPENED), closing (CLOSED), saving, or switching branches. Prevents accidental data loss by requiring explicit confirmation when closing projects with unsaved changes (EDITING status). Use cases: 1) Open project: {status: 'OPENED'}, 2) Save and close: {status: 'CLOSED', comment: 'final changes'}, 3) Save only: {comment: 'intermediate save'}, 4) Force close without saving: {status: 'CLOSED', discardChanges: true}, 5) Switch branch: {branch: 'develop'}",
+    description: "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing, read-only if locked by another user), EDITING (has unsaved changes, auto-set by OpenL on first edit), VIEWING_VERSION (viewing outdated version after another user saved, need to re-open), CLOSED (closed and unlocked). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save and close: {status: 'CLOSED', comment: 'changes'}, 3) Save only: {comment: 'intermediate save'}, 4) Force close: {status: 'CLOSED', discardChanges: true}, 5) Switch branch: {branch: 'develop'}",
     inputSchema: zodToJsonSchema(schemas.updateProjectStatusSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",

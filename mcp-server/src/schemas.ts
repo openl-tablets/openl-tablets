@@ -55,7 +55,7 @@ export const projectActionSchema = z.object({
 
 export const updateProjectStatusSchema = z.object({
   projectId: projectIdSchema,
-  status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Project status to set. OPENED = lock and load for editing, CLOSED = unlock and release, EDITING = has unsaved changes, VIEWING_VERSION = read-only historical view"),
+  status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Project status to set. OPENED = open and available for editing (read-only if locked by another user). EDITING = currently editing with unsaved changes (auto-set by OpenL on first edit, locks project). VIEWING_VERSION = viewing outdated version (another user saved, need to re-open for latest). CLOSED = closed and unlocked"),
   comment: commentSchema.describe("Git commit comment. When provided on a modified project, saves changes before applying status change. Required when closing a project with unsaved changes (unless discardChanges is true)"),
   discardChanges: z.boolean().optional().describe("Explicitly confirm discarding unsaved changes when closing. Set to true to close an EDITING project without saving. Safety flag to prevent accidental data loss."),
   branch: branchNameSchema.optional().describe("Switch to a different Git branch"),
