@@ -229,7 +229,7 @@ export class OpenLClient {
   /**
    * Open a project for viewing/editing
    *
-   * Updates project status to OPENED using PATCH /projects/{projectId}
+   * Updates project status to OPENED using PUT /projects/{projectId}
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @param options - Optional branch, revision, and comment
@@ -252,7 +252,7 @@ export class OpenLClient {
   /**
    * Close an open project
    *
-   * Updates project status to CLOSED using PATCH /projects/{projectId}
+   * Updates project status to CLOSED using PUT /projects/{projectId}
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @param comment - Optional comment describing why the project is being closed

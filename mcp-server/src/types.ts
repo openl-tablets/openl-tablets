@@ -293,15 +293,11 @@ export interface ProjectUpdateRequest {
   comment?: string;
 }
 
-/** Project status update model (OpenAPI 3.0.1)
- * NOTE: The provided OpenAPI schema only defines "status" field.
- * Additional fields (branch, revision, comment, selectedBranches) may be
- * supported by the full API but are not documented in the schema subset.
- */
+/** Project status update model */
 export interface ProjectStatusUpdateModel {
-  /** Required status field per OpenAPI schema */
-  status: "OPENED" | "CLOSED";
-  /** Additional fields - not in OpenAPI schema, may be ignored by API */
+  /** Required status field */
+  status: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
+  /** Additional fields may be supported by the API */
   branch?: string;
   revision?: string;
   comment?: string;
