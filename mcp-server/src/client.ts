@@ -215,6 +215,18 @@ export class OpenLClient {
   }
 
   /**
+   * Delete a project
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @returns void (204 No Content on success)
+   */
+  async deleteProject(projectId: string): Promise<void> {
+    const projectPath = this.buildProjectPath(projectId);
+    await this.axiosInstance.delete(projectPath);
+    // Returns 204 No Content
+  }
+
+  /**
    * Open a project for viewing/editing
    *
    * Updates project status to OPENED using PATCH /projects/{projectId}
@@ -233,7 +245,7 @@ export class OpenLClient {
       ...options,
     };
 
-    await this.axiosInstance.patch(projectPath, updateModel);
+    await this.axiosInstance.put(projectPath, updateModel);
     return true;
   }
 
@@ -253,7 +265,7 @@ export class OpenLClient {
       comment,
     };
 
-    await this.axiosInstance.patch(projectPath, updateModel);
+    await this.axiosInstance.put(projectPath, updateModel);
     return true;
   }
 
@@ -426,9 +438,9 @@ export class OpenLClient {
     revision?: string
   ): Promise<boolean> {
     const projectPath = this.buildProjectPath(projectId);
-    const request: Types.BranchCreateRequest = {
-      branch: branchName,
-      revision,
+    // Note: OpenAPI schema only supports branchName field, revision parameter is ignored
+    const request = {
+      branchName: branchName,
     };
     await this.axiosInstance.post(
       `${projectPath}/branches`,
@@ -545,21 +557,43 @@ export class OpenLClient {
    * @param projectId - Project ID in format "repository-projectName"
    * @param tableId - Table identifier
    * @param view - Updated table view with modifications
-   * @param comment - Optional comment describing the changes
-   * @returns Updated table view
+   * @param comment - Optional comment describing the changes (NOTE: not supported by OpenAPI schema, will be ignored)
+   * @returns void (204 No Content on success)
    */
   async updateTable(
     projectId: string,
     tableId: string,
     view: Types.EditableTableView,
     comment?: string
-  ): Promise<Types.TableView> {
+  ): Promise<void> {
     const projectPath = this.buildProjectPath(projectId);
-    const response = await this.axiosInstance.put<Types.TableView>(
+    // OpenAPI schema expects EditableTableView directly as request body
+    // Comment parameter is not supported by the schema
+    await this.axiosInstance.put(
       `${projectPath}/tables/${encodeURIComponent(tableId)}`,
-      { view, comment }
+      view
     );
-    return response.data;
+    // Returns 204 No Content
+  }
+
+  /**
+   * Append lines to a project table
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param tableId - Table identifier
+   * @param appendData - Data to append with fields and table type
+   * @returns void (200 OK on success per schema)
+   */
+  async appendProjectTable(
+    projectId: string,
+    tableId: string,
+    appendData: Types.AppendTableView
+  ): Promise<void> {
+    const projectPath = this.buildProjectPath(projectId);
+    await this.axiosInstance.post(
+      `${projectPath}/tables/${encodeURIComponent(tableId)}/lines`,
+      appendData
+    );
   }
 
   // =============================================================================

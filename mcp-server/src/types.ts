@@ -138,6 +138,24 @@ export interface EditableTableView {
   file?: string;
 }
 
+/** Append data to project table (OpenAPI 3.0.1) */
+export interface AppendTableView {
+  /** Table type */
+  tableType: string;
+  /** Table fields */
+  fields: Array<{
+    /** Field name (required) */
+    name: string;
+    /** Field type (required) */
+    type: string;
+    /** Required flag */
+    required?: string;
+    /** Default value */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    defaultValue?: any;
+  }>;
+}
+
 export interface DatatypeView extends EditableTableView {
   fields?: Array<{
     name: string;
@@ -266,8 +284,7 @@ export interface DeployRequest {
 
 /** Branch create request (OpenAPI 3.0.1) */
 export interface BranchCreateRequest {
-  branch: string;       // Branch name (required)
-  revision?: string;    // Revision to branch from (optional)
+  branchName: string;   // Branch name (required)
 }
 
 export interface ProjectUpdateRequest {
@@ -275,9 +292,15 @@ export interface ProjectUpdateRequest {
   comment?: string;
 }
 
-/** Project status update model (OpenAPI 3.0.1) */
+/** Project status update model (OpenAPI 3.0.1)
+ * NOTE: The provided OpenAPI schema only defines "status" field.
+ * Additional fields (branch, revision, comment, selectedBranches) may be
+ * supported by the full API but are not documented in the schema subset.
+ */
 export interface ProjectStatusUpdateModel {
+  /** Required status field per OpenAPI schema */
   status: "OPENED" | "CLOSED";
+  /** Additional fields - not in OpenAPI schema, may be ignored by API */
   branch?: string;
   revision?: string;
   comment?: string;
@@ -309,11 +332,14 @@ export type TableView = EditableTableView;
 /** Deployment result */
 export type DeploymentResult = DeploymentInfo;
 
-/** Filters for listing projects */
+/** Filters for listing projects (OpenAPI 3.0.1) */
 export interface ProjectFilters {
+  /** Repository ID */
   repository?: string;
+  /** Project status */
   status?: string;
-  tag?: string;
+  /** Project tags - must start with `tags.` prefix, e.g., { "tags.insurance.home": "value" } */
+  tags?: Record<string, string>;
 }
 
 // =============================================================================
