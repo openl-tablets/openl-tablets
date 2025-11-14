@@ -106,33 +106,11 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "open_project",
-    description: "Open a project for viewing and editing. Locks the project for exclusive access and loads all tables and resources. Must be called before making any changes to project rules or files.",
-    inputSchema: zodToJsonSchema(schemas.projectActionSchema) as Record<string, unknown>,
+    name: "update_project_status",
+    description: "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening (OPENED), closing (CLOSED), saving, or switching branches. Prevents accidental data loss by requiring explicit confirmation when closing projects with unsaved changes (EDITING status). Use cases: 1) Open project: {status: 'OPENED'}, 2) Save and close: {status: 'CLOSED', comment: 'final changes'}, 3) Save only: {comment: 'intermediate save'}, 4) Force close without saving: {status: 'CLOSED', discardChanges: true}, 5) Switch branch: {branch: 'develop'}",
+    inputSchema: zodToJsonSchema(schemas.updateProjectStatusSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "close_project",
-    description: "Close an open project and release its resources. Unlocks the project for other users. Use this after completing edits to free up server resources and allow concurrent access.",
-    inputSchema: zodToJsonSchema(schemas.projectActionSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "save_project",
-    description: "Save all project changes and create a new Git commit. Validates project before saving to ensure no errors. Returns commit hash, author, and timestamp for version tracking.",
-    inputSchema: zodToJsonSchema(schemas.saveProjectSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
       modifiesState: true,

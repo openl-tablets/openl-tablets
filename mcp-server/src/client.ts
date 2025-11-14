@@ -270,6 +270,76 @@ export class OpenLClient {
   }
 
   /**
+   * Update project status with safety checks for unsaved changes
+   *
+   * Unified method to handle all project status transitions (open, close, save, etc.)
+   * Prevents accidental data loss by requiring explicit confirmation when closing
+   * projects with unsaved changes.
+   *
+   * @param projectId - Project ID in format "repository-projectName"
+   * @param request - Status update request with optional fields
+   * @returns Success status (204 No Content on success)
+   * @throws Error if trying to close EDITING project without save or explicit discard
+   */
+  async updateProjectStatus(
+    projectId: string,
+    request: {
+      status?: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
+      comment?: string;
+      discardChanges?: boolean;
+      branch?: string;
+      revision?: string;
+      selectedBranches?: string[];
+    }
+  ): Promise<{ success: boolean; message: string }> {
+    const projectPath = this.buildProjectPath(projectId);
+
+    // SAFETY CHECK: Prevent closing with unsaved changes without explicit confirmation
+    if (request.status === "CLOSED") {
+      // Fetch current project state to check for unsaved changes
+      const currentProject = await this.getProject(projectId);
+
+      if (currentProject.status === "EDITING") {
+        // Project has unsaved changes
+        if (!request.comment && !request.discardChanges) {
+          throw new Error(
+            "Cannot close project with unsaved changes. " +
+            "Options:\n" +
+            "1. Provide 'comment' to save changes before closing: {status: 'CLOSED', comment: 'your message'}\n" +
+            "2. Set 'discardChanges: true' to explicitly discard unsaved changes: {status: 'CLOSED', discardChanges: true}"
+          );
+        }
+      }
+    }
+
+    // Build the API request (discardChanges is MCP-only, not sent to API)
+    const updateModel: Types.ProjectStatusUpdateModel = {
+      status: request.status,
+      comment: request.comment,
+      branch: request.branch,
+      revision: request.revision,
+      selectedBranches: request.selectedBranches,
+    };
+
+    // Call the OpenL Studio API
+    await this.axiosInstance.patch(projectPath, updateModel);
+
+    // Build success message based on what happened
+    let message = "Project status updated successfully";
+    if (request.status === "CLOSED" && request.comment) {
+      message = "Project saved and closed successfully";
+    } else if (request.status === "CLOSED" && request.discardChanges) {
+      message = "Project closed (changes discarded)";
+    } else if (request.status === "OPENED") {
+      message = "Project opened successfully";
+    } else if (request.comment && !request.status) {
+      message = "Project changes saved successfully";
+    }
+
+    return { success: true, message };
+  }
+
+  /**
    * Save project changes, creating a new version in the repository
    * This method validates the project before saving
    *

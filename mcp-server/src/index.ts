@@ -215,27 +215,25 @@ class OpenLMCPServer {
           break;
         }
 
-        case "open_project": {
+        case "update_project_status": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.openProject(projectId);
-          break;
-        }
-
-        case "close_project": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.closeProject(projectId);
-          break;
-        }
-
-        case "save_project": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, comment } = args as {
+          const { projectId, status, comment, discardChanges, branch, revision, selectedBranches } = args as {
             projectId: string;
+            status?: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
             comment?: string;
+            discardChanges?: boolean;
+            branch?: string;
+            revision?: string;
+            selectedBranches?: string[];
           };
-          result = await this.client.saveProject(projectId, comment);
+          result = await this.client.updateProjectStatus(projectId, {
+            status,
+            comment,
+            discardChanges,
+            branch,
+            revision,
+            selectedBranches,
+          });
           break;
         }
 
@@ -349,12 +347,14 @@ class OpenLMCPServer {
             deploymentRepository: string;
             version?: string;
           };
-          result = await this.client.deployProject(
-            projectName,
-            repository,
-            deploymentRepository,
-            version
-          );
+          // Build projectId from repository and projectName
+          const projectId = `${repository}-${projectName}`;
+          result = await this.client.deployProject({
+            projectId,
+            deploymentName: projectName,  // Use project name as deployment name
+            productionRepositoryId: deploymentRepository,
+            comment: version ? `Deploy version ${version}` : undefined,
+          });
           break;
         }
 
@@ -492,10 +492,13 @@ class OpenLMCPServer {
             offset?: number;
             branch?: string;
           };
+          // Convert limit/offset to page/size for API compatibility
+          const page = offset ? Math.floor(offset / (limit || 50)) : undefined;
+          const size = limit;
           result = await this.client.getProjectHistory({
             projectId,
-            limit,
-            offset,
+            page,
+            size,
             branch,
           });
           break;

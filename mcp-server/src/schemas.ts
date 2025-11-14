@@ -53,6 +53,16 @@ export const projectActionSchema = z.object({
   projectId: projectIdSchema,
 });
 
+export const updateProjectStatusSchema = z.object({
+  projectId: projectIdSchema,
+  status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Project status to set. OPENED = lock and load for editing, CLOSED = unlock and release, EDITING = has unsaved changes, VIEWING_VERSION = read-only historical view"),
+  comment: commentSchema.describe("Git commit comment. When provided on a modified project, saves changes before applying status change. Required when closing a project with unsaved changes (unless discardChanges is true)"),
+  discardChanges: z.boolean().optional().describe("Explicitly confirm discarding unsaved changes when closing. Set to true to close an EDITING project without saving. Safety flag to prevent accidental data loss."),
+  branch: branchNameSchema.optional().describe("Switch to a different Git branch"),
+  revision: z.string().optional().describe("Switch to a specific Git revision/commit hash for read-only viewing"),
+  selectedBranches: z.array(z.string()).optional().describe("List of branches to select for multi-branch projects"),
+});
+
 export const listTablesSchema = z.object({
   projectId: projectIdSchema,
   tableType: z.string().optional().describe("Filter by table type: 'Rules', 'SimpleRules', 'SmartRules', 'SimpleLookup', 'SmartLookup', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'Method', etc. Omit to show all types."),

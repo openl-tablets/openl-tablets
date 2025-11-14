@@ -295,8 +295,8 @@ export interface ProjectUpdateRequest {
 
 /** Project status update model */
 export interface ProjectStatusUpdateModel {
-  /** Required status field */
-  status: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
+  /** Status field - optional since you can update just comment to save without status change */
+  status?: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
   /** Additional fields may be supported by the API */
   branch?: string;
   revision?: string;
