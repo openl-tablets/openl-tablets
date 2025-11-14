@@ -1,0 +1,37 @@
+{
+  "name": "openl-studio-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for OpenL Tablets Studio - enables AI assistants to control OpenL Studio through natural language",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "echo \"Tests not yet implemented\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "openl-tablets",
+    "openl-studio",
+    "ai-tools",
+    "claude"
+  ],
+  "author": "OpenL Tablets",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

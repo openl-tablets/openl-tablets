@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@code3-team/spec-kit-mcp": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.22.0"
+  }
+}
