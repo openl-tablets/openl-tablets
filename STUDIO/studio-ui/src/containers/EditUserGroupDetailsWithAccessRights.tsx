@@ -1,10 +1,11 @@
 import React, { useMemo, useEffect, useState, ReactNode } from 'react'
 import { Form, Tabs, TabsProps, notification, Divider, Button, Drawer } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { DisplayUserName, RepositoryType } from 'constants/'
+import { DisplayUserName, RepositoryType, Role } from 'constants/'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../components/accessManagement'
+import { NONE_ROLE_VALUE } from '../components/accessManagement/utils'
 import { apiCall } from '../services'
-import { Repository, RepositoryRole } from '../types/repositories'
+import { Repository, RepositoryRole, RepositoryRootRole } from '../types/repositories'
 import { ProjectRole } from '../types/projects'
 import { WarningOutlined } from '@ant-design/icons'
 import { EditGroupDetails } from './groups/EditGroupDetails'
@@ -31,6 +32,8 @@ interface ReposFormValues {
     designRepos: RepositoryRole[]
     deployRepos: RepositoryRole[]
     projects: ProjectRole[]
+    designRootRole?: RootRoleFormValue
+    deployRootRole?: RootRoleFormValue
 }
 
 interface GroupFormValues extends ReposFormValues {
@@ -58,6 +61,13 @@ enum TabKeys {
     PROJECTS = 'projects'
 }
 
+type RootRoleFormValue = Role | typeof NONE_ROLE_VALUE
+
+const ROOT_REPOSITORY_ID_MAP: Record<RepositoryType, string> = {
+    [RepositoryType.DESIGN]: 'REVTSUdO',
+    [RepositoryType.PROD]: 'UFJPRA=='
+}
+
 export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetailsWithAccessRightsProps> = ({
     sid,
     isPrincipal,
@@ -75,6 +85,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
     const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
     const [projects, setProjects] = useState<ProjectRole[]>([])
+    const [rootRepositoryRoles, setRootRepositoryRoles] = useState<Partial<Record<RepositoryType, RepositoryRootRole>>>({})
     const [selectedRepositories, setSelectedRepositories] = useState<string[]>([])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [designRepositories, setDesignRepositories] = React.useState<Repository[]>([])
@@ -100,6 +111,19 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         const response: ProjectRole[] = await apiCall(`/acls/projects?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
         setProjects(response)
         setSelectedProjects(response.map(project => project.id))
+    }
+
+    const fetchRootRepositoryRoles = async () => {
+        const response: RepositoryRootRole[] = await apiCall(`/acls/repositories/roots?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
+        if (response) {
+            const mappedRoles = response.reduce((acc, rootRole) => {
+                acc[rootRole.type as RepositoryType] = rootRole
+                return acc
+            }, {} as Partial<Record<RepositoryType, RepositoryRootRole>>)
+            setRootRepositoryRoles(mappedRoles)
+        } else {
+            setRootRepositoryRoles({})
+        }
     }
 
     const fetchDesignRepositories = async () => {
@@ -135,6 +159,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         if ((isOpenFromParent || isOpen) && (((user || newUser) && sid) || (group && group.id))) {
             fetchReposRoles()
             fetchProjectRoles()
+            fetchRootRepositoryRoles()
         }
     }, [isOpenFromParent, isOpen, group, sid])
 
@@ -165,13 +190,17 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const initialValues = useMemo(() => {
+        const designRootRole = (rootRepositoryRoles[RepositoryType.DESIGN]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
+        const deployRootRole = (rootRepositoryRoles[RepositoryType.PROD]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
         let initialValues: UserFormValues | GroupFormValues
         if (isUser) {
             initialValues = {
                 ...getUserInitialValues(),
                 designRepos,
                 deployRepos,
-                projects
+                projects,
+                designRootRole,
+                deployRootRole
             }
         } else {
             initialValues = {
@@ -180,12 +209,14 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 admin: group?.admin,
                 designRepos,
                 deployRepos,
-                projects
+                projects,
+                designRootRole,
+                deployRootRole
             }
         }
         form.setFieldsValue(initialValues)
         return initialValues
-    }, [isUser, newUser, user, group, designRepos, deployRepos, projects])
+    }, [isUser, newUser, user, group, designRepos, deployRepos, projects, rootRepositoryRoles])
 
     const saveReposRoles = async (repositories: RepositoryRole[], repoType: RepositoryType, sid: string) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
@@ -236,6 +267,44 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
     const saveDeployRepositoriesRoles = async (values: FormValues, sid: string) => {
         return saveReposRoles(values.deployRepos, RepositoryType.PROD, sid)
+    }
+
+    const saveRootRepositoriesRoles = async (values: FormValues, sid: string) => {
+        const headers = new Headers()
+        headers.append('Content-Type', 'application/json')
+        headers.append('Accept', 'application/json')
+
+        const generateRootURL = (type: RepositoryType) => {
+            const rootId = rootRepositoryRoles[type]?.id || ROOT_REPOSITORY_ID_MAP[type]
+            let url = `/acls/repositories/roots/${rootId}?sid=${sid}`
+            if (isPrincipal) {
+                url += '&principal=true'
+            }
+            return url
+        }
+
+        const syncRootRole = (type: RepositoryType, value?: RootRoleFormValue) => {
+            const currentRole = rootRepositoryRoles[type]?.role
+            const nextRole = value && value !== NONE_ROLE_VALUE ? value as Role : undefined
+            if (!nextRole && currentRole) {
+                apiCall(generateRootURL(type), {
+                    method: 'DELETE',
+                    headers
+                })
+                return
+            }
+
+            if (nextRole && nextRole !== currentRole) {
+                apiCall(generateRootURL(type), {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ role: nextRole })
+                })
+            }
+        }
+
+        syncRootRole(RepositoryType.DESIGN, values.designRootRole)
+        syncRootRole(RepositoryType.PROD, values.deployRootRole)
     }
 
     const saveProjectRoles = async (values: FormValues, sid: string) => {
@@ -320,6 +389,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         // Save roles for design and deploy repositories and projects
         saveDesignRepositoriesRoles(values, sid)
         saveDeployRepositoriesRoles(values, sid)
+        saveRootRepositoriesRoles(values, sid)
         saveProjectRoles(values, sid)
         // Reload users and groups if necessary
         if (reloadUsers) {
@@ -470,7 +540,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 <Form
                     form={form}
                     initialValues={initialValues}
-                    labelCol={{ sm: { span: 8 } }}
+                    labelCol={{ sm: { span: 9 } }}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     onValuesChange={onValuesChange}
