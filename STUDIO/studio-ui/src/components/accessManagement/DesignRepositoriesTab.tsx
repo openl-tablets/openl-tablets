@@ -83,7 +83,13 @@ export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ de
                                         style={{ width: '100%' }}
                                     />
                                 </Form.Item>
-                                <DeleteOutlined onClick={() => remove(name)} style={{ fontSize: 16, cursor: 'pointer', flexShrink: 0, alignSelf: 'flex-start', marginTop: 8 }} />
+                                <Button
+                                    aria-label={t('common:delete')}
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => remove(name)}
+                                    style={{ flexShrink: 0, alignSelf: 'flex-start' }}
+                                    type="text"
+                                />
                             </div>
                         ))}
                         <Form.Item style={{ marginTop: 24 }}>
