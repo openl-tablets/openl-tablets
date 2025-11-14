@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "OpenL Studio (WebStudio)",
+      "request": "launch",
+      "mainClass": "org.openl.rules.webstudio.WebStudioApplication",
+      "projectName": "org.openl.rules.webstudio",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": "-Xmx2g -Xms1g",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Rule Services (WSFrontend)",
+      "request": "launch",
+      "mainClass": "org.openl.rules.ruleservice.ws.RuleServiceApplication",
+      "projectName": "org.openl.rules.ruleservice.ws",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": "-Xmx2g -Xms1g",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Debug Current Test",
+      "request": "launch",
+      "mainClass": "",
+      "projectName": "",
+      "console": "integratedTerminal",
+      "shortenCommandLine": "auto"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Attach)",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 5005
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack (Studio + Services)",
+      "configurations": [
+        "OpenL Studio (WebStudio)",
+        "Rule Services (WSFrontend)"
+      ]
+    }
+  ]
+}

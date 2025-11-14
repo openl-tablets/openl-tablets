@@ -1,0 +1,249 @@
+name: Build Matrix
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  # Quick validation build
+  quick-build:
+    name: Quick Build (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Quick build
+        run: mvn clean install -Dquick -DnoPerf -T1C
+
+      - name: Upload build artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quick-build-logs
+          path: |
+            **/target/surefire-reports/
+            **/target/*.log
+          retention-days: 7
+
+  # Multi-Java version build
+  java-matrix:
+    name: Build (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '21', '23' ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests -T1C
+
+      - name: Run tests
+        run: mvn test -Dquick -DnoPerf
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-java-${{ matrix.java }}
+          path: |
+            **/target/surefire-reports/
+            **/target/failsafe-reports/
+          retention-days: 7
+
+  # Database integration tests
+  database-tests:
+    name: DB Tests (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        database:
+          - name: postgresql
+            image: postgres:16-alpine
+            port: 5432
+            env:
+              POSTGRES_DB: openl_test
+              POSTGRES_USER: openl
+              POSTGRES_PASSWORD: openl
+            health_cmd: pg_isready -U openl
+            url: jdbc:postgresql://localhost:5432/openl_test
+            driver: org.postgresql.Driver
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+
+          - name: mysql
+            image: mysql:8.0
+            port: 3306
+            env:
+              MYSQL_DATABASE: openl_test
+              MYSQL_USER: openl
+              MYSQL_PASSWORD: openl
+              MYSQL_ROOT_PASSWORD: root
+            health_cmd: mysqladmin ping -h localhost
+            url: jdbc:mysql://localhost:3306/openl_test?useSSL=false&serverTimezone=UTC
+            driver: com.mysql.cj.jdbc.Driver
+            dialect: org.hibernate.dialect.MySQL8Dialect
+
+          - name: mariadb
+            image: mariadb:11.2
+            port: 3306
+            env:
+              MARIADB_DATABASE: openl_test
+              MARIADB_USER: openl
+              MARIADB_PASSWORD: openl
+              MARIADB_ROOT_PASSWORD: root
+            health_cmd: healthcheck.sh --connect --innodb_initialized
+            url: jdbc:mariadb://localhost:3306/openl_test
+            driver: org.mariadb.jdbc.Driver
+            dialect: org.hibernate.dialect.MariaDBDialect
+
+    services:
+      database:
+        image: ${{ matrix.database.image }}
+        env: ${{ matrix.database.env }}
+        ports:
+          - ${{ matrix.database.port }}:${{ matrix.database.port }}
+        options: >-
+          --health-cmd "${{ matrix.database.health_cmd }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Wait for database
+        run: |
+          echo "Waiting for ${{ matrix.database.name }} to be ready..."
+          sleep 10
+
+      - name: Build project
+        run: mvn clean install -DskipTests -T1C
+
+      - name: Run database integration tests
+        env:
+          SPRING_DATASOURCE_URL: ${{ matrix.database.url }}
+          SPRING_DATASOURCE_USERNAME: openl
+          SPRING_DATASOURCE_PASSWORD: openl
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${{ matrix.database.driver }}
+          SPRING_JPA_DATABASE_PLATFORM: ${{ matrix.database.dialect }}
+        run: |
+          # Run tests that require database
+          mvn test -Dtest="*IT,*IntegrationTest" -Dquick
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-test-results-${{ matrix.database.name }}
+          path: |
+            **/target/surefire-reports/
+            **/target/failsafe-reports/
+          retention-days: 7
+
+  # Code coverage
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test with coverage
+        run: mvn clean verify -Dquick -DnoPerf
+
+      - name: Generate coverage report
+        run: mvn jacoco:report
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./target/site/jacoco/jacoco.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: target/site/jacoco/
+          retention-days: 30
+
+  # Performance tests
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build project
+        run: mvn clean install -DskipTests -T1C
+
+      - name: Run performance tests
+        run: |
+          # Run performance tests (remove -DnoPerf flag)
+          mvn test -Dtest="*PerfTest,*PerformanceTest"
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            **/target/surefire-reports/
+            **/target/performance-reports/
+          retention-days: 30

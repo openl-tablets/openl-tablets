@@ -1,0 +1,252 @@
+# OpenL Rule Services Deployment
+# This manifest deploys OpenL Rule Services to Kubernetes
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openl-ruleservices
+  namespace: openl
+  labels:
+    app: openl-ruleservices
+    component: execution-engine
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openl-ruleservices
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: openl-ruleservices
+        component: execution-engine
+    spec:
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - openl-ruleservices
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: ruleservices
+          image: openltablets/ruleservice:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            # Database Configuration
+            - name: DATABASE_URL
+              value: "postgresql://openl-postgresql:5432/openl_ruleservices"
+            - name: DATABASE_DRIVER
+              value: "org.postgresql.Driver"
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: db-username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: db-password
+
+            # Deployment Configuration
+            - name: RULESERVICE_DEPLOYMENT_PATH
+              value: "/opt/openl/deployments"
+            - name: RULESERVICE_DATASOURCE_ENABLED
+              value: "true"
+
+            # Java Options (Rule Services need more memory)
+            - name: JAVA_OPTS
+              value: "-Xmx4g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+
+            # Logging
+            - name: LOGGING_LEVEL
+              value: "INFO"
+
+            # API Configuration
+            - name: RULESERVICE_API_ENABLED
+              value: "true"
+            - name: RULESERVICE_OPENAPI_ENABLED
+              value: "true"
+            - name: RULESERVICE_SWAGGER_ENABLED
+              value: "true"
+
+            # Redis Caching
+            - name: RULESERVICE_CACHE_ENABLED
+              value: "true"
+            - name: SPRING_REDIS_HOST
+              value: "openl-redis-master"
+            - name: SPRING_REDIS_PORT
+              value: "6379"
+            - name: SPRING_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openl-secrets
+                  key: redis-password
+
+            # Metrics
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info,prometheus"
+
+          volumeMounts:
+            - name: deployments
+              mountPath: /opt/openl/deployments
+            - name: logs
+              mountPath: /opt/openl/logs
+
+          # Resource limits and requests (Rule Services need more resources)
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+
+      volumes:
+        - name: deployments
+          persistentVolumeClaim:
+            claimName: ruleservices-deployments-pvc
+        - name: logs
+          emptyDir: {}
+
+---
+# Service for OpenL Rule Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: openl-ruleservices
+  namespace: openl
+  labels:
+    app: openl-ruleservices
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: openl-ruleservices
+
+---
+# Persistent Volume Claim for Rule Services Deployments
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ruleservices-deployments-pvc
+  namespace: openl
+spec:
+  accessModes:
+    - ReadWriteMany  # Shared across replicas
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-storage  # Use appropriate storage class
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: openl-ruleservices-hpa
+  namespace: openl
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: openl-ruleservices
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 25
+          periodSeconds: 60
+
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: openl-ruleservices-pdb
+  namespace: openl
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: openl-ruleservices

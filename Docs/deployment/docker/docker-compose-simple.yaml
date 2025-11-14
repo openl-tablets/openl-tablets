@@ -1,0 +1,61 @@
+# OpenL Tablets - Simple Deployment
+# Single container for development and testing
+#
+# Usage:
+#   docker-compose -f docker-compose-simple.yaml up -d
+#
+# Access:
+#   OpenL Studio: http://localhost:8080
+#   Default credentials: admin / admin
+
+version: '3.8'
+
+services:
+  studio:
+    image: openltablets/studio:latest
+    container_name: openl-studio
+    ports:
+      - "8080:8080"
+    environment:
+      # Security Configuration
+      - SECURITY_MODE=multi-user
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+
+      # Database (embedded H2)
+      - DATABASE_TYPE=h2
+
+      # Java Options
+      - JAVA_OPTS=-Xmx2g -Xms512m -XX:+UseG1GC
+
+      # Logging
+      - LOGGING_LEVEL=INFO
+
+    volumes:
+      # Workspace (projects, repositories, user data)
+      - openl-workspace:/opt/openl/workspace
+
+      # Logs
+      - openl-logs:/opt/openl/logs
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    restart: unless-stopped
+
+volumes:
+  # Named volumes for data persistence
+  openl-workspace:
+    driver: local
+
+  openl-logs:
+    driver: local
+
+networks:
+  default:
+    name: openl-network
+    driver: bridge

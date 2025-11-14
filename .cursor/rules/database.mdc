@@ -1,0 +1,646 @@
+# Database Patterns and Guidelines
+
+Database patterns, migration strategies, and best practices for OpenL Tablets.
+
+## Supported Databases
+
+OpenL Tablets supports multiple database systems:
+
+### Production Databases
+- **PostgreSQL** (Recommended) - Versions 12+
+- **Oracle** - Versions 12c, 19c, 21c
+- **MySQL** - Versions 8.0+
+- **MariaDB** - Versions 10.5+
+
+### Development/Testing
+- **H2** - Embedded database for quick development
+- **HSQLDB** - Alternative embedded database
+
+## Database Configuration
+
+### PostgreSQL (Recommended)
+
+```properties
+# application.properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/openl
+spring.datasource.username=openl
+spring.datasource.password=openl
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+### Oracle
+
+```properties
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521:XE
+spring.datasource.username=openl
+spring.datasource.password=openl
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+
+spring.jpa.database-platform=org.hibernate.dialect.OracleDialect
+```
+
+### MySQL
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/openl?useSSL=false&serverTimezone=UTC
+spring.datasource.username=openl
+spring.datasource.password=openl
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+```
+
+### H2 (Development)
+
+```properties
+spring.datasource.url=jdbc:h2:mem:openl
+spring.datasource.driver-class-name=org.h2.Driver
+
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=create-drop
+```
+
+## Connection Pooling
+
+OpenL uses HikariCP for connection pooling:
+
+```properties
+# HikariCP configuration
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.pool-name=OpenLHikariPool
+```
+
+### Performance Tuning
+
+```properties
+# For high-traffic production
+spring.datasource.hikari.maximum-pool-size=50
+spring.datasource.hikari.minimum-idle=10
+spring.datasource.hikari.connection-timeout=20000
+
+# Enable leak detection (development only)
+spring.datasource.hikari.leak-detection-threshold=60000
+```
+
+## JPA/Hibernate Configuration
+
+```properties
+# Hibernate settings
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.use_sql_comments=true
+
+# Batch processing
+spring.jpa.properties.hibernate.jdbc.batch_size=20
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+
+# Second-level cache
+spring.jpa.properties.hibernate.cache.use_second_level_cache=true
+spring.jpa.properties.hibernate.cache.region.factory_class=org.hibernate.cache.jcache.JCacheRegionFactory
+
+# Query cache
+spring.jpa.properties.hibernate.cache.use_query_cache=true
+
+# Statistics (disable in production)
+spring.jpa.properties.hibernate.generate_statistics=false
+```
+
+## Entity Patterns
+
+### Base Entity
+
+```java
+@MappedSuperclass
+public abstract class BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
+
+    // Getters and setters
+}
+```
+
+### Entity Example
+
+```java
+@Entity
+@Table(name = "projects")
+public class Project extends BaseEntity {
+
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repository_id")
+    private Repository repository;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Deployment> deployments = new ArrayList<>();
+
+    // Getters and setters
+}
+```
+
+### Enum Mapping
+
+```java
+@Entity
+public class User {
+
+    @Enumerated(EnumType.STRING)  // Use STRING, not ORDINAL
+    @Column(name = "role")
+    private UserRole role;
+}
+
+public enum UserRole {
+    ADMIN,
+    DEVELOPER,
+    VIEWER
+}
+```
+
+## Repository Pattern
+
+### Spring Data JPA Repository
+
+```java
+@Repository
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+
+    // Query methods
+    List<Project> findByRepositoryId(Long repositoryId);
+
+    Optional<Project> findByNameAndRepositoryId(String name, Long repositoryId);
+
+    // Custom query
+    @Query("SELECT p FROM Project p WHERE p.name LIKE %:keyword%")
+    List<Project> searchByName(@Param("keyword") String keyword);
+
+    // Native query
+    @Query(value = "SELECT * FROM projects WHERE created_at > :date", nativeQuery = true)
+    List<Project> findRecentProjects(@Param("date") Date date);
+
+    // Pagination
+    Page<Project> findByRepositoryId(Long repositoryId, Pageable pageable);
+}
+```
+
+### Custom Repository Implementation
+
+```java
+public interface ProjectRepositoryCustom {
+    List<Project> findWithComplexCriteria(ProjectSearchCriteria criteria);
+}
+
+@Repository
+public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Override
+    public List<Project> findWithComplexCriteria(ProjectSearchCriteria criteria) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Project> query = cb.createQuery(Project.class);
+        Root<Project> root = query.from(Project.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (criteria.getName() != null) {
+            predicates.add(cb.like(root.get("name"), "%" + criteria.getName() + "%"));
+        }
+
+        if (criteria.getRepositoryId() != null) {
+            predicates.add(cb.equal(root.get("repository").get("id"), criteria.getRepositoryId()));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        return entityManager.createQuery(query).getResultList();
+    }
+}
+```
+
+## Database Migrations with Liquibase
+
+### Migration File Structure
+
+```
+STUDIO/org.openl.rules.webstudio/src/main/resources/
+└── db/
+    └── changelog/
+        ├── db.changelog-master.xml
+        ├── v1.0/
+        │   ├── 001-create-users-table.xml
+        │   └── 002-create-projects-table.xml
+        └── v1.1/
+            └── 003-add-project-status.xml
+```
+
+### Master Changelog
+
+```xml
+<!-- db.changelog-master.xml -->
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include file="db/changelog/v1.0/001-create-users-table.xml"/>
+    <include file="db/changelog/v1.0/002-create-projects-table.xml"/>
+    <include file="db/changelog/v1.1/003-add-project-status.xml"/>
+</databaseChangeLog>
+```
+
+### Migration Example
+
+```xml
+<!-- 001-create-users-table.xml -->
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="001-1" author="developer">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-2" author="developer">
+        <createIndex tableName="users" indexName="idx_users_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="001-3" author="developer">
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
+```
+
+### Running Migrations
+
+```bash
+# Automatic on application startup (default)
+spring.liquibase.enabled=true
+
+# Manual execution
+mvn liquibase:update
+
+# Check migration status
+mvn liquibase:status
+
+# Rollback last migration
+mvn liquibase:rollback -Dliquibase.rollbackCount=1
+```
+
+## Transaction Management
+
+### Declarative Transactions
+
+```java
+@Service
+@Transactional
+public class ProjectService {
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    // Read-only transaction (optimization)
+    @Transactional(readOnly = true)
+    public Project getProject(Long id) {
+        return projectRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Project not found"));
+    }
+
+    // Write transaction (default)
+    public Project createProject(ProjectDTO dto) {
+        Project project = new Project();
+        project.setName(dto.getName());
+        return projectRepository.save(project);
+    }
+
+    // Requires new transaction
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void logAuditEntry(AuditEntry entry) {
+        auditRepository.save(entry);
+    }
+}
+```
+
+### Transaction Rollback
+
+```java
+// Automatic rollback for RuntimeException
+@Transactional
+public void updateProject(Project project) {
+    projectRepository.save(project);
+    if (someCondition) {
+        throw new RuntimeException("Rollback transaction");
+    }
+}
+
+// Rollback for checked exceptions
+@Transactional(rollbackFor = {IOException.class, CustomException.class})
+public void updateWithCheckedExceptions() throws IOException {
+    // Method implementation
+}
+
+// No rollback for specific exceptions
+@Transactional(noRollbackFor = {NotFoundException.class})
+public void updateWithoutRollback() {
+    // Method implementation
+}
+```
+
+## Query Optimization
+
+### N+1 Query Problem
+
+**Bad (N+1 queries)**:
+```java
+// Fetches projects (1 query)
+List<Project> projects = projectRepository.findAll();
+
+// Fetches repository for each project (N queries)
+for (Project project : projects) {
+    System.out.println(project.getRepository().getName());  // Lazy load!
+}
+```
+
+**Good (Single query with join)**:
+```java
+@Query("SELECT p FROM Project p LEFT JOIN FETCH p.repository")
+List<Project> findAllWithRepository();
+```
+
+### Pagination
+
+```java
+@Service
+public class ProjectService {
+
+    public Page<ProjectDTO> getProjects(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<Project> projectPage = projectRepository.findAll(pageable);
+
+        return projectPage.map(this::convertToDTO);
+    }
+}
+```
+
+### Batch Operations
+
+```java
+@Service
+public class ProjectService {
+
+    @Transactional
+    public void createProjects(List<ProjectDTO> dtos) {
+        List<Project> projects = dtos.stream()
+            .map(this::convertToEntity)
+            .collect(Collectors.toList());
+
+        // Batch insert (configured via hibernate.jdbc.batch_size)
+        projectRepository.saveAll(projects);
+
+        // Flush every 20 records to avoid memory issues
+        projectRepository.flush();
+    }
+}
+```
+
+## Caching
+
+### Second-Level Cache
+
+```java
+@Entity
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Project extends BaseEntity {
+    // Entity fields
+}
+```
+
+### Query Cache
+
+```java
+@Repository
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+
+    @QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
+    @Query("SELECT p FROM Project p WHERE p.repository.id = :repoId")
+    List<Project> findCachedProjects(@Param("repoId") Long repoId);
+}
+```
+
+## Multi-Tenancy Support
+
+### Separate Databases
+
+```java
+@Configuration
+public class MultiTenantConfiguration {
+
+    @Bean
+    public DataSource dataSource() {
+        return new AbstractRoutingDataSource() {
+            @Override
+            protected Object determineCurrentLookupKey() {
+                return TenantContext.getCurrentTenant();
+            }
+        };
+    }
+}
+```
+
+### Shared Database with Tenant Column
+
+```java
+@Entity
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+public class Project extends BaseEntity {
+
+    @Column(name = "tenant_id")
+    private String tenantId;
+
+    // Other fields
+}
+
+// Enable filter in repository
+@Repository
+public class ProjectRepositoryImpl {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public List<Project> findByTenant(String tenantId) {
+        Session session = entityManager.unwrap(Session.class);
+        Filter filter = session.enableFilter("tenantFilter");
+        filter.setParameter("tenantId", tenantId);
+
+        return entityManager.createQuery("FROM Project", Project.class).getResultList();
+    }
+}
+```
+
+## Database Testing
+
+### TestContainers
+
+```java
+@SpringBootTest
+@Testcontainers
+class ProjectRepositoryTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
+        .withDatabaseName("test")
+        .withUsername("test")
+        .withPassword("test");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Test
+    void testSaveProject() {
+        // Test with real PostgreSQL
+    }
+}
+```
+
+### In-Memory Database (H2)
+
+```java
+@SpringBootTest
+@ActiveProfiles("test")
+class ProjectServiceTest {
+
+    // H2 auto-configured via test profile
+    // application-test.properties:
+    // spring.datasource.url=jdbc:h2:mem:testdb
+}
+```
+
+## Best Practices
+
+### ✅ DO
+
+- Use connection pooling (HikariCP)
+- Use Liquibase for schema migrations
+- Use @Transactional for write operations
+- Use @Transactional(readOnly=true) for read operations
+- Fetch associations eagerly when needed (avoid N+1)
+- Use pagination for large result sets
+- Close resources properly (try-with-resources)
+- Test migrations on all supported databases
+
+### ❌ DON'T
+
+- Use ORDINAL for enums (use STRING)
+- Perform heavy operations in transactions
+- Fetch large collections eagerly without need
+- Use native queries without good reason
+- Ignore database-specific optimizations
+- Skip migration rollback scripts
+- Hard-code database credentials
+
+## Troubleshooting
+
+### Connection Pool Exhausted
+
+**Symptoms**: "Connection pool exhausted" errors
+
+**Solutions**:
+- Increase pool size
+- Check for connection leaks
+- Reduce connection timeout
+- Enable leak detection
+
+### Slow Queries
+
+**Solutions**:
+- Add indexes on frequently queried columns
+- Use EXPLAIN ANALYZE to understand query plan
+- Optimize JOIN operations
+- Consider denormalization for read-heavy scenarios
+
+### Transaction Timeout
+
+**Solutions**:
+- Break large transactions into smaller ones
+- Use batch operations
+- Increase transaction timeout (carefully)
+
+## Related Documentation
+
+- Liquibase: https://www.liquibase.org/
+- Hibernate: https://hibernate.org/
+- Spring Data JPA: https://spring.io/projects/spring-data-jpa
+- HikariCP: https://github.com/brettwooldridge/HikariCP

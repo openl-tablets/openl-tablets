@@ -1,0 +1,73 @@
+# EditorConfig for OpenL Tablets
+# Top-most EditorConfig file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# Java files
+[*.java]
+indent_size = 4
+max_line_length = 120
+continuation_indent_size = 8
+
+# XML files (POM, configuration)
+[*.xml]
+indent_size = 2
+max_line_length = 120
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# JavaScript/TypeScript files
+[*.{js,jsx,ts,tsx}]
+indent_size = 2
+max_line_length = 100
+
+# Properties files
+[*.properties]
+indent_size = 4
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+end_of_line = lf
+
+# Markdown files
+[*.{md,mdc}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Makefile (must use tabs)
+[Makefile]
+indent_style = tab
+
+# Batch files (Windows)
+[*.bat]
+end_of_line = crlf
+
+# SQL files
+[*.sql]
+indent_size = 2
+
+# Docker files
+[Dockerfile*]
+indent_size = 2
+
+# Gradle files
+[*.gradle]
+indent_size = 4
+
+# Excel grammar (JavaCC)
+[*.jj]
+indent_size = 2

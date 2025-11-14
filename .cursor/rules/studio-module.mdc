@@ -1,0 +1,411 @@
+# STUDIO Module Patterns
+
+The STUDIO module provides WebStudio, a web-based IDE for business rule authoring, testing, and management.
+
+## Module Structure
+
+```
+STUDIO/
+├── org.openl.rules.webstudio/    # Main WebStudio application
+│   ├── src/main/java/             # Spring Boot backend
+│   ├── src/main/resources/        # Configuration & templates
+│   └── src/main/webapp/           # Legacy JSF UI (being migrated)
+└── studio-ui/                     # Modern React frontend
+    ├── src/
+    │   ├── components/            # React components
+    │   ├── containers/            # Container components
+    │   ├── services/              # API services
+    │   └── types/                 # TypeScript types
+    └── package.json
+```
+
+## Technology Stack
+
+### Backend
+- **Spring Boot**: 3.5.6
+- **Spring Security**: 6.5.5 (authentication & authorization)
+- **Spring MVC**: REST endpoints
+- **Hibernate/JPA**: Database persistence
+- **Git**: Repository backend (JGit)
+
+### Frontend (Modern - studio-ui/)
+- **React**: 18.3.1
+- **TypeScript**: 5.8.3
+- **React Router**: Navigation
+- **Axios**: HTTP client
+- **Zustand**: State management
+
+### Legacy Frontend (Being Migrated)
+- **JSF**: RichFaces (forked, maintained by OpenL)
+- **jQuery**: DOM manipulation
+
+**Status**: ⚠️ Legacy JSF UI is being replaced by React. New features go in `studio-ui/`.
+
+## Key Components
+
+### Repository Management
+
+**Types**:
+- **Local**: File system storage
+- **Git**: Git-based with branching/merging
+- **Database**: JDBC-based storage
+
+**Key Classes**:
+- `ProjectsController`: REST API for projects
+- `RepositoryFactoryProxy`: Creates repository instances
+- `GitRepository`: Git operations wrapper
+
+### Rule Project Structure
+
+```
+ProjectName/
+├── rules/
+│   └── *.xlsx          # Rule tables
+├── project.properties  # Project metadata
+└── .git/               # Git repository (if Git type)
+```
+
+### User Management
+
+**Key Classes**:
+- `UserManagementController`: User CRUD operations
+- `UserService`: Business logic
+- `UserSettingsManager`: User preferences
+
+**Security**:
+- Spring Security for authentication
+- Role-based access control (RBAC)
+- Support for SAML, OAuth2, LDAP
+
+### Deployment
+
+**Key Classes**:
+- `DeploymentController`: Deployment management
+- `ProductionRepositoryFactoryProxy`: Production repo access
+- `DeploymentHistoryService`: Deployment audit trail
+
+## Architecture Patterns
+
+### MVC Pattern
+
+```
+View (React/JSF)
+    ↓
+Controller (Spring MVC)
+    ↓
+Service (Business Logic)
+    ↓
+Repository (Data Access)
+    ↓
+Database/Git
+```
+
+### REST API Structure
+
+```java
+@RestController
+@RequestMapping("/api/projects")
+public class ProjectsController {
+
+    @GetMapping
+    public List<ProjectDTO> listProjects() {
+        // Return project list
+    }
+
+    @PostMapping
+    public ProjectDTO createProject(@RequestBody ProjectDTO dto) {
+        // Create new project
+    }
+}
+```
+
+### React Component Pattern
+
+```typescript
+// Container component
+export const ProjectList: React.FC = () => {
+    const [projects, setProjects] = useState<Project[]>([]);
+
+    useEffect(() => {
+        projectService.getAll().then(setProjects);
+    }, []);
+
+    return <ProjectListView projects={projects} />;
+};
+```
+
+## Database Schema
+
+**Key Tables**:
+- `users`: User accounts
+- `user_settings`: User preferences
+- `repositories`: Repository configurations
+- `projects`: Project metadata
+- `deployments`: Deployment history
+
+**Migration Tool**: Liquibase (in `src/main/resources/db/`)
+
+## Configuration
+
+### Application Properties
+
+Location: `STUDIO/org.openl.rules.webstudio/src/main/resources/application.properties`
+
+**Key Settings**:
+```properties
+# Repository
+repository.factory.class=org.openl.rules.repository.git.GitRepositoryFactory
+repository.uri=/path/to/design-repository
+
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/openl
+spring.datasource.username=openl
+spring.datasource.password=openl
+
+# Security
+security.saml.enabled=false
+security.oauth2.enabled=false
+```
+
+### Environment Variables
+
+```bash
+OPENL_HOME=/opt/openl
+DB_URL=jdbc:postgresql://localhost:5432/openl
+DB_USERNAME=openl
+DB_PASSWORD=openl
+```
+
+## React/TypeScript Conventions
+
+### File Naming
+- Components: PascalCase (`ProjectEditor.tsx`)
+- Utilities: camelCase (`formatDate.ts`)
+- Types: PascalCase (`types.ts` with exported types)
+
+### Component Structure
+
+```typescript
+// Functional components with hooks
+export const MyComponent: React.FC<MyComponentProps> = ({ prop1, prop2 }) => {
+    const [state, setState] = useState<StateType>(initialValue);
+
+    useEffect(() => {
+        // Side effects
+    }, [dependencies]);
+
+    return (
+        <div>
+            {/* JSX */}
+        </div>
+    );
+};
+```
+
+### State Management
+
+- **Zustand** for global state
+- **React hooks** for local state
+- Keep state close to where it's used
+
+### Imports
+
+```typescript
+// Group imports
+import React, { useState, useEffect } from 'react';  // React
+import { BrowserRouter, Route } from 'react-router-dom';  // Third-party
+import { ProjectService } from '@/services/ProjectService';  // Local
+```
+
+## API Integration
+
+### Service Pattern
+
+```typescript
+// services/ProjectService.ts
+class ProjectService {
+    private apiUrl = '/api/projects';
+
+    async getAll(): Promise<Project[]> {
+        const response = await axios.get(this.apiUrl);
+        return response.data;
+    }
+
+    async getById(id: string): Promise<Project> {
+        const response = await axios.get(`${this.apiUrl}/${id}`);
+        return response.data;
+    }
+
+    async create(project: ProjectDTO): Promise<Project> {
+        const response = await axios.post(this.apiUrl, project);
+        return response.data;
+    }
+}
+
+export const projectService = new ProjectService();
+```
+
+## Testing
+
+### Backend Tests
+
+```java
+@SpringBootTest
+class ProjectsControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void testListProjects() throws Exception {
+        mockMvc.perform(get("/api/projects"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+}
+```
+
+### Frontend Tests (Jest + React Testing Library)
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { ProjectList } from './ProjectList';
+
+test('renders project list', async () => {
+    render(<ProjectList />);
+
+    const heading = await screen.findByText(/Projects/i);
+    expect(heading).toBeInTheDocument();
+});
+```
+
+## Security Considerations
+
+### Authentication
+
+- Spring Security handles authentication
+- Support for multiple providers (SAML, OAuth2, LDAP, DB)
+- Session management
+
+### Authorization
+
+- Role-based access control
+- Method-level security with `@PreAuthorize`
+- Row-level security for multi-tenant scenarios
+
+Example:
+```java
+@PreAuthorize("hasRole('ADMIN')")
+@DeleteMapping("/{id}")
+public void deleteProject(@PathVariable String id) {
+    projectService.delete(id);
+}
+```
+
+### CSRF Protection
+
+- Enabled by default in Spring Security
+- Include CSRF token in forms
+- Handle in React with axios interceptors
+
+## Performance Optimization
+
+### Backend
+
+- Connection pooling (HikariCP)
+- Caching with Spring Cache
+- Lazy loading for JPA entities
+- Pagination for large result sets
+
+### Frontend
+
+- Code splitting with React.lazy
+- Memoization with useMemo/useCallback
+- Virtual scrolling for large lists
+- Image optimization
+
+## Git Integration
+
+### Key Operations
+
+```java
+// Clone repository
+gitRepository.clone(repoUri, localPath);
+
+// Create branch
+gitRepository.createBranch(branchName);
+
+// Commit changes
+gitRepository.add(".");
+gitRepository.commit("Commit message");
+
+// Push to remote
+gitRepository.push();
+```
+
+### Conflict Resolution
+
+WebStudio provides UI for merge conflict resolution when multiple users edit same rules.
+
+## Legacy Code Migration
+
+### JSF → React Migration Status
+
+**Completed**:
+- Project listing
+- Repository management
+
+**In Progress**:
+- Rule editor
+- Test runner
+
+**Pending**:
+- Deployment UI
+- Administration
+
+**Rule**: Do NOT enhance JSF pages. All new features go in React (`studio-ui/`).
+
+## Common Tasks
+
+### Add New REST Endpoint
+
+1. Create controller method
+2. Add service logic
+3. Create/update DTOs
+4. Add tests
+5. Update API documentation
+
+### Add New React Component
+
+1. Create component in `studio-ui/src/components/`
+2. Add TypeScript types
+3. Connect to backend API via service
+4. Add routing if needed
+5. Write tests
+
+### Add Database Migration
+
+1. Create Liquibase changeset in `src/main/resources/db/changelog/`
+2. Update master changelog file
+3. Test migration up and down
+4. Document schema changes
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: Session timeout
+**Solution**: Increase session timeout in `application.properties`
+
+**Issue**: Git merge conflicts
+**Solution**: Use WebStudio conflict resolution UI
+
+**Issue**: Database connection errors
+**Solution**: Check connection pool settings and database status
+
+## Related Documentation
+
+- Main conventions: `/STUDIO/CLAUDE.md`
+- React UI conventions: `/STUDIO/studio-ui/CLAUDE.md`
+- Architecture: `/docs/architecture/`
+- Analysis: `/docs/analysis/studio-wsfrontend-util-overview.md`
