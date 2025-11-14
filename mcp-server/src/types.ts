@@ -285,6 +285,7 @@ export interface DeployRequest {
 /** Branch create request (OpenAPI 3.0.1) */
 export interface BranchCreateRequest {
   branchName: string;   // Branch name (required)
+  revision?: string;    // Revision to branch from (optional)
 }
 
 export interface ProjectUpdateRequest {

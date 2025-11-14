@@ -438,9 +438,9 @@ export class OpenLClient {
     revision?: string
   ): Promise<boolean> {
     const projectPath = this.buildProjectPath(projectId);
-    // Note: OpenAPI schema only supports branchName field, revision parameter is ignored
-    const request = {
+    const request: Types.BranchCreateRequest = {
       branchName: branchName,
+      revision,
     };
     await this.axiosInstance.post(
       `${projectPath}/branches`,
