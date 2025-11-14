@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Button, Divider, Form, Select as AntdSelect } from 'antd'
-import type { DefaultOptionType } from 'rc-select/lib/Select'
+import type { DefaultOptionType } from 'antd/es/select'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { NONE_ROLE_VALUE, roleOptions } from './utils'
 import { useTranslation } from 'react-i18next'

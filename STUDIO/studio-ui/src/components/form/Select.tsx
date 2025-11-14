@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
-import type { DefaultOptionType } from 'rc-select/lib/Select'
+import type { DefaultOptionType } from 'antd/es/select'
 import { useRules } from './hooks'
 import { RuleObject } from 'rc-field-form/lib/interface'
 
