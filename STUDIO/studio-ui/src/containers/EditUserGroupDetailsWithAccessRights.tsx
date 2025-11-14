@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useState, ReactNode } from 'react'
 import { Form, Tabs, TabsProps, notification, Divider, Button, Drawer } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { DisplayUserName, RepositoryType, Role } from 'constants/'
+import { DisplayUserName, RepositoryType, Role, ROOT_REPOSITORY_ID_MAP } from 'constants/'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../components/accessManagement'
 import { NONE_ROLE_VALUE } from '../components/accessManagement/utils'
 import { apiCall } from '../services'
@@ -63,11 +63,6 @@ enum TabKeys {
 
 type RootRoleFormValue = Role | typeof NONE_ROLE_VALUE
 
-const ROOT_REPOSITORY_ID_MAP: Record<RepositoryType, string> = {
-    [RepositoryType.DESIGN]: 'REVTSUdO',
-    [RepositoryType.PROD]: 'UFJPRA=='
-}
-
 export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetailsWithAccessRightsProps> = ({
     sid,
     isPrincipal,
@@ -114,14 +109,23 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const fetchRootRepositoryRoles = async () => {
-        const response: RepositoryRootRole[] = await apiCall(`/acls/repositories/roots?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
-        if (response) {
-            const mappedRoles = response.reduce((acc, rootRole) => {
-                acc[rootRole.type as RepositoryType] = rootRole
-                return acc
-            }, {} as Partial<Record<RepositoryType, RepositoryRootRole>>)
-            setRootRepositoryRoles(mappedRoles)
-        } else {
+        try {
+            const response: RepositoryRootRole[] = await apiCall(`/acls/repositories/roots?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
+            if (response) {
+                const mappedRoles = response.reduce((acc, rootRole) => {
+                    acc[rootRole.type as RepositoryType] = rootRole
+                    return acc
+                }, {} as Partial<Record<RepositoryType, RepositoryRootRole>>)
+                setRootRepositoryRoles(mappedRoles)
+            } else {
+                setRootRepositoryRoles({})
+            }
+        } catch (error) {
+            console.error('Failed to fetch root repository roles:', error)
+            notification.error({
+                message: t('common:error'),
+                description: t('users:failed_to_load_root_repository_roles')
+            })
             setRootRepositoryRoles({})
         }
     }
@@ -283,11 +287,12 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return url
         }
 
-        const syncRootRole = (type: RepositoryType, value?: RootRoleFormValue) => {
+        const syncRootRole = async (type: RepositoryType, value?: RootRoleFormValue): Promise<void> => {
             const currentRole = rootRepositoryRoles[type]?.role
             const nextRole = value && value !== NONE_ROLE_VALUE ? value as Role : undefined
+            
             if (!nextRole && currentRole) {
-                apiCall(generateRootURL(type), {
+                await apiCall(generateRootURL(type), {
                     method: 'DELETE',
                     headers
                 })
@@ -295,7 +300,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
 
             if (nextRole && nextRole !== currentRole) {
-                apiCall(generateRootURL(type), {
+                await apiCall(generateRootURL(type), {
                     method: 'PUT',
                     headers,
                     body: JSON.stringify({ role: nextRole })
@@ -303,8 +308,19 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
         }
 
-        syncRootRole(RepositoryType.DESIGN, values.designRootRole)
-        syncRootRole(RepositoryType.PROD, values.deployRootRole)
+        try {
+            await Promise.all([
+                syncRootRole(RepositoryType.DESIGN, values.designRootRole),
+                syncRootRole(RepositoryType.PROD, values.deployRootRole)
+            ])
+        } catch (error) {
+            console.error('Failed to save root repository roles:', error)
+            notification.error({
+                message: t('common:error'),
+                description: t('users:failed_to_save_root_repository_roles')
+            })
+            throw error
+        }
     }
 
     const saveProjectRoles = async (values: FormValues, sid: string) => {
@@ -379,27 +395,44 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     ], [hasErrorOnTab, selectedRepositories, selectedProjects, designRepositories, t])
 
     const onFinish = async (values: FormValues) => {
-        let sid
-        if (isUser) {
-            sid = await saveUser(values)
-        } else {
-            // @ts-ignore
-            sid = await saveGroup(values)
-        }
-        // Save roles for design and deploy repositories and projects
-        saveDesignRepositoriesRoles(values, sid)
-        saveDeployRepositoriesRoles(values, sid)
-        saveRootRepositoriesRoles(values, sid)
-        saveProjectRoles(values, sid)
-        // Reload users and groups if necessary
-        if (reloadUsers) {
-            reloadUsers()
-        }
-        if (reloadGroups) {
-            reloadGroups()
-        }
+        try {
+            let sid
+            if (isUser) {
+                sid = await saveUser(values)
+            } else {
+                // @ts-ignore
+                sid = await saveGroup(values)
+            }
+            
+            if (!sid) {
+                notification.error({
+                    message: t('common:error'),
+                    description: t('users:failed_to_save_user_or_group')
+                })
+                return
+            }
 
-        handleCloseDrawer()
+            // Save roles for design and deploy repositories and projects
+            await Promise.all([
+                saveDesignRepositoriesRoles(values, sid),
+                saveDeployRepositoriesRoles(values, sid),
+                saveRootRepositoriesRoles(values, sid),
+                saveProjectRoles(values, sid)
+            ])
+
+            // Reload users and groups if necessary
+            if (reloadUsers) {
+                await reloadUsers()
+            }
+            if (reloadGroups) {
+                await reloadGroups()
+            }
+
+            handleCloseDrawer()
+        } catch (error) {
+            console.error('Failed to save user/group details:', error)
+            // Error notifications are handled in individual save functions
+        }
     }
 
     const onFinishFailed = (errorInfo: any) => {

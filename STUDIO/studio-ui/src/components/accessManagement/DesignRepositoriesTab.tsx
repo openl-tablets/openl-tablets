@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { Button, Divider, Form, Select as AntdSelect } from 'antd'
+import type { DefaultOptionType } from 'rc-select/lib/Select'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { NONE_ROLE_VALUE, roleOptions } from './utils'
 import { useTranslation } from 'react-i18next'
@@ -55,16 +56,17 @@ export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ de
                                 >
                                     <AntdSelect
                                         showSearch
-                                        options={repositoryOptions}
+                                        options={repositoryOptions as DefaultOptionType[]}
                                         placeholder={t('common:design_repository')}
                                         style={{ width: '100%' }}
-                                        filterOption={(input: string, option: any) => {
+                                        filterOption={(input: string, option?: DefaultOptionType) => {
                                             if (!option || !option.label || !(typeof option.label === 'string')) {
                                                 return false
                                             }
                                             return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }}
-                                        filterSort={(optionA: any, optionB: any) => {
+                                        filterSort={(optionA?: DefaultOptionType, optionB?: DefaultOptionType) => {
+                                            if (!optionA || !optionB) return 0
                                             return optionA.disabled === optionB.disabled ? 0 : optionA.disabled ? 1 : -1
                                         }}
                                     />

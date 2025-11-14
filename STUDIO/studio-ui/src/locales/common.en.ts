@@ -80,4 +80,5 @@ i18next.addResourceBundle('en', 'common', {
     },
     // Common error messages
     please_fix_errors_on_highlighted_tabs_before_saving: 'Please fix errors on the highlighted tabs before saving',
+    error: 'Error',
 })

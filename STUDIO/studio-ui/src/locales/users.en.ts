@@ -89,4 +89,7 @@ i18next.addResourceBundle('en', 'users', {
     user_profile_updated_successfully: 'User profile updated successfully',
     user_settings_updated_successfully: 'User settings updated successfully',
     unsafe_default_password: 'Unsafe default password',
+    failed_to_load_root_repository_roles: 'Failed to load root repository roles. Please try again later.',
+    failed_to_save_root_repository_roles: 'Failed to save root repository roles. Please try again later.',
+    failed_to_save_user_or_group: 'Failed to save user or group. Please try again later.',
 })
