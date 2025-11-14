@@ -556,11 +556,16 @@ class OpenLMCPServer {
       }
 
       // Return formatted result
+      // Handle void/undefined results (e.g., from update_table)
+      const resultText = result === undefined
+        ? "Operation completed successfully"
+        : safeStringify(result, 2);
+
       return {
         content: [
           {
             type: "text",
-            text: safeStringify(result, 2),
+            text: resultText,
           },
         ],
       };
