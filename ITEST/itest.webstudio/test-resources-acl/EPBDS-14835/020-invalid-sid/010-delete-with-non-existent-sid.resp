@@ -1,0 +1,17 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.{openl.constraints.granted-authority-sid.not.exists.message}",
+      "message": "The group with such SID does not exist.",
+      "field": "deleteAclRepositoryRulesForRoot.sid",
+      "rejectedValue": {
+        "grantedAuthority": "non_existent_group"
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,6 @@
+POST /rest/admin/management/groups HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/x-www-form-urlencoded
+
+name=test_group_14835&description=Test Group for EPBDS-14835
+

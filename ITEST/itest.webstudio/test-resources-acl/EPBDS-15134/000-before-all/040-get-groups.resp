@@ -20,7 +20,7 @@ Content-Type: application/json
     }
   },
   "Authenticated": {
-    "id": 16,
+    "id": "*",
     "description": "A default group for authenticated users",
     "numberOfMembers": {
       "internal": 0,
