@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo } from 'react'
 import { apiCall } from '../../services'
-import { Button, Form, Select, Space } from 'antd'
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { roleOptions } from './utils'
+import { Button, Divider, Form, Select as AntdSelect } from 'antd'
+import type { DefaultOptionType } from 'antd/es/select'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import { NONE_ROLE_VALUE, roleOptions } from './utils'
 import { SelectOption } from '../form/Select'
 import { Repository } from '../../types/repositories'
 import { useTranslation } from 'react-i18next'
@@ -27,50 +28,83 @@ export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
         }))
     }, [deployRepositories, selectedRepositories])
 
+    const defaultRoleOptions = useMemo(() => ([
+        { label: t('common:none'), value: NONE_ROLE_VALUE },
+        ...roleOptions
+    ]), [t])
+
     return (
-        <Form.List name="deployRepos">
-            {(fields, { add, remove }) => (
-                <>
-                    {fields.map(({ key, name, ...restField }) => (
-                        <Space key={key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
-                            <Form.Item
-                                {...restField}
-                                name={[name, 'id']}
-                                rules={[{ required: true, message: t('common:select_repository') }]}
-                            >
-                                <Select
-                                    showSearch
-                                    options={repositoryOptions}
-                                    placeholder={t('common:deploy_repository')}
-                                    style={{ width: 250 }}
-                                    filterOption={(input, option) => {
-                                        if (!option || !option.label || !(typeof option.label === 'string')) {
-                                            return false
-                                        }
-                                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                    }}
-                                    filterSort={(optionA, optionB) => {
-                                        return optionA.disabled === optionB.disabled ? 0 : optionA.disabled ? 1 : -1
-                                    }}
+        <>
+            <Form.Item
+                label={t('users:default_deploy_repository_role')}
+                name="deployRootRole"
+                style={{ width: '100%' }}
+                tooltip={t('users:default_deploy_repository_role_tooltip')}
+            >
+                <AntdSelect
+                    options={defaultRoleOptions}
+                    placeholder={t('common:select_role')}
+                    style={{ width: '100%' }}
+                />
+            </Form.Item>
+            <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+            <Form.List name="deployRepos">
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, ...restField }) => (
+                            <div key={key} style={{ display: 'flex', width: '100%', marginBottom: 8, gap: 8, alignItems: 'center' }}>
+                                <Form.Item
+                                    {...restField}
+                                    name={[name, 'id']}
+                                    rules={[{ required: true, message: t('common:select_repository') }]}
+                                    style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
+                                >
+                                    <AntdSelect
+                                        showSearch
+                                        options={repositoryOptions as DefaultOptionType[]}
+                                        placeholder={t('common:deploy_repository')}
+                                        style={{ width: '100%' }}
+                                        filterOption={(input: string, option?: DefaultOptionType) => {
+                                            if (!option || !option.label || !(typeof option.label === 'string')) {
+                                                return false
+                                            }
+                                            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }}
+                                        filterSort={(optionA?: DefaultOptionType, optionB?: DefaultOptionType) => {
+                                            if (!optionA || !optionB) return 0
+                                            return optionA.disabled === optionB.disabled ? 0 : optionA.disabled ? 1 : -1
+                                        }}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    {...restField}
+                                    name={[name, 'role']}
+                                    rules={[{ required: true, message: t('common:select_role') }]}
+                                    style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
+                                >
+                                    <AntdSelect
+                                        options={roleOptions}
+                                        placeholder={t('common:role_t')}
+                                        style={{ width: '100%' }}
+                                    />
+                                </Form.Item>
+                                <Button
+                                    aria-label={t('common:delete')}
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => remove(name)}
+                                    style={{ flexShrink: 0, alignSelf: 'flex-start' }}
+                                    type="text"
                                 />
-                            </Form.Item>
-                            <Form.Item
-                                {...restField}
-                                name={[name, 'role']}
-                                rules={[{ required: true, message: t('common:select_role') }]}
-                            >
-                                <Select options={roleOptions} placeholder={t('common:role_t')} style={{ width: 250 }} />
-                            </Form.Item>
-                            <MinusCircleOutlined onClick={() => remove(name)} />
-                        </Space>
-                    ))}
-                    <Form.Item>
-                        <Button block icon={<PlusOutlined />} onClick={() => add()} type="dashed">
-                            {t('common:add_role')}
-                        </Button>
-                    </Form.Item>
-                </>
-            )}
-        </Form.List>
+                            </div>
+                        ))}
+                        <Form.Item style={{ marginTop: 24 }}>
+                            <Button block icon={<PlusOutlined />} onClick={() => add()} type="dashed">
+                                {t('common:add_role')}
+                            </Button>
+                        </Form.Item>
+                    </>
+                )}
+            </Form.List>
+        </>
     )
 }

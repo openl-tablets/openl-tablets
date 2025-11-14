@@ -12,3 +12,9 @@ export interface RepositoryRole {
     role: Role
     type: RepositoryType
 }
+
+export interface RepositoryRootRole {
+    id: string
+    role: Role
+    type: RepositoryType
+}
