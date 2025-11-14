@@ -458,9 +458,10 @@ export class OpenLClient {
    * Download an Excel file from a project
    *
    * @param projectId - Project ID in format "repository-projectName"
-   * @param fileName - Name of the file to download
+   * @param fileName - Name of the file to download (use the exact 'file' value from list_tables response)
    * @param version - Optional Git commit hash to download specific version
    * @returns File content as Buffer
+   * @throws Error with helpful message if file not found (404)
    */
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const projectPath = this.buildProjectPath(projectId);
@@ -483,15 +484,30 @@ export class OpenLClient {
       params.version = version;  // Git commit hash
     }
 
-    const response = await this.axiosInstance.get<ArrayBuffer>(
-      `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
-      {
-        responseType: "arraybuffer",
-        params,
-      }
-    );
+    try {
+      const response = await this.axiosInstance.get<ArrayBuffer>(
+        `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
+        {
+          responseType: "arraybuffer",
+          params,
+        }
+      );
 
-    return Buffer.from(response.data);
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        // Provide helpful error message for file not found
+        throw new Error(
+          `File not found: "${normalizedFileName}" (original input: "${fileName}"). ` +
+          `The file does not exist in project "${projectId}". ` +
+          `To find available files: 1) Call list_tables(projectId="${projectId}") to see all tables and their file paths, ` +
+          `2) Use the exact 'file' field value from a table entry as the fileName parameter. ` +
+          `Common issue: File paths in OpenL may not include the project name prefix, or may be in subdirectories like "rules/MyFile.xlsx".`
+        );
+      }
+      // Re-throw other errors
+      throw error;
+    }
   }
 
   /**
@@ -626,9 +642,10 @@ export class OpenLClient {
    *
    * @param projectId - Project ID in format "repository-projectName"
    * @param tableId - Table identifier
-   * @param view - Updated table view with modifications
+   * @param view - Updated table view with modifications (MUST include full table structure from get_table)
    * @param comment - Optional comment describing the changes (NOTE: not supported by OpenAPI schema, will be ignored)
    * @returns void (204 No Content on success)
+   * @throws Error if view is missing required fields
    */
   async updateTable(
     projectId: string,
@@ -636,6 +653,27 @@ export class OpenLClient {
     view: Types.EditableTableView,
     comment?: string
   ): Promise<void> {
+    // Validate that view contains required fields
+    // OpenL API requires the FULL table structure, not just modified fields
+    const requiredFields = ['id', 'tableType', 'kind', 'name'];
+    const missingFields = requiredFields.filter(field => !(field in view));
+
+    if (missingFields.length > 0) {
+      throw new Error(
+        `Invalid table view: missing required fields: ${missingFields.join(', ')}. ` +
+        `The view parameter must contain the FULL table structure from get_table(), not just the modified fields. ` +
+        `Workflow: 1) Call get_table() to retrieve current structure, 2) Modify the returned object, 3) Pass the complete object to update_table().`
+      );
+    }
+
+    // Validate tableId matches view.id
+    if (view.id !== tableId) {
+      throw new Error(
+        `Table ID mismatch: tableId parameter is "${tableId}" but view.id is "${view.id}". ` +
+        `These must match. Use the same ID from get_table() for both parameters.`
+      );
+    }
+
     const projectPath = this.buildProjectPath(projectId);
     // OpenAPI schema expects EditableTableView directly as request body
     // Comment parameter is not supported by the schema

@@ -133,10 +133,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "download_file",
-    description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content.",
+    description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content. IMPORTANT: Use the exact 'file' field from list_tables() response as the fileName parameter (e.g., 'Rules.xlsx' or 'rules/Premium.xlsx'). Do NOT construct file paths manually - they may not match OpenL's internal structure.",
     inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
     _meta: {
-      version: "2.0.0",
+      version: "2.1.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },
@@ -167,10 +167,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "update_table",
-    description: "Update table content including conditions, actions, and data rows. Modifies the table structure in memory (requires save_project to persist changes). Returns success confirmation and updated table metadata.",
+    description: "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "1.1.0",
       category: TOOL_CATEGORIES.RULES,
       requiresAuth: true,
       modifiesState: true,
