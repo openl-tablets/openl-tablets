@@ -200,16 +200,14 @@ export class OpenLClient {
     logger.info('Listing repositories...');
 
     try {
-      // Note: Actual endpoint may vary - this is a placeholder
-      const response = await this.request<any>('/admin/repositories');
+      const response = await this.request<any[]>('/repos');
 
-      // Parse response and convert to RepositoryInfo[]
-      // The actual structure depends on the API response
+      // Parse response from RepositoryViewModel[]
       if (Array.isArray(response)) {
         return response.map((repo: any) => ({
           name: repo.name || repo.id,
-          type: repo.type || 'unknown',
-          path: repo.path,
+          type: 'design', // All are design repositories
+          path: repo.id,
         }));
       }
 
@@ -228,27 +226,15 @@ export class OpenLClient {
     logger.info(`Listing projects${repositoryName ? ` in ${repositoryName}` : ''}...`);
 
     try {
-      // If repository specified, get projects for that repo
+      let path = '/projects';
+
+      // If repository specified, filter by repository
       if (repositoryName) {
-        const path = `/user-workspace/${encodeURIComponent(repositoryName)}/projects`;
-        const response = await this.request<any>(path);
-        return this.parseProjectsResponse(response, repositoryName);
+        path = `/projects?repository=${encodeURIComponent(repositoryName)}`;
       }
 
-      // Otherwise, get all projects across all repositories
-      const repos = await this.listRepositories();
-      const allProjects: ProjectInfo[] = [];
-
-      for (const repo of repos) {
-        try {
-          const projects = await this.listProjects(repo.name);
-          allProjects.push(...projects);
-        } catch (error) {
-          logger.warn(`Failed to list projects for repository ${repo.name}:`, error);
-        }
-      }
-
-      return allProjects;
+      const response = await this.request<any[]>(path);
+      return this.parseProjectsResponse(response, repositoryName || '');
     } catch (error) {
       logger.error('Failed to list projects:', error);
       throw error;
@@ -256,22 +242,18 @@ export class OpenLClient {
   }
 
   /**
-   * Parse projects response
+   * Parse projects response from ProjectViewModel[]
    */
   private parseProjectsResponse(response: any, repositoryName: string): ProjectInfo[] {
     if (Array.isArray(response)) {
       return response.map((proj: any) => ({
-        name: proj.name,
-        repository: repositoryName,
+        name: proj.name || proj.projectName,
+        repository: proj.repository || repositoryName,
         status: proj.status || 'CLOSED',
-        lastModified: proj.lastModified,
+        lastModified: proj.modifiedAt || proj.lastModified,
         version: proj.version,
         branch: proj.branch,
       }));
-    }
-
-    if (response && typeof response === 'object' && response.projects) {
-      return this.parseProjectsResponse(response.projects, repositoryName);
     }
 
     return [];
