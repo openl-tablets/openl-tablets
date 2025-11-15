@@ -1,0 +1,43 @@
+{
+  "tableName": "calculateDiscount",
+  "testTableName": "calculateDiscountTest",
+  "appendToExisting": false,
+  "testCases": [
+    {
+      "_id_": "TC001",
+      "_description_": "Standard customer with small purchase",
+      "parameters": {
+        "customerType": "STANDARD",
+        "purchaseAmount": 100.0
+      },
+      "_res_": 0.0
+    },
+    {
+      "_id_": "TC002",
+      "_description_": "Premium customer with small purchase",
+      "parameters": {
+        "customerType": "PREMIUM",
+        "purchaseAmount": 100.0
+      },
+      "_res_": 5.0
+    },
+    {
+      "_id_": "TC003",
+      "_description_": "VIP customer with large purchase",
+      "parameters": {
+        "customerType": "VIP",
+        "purchaseAmount": 1000.0
+      },
+      "_res_": 150.0
+    },
+    {
+      "_id_": "TC004",
+      "_description_": "Standard customer with large purchase",
+      "parameters": {
+        "customerType": "STANDARD",
+        "purchaseAmount": 1000.0
+      },
+      "_res_": 50.0
+    }
+  ]
+}

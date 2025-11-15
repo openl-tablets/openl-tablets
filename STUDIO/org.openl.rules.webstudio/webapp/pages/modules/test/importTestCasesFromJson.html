@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Test Cases from JSON - OpenL Studio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+        }
+        .example {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Import Test Cases from JSON</h1>
+
+        <div class="info">
+            <strong>Note:</strong> Upload a JSON file containing test cases to add them to a test table in your OpenL project.
+            The JSON file should specify the target table name and the test cases with their parameters and expected results.
+        </div>
+
+        <div class="form-group">
+            <label for="fileInput">Select JSON File:</label>
+            <input type="file" id="fileInput" accept=".json" />
+        </div>
+
+        <div class="form-group">
+            <button id="uploadButton" onclick="uploadFile()">Import Test Cases</button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="example">
+            <strong>Example JSON Format:</strong>
+            <pre>{
+  "tableName": "YourMethodName",
+  "testTableName": "YourMethodNameTest",
+  "appendToExisting": false,
+  "testCases": [
+    {
+      "_id_": "TC001",
+      "_description_": "Test case description",
+      "parameters": {
+        "param1": "value1",
+        "param2": 123,
+        "param3": true
+      },
+      "_res_": "expectedResult"
+    },
+    {
+      "_id_": "TC002",
+      "parameters": {
+        "param1": "value2",
+        "param2": 456
+      },
+      "_res_": "anotherExpectedResult"
+    }
+  ]
+}</pre>
+        </div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadButton = document.getElementById('uploadButton');
+            const messageDiv = document.getElementById('message');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showMessage('Please select a JSON file', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            if (!file.name.endsWith('.json')) {
+                showMessage('Please select a valid JSON file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Importing...';
+            messageDiv.style.display = 'none';
+
+            // Get the context path from the current URL
+            const contextPath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1)) || '';
+
+            fetch(contextPath + '/test/import/json', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Success: ' + data.message, 'success');
+                    fileInput.value = '';
+
+                    // Optionally, provide a link to view the created table
+                    if (data.tableUri) {
+                        messageDiv.innerHTML += '<br><br><strong>Table URI:</strong> ' + data.tableUri;
+                        messageDiv.innerHTML += '<br><em>Please save your project to persist the changes.</em>';
+                    }
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Failed to import test cases: ' + error.message, 'error');
+            })
+            .finally(() => {
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Import Test Cases';
+            });
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+
+        // Allow file input change to clear previous messages
+        document.getElementById('fileInput').addEventListener('change', function() {
+            document.getElementById('message').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
