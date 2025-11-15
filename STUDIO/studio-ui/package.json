@@ -15,6 +15,7 @@
     "react-dom": "^18.3.1",
     "react-i18next": "^15.6.0",
     "react-router-dom": "^7.6.3",
+    "vis-network": "^9.1.9",
     "zustand": "^5.0.6"
   },
   "devDependencies": {

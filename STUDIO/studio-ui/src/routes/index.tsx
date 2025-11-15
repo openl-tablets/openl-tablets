@@ -14,6 +14,7 @@ import { Groups } from '../containers/Groups'
 import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
+import { TableDependencies } from '../containers/TableDependencies'
 import { EmailVerification } from '../containers/EmailVerification'
 import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: 'help',
                 element: <Help />,
+            },
+            {
+                path: 'table-dependencies',
+                element: <TableDependencies />,
             },
             {
                 path: 'forbidden',
