@@ -121,6 +121,16 @@ public abstract class OpenLTableUtils {
     }
 
     /**
+     * Checks if provided table is a test table.
+     *
+     * @param table table to check
+     * @return {@code true} if provided table is a test table, {@code false} otherwise
+     */
+    public static boolean isTestTable(IOpenLTable table) {
+        return XlsNodeTypes.getEnumByValue(table.getType()) == XlsNodeTypes.XLS_TEST_METHOD;
+    }
+
+    /**
      * Checks if provided table is a simple spreadsheet table.
      *
      * @param table table to check

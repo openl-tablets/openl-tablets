@@ -79,14 +79,18 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     protected abstract Stream<T> getProjects0(ProjectCriteriaQuery query);
 
+    public ProjectIdModel resolveProjectId(T project) {
+        return ProjectIdModel.builder()
+                .repository(project.getRepository().getId())
+                .projectName(resolveProjectName(project))
+                .build();
+    }
+
     protected ProjectViewModel.Builder mapProjectResponse(T src) {
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
-                .id(ProjectIdModel.builder()
-                        .repository(repository.getId())
-                        .projectName(resolveProjectName(src))
-                        .build())
+                .id(resolveProjectId(src))
                 .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
@@ -106,8 +110,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
                     .build());
         }
         var designRepository = repository;
-        if (src instanceof UserWorkspaceProject) {
-            var workspaceProject = (UserWorkspaceProject) src;
+        if (src instanceof UserWorkspaceProject workspaceProject) {
             designRepository = workspaceProject.getDesignRepository();
             builder.status(workspaceProject.getStatus()).branch(workspaceProject.getBranch());
         } else {
@@ -122,8 +125,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             builder.path(path);
         }
 
-        if (src instanceof RulesProject) {
-            RulesProject rulesProject = (RulesProject) src;
+        if (src instanceof RulesProject rulesProject) {
             var tags = rulesProject.getLocalTags();
             if (tags != null) {
                 tags.forEach(builder::addTag);

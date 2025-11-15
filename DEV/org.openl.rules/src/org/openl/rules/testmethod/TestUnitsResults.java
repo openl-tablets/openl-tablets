@@ -42,7 +42,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public List<ITestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
-        if (testUnits != null && failuresOnly) {
+        if (failuresOnly) {
             List<ITestUnit> failedUnits = new ArrayList<>();
             for (ITestUnit testUnit : testUnits) {
                 if (testUnit.getResultStatus() != TestStatus.TR_OK // Failed unit
@@ -58,10 +58,8 @@ public class TestUnitsResults implements INamedThing {
 
     public long getExecutionTime() {
         long executionTime = 0;
-        if (testUnits != null) {
-            for (ITestUnit testUnit : testUnits) {
-                executionTime += testUnit.getExecutionTime();
-            }
+        for (ITestUnit testUnit : testUnits) {
+            executionTime += testUnit.getExecutionTime();
         }
 
         return executionTime;

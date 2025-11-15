@@ -1,6 +1,7 @@
 package org.openl.rules.rest.model;
 
 import java.util.Base64;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -44,6 +45,20 @@ public class ProjectIdModel {
 
     public String getProjectName() {
         return projectName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ProjectIdModel that = (ProjectIdModel) o;
+        return Objects.equals(repository, that.repository) && Objects.equals(projectName, that.projectName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(repository, projectName);
     }
 
     public static Builder builder() {
