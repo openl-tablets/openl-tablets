@@ -109,8 +109,38 @@ class OpenLMCPServer {
         {
           uri: "openl://projects",
           name: "OpenL Projects",
-          description: "All projects across repositories",
+          description: "All projects across all repositories",
           mimeType: "application/json",
+        },
+        {
+          uri: "openl://projects/{projectId}",
+          name: "OpenL Project Details",
+          description: "Get details for a specific project (use repository-projectName format)",
+          mimeType: "application/json",
+        },
+        {
+          uri: "openl://projects/{projectId}/tables",
+          name: "Project Tables",
+          description: "List all tables in a project",
+          mimeType: "application/json",
+        },
+        {
+          uri: "openl://projects/{projectId}/tables/{tableId}",
+          name: "Table Details",
+          description: "Get details for a specific table",
+          mimeType: "application/json",
+        },
+        {
+          uri: "openl://projects/{projectId}/history",
+          name: "Project History",
+          description: "Get Git commit history for a project",
+          mimeType: "application/json",
+        },
+        {
+          uri: "openl://projects/{projectId}/files/{filePath}",
+          name: "Project File",
+          description: "Download a file from a project",
+          mimeType: "application/octet-stream",
         },
         {
           uri: "openl://deployments",
@@ -195,32 +225,98 @@ class OpenLMCPServer {
   ): Promise<{ contents: Array<{ uri: string; mimeType: string; text: string }> }> {
     try {
       let data: unknown;
+      let mimeType = "application/json";
 
-      switch (uri) {
-        case "openl://repositories": {
+      // Parse URI and extract parameters
+      const uriMatch = uri.match(/^openl:\/\/([^\/]+)(?:\/(.+))?$/);
+      if (!uriMatch) {
+        throw new McpError(ErrorCode.InvalidRequest, `Invalid resource URI: ${uri}`);
+      }
+
+      const [, resourceType, path] = uriMatch;
+
+      switch (resourceType) {
+        case "repositories": {
           data = await this.client.listRepositories();
           break;
         }
 
-        case "openl://projects": {
-          data = await this.client.listProjects();
+        case "projects": {
+          if (!path) {
+            // openl://projects - List all projects
+            data = await this.client.listProjects();
+          } else {
+            // Parse projects/{projectId} or projects/{projectId}/...
+            const projectMatch = path.match(/^([^\/]+)(?:\/(.+))?$/);
+            if (!projectMatch) {
+              throw new McpError(ErrorCode.InvalidRequest, `Invalid project URI: ${uri}`);
+            }
+
+            const [, projectId, subPath] = projectMatch;
+
+            if (!subPath) {
+              // openl://projects/{projectId} - Get project details
+              data = await this.client.getProject(projectId);
+            } else if (subPath === "history") {
+              // openl://projects/{projectId}/history - Get project history
+              data = await this.client.getProjectHistory({ projectId });
+            } else if (subPath.startsWith("tables")) {
+              // Parse tables or tables/{tableId}
+              const tableMatch = subPath.match(/^tables(?:\/(.+))?$/);
+              if (!tableMatch) {
+                throw new McpError(ErrorCode.InvalidRequest, `Invalid tables URI: ${uri}`);
+              }
+
+              const [, tableId] = tableMatch;
+
+              if (!tableId) {
+                // openl://projects/{projectId}/tables - List tables
+                data = await this.client.listTables(projectId);
+              } else {
+                // openl://projects/{projectId}/tables/{tableId} - Get table
+                data = await this.client.getTable(projectId, tableId);
+              }
+            } else if (subPath.startsWith("files/")) {
+              // openl://projects/{projectId}/files/{filePath} - Download file
+              const filePath = subPath.substring(6); // Remove "files/" prefix
+              if (!filePath) {
+                throw new McpError(ErrorCode.InvalidRequest, `File path is required: ${uri}`);
+              }
+
+              const fileBuffer = await this.client.downloadFile(projectId, filePath);
+              mimeType = "application/octet-stream";
+
+              // Return base64-encoded file content
+              return {
+                contents: [
+                  {
+                    uri,
+                    mimeType,
+                    text: fileBuffer.toString("base64"),
+                  },
+                ],
+              };
+            } else {
+              throw new McpError(ErrorCode.InvalidRequest, `Unknown project subresource: ${subPath}`);
+            }
+          }
           break;
         }
 
-        case "openl://deployments": {
+        case "deployments": {
           data = await this.client.listDeployments();
           break;
         }
 
         default:
-          throw new McpError(ErrorCode.InvalidRequest, `Unknown resource: ${uri}`);
+          throw new McpError(ErrorCode.InvalidRequest, `Unknown resource type: ${resourceType}`);
       }
 
       return {
         contents: [
           {
             uri,
-            mimeType: "application/json",
+            mimeType,
             text: safeStringify(data, 2),
           },
         ],
