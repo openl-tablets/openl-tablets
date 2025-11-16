@@ -156,13 +156,12 @@ Call from Java, Python, JavaScript, C#, Go, or any language via REST.
 ### 🔌 For Developers
 - **[REST API Guide](Docs/API_GUIDE.md)** - Integrate rules into your applications
 - **[Deployment Guide](Docs/DEPLOYMENT.md)** - Deploy to Docker, Kubernetes, AWS, Azure, GCP
-- **[Architecture Overview](Docs/ARCHITECTURE.md)** - System design and components
 - **[Troubleshooting](Docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ### 💻 For Contributors
 - **[Contributing Guide](CONTRIBUTING.md)** - Help improve OpenL Tablets
 - **[Developer Setup](Docs/onboarding/development-setup.md)** - Set up your dev environment
-- **[Architecture Details](Docs/architecture/)** - Deep technical documentation
+- **[Architecture & Module Analysis](Docs/architecture/)** - Deep technical documentation for contributors
 
 **[Browse All Documentation →](Docs/)**
 
