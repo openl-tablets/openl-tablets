@@ -40,7 +40,7 @@ Direct JSON values:
 ### Custom Datatypes (OpenL Datatype Tables)
 
 STEP 1: Find OpenL datatype structure
-```
+```text
 openl_list_tables(tableType="Datatype", name="Policy")
 openl_get_table(tableId="Policy")
 ```

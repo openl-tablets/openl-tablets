@@ -21,9 +21,9 @@ Spec Kit is a toolkit that helps AI coding agents understand projects through st
 
 ### 📜 [constitution.md](./memory/constitution.md)
 
-**Governing principles and development guidelines for the MCP server**
+#### Governing principles and development guidelines for the MCP server
 
-Key topics:
+**Key topics**:
 - Core principles (Type Safety, Security First, Modular Architecture)
 - Development guidelines (Code style, commit format, testing requirements)
 - Quality gates (pre-commit, pre-PR, pre-release)
@@ -39,9 +39,9 @@ Key topics:
 
 ### 📋 [specification.md](./memory/specification.md)
 
-**Functional requirements describing what the MCP server does**
+#### Functional requirements describing what the MCP server does
 
-Key topics:
+**Key topics**:
 - Core capabilities (10 major capabilities)
 - All 18 MCP tools with detailed descriptions (openl_ prefix naming)
 - 12 prompts with usage guidance
@@ -58,9 +58,9 @@ Key topics:
 
 ### 🏗️ [implementation-plan.md](./memory/implementation-plan.md)
 
-**Technical architecture and implementation details**
+#### Technical architecture and implementation details
 
-Key topics:
+**Key topics**:
 - Technology stack (Node.js, TypeScript, MCP SDK, Axios, Zod)
 - Architecture (high-level, module structure, data flow)
 - Implementation details (auth system, validation, error handling, prompts)
@@ -77,9 +77,9 @@ Key topics:
 
 ### ✅ [task-list.md](./memory/task-list.md)
 
-**Actionable work items with priorities and estimates**
+#### Actionable work items with priorities and estimates
 
-Key topics:
+**Key topics**:
 - 40 total tasks (10 completed, 30 remaining)
 - Prioritized (P0-P3)
 - Estimated effort (includes refactoring completion and new test tasks)
@@ -99,7 +99,7 @@ Key topics:
 ### Claude Code
 
 **Referencing artifacts**:
-```
+```text
 "Review the constitution for code style guidelines"
 "Check the specification for tool requirements"
 "What does the implementation plan say about authentication?"
@@ -107,7 +107,7 @@ Key topics:
 ```
 
 **When making changes**:
-```
+```text
 "Add a new tool following the constitution and implementation plan"
 "Implement T-001 from the task list"
 "Update the specification to include the new requirement"
@@ -143,7 +143,7 @@ Key topics:
 4. **Task List**: Check if there's already a related task
 
 **Steps**:
-```
+```text
 1. Review constitution.md → Development Guidelines → Extension Pattern
 2. Check specification.md → Ensure new tool aligns with core capabilities
 3. Follow implementation-plan.md → Implementation Details → Adding Tools
@@ -159,7 +159,7 @@ Key topics:
 4. **Implementation Plan**: See where tests should be added
 
 **Steps**:
-```
+```text
 1. Check task-list.md → Find T-001 (auth.ts tests)
 2. Review constitution.md → Testing Requirements → Coverage targets
 3. Read specification.md → FR-2: Input Validation → What to validate
@@ -174,7 +174,7 @@ Key topics:
 3. **Constitution**: Check if error handling follows guidelines
 
 **Steps**:
-```
+```text
 1. Read implementation-plan.md → Data Flow → Tool Execution Flow
 2. Check specification.md → FR-3: Error Handling → Expected errors
 3. Verify constitution.md → Error Handling Consistency → Pattern
@@ -188,7 +188,7 @@ Key topics:
 3. **Specification**: Know success criteria
 
 **Steps**:
-```
+```text
 1. Review task-list.md → Sprint Planning → Sprint 1-5
 2. Select tasks based on priority (P0 → P1 → P2)
 3. Check constitution.md → Quality Gates → Pre-PR requirements
@@ -198,7 +198,7 @@ Key topics:
 
 ## Project Structure with Spec Kit
 
-```
+```text
 mcp-server/
 ├── .specify/                       # Spec Kit artifacts
 │   ├── README.md                   # This file
@@ -261,7 +261,7 @@ mcp-server/
 4. **Keep artifacts in sync with code**
 
 **Example commit**:
-```
+```text
 feat(auth): add SAML authentication support
 
 - Implement SAML auth in auth.ts
@@ -308,8 +308,8 @@ feat(auth): add SAML authentication support
 
 ## Resources
 
-- **Spec Kit Project**: https://github.com/github/spec-kit
-- **Spec Kit Documentation**: https://github.com/github/spec-kit#readme
+- **Spec Kit Project**: [https://github.com/github/spec-kit](https://github.com/github/spec-kit)
+- **Spec Kit Documentation**: [https://github.com/github/spec-kit#readme](https://github.com/github/spec-kit#readme)
 - **MCP Server README**: ../README.md
 - **Contributing Guide**: ../CONTRIBUTING.md
 
@@ -331,7 +331,7 @@ feat(auth): add SAML authentication support
 ## Getting Help
 
 **For Spec Kit questions**:
-- Read Spec Kit documentation: https://github.com/github/spec-kit
+- Read Spec Kit documentation: [https://github.com/github/spec-kit](https://github.com/github/spec-kit)
 - Check Spec Kit examples in the repo
 
 **For MCP Server questions**:
