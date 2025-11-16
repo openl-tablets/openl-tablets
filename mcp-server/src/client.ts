@@ -489,7 +489,7 @@ export class OpenLClient {
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const projectPath = this.buildProjectPath(projectId);
 
-    // Parse project ID to get the project name
+    // Parse project ID to get the project name (without repository prefix)
     const [, projectName] = this.parseProjectId(projectId);
 
     // Build request params
@@ -498,19 +498,21 @@ export class OpenLClient {
       params.version = version;  // Git commit hash
     }
 
-    // Try multiple possible file paths to handle different formats from list_tables
-    const pathsToTry: string[] = [];
-    const projectPrefix = `${projectName}/`;
+    // IMPORTANT: list_tables returns file paths like "Example 2 - Corporate Rating/Corporate Rating.xlsx"
+    // The OpenL API expects the full path AS-IS from list_tables, including the project directory.
+    // We'll try multiple variations to handle different scenarios.
 
-    // Strategy: Try both with and without project name prefix
-    if (fileName.startsWith(projectPrefix)) {
-      // If filename has project prefix, try both with and without
-      pathsToTry.push(fileName);  // Try with prefix first
-      pathsToTry.push(fileName.substring(projectPrefix.length));  // Then without
-    } else {
-      // If filename doesn't have project prefix, try both without and with
-      pathsToTry.push(fileName);  // Try without prefix first
-      pathsToTry.push(`${projectPrefix}${fileName}`);  // Then with
+    const projectPrefix = `${projectName}/`;
+    const pathsToTry: string[] = [];
+
+    // Try the fileName exactly as provided first
+    pathsToTry.push(fileName);
+
+    // If fileName doesn't have the project prefix, try adding it
+    if (!fileName.startsWith(projectPrefix) && !fileName.includes('/')) {
+      // User might have passed just the base filename like "Corporate Rating.xlsx"
+      // Try with the project name prefix: "Example 2 - Corporate Rating/Corporate Rating.xlsx"
+      pathsToTry.push(`${projectPrefix}${fileName}`);
     }
 
     let lastError: any;
@@ -518,8 +520,12 @@ export class OpenLClient {
     // Try each path until one works
     for (const pathToTry of pathsToTry) {
       try {
+        // Encode each path segment separately to preserve directory structure
+        // Don't encode forward slashes within the path
+        const encodedPath = pathToTry.split('/').map(encodeURIComponent).join('/');
+
         const response = await this.axiosInstance.get<ArrayBuffer>(
-          `${projectPath}/files/${encodeURIComponent(pathToTry)}`,
+          `${projectPath}/files/${encodedPath}`,
           {
             responseType: "arraybuffer",
             params,
@@ -551,8 +557,8 @@ export class OpenLClient {
       throw new Error(
         `Invalid file path: "${fileName}". ` +
         `The OpenL API rejected this file path (400 Bad Request). ` +
-        `Make sure to use the exact 'file' field value from list_tables() response. ` +
-        `If the issue persists, the file may not exist or the project may not be properly opened. ` +
+        `You must use the exact 'file' field value from list_tables() response, including any directory prefix. ` +
+        `For example, if list_tables shows "Example 2 - Corporate Rating/Corporate Rating.xlsx", use that full path. ` +
         `Original error: ${lastError.message}`
       );
     }
