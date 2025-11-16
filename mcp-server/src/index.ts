@@ -32,10 +32,10 @@ import {
 
 // Import our modular components
 import { OpenLClient } from "./client.js";
-import { TOOLS } from "./tools.js";
 import { SERVER_INFO } from "./constants.js";
-import { isAxiosError, sanitizeError, safeStringify, parseProjectId, createProjectId } from "./utils.js";
 import { PROMPTS, loadPromptContent, getPromptDefinition } from "./prompts-registry.js";
+import { registerAllTools, getAllTools, executeTool } from "./tool-handlers.js";
+import { parseProjectId, createProjectId, safeStringify, sanitizeError } from "./utils.js";
 import type * as Types from "./types.js";
 
 /**
@@ -71,6 +71,9 @@ class OpenLMCPServer {
       }
     );
 
+    // Initialize all tool handlers
+    registerAllTools(this.server, this.client);
+
     this.setupHandlers();
   }
 
@@ -79,19 +82,20 @@ class OpenLMCPServer {
    */
   private setupHandlers(): void {
     // List available tools
-    // Note: Strip _meta from tools as it's not part of MCP spec
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: TOOLS.map(({ name, description, inputSchema }) => ({
+      tools: getAllTools().map(({ name, title, description, inputSchema, annotations }) => ({
         name,
         description,
         inputSchema,
+        ...(annotations && { annotations }),
       })),
     }));
 
     // Handle tool execution
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) =>
-      this.handleToolCall(request.params.name, request.params.arguments)
-    );
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const result = await executeTool(request.params.name, request.params.arguments, this.client);
+      return result as any; // Type cast needed due to MCP SDK generic return type
+    });
 
     // List available resources
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
@@ -164,377 +168,21 @@ class OpenLMCPServer {
   }
 
   /**
-   * Handle tool execution requests
-   *
-   * @param name - Tool name
-   * @param args - Tool arguments (validated by Zod schemas)
-   * @returns Tool execution result
+   * Note: Tool execution is now handled by the tool-handlers module.
+   * The handleToolCall method has been removed and replaced with the
+   * registerAllTools/executeTool pattern for better modularity.
    */
-  private async handleToolCall(
-    name: string,
-    args: unknown
-  ): Promise<{ content: Array<{ type: string; text: string }> }> {
-    try {
-      let result: unknown;
 
-      // Route tool calls to appropriate client methods
-      switch (name) {
-        // Repository tools
-        case "list_repositories": {
-          result = await this.client.listRepositories();
-          break;
-        }
+  /**
+   * REMOVED: The entire handleToolCall method with switch statement
+   * has been replaced by the tool-handlers.ts module.
+   * See registerAllTools() and executeTool() functions.
+   */
 
-        case "list_branches": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { repository } = args as { repository: string };
-          result = await this.client.listBranches(repository);
-          break;
-        }
-
-        // Project tools
-        case "list_projects": {
-          const filters = args as Types.ProjectFilters | undefined;
-          const projects = await this.client.listProjects(filters);
-          // Transform projects to include a flat projectId field for easier use
-          // Handle both OpenL 6.0.0+ (base64 string) and older versions (object) formats
-          result = projects.map((project) => {
-            const { repository, projectName } = parseProjectId(project.id);
-            return {
-              ...project,
-              projectId: createProjectId(repository, projectName),
-            };
-          });
-          break;
-        }
-
-        case "get_project": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.getProject(projectId);
-          break;
-        }
-
-        case "update_project_status": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, status, comment, discardChanges, branch, revision, selectedBranches } = args as {
-            projectId: string;
-            status?: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
-            comment?: string;
-            discardChanges?: boolean;
-            branch?: string;
-            revision?: string;
-            selectedBranches?: string[];
-          };
-          result = await this.client.updateProjectStatus(projectId, {
-            status,
-            comment,
-            discardChanges,
-            branch,
-            revision,
-            selectedBranches,
-          });
-          break;
-        }
-
-        // File management tools
-        case "upload_file": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, fileName, fileContent, comment } = args as {
-            projectId: string;
-            fileName: string;
-            fileContent: string;
-            comment?: string;
-          };
-          // Decode base64 file content
-          const buffer = Buffer.from(fileContent, "base64");
-          result = await this.client.uploadFile(projectId, fileName, buffer, comment);
-          break;
-        }
-
-        case "download_file": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, fileName, version } = args as {
-            projectId: string;
-            fileName: string;
-            version?: string;
-          };
-          const fileBuffer = await this.client.downloadFile(projectId, fileName, version);
-          // Return base64-encoded content
-          result = {
-            fileName,
-            fileContent: fileBuffer.toString("base64"),
-            size: fileBuffer.length,
-            version: version || "HEAD",  // Indicate which version was downloaded
-          };
-          break;
-        }
-
-        // Rules (Tables) tools
-        case "list_tables": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, tableType, name, file } = args as {
-            projectId: string;
-            tableType?: string;
-            name?: string;
-            file?: string;
-          };
-          const filters: Types.TableFilters = {};
-          if (tableType) filters.tableType = tableType as Types.TableType;
-          if (name) filters.name = name;
-          if (file) filters.file = file;
-          result = await this.client.listTables(projectId, filters);
-          break;
-        }
-
-        case "get_table": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, tableId } = args as {
-            projectId: string;
-            tableId: string;
-          };
-          result = await this.client.getTable(projectId, tableId);
-          break;
-        }
-
-        case "update_table": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, tableId, view, comment } = args as {
-            projectId: string;
-            tableId: string;
-            view: Types.EditableTableView;
-            comment?: string;
-          };
-          result = await this.client.updateTable(projectId, tableId, view, comment);
-          break;
-        }
-
-        case "append_table": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, tableId, appendData, comment } = args as {
-            projectId: string;
-            tableId: string;
-            appendData: Types.AppendTableView;
-            comment?: string;
-          };
-          await this.client.appendProjectTable(projectId, tableId, appendData);
-          result = {
-            success: true,
-            message: `Successfully appended ${appendData.fields.length} field(s) to table ${tableId}`
-          };
-          break;
-        }
-
-        case "create_rule": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, name, tableType, returnType, parameters, file, properties, comment } = args as {
-            projectId: string;
-            name: string;
-            tableType: Types.TableType;
-            returnType?: string;
-            parameters?: Array<{ type: string; name: string }>;
-            file?: string;
-            properties?: Record<string, unknown>;
-            comment?: string;
-          };
-          result = await this.client.createRule(projectId, {
-            name,
-            tableType,
-            returnType,
-            parameters,
-            file,
-            properties,
-            comment,
-          });
-          break;
-        }
-
-        // Deployment tools
-        case "list_deployments": {
-          result = await this.client.listDeployments();
-          break;
-        }
-
-        case "deploy_project": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectName, repository, deploymentRepository, version } = args as {
-            projectName: string;
-            repository: string;
-            deploymentRepository: string;
-            version?: string;
-          };
-          // Build projectId from repository and projectName
-          const projectId = `${repository}-${projectName}`;
-          result = await this.client.deployProject({
-            projectId,
-            deploymentName: projectName,  // Use project name as deployment name
-            productionRepositoryId: deploymentRepository,
-            comment: version ? `Deploy version ${version}` : undefined,
-          });
-          break;
-        }
-
-        // Testing & Validation tools
-        // Note: run_all_tests removed - endpoint doesn't exist in API
-
-        case "validate_project": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId } = args as { projectId: string };
-          result = await this.client.validateProject(projectId);
-          break;
-        }
-
-        // Note: run_test removed - endpoint doesn't exist in API
-
-        case "get_project_errors": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, includeWarnings } = args as {
-            projectId: string;
-            includeWarnings?: boolean;
-          };
-          result = await this.client.getProjectErrors(projectId, includeWarnings);
-          break;
-        }
-
-        // Phase 3: Versioning & Execution tools
-        case "execute_rule": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, ruleName, inputData } = args as {
-            projectId: string;
-            ruleName: string;
-            inputData: Record<string, unknown>;
-          };
-          result = await this.client.executeRule({
-            projectId,
-            ruleName,
-            inputData,
-          });
-          break;
-        }
-
-        case "compare_versions": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, baseCommitHash, targetCommitHash } = args as {
-            projectId: string;
-            baseCommitHash: string;
-            targetCommitHash: string;
-          };
-          result = await this.client.compareVersions({
-            projectId,
-            baseCommitHash,
-            targetCommitHash,
-          });
-          break;
-        }
-
-        // Phase 4: Advanced Features
-        case "revert_version": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, targetVersion, comment } = args as {
-            projectId: string;
-            targetVersion: string;
-            comment?: string;
-          };
-          result = await this.client.revertVersion({
-            projectId,
-            targetVersion,
-            comment,
-          });
-          break;
-        }
-
-        // Phase 2: Git Version History
-        case "get_file_history": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, filePath, limit, offset } = args as {
-            projectId: string;
-            filePath: string;
-            limit?: number;
-            offset?: number;
-          };
-          result = await this.client.getFileHistory({
-            projectId,
-            filePath,
-            limit,
-            offset,
-          });
-          break;
-        }
-
-        case "get_project_history": {
-          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-          const { projectId, limit, offset, branch } = args as {
-            projectId: string;
-            limit?: number;
-            offset?: number;
-            branch?: string;
-          };
-          // Convert limit/offset to page/size for API compatibility
-          const page = offset ? Math.floor(offset / (limit || 50)) : undefined;
-          const size = limit;
-          result = await this.client.getProjectHistory({
-            projectId,
-            page,
-            size,
-            branch,
-          });
-          break;
-        }
-
-        default:
-          throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
-      }
-
-      // Return formatted result
-      // Handle void/undefined results (e.g., from update_table)
-      const resultText = result === undefined
-        ? "Operation completed successfully"
-        : safeStringify(result, 2);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: resultText,
-          },
-        ],
-      };
-    } catch (error: unknown) {
-      // Enhanced error handling with context
-      if (isAxiosError(error)) {
-        const status = error.response?.status;
-        const sanitizedMessage = sanitizeError(error);
-        const endpoint = error.config?.url;
-        const method = error.config?.method?.toUpperCase();
-
-        const errorDetails = {
-          status,
-          endpoint,
-          method,
-          tool: name,
-        };
-
-        throw new McpError(
-          ErrorCode.InternalError,
-          `OpenL Tablets API error (${status}): ${sanitizedMessage} [${method} ${endpoint}]`,
-          errorDetails
-        );
-      }
-
-      // Re-throw McpErrors as-is
-      if (error instanceof McpError) {
-        throw error;
-      }
-
-      // Wrap other errors with sanitization
-      const sanitizedMessage = sanitizeError(error);
-      throw new McpError(
-        ErrorCode.InternalError,
-        `Error executing ${name}: ${sanitizedMessage}`,
-        { tool: name }
-      );
-    }
-  }
+  /*
+  REMOVED METHOD - The switch statement handleToolCall has been completely removed.
+  All tool handling is now done through tool-handlers.ts
+  */
 
   /**
    * Handle resource read requests
