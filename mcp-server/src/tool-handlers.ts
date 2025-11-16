@@ -657,6 +657,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     },
   });
 
+  // TEMPORARILY DISABLED - openl_create_rule
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_create_rule",
     title: "openl Create Rule",
@@ -703,6 +706,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
   // =============================================================================
   // Deployment Tools
@@ -877,6 +881,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   // Version Control Tools
   // =============================================================================
 
+  // TEMPORARILY DISABLED - openl_revert_version
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_revert_version",
     title: "openl Revert Version",
@@ -927,6 +934,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
   // TEMPORARILY DISABLED - openl_get_file_history
   // Tool is not working correctly and needs implementation fixes
