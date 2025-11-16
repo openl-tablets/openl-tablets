@@ -213,9 +213,9 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 
 ### FR-1: Tool Execution
 
-**Requirement**: All 18 MCP tools must execute successfully with valid inputs.
+**Requirement**: MCP server provides 18 tools, of which 11 are currently active and 7 are temporarily disabled.
 
-**Tools by Category**:
+**Active Tools (11)**:
 
 **Repository Tools (2)**:
 - `openl_list_repositories` - List all design repositories
@@ -226,30 +226,26 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - `openl_get_project` - Get comprehensive project details
 - `openl_update_project_status` - Update project status (open/close/save)
 
-**File Tools (3)**:
-- `openl_upload_file` - Upload Excel file to project
-- `openl_download_file` - Download Excel file from project
-- `openl_get_file_history` - Get file commit history
-
-**Rules Tools (5)**:
+**Rules Tools (4)**:
 - `openl_list_tables` - List tables/rules with filters (supports pagination)
 - `openl_get_table` - Get table details and data
 - `openl_update_table` - Update table content
 - `openl_append_table` - Append data to existing table
-- `openl_create_rule` - Create new rule (via upload)
-
-**Execution Tools (1)**:
-- `openl_execute_rule` - Execute rule with test data
-
-**Version Control Tools (2)**:
-- `openl_get_project_history` - Get project commit history (supports pagination)
-- `openl_revert_version` - Revert to previous version
 
 **Deployment Tools (2)**:
 - `openl_list_deployments` - List all deployments (supports pagination)
 - `openl_deploy_project` - Deploy project to production
 
-**Note**: All tools support the `response_format` parameter (json/markdown). All list operations support pagination via `limit` and `offset` parameters.
+**Temporarily Disabled Tools (7)**:
+- `openl_upload_file` - Upload Excel file to project *(needs implementation fixes)*
+- `openl_download_file` - Download Excel file from project *(needs implementation fixes)*
+- `openl_get_file_history` - Get file commit history *(needs implementation fixes)*
+- `openl_create_rule` - Create new rule *(needs implementation fixes)*
+- `openl_execute_rule` - Execute rule with test data *(needs implementation fixes)*
+- `openl_get_project_history` - Get project commit history *(needs implementation fixes)*
+- `openl_revert_version` - Revert to previous version *(needs implementation fixes)*
+
+**Note**: All active tools support the `response_format` parameter (json/markdown). All list operations support pagination via `limit` and `offset` parameters.
 
 ### FR-2: Input Validation
 
@@ -576,14 +572,14 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 
 The MCP server is considered successful when:
 
-1. ✅ All 18 tools execute successfully
-2. ✅ All tools support response_format parameter
+1. ✅ All 11 active tools execute successfully (7 tools temporarily disabled)
+2. ✅ All active tools support response_format parameter
 3. ✅ All list operations support pagination
 4. ✅ Character limits enforced on all responses
 5. ✅ All 11 prompts render correctly
 6. ✅ All 3 authentication methods work
-7. ✅ Test coverage >80%
-8. ✅ ESLint clean (0 errors/warnings)
+7. ⏳ Test coverage >38% (target: 80%)
+8. ✅ ESLint enforced (no errors on commit)
 9. ✅ TypeScript strict mode clean
 10. ✅ npm audit clean (0 vulnerabilities)
 11. ✅ Documentation complete and accurate
@@ -620,4 +616,4 @@ Potential enhancements for future versions:
 
 *Last Updated: 2025-11-16*
 *Version: 1.0.0*
-*Status: Production Ready (refactored)*
+*Status: Experimental (11/18 tools active, 7 temporarily disabled pending fixes)*

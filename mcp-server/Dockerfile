@@ -42,9 +42,9 @@ USER mcp
 ENV NODE_ENV=production
 ENV OPENL_BASE_URL=http://localhost:8080/webstudio/rest
 
-# Health check
+# Health check - verify MCP server process is running
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "console.log('healthy')" || exit 1
+  CMD ps aux | grep -q "[n]ode dist/index.js" || exit 1
 
 # Run the MCP server
 CMD ["node", "dist/index.js"]
