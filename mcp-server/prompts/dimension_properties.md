@@ -44,7 +44,7 @@ WHEN rule is called:
 4. Executes that rule version
 
 **Example:**
-```
+```text
 Request: calculatePremium(state="CA", currentDate="2025-06-15")
 
 Available versions (all in same Git commit):
@@ -58,7 +58,7 @@ OpenL selects: Version #1 (CA matches, date valid)
 ## File Name Patterns (OpenL-Specific)
 
 Pattern in rules.xml:
-```
+```xml
 .*-%state%-%lob%-%effectiveDate:MMddyyyy%
 ```
 
@@ -86,19 +86,19 @@ Priority: Table > Category > Module
 ## Common Patterns
 
 **State-specific rules:**
-```
+```text
 Insurance-CA-Auto.xlsx  (state=CA)
 Insurance-TX-Auto.xlsx  (state=TX)
 Insurance-CW-Auto.xlsx  (state=CW, applies to all states)
 ```
 
 **Date-based rules:**
-```
+```text
 Rules-01012025-12312025.xlsx  (effectiveDate=01/01/2025, expirationDate=12/31/2025)
 Rules-01012026-12312026.xlsx  (effectiveDate=01/01/2026, expirationDate=12/31/2026)
 ```
 
 **Multi-dimension:**
-```
+```text
 Rules-CA-Auto-01012025.xlsx  (state=CA, lob=Auto, effectiveDate=01/01/2025)
 ```

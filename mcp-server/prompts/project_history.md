@@ -35,23 +35,23 @@ arguments:
 ## Operations
 
 **Project audit:**
-```
+```text
 openl_get_project_history({if projectId}projectId="{projectId}", {end if}limit=50) → All commits, all files
 ```
 
 **Find specific change:**
-```
+```text
 openl_get_project_history({if projectId}projectId="{projectId}", {end if}limit=200) → search commit comments
 ```
 
 **Compare project states:**
-```
+```text
 1. openl_get_project_history({if projectId}projectId="{projectId}"{end if}) → get commitHashes
 2. Note: openl_compare_versions is temporarily disabled - use OpenL WebStudio UI for comparison
 ```
 
 **Revert project:**
-```
+```text
 1. openl_get_project_history({if projectId}projectId="{projectId}"{end if}) → find stable commitHash
 2. openl_revert_version(targetVersion=commitHash)
 ```
