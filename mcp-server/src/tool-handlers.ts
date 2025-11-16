@@ -383,6 +383,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   // File Management Tools
   // =============================================================================
 
+  // TEMPORARILY DISABLED - openl_upload_file
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_upload_file",
     title: "openl Upload File",
@@ -429,7 +432,11 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
+  // TEMPORARILY DISABLED - openl_download_file
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_download_file",
     title: "openl Download File",
@@ -473,6 +480,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
   // =============================================================================
   // Rules (Tables) Tools
