@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "openl-tablets-basic-auth": {
-      "comment": "OpenL Tablets with Basic Authentication",
+    "openl-mcp-server-basic-auth": {
+      "comment": "OpenL Tablets MCP Server with Basic Authentication",
       "command": "node",
       "args": [
-        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+        "/absolute/path/to/openl-mcp-server/dist/index.js"
       ],
       "env": {
         "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
@@ -13,11 +13,11 @@
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
       }
     },
-    "openl-tablets-api-key": {
-      "comment": "OpenL Tablets with API Key Authentication",
+    "openl-mcp-server-api-key": {
+      "comment": "OpenL Tablets MCP Server with API Key Authentication",
       "command": "node",
       "args": [
-        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+        "/absolute/path/to/openl-mcp-server/dist/index.js"
       ],
       "env": {
         "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
@@ -25,11 +25,11 @@
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
       }
     },
-    "openl-tablets-oauth2": {
-      "comment": "OpenL Tablets with OAuth 2.1 Authentication",
+    "openl-mcp-server-oauth2": {
+      "comment": "OpenL Tablets MCP Server with OAuth 2.1 Authentication",
       "command": "node",
       "args": [
-        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+        "/absolute/path/to/openl-mcp-server/dist/index.js"
       ],
       "env": {
         "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",

@@ -29,7 +29,7 @@ OpenL has TWO independent versioning systems:
 **1. Git-Based (Temporal)**
 - Every save creates Git commit automatically
 - Version = commit hash (e.g., "7a3f2b1c")
-- Tools: `get_file_history`, `get_project_history`, `revert_version`, `compare_versions`
+- Tools: `openl_get_file_history`, `openl_get_project_history`, `openl_revert_version`, `openl_compare_versions`
 
 **2. Dimension Properties (Business Context)**
 - Multiple rule versions in same commit
@@ -56,13 +56,13 @@ See [prompts/create_rule.md](./prompts/create_rule.md) for detailed table type g
 
 ## Tools (19 Total)
 
-**Repository** (2): list_repositories, list_branches
-**Project** (6): list_projects, get_project, open_project, close_project, save_project, validate_project
-**Files** (3): upload_file, download_file, get_file_history
-**Rules** (7): list_tables, get_table, update_table, create_rule, execute_rule, run_test, run_all_tests
-**Version Control** (3): get_project_history, compare_versions, revert_version
-**Deployment** (2): list_deployments, deploy_project
-**Testing** (2): validate_project, get_project_errors
+**Repository** (2): openl_list_repositories, openl_list_branches
+**Project** (6): openl_list_projects, openl_get_project, openl_open_project, openl_close_project, openl_save_project, openl_validate_project
+**Files** (3): openl_upload_file, openl_download_file, openl_get_file_history
+**Rules** (7): openl_list_tables, openl_get_table, openl_update_table, openl_create_rule, openl_execute_rule, openl_run_test, openl_run_all_tests
+**Version Control** (3): openl_get_project_history, openl_compare_versions, openl_revert_version
+**Deployment** (2): openl_list_deployments, openl_deploy_project
+**Testing** (2): openl_validate_project, openl_get_project_errors
 
 ## Prompts (11 Total)
 
@@ -191,7 +191,7 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 ```json
 {
   "mcpServers": {
-    "openl-tablets": {
+    "openl-mcp-server": {
       "command": "node",
       "args": ["/absolute/path/to/mcp-server/dist/index.js"],
       "env": {
@@ -209,7 +209,7 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 ### List Projects
 ```typescript
 {
-  "name": "list_projects",
+  "name": "openl_list_projects",
   "arguments": { "repository": "design" }
 }
 ```
@@ -217,7 +217,7 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 ### Get Table
 ```typescript
 {
-  "name": "get_table",
+  "name": "openl_get_table",
   "arguments": {
     "projectId": "design-insurance-rules",
     "tableId": "Rules.xls_1234"
@@ -228,7 +228,7 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 ### Create Rule
 ```typescript
 {
-  "name": "create_rule",
+  "name": "openl_create_rule",
   "arguments": {
     "projectId": "design-insurance-rules",
     "name": "calculatePremium",
@@ -245,11 +245,50 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 ### Deploy
 ```typescript
 {
-  "name": "deploy_project",
+  "name": "openl_deploy_project",
   "arguments": {
     "projectName": "insurance-rules",
     "repository": "design",
     "deploymentRepository": "production"
+  }
+}
+```
+
+### Response Formatting
+
+All tools support the `response_format` parameter:
+- `json`: Structured JSON response (for programmatic use)
+- `markdown`: Human-readable markdown format (default, better for AI consumption)
+
+Example:
+```json
+{
+  "name": "openl_list_projects",
+  "arguments": {
+    "repository": "design",
+    "response_format": "markdown"
+  }
+}
+```
+
+### Pagination
+
+List operations support pagination parameters:
+- `limit`: Maximum items per page (default: 50, max: 200)
+- `offset`: Starting position (default: 0)
+
+Response includes pagination metadata:
+- `has_more`: Whether more results are available
+- `next_offset`: Offset for the next page
+- `total_count`: Total number of items
+
+Example:
+```json
+{
+  "name": "openl_list_projects",
+  "arguments": {
+    "limit": 10,
+    "offset": 0
   }
 }
 ```
@@ -302,7 +341,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
 **Connection**: Check `OPENL_BASE_URL` ends with `/webstudio/rest`
 **Auth 401/403**: Verify credentials, check user permissions
 **Project Not Found**: Format is `{repo}-{project}` (e.g., `design-insurance-rules`)
-**Table Access**: Must `open_project` first
+**Table Access**: Must `openl_open_project` first
 
 See [AUTHENTICATION.md](./AUTHENTICATION.md) and [TESTING.md](./TESTING.md) for detailed troubleshooting.
 

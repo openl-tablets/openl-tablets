@@ -40,10 +40,10 @@ List all OpenL Tablets repositories and their features
 ```
 
 **What happens:**
-- MCP server calls `list_repositories` tool
+- MCP server calls `openl_list_repositories` tool
 - Returns list of design repositories with their capabilities (branches, search, etc.)
 
-**Example Response:**
+**Example Response (JSON format):**
 ```json
 [
   {
@@ -57,6 +57,35 @@ List all OpenL Tablets repositories and their features
     }
   }
 ]
+```
+
+**With Markdown formatting:**
+You can request the response in Markdown format for better readability:
+```
+List all OpenL Tablets repositories in markdown format
+```
+
+**Tool call with response_format:**
+```json
+{
+  "name": "openl_list_repositories",
+  "arguments": {
+    "response_format": "markdown"
+  }
+}
+```
+
+**Example Response (Markdown format):**
+```markdown
+# OpenL Tablets Repositories
+
+## Design Repository
+- **ID:** design
+- **Type:** git
+- **Features:**
+  - Branches: ✓
+  - Mapped Folders: ✗
+  - Searchable: ✓
 ```
 
 ### Check Repository Features
@@ -86,6 +115,63 @@ Show me all OPENED projects in the 'design' repository
 ```
 ```
 Show me projects tagged with 'production'
+```
+
+**With pagination:**
+```
+Show me the first 10 projects in the 'design' repository
+```
+
+**Tool call with pagination:**
+```json
+{
+  "name": "openl_list_projects",
+  "arguments": {
+    "repository": "design",
+    "limit": 10,
+    "offset": 0
+  }
+}
+```
+
+**To get the next page:**
+```json
+{
+  "name": "openl_list_projects",
+  "arguments": {
+    "repository": "design",
+    "limit": 10,
+    "offset": 10
+  }
+}
+```
+
+**With response_format:**
+```json
+{
+  "name": "openl_list_projects",
+  "arguments": {
+    "repository": "design",
+    "response_format": "markdown"
+  }
+}
+```
+
+**Example Response (Markdown format):**
+```markdown
+# Projects in Repository: design
+
+## insurance-rules
+- **Status:** OPENED
+- **Modified:** 2025-11-15 14:30:00 by john.doe
+- **Branch:** main
+- **Tags:** production, v2.3.1
+
+## fleet-management
+- **Status:** CLOSED
+- **Modified:** 2025-11-14 09:15:00 by jane.smith
+- **Branch:** develop
+- **Tags:** staging
 ```
 
 ### Get Project Details
@@ -163,7 +249,7 @@ List all tables in the project 'design-insurance-rules'
 Show me the details of the table 'CalculatePremium' in project 'design-insurance-rules'
 ```
 
-**For Decision Tables:**
+**For Decision Tables (JSON format):**
 ```json
 {
   "id": "Rules.xls_1234",
@@ -179,6 +265,37 @@ Show me the details of the table 'CalculatePremium' in project 'design-insurance
     }
   ]
 }
+```
+
+**Tool call with response_format:**
+```json
+{
+  "name": "openl_get_table",
+  "arguments": {
+    "repository": "design",
+    "project": "insurance-rules",
+    "table_id": "Rules.xls_1234",
+    "response_format": "markdown"
+  }
+}
+```
+
+**Example Response (Markdown format):**
+```markdown
+# Decision Table: CalculatePremium
+
+**Type:** simplerules
+**ID:** Rules.xls_1234
+**Category:** Premium Calculation
+
+## Rules
+
+| Vehicle Type | Age   | Premium |
+|-------------|-------|---------|
+| Car         | <25   | 1200    |
+| Car         | ≥25   | 800     |
+| Motorcycle  | <25   | 900     |
+| Motorcycle  | ≥25   | 600     |
 ```
 
 **For Datatypes:**
@@ -216,7 +333,7 @@ Update the 'CalculatePremium' table in project 'design-insurance-rules' to add a
 **Claude will:**
 1. Get the current table structure
 2. Modify the appropriate fields
-3. Call `update_table` with the changes
+3. Call `openl_update_table` with the changes
 4. Include a commit comment
 
 ## Version Control
@@ -271,7 +388,7 @@ Deploy the project 'insurance-rules' from the 'design' repository to the 'produc
 ```
 
 **Claude will:**
-1. Call `deploy_project` with the specified parameters
+1. Call `openl_deploy_project` with the specified parameters
 2. Monitor the deployment status
 3. Confirm successful deployment
 
@@ -292,13 +409,13 @@ Deploy version 'v2.3.1' of project 'insurance-rules' to production
 User: I need to update the premium calculation for young drivers
 
 Claude: I'll help you with that. First, let me list the projects and find the relevant one.
-[Calls list_projects]
+[Calls openl_list_projects]
 
 Claude: I found the 'insurance-rules' project. Let me open it and see what tables it contains.
-[Calls open_project, then list_tables]
+[Calls openl_update_project_status to open the project, then openl_list_tables]
 
 Claude: I found a table called 'CalculatePremium' that likely contains the premium logic. Let me get its details.
-[Calls get_table]
+[Calls openl_get_table]
 
 Claude: Here's the current rule for young drivers (age < 25):
 - Vehicle: Car -> Premium: $1200
@@ -309,7 +426,7 @@ What changes would you like to make?
 User: Increase car premium to $1400 for drivers under 25
 
 Claude: I'll update that rule for you.
-[Calls update_table with modified data]
+[Calls openl_update_table with modified data]
 
 Claude: Done! The premium for cars with drivers under 25 is now $1400. The change has been committed with the comment "Updated premium for young drivers".
 ```
@@ -338,7 +455,7 @@ Claude: The new senior discount rule has been added. Drivers over 60 will now re
 User: What changed in the insurance-rules project over the last week?
 
 Claude: Let me check the version history for that project.
-[Calls get_project_history]
+[Calls openl_get_project_history]
 
 Claude: Here are the changes from the last week:
 
@@ -362,7 +479,7 @@ Would you like to see the details of any specific version?
 User: Deploy the latest insurance-rules to production
 
 Claude: I'll help you deploy to production. Let me first verify the current state.
-[Calls get_project, checks status and latest changes]
+[Calls openl_get_project, checks status and latest changes]
 
 Claude: The current version was modified 2 hours ago by john.doe with the comment "Finalized Q4 premium updates". The project is in OPENED status.
 
@@ -376,9 +493,9 @@ Should I proceed with the deployment to production?
 User: Yes, proceed
 
 Claude: Deploying now...
-[Calls deploy_project]
+[Calls openl_deploy_project]
 
-Claude: Successfully deployed 'insurance-rules' to production. You can verify the deployment using the list_deployments command if needed.
+Claude: Successfully deployed 'insurance-rules' to production. You can verify the deployment using the openl_list_deployments command if needed.
 ```
 
 ### Workflow 5: Troubleshooting Rule Issues
@@ -389,7 +506,7 @@ Claude: Successfully deployed 'insurance-rules' to production. You can verify th
 User: The premium calculation seems wrong for motorcycles
 
 Claude: Let me investigate. I'll check the relevant rules.
-[Opens project, lists tables, gets CalculatePremium table]
+[Calls openl_update_project_status to open project, openl_list_tables, then openl_get_table for CalculatePremium]
 
 Claude: I found the issue. The motorcycle rule has:
 - Condition: vehicleType = "Motorcycle"
@@ -404,7 +521,7 @@ Is this the expected behavior, or should young driver premium be calculated diff
 User: Young drivers should get a percentage increase, not a flat amount
 
 Claude: I'll update the logic to use a percentage-based calculation.
-[Updates the table with percentage-based formula]
+[Calls openl_update_table with percentage-based formula]
 
 Claude: Updated! Now the premium for young motorcycle riders is calculated as: base_premium * 1.33 (33% increase) instead of a flat addition.
 ```
