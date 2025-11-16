@@ -1,0 +1,521 @@
+# WSFrontend Module Patterns
+
+The WSFrontend module provides Rule Services - a framework for deploying OpenL rules as REST/SOAP web services with hot reload, versioning, and multi-tenancy support.
+
+## Module Structure
+
+```
+WSFrontend/
+├── org.openl.rules.ruleservice/         # Core rule service engine
+├── org.openl.rules.ruleservice.ws/      # Web services wrapper
+└── org.openl.rules.ruleservice.ws.mcp/  # MCP (Model Context Protocol) server
+```
+
+## Technology Stack
+
+- **Spring Boot**: 3.5.6
+- **Spring Framework**: 6.2.11
+- **Apache CXF**: Web services (REST/SOAP)
+- **Swagger/OpenAPI**: API documentation
+- **Kafka**: Event streaming (optional)
+- **OpenTelemetry**: Observability
+
+## Key Components
+
+### Rule Service Engine
+
+**Core Classes**:
+- `OpenLService`: Represents a deployed rule service
+- `RuleServiceDeployer`: Deploys and undeploys services
+- `RuleServiceManager`: Manages service lifecycle
+- `ServiceDescription`: Service metadata and configuration
+
+### Service Deployment
+
+Rules are automatically deployed from repositories:
+
+```
+Repository (Git/Local)
+    ↓
+RuleServiceDeployer
+    ↓
+OpenLService instances
+    ↓
+REST/SOAP endpoints
+```
+
+### Hot Reload
+
+Services automatically reload when rules change in the repository:
+
+```java
+// Watches repository for changes
+repositoryWatcher.addListener(event -> {
+    if (event.getType() == ChangeType.MODIFIED) {
+        ruleServiceDeployer.redeploy(event.getServiceName());
+    }
+});
+```
+
+### Multi-Tenancy
+
+Support for tenant-specific rule versions:
+
+```
+Tenant A → Service v1.0
+Tenant B → Service v2.0
+Tenant C → Service v1.5
+```
+
+**Key Classes**:
+- `MultitenantService`: Tenant-aware service wrapper
+- `TenantResolver`: Determines tenant from request
+
+## REST API Patterns
+
+### Auto-Generated Endpoints
+
+For each rule method, Rule Services generates REST endpoints:
+
+```java
+// Rule method
+public Double calculatePremium(Policy policy) {
+    // Rule logic
+}
+
+// Generated REST endpoint
+POST /api/calculatePremium
+Content-Type: application/json
+
+{
+  "policy": {
+    "policyNumber": "POL-12345",
+    "coverage": 100000
+  }
+}
+
+Response:
+{
+  "result": 1250.50
+}
+```
+
+### Endpoint Customization
+
+Customize endpoints via `ruleservice.yaml`:
+
+```yaml
+services:
+  - name: InsuranceRules
+    url: /insurance
+    methods:
+      - name: calculatePremium
+        path: /premium
+        httpMethod: POST
+```
+
+## SOAP Web Services
+
+Rule Services also generates SOAP endpoints with WSDL:
+
+```xml
+<wsdl:service name="InsuranceRulesService">
+  <wsdl:port name="InsuranceRulesPort" binding="tns:InsuranceRulesBinding">
+    <soap:address location="http://localhost:8080/soap/InsuranceRules"/>
+  </wsdl:port>
+</wsdl:service>
+```
+
+## Configuration
+
+### ruleservice.yaml
+
+Main configuration file:
+
+```yaml
+# Service configuration
+ruleservice:
+  isProvideRuntimeContext: true
+  isProvideVariations: false
+  isSupportVariations: false
+
+# Data source (repository)
+datasource:
+  type: git
+  uri: /path/to/rules-repo
+  branch: master
+
+# Deployment filter
+services:
+  - name: "*"  # Deploy all services
+    deployment: "*"  # From all deployments
+```
+
+### Service-Specific Configuration
+
+Per-service configuration in `rules-deploy.xml` (inside rule project):
+
+```xml
+<rules-deploy>
+  <isProvideRuntimeContext>true</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>InsuranceRules</serviceName>
+  <serviceClass>com.example.InsuranceInterface</serviceClass>
+  <url>/insurance</url>
+</rules-deploy>
+```
+
+## OpenAPI / Swagger
+
+Automatic API documentation generation:
+
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+
+### Customization
+
+Add OpenAPI annotations to service interface:
+
+```java
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Insurance Rules API",
+        version = "1.0",
+        description = "Insurance rating and underwriting rules"
+    )
+)
+public interface InsuranceRules {
+
+    @Operation(summary = "Calculate insurance premium")
+    @ApiResponse(responseCode = "200", description = "Premium calculated")
+    Double calculatePremium(Policy policy);
+}
+```
+
+## MCP (Model Context Protocol) Server
+
+New feature for AI integration:
+
+**Location**: `org.openl.rules.ruleservice.ws.mcp`
+
+**Purpose**: Expose rules to AI assistants (Claude, Cursor, etc.) via MCP protocol.
+
+**Configuration**:
+```yaml
+mcp:
+  enabled: true
+  port: 8081
+  services:
+    - name: InsuranceRules
+      description: "Insurance rating rules"
+```
+
+**Usage**: AI tools can discover and invoke rule services via MCP.
+
+## Performance Optimization
+
+### Caching
+
+```yaml
+ruleservice:
+  cache:
+    enabled: true
+    size: 1000
+    ttl: 3600  # seconds
+```
+
+### Connection Pooling
+
+Configure HTTP client pools:
+
+```yaml
+http:
+  pool:
+    maxTotal: 200
+    maxPerRoute: 20
+```
+
+### Async Processing
+
+Use Kafka for async rule execution:
+
+```yaml
+kafka:
+  enabled: true
+  bootstrap-servers: localhost:9092
+  topics:
+    request: rule-requests
+    response: rule-responses
+```
+
+## Observability
+
+### OpenTelemetry Integration
+
+Automatic tracing and metrics:
+
+```yaml
+opentelemetry:
+  enabled: true
+  exporter:
+    type: otlp
+    endpoint: http://localhost:4317
+```
+
+### Metrics
+
+Available metrics:
+- `ruleservice_requests_total`: Total requests
+- `ruleservice_request_duration_seconds`: Request latency
+- `ruleservice_errors_total`: Error count
+
+### Logging
+
+```properties
+# Configure logging levels
+logging.level.org.openl.rules.ruleservice=DEBUG
+logging.level.org.apache.cxf=INFO
+```
+
+## Security
+
+### Authentication
+
+Support for multiple auth methods:
+
+```yaml
+security:
+  auth:
+    type: basic  # basic, oauth2, jwt, saml
+    users:
+      - username: admin
+        password: {bcrypt}$2a$10$...
+        roles: ADMIN
+```
+
+### Authorization
+
+Method-level security:
+
+```java
+@PreAuthorize("hasRole('UNDERWRITER')")
+public Double calculatePremium(Policy policy) {
+    // Only users with UNDERWRITER role can access
+}
+```
+
+### SSL/TLS
+
+```yaml
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.jks
+    key-store-password: password
+    key-store-type: JKS
+```
+
+## Versioning
+
+### URL-Based Versioning
+
+```
+/api/v1/calculatePremium
+/api/v2/calculatePremium
+```
+
+### Header-Based Versioning
+
+```
+X-API-Version: 1.0
+```
+
+### Deployment-Based Versioning
+
+Multiple deployments for different versions:
+
+```
+deployments/
+├── v1.0/
+│   └── InsuranceRules/
+└── v2.0/
+    └── InsuranceRules/
+```
+
+## Error Handling
+
+### Custom Error Responses
+
+```java
+@ExceptionHandler(RuleExecutionException.class)
+public ResponseEntity<ErrorResponse> handleRuleException(RuleExecutionException e) {
+    ErrorResponse error = new ErrorResponse(
+        "RULE_EXECUTION_ERROR",
+        e.getMessage(),
+        System.currentTimeMillis()
+    );
+    return ResponseEntity.status(500).body(error);
+}
+```
+
+### Standard Error Format
+
+```json
+{
+  "error": {
+    "code": "RULE_EXECUTION_ERROR",
+    "message": "Failed to execute rule",
+    "timestamp": 1699564800000,
+    "details": {
+      "rule": "calculatePremium",
+      "cause": "Invalid policy data"
+    }
+  }
+}
+```
+
+## Testing
+
+### Integration Tests
+
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+class RuleServiceIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void testCalculatePremium() throws Exception {
+        String requestBody = """
+            {
+              "policy": {
+                "policyNumber": "POL-12345",
+                "coverage": 100000
+              }
+            }
+            """;
+
+        mockMvc.perform(post("/api/calculatePremium")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result").isNumber());
+    }
+}
+```
+
+### Load Testing
+
+Use JMeter or Gatling for load testing:
+
+```scala
+// Gatling scenario
+scenario("Calculate Premium")
+  .exec(http("POST /api/calculatePremium")
+    .post("/api/calculatePremium")
+    .body(StringBody("""{"policy": {...}}"""))
+    .asJson)
+```
+
+## Deployment
+
+### Standalone JAR
+
+```bash
+java -jar ruleservice.war
+```
+
+### Docker
+
+```dockerfile
+FROM eclipse-temurin:21-jre
+COPY ruleservice.war /app/
+WORKDIR /app
+EXPOSE 8080
+CMD ["java", "-jar", "ruleservice.war"]
+```
+
+### Kubernetes
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruleservice
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: ruleservice
+        image: openl/ruleservice:latest
+        ports:
+        - containerPort: 8080
+```
+
+## Common Patterns
+
+### Service Interface Pattern
+
+Define Java interface for type safety:
+
+```java
+public interface InsuranceRules {
+    Double calculatePremium(Policy policy);
+    Boolean approvePolicy(Policy policy);
+    List<Coverage> recommendCoverage(Customer customer);
+}
+```
+
+Rule Services generates implementation from Excel rules.
+
+### DTO Pattern
+
+Use DTOs for request/response:
+
+```java
+public class CalculatePremiumRequest {
+    private Policy policy;
+    // getters/setters
+}
+
+public class CalculatePremiumResponse {
+    private Double premium;
+    private List<String> warnings;
+    // getters/setters
+}
+```
+
+## Troubleshooting
+
+### Service Not Deploying
+
+**Check**:
+- Repository accessibility
+- `rules-deploy.xml` configuration
+- Logs for errors: `logging.level.org.openl.rules.ruleservice=DEBUG`
+
+### Performance Issues
+
+**Check**:
+- Enable caching
+- Increase connection pool sizes
+- Profile with OpenTelemetry
+- Check rule complexity
+
+### Hot Reload Not Working
+
+**Check**:
+- Repository watcher is enabled
+- File system permissions
+- Git fetch interval configuration
+
+## Related Documentation
+
+- Main conventions: `/WSFrontend/CLAUDE.md`
+- Architecture: `/Docs/architecture/`
+- Analysis: `/Docs/analysis/studio-wsfrontend-util-overview.md`
+- Configuration: `/Docs/configuration/`
+- Deployment: `/Docs/Production_Deployment.md`

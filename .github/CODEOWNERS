@@ -1,0 +1,15 @@
+# Code Owners for OpenL Tablets
+#
+# This file defines individuals or teams responsible for code in this repository.
+# Code owners are automatically requested for review when someone opens a pull request
+# that modifies code that they own.
+#
+# Order is important; the last matching pattern takes the most precedence.
+# More specific patterns should be listed after more general ones.
+#
+# For more information, see:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repository
+# These owners will be requested for review unless a later match takes precedence
+* @ymolchan @vpikus

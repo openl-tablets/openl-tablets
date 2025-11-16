@@ -1,0 +1,645 @@
+# Deployment Configurations and Patterns
+
+Deployment strategies, configurations, and best practices for OpenL Tablets applications.
+
+## Deployment Options
+
+OpenL Tablets can be deployed in multiple ways:
+
+1. **Docker** (Recommended for containerized environments)
+2. **Standalone JAR** (Spring Boot executable)
+3. **WAR File** (Traditional application server)
+4. **Kubernetes** (Container orchestration)
+5. **Cloud Platforms** (AWS, Azure, GCP)
+
+## Docker Deployment
+
+### Building Docker Image
+
+```bash
+# Build application
+mvn clean install -DskipTests
+
+# Build Docker image
+docker build -t openl-tablets:latest .
+```
+
+### Dockerfile
+
+```dockerfile
+FROM eclipse-temurin:21-jre
+
+# Application metadata
+LABEL maintainer="OpenL Tablets"
+LABEL version="6.0.0"
+
+# Create application directory
+WORKDIR /app
+
+# Copy WAR file
+COPY STUDIO/org.openl.rules.webstudio/target/webapp.war /app/webstudio.war
+
+# Expose ports
+EXPOSE 8080
+
+# Environment variables
+ENV JAVA_OPTS="-Xmx2g -Xms1g"
+ENV OPENL_HOME=/opt/openl
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Run application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/webstudio.war"]
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+
+services:
+  webstudio:
+    image: openl-tablets/webstudio:latest
+    container_name: openl-webstudio
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms1g
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/openl
+      - SPRING_DATASOURCE_USERNAME=openl
+      - SPRING_DATASOURCE_PASSWORD=openl
+    volumes:
+      - webstudio-data:/opt/openl/workspace
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  ruleservice:
+    image: openl-tablets/ruleservice:latest
+    container_name: openl-ruleservice
+    ports:
+      - "8081:8080"
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms1g
+      - RULESERVICE_DATASOURCE_URI=file:///opt/openl/production-repository
+    volumes:
+      - ruleservice-data:/opt/openl/production-repository
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:16
+    container_name: openl-postgres
+    environment:
+      - POSTGRES_DB=openl
+      - POSTGRES_USER=openl
+      - POSTGRES_PASSWORD=openl
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openl"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  webstudio-data:
+  ruleservice-data:
+  postgres-data:
+
+networks:
+  default:
+    name: openl-network
+```
+
+### Running with Docker Compose
+
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop all services
+docker compose down
+
+# Stop and remove volumes
+docker compose down -v
+```
+
+## Kubernetes Deployment
+
+### Deployment Manifest
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openl-webstudio
+  namespace: openl
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openl-webstudio
+  template:
+    metadata:
+      labels:
+        app: openl-webstudio
+    spec:
+      containers:
+      - name: webstudio
+        image: openl-tablets/webstudio:6.0.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx2g -Xms1g"
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: openl-secrets
+              key: database-url
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        volumeMounts:
+        - name: workspace
+          mountPath: /opt/openl/workspace
+      volumes:
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: openl-workspace-pvc
+```
+
+### Service Manifest
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: openl-webstudio
+  namespace: openl
+spec:
+  type: LoadBalancer
+  selector:
+    app: openl-webstudio
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+```
+
+### ConfigMap
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openl-config
+  namespace: openl
+data:
+  application.properties: |
+    server.port=8080
+    spring.datasource.hikari.maximum-pool-size=20
+    repository.factory.class=org.openl.rules.repository.git.GitRepositoryFactory
+```
+
+### Secret
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openl-secrets
+  namespace: openl
+type: Opaque
+stringData:
+  database-url: jdbc:postgresql://postgres-service:5432/openl
+  database-username: openl
+  database-password: openl_password_here
+```
+
+### Helm Chart (Recommended)
+
+```bash
+# Install with Helm
+helm repo add openl https://openl-tablets.github.io/helm-charts
+helm install openl-webstudio openl/webstudio \
+  --set image.tag=6.0.0 \
+  --set postgresql.enabled=true \
+  --set persistence.enabled=true
+```
+
+## Configuration Management
+
+### Environment-Specific Configuration
+
+**Development**:
+```properties
+# application-dev.properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.jpa.hibernate.ddl-auto=create-drop
+logging.level.org.openl=DEBUG
+```
+
+**Staging**:
+```properties
+# application-staging.properties
+spring.datasource.url=jdbc:postgresql://staging-db:5432/openl
+spring.jpa.hibernate.ddl-auto=validate
+logging.level.org.openl=INFO
+```
+
+**Production**:
+```properties
+# application-prod.properties
+spring.datasource.url=jdbc:postgresql://prod-db:5432/openl
+spring.jpa.hibernate.ddl-auto=validate
+logging.level.org.openl=WARN
+security.require-ssl=true
+```
+
+### External Configuration
+
+Load configuration from external sources:
+
+```bash
+# From file
+java -jar webstudio.war --spring.config.location=file:/etc/openl/application.properties
+
+# From environment variables
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/openl
+export SPRING_DATASOURCE_USERNAME=openl
+export SPRING_DATASOURCE_PASSWORD=openl
+
+# From command line
+java -jar webstudio.war \
+  --spring.datasource.url=jdbc:postgresql://localhost:5432/openl \
+  --spring.datasource.username=openl
+```
+
+## Performance Tuning
+
+### JVM Options
+
+```bash
+# Production JVM settings
+JAVA_OPTS="
+  -Xmx4g
+  -Xms2g
+  -XX:+UseG1GC
+  -XX:MaxGCPauseMillis=200
+  -XX:+HeapDumpOnOutOfMemoryError
+  -XX:HeapDumpPath=/var/log/openl/heapdump.hprof
+  -Djava.awt.headless=true
+  -Dfile.encoding=UTF-8
+"
+```
+
+### Connection Pool Tuning
+
+```properties
+# High-traffic production
+spring.datasource.hikari.maximum-pool-size=50
+spring.datasource.hikari.minimum-idle=10
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.idle-timeout=300000
+spring.datasource.hikari.max-lifetime=1200000
+```
+
+### Cache Configuration
+
+```properties
+# Ehcache configuration
+spring.cache.type=ehcache
+spring.cache.ehcache.config=classpath:ehcache.xml
+```
+
+## Security Configuration
+
+### SSL/TLS
+
+```properties
+# Enable HTTPS
+server.port=8443
+server.ssl.enabled=true
+server.ssl.key-store=classpath:keystore.jks
+server.ssl.key-store-password=password
+server.ssl.key-store-type=JKS
+server.ssl.key-alias=openl
+
+# Redirect HTTP to HTTPS
+server.http2.enabled=true
+```
+
+### SAML Authentication
+
+```properties
+# SAML configuration
+security.saml.enabled=true
+security.saml.idp-metadata-url=https://idp.example.com/metadata
+security.saml.entity-id=openl-webstudio
+security.saml.sp-metadata-path=/saml/metadata
+```
+
+### OAuth2
+
+```properties
+# OAuth2 configuration
+spring.security.oauth2.client.registration.okta.client-id=your-client-id
+spring.security.oauth2.client.registration.okta.client-secret=your-client-secret
+spring.security.oauth2.client.provider.okta.issuer-uri=https://your-domain.okta.com/oauth2/default
+```
+
+## Monitoring and Observability
+
+### Spring Boot Actuator
+
+```properties
+# Enable actuator endpoints
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=always
+
+# Metrics
+management.metrics.enable.jvm=true
+management.metrics.enable.process=true
+management.metrics.enable.system=true
+```
+
+### Prometheus Integration
+
+```properties
+# Prometheus metrics
+management.prometheus.metrics.export.enabled=true
+management.endpoint.prometheus.enabled=true
+```
+
+### OpenTelemetry
+
+```properties
+# OpenTelemetry configuration
+opentelemetry.enabled=true
+opentelemetry.exporter.type=otlp
+opentelemetry.exporter.endpoint=http://otel-collector:4317
+opentelemetry.service.name=openl-webstudio
+opentelemetry.traces.sampler=always_on
+```
+
+### Logging
+
+```xml
+<!-- logback-spring.xml -->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/openl/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/openl/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="org.openl" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
+</configuration>
+```
+
+## High Availability
+
+### Load Balancing
+
+Use Nginx or HAProxy for load balancing:
+
+```nginx
+upstream openl_backend {
+    least_conn;
+    server openl-1:8080 max_fails=3 fail_timeout=30s;
+    server openl-2:8080 max_fails=3 fail_timeout=30s;
+    server openl-3:8080 max_fails=3 fail_timeout=30s;
+}
+
+server {
+    listen 80;
+    server_name openl.example.com;
+
+    location / {
+        proxy_pass http://openl_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Health check endpoint
+    location /health {
+        proxy_pass http://openl_backend/actuator/health;
+    }
+}
+```
+
+### Session Replication
+
+For clustered deployments, use Redis for session storage:
+
+```properties
+spring.session.store-type=redis
+spring.redis.host=redis-server
+spring.redis.port=6379
+spring.session.redis.namespace=openl:session
+```
+
+## Backup and Recovery
+
+### Database Backup
+
+```bash
+# PostgreSQL backup
+pg_dump -h localhost -U openl openl > openl_backup_$(date +%Y%m%d).sql
+
+# Restore
+psql -h localhost -U openl openl < openl_backup_20250101.sql
+```
+
+### Repository Backup
+
+```bash
+# Git repository backup
+tar -czf repository_backup_$(date +%Y%m%d).tar.gz /opt/openl/design-repository
+
+# Restore
+tar -xzf repository_backup_20250101.tar.gz -C /opt/openl/
+```
+
+### Automated Backup
+
+```bash
+# Cron job for daily backup
+0 2 * * * /opt/openl/scripts/backup.sh
+
+# backup.sh
+#!/bin/bash
+DATE=$(date +%Y%m%d)
+BACKUP_DIR=/backups/openl/$DATE
+
+mkdir -p $BACKUP_DIR
+
+# Backup database
+pg_dump -h localhost -U openl openl > $BACKUP_DIR/database.sql
+
+# Backup repository
+tar -czf $BACKUP_DIR/repository.tar.gz /opt/openl/design-repository
+
+# Keep only last 30 days
+find /backups/openl -type d -mtime +30 -exec rm -rf {} \;
+```
+
+## Cloud Deployment
+
+### AWS Deployment
+
+**Elastic Beanstalk**:
+```bash
+# Create application
+eb init -p "Corretto 21 running on 64bit Amazon Linux 2023" openl-webstudio
+
+# Deploy
+eb create openl-production --database.engine postgres
+
+# Configure environment
+eb setenv SPRING_DATASOURCE_URL=jdbc:postgresql://rds-endpoint:5432/openl
+```
+
+**ECS Fargate**:
+```json
+{
+  "family": "openl-webstudio",
+  "containerDefinitions": [
+    {
+      "name": "webstudio",
+      "image": "openl-tablets/webstudio:latest",
+      "memory": 2048,
+      "cpu": 1024,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Azure Deployment
+
+**App Service**:
+```bash
+# Create resource group
+az group create --name openl-rg --location eastus
+
+# Create App Service plan
+az appservice plan create --name openl-plan --resource-group openl-rg --sku P1V2 --is-linux
+
+# Deploy
+az webapp create --resource-group openl-rg --plan openl-plan --name openl-webstudio \
+  --deployment-container-image-name openl-tablets/webstudio:latest
+```
+
+### GCP Deployment
+
+**Cloud Run**:
+```bash
+# Deploy to Cloud Run
+gcloud run deploy openl-webstudio \
+  --image openl-tablets/webstudio:latest \
+  --platform managed \
+  --region us-central1 \
+  --memory 2Gi \
+  --cpu 2 \
+  --allow-unauthenticated
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Out of Memory**:
+```bash
+# Increase heap size
+JAVA_OPTS="-Xmx4g -Xms2g"
+
+# Enable heap dump on OOM
+JAVA_OPTS="$JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError"
+```
+
+**Slow Startup**:
+```bash
+# Reduce startup time
+JAVA_OPTS="$JAVA_OPTS -XX:TieredStopAtLevel=1"
+```
+
+**Connection Pool Exhausted**:
+```properties
+# Increase pool size
+spring.datasource.hikari.maximum-pool-size=50
+```
+
+## Related Documentation
+
+- Production Deployment: `/Docs/Production_Deployment.md`
+- Configuration: `/Docs/configuration/`
+- Security: `/Docs/configuration/security.md`
+- Docker Compose: `/docker-compose.dev.yml`

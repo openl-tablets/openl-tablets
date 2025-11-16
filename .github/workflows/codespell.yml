@@ -1,0 +1,87 @@
+name: Spell Check
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    name: Check Spelling
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install codespell
+        run: pip install codespell
+
+      - name: Run codespell
+        run: |
+          codespell \
+            --skip=".git,.mvn,node_modules,target,dist,build,*.min.js,*.min.css,package-lock.json,pom.xml.versionsBackup" \
+            --ignore-words-list="crate,numer,pres,ser,thirdparty,aks,datas,hist,nd,ot,te,ue,unexpect,warmup,ws" \
+            --exclude-file=.codespellignore \
+            --quiet-level=2 \
+            --check-filenames \
+            --check-hidden \
+            . || {
+              echo ""
+              echo "❌ Spelling errors detected!"
+              echo ""
+              echo "To fix spelling errors, either:"
+              echo "1. Fix the spelling in the affected files"
+              echo "2. Add false positives to .codespellignore (one per line)"
+              echo "3. Add to ignore-words-list in .github/workflows/codespell.yml"
+              echo ""
+              exit 1
+            }
+
+      - name: Comment on PR (on failure)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ Spell Check Failed
+
+            Spelling errors were detected in your changes.
+
+            ### How to Fix
+
+            **Option 1: Fix the spelling**
+            \`\`\`bash
+            # Review the errors in the workflow logs
+            # Fix the spelling in the affected files
+            \`\`\`
+
+            **Option 2: Add false positives to ignore list**
+            \`\`\`bash
+            # Create .codespellignore if it doesn't exist
+            echo "path/to/file/with/false/positive.txt" >> .codespellignore
+            \`\`\`
+
+            **Option 3: Add common technical terms to ignore**
+            Edit \`.github/workflows/codespell.yml\` and add to \`--ignore-words-list\`.
+
+            ### Run Locally
+
+            \`\`\`bash
+            pip install codespell
+            npm run spell-check
+            \`\`\`
+            `
+            })
