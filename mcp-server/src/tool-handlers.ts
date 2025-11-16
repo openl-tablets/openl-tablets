@@ -338,6 +338,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         status?: "LOCAL" | "ARCHIVED" | "OPENED" | "VIEWING_VERSION" | "EDITING" | "CLOSED";
         comment?: string;
         discardChanges?: boolean;
+        confirm?: boolean;
         branch?: string;
         revision?: string;
         selectedBranches?: string[];
@@ -346,6 +347,17 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
       if (!typedArgs || !typedArgs.projectId) {
         throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()");
+      }
+
+      // Destructive operation: require confirmation when discarding changes
+      if (typedArgs.discardChanges === true && typedArgs.confirm !== true) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `Discarding unsaved changes is a destructive operation that will permanently lose all uncommitted work in project "${typedArgs.projectId}". ` +
+          `To save changes instead, provide a comment parameter without discardChanges. ` +
+          `To proceed with discarding changes, set both discardChanges: true AND confirm: true in your request. ` +
+          `To review what will be lost, first use: openl_get_project(projectId: "${typedArgs.projectId}")`
+        );
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -755,6 +767,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         repository: string;
         deploymentRepository: string;
         version?: string;
+        confirm?: boolean;
         response_format?: "json" | "markdown";
       };
 
@@ -762,6 +775,20 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         throw new McpError(
           ErrorCode.InvalidParams,
           "Missing required arguments: projectName, repository, deploymentRepository"
+        );
+      }
+
+      // Destructive operation: require confirmation
+      if (typedArgs.confirm !== true) {
+        const projectId = `${typedArgs.repository}-${typedArgs.projectName}`;
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `Deploying to production is a destructive operation that publishes rules to "${typedArgs.deploymentRepository}". ` +
+          `Before deploying, ensure:\n` +
+          `  1. All tests pass (use OpenL WebStudio UI to run tests)\n` +
+          `  2. Project validates without errors (use OpenL WebStudio UI to validate)\n` +
+          `  3. You have reviewed recent changes with: openl_get_project_history(projectId: "${projectId}")\n\n` +
+          `To proceed with deployment, set confirm: true in your request.`
         );
       }
 
@@ -854,11 +881,23 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         projectId: string;
         targetVersion: string;
         comment?: string;
+        confirm?: boolean;
         response_format?: "json" | "markdown";
       };
 
       if (!typedArgs || !typedArgs.projectId || !typedArgs.targetVersion) {
         throw new McpError(ErrorCode.InvalidParams, "Missing required arguments: projectId, targetVersion");
+      }
+
+      // Destructive operation: require confirmation
+      if (typedArgs.confirm !== true) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `This operation will revert project "${typedArgs.projectId}" to version "${typedArgs.targetVersion}", ` +
+          `which is a destructive action that creates a new commit with the old state. ` +
+          `To proceed, set confirm: true in your request. ` +
+          `To review the target version first, use: openl_get_project_history(projectId: "${typedArgs.projectId}")`
+        );
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
