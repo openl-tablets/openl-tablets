@@ -54,35 +54,42 @@ OpenL has TWO independent versioning systems:
 
 See [prompts/create_rule.md](./prompts/create_rule.md) for detailed table type guidance.
 
-## Tools (19 Total)
+## Tools (18 Total)
+
+All tools are versioned (v1.0.0) and prefixed with `openl_` for MCP compliance.
 
 **Repository** (2): openl_list_repositories, openl_list_branches
-**Project** (6): openl_list_projects, openl_get_project, openl_open_project, openl_close_project, openl_save_project, openl_validate_project
+**Project** (3): openl_list_projects, openl_get_project, openl_update_project_status
 **Files** (3): openl_upload_file, openl_download_file, openl_get_file_history
-**Rules** (7): openl_list_tables, openl_get_table, openl_update_table, openl_create_rule, openl_execute_rule, openl_run_test, openl_run_all_tests
-**Version Control** (3): openl_get_project_history, openl_compare_versions, openl_revert_version
+**Rules** (5): openl_list_tables, openl_get_table, openl_update_table, openl_append_table, openl_create_rule
+**Version Control** (2): openl_get_project_history, openl_revert_version
 **Deployment** (2): openl_list_deployments, openl_deploy_project
-**Testing** (2): openl_validate_project, openl_get_project_errors
+**Execution** (1): openl_execute_rule
 
-## Prompts (11 Total)
+**Note**: Some tools (`openl_validate_project`, `openl_test_project`, `openl_get_project_errors`, `openl_compare_versions`) are temporarily disabled pending full implementation. Use OpenL WebStudio UI for these operations.
 
-Expert guidance templates for complex OpenL Tablets workflows. Prompts provide contextual assistance, best practices, and step-by-step instructions directly in Claude Desktop or MCP Inspector.
+## Prompts (12 Total)
+
+Expert guidance templates for complex OpenL Tablets workflows. **Each prompt now includes a concise summary section** (1-3 sentences) highlighting the most common use cases and critical requirements.
+
+Prompts provide contextual assistance, best practices, and step-by-step instructions directly in Claude Desktop or MCP Inspector.
 
 ### Available Prompts
 
-| Prompt | Description | Arguments |
-|--------|-------------|-----------|
-| **create_rule** | Comprehensive guide for creating OpenL tables (decision tables, spreadsheets, datatypes) with examples for all 5 decision table variants | None |
-| **datatype_vocabulary** | Guide for defining custom datatypes (domain objects) and vocabularies (enumerations) with inheritance and validation | None |
-| **create_test** | Step-by-step guide for creating OpenL test tables with proper 3-row structure and validation | `tableName`, `tableType` |
-| **update_test** | Guide for modifying existing tests, adding test cases, and updating expected values | `testId`, `tableName` |
-| **run_test** | Test selection logic and workflow for efficient test execution (single, multiple, or all tests) | `scope`, `tableIds` |
-| **dimension_properties** | Explanation of OpenL dimension properties (state, lob, dates) vs Git versioning with runtime selection logic | None |
-| **execute_rule** | Guide for constructing test data and executing OpenL rules with proper JSON formatting | `ruleName`, `projectId` |
-| **deploy_project** | Deployment workflow with mandatory validation checks and environment selection | `projectId`, `environment` |
-| **get_project_errors** | Error analysis workflow with pattern matching and fix recommendations | `projectId` |
-| **file_history** | Guide for viewing Git-based file version history and commit navigation | `filePath`, `projectId` |
-| **project_history** | Guide for viewing project-wide Git commit history | `projectId` |
+| Prompt | Description | Summary |
+|--------|-------------|---------|
+| **create_rule** | Comprehensive guide for creating OpenL tables (decision tables, spreadsheets, datatypes) with examples for all 5 decision table variants | Choose table type based on use case: Decision Tables for conditional logic, SimpleLookup/SmartLookup for key-value mappings, Spreadsheet for calculations |
+| **create_test** | Step-by-step guide for creating OpenL test tables with proper 3-row structure and validation | Test tables mirror method signatures with columns matching tested table parameters plus _res_ (expected result) or _error_ (expected error) |
+| **update_test** | Guide for modifying existing tests, adding test cases, and updating expected values | Use openl_get_table() to fetch structure, modify rows, then openl_update_table() with FULL view. Always run tests after updates |
+| **run_test** | Test selection logic and workflow for efficient test execution | Run targeted tests first (1-5 tables → specific tableIds, 6+ → runAll). Before save/deploy, ALWAYS run all tests |
+| **execute_rule** | Guide for constructing test data and executing OpenL rules with proper JSON formatting | Execute rules for quick validation using openl_execute_rule() with inputData as JSON matching rule parameters |
+| **append_table** | Guide for appending new rows/fields to existing tables efficiently | Use openl_append_table for incremental additions to Datatypes or Data tables without fetching full structure |
+| **datatype_vocabulary** | Guide for defining custom datatypes (domain objects) and vocabularies (enumerations) | Define reusable data structures: Datatype tables create custom types, Vocabulary tables define allowed values |
+| **dimension_properties** | Explanation of OpenL dimension properties (state, lob, dates) vs Git versioning with runtime selection logic | Dimension properties enable context-based rule selection: multiple versions of same rule selected at runtime by properties like state, lob, effectiveDate |
+| **deploy_project** | Deployment workflow with mandatory validation checks and environment selection | All deployments MUST pass validation (0 errors), run all tests (100% pass), and follow environment progression (dev → test → staging → prod) |
+| **get_project_errors** | Error analysis workflow with pattern matching and fix recommendations | Systematic error resolution: Fix by category (type mismatches, missing references, syntax errors, circular dependencies). Target 0 errors before deployment |
+| **file_history** | Guide for viewing Git-based file version history and commit navigation | Track file changes with Git commit history: Every save creates a Git commit. Use openl_get_file_history() to view commits, openl_download_file(version=hash) for old versions |
+| **project_history** | Guide for viewing project-wide Git commit history | Project-wide audit trail showing all commits across entire project, with author, files changed, tables modified, and commit type |
 
 ### Using Prompts
 
@@ -256,9 +263,18 @@ Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ### Response Formatting
 
-All tools support the `response_format` parameter:
+All tools support the `response_format` parameter with **4 format variants**:
+
 - `json`: Structured JSON response (for programmatic use)
-- `markdown`: Human-readable markdown format (default, better for AI consumption)
+- `markdown`: Full human-readable markdown format (default, optimal for AI consumption)
+- `markdown_concise`: Brief 1-2 paragraph summary with key metrics (e.g., "Found 10 projects (5 opened). Projects: project1, project2, project3...")
+- `markdown_detailed`: Full details + metadata headers + contextual breakdowns (includes retrieved timestamp, status breakdowns, usage hints)
+
+**When to use each format:**
+- `json`: Machine parsing, API integrations, structured data extraction
+- `markdown`: Default for AI assistants, balanced detail and readability
+- `markdown_concise`: Quick overviews, status checks, scanning large datasets
+- `markdown_detailed`: Comprehensive analysis, debugging, audit trails
 
 Example:
 ```json
@@ -266,7 +282,7 @@ Example:
   "name": "openl_list_projects",
   "arguments": {
     "repository": "design",
-    "response_format": "markdown"
+    "response_format": "markdown_concise"
   }
 }
 ```
@@ -323,6 +339,41 @@ To ensure optimal performance and compatibility with MCP clients, responses are 
 
 If you receive a truncation message, reduce `limit` or add filters to retrieve complete data.
 
+### Destructive Operation Confirmation
+
+**Safety-critical operations require explicit confirmation** to prevent accidental data loss:
+
+**Operations requiring confirmation:**
+- `openl_revert_version`: Set `confirm: true` to revert project to previous Git commit (creates new commit with old state)
+- `openl_deploy_project`: Set `confirm: true` to deploy to production (publishes rules for runtime execution)
+- `openl_update_project_status`: Set `confirm: true` when using `discardChanges: true` (permanently loses uncommitted work)
+
+**Error messages are actionable:**
+If you forget `confirm: true`, the tool returns a detailed error message explaining:
+- What the destructive operation will do
+- Why it requires confirmation
+- What to review before proceeding (e.g., `openl_get_project_history()`)
+- How to proceed (set `confirm: true`)
+
+Example:
+```json
+{
+  "name": "openl_revert_version",
+  "arguments": {
+    "projectId": "design-InsuranceRules",
+    "targetVersion": "abc123def456",
+    "comment": "Reverting bad changes",
+    "confirm": true
+  }
+}
+```
+
+**Before deploying to production:**
+1. Validate project → MUST pass (0 errors) - Use OpenL WebStudio UI
+2. Run all tests → ALL must pass - Use OpenL WebStudio UI
+3. Review recent changes with `openl_get_project_history()`
+4. Set `confirm: true`
+
 ## Project Structure
 
 ```
@@ -349,22 +400,47 @@ mcp-server/
 
 ```bash
 npm run build          # Build TypeScript
-npm test               # Run tests (47 total)
+npm test               # Run tests (347 total, 35% coverage)
 npm run lint           # Check code quality
 npm run watch          # Dev mode with auto-rebuild
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
+**Test Coverage** (35.22% overall):
+- validators.ts: 96.15%
+- utils.ts: 97.95%
+- auth.ts: 63.01%
+- client.ts: 45.32%
+- formatters.ts: 44.19%
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines and [tests/](./tests/) for test suites.
 
 ## Key Features
 
-- **Type-Safe**: Zod schemas with TypeScript inference
-- **OpenL-Specific**: Proper table types (SimpleRules not simplerules)
-- **Dual Versioning**: Git commits + dimension properties
-- **OAuth 2.1**: Automatic token management and refresh
-- **Enhanced Errors**: Detailed context (endpoint, method, tool)
-- **Tool Metadata**: Version, category, operation flags
-- **AI Prompts**: OpenL-specific guidance in prompts/ directory
+### MCP Best Practices (Anthropic)
+- **4 Response Formats**: json, markdown, markdown_concise, markdown_detailed
+- **Pagination Metadata**: has_more, next_offset, total_count for all list operations
+- **Actionable Error Messages**: Suggestions for corrective actions (e.g., "use openl_list_projects()")
+- **Destructive Operation Confirmation**: Explicit confirm flag for revert_version, deploy_project, discard changes
+- **Tool Versioning**: All 18 tools versioned (v1.0.0) for change tracking
+- **Prompt Summaries**: 1-3 sentence summaries in all 12 prompts for quick reference
+
+### OpenL Tablets Integration
+- **Type-Safe**: Zod schemas with strict validation and TypeScript inference
+- **OpenL-Specific**: Proper table types (SimpleRules not simplerules), dimension properties, Git-based versioning
+- **Dual Versioning**: Git commits (temporal) + dimension properties (business context)
+- **AI Prompts**: 12 expert guidance templates with conditional rendering
+
+### Authentication & Security
+- **OAuth 2.1**: Automatic token management, refresh, and retry on 401
+- **API Key**: Simple header-based authentication
+- **Basic Auth**: Username/password with Base64 encoding
+- **Sensitive Data Protection**: Automatic redaction of Bearer tokens, API keys, credentials in error messages
+
+### Developer Experience
+- **Enhanced Errors**: Detailed context (endpoint, method, tool, suggested fix)
+- **Tool Metadata**: Version, category, operation flags (readOnlyHint, destructiveHint)
+- **Character Limit**: 25K response truncation with helpful guidance
+- **Comprehensive Tests**: 347 tests covering validators, formatters, auth, client, utils (35% coverage)
 
 ## Troubleshooting
 
