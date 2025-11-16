@@ -640,6 +640,6 @@ spring.datasource.hikari.maximum-pool-size=50
 ## Related Documentation
 
 - Production Deployment: `/Docs/Production_Deployment.md`
-- Configuration: `/Docs/Configuration.md`
-- Security: `/Docs/Security.md`
-- Docker Compose: `/compose.yaml`
+- Configuration: `/Docs/configuration/`
+- Security: `/Docs/configuration/security.md`
+- Docker Compose: `/docker-compose.dev.yml`

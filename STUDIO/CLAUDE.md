@@ -624,7 +624,7 @@ docker run -p 8080:8080 \
 - **Root Conventions**: [/CLAUDE.md](../CLAUDE.md)
 - **Frontend Conventions**: [studio-ui/CLAUDE.md](studio-ui/CLAUDE.md)
 - **Architecture**: [Docs/architecture/](../Docs/architecture/)
-- **Testing Guide**: [docs/guides/testing-guide.md](../Docs/guides/testing-guide.md)
+- **Testing Guide**: [Docs/guides/testing-guide.md](../Docs/guides/testing-guide.md)
 
 ---
 

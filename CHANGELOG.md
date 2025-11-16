@@ -43,7 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Enhanced README.md structure with table of contents, features, use cases, and community sections
-- Deprecated old Docs/ directory in favor of modern docs/ structure
 - Migrated WebStudio references to OpenL Studio in documentation
 
 ### Documentation
@@ -63,12 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration guides (Activiti, Spring, OpenAPI, CXF, OpenTelemetry)
   - Module-specific conventions (DEV, STUDIO, WSFrontend, Util)
 - Configuration and deployment:
-  - Configuration overview and security
   - Production deployment guide
-  - Docker deployment (simple, multi-container, full HA)
-  - Kubernetes deployment with manifests
-  - Cloud deployment guides (AWS, Azure)
-  - VM deployment guide
+  - Example deployment configurations
 - Examples and references:
   - Production deployment examples (32 files)
   - API documentation structure

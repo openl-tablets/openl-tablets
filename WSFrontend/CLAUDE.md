@@ -790,8 +790,8 @@ management:
 - **Module Analysis**: [WSFrontend Overview](../Docs/analysis/studio-wsfrontend-util-overview.md)
 - **Root Conventions**: [/CLAUDE.md](../CLAUDE.md)
 - **Architecture**: [Docs/architecture/](../Docs/architecture/)
-- **Production Deployment**: [docs/operations/production-deployment.md](../Docs/operations/production-deployment.md)
-- **Performance Tuning**: [docs/guides/performance-tuning.md](../Docs/guides/performance-tuning.md)
+- **Production Deployment**: [Docs/Production_Deployment.md](../Docs/Production_Deployment.md)
+- **Performance Tuning**: [Docs/guides/performance-tuning.md](../Docs/guides/performance-tuning.md)
 
 ---
 
