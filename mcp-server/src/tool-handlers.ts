@@ -127,7 +127,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_list_repositories",
-    title: "OpenL List Repositories",
+    title: "openl List Repositories",
     version: "1.0.0",
     description:
       "List all design repositories in OpenL Tablets. Returns repository names, types, and status information. Use this to discover available repositories before accessing projects.",
@@ -177,7 +177,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_list_branches",
-    title: "OpenL List Branches",
+    title: "openl List Branches",
     version: "1.0.0",
     description:
       "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
@@ -230,7 +230,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_list_projects",
-    title: "OpenL List Projects",
+    title: "openl List Projects",
     version: "1.0.0",
     description:
       "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools.",
@@ -289,7 +289,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_get_project",
-    title: "OpenL Get Project",
+    title: "openl Get Project",
     version: "1.0.0",
     description:
       "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status.",
@@ -323,7 +323,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_update_project_status",
-    title: "OpenL Update Project Status",
+    title: "openl Update Project Status",
     version: "1.0.0",
     description:
       "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches.",
@@ -385,7 +385,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_upload_file",
-    title: "OpenL Upload File",
+    title: "openl Upload File",
     version: "1.0.0",
     description:
       "Upload an Excel file (.xlsx or .xls) containing rules to a project. The file is uploaded to OpenL Studio workspace but NOT committed to Git yet.",
@@ -432,7 +432,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_download_file",
-    title: "OpenL Download File",
+    title: "openl Download File",
     version: "1.0.0",
     description:
       "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash.",
@@ -480,7 +480,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_list_tables",
-    title: "OpenL List Tables",
+    title: "openl List Tables",
     version: "1.0.0",
     description: "List all tables/rules in a project with optional filters for type, name, and file",
     inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
@@ -534,7 +534,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_get_table",
-    title: "OpenL Get Table",
+    title: "openl Get Table",
     version: "1.0.0",
     description:
       "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data.",
@@ -569,7 +569,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_update_table",
-    title: "OpenL Update Table",
+    title: "openl Update Table",
     version: "1.0.0",
     description:
       "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields).",
@@ -610,7 +610,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_append_table",
-    title: "OpenL Append Table",
+    title: "openl Append Table",
     version: "1.0.0",
     description:
       "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure.",
@@ -651,7 +651,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_create_rule",
-    title: "OpenL Create Rule",
+    title: "openl Create Rule",
     version: "1.0.0",
     description:
       "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types.",
@@ -702,7 +702,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_list_deployments",
-    title: "OpenL List Deployments",
+    title: "openl List Deployments",
     version: "1.0.0",
     description:
       "List all active deployments across production environments. Returns deployment names, repositories, versions, and status information.",
@@ -752,7 +752,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_deploy_project",
-    title: "OpenL Deploy Project",
+    title: "openl Deploy Project",
     version: "1.0.0",
     description:
       "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution.",
@@ -823,7 +823,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_execute_rule",
-    title: "OpenL Execute Rule",
+    title: "openl Execute Rule",
     version: "1.0.0",
     description:
       "Execute a rule with input data to test its behavior and validate changes. Runs the rule with provided parameters and returns calculated result.",
@@ -867,7 +867,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
   registerTool({
     name: "openl_revert_version",
-    title: "OpenL Revert Version",
+    title: "openl Revert Version",
     version: "1.0.0",
     description:
       "Revert project to a previous Git commit using commit hash. Creates a new commit that restores old content while preserving full history.",
@@ -916,9 +916,12 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     },
   });
 
+  // TEMPORARILY DISABLED - openl_get_file_history
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_get_file_history",
-    title: "OpenL Get File History",
+    title: "openl get file history",
     version: "1.0.0",
     description:
       "Get Git commit history for a specific file. Returns list of commits with hashes, authors, timestamps, and commit types.",
@@ -959,10 +962,14 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
+  // TEMPORARILY DISABLED - openl_get_project_history
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_get_project_history",
-    title: "OpenL Get Project History",
+    title: "openl get project history",
     version: "1.0.0",
     description:
       "Get Git commit history for entire project. Returns chronological list of all commits with metadata about files and tables changed.",
@@ -1007,6 +1014,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
   logger.info(`Registered ${toolHandlers.size} OpenL Tablets tools`);
 }
