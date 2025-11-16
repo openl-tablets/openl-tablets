@@ -44,7 +44,8 @@ export function validateProjectId(projectId: string): {
   if (!match) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `Invalid projectId format. Expected 'repository-projectName', got '${projectId}'`
+      `Invalid projectId format. Expected 'repository-projectName', got '${projectId}'. ` +
+      `To find valid project IDs, use: openl_list_projects()`
     );
   }
 
@@ -72,21 +73,22 @@ export function validatePagination(
   if (validatedLimit < 1) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `limit must be positive, got ${validatedLimit}`
+      `limit must be positive, got ${validatedLimit}. Set limit to a value between 1-200 (e.g., limit: 50)`
     );
   }
 
   if (validatedLimit > 200) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `limit must be <= 200, got ${validatedLimit}`
+      `limit exceeds maximum allowed value. Got ${validatedLimit}, but limit must be <= 200. ` +
+      `To retrieve more data, use pagination with offset (e.g., limit: 200, offset: 200 for next page)`
     );
   }
 
   if (validatedOffset < 0) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `offset must be non-negative, got ${validatedOffset}`
+      `offset must be non-negative, got ${validatedOffset}. Start with offset: 0 for first page`
     );
   }
 

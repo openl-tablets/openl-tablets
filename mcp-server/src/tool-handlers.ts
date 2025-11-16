@@ -196,7 +196,10 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.repository) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: repository");
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          "Missing required argument: repository. To find valid repositories, use: openl_list_repositories()"
+        );
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -303,7 +306,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.projectId) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId");
+        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()");
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -342,7 +345,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.projectId) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId");
+        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()");
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -486,7 +489,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.projectId) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId");
+        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()");
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -537,7 +540,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.projectId || !typedArgs.tableId) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required arguments: projectId, tableId");
+        throw new McpError(ErrorCode.InvalidParams, "Missing required arguments: projectId, tableId. Use openl_list_tables() to find valid table IDs");
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
@@ -940,7 +943,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
 
       if (!typedArgs || !typedArgs.projectId) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId");
+        throw new McpError(ErrorCode.InvalidParams, "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()");
       }
 
       const format = validateResponseFormat(typedArgs.response_format);

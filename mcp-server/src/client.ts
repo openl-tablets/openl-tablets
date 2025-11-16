@@ -141,7 +141,8 @@ export class OpenLClient {
         `Invalid project ID format: ${projectId}. Expected formats:\n` +
         `  - "repository-projectName" (e.g., "design-Example 1 - Bank Rating")\n` +
         `  - "repository:projectName" (e.g., "design:Example 1 - Bank Rating")\n` +
-        `  - Base64-encoded string from OpenL API 6.0.0+`
+        `  - Base64-encoded string from OpenL API 6.0.0+\n\n` +
+        `To discover valid project IDs, use: openl_list_projects()`
       );
     }
   }
@@ -460,7 +461,8 @@ export class OpenLClient {
         throw new Error(
           `Upload failed: Invalid path "${fileName}" in project "${projectId}". ` +
           `Ensure the project is open and the file path is valid. ` +
-          `Valid formats: simple name ('Rules.xlsx'), subdirectory ('rules/Premium.xlsx'), or full path ('Example 1 - Bank Rating/Bank Rating.xlsx').`
+          `Valid formats: simple name ('Rules.xlsx'), subdirectory ('rules/Premium.xlsx'), or full path ('Example 1 - Bank Rating/Bank Rating.xlsx'). ` +
+          `To verify project exists and is open, use: openl_get_project(projectId: "${projectId}")`
         );
       }
       if (error.response?.status === 409) {
