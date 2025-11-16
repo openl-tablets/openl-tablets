@@ -61,9 +61,13 @@ export const TOOLS: ToolDefinition[] = [
   // Repository Tools
   // =============================================================================
   {
-    name: "list_repositories",
+    name: "openl_list_repositories",
     description: "List all design repositories in OpenL Tablets. Returns repository names, types, and status information. Use this to discover available repositories before accessing projects.",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
+    inputSchema: zodToJsonSchema(schemas.z.object({
+      response_format: schemas.ResponseFormat.optional(),
+      limit: schemas.z.number().int().positive().max(200).default(50).optional(),
+      offset: schemas.z.number().int().nonnegative().default(0).optional(),
+    }).strict()) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.REPOSITORY,
@@ -71,7 +75,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "list_branches",
+    name: "openl_list_branches",
     description: "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
     inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
     _meta: {
@@ -85,7 +89,7 @@ export const TOOLS: ToolDefinition[] = [
   // Project Tools
   // =============================================================================
   {
-    name: "list_projects",
+    name: "openl_list_projects",
     description:
       "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
@@ -96,7 +100,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "get_project",
+    name: "openl_get_project",
     description: "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Use this to understand project organization before making changes.",
     inputSchema: zodToJsonSchema(schemas.getProjectSchema) as Record<string, unknown>,
     _meta: {
@@ -106,7 +110,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "update_project_status",
+    name: "openl_update_project_status",
     description: "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing, read-only if locked by another user), EDITING (has unsaved changes, auto-set by OpenL on first edit), VIEWING_VERSION (viewing outdated version after another user saved, need to re-open), CLOSED (closed and unlocked). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save and close: {status: 'CLOSED', comment: 'changes'}, 3) Save only: {comment: 'intermediate save'}, 4) Force close: {status: 'CLOSED', discardChanges: true}, 5) Switch branch: {branch: 'develop'}",
     inputSchema: zodToJsonSchema(schemas.updateProjectStatusSchema) as Record<string, unknown>,
     _meta: {
@@ -121,7 +125,7 @@ export const TOOLS: ToolDefinition[] = [
   // File Management Tools
   // =============================================================================
   {
-    name: "upload_file",
+    name: "openl_upload_file",
     description: "Upload an Excel file (.xlsx or .xls) containing rules to a project. The file is uploaded to OpenL Studio workspace but NOT committed to Git yet - changes remain in-memory until you save the project using update_project_status (with comment or status: 'CLOSED'). Returns file metadata and upload confirmation. Use this to add or replace Excel rule files. IMPORTANT: The fileName parameter can be a simple name (e.g., 'Rules.xlsx'), subdirectory path (e.g., 'rules/Premium.xlsx'), or full path (e.g., 'Example 1 - Bank Rating/Bank Rating.xlsx'). To replace an existing file, use the exact 'file' field from list_tables().",
     inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
     _meta: {
@@ -132,7 +136,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "download_file",
+    name: "openl_download_file",
     description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content. IMPORTANT: Use the exact 'file' field from list_tables() response as the fileName parameter (e.g., 'Example 2 - Corporate Rating/Corporate Rating.xlsx' or 'rules/Premium.xlsx'). The tool automatically handles path normalization by stripping the project name prefix when needed.",
     inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
     _meta: {
@@ -146,7 +150,7 @@ export const TOOLS: ToolDefinition[] = [
   // Rules (Tables) Tools
   // =============================================================================
   {
-    name: "list_tables",
+    name: "openl_list_tables",
     description: "List all tables/rules in a project with optional filters for type, name, and file",
     inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
     _meta: {
@@ -156,7 +160,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "get_table",
+    name: "openl_get_table",
     description: "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data. Use this to understand existing rules before modifying them.",
     inputSchema: zodToJsonSchema(schemas.getTableSchema) as Record<string, unknown>,
     _meta: {
@@ -166,7 +170,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "update_table",
+    name: "openl_update_table",
     description: "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     _meta: {
@@ -177,7 +181,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "append_table",
+    name: "openl_append_table",
     description: "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure. Specify the table type and array of field definitions with names, types, and optional required/defaultValue properties. More efficient than update_table for simple additions. Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
     _meta: {
@@ -188,7 +192,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "create_rule",
+    name: "openl_create_rule",
     description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties. NOTE: This endpoint may not be supported in all OpenL versions (returns 405 in OpenL 6.0.0). Alternative: Use upload_file to upload Excel files with table definitions, or use OpenL WebStudio UI.",
     inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
     _meta: {
@@ -203,9 +207,13 @@ export const TOOLS: ToolDefinition[] = [
   // Deployment Tools
   // =============================================================================
   {
-    name: "list_deployments",
+    name: "openl_list_deployments",
     description: "List all active deployments across production environments. Returns deployment names, repositories, versions, and status information. Use this to see what's currently deployed before making deployment decisions.",
-    inputSchema: zodToJsonSchema(schemas.z.object({})) as Record<string, unknown>,
+    inputSchema: zodToJsonSchema(schemas.z.object({
+      response_format: schemas.ResponseFormat.optional(),
+      limit: schemas.z.number().int().positive().max(200).default(50).optional(),
+      offset: schemas.z.number().int().nonnegative().default(0).optional(),
+    }).strict()) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.DEPLOYMENT,
@@ -213,7 +221,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "deploy_project",
+    name: "openl_deploy_project",
     description: "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Returns deployment status and confirmation. Requires validated project with no errors.",
     inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
     _meta: {
@@ -270,7 +278,7 @@ export const TOOLS: ToolDefinition[] = [
   // Phase 3: Versioning & Execution Tools
   // =============================================================================
   {
-    name: "execute_rule",
+    name: "openl_execute_rule",
     description: "Execute a rule with input data to test its behavior and validate changes. Runs the rule with provided parameters and returns calculated result. Use this to verify rule logic before deploying changes.",
     inputSchema: zodToJsonSchema(schemas.executeRuleSchema) as Record<string, unknown>,
     _meta: {
@@ -295,7 +303,7 @@ export const TOOLS: ToolDefinition[] = [
   // Phase 4: Advanced Features
   // =============================================================================
   {
-    name: "revert_version",
+    name: "openl_revert_version",
     description: "Revert project to a previous Git commit using commit hash. Creates a new commit that restores old content while preserving full history. Returns new commit hash. Use this to roll back problematic changes while maintaining audit trail.",
     inputSchema: zodToJsonSchema(schemas.revertVersionSchema) as Record<string, unknown>,
     _meta: {
@@ -310,7 +318,7 @@ export const TOOLS: ToolDefinition[] = [
   // Phase 2: Git Version History Tools
   // =============================================================================
   {
-    name: "get_file_history",
+    name: "openl_get_file_history",
     description: "Get Git commit history for a specific file. Returns list of commits with hashes, authors, timestamps, and commit types. Use this to see all versions of a file over time.",
     inputSchema: zodToJsonSchema(schemas.getFileHistorySchema) as Record<string, unknown>,
     _meta: {
@@ -320,7 +328,7 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "get_project_history",
+    name: "openl_get_project_history",
     description: "Get Git commit history for entire project. Returns chronological list of all commits with metadata about files and tables changed. Supports pagination and branch filtering.",
     inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as Record<string, unknown>,
     _meta: {
