@@ -125,30 +125,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Rollback problematic changes
 - Audit rule modifications
 
-### 7. Dimension Properties Management
-
-**Business version properties**:
-- Get file name pattern for property-based versioning
-- Set file name pattern
-- Get table dimension properties
-- Set table dimension properties
-
-**Supported Properties**:
-- `state` - Rule lifecycle state
-- `lob` - Line of business
-- `effectiveDate` - When rule becomes active
-- `expirationDate` - When rule expires
-- `caProvince` - Canadian province
-- `country` - Country code
-- `currency` - Currency code
-
-**Use Cases**:
-- Configure multi-version rules
-- Set business context for rules
-- Manage rule effective dates
-- Organize rules by business dimensions
-
-### 8. Deployment Management
+### 7. Deployment Management
 
 **Production deployment**:
 - List all deployments
@@ -162,7 +139,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Deploy specific versions
 - Verify deployment status
 
-### 9. Authentication Support
+### 8. Authentication Support
 
 **Multiple authentication methods**:
 - **Basic Authentication**: Username/password
@@ -181,7 +158,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Integrate with API key systems
 - Support various deployment scenarios
 
-### 10. Prompt Library
+### 9. Prompt Library
 
 **Expert guidance templates**:
 - 11 comprehensive prompts for common workflows
@@ -212,7 +189,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 
 ### FR-1: Tool Execution
 
-**Requirement**: All 24 MCP tools must execute successfully with valid inputs.
+**Requirement**: All 19 MCP tools must execute successfully with valid inputs.
 
 **Tools by Category**:
 
@@ -233,12 +210,11 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - `download_file` - Download Excel file from project
 - `get_file_history` - Get file commit history
 
-**Rules Tools (8)**:
+**Rules Tools (7)**:
 - `list_tables` - List tables/rules with filters
 - `get_table` - Get table details and data
 - `update_table` - Update table content
 - `create_rule` - Create new rule (via upload)
-- `copy_table` - Copy table within project
 - `execute_rule` - Execute rule with test data
 - `run_test` - Run specific tests
 - `run_all_tests` - Run all project tests
@@ -251,12 +227,6 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 **Deployment Tools (2)**:
 - `list_deployments` - List all deployments
 - `deploy_project` - Deploy project to production
-
-**Dimension Properties Tools (4)**:
-- `get_file_name_pattern` - Get property-based versioning pattern
-- `set_file_name_pattern` - Set property-based versioning pattern
-- `get_table_properties` - Get table dimension properties
-- `set_table_properties` - Set table dimension properties
 
 **Testing Tools (2)** - Covered in Project Tools:
 - `validate_project`

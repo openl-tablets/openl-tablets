@@ -506,22 +506,6 @@ export interface DetailedValidationResult extends ValidationResult {
 // Phase 3: Versioning & Execution Types
 // =============================================================================
 
-/** Copy table request */
-export interface CopyTableRequest {
-  projectId: string;
-  tableId: string;
-  newName?: string;
-  targetFile?: string;
-  comment?: string;
-}
-
-/** Copy table result */
-export interface CopyTableResult {
-  success: boolean;
-  newTableId?: string;
-  message?: string;
-}
-
 /** Execute rule request */
 export interface ExecuteRuleRequest {
   projectId: string;
@@ -667,59 +651,3 @@ export interface GetProjectHistoryResult {
   hasMore: boolean;
 }
 
-// =============================================================================
-// Phase 3: Dimension Properties Types
-// =============================================================================
-
-/** Get file name pattern request */
-export interface GetFileNamePatternRequest {
-  projectId: string;
-}
-
-/** Get file name pattern result */
-export interface GetFileNamePatternResult {
-  pattern: string | null;  // e.g., ".*-%state%-%effectiveDate:MMddyyyy%-%lob%"
-  properties: string[];     // Extracted property names: ["state", "effectiveDate", "lob"]
-}
-
-/** Set file name pattern request */
-export interface SetFileNamePatternRequest {
-  projectId: string;
-  pattern: string;  // e.g., ".*-%state%-%lob%"
-}
-
-/** Set file name pattern result */
-export interface SetFileNamePatternResult {
-  success: boolean;
-  pattern: string;
-  message: string;
-}
-
-/** Get table properties request */
-export interface GetTablePropertiesRequest {
-  projectId: string;
-  tableId: string;
-}
-
-/** Get table properties result */
-export interface GetTablePropertiesResult {
-  tableId: string;
-  tableName: string;
-  properties: Record<string, any>;  // e.g., { state: "CA", lob: "Auto", effectiveDate: "01/01/2025" }
-}
-
-/** Set table properties request */
-export interface SetTablePropertiesRequest {
-  projectId: string;
-  tableId: string;
-  properties: Record<string, any>;  // e.g., { state: "CA", lob: "Auto", effectiveDate: "01/01/2025" }
-  comment?: string;
-}
-
-/** Set table properties result */
-export interface SetTablePropertiesResult {
-  success: boolean;
-  tableId: string;
-  properties: Record<string, any>;
-  message: string;
-}

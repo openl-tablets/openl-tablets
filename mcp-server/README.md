@@ -35,7 +35,7 @@ OpenL has TWO independent versioning systems:
 - Multiple rule versions in same commit
 - Properties: `state`, `lob`, `effectiveDate`, `expirationDate`, `caProvince`, `country`, `currency`
 - OpenL selects version by runtime context
-- Tools: `get/set_file_name_pattern`, `get/set_table_properties`
+- Managed via OpenL WebStudio UI
 
 ### Table Types
 
@@ -54,15 +54,14 @@ OpenL has TWO independent versioning systems:
 
 See [prompts/create_rule.md](./prompts/create_rule.md) for detailed table type guidance.
 
-## Tools (24 Total)
+## Tools (19 Total)
 
 **Repository** (2): list_repositories, list_branches
 **Project** (6): list_projects, get_project, open_project, close_project, save_project, validate_project
 **Files** (3): upload_file, download_file, get_file_history
-**Rules** (8): list_tables, get_table, update_table, create_rule, copy_table, execute_rule, run_test, run_all_tests
+**Rules** (7): list_tables, get_table, update_table, create_rule, execute_rule, run_test, run_all_tests
 **Version Control** (3): get_project_history, compare_versions, revert_version
 **Deployment** (2): list_deployments, deploy_project
-**Dimension Properties** (4): get/set_file_name_pattern, get/set_table_properties
 **Testing** (2): validate_project, get_project_errors
 
 ## Prompts (11 Total)

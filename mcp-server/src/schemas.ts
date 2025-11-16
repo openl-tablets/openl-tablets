@@ -180,14 +180,6 @@ export const getProjectErrorsSchema = z.object({
 // Phase 3: Versioning & Execution Schemas
 // =============================================================================
 
-export const copyTableSchema = z.object({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema,
-  newName: z.string().optional().describe("New name for the copied table (e.g., 'calculatePremium_v2', 'validatePolicy_backup'). Auto-generated if omitted."),
-  targetFile: z.string().optional().describe("Target Excel file path (e.g., 'rules/Premium_v2.xlsx'). Copies to same file if omitted."),
-  comment: commentSchema,
-});
-
 export const executeRuleSchema = z.object({
   projectId: projectIdSchema,
   ruleName: z.string().describe("Name of the rule/method to execute (e.g., 'calculatePremium', 'validatePolicy'). Must match exact table name."),
@@ -228,28 +220,4 @@ export const getProjectHistorySchema = z.object({
   branch: z.string().optional().describe("Git branch name (default: current branch)"),
 });
 
-// =============================================================================
-// Phase 3: Dimension Properties Schemas
-// =============================================================================
-
-export const getFileNamePatternSchema = z.object({
-  projectId: projectIdSchema,
-});
-
-export const setFileNamePatternSchema = z.object({
-  projectId: projectIdSchema,
-  pattern: z.string().describe("File name pattern with property placeholders (e.g., '.*-%state%-%effectiveDate:MMddyyyy%-%lob%')"),
-});
-
-export const getTablePropertiesSchema = z.object({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema,
-});
-
-export const setTablePropertiesSchema = z.object({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema,
-  properties: z.record(z.any()).describe("Dimension properties object (e.g., { state: 'CA', lob: 'Auto', effectiveDate: '01/01/2025' })"),
-  comment: commentSchema,
-});
 

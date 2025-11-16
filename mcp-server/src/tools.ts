@@ -255,17 +255,6 @@ export const TOOLS: ToolDefinition[] = [
   // Phase 3: Versioning & Execution Tools
   // =============================================================================
   {
-    name: "copy_table",
-    description: "Copy a rule/table within the same project or to a different Excel file. Creates a duplicate with optional new name and dimension properties. Returns new table ID and location. Use this to create rule variations or backups.",
-    inputSchema: zodToJsonSchema(schemas.copyTableSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
     name: "execute_rule",
     description: "Execute a rule with input data to test its behavior and validate changes. Runs the rule with provided parameters and returns calculated result. Use this to verify rule logic before deploying changes.",
     inputSchema: zodToJsonSchema(schemas.executeRuleSchema) as Record<string, unknown>,
@@ -325,51 +314,6 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
 
-  // =============================================================================
-  // Phase 3: Dimension Properties Tools
-  // =============================================================================
-  {
-    name: "get_file_name_pattern",
-    description: "Get dimension properties file naming pattern from rules.xml. Returns pattern and list of properties used in file names (state, lob, effectiveDate, etc.).",
-    inputSchema: zodToJsonSchema(schemas.getFileNamePatternSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "set_file_name_pattern",
-    description: "Set dimension properties file naming pattern in rules.xml. Pattern determines how properties are encoded in file names (e.g., '%state%-%lob%' creates 'CA-Auto.xlsx').",
-    inputSchema: zodToJsonSchema(schemas.setFileNamePatternSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
-  {
-    name: "get_table_properties",
-    description: "Get dimension properties for a specific table. Returns properties like state, lob, effectiveDate that determine when and where this rule version applies.",
-    inputSchema: zodToJsonSchema(schemas.getTablePropertiesSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "set_table_properties",
-    description: "Set dimension properties for a table. Properties define business context (state, lob, effectiveDate, etc.) for rule versioning within the same Git commit.",
-    inputSchema: zodToJsonSchema(schemas.setTablePropertiesSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
 ];
 
 /**
