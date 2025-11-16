@@ -470,53 +470,61 @@ describe("OpenLClient", () => {
     });
 
     describe("downloadFile", () => {
-      it("should download file content", async () => {
+      it("should download file with full path from list_tables", async () => {
         const fileContent = Buffer.from("test file content");
-        // New API format uses base64-encoded project ID
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(200, fileContent);
-
-        const result = await client.downloadFile("design-project1", "Rules.xlsx");
-        expect(result).toEqual(fileContent);
-      });
-
-      it("should download file content with project prefix in filename", async () => {
-        const fileContent = Buffer.from("test file content");
-        // First path tried (with prefix) will 404, second path (without prefix) will succeed
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FRules.xlsx").reply(404);
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(200, fileContent);
+        // File path includes project name directory (as returned by list_tables)
+        // Forward slashes are NOT encoded in the path
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1/Rules.xlsx").reply(200, fileContent);
 
         const result = await client.downloadFile("design-project1", "project1/Rules.xlsx");
         expect(result).toEqual(fileContent);
       });
 
-      it("should try alternative path when file not found", async () => {
+      it("should auto-add project prefix when given just filename", async () => {
         const fileContent = Buffer.from("test file content");
-        // First path (without prefix) will 404, second path (with prefix) will succeed
+        // First try without prefix (just filename) - fails with 404
         mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Corporate%20Rating.xlsx").reply(404);
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FCorporate%20Rating.xlsx").reply(200, fileContent);
+        // Second try with project prefix added - succeeds (slash is not encoded)
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1/Corporate%20Rating.xlsx").reply(200, fileContent);
 
         const result = await client.downloadFile("design-project1", "Corporate Rating.xlsx");
         expect(result).toEqual(fileContent);
       });
 
+      it("should handle file paths with spaces correctly", async () => {
+        const fileContent = Buffer.from("test file content");
+        // Path segments are encoded separately, slashes preserved
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1/My%20Rules.xlsx").reply(200, fileContent);
+
+        const result = await client.downloadFile("design-project1", "project1/My Rules.xlsx");
+        expect(result).toEqual(fileContent);
+      });
+
       it("should download specific version", async () => {
         // Mock the file download with version parameter
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx", { params: { version: "abc123" } })
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1/Rules.xlsx", { params: { version: "abc123" } })
           .reply(200, Buffer.from("old content"));
 
-        const result = await client.downloadFile("design-project1", "Rules.xlsx", "abc123");
+        const result = await client.downloadFile("design-project1", "project1/Rules.xlsx", "abc123");
         expect(result.toString()).toBe("old content");
-        expect(mockAxios.history.get.length).toBeGreaterThanOrEqual(1);
       });
 
       it("should handle file not found with helpful error", async () => {
         // Both paths will return 404
         mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/NonExistent.xlsx").reply(404);
-        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FNonExistent.xlsx").reply(404);
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1/NonExistent.xlsx").reply(404);
 
         await expect(
           client.downloadFile("design-project1", "NonExistent.xlsx")
         ).rejects.toThrow(/File not found.*Tried paths/);
+      });
+
+      it("should handle 400 error with helpful message", async () => {
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Bad.xlsx").reply(400);
+
+        await expect(
+          client.downloadFile("design-project1", "Bad.xlsx")
+        ).rejects.toThrow(/Invalid file path.*400 Bad Request.*exact 'file' field value from list_tables/);
       });
     });
   });
