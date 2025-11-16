@@ -60,7 +60,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('1. Repository Management (P1)', () => {
-    test('list_repositories should return repositories', async () => {
+    test('openl_list_repositories should return repositories', async () => {
       const repos = await client.listRepositories();
 
       expect(Array.isArray(repos)).toBe(true);
@@ -73,7 +73,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       console.log(`   Repositories: ${repos.map(r => r.id).join(', ')}`);
     });
 
-    test('list_branches should return branches for design repository', async () => {
+    test('openl_list_branches should return branches for design repository', async () => {
       const branches = await client.listBranches('design');
 
       expect(Array.isArray(branches)).toBe(true);
@@ -91,7 +91,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   describe('2. Project Discovery (P0 - CRITICAL)', () => {
     let projects: Types.ProjectSummary[];
 
-    test('list_projects should return projects', async () => {
+    test('openl_list_projects should return projects', async () => {
       projects = await client.listProjects();
 
       expect(Array.isArray(projects)).toBe(true);
@@ -112,7 +112,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       console.log(`   Using test project: ${testProjectId}`);
     });
 
-    test('list_projects with repository filter should work', async () => {
+    test('openl_list_projects with repository filter should work', async () => {
       const designProjects = await client.listProjects({ repository: 'design' });
 
       expect(Array.isArray(designProjects)).toBe(true);
@@ -121,7 +121,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       console.log(`✅ Found ${designProjects.length} projects in 'design'`);
     });
 
-    test('get_project should return project details', async () => {
+    test('openl_get_project should return project details', async () => {
       const project = await client.getProject(testProjectId);
 
       expect(project).toBeDefined();
@@ -139,7 +139,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('3. Project Lifecycle (P0 - CRITICAL)', () => {
-    test('open_project should succeed', async () => {
+    test('openl_update_project_status (open) should succeed', async () => {
       const result = await client.openProject(testProjectId);
 
       expect(result).toBe(true);
@@ -159,7 +159,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       }
     });
 
-    test('close_project should succeed', async () => {
+    test('openl_update_project_status (close) should succeed', async () => {
       const result = await client.closeProject(testProjectId);
 
       expect(result).toBe(true);
@@ -175,7 +175,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   describe('4. Table Operations (P0 - CRITICAL)', () => {
     let tables: Types.TableMetadata[];
 
-    test('list_tables should return tables', async () => {
+    test('openl_list_tables should return tables', async () => {
       tables = await client.listTables(testProjectId);
 
       expect(Array.isArray(tables)).toBe(true);
@@ -189,7 +189,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       console.log(`   Using test table ID: ${testTableId}`);
     });
 
-    test('list_tables with filters should work', async () => {
+    test('openl_list_tables with filters should work', async () => {
       // Test type filter
       const spreadsheets = await client.listTables(testProjectId, { tableType: 'Spreadsheet' });
       expect(Array.isArray(spreadsheets)).toBe(true);
@@ -199,7 +199,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
       }
     });
 
-    test('get_table should return table details', async () => {
+    test('openl_get_table should return table details', async () => {
       const table = await client.getTable(testProjectId, testTableId);
 
       expect(table).toBeDefined();
@@ -219,9 +219,9 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
 
   describe('5. Testing & Execution (P1)', () => {
     // Note: run_all_tests and run_test tools removed - endpoints don't exist in API
-    // Use execute_rule to manually test individual rules with input data instead
+    // Use openl_execute_rule to manually test individual rules with input data instead
     test('Test tools removed (endpoints do not exist)', () => {
-      console.log(`✅ Test tools (run_all_tests, run_test) removed - use execute_rule instead`);
+      console.log(`✅ Test tools (run_all_tests, run_test) removed - use openl_execute_rule instead`);
     });
   });
 
@@ -230,7 +230,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('6. File Management (P1)', () => {
-    test('download_file should retrieve Excel file', async () => {
+    test('openl_download_file should retrieve Excel file', async () => {
       // Get a file from first table
       const tables = await client.listTables(testProjectId);
       const tableWithFile = tables.find(t => t.file);
@@ -259,7 +259,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('7. Version Control (P2)', () => {
-    test('get_project_history endpoint does not exist (expected 404)', async () => {
+    test('openl_get_project_history endpoint does not exist (expected 404)', async () => {
       // Note: The /history endpoint doesn't exist in the REST API
       try {
         await client.getProjectHistory({
@@ -280,7 +280,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
   // ============================================================================
 
   describe('8. Dimension Properties (P2)', () => {
-    test('get_table_properties should return embedded properties', async () => {
+    test('openl_get_table should return embedded properties', async () => {
       const props = await client.getTableProperties({
         projectId: testProjectId,
         tableId: testTableId,

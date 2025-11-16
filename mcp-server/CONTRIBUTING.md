@@ -59,32 +59,46 @@ The codebase is organized into modular components for maintainability:
 
 ```
 src/
-├── index.ts          # Main MCP server entry point
-├── client.ts         # OpenL Tablets API client
-├── auth.ts           # Authentication manager (OAuth 2.1, API Key, Basic Auth)
-├── tools.ts          # MCP tool definitions and metadata
-├── schemas.ts        # Zod schemas for input validation
-├── types.ts          # TypeScript type definitions
-└── constants.ts      # Configuration constants and defaults
+├── index.ts             # Main MCP server entry point
+├── client.ts            # OpenL Tablets API client
+├── auth.ts              # Authentication manager (OAuth 2.1, API Key, Basic Auth)
+├── tool-handlers.ts     # Tool registration and handlers
+├── tools.ts             # Tool metadata definitions
+├── schemas.ts           # Zod schemas for validation
+├── formatters.ts        # Response formatting (JSON/Markdown)
+├── validators.ts        # Input validation utilities
+├── logger.ts            # Structured logging
+├── utils.ts             # Utility functions
+├── types.ts             # TypeScript type definitions
+├── constants.ts         # Configuration constants
+├── prompts.ts           # Prompt definitions
+└── prompts-registry.ts  # Prompt management
 ```
 
 ### Module Responsibilities
 
-- **index.ts**: MCP server setup, tool handlers, resource providers
+- **index.ts**: MCP server setup and initialization
 - **client.ts**: High-level API client for OpenL Tablets
 - **auth.ts**: Authentication lifecycle, token management, interceptors
+- **tool-handlers.ts**: Tool registration functions using `server.registerTool()`
 - **tools.ts**: Tool definitions with metadata and categorization
-- **schemas.ts**: Zod schemas for type-safe input validation
+- **schemas.ts**: Zod schemas for type-safe input validation with `.strict()`
+- **formatters.ts**: Response formatting utilities (JSON/Markdown) with pagination
+- **validators.ts**: Input validation helpers and utilities
+- **logger.ts**: Structured logging with different log levels
+- **utils.ts**: Shared utility functions (pagination, string manipulation, etc.)
 - **types.ts**: TypeScript interfaces for OpenL Tablets API
 - **constants.ts**: Configuration defaults and constants
+- **prompts.ts**: Dynamic prompt definitions for MCP
+- **prompts-registry.ts**: Prompt registration and management
 
 ## Adding a New Tool
 
-Follow these steps to add a new MCP tool:
+Follow these steps to add a new MCP tool using the **new registerTool pattern**:
 
 ### 1. Define the Input Schema
 
-Add a Zod schema in `src/schemas.ts`:
+Add a Zod schema in `src/schemas.ts` with `.strict()`:
 
 ```typescript
 /**
@@ -94,28 +108,103 @@ export const myNewToolSchema = z.object({
   projectId: projectIdSchema,
   someParameter: z.string().describe("Description of this parameter"),
   optionalParam: z.number().optional().describe("Optional parameter"),
-});
+  response_format: ResponseFormat.optional(),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+}).strict();
 ```
 
-### 2. Add the Tool Definition
+**Important**: Always use `.strict()` to prevent unexpected properties and ensure type safety.
 
-Add the tool to `src/tools.ts`:
+### 2. Add Tool Handler in tool-handlers.ts
+
+Add a registration function in `src/tool-handlers.ts`:
+
+```typescript
+/**
+ * Register the my_new_tool tool
+ */
+function registerMyNewTool(server: Server, client: OpenLClient) {
+  server.registerTool({
+    name: "openl_my_new_tool",
+    title: "My New Tool",
+    description: "Clear description of what this tool does",
+    inputSchema: zodToJsonSchema(myNewToolSchema),
+    annotations: {
+      readOnlyHint: true,  // If tool doesn't modify state
+      idempotentHint: true, // If tool can be safely retried
+      openWorldHint: true,
+    },
+  }, async (args) => {
+    // Extract parameters
+    const { projectId, someParameter, response_format, limit, offset } =
+      args as z.infer<typeof myNewToolSchema>;
+
+    // Call client method
+    const result = await client.someMethod(projectId, someParameter);
+
+    // Apply pagination if needed
+    if (Array.isArray(result) && limit !== undefined) {
+      const paginated = paginateResults(result, limit, offset);
+      return {
+        content: [{
+          type: "text",
+          text: formatResponse(paginated, response_format || "markdown", {
+            pagination: { limit, offset, total: paginated.total_count },
+            dataType: "my_data_type"
+          })
+        }]
+      };
+    }
+
+    // Format response
+    return {
+      content: [{
+        type: "text",
+        text: formatResponse(result, response_format || "markdown")
+      }]
+    };
+  });
+}
+```
+
+**Key Points**:
+- Tool names MUST use the `openl_` prefix
+- Use `zodToJsonSchema()` to convert Zod schemas to JSON Schema
+- Set appropriate annotations (`readOnlyHint`, `idempotentHint`, `openWorldHint`)
+- Use `formatResponse()` for consistent JSON/Markdown output
+- Apply `paginateResults()` for array data with limit/offset
+
+### 3. Register in registerAllTools()
+
+Add your registration function to the main registration function in `src/tool-handlers.ts`:
+
+```typescript
+export function registerAllTools(server: Server, client: OpenLClient): void {
+  // ... existing registrations
+  registerMyNewTool(server, client);
+}
+```
+
+### 4. Add to tools.ts for Metadata
+
+Add metadata in `src/tools.ts`:
 
 ```typescript
 {
-  name: "my_new_tool",
+  name: "openl_my_new_tool",
   description: "Clear description of what this tool does",
-  inputSchema: zodToJsonSchema(schemas.myNewToolSchema) as any,
+  inputSchema: zodToJsonSchema(myNewToolSchema),
   _meta: {
     version: "1.0.0",
     category: TOOL_CATEGORIES.PROJECT, // Choose appropriate category
     requiresAuth: true,
-    modifiesState: true, // Set to true if the tool modifies data
+    modifiesState: false, // Set to true if the tool modifies data
   },
 }
 ```
 
-### 3. Add the API Method (if needed)
+### 5. Add the API Method (if needed)
 
 If the tool requires a new API endpoint, add it to `src/client.ts`:
 
@@ -140,45 +229,30 @@ async myNewMethod(
 }
 ```
 
-### 4. Add the Tool Handler
-
-Add the tool handler in `src/index.ts`:
-
-```typescript
-case "my_new_tool": {
-  if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
-
-  const { projectId, someParameter, optionalParam } = args as {
-    projectId: string;
-    someParameter: string;
-    optionalParam?: number;
-  };
-
-  const result = await this.client.myNewMethod(projectId, someParameter);
-
-  return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify(result, null, 2),
-      },
-    ],
-  };
-}
-```
-
-### 5. Add Tests
+### 6. Add Tests
 
 Add tests in `tests/`:
 
 ```typescript
-describe("myNewTool", () => {
+describe("openl_my_new_tool", () => {
   it("should handle valid input", async () => {
     // Test implementation
   });
 
   it("should validate input parameters", async () => {
-    // Test validation
+    // Test validation with strict schema
+  });
+
+  it("should reject unexpected properties", async () => {
+    // Test .strict() validation
+  });
+
+  it("should handle pagination correctly", async () => {
+    // Test pagination logic
+  });
+
+  it("should format responses correctly", async () => {
+    // Test both JSON and Markdown formats
   });
 
   it("should handle errors gracefully", async () => {
@@ -187,9 +261,117 @@ describe("myNewTool", () => {
 });
 ```
 
-### 6. Update Documentation
+### 7. Update Documentation
 
 Add examples to `EXAMPLES.md` and update `README.md` if needed.
+
+## Response Formatting and Pagination
+
+The MCP server provides built-in support for response formatting and pagination to ensure consistent output across all tools.
+
+### Response Formatting
+
+All tools support two output formats via the `response_format` parameter:
+
+- **markdown** (default): Human-readable formatted output
+- **json**: Structured JSON for programmatic processing
+
+Use the `formatResponse()` utility from `src/formatters.ts`:
+
+```typescript
+import { formatResponse } from './formatters.js';
+
+// Format a single object
+const formatted = formatResponse(
+  data,
+  response_format || "markdown",
+  { dataType: "project" }
+);
+
+// Format with pagination metadata
+const formatted = formatResponse(
+  paginatedData,
+  response_format || "markdown",
+  {
+    pagination: { limit, offset, total: paginatedData.total_count },
+    dataType: "projects"
+  }
+);
+```
+
+### Pagination Support
+
+For tools that return arrays, implement pagination using `limit` and `offset` parameters:
+
+```typescript
+import { paginateResults } from './utils.js';
+
+// In your schema
+export const myToolSchema = z.object({
+  // ... other fields
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+}).strict();
+
+// In your tool handler
+if (Array.isArray(result) && limit !== undefined) {
+  const paginated = paginateResults(result, limit, offset);
+  return {
+    content: [{
+      type: "text",
+      text: formatResponse(paginated, response_format || "markdown", {
+        pagination: { limit, offset, total: paginated.total_count },
+        dataType: "items"
+      })
+    }]
+  };
+}
+```
+
+**Pagination Guidelines**:
+- Default `limit`: 50 items
+- Maximum `limit`: 200 items
+- Default `offset`: 0
+- Always validate with Zod schemas
+- Include total count in responses
+- Document pagination in tool descriptions
+
+### Format Options
+
+The `formatResponse()` function accepts an optional `options` object:
+
+```typescript
+interface FormatOptions {
+  pagination?: {
+    limit: number;
+    offset: number;
+    total: number;
+  };
+  dataType?: string;  // Used for markdown headers and context
+}
+```
+
+**Example Markdown Output**:
+```markdown
+# Projects (3 total)
+
+## Project: insurance-rules
+**Status**: active
+**Modified**: 2024-01-15
+
+---
+Pagination: Showing 1-3 of 3 items
+```
+
+**Example JSON Output**:
+```json
+{
+  "data": [...],
+  "total_count": 3,
+  "limit": 50,
+  "offset": 0
+}
+```
 
 ## Adding Authentication Methods
 
@@ -395,7 +577,7 @@ Examples:
 ```
 feat(tools): add support for table validation
 
-Add new tool 'validate_table' that checks table structure
+Add new tool 'openl_validate_table' that checks table structure
 and data integrity before deployment.
 
 Closes #123

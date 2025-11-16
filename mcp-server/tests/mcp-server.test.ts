@@ -26,7 +26,7 @@ describe('MCP Server Tools', () => {
     process.env.OPENL_PASSWORD = 'admin';
   });
 
-  describe('list_repositories tool', () => {
+  describe('openl_list_repositories tool', () => {
     it('should return repositories in correct format', async () => {
       nock(BASE_URL).get(`${API_PATH}/repos`).reply(200, mockRepositories);
 
@@ -41,7 +41,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('list_projects tool', () => {
+  describe('openl_list_projects tool', () => {
     it('should return projects without filters', async () => {
       nock(BASE_URL).get(`${API_PATH}/projects`).reply(200, mockProjects);
 
@@ -85,7 +85,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('get_project tool', () => {
+  describe('openl_get_project tool', () => {
     it('should return project details', async () => {
       const projectId = 'design-insurance-rules';
 
@@ -115,7 +115,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('get_project_info tool', () => {
+  describe('openl_get_project tool (with info)', () => {
     it('should return project structure with modules', async () => {
       nock(BASE_URL)
         .get(`${API_PATH}/user-workspace/design/projects/insurance-rules/info`)
@@ -133,7 +133,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('open_project and close_project tools', () => {
+  describe('openl_update_project_status tool (open/close)', () => {
     it('should open a project', async () => {
       const projectId = 'design-insurance-rules';
 
@@ -165,7 +165,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('list_tables tool', () => {
+  describe('openl_list_tables tool', () => {
     it('should return all tables in project', async () => {
       const projectId = 'design-insurance-rules';
 
@@ -198,7 +198,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('get_table tool', () => {
+  describe('openl_get_table tool', () => {
     it('should return decision table details', async () => {
       const projectId = 'design-insurance-rules';
       const tableId = 'Rules.xls_1234';
@@ -236,7 +236,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('update_table tool', () => {
+  describe('openl_update_table tool', () => {
     it('should update table successfully', async () => {
       const projectId = 'design-insurance-rules';
       const tableId = 'Rules.xls_1234';
@@ -280,7 +280,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('append_table tool', () => {
+  describe('openl_append_table tool', () => {
     it('should append fields to a table successfully', async () => {
       const projectId = 'design-insurance-rules';
       const tableId = 'Customer_1234';
@@ -375,7 +375,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('get_project_history tool', () => {
+  describe('openl_get_project_history tool', () => {
     it('should return version history', async () => {
       nock(BASE_URL)
         .get(`${API_PATH}/repos/design/projects/insurance-rules/history`)
@@ -408,7 +408,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('list_branches tool', () => {
+  describe('openl_list_branches tool', () => {
     it('should return branches', async () => {
       nock(BASE_URL)
         .get(`${API_PATH}/repos/design/branches`)
@@ -423,7 +423,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('create_branch tool', () => {
+  describe('openl_create_branch tool', () => {
     it('should create new branch', async () => {
       const projectId = 'design-insurance-rules';
       const branchData = {
@@ -445,7 +445,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('list_deployments tool', () => {
+  describe('openl_list_deployments tool', () => {
     it('should return all deployments', async () => {
       nock(BASE_URL).get(`${API_PATH}/deployments`).reply(200, mockDeployments);
 
@@ -459,7 +459,7 @@ describe('MCP Server Tools', () => {
     });
   });
 
-  describe('deploy_project tool', () => {
+  describe('openl_deploy_project tool', () => {
     it('should deploy project to production', async () => {
       const deployData = {
         projectName: 'insurance-rules',
