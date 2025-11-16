@@ -23,8 +23,8 @@ const __dirname = dirname(__filename);
 
 describe("Prompts Registry", () => {
   describe("PROMPTS array", () => {
-    test("should contain exactly 11 prompts", () => {
-      expect(PROMPTS).toHaveLength(11);
+    test("should contain exactly 12 prompts", () => {
+      expect(PROMPTS).toHaveLength(12);
     });
 
     test("all prompts should have required fields", () => {
@@ -309,9 +309,10 @@ describe("Helper functions", () => {
   describe("getPromptNames", () => {
     test("should return all prompt names", () => {
       const names = getPromptNames();
-      expect(names).toHaveLength(11);
+      expect(names).toHaveLength(12);
       expect(names).toContain("create_rule");
       expect(names).toContain("create_test");
+      expect(names).toContain("append_table");
     });
 
     test("should return array in same order as PROMPTS", () => {

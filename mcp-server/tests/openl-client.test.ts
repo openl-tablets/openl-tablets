@@ -273,6 +273,69 @@ describe('OpenL Tablets API Client', () => {
       scope.done();
     });
 
+    it('should append data to a table', async () => {
+      const projectId = 'design-insurance-rules';
+      const tableId = 'Customer_1234';
+      const appendData = {
+        tableType: 'Datatype',
+        fields: [
+          {
+            name: 'email',
+            type: 'String',
+            required: true,
+          },
+          {
+            name: 'phoneNumber',
+            type: 'String',
+            required: false,
+            defaultValue: null,
+          },
+        ],
+      };
+
+      const scope = nock(BASE_URL)
+        .post(`${API_PATH}/projects/${projectId}/tables/${tableId}/lines`, appendData)
+        .reply(200);
+
+      const axios = (await import('axios')).default;
+      const response = await axios.post(
+        `${BASE_URL}${API_PATH}/projects/${projectId}/tables/${tableId}/lines`,
+        appendData
+      );
+
+      expect(response.status).toBe(200);
+      scope.done();
+    });
+
+    it('should handle errors when appending to table with invalid data', async () => {
+      const projectId = 'design-insurance-rules';
+      const tableId = 'Customer_1234';
+      const invalidAppendData = {
+        tableType: 'Datatype',
+        fields: [
+          {
+            name: 'invalid field name!',
+            type: 'String',
+          },
+        ],
+      };
+
+      const scope = nock(BASE_URL)
+        .post(`${API_PATH}/projects/${projectId}/tables/${tableId}/lines`, invalidAppendData)
+        .reply(400, { message: 'Invalid field name' });
+
+      const axios = (await import('axios')).default;
+
+      await expect(
+        axios.post(
+          `${BASE_URL}${API_PATH}/projects/${projectId}/tables/${tableId}/lines`,
+          invalidAppendData
+        )
+      ).rejects.toThrow();
+
+      scope.done();
+    });
+
     it('should handle errors when table not found', async () => {
       const projectId = 'design-insurance-rules';
       const tableId = 'nonexistent';

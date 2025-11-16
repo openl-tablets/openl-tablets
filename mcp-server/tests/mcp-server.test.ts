@@ -280,6 +280,101 @@ describe('MCP Server Tools', () => {
     });
   });
 
+  describe('append_table tool', () => {
+    it('should append fields to a table successfully', async () => {
+      const projectId = 'design-insurance-rules';
+      const tableId = 'Customer_1234';
+      const appendData = {
+        tableType: 'Datatype',
+        fields: [
+          {
+            name: 'email',
+            type: 'String',
+            required: true,
+          },
+          {
+            name: 'phoneNumber',
+            type: 'String',
+            required: false,
+            defaultValue: null,
+          },
+        ],
+      };
+
+      nock(BASE_URL)
+        .post(`${API_PATH}/projects/${projectId}/tables/${tableId}/lines`, appendData)
+        .reply(200);
+
+      const axios = (await import('axios')).default;
+      const response = await axios.post(
+        `${BASE_URL}${API_PATH}/projects/${projectId}/tables/${tableId}/lines`,
+        appendData
+      );
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should handle append with required and optional fields', async () => {
+      const projectId = 'design-insurance-rules';
+      const tableId = 'Policy_5678';
+      const appendData = {
+        tableType: 'Datatype',
+        fields: [
+          {
+            name: 'totalPremium',
+            type: 'double',
+            required: true,
+          },
+          {
+            name: 'discountRate',
+            type: 'double',
+            required: false,
+            defaultValue: 0.0,
+          },
+        ],
+      };
+
+      nock(BASE_URL)
+        .post(`${API_PATH}/projects/${projectId}/tables/${tableId}/lines`, appendData)
+        .reply(200);
+
+      const axios = (await import('axios')).default;
+      const response = await axios.post(
+        `${BASE_URL}${API_PATH}/projects/${projectId}/tables/${tableId}/lines`,
+        appendData
+      );
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should handle errors when appending invalid data', async () => {
+      const projectId = 'design-insurance-rules';
+      const tableId = 'Customer_1234';
+      const invalidData = {
+        tableType: 'Datatype',
+        fields: [
+          {
+            name: 'invalid field!',
+            type: 'String',
+          },
+        ],
+      };
+
+      nock(BASE_URL)
+        .post(`${API_PATH}/projects/${projectId}/tables/${tableId}/lines`, invalidData)
+        .reply(400, { message: 'Invalid field name' });
+
+      const axios = (await import('axios')).default;
+
+      await expect(
+        axios.post(
+          `${BASE_URL}${API_PATH}/projects/${projectId}/tables/${tableId}/lines`,
+          invalidData
+        )
+      ).rejects.toThrow();
+    });
+  });
+
   describe('get_project_history tool', () => {
     it('should return version history', async () => {
       nock(BASE_URL)

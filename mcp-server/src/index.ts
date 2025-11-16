@@ -309,6 +309,22 @@ class OpenLMCPServer {
           break;
         }
 
+        case "append_table": {
+          if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
+          const { projectId, tableId, appendData, comment } = args as {
+            projectId: string;
+            tableId: string;
+            appendData: Types.AppendTableView;
+            comment?: string;
+          };
+          await this.client.appendProjectTable(projectId, tableId, appendData);
+          result = {
+            success: true,
+            message: `Successfully appended ${appendData.fields.length} field(s) to table ${tableId}`
+          };
+          break;
+        }
+
         case "create_rule": {
           if (!args) throw new McpError(ErrorCode.InvalidParams, "Missing arguments");
           const { projectId, name, tableType, returnType, parameters, file, properties, comment } = args as {

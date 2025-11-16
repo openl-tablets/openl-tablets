@@ -97,6 +97,23 @@ export const PROMPTS: PromptDefinition[] = [
     ],
   },
   {
+    name: "append_table",
+    title: "Append to Table",
+    description: "Guide for efficiently appending new rows/fields to existing Datatype and Data tables without replacing the entire structure",
+    arguments: [
+      {
+        name: "tableId",
+        description: "ID of the table to append data to",
+        required: false,
+      },
+      {
+        name: "tableType",
+        description: "Type of table being appended to (Datatype, Data)",
+        required: false,
+      },
+    ],
+  },
+  {
     name: "run_test",
     title: "Run Tests",
     description: "Test selection logic and workflow for running OpenL tests efficiently based on scope (single table, multiple tables, or all tests)",

@@ -82,6 +82,21 @@ export const updateTableSchema = z.object({
   comment: commentSchema,
 });
 
+export const appendTableSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: tableIdSchema,
+  appendData: z.object({
+    tableType: z.string().describe("Table type (e.g., 'Datatype', 'Data')"),
+    fields: z.array(z.object({
+      name: z.string().describe("Field name"),
+      type: z.string().describe("Field type (e.g., 'String', 'int', 'double')"),
+      required: z.boolean().optional().describe("Whether field is required"),
+      defaultValue: z.any().optional().describe("Default value for the field"),
+    })).describe("Array of field definitions to append to the table"),
+  }).describe("Data structure to append to the table"),
+  comment: commentSchema,
+});
+
 export const listBranchesSchema = z.object({
   repository: repositoryNameSchema,
 });

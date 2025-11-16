@@ -177,6 +177,17 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
+    name: "append_table",
+    description: "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure. Specify the table type and array of field definitions with names, types, and optional required/defaultValue properties. More efficient than update_table for simple additions. Modifies table in memory (requires save_project to persist changes).",
+    inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
     name: "create_rule",
     description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties. NOTE: This endpoint may not be supported in all OpenL versions (returns 405 in OpenL 6.0.0). Alternative: Use upload_file to upload Excel files with table definitions, or use OpenL WebStudio UI.",
     inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,

@@ -149,7 +149,7 @@ export interface AppendTableView {
     /** Field type (required) */
     type: string;
     /** Required flag */
-    required?: string;
+    required?: boolean;
     /** Default value */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultValue?: any;
