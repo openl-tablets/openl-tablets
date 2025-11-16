@@ -136,7 +136,7 @@ export const uploadFileSchema = z.object({
   projectId: projectIdSchema,
   fileName: z.string().describe("Path where the file should be uploaded in the project (.xlsx or .xls). Can be a simple filename (e.g., 'Rules.xlsx'), subdirectory path (e.g., 'rules/Premium.xlsx'), or full path (e.g., 'Example 1 - Bank Rating/Bank Rating.xlsx'). To replace an existing file, use the exact 'file' field value from list_tables()."),
   fileContent: z.string().describe("Base64-encoded file content"),
-  comment: commentSchema,
+  comment: z.string().optional().describe("Optional comment for when the file is eventually saved/committed to Git (e.g., 'Updated CA premium rates'). The upload itself does NOT create a commit - use update_project_status to save changes."),
 });
 
 export const downloadFileSchema = z.object({

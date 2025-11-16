@@ -436,22 +436,23 @@ export class OpenLClient {
         }
       );
 
-      // Extract commit information from response (FileData structure)
+      // Extract file metadata from response (FileData structure)
+      // Note: The file is uploaded to workspace but NOT committed to Git yet
       const fileData = response.data || {};
-      const commitHash = fileData.version || fileData.commitHash;
+      const version = fileData.version || fileData.commitHash;
 
       return {
         success: true,
         fileName,
-        commitHash,
-        version: commitHash,  // Same as commitHash for backward compatibility
+        commitHash: version,  // Not actually a commit hash yet - file is in workspace
+        version,
         author: fileData.author ? {
           name: fileData.author.name || "unknown",
           email: fileData.author.email || ""
         } : undefined,
         timestamp: fileData.modifiedAt || new Date().toISOString(),
         size: fileData.size || buffer.length,
-        message: `File uploaded successfully at commit ${commitHash?.substring(0, 8) || "unknown"}`,
+        message: `File uploaded successfully to workspace. Use update_project_status to save changes to Git.`,
       };
     } catch (error: any) {
       // Provide helpful error messages for common upload failures

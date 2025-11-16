@@ -122,10 +122,10 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "upload_file",
-    description: "Upload an Excel file (.xlsx or .xls) containing rules to a project. Creates a new Git commit with the file. Returns commit hash, file size, and upload confirmation. Use this to add or replace Excel rule files. IMPORTANT: The fileName parameter can be a simple name (e.g., 'Rules.xlsx'), subdirectory path (e.g., 'rules/Premium.xlsx'), or full path (e.g., 'Example 1 - Bank Rating/Bank Rating.xlsx'). To replace an existing file, use the exact 'file' field from list_tables().",
+    description: "Upload an Excel file (.xlsx or .xls) containing rules to a project. The file is uploaded to OpenL Studio workspace but NOT committed to Git yet - changes remain in-memory until you save the project using update_project_status (with comment or status: 'CLOSED'). Returns file metadata and upload confirmation. Use this to add or replace Excel rule files. IMPORTANT: The fileName parameter can be a simple name (e.g., 'Rules.xlsx'), subdirectory path (e.g., 'rules/Premium.xlsx'), or full path (e.g., 'Example 1 - Bank Rating/Bank Rating.xlsx'). To replace an existing file, use the exact 'file' field from list_tables().",
     inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.1.0",
+      version: "1.2.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
       modifiesState: true,
