@@ -19,6 +19,26 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 [Visit our website](//openl-tablets.org)
 
+## MCP Server for AI Integration
+
+The **Model Context Protocol (MCP) Server** provides AI coding agents with seamless access to OpenL Tablets through a type-safe API.
+
+**Features:**
+- 19 MCP tools for managing rules, projects, and deployments
+- Support for multiple authentication methods (Basic Auth, API Key, OAuth 2.1)
+- 11 expert guidance prompts for complex workflows
+- Full TypeScript implementation with Zod validation
+
+**Quick Start:**
+```bash
+cd mcp-server
+npm install
+npm run build
+npm start
+```
+
+**Documentation:** See [mcp-server/README.md](mcp-server/README.md) for complete setup instructions, tool reference, and usage examples.
+
 ## How to build
 
 #### Requirements:
