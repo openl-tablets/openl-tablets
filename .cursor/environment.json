@@ -1,0 +1,25 @@
+{
+  "description": "OpenL Tablets Development Environment Configuration",
+  "variables": {
+    "JAVA_HOME": "/usr/lib/jvm/java-21-openjdk",
+    "MAVEN_HOME": "/usr/share/maven",
+    "PROJECT_ROOT": "${workspaceFolder}",
+    "BUILD_DIR": "${workspaceFolder}/target"
+  },
+  "paths": {
+    "main_modules": [
+      "DEV",
+      "STUDIO",
+      "WSFrontend",
+      "Util",
+      "ITEST"
+    ],
+    "documentation": [
+      "docs",
+      "Docs",
+      "README.md",
+      "CLAUDE.md",
+      "CONTRIBUTING.md"
+    ]
+  }
+}

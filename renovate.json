@@ -1,0 +1,221 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate configuration for OpenL Tablets - Automated dependency updates",
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases"
+  ],
+  "timezone": "UTC",
+  "schedule": [
+    "before 6am on Monday"
+  ],
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "assignees": [],
+  "reviewers": [],
+  "prCreation": "not-pending",
+  "prConcurrentLimit": 5,
+  "branchConcurrentLimit": 10,
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{#if isPinDigest}}{{{newDigestShort}}}{{else}}{{#if isMajor}}{{prettyNewMajor}}{{else}}{{#if isSingleVersion}}{{prettyNewVersion}}{{else}}{{#if newValue}}{{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}{{/if}}{{/if}}",
+  "rebaseWhen": "conflicted",
+  "ignoreDeps": [],
+  "packageRules": [
+    {
+      "description": "Group all non-major Maven dependencies",
+      "matchManagers": ["maven"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Maven dependencies (non-major)"
+    },
+    {
+      "description": "Group all npm dependencies (non-major)",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm dependencies (non-major)"
+    },
+    {
+      "description": "Automerge patch updates",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "ignoreTests": false
+    },
+    {
+      "description": "Spring Framework - Group all Spring dependencies",
+      "groupName": "Spring Framework",
+      "matchPackagePatterns": [
+        "^org\\.springframework",
+        "^org\\.springframework\\.boot",
+        "^org\\.springframework\\.security",
+        "^org\\.springframework\\.data"
+      ]
+    },
+    {
+      "description": "Apache Commons - Group all Commons dependencies",
+      "groupName": "Apache Commons",
+      "matchPackagePatterns": [
+        "^org\\.apache\\.commons"
+      ]
+    },
+    {
+      "description": "Testing frameworks - Group test dependencies",
+      "groupName": "Testing frameworks",
+      "matchPackagePatterns": [
+        "^org\\.junit",
+        "^org\\.testng",
+        "^org\\.mockito",
+        "^org\\.assertj",
+        "^io\\.rest-assured"
+      ]
+    },
+    {
+      "description": "Logging frameworks - Group logging dependencies",
+      "groupName": "Logging frameworks",
+      "matchPackagePatterns": [
+        "^org\\.slf4j",
+        "^ch\\.qos\\.logback",
+        "^org\\.apache\\.logging\\.log4j"
+      ]
+    },
+    {
+      "description": "Database drivers - Require approval for major updates",
+      "matchPackagePatterns": [
+        "^org\\.postgresql",
+        "^mysql",
+        "^com\\.mysql",
+        "^org\\.mariadb\\.jdbc",
+        "^com\\.oracle\\.database",
+        "^com\\.h2database"
+      ],
+      "matchUpdateTypes": ["major"],
+      "assignees": ["team:database-admins"],
+      "labels": ["database", "needs-approval"]
+    },
+    {
+      "description": "Security updates - High priority",
+      "matchPackagePatterns": [
+        "^org\\.springframework\\.security",
+        "^org\\.owasp",
+        "^com\\.auth0"
+      ],
+      "labels": ["security"],
+      "prPriority": 10
+    },
+    {
+      "description": "React and frontend dependencies",
+      "groupName": "React and frontend",
+      "matchPackagePatterns": [
+        "^react",
+        "^@types/react",
+        "^vite",
+        "^typescript"
+      ],
+      "matchManagers": ["npm"]
+    },
+    {
+      "description": "GitHub Actions - Automerge patch and minor",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Docker base images",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "groupName": "Docker base images",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Major Java version updates - Manual review required",
+      "matchPackageNames": ["java"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false,
+      "description": "Major Java version updates disabled - requires manual coordination"
+    },
+    {
+      "description": "Maven wrapper - Low priority",
+      "matchFiles": [".mvn/wrapper/maven-wrapper.properties"],
+      "prPriority": -10
+    },
+    {
+      "description": "Pin Docker digests for reproducibility",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "pinDigests": true
+    },
+    {
+      "description": "Separate major version updates",
+      "matchUpdateTypes": ["major"],
+      "labels": ["major-update", "needs-review"],
+      "prPriority": 5
+    }
+  ],
+  "maven": {
+    "enabled": true,
+    "fileMatch": [
+      "(^|/)pom\\.xml$",
+      "^pom\\.xml$"
+    ]
+  },
+  "npm": {
+    "enabled": true,
+    "fileMatch": [
+      "(^|/)package\\.json$"
+    ],
+    "rangeStrategy": "bump"
+  },
+  "dockerfile": {
+    "enabled": true,
+    "fileMatch": [
+      "(^|/|\\.)Dockerfile$",
+      "(^|/)Dockerfile\\.[^/]*$"
+    ]
+  },
+  "docker-compose": {
+    "enabled": true,
+    "fileMatch": [
+      "(^|/)docker-compose[^/]*\\.ya?ml$"
+    ]
+  },
+  "github-actions": {
+    "enabled": true,
+    "fileMatch": [
+      "^\\.github/workflows/[^/]+\\.ya?ml$"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "vulnerability"],
+    "assignees": ["team:security"],
+    "prPriority": 20,
+    "automerge": false
+  },
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardHeader": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.",
+  "dependencyDashboardLabels": ["dependencies"],
+  "dependencyDashboardAutoclose": false,
+  "configMigration": true,
+  "onboarding": true,
+  "onboardingBranch": "renovate/configure",
+  "onboardingCommitMessage": "chore: configure Renovate",
+  "onboardingPrTitle": "Configure Renovate",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/target/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "platformAutomerge": true,
+  "postUpdateOptions": [
+    "npmDedupe"
+  ]
+}

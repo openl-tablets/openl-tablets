@@ -1,0 +1,28 @@
+{
+  "description": "Claude Code configuration for OpenL Tablets",
+  "allowedBashCommands": [
+    "mvn",
+    "find",
+    "grep",
+    "rg",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "git",
+    "docker",
+    "docker-compose"
+  ],
+  "deniedBashCommands": [],
+  "mcpServers": {
+    "allProjectMCPServers": true,
+    "enabledServers": []
+  },
+  "hooks": [
+    {
+      "trigger": "UserPromptSubmit",
+      "scriptPath": ".claude/hooks/user-prompt-submit.sh",
+      "description": "Pre-prompt validation and context enhancement"
+    }
+  ]
+}
