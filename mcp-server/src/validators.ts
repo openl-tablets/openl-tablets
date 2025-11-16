@@ -97,21 +97,22 @@ export function validatePagination(
  * Validate response format parameter
  *
  * @param format - Response format to validate
- * @returns Validated format ("json" or "markdown")
+ * @returns Validated format ("json", "markdown", "markdown_concise", or "markdown_detailed")
  */
 export function validateResponseFormat(
   format?: string
-): "json" | "markdown" {
+): "json" | "markdown" | "markdown_concise" | "markdown_detailed" {
   if (!format) {
     return "markdown"; // Default to markdown
   }
 
-  if (format !== "json" && format !== "markdown") {
+  const validFormats = ["json", "markdown", "markdown_concise", "markdown_detailed"];
+  if (!validFormats.includes(format)) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `response_format must be "json" or "markdown", got "${format}"`
+      `response_format must be one of: ${validFormats.join(", ")}. Got "${format}". Use "markdown_concise" for brief summaries or "markdown_detailed" for full context.`
     );
   }
 
-  return format;
+  return format as "json" | "markdown" | "markdown_concise" | "markdown_detailed";
 }

@@ -21,7 +21,12 @@ import { z } from "zod";
 export { z };
 
 // Response format enum
-export const ResponseFormat = z.enum(["json", "markdown"]).default("markdown");
+export const ResponseFormat = z
+  .enum(["json", "markdown", "markdown_concise", "markdown_detailed"])
+  .default("markdown")
+  .describe(
+    "Response format: 'json' for structured data, 'markdown' for human-readable (default), 'markdown_concise' for brief summary (1-2 paragraphs), 'markdown_detailed' for full details with context"
+  );
 
 // Pagination parameters
 export const PaginationParams = z.object({

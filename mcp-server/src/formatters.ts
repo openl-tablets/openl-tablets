@@ -45,16 +45,17 @@ export interface FormatOptions {
 }
 
 /**
- * Format response data as JSON or Markdown
+ * Format response data as JSON or Markdown (standard, concise, or detailed)
  *
  * @param data - Data to format
- * @param format - Output format ("json" or "markdown")
+ * @param format - Output format: "json" (structured), "markdown" (default full format),
+ *                 "markdown_concise" (1-2 paragraph summary), "markdown_detailed" (full + context)
  * @param options - Formatting options
  * @returns Formatted response string
  */
 export function formatResponse<T>(
   data: T,
-  format: "json" | "markdown" = "markdown",
+  format: "json" | "markdown" | "markdown_concise" | "markdown_detailed" = "markdown",
   options?: FormatOptions
 ): string {
   // Create paginated response structure
@@ -77,10 +78,15 @@ export function formatResponse<T>(
 
   // Convert to string
   let formattedString: string;
-  if (format === "markdown") {
-    formattedString = toMarkdown(response, options?.dataType);
-  } else {
+  if (format === "json") {
     formattedString = safeStringify(response, 2);
+  } else if (format === "markdown_concise") {
+    formattedString = toMarkdownConcise(response, options?.dataType);
+  } else if (format === "markdown_detailed") {
+    formattedString = toMarkdownDetailed(response, options?.dataType);
+  } else {
+    // Default markdown
+    formattedString = toMarkdown(response, options?.dataType);
   }
 
   // Check character limit
@@ -156,6 +162,153 @@ export function toMarkdown<T>(
   }
 
   return parts.join("\n\n");
+}
+
+/**
+ * Convert data to concise markdown format (1-2 paragraph summary)
+ *
+ * @param response - Response data with pagination
+ * @param dataType - Hint about the data type
+ * @returns Concise markdown-formatted string
+ */
+export function toMarkdownConcise<T>(
+  response: PaginatedResponse<T>,
+  dataType?: string
+): string {
+  const data = response.data;
+  const parts: string[] = [];
+
+  // Detect data type if not provided
+  if (!dataType && Array.isArray(data) && data.length > 0) {
+    const first = data[0];
+    if (typeof first === "object" && first !== null) {
+      if ("repository" in first && "type" in first) dataType = "repositories";
+      else if ("projectId" in first || "projectName" in first) dataType = "projects";
+      else if ("tableId" in first || ("name" in first && "tableType" in first)) dataType = "tables";
+      else if ("deploymentName" in first) dataType = "deployments";
+      else if ("commitHash" in first || "hash" in first) dataType = "history";
+    }
+  }
+
+  // Generate concise summary based on data type
+  if (Array.isArray(data)) {
+    const count = data.length;
+    const total = response.pagination?.total_count ?? count;
+
+    switch (dataType) {
+      case "repositories":
+        parts.push(`Found ${total} ${total === 1 ? 'repository' : 'repositories'}${count < total ? ` (showing ${count})` : ''}.`);
+        if (count > 0) {
+          const names = data.slice(0, 3).map((r: any) => r.repository || r.name).join(", ");
+          parts.push(`Repositories: ${names}${count > 3 ? `, and ${count - 3} more` : ''}.`);
+        }
+        break;
+      case "projects":
+        parts.push(`Found ${total} ${total === 1 ? 'project' : 'projects'}${count < total ? ` (showing ${count})` : ''}.`);
+        if (count > 0) {
+          const opened = data.filter((p: any) => p.status === "OPENED").length;
+          const names = data.slice(0, 3).map((p: any) => p.projectName || p.projectId).join(", ");
+          parts.push(`${opened} opened. Projects: ${names}${count > 3 ? `, and ${count - 3} more` : ''}.`);
+        }
+        break;
+      case "tables":
+        parts.push(`Found ${total} ${total === 1 ? 'table' : 'tables'}${count < total ? ` (showing ${count})` : ''}.`);
+        if (count > 0) {
+          const types = [...new Set(data.map((t: any) => t.tableType))].join(", ");
+          parts.push(`Table types: ${types}.`);
+        }
+        break;
+      case "deployments":
+        parts.push(`Found ${total} ${total === 1 ? 'deployment' : 'deployments'}${count < total ? ` (showing ${count})` : ''}.`);
+        if (count > 0) {
+          const names = data.slice(0, 3).map((d: any) => d.deploymentName).join(", ");
+          parts.push(`Deployments: ${names}${count > 3 ? `, and ${count - 3} more` : ''}.`);
+        }
+        break;
+      case "history":
+        parts.push(`Found ${total} ${total === 1 ? 'commit' : 'commits'}${count < total ? ` (showing ${count})` : ''}.`);
+        if (count > 0) {
+          const latest = data[0] as any;
+          parts.push(`Latest: ${latest.comment || latest.message || 'No message'} by ${latest.author || 'Unknown'}.`);
+        }
+        break;
+      default:
+        parts.push(`Found ${total} ${total === 1 ? 'item' : 'items'}${count < total ? ` (showing ${count})` : ''}.`);
+    }
+  } else {
+    // Single object summary
+    parts.push("Retrieved details successfully.");
+  }
+
+  // Add pagination note if applicable
+  if (response.pagination && response.pagination.has_more) {
+    parts.push(`Use offset=${response.pagination.next_offset} to retrieve more results.`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * Convert data to detailed markdown format (all fields + rich context)
+ *
+ * @param response - Response data with pagination
+ * @param dataType - Hint about the data type
+ * @returns Detailed markdown-formatted string
+ */
+export function toMarkdownDetailed<T>(
+  response: PaginatedResponse<T>,
+  dataType?: string
+): string {
+  const parts: string[] = [];
+  const data = response.data;
+
+  // Detect data type if not provided
+  if (!dataType && Array.isArray(data) && data.length > 0) {
+    const first = data[0];
+    if (typeof first === "object" && first !== null) {
+      if ("repository" in first && "type" in first) dataType = "repositories";
+      else if ("projectId" in first || "projectName" in first) dataType = "projects";
+      else if ("tableId" in first || ("name" in first && "tableType" in first)) dataType = "tables";
+      else if ("deploymentName" in first) dataType = "deployments";
+      else if ("commitHash" in first || "hash" in first) dataType = "history";
+    }
+  }
+
+  // Add contextual header with metadata
+  if (Array.isArray(data)) {
+    const count = data.length;
+    const total = response.pagination?.total_count ?? count;
+    parts.push(`# ${dataType ? dataType.charAt(0).toUpperCase() + dataType.slice(1) : 'Results'}`);
+    parts.push(`\n**Summary:** ${total} total ${total === 1 ? 'item' : 'items'}${count < total ? ` (showing ${count} on this page)` : ''}`);
+
+    // Add timestamp
+    parts.push(`**Retrieved:** ${new Date().toISOString()}`);
+  }
+
+  // Use standard markdown formatting (calls existing formatters)
+  const standardMarkdown = toMarkdown(response, dataType);
+  parts.push(standardMarkdown);
+
+  // Add additional context based on data type
+  if (Array.isArray(data) && data.length > 0) {
+    switch (dataType) {
+      case "projects":
+        const opened = data.filter((p: any) => p.status === "OPENED").length;
+        const closed = data.filter((p: any) => p.status === "CLOSED").length;
+        parts.push(`\n---\n**Status Breakdown:** ${opened} opened, ${closed} closed`);
+        break;
+      case "tables":
+        const typeCount: Record<string, number> = {};
+        data.forEach((t: any) => {
+          typeCount[t.tableType] = (typeCount[t.tableType] || 0) + 1;
+        });
+        const breakdown = Object.entries(typeCount).map(([type, count]) => `${type}: ${count}`).join(", ");
+        parts.push(`\n---\n**Type Breakdown:** ${breakdown}`);
+        break;
+    }
+  }
+
+  return parts.join("\n");
 }
 
 /**
