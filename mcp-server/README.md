@@ -293,6 +293,36 @@ Example:
 }
 ```
 
+### Response Size and Truncation
+
+To ensure optimal performance and compatibility with MCP clients, responses are subject to a character limit:
+
+- **Maximum response size**: 25,000 characters
+- **Automatic truncation**: Responses exceeding this limit are automatically truncated
+- **Truncation message**: When truncation occurs, a message is appended indicating the response was truncated
+
+**Best practices to avoid truncation:**
+- Use `limit` parameter to reduce page size (e.g., `limit: 20` instead of default 50)
+- Use `offset` parameter to paginate through large result sets
+- Apply filters to narrow results (e.g., filter by repository, status, tableType)
+- Use specific queries instead of broad searches
+
+**Example - Handling large result sets:**
+```json
+{
+  "name": "openl_list_tables",
+  "arguments": {
+    "projectId": "design-large-project",
+    "tableType": "Rules",
+    "limit": 20,
+    "offset": 0,
+    "response_format": "markdown"
+  }
+}
+```
+
+If you receive a truncation message, reduce `limit` or add filters to retrieve complete data.
+
 ## Project Structure
 
 ```

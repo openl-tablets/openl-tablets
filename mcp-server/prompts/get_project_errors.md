@@ -14,10 +14,12 @@ arguments:
 {end if}
 
 ## Workflow
-1. `get_project_errors({if projectId}projectId="{projectId}"{end if})` → See all OpenL validation errors
+1. Check OpenL WebStudio UI for validation errors
+   Note: `openl_get_project_errors` is temporarily disabled - use WebStudio UI
 2. Categorize by OpenL error pattern
 3. Apply OpenL-specific fix
-4. `validate_project({if projectId}projectId="{projectId}"{end if})` → Confirm (0 errors)
+4. Validate in WebStudio UI → Confirm (0 errors)
+   Note: `openl_validate_project` is temporarily disabled
 
 ## OpenL Error Patterns → Fixes
 
@@ -28,7 +30,7 @@ arguments:
 ### Reference Not Found (OpenL Tables)
 **Pattern**: "Datatype 'Customer' not found" OR "Table 'RuleName' not found"
 **Fix**:
-1. `list_tables(tableType="Datatype")` → Check if exists
+1. `openl_list_tables(tableType="Datatype")` → Check if exists
 2. IF missing → create OpenL Datatype table
 3. IF exists → fix spelling (OpenL is case-sensitive)
 
@@ -57,5 +59,7 @@ IF 10-50 errors → Fix by Excel file
 IF >50 errors → Fix root cause first (may cascade fix others)
 
 ## BEFORE save/deploy
-- `validate_project()` → MUST be 0 errors
-- `run_test(runAllTests: true)` → MUST pass
+- Validate in OpenL WebStudio UI → MUST be 0 errors
+  (openl_validate_project temporarily disabled)
+- Run all tests in WebStudio UI → MUST pass
+  (openl_test_project temporarily disabled)

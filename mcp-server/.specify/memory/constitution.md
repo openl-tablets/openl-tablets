@@ -4,7 +4,7 @@
 
 **Name**: OpenL Tablets MCP Server
 **Purpose**: Model Context Protocol server for OpenL Tablets Business Rules Management System
-**Version**: 1.0.0
+**Version**: 2.0.0
 **License**: MIT
 **Repository**: https://github.com/openl-tablets/openl-tablets/tree/main/mcp-server
 
@@ -49,14 +49,15 @@ catch (error: unknown) {
 - **Easy to extend** - Adding features should be straightforward
 
 **Module Structure**:
-- `index.ts` - Server orchestration
-- `client.ts` - OpenL API client
-- `auth.ts` - Authentication lifecycle
-- `tools.ts` - Tool definitions
-- `schemas.ts` - Input validation
-- `types.ts` - Type definitions
-- `constants.ts` - Configuration
-- `utils.ts` - Security utilities
+- `index.ts` - Server orchestration and initialization
+- `client.ts` - OpenL API client implementation
+- `auth.ts` - Authentication lifecycle management
+- `tool-handlers.ts` - Tool registration functions (registerTool pattern)
+- `tools.ts` - Tool metadata and constants
+- `schemas.ts` - Zod input validation schemas (.strict())
+- `types.ts` - TypeScript type definitions
+- `constants.ts` - Configuration constants
+- `utils.ts` - Security and formatting utilities
 
 ### 4. Documentation as Code
 
@@ -85,7 +86,34 @@ catch (error: unknown) {
 - Nock for HTTP mocking
 - TypeScript support via ts-jest
 
-### 6. Error Handling Consistency
+### 6. Tool Naming Consistency
+
+**Principle**: All MCP tools MUST use the `openl_` prefix for namespace clarity and MCP compliance.
+
+**Rationale**:
+- Prevents naming conflicts in multi-server MCP environments
+- Clearly identifies the service provider
+- Follows MCP best practices from official guidelines
+- Makes tool discovery more intuitive
+
+**Application**:
+- All tool names: `openl_list_projects`, `openl_get_table`, `openl_search_rules`, etc.
+- No exceptions - even simple tools use prefix
+- Applies to new tools added in future
+- Consistent with MCP namespace conventions
+
+**Examples**:
+```typescript
+// ✅ Correct - with openl_ prefix
+server.registerTool("openl_list_projects", ...);
+server.registerTool("openl_get_table", ...);
+
+// ❌ Incorrect - missing prefix
+server.registerTool("list_projects", ...);
+server.registerTool("getTable", ...);
+```
+
+### 7. Error Handling Consistency
 
 - **Unknown over any** - Error types should be unknown
 - **Type guards** - Check error types before accessing properties
@@ -105,28 +133,28 @@ catch (error: unknown) {
 }
 ```
 
-### 7. Performance Consciousness
+### 8. Performance Consciousness
 
 - **Token caching** - Cache OAuth tokens with expiration
 - **Connection pooling** - Use Axios default pooling
 - **Lazy evaluation** - Fetch resources only when needed
 - **Concurrent safety** - Prevent duplicate requests
 
-### 8. Maintainability Focus
+### 9. Maintainability Focus
 
 - **Clear naming** - Functions named for what they do
 - **Consistent patterns** - Same approach throughout codebase
 - **No magic numbers** - All constants defined and named
 - **Comments when needed** - Explain complex logic
 
-### 9. MCP Protocol Compliance
+### 10. MCP Protocol Compliance
 
 - **Latest SDK** - Use stable MCP SDK v1.21.1+
 - **Standard patterns** - Follow MCP best practices
 - **Tool metadata** - Include version, category, auth requirements
 - **Resource URIs** - Follow MCP URI conventions
 
-### 10. Dependency Hygiene
+### 11. Dependency Hygiene
 
 - **Minimal dependencies** - Only essential packages
 - **Active maintenance** - All dependencies actively maintained
@@ -162,6 +190,111 @@ catch (error: unknown) {
 - 0 errors
 - 0 warnings
 - Fix issues, don't suppress (except documented exceptions)
+
+### RegisterTool Pattern (Not Switch Statements)
+
+**Guideline**: Use the `server.registerTool()` pattern, never switch statements.
+
+**Rationale**:
+- **Modular**: Each tool in its own function
+- **Testable**: Tools can be tested independently
+- **Maintainable**: Easy to add/modify tools
+- **MCP-compliant**: Supports annotations natively
+
+**Process**:
+1. Define schema with `.strict()` in `schemas.ts`
+2. Create registration function in `tool-handlers.ts`
+3. Add MCP annotations (`readOnlyHint`, etc.)
+4. Register in `registerAllTools()`
+5. Add metadata to `tools.ts`
+
+**Example**:
+```typescript
+// ✅ Correct - registerTool pattern
+export function registerListProjectsTool(
+  server: Server,
+  client: OpenLClient
+): void {
+  server.registerTool(
+    "openl_list_projects",
+    {
+      description: "List all OpenL Tablets projects",
+      inputSchema: zodToJsonSchema(ListProjectsArgsSchema),
+      annotations: {
+        readOnlyHint: true,
+        requiresAuth: true,
+      },
+    },
+    async (args) => {
+      const { limit, offset, response_format } =
+        ListProjectsArgsSchema.parse(args);
+      const projects = await client.listProjects(limit, offset);
+      return formatResponse(projects, response_format);
+    }
+  );
+}
+
+// ❌ Incorrect - switch statement pattern
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  switch (request.params.name) {
+    case "openl_list_projects":
+      // handler code...
+      break;
+  }
+});
+```
+
+### Response Format Support
+
+**Guideline**: All tools MUST support `response_format` parameter (json/markdown).
+
+**Default**: `markdown` (better for AI consumption)
+
+**Rationale**:
+- Flexibility for different use cases
+- Markdown provides better readability for AI agents
+- JSON enables programmatic processing
+- Consistent user experience across tools
+
+**Implementation**:
+```typescript
+// Schema definition
+export const BaseToolArgsSchema = z.object({
+  response_format: z.enum(['json', 'markdown']).default('markdown'),
+}).strict();
+
+// Usage in tool
+const result = response_format === 'json'
+  ? { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] }
+  : { content: [{ type: "text", text: formatAsMarkdown(data) }] };
+```
+
+### Pagination Standard
+
+**Guideline**: All list operations MUST support pagination (limit/offset).
+
+**Defaults**:
+- `limit`: 50 (max 200)
+- `offset`: 0
+
+**Rationale**:
+- Handle large datasets efficiently
+- Prevent memory issues
+- Reduce network overhead
+- Improve response times
+
+**Implementation**:
+```typescript
+export const PaginationArgsSchema = z.object({
+  limit: z.number().int().min(1).max(200).default(50),
+  offset: z.number().int().min(0).default(0),
+}).strict();
+
+// Extend in tool schemas
+export const ListProjectsArgsSchema = BaseToolArgsSchema
+  .merge(PaginationArgsSchema)
+  .strict();
+```
 
 ### Commit Guidelines
 
@@ -208,12 +341,76 @@ Closes #123
 
 ### Extension Pattern
 
-**Adding a New Tool** (5 Steps):
-1. Define Zod schema in `schemas.ts`
-2. Add tool definition to `tools.ts`
-3. Add API method to `client.ts` (if needed)
-4. Add tool handler in `index.ts`
-5. Add tests and examples
+**Adding a New Tool** (6 Steps):
+1. Define Zod schema with `.strict()` in `schemas.ts`
+2. Create registration function in `tool-handlers.ts` using `registerTool()`
+3. Add tool metadata to `tools.ts`
+4. Add API method to `client.ts` (if needed)
+5. Register in `registerAllTools()` in `tool-handlers.ts`
+6. Add tests and examples
+
+**Example - Adding a New Tool**:
+```typescript
+// 1. schemas.ts - Define schema with .strict()
+export const GetProjectArgsSchema = BaseToolArgsSchema
+  .merge(z.object({
+    project_name: z.string().min(1).describe("Project name"),
+  }))
+  .strict();
+
+// 2. tool-handlers.ts - Create registration function
+export function registerGetProjectTool(
+  server: Server,
+  client: OpenLClient
+): void {
+  server.registerTool(
+    "openl_get_project",  // Note: openl_ prefix required
+    {
+      description: "Get detailed information about a project",
+      inputSchema: zodToJsonSchema(GetProjectArgsSchema),
+      annotations: {
+        readOnlyHint: true,
+        requiresAuth: true,
+      },
+    },
+    async (args) => {
+      const { project_name, response_format } =
+        GetProjectArgsSchema.parse(args);
+      const project = await client.getProject(project_name);
+      return formatResponse(project, response_format);
+    }
+  );
+}
+
+// 3. tools.ts - Add metadata
+export const TOOL_METADATA = {
+  openl_get_project: {
+    category: "project_management",
+    requiresAuth: true,
+    version: "2.0.0",
+  },
+};
+
+// 4. client.ts - Add API method (if needed)
+async getProject(projectName: string): Promise<Project> {
+  const response = await this.makeRequest<Project>(
+    `/projects/${projectName}`
+  );
+  return response.data;
+}
+
+// 5. tool-handlers.ts - Register in registerAllTools()
+export function registerAllTools(
+  server: Server,
+  client: OpenLClient
+): void {
+  registerListProjectsTool(server, client);
+  registerGetProjectTool(server, client);  // Add this line
+  // ... other tools
+}
+
+// 6. Add tests to __tests__/tool-handlers.test.ts
+```
 
 **Adding Authentication Method**:
 1. Update types in `types.ts`
@@ -242,14 +439,26 @@ Closes #123
 
 ## Non-Negotiables
 
-1. **No credentials in code** - Ever. Use environment variables.
-2. **No any types** - Use unknown and type guards instead.
-3. **No suppressing ESLint** - Fix issues, don't hide them.
-4. **No missing tests** - New features require tests.
-5. **No incomplete docs** - Public APIs must have JSDoc.
-6. **No security vulnerabilities** - npm audit must be clean.
-7. **No circular dependencies** - Keep module graph acyclic.
-8. **No magic numbers** - Define constants with meaningful names.
+**Code Quality**:
+- ❌ **No credentials in code** - Ever. Use environment variables.
+- ❌ **No any types** - Use unknown and type guards instead.
+- ❌ **No suppressing ESLint** - Fix issues, don't hide them.
+- ❌ **No missing tests** - New features require tests.
+- ❌ **No incomplete docs** - Public APIs must have JSDoc.
+- ❌ **No circular dependencies** - Keep module graph acyclic.
+- ❌ **No magic numbers** - Define constants with meaningful names.
+
+**Architecture**:
+- ❌ **Tools without `openl_` prefix** - All tools must use namespace prefix.
+- ❌ **Schemas without `.strict()` mode** - All Zod schemas must be strict.
+- ❌ **List operations without pagination support** - All list tools must support limit/offset.
+- ❌ **Tools without `response_format` parameter** - All tools must support json/markdown output.
+- ❌ **Switch statements for tool handling** - Use `registerTool()` pattern only.
+
+**Security**:
+- ❌ **No security vulnerabilities** - npm audit must be clean.
+- ❌ **No unvalidated inputs** - All inputs must pass through Zod schemas.
+- ❌ **No timeout-less requests** - All network requests must have timeouts.
 
 ## Success Metrics
 
@@ -294,6 +503,12 @@ When faced with design decisions, prioritize in this order:
 > "Security is not a feature - it's a requirement."
 >
 > "Documentation is for humans - code is for machines."
+>
+> "Namespacing prevents chaos - prefix everything."
+>
+> "Modularity beats monoliths - one tool, one function."
+>
+> "Strict schemas catch bugs - always use .strict()."
 
 ## Enforcement
 
@@ -317,6 +532,6 @@ This constitution may evolve as the project grows, but core principles (type saf
 
 ---
 
-*Last Updated: 2025-11-13*
-*Version: 1.0.0*
+*Last Updated: 2025-11-16*
+*Version: 2.0.0 (Post-Refactoring)*
 *Status: Active*

@@ -20,22 +20,22 @@ arguments:
 **Table Type**: {tableType}
 {end if}
 
-## When to Use append_table
+## When to Use openl_append_table
 
 - **Add fields to Datatype** → Extend custom data structures
 - **Add rows to Data tables** → Append reference data
-- **Simple additions** → More efficient than update_table for appending
+- **Simple additions** → More efficient than openl_update_table for appending
 - **Incremental updates** → Add without fetching full structure
 
-## append_table vs update_table
+## openl_append_table vs openl_update_table
 
-### Use append_table When:
+### Use openl_append_table When:
 ✅ Adding new fields/rows to end of table
 ✅ Don't need to modify existing data
 ✅ Want efficient incremental updates
 ✅ Working with Datatype or Data tables
 
-### Use update_table When:
+### Use openl_update_table When:
 ✅ Modifying existing fields/rows
 ✅ Reordering fields
 ✅ Removing fields/rows
@@ -59,7 +59,7 @@ arguments:
 
 ```json
 {
-  "name": "append_table",
+  "name": "openl_append_table",
   "arguments": {
     "projectId": "design-insurance-rules",
     "tableId": "Customer_1234",
@@ -221,21 +221,21 @@ Each field in the `fields` array must include:
 ### Step-by-Step Process
 
 ```
-1. Identify table → Use list_tables() to find tableId
+1. Identify table → Use openl_list_tables() to find tableId
 2. Determine fields → Define new fields with types
-3. Call append_table → Add fields to table
-4. Verify changes → Use get_table() to confirm
-5. Save project → Persist changes with update_project_status()
+3. Call openl_append_table → Add fields to table
+4. Verify changes → Use openl_get_table() to confirm
+5. Save project → Persist changes with openl_update_project_status()
 ```
 
 ### Complete Example
 
 ```bash
 # Step 1: List tables to find the one to append to
-list_tables(projectId="design-insurance-rules", tableType="Datatype")
+openl_list_tables(projectId="design-insurance-rules", tableType="Datatype")
 
 # Step 2: Append new fields
-append_table(
+openl_append_table(
   projectId="design-insurance-rules",
   tableId="Customer_1234",
   appendData={
@@ -253,10 +253,10 @@ append_table(
 )
 
 # Step 3: Verify the append
-get_table(projectId="design-insurance-rules", tableId="Customer_1234")
+openl_get_table(projectId="design-insurance-rules", tableId="Customer_1234")
 
 # Step 4: Save changes
-update_project_status(
+openl_update_project_status(
   projectId="design-insurance-rules",
   comment="Added loyalty tier to Customer datatype"
 )
@@ -295,7 +295,7 @@ update_project_status(
 GOAL: Add email and phone to Customer
 
 SOLUTION:
-append_table(
+openl_append_table(
   tableId="Customer_1234",
   appendData={
     "tableType": "Datatype",
@@ -313,7 +313,7 @@ append_table(
 GOAL: Add field that stores calculated value
 
 SOLUTION:
-append_table(
+openl_append_table(
   tableId="Policy_5678",
   appendData={
     "tableType": "Datatype",
@@ -330,7 +330,7 @@ append_table(
 GOAL: Add tracking/audit fields
 
 SOLUTION:
-append_table(
+openl_append_table(
   tableId="Transaction_9012",
   appendData={
     "tableType": "Datatype",
@@ -363,55 +363,56 @@ Fix: Ensure custom datatype exists in project first
 **Duplicate Field Name**
 ```
 Error: Field 'email' already exists
-Fix: Use update_table to modify existing field, or choose different name
+Fix: Use openl_update_table to modify existing field, or choose different name
 ```
 
 **Invalid Table Type**
 ```
 Error: Cannot append to table type 'Rules'
-Fix: Use append_table only for Datatype and Data tables
+Fix: Use openl_append_table only for Datatype and Data tables
 ```
 
 ## Validation After Append
 
 ```
 # After appending, always verify:
-1. get_table(tableId) → Confirm fields added
-2. validate_project() → Check for type errors
-3. IF validation passes → save_project()
+1. openl_get_table(tableId) → Confirm fields added
+2. Manually validate in OpenL WebStudio UI → Check for type errors
+   (openl_validate_project is temporarily disabled)
+3. IF validation passes → openl_update_project_status(comment="...")
 4. IF validation fails → Review field types and references
 ```
 
 ## Integration with Other Tools
 
-### Before append_table
-- `list_tables()` → Find table to append to
-- `get_table()` → Review current structure (optional)
+### Before openl_append_table
+- `openl_list_tables()` → Find table to append to
+- `openl_get_table()` → Review current structure (optional)
 
-### After append_table
-- `get_table()` → Verify append succeeded
-- `validate_project()` → Check for errors
-- `update_project_status()` → Save changes
+### After openl_append_table
+- `openl_get_table()` → Verify append succeeded
+- Validate in OpenL WebStudio UI → Check for errors
+- `openl_update_project_status()` → Save changes
 
 ### Alternatives
-- `update_table()` → For complex modifications
-- `create_rule()` → For creating new tables
-- `upload_file()` → For bulk Excel updates
+- `openl_update_table()` → For complex modifications
+- `openl_create_rule()` → For creating new tables
+- `openl_upload_file()` → For bulk Excel updates
 
 ## Quick Reference
 
 | Task | Command |
 |------|---------|
-| Add single field | `append_table(fields=[{name, type}])` |
-| Add multiple fields | `append_table(fields=[{...}, {...}, ...])` |
-| Add required field | `append_table(fields=[{name, type, required: true}])` |
-| Add with default | `append_table(fields=[{name, type, defaultValue}])` |
-| Verify append | `get_table(tableId)` |
-| Save changes | `update_project_status(comment="...")` |
+| Add single field | `openl_append_table(fields=[{name, type}])` |
+| Add multiple fields | `openl_append_table(fields=[{...}, {...}, ...])` |
+| Add required field | `openl_append_table(fields=[{name, type, required: true}])` |
+| Add with default | `openl_append_table(fields=[{name, type, defaultValue}])` |
+| Verify append | `openl_get_table(tableId)` |
+| Save changes | `openl_update_project_status(comment="...")` |
 
 ## Performance Notes
 
-- **Efficiency**: append_table is more efficient than update_table for simple additions
-- **In-memory**: Changes are in-memory until save_project()
+- **Efficiency**: openl_append_table is more efficient than openl_update_table for simple additions
+- **In-memory**: Changes are in-memory until openl_update_project_status()
 - **Bulk append**: Can append multiple fields in single call
-- **No fetch**: Don't need to fetch full table first (unlike update_table)
+- **No fetch**: Don't need to fetch full table first (unlike openl_update_table)

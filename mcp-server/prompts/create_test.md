@@ -63,10 +63,10 @@ OpenL defines 4 special column names:
 ### STEP 1: Identify Tested Method
 
 ```
-list_tables(tableType="Rules|SimpleRules|SmartRules|Spreadsheet|Method")
+openl_list_tables(tableType="Rules|SimpleRules|SmartRules|Spreadsheet|Method")
 → Find rule to test
 
-get_table(tableId="ruleName_1234")
+openl_get_table(tableId="ruleName_1234")
 → Get signature: name, parameters, returnType
 ```
 
@@ -245,12 +245,12 @@ Use the existing `create_rule` tool with `tableType="Test"`:
 
 1. Find rule to test:
 ```
-list_tables(projectId, tableType="Rules")
+openl_list_tables(projectId, tableType="Rules")
 ```
 
 2. Get rule signature:
 ```
-get_table(projectId, tableId="calculatePremium_1234")
+openl_get_table(projectId, tableId="calculatePremium_1234")
 → Returns: { signature: { name, parameters, returnType } }
 ```
 
@@ -266,7 +266,7 @@ testParameters = [
 
 4. Create test table:
 ```
-create_rule(
+openl_create_rule(
   projectId,
   name: ruleName + "Test",
   tableType: "Test",
@@ -278,7 +278,7 @@ create_rule(
 
 5. Add test cases:
 ```
-update_table(
+openl_update_table(
   projectId,
   tableId: testTableId,
   view: { rows: [
@@ -290,13 +290,13 @@ update_table(
 
 6. Run tests to verify:
 ```
-run_test(projectId, tableIds: [ruleTableId])
+openl_test_project(projectId, tableIds: [ruleTableId])
 → Should show all tests passing
 ```
 
 7. Save project:
 ```
-save_project(projectId, comment: "Added tests for calculatePremium")
+openl_update_project_status(projectId, comment: "Added tests for calculatePremium")
 ```
 
 ## Common Mistakes to Avoid

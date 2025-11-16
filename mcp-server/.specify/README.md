@@ -13,9 +13,9 @@ Spec Kit is a toolkit that helps AI coding agents understand projects through st
 
 ## Project Status
 
-**Current Version**: 1.0.0
-**Status**: Production Ready (v1.0.0 complete, test coverage expansion in progress)
-**Last Updated**: 2025-11-13
+**Current Version**: 2.0.0
+**Status**: Production Ready (v2.0.0 refactoring complete, test coverage expansion in progress)
+**Last Updated**: 2025-11-16
 
 ## Artifacts
 
@@ -43,9 +43,9 @@ Key topics:
 
 Key topics:
 - Core capabilities (10 major capabilities)
-- All 24 MCP tools with detailed descriptions
-- 11 prompts with usage guidance
-- Functional requirements (FR-1 through FR-12)
+- All 18 MCP tools with detailed descriptions (openl_ prefix naming)
+- 12 prompts with usage guidance
+- Functional requirements (FR-1 through FR-15, including pagination & formatting)
 - Non-functional requirements (security, performance, reliability)
 - Success criteria
 
@@ -80,10 +80,10 @@ Key topics:
 **Actionable work items with priorities and estimates**
 
 Key topics:
-- 33 total tasks (9 completed, 24 remaining)
+- 40 total tasks (10 completed, 30 remaining)
 - Prioritized (P0-P3)
-- Estimated effort (130-190 hours remaining)
-- Sprint planning (5 sprints outlined)
+- Estimated effort (includes refactoring completion and new test tasks)
+- Sprint planning (updated with refactored architecture testing)
 - Dependencies and risks
 - Success criteria
 
@@ -341,7 +341,7 @@ feat(auth): add SAML authentication support
 
 ---
 
-**Spec Kit Version**: 1.0.0
-**MCP Server Version**: 1.0.0
-**Last Updated**: 2025-11-13
+**Spec Kit Version**: 2.0.0
+**MCP Server Version**: 2.0.0
+**Last Updated**: 2025-11-16
 **Maintained By**: OpenL Tablets MCP Server Team
