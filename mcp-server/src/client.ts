@@ -421,37 +421,57 @@ export class OpenLClient {
     // Convert to Buffer if string
     const buffer = Buffer.isBuffer(fileContent) ? fileContent : Buffer.from(fileContent);
 
-    // Upload file using axios with buffer
-    // Note: The actual implementation depends on OpenL Tablets API requirements
-    // This is a placeholder that may need adjustment based on the actual API
-    const response = await this.axiosInstance.post(
-      `${projectPath}/files/${encodeURIComponent(fileName)}`,
-      buffer,
-      {
-        headers: {
-          "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        },
-        params: comment ? { comment } : undefined,
+    try {
+      // Upload file using axios with buffer
+      // IMPORTANT: Use the fileName exactly as provided - can be simple name, subdirectory path, or full path
+      // e.g., "Rules.xlsx", "rules/Premium.xlsx", or "Example 1 - Bank Rating/Bank Rating.xlsx"
+      const response = await this.axiosInstance.post(
+        `${projectPath}/files/${encodeURIComponent(fileName)}`,
+        buffer,
+        {
+          headers: {
+            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+          params: comment ? { comment } : undefined,
+        }
+      );
+
+      // Extract commit information from response (FileData structure)
+      const fileData = response.data || {};
+      const commitHash = fileData.version || fileData.commitHash;
+
+      return {
+        success: true,
+        fileName,
+        commitHash,
+        version: commitHash,  // Same as commitHash for backward compatibility
+        author: fileData.author ? {
+          name: fileData.author.name || "unknown",
+          email: fileData.author.email || ""
+        } : undefined,
+        timestamp: fileData.modifiedAt || new Date().toISOString(),
+        size: fileData.size || buffer.length,
+        message: `File uploaded successfully at commit ${commitHash?.substring(0, 8) || "unknown"}`,
+      };
+    } catch (error: any) {
+      // Provide helpful error messages for common upload failures
+      if (error.response?.status === 404) {
+        throw new Error(
+          `Upload failed: Invalid path "${fileName}" in project "${projectId}". ` +
+          `Ensure the project is open and the file path is valid. ` +
+          `Valid formats: simple name ('Rules.xlsx'), subdirectory ('rules/Premium.xlsx'), or full path ('Example 1 - Bank Rating/Bank Rating.xlsx').`
+        );
       }
-    );
-
-    // Extract commit information from response (FileData structure)
-    const fileData = response.data || {};
-    const commitHash = fileData.version || fileData.commitHash;
-
-    return {
-      success: true,
-      fileName,
-      commitHash,
-      version: commitHash,  // Same as commitHash for backward compatibility
-      author: fileData.author ? {
-        name: fileData.author.name || "unknown",
-        email: fileData.author.email || ""
-      } : undefined,
-      timestamp: fileData.modifiedAt || new Date().toISOString(),
-      size: fileData.size || buffer.length,
-      message: `File uploaded successfully at commit ${commitHash?.substring(0, 8) || "unknown"}`,
-    };
+      if (error.response?.status === 409) {
+        throw new Error(
+          `Upload failed: Conflict detected for "${fileName}". ` +
+          `The file may be locked by another user or there may be uncommitted changes. ` +
+          `Try opening the project first or resolving any conflicts.`
+        );
+      }
+      // Re-throw other errors with additional context
+      throw new Error(`Upload failed for "${fileName}": ${error.message}`);
+    }
   }
 
   /**

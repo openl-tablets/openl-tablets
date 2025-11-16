@@ -134,7 +134,7 @@ export const saveProjectSchema = z.object({
 
 export const uploadFileSchema = z.object({
   projectId: projectIdSchema,
-  fileName: z.string().describe("Name of the Excel file to upload (.xlsx or .xls)"),
+  fileName: z.string().describe("Path where the file should be uploaded in the project (.xlsx or .xls). Can be a simple filename (e.g., 'Rules.xlsx'), subdirectory path (e.g., 'rules/Premium.xlsx'), or full path (e.g., 'Example 1 - Bank Rating/Bank Rating.xlsx'). To replace an existing file, use the exact 'file' field value from list_tables()."),
   fileContent: z.string().describe("Base64-encoded file content"),
   comment: commentSchema,
 });
