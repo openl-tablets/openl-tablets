@@ -471,25 +471,51 @@ describe("OpenLClient", () => {
     describe("downloadFile", () => {
       it("should download file content", async () => {
         const fileContent = Buffer.from("test file content");
-        mockAxios.onGet("/design/project1/files/Rules.xlsx").reply(200, fileContent);
+        // New API format uses base64-encoded project ID
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(200, fileContent);
 
         const result = await client.downloadFile("design-project1", "Rules.xlsx");
         expect(result).toEqual(fileContent);
       });
 
-      it("should download specific version", async () => {
-        mockAxios.onGet(/files\/Rules.xlsx.*version=abc123/).reply(200, Buffer.from("old content"));
+      it("should download file content with project prefix in filename", async () => {
+        const fileContent = Buffer.from("test file content");
+        // First path tried (with prefix) will 404, second path (without prefix) will succeed
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FRules.xlsx").reply(404);
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(200, fileContent);
 
-        await client.downloadFile("design-project1", "Rules.xlsx", "abc123");
-        expect(mockAxios.history.get.length).toBe(1);
+        const result = await client.downloadFile("design-project1", "project1/Rules.xlsx");
+        expect(result).toEqual(fileContent);
       });
 
-      it("should handle file not found", async () => {
-        mockAxios.onGet("/design/project1/files/NonExistent.xlsx").reply(404);
+      it("should try alternative path when file not found", async () => {
+        const fileContent = Buffer.from("test file content");
+        // First path (without prefix) will 404, second path (with prefix) will succeed
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Corporate%20Rating.xlsx").reply(404);
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FCorporate%20Rating.xlsx").reply(200, fileContent);
+
+        const result = await client.downloadFile("design-project1", "Corporate Rating.xlsx");
+        expect(result).toEqual(fileContent);
+      });
+
+      it("should download specific version", async () => {
+        // Mock the file download with version parameter
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx", { params: { version: "abc123" } })
+          .reply(200, Buffer.from("old content"));
+
+        const result = await client.downloadFile("design-project1", "Rules.xlsx", "abc123");
+        expect(result.toString()).toBe("old content");
+        expect(mockAxios.history.get.length).toBeGreaterThanOrEqual(1);
+      });
+
+      it("should handle file not found with helpful error", async () => {
+        // Both paths will return 404
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/NonExistent.xlsx").reply(404);
+        mockAxios.onGet("/projects/ZGVzaWduOnByb2plY3Qx/files/project1%2FNonExistent.xlsx").reply(404);
 
         await expect(
           client.downloadFile("design-project1", "NonExistent.xlsx")
-        ).rejects.toThrow();
+        ).rejects.toThrow(/File not found.*Tried paths/);
       });
     });
   });
