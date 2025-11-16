@@ -1,6 +1,6 @@
 # OpenL Tablets MCP Server - Implementation Plan
 
-> **Status**: Refactored & Production-Ready (v2.0.0)
+> **Status**: Experimental (v1.0.0) - 11/18 tools active, 7 temporarily disabled
 > **Last Updated**: 2025-11-16
 > **Major Milestone**: Completed architectural refactoring from monolithic to modular design
 
@@ -15,8 +15,8 @@ The OpenL Tablets MCP Server underwent a **major architectural refactoring** in 
 - ✅ **Response Formatting**: Unified JSON/Markdown formatting with pagination support
 - ✅ **Structured Logging**: stderr-only logging with credential sanitization
 - ✅ **MCP Annotations**: First-class support for readOnlyHint, idempotentHint, destructiveHint, openWorldHint
-- ✅ **Tool Prefix**: All 24 tools now use `openl_` prefix for namespacing
-- ✅ **Character Limits**: Automatic truncation at 100,000 characters
+- ✅ **Tool Prefix**: All 18 tools now use `openl_` prefix for namespacing (11 active, 7 disabled)
+- ✅ **Character Limits**: Automatic truncation at 25,000 characters
 - ✅ **Pagination**: Built-in pagination (limit: 50, max: 200) for all list operations
 
 **New Modules**:
@@ -538,7 +538,7 @@ export function formatResponse(
   format: "json" | "markdown" = "json",
   options?: FormatOptions
 ): string {
-  // Apply character limit (defaults to 100,000 characters)
+  // Apply character limit (defaults to 25,000 characters)
   const formatted = format === "json"
     ? formatAsJson(data, options)
     : formatAsMarkdown(data, options);
@@ -588,7 +588,7 @@ function formatAsMarkdown(data: unknown, options?: FormatOptions): string {
 **Character Limit Enforcement**:
 ```typescript
 function enforceCharacterLimit(text: string, limit?: number): string {
-  const maxChars = limit ?? RESPONSE_LIMITS.MAX_CHARACTERS;  // Default: 100,000
+  const maxChars = limit ?? RESPONSE_LIMITS.MAX_CHARACTERS;  // Default: 25,000
 
   if (text.length <= maxChars) return text;
 
@@ -965,10 +965,10 @@ OPENL_PASSWORD=admin
 # OR
 OPENL_API_KEY=sk-...
 # OR
-OPENL_OAUTH_TOKEN_URL=https://auth.example.com/token
-OPENL_OAUTH_CLIENT_ID=client-id
-OPENL_OAUTH_CLIENT_SECRET=secret
-OPENL_OAUTH_SCOPE="openl:read openl:write"
+OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/token
+OPENL_OAUTH2_CLIENT_ID=client-id
+OPENL_OAUTH2_CLIENT_SECRET=secret
+OPENL_OAUTH2_SCOPE="openl:read openl:write"
 
 # Optional
 OPENL_TIMEOUT=30000  # milliseconds
