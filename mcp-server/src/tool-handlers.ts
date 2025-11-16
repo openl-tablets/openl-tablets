@@ -821,6 +821,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   // Execution Tools
   // =============================================================================
 
+  // TEMPORARILY DISABLED - openl_execute_rule
+  // Tool is not working correctly and needs implementation fixes
+  /*
   registerTool({
     name: "openl_execute_rule",
     title: "openl Execute Rule",
@@ -860,6 +863,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
+  */
 
   // =============================================================================
   // Version Control Tools
