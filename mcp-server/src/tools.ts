@@ -133,10 +133,10 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "download_file",
-    description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content. IMPORTANT: Use the exact 'file' field from list_tables() response as the fileName parameter (e.g., 'Rules.xlsx' or 'rules/Premium.xlsx'). Do NOT construct file paths manually - they may not match OpenL's internal structure.",
+    description: "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash. Returns base64-encoded file content. IMPORTANT: Use the exact 'file' field from list_tables() response as the fileName parameter (e.g., 'Example 2 - Corporate Rating/Corporate Rating.xlsx' or 'rules/Premium.xlsx'). The tool automatically handles path normalization by stripping the project name prefix when needed.",
     inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
     _meta: {
-      version: "2.1.0",
+      version: "2.2.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },

@@ -487,10 +487,18 @@ export class OpenLClient {
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const projectPath = this.buildProjectPath(projectId);
 
-    // IMPORTANT: Use the fileName exactly as returned by list_tables
-    // File paths from list_tables already include the correct path structure
-    // e.g., "Example 1 - Bank Rating/Bank Rating.xlsx" or "rules/Premium.xlsx"
-    // DO NOT strip any prefix - the API expects the full path
+    // Parse project ID to get the project name
+    const [, projectName] = this.parseProjectId(projectId);
+
+    // IMPORTANT: File paths from list_tables include a directory prefix matching the project name
+    // e.g., "Example 2 - Corporate Rating/Corporate Rating.xlsx"
+    // But the download API expects paths relative to the project root: "Corporate Rating.xlsx"
+    // Strip the "{projectName}/" prefix if present
+    let normalizedFileName = fileName;
+    const projectPrefix = `${projectName}/`;
+    if (fileName.startsWith(projectPrefix)) {
+      normalizedFileName = fileName.substring(projectPrefix.length);
+    }
 
     // Build request params
     const params: any = {};
@@ -500,7 +508,7 @@ export class OpenLClient {
 
     try {
       const response = await this.axiosInstance.get<ArrayBuffer>(
-        `${projectPath}/files/${encodeURIComponent(fileName)}`,
+        `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
         {
           responseType: "arraybuffer",
           params,
@@ -518,6 +526,15 @@ export class OpenLClient {
           `2) Use the exact 'file' field value from a table entry as the fileName parameter. ` +
           `Common causes: File path typo, wrong project, or file was deleted. ` +
           `Example valid path: "Example 1 - Bank Rating/Bank Rating.xlsx" or "rules/Premium.xlsx".`
+        );
+      } else if (error.response?.status === 400) {
+        // 400 might indicate incorrect file path format
+        throw new Error(
+          `Invalid file path: "${fileName}". ` +
+          `The OpenL API rejected this file path (400 Bad Request). ` +
+          `Make sure to use the exact 'file' field value from list_tables() response. ` +
+          `If the issue persists, the file may not exist or the project may not be properly opened. ` +
+          `Original error: ${error.message}`
         );
       }
       // Re-throw other errors
