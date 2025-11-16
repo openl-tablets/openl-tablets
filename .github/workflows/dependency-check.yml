@@ -3,7 +3,7 @@ name: Dependency Vulnerability Check
 on:
   push:
     branches:
-      - master
+      - main
       - develop
     paths:
       - '**/pom.xml'
@@ -11,7 +11,7 @@ on:
       - '**/package-lock.json'
   pull_request:
     branches:
-      - master
+      - main
       - develop
     paths:
       - '**/pom.xml'
@@ -129,7 +129,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/maven@0.4.0
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
           docker build -f ${{ matrix.dockerfile.path }} -t ${{ matrix.dockerfile.image }}:test .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: '${{ matrix.dockerfile.image }}:test'
           format: 'sarif'
@@ -180,7 +180,7 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
       - name: Generate Trivy report
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: '${{ matrix.dockerfile.image }}:test'
           format: 'table'

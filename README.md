@@ -1,7 +1,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)](https://central.sonatype.com/search?q=org.openl)
 [![Java Version](https://img.shields.io/badge/Java-21%2B-orange)](https://www.oracle.com/java/technologies/downloads/)
 [![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
-[![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/openl-tablets/openl-tablets/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/openl-tablets/openl-tablets/blob/main/LICENSE)
 
 # OpenL Tablets - Business Rules Management Made Simple
 
@@ -20,6 +20,44 @@ OpenL Tablets is an open-source **Business Rules Management System (BRMS)** that
 - Banks processing loan applications and credit decisions
 - Healthcare organizations managing treatment protocols and benefits
 - Retailers running dynamic pricing and promotions
+
+---
+
+## 🎉 Recent Updates
+
+### Infrastructure & Developer Experience (Latest)
+We've significantly enhanced the development infrastructure and automation:
+
+**🤖 AI & Developer Tools**
+- Added comprehensive AI assistant configuration (Claude Code, Cursor)
+- Module-specific guidance files for DEV, STUDIO, WSFrontend, and Util modules
+- Intelligent code review automation
+
+**📦 GitHub Governance**
+- Professional issue templates (bug reports, feature requests, documentation)
+- Comprehensive pull request template with checklists
+- CODEOWNERS for automated review assignment
+- CODE_OF_CONDUCT.md (Contributor Covenant 2.1)
+- SECURITY.md with vulnerability reporting process
+
+**🔄 CI/CD & Automation**
+- 14 GitHub Actions workflows (security scanning, builds, benchmarks)
+- CodeQL security analysis for Java and JavaScript
+- OWASP Dependency-Check and Trivy container scanning
+- Automated spell checking and PR title validation
+- Dependabot for Maven, Docker, and GitHub Actions updates
+
+**📚 Documentation**
+- 200+ documentation files with 40,000+ lines of content
+- Read the Docs integration with MkDocs Material theme
+- Comprehensive user guides, developer guides, and API references
+- Migration from legacy OpenLdocs repository
+
+**🐳 Production Ready**
+- Multi-stage Dockerfiles for Studio and Rule Services
+- Husky git hooks for pre-commit quality checks
+- Environment configuration templates (.env.example)
+- CITATION.cff for academic citations
 
 ---
 
