@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "openl-tablets-basic-auth": {
+      "comment": "OpenL Tablets with Basic Authentication",
+      "command": "node",
+      "args": [
+        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_USERNAME": "admin",
+        "OPENL_PASSWORD": "admin",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
+      }
+    },
+    "openl-tablets-api-key": {
+      "comment": "OpenL Tablets with API Key Authentication",
+      "command": "node",
+      "args": [
+        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_API_KEY": "your-api-key-here",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
+      }
+    },
+    "openl-tablets-oauth2": {
+      "comment": "OpenL Tablets with OAuth 2.1 Authentication",
+      "command": "node",
+      "args": [
+        "/absolute/path/to/openl-tablets/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
+        "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
+        "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
+        "OPENL_OAUTH2_SCOPE": "openl:read openl:write",
+        "OPENL_OAUTH2_GRANT_TYPE": "client_credentials",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1",
+        "OPENL_TIMEOUT": "60000"
+      }
+    }
+  }
+}
