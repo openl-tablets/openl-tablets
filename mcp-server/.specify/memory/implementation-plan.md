@@ -1,5 +1,34 @@
 # OpenL Tablets MCP Server - Implementation Plan
 
+> **Status**: Refactored & Production-Ready (v2.0.0)
+> **Last Updated**: 2025-11-16
+> **Major Milestone**: Completed architectural refactoring from monolithic to modular design
+
+## Executive Summary
+
+The OpenL Tablets MCP Server underwent a **major architectural refactoring** in November 2025, transforming from a monolithic 766-line `index.ts` file to a clean, modular architecture with dedicated modules for tool handling, formatting, validation, and logging.
+
+**Key Improvements**:
+- ✅ **RegisterTool Pattern**: Replaced 400+ line switch statement with registry-based tool management
+- ✅ **Modular Architecture**: Split into 14 focused modules (~5,400 lines total)
+- ✅ **Enhanced Validation**: All schemas now use `.strict()` mode for runtime safety
+- ✅ **Response Formatting**: Unified JSON/Markdown formatting with pagination support
+- ✅ **Structured Logging**: stderr-only logging with credential sanitization
+- ✅ **MCP Annotations**: First-class support for readOnlyHint, idempotentHint, destructiveHint, openWorldHint
+- ✅ **Tool Prefix**: All 24 tools now use `openl_` prefix for namespacing
+- ✅ **Character Limits**: Automatic truncation at 100,000 characters
+- ✅ **Pagination**: Built-in pagination (limit: 50, max: 200) for all list operations
+
+**New Modules**:
+- `tool-handlers.ts` (998 lines) - Tool registry and handlers
+- `formatters.ts` (360 lines) - Response formatting and pagination
+- `validators.ts` (117 lines) - Input validation utilities
+- `logger.ts` (107 lines) - Structured logging
+
+**Code Reduction**: index.ts reduced from 766 lines to 352 lines (54% reduction)
+
+---
+
 ## Technology Stack
 
 ### Core Technologies
@@ -99,34 +128,75 @@
 
 ### Module Structure
 
+The MCP server has been **refactored from a 766-line monolithic index.ts to a modular architecture** with dedicated modules for tool handling, formatting, validation, and logging.
+
 **Layer 1: Entry Point**
-- `src/index.ts` (766 lines)
+- `src/index.ts` (352 lines, **REDUCED from 766**)
   - MCP server initialization
-  - Tool request routing
+  - Request routing (delegated to tool-handlers)
   - Resource providers
   - Prompt integration
-  - Error handling
+  - High-level error handling
 
-**Layer 2: Business Logic**
-- `src/client.ts` (1,123 lines)
+**Layer 2: Tool Management** ⭐ **NEW ARCHITECTURE**
+- `src/tool-handlers.ts` (998 lines, **NEW**)
+  - RegisterTool pattern (replaces switch statements)
+  - Tool registry and execution
+  - 24 tool registration functions
+  - MCP annotations (readOnlyHint, idempotentHint, destructiveHint, openWorldHint)
+  - Centralized tool error handling
+  - Handler type definitions
+
+- `src/tools.ts` (370 lines)
+  - Tool metadata definitions
+  - Tool categorization
+  - Helper functions for tool discovery
+
+**Layer 3: Business Logic**
+- `src/client.ts` (1,150 lines)
   - OpenL API client
   - 30+ API methods
-  - Project ID parsing
+  - Project ID parsing and conversion
   - URL building
   - Response parsing
 
-**Layer 3: Cross-Cutting Concerns**
+**Layer 4: Formatting & Validation** ⭐ **NEW**
+- `src/formatters.ts` (360 lines, **NEW**)
+  - Response formatting (JSON/Markdown)
+  - Pagination helpers (paginateResults)
+  - Character limit enforcement
+  - Truncation handling
+  - Markdown table generation
+
+- `src/validators.ts` (117 lines, **NEW**)
+  - Input validation utilities
+  - Base64 validation
+  - Response format validation
+  - Pagination parameter validation
+  - Project ID validation
+
+- `src/logger.ts` (107 lines, **NEW**)
+  - Structured logging to stderr
+  - Log levels (ERROR, WARN, INFO, DEBUG)
+  - Context sanitization
+  - Credential redaction
+
+**Layer 5: Cross-Cutting Concerns**
 - `src/auth.ts` (232 lines)
   - Authentication lifecycle
   - Token management
   - Request interceptors
-  - Multi-method support
+  - Multi-method support (Basic, API Key, OAuth 2.1)
 
-- `src/prompts-registry.ts` (348 lines)
+- `src/prompts-registry.ts` (365 lines)
   - Prompt loading and caching
   - YAML frontmatter parsing
   - Argument substitution
   - Template rendering
+
+- `src/prompts.ts` (171 lines)
+  - Prompt definitions
+  - Prompt metadata
 
 - `src/utils.ts` (209 lines)
   - Error sanitization
@@ -134,44 +204,47 @@
   - Project ID parsing
   - Safe JSON serialization
 
-**Layer 4: Definitions**
-- `src/tools.ts` (430 lines)
-  - Tool definitions (24 tools)
-  - Metadata and categorization
-  - Helper functions
-
-- `src/schemas.ts` (239 lines)
-  - Zod schemas (15 schemas)
-  - Input validation
+**Layer 6: Definitions**
+- `src/schemas.ts` (270 lines, **ENHANCED**)
+  - Zod schemas with .strict() mode
+  - Input validation (24 tool schemas)
   - Type inference
+  - Runtime safety
 
-- `src/types.ts` (643 lines)
+- `src/types.ts` (653 lines)
   - TypeScript interfaces (40+ types)
   - OpenL API types
   - Configuration types
   - Result types
 
-- `src/constants.ts` (71 lines)
+- `src/constants.ts` (82 lines, **ENHANCED**)
   - Default values
   - Categories
   - HTTP headers
   - Regex patterns
+  - **RESPONSE_LIMITS** (MAX_CHARACTERS, MAX_ARRAY_ITEMS)
 
 ### Data Flow
 
-**Tool Execution Flow**:
+**Tool Execution Flow** (Refactored):
 ```
 1. AI Agent → MCP Request (tool name + args)
-2. MCP Server → Validate args with Zod schema
-3. MCP Server → Route to tool handler
-4. Tool Handler → Call client method
-5. Client → Add authentication (interceptor)
-6. Client → Make HTTP request to OpenL API
-7. OpenL API → Process request
-8. OpenL API → Return response
-9. Client → Parse response
-10. Tool Handler → Format MCP response
-11. MCP Server → Return to AI agent
+2. index.ts → CallToolRequest handler receives request
+3. index.ts → Delegates to executeTool() in tool-handlers.ts
+4. tool-handlers.ts → Looks up tool in registry
+5. tool-handlers.ts → Validates args with Zod schema (.strict())
+6. tool-handlers.ts → Calls tool handler function
+7. Tool Handler → Validates input (validators.ts)
+8. Tool Handler → Calls client method (client.ts)
+9. Client → Add authentication (auth.ts interceptor)
+10. Client → Make HTTP request to OpenL API
+11. OpenL API → Process request
+12. OpenL API → Return response
+13. Client → Parse response
+14. Tool Handler → Apply pagination (paginateResults)
+15. Tool Handler → Format response (formatResponse)
+16. Tool Handler → Return formatted result
+17. index.ts → Return to AI agent
 ```
 
 **Error Flow**:
@@ -242,15 +315,18 @@
 
 ### Input Validation System
 
-**Design**: Zod schemas for runtime validation + TypeScript types
+**Design**: Zod schemas with .strict() mode for runtime validation + TypeScript types
 
-**Schema Pattern**:
+**Schema Pattern** (Enhanced):
 ```typescript
 export const listProjectsSchema = z.object({
   repository: z.string().optional().describe("Filter by repository"),
   status: z.enum(["OPENED", "CLOSED"]).optional(),
   tag: z.string().optional(),
-});
+  response_format: ResponseFormat.optional(),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+}).strict();  // ⭐ NEW: Reject unknown properties
 
 // Automatic type inference
 type ListProjectsInput = z.infer<typeof listProjectsSchema>;
@@ -263,10 +339,12 @@ const inputSchema = zodToJsonSchema(listProjectsSchema);
 ```
 
 **Benefits**:
+- **.strict() mode** prevents extra/unknown properties
 - Runtime validation catches bad inputs
 - TypeScript types ensure compile-time safety
 - Single source of truth (Zod schema)
 - Excellent error messages
+- Centralized validation utilities (validators.ts)
 
 ### Error Handling System
 
@@ -308,6 +386,377 @@ try {
 - Rich context for debugging
 - Type-safe error handling
 - Consistent error format
+
+### RegisterTool Pattern ⭐ **NEW ARCHITECTURE**
+
+**Design**: Registry-based tool management (replaces switch statements in index.ts)
+
+**Previous Approach** (Deprecated):
+```typescript
+// OLD: 400+ line switch statement in index.ts
+switch (name) {
+  case "list_repositories":
+    // handler code here (50+ lines)
+  case "list_projects":
+    // handler code here (50+ lines)
+  // ... 22 more cases
+}
+```
+
+**New Approach** (Current):
+```typescript
+// tool-handlers.ts
+registerTool({
+  name: "openl_list_repositories",
+  title: "List Repositories",
+  description: "List all design repositories...",
+  inputSchema: zodToJsonSchema(schemas.listRepositoriesSchema) as Record<string, unknown>,
+  annotations: {
+    readOnlyHint: true,
+    openWorldHint: true,
+    idempotentHint: true,
+  },
+  handler: async (args, client): Promise<ToolResponse> => {
+    // Validation
+    const format = validateResponseFormat(args?.response_format);
+    const { limit, offset } = validatePagination(args?.limit, args?.offset);
+
+    // API call
+    const repositories = await client.listRepositories();
+
+    // Pagination
+    const paginated = paginateResults(repositories, limit, offset);
+
+    // Formatting
+    const formatted = formatResponse(paginated.data, format, {
+      pagination: { limit, offset, total: paginated.total_count },
+      dataType: "repositories",
+    });
+
+    return { content: [{ type: "text", text: formatted }] };
+  },
+});
+```
+
+**Tool Registry**:
+```typescript
+// Map of tool name → tool definition
+const toolHandlers = new Map<string, ToolDefinition>();
+
+// Register all tools at startup
+export function registerAllTools(server: Server, client: OpenLClient): void {
+  registerTool({ /* tool 1 */ });
+  registerTool({ /* tool 2 */ });
+  // ... 24 tools total
+}
+
+// Execute tool by name
+export async function executeTool(name: string, args: unknown, client: OpenLClient) {
+  const tool = toolHandlers.get(name);
+  if (!tool) throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
+  return await tool.handler(args, client);
+}
+```
+
+**Benefits**:
+- **Modularity**: Each tool is self-contained
+- **Maintainability**: Add/remove tools without touching index.ts
+- **Testability**: Test individual tools in isolation
+- **Type Safety**: Dedicated handler types for each tool
+- **MCP Annotations**: First-class support for tool metadata
+- **Cleaner Code**: index.ts reduced from 766 to 352 lines
+
+**Adding a New Tool** (4-Step Process):
+
+**Step 1**: Define schema in `schemas.ts`
+```typescript
+export const myNewToolSchema = z.object({
+  param1: z.string().describe("Description"),
+  param2: z.number().optional(),
+  response_format: ResponseFormat.optional(),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+}).strict();  // Always use .strict()
+```
+
+**Step 2**: Create registration function in `tool-handlers.ts`
+```typescript
+registerTool({
+  name: "openl_my_new_tool",  // Always use openl_ prefix
+  title: "My New Tool",
+  description: "Detailed description for AI agents",
+  inputSchema: zodToJsonSchema(schemas.myNewToolSchema) as Record<string, unknown>,
+  annotations: {
+    readOnlyHint: true,  // Does not modify data
+    idempotentHint: true,  // Safe to retry
+    // destructiveHint: true,  // Uncomment if destructive
+    // openWorldHint: true,  // Uncomment if returns dynamic data
+  },
+  handler: async (args, client): Promise<ToolResponse> => {
+    // 1. Type cast and validate
+    const typedArgs = args as z.infer<typeof schemas.myNewToolSchema>;
+    const format = validateResponseFormat(typedArgs.response_format);
+
+    // 2. Call client method
+    const data = await client.myNewMethod(typedArgs.param1);
+
+    // 3. Apply pagination if needed
+    const paginated = paginateResults(data, typedArgs.limit, typedArgs.offset);
+
+    // 4. Format response
+    const formatted = formatResponse(paginated.data, format);
+
+    return { content: [{ type: "text", text: formatted }] };
+  },
+});
+```
+
+**Step 3**: Register in `registerAllTools()`
+```typescript
+// Already done if you used registerTool() in Step 2
+// The function is called automatically at server startup
+```
+
+**Step 4**: Add metadata to `tools.ts` (optional, for categorization)
+```typescript
+export const MY_NEW_TOOL: ToolMetadata = {
+  name: "openl_my_new_tool",
+  title: "My New Tool",
+  category: ToolCategory.RULES,
+  description: "Short description",
+};
+```
+
+### Response Formatting System ⭐ **NEW**
+
+**Design**: Unified formatting with JSON/Markdown support (`formatters.ts`)
+
+**Format Response**:
+```typescript
+export function formatResponse(
+  data: unknown,
+  format: "json" | "markdown" = "json",
+  options?: FormatOptions
+): string {
+  // Apply character limit (defaults to 100,000 characters)
+  const formatted = format === "json"
+    ? formatAsJson(data, options)
+    : formatAsMarkdown(data, options);
+
+  return enforceCharacterLimit(formatted, options?.characterLimit);
+}
+```
+
+**JSON Formatting**:
+```typescript
+function formatAsJson(data: unknown, options?: FormatOptions): string {
+  const result: PaginatedResponse<unknown> = { data };
+
+  // Add pagination metadata if present
+  if (options?.pagination) {
+    result.pagination = {
+      limit: options.pagination.limit,
+      offset: options.pagination.offset,
+      total_count: options.pagination.total,
+      has_more: options.pagination.offset + options.pagination.limit < options.pagination.total,
+      next_offset: /* calculate */,
+    };
+  }
+
+  return safeStringify(result, 2);  // Pretty-print with 2-space indent
+}
+```
+
+**Markdown Formatting**:
+```typescript
+function formatAsMarkdown(data: unknown, options?: FormatOptions): string {
+  // Auto-detect data type
+  if (Array.isArray(data)) {
+    return formatArrayAsMarkdown(data);
+  }
+
+  // Format as table if applicable
+  if (isTableData(data)) {
+    return formatAsMarkdownTable(data);
+  }
+
+  // Fallback to JSON
+  return "```json\n" + formatAsJson(data, options) + "\n```";
+}
+```
+
+**Character Limit Enforcement**:
+```typescript
+function enforceCharacterLimit(text: string, limit?: number): string {
+  const maxChars = limit ?? RESPONSE_LIMITS.MAX_CHARACTERS;  // Default: 100,000
+
+  if (text.length <= maxChars) return text;
+
+  const truncated = text.slice(0, maxChars - 200);
+  return truncated + "\n\n⚠️ Response truncated (exceeded " + maxChars + " characters)";
+}
+```
+
+**Benefits**:
+- Consistent formatting across all tools
+- Automatic truncation for large responses
+- Pagination metadata included in JSON
+- AI-friendly Markdown tables
+- Configurable character limits
+
+### Pagination Implementation ⭐ **NEW**
+
+**Design**: Client-side pagination with metadata (`formatters.ts`)
+
+**Pagination Helper**:
+```typescript
+export function paginateResults<T>(
+  items: T[],
+  limit: number = 50,
+  offset: number = 0
+): {
+  data: T[];
+  total_count: number;
+  has_more: boolean;
+  next_offset?: number;
+} {
+  const totalCount = items.length;
+  const paginatedItems = items.slice(offset, offset + limit);
+  const hasMore = offset + limit < totalCount;
+
+  return {
+    data: paginatedItems,
+    total_count: totalCount,
+    has_more: hasMore,
+    next_offset: hasMore ? offset + limit : undefined,
+  };
+}
+```
+
+**Usage in Tools**:
+```typescript
+// 1. Fetch all data from API
+const allProjects = await client.listProjects();
+
+// 2. Apply pagination
+const paginated = paginateResults(allProjects, limit, offset);
+
+// 3. Format with pagination metadata
+const formatted = formatResponse(paginated.data, format, {
+  pagination: {
+    limit,
+    offset,
+    total: paginated.total_count,
+  },
+});
+```
+
+**Default Limits**:
+- Default limit: 50 items
+- Max limit: 200 items
+- Default offset: 0
+
+**Benefits**:
+- Prevents overwhelming AI agents with large datasets
+- Supports iteration through results
+- Clear "has_more" signal for continuation
+- next_offset provided for convenience
+
+### MCP Annotations ⭐ **NEW**
+
+**Design**: First-class support for MCP tool metadata
+
+**Supported Annotations**:
+
+1. **readOnlyHint**: Tool does not modify server state
+   ```typescript
+   annotations: { readOnlyHint: true }
+   // Examples: openl_list_repositories, openl_get_project, openl_search_tables
+   ```
+
+2. **idempotentHint**: Tool is safe to retry (same result on repeat)
+   ```typescript
+   annotations: { idempotentHint: true }
+   // Examples: openl_list_projects, openl_get_deployment_info
+   ```
+
+3. **destructiveHint**: Tool modifies or deletes data (use with caution)
+   ```typescript
+   annotations: { destructiveHint: true }
+   // Examples: openl_delete_project, openl_erase_project, openl_update_rules
+   ```
+
+4. **openWorldHint**: Tool returns dynamic data (may change between calls)
+   ```typescript
+   annotations: { openWorldHint: true }
+   // Examples: openl_list_branches, openl_get_project (data may change)
+   ```
+
+**Tool Categorization by Annotations**:
+
+| Annotation | Count | Examples |
+|------------|-------|----------|
+| readOnlyHint | 20/24 | openl_list_*, openl_get_*, openl_search_* |
+| idempotentHint | 18/24 | Most read operations |
+| destructiveHint | 3/24 | openl_delete_project, openl_erase_project, openl_update_rules |
+| openWorldHint | 22/24 | Almost all tools (dynamic data) |
+
+**Benefits**:
+- AI agents can understand tool semantics
+- Safety checks for destructive operations
+- Better retry strategies (idempotent tools)
+- Clear expectations for data stability
+
+### Structured Logging ⭐ **NEW**
+
+**Design**: Stderr-only logging with context sanitization (`logger.ts`)
+
+**Logger API**:
+```typescript
+import { logger } from "./logger.js";
+
+// Log levels
+logger.error("Failed to fetch projects", { repository: "design", error });
+logger.warn("Token expiring soon", { expiresIn: 300 });
+logger.info("Tool execution started", { toolName: "openl_list_projects" });
+logger.debug("API request details", { url, method, headers });
+```
+
+**Output Format**:
+```
+[ERROR] Failed to fetch projects {"repository":"design","error":"[SANITIZED]"}
+[WARN] Token expiring soon {"expiresIn":300}
+[INFO] Tool execution started {"toolName":"openl_list_projects"}
+[DEBUG] API request details {"url":"...","method":"GET"}
+```
+
+**Context Sanitization**:
+```typescript
+function sanitizeContext(context: LogContext): LogContext {
+  const sanitized: LogContext = {};
+  for (const [key, value] of Object.entries(context)) {
+    if (value instanceof Error) {
+      sanitized[key] = sanitizeError(value);  // Remove credentials
+    } else if (typeof value === "string") {
+      sanitized[key] = sanitizeError(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+```
+
+**Why stderr?**
+- MCP protocol uses stdout for communication
+- Logs must not interfere with protocol messages
+- stderr is the standard channel for logging
+
+**Benefits**:
+- No credential leakage in logs
+- Structured context for debugging
+- Configurable log levels
+- MCP-compatible (stderr only)
 
 ### Prompt System
 
@@ -399,7 +848,7 @@ toBase64ProjectId(projectId: string): string {
 
 **Benefits**:
 - Backward compatibility
-- User-friendly IDs in list_projects
+- User-friendly IDs in openl_list_projects
 - Automatic conversion for API calls
 
 ## Build and Deployment
@@ -689,9 +1138,18 @@ npm run lint:fix   # Fix automatically
 
 **Usage**:
 ```
-Tool: health_check
+Tool: openl_health_check
 → Attempts to list repositories
 → Returns: { status, baseUrl, authMethod, timestamp, serverReachable }
+```
+
+**Annotations**:
+```typescript
+annotations: {
+  readOnlyHint: true,
+  idempotentHint: true,
+  openWorldHint: true,
+}
 ```
 
 ## Future Architecture Considerations
@@ -727,6 +1185,24 @@ Tool: health_check
 
 ---
 
-*Last Updated: 2025-11-13*
-*Version: 1.0.0*
-*Status: Implemented*
+## Refactoring History
+
+**Phase 1-3: Major Refactoring (2025-11-16)**
+- Split index.ts (766 lines → 352 lines)
+- Created tool-handlers.ts (998 lines) with registerTool pattern
+- Added formatters.ts (360 lines) for response formatting
+- Added validators.ts (117 lines) for input validation
+- Added logger.ts (107 lines) for structured logging
+- Enhanced schemas.ts with .strict() mode
+- Enhanced constants.ts with RESPONSE_LIMITS
+- Replaced switch statement pattern with registry-based architecture
+- Added MCP annotations (readOnlyHint, idempotentHint, etc.)
+- Implemented pagination and character limit enforcement
+- Updated all tool names to openl_ prefix
+- Total refactoring: ~2,000 lines of new modular code
+
+---
+
+*Last Updated: 2025-11-16*
+*Version: 2.0.0* (Post-Refactoring)
+*Status: Refactored & Production-Ready*

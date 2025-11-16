@@ -36,12 +36,12 @@ AFTER modification:
 2. IF pass AND not saving → done
 3. IF saving → run all tests (no exceptions)
 
-BEFORE save_project():
-- `run_test(runAll: true)` MUST pass
-- `validate_project()` MUST pass
+BEFORE openl_update_project_status():
+- `openl_test_project(runAll: true)` MUST pass
+- `Validate in OpenL WebStudio UI (openl_validate_project temporarily disabled) )` MUST pass
 
-BEFORE deploy_project():
-- All above + `get_project_errors()` MUST be 0
+BEFORE openl_deploy_project():
+- All above + `openl_get_project_errors()` MUST be 0
 
 ## Integration Context
 

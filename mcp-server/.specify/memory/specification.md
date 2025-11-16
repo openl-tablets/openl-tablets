@@ -185,52 +185,71 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Teach OpenL Tablets concepts
 - Show best practices
 
+### 10. Response Formatting & Pagination
+
+**Flexible output formatting**:
+- Two format options: `json` and `markdown` (default)
+- All tools support `response_format` parameter
+- Type-specific markdown formatters for optimal readability
+- Automatic conversion between formats
+
+**Pagination support**:
+- `limit` parameter: Maximum items per page (max 200, default 50)
+- `offset` parameter: Number of items to skip (default 0)
+- Applies to all list operations
+
+**Character limit enforcement**:
+- Maximum response size: ~25,000 characters
+- Automatic truncation with clear message when exceeded
+- Ensures consistent performance across AI platforms
+
+**Use Cases**:
+- Get structured JSON for programmatic processing
+- Get human-readable markdown for AI analysis
+- Paginate through large result sets
+- Prevent response timeouts with character limits
+
 ## Functional Requirements
 
 ### FR-1: Tool Execution
 
-**Requirement**: All 19 MCP tools must execute successfully with valid inputs.
+**Requirement**: All 18 MCP tools must execute successfully with valid inputs.
 
 **Tools by Category**:
 
 **Repository Tools (2)**:
-- `list_repositories` - List all design repositories
-- `list_branches` - List branches in a repository
+- `openl_list_repositories` - List all design repositories
+- `openl_list_branches` - List branches in a repository
 
-**Project Tools (6)**:
-- `list_projects` - List projects with optional filters
-- `get_project` - Get comprehensive project details
-- `open_project` - Open project for editing
-- `close_project` - Close project after editing
-- `save_project` - Save project with validation
-- `validate_project` - Validate project for errors
+**Project Tools (3)**:
+- `openl_list_projects` - List projects with optional filters (supports pagination)
+- `openl_get_project` - Get comprehensive project details
+- `openl_update_project_status` - Update project status (open/close/save)
 
 **File Tools (3)**:
-- `upload_file` - Upload Excel file to project
-- `download_file` - Download Excel file from project
-- `get_file_history` - Get file commit history
+- `openl_upload_file` - Upload Excel file to project
+- `openl_download_file` - Download Excel file from project
+- `openl_get_file_history` - Get file commit history
 
-**Rules Tools (7)**:
-- `list_tables` - List tables/rules with filters
-- `get_table` - Get table details and data
-- `update_table` - Update table content
-- `create_rule` - Create new rule (via upload)
-- `execute_rule` - Execute rule with test data
-- `run_test` - Run specific tests
-- `run_all_tests` - Run all project tests
+**Rules Tools (5)**:
+- `openl_list_tables` - List tables/rules with filters (supports pagination)
+- `openl_get_table` - Get table details and data
+- `openl_update_table` - Update table content
+- `openl_append_table` - Append data to existing table
+- `openl_create_rule` - Create new rule (via upload)
 
-**Version Control Tools (3)**:
-- `get_project_history` - Get project commit history
-- `compare_versions` - Compare two project versions
-- `revert_version` - Revert to previous version
+**Execution Tools (1)**:
+- `openl_execute_rule` - Execute rule with test data
+
+**Version Control Tools (2)**:
+- `openl_get_project_history` - Get project commit history (supports pagination)
+- `openl_revert_version` - Revert to previous version
 
 **Deployment Tools (2)**:
-- `list_deployments` - List all deployments
-- `deploy_project` - Deploy project to production
+- `openl_list_deployments` - List all deployments (supports pagination)
+- `openl_deploy_project` - Deploy project to production
 
-**Testing Tools (2)** - Covered in Project Tools:
-- `validate_project`
-- `get_project_errors`
+**Note**: All tools support the `response_format` parameter (json/markdown). All list operations support pagination via `limit` and `offset` parameters.
 
 ### FR-2: Input Validation
 
@@ -440,6 +459,71 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Utilities: >90%
 - Schemas: >95%
 
+### FR-13: Response Formatting
+
+**Requirement**: All tools must support flexible output formatting.
+
+**Format Options**:
+- `json`: Structured JSON output for programmatic processing
+- `markdown`: Human-readable markdown output (default)
+
+**Implementation**:
+- `response_format` parameter on all tools (optional)
+- Default value: `markdown`
+- Automatic type conversion using formatters
+- Type-specific markdown templates for optimal readability
+
+**Validation**:
+- Format parameter validated via Zod enum
+- Invalid formats return clear error message
+- Consistent formatting across all tool types
+
+### FR-14: Pagination Support
+
+**Requirement**: All list operations must support pagination.
+
+**Pagination Parameters**:
+- `limit`: Maximum items per page (optional)
+  - Default: 50
+  - Maximum: 200
+  - Minimum: 1
+- `offset`: Number of items to skip (optional)
+  - Default: 0
+  - Minimum: 0
+
+**Applicable Tools**:
+- `openl_list_repositories`
+- `openl_list_projects`
+- `openl_list_tables`
+- `openl_list_deployments`
+- `openl_get_project_history`
+- `openl_get_file_history`
+
+**Implementation**:
+- Server-side pagination via OpenL API
+- Clear indication when results are truncated
+- Total count included in response when available
+
+### FR-15: Character Limit Enforcement
+
+**Requirement**: All tool responses must enforce character limits.
+
+**Limits**:
+- Maximum response size: ~25,000 characters
+- Applies to all tools uniformly
+- Prevents timeout issues on AI platforms
+
+**Truncation Behavior**:
+- Automatic truncation when limit exceeded
+- Clear truncation message appended
+- Guidance on using pagination to access remaining data
+- Truncation point chosen to preserve data integrity
+
+**Truncation Message Format**:
+```
+... [Response truncated due to size limit. Use pagination parameters (limit/offset) to access remaining data]
+```
+
 ## Non-Functional Requirements
 
 ### NFR-1: Security
@@ -492,16 +576,19 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 
 The MCP server is considered successful when:
 
-1. ✅ All 24 tools execute successfully
-2. ✅ All 11 prompts render correctly
-3. ✅ All 3 authentication methods work
-4. ✅ Test coverage >80%
-5. ✅ ESLint clean (0 errors/warnings)
-6. ✅ TypeScript strict mode clean
-7. ✅ npm audit clean (0 vulnerabilities)
-8. ✅ Documentation complete and accurate
-9. ✅ Examples verified and working
-10. ✅ Compatible with OpenL 6.0.0+
+1. ✅ All 18 tools execute successfully
+2. ✅ All tools support response_format parameter
+3. ✅ All list operations support pagination
+4. ✅ Character limits enforced on all responses
+5. ✅ All 11 prompts render correctly
+6. ✅ All 3 authentication methods work
+7. ✅ Test coverage >80%
+8. ✅ ESLint clean (0 errors/warnings)
+9. ✅ TypeScript strict mode clean
+10. ✅ npm audit clean (0 vulnerabilities)
+11. ✅ Documentation complete and accurate
+12. ✅ Examples verified and working
+13. ✅ Compatible with OpenL 6.0.0+
 
 ## Out of Scope
 
@@ -531,6 +618,6 @@ Potential enhancements for future versions:
 
 ---
 
-*Last Updated: 2025-11-13*
+*Last Updated: 2025-11-16*
 *Version: 1.0.0*
-*Status: Complete*
+*Status: Production Ready (refactored)*

@@ -37,8 +37,8 @@ Direct JSON values:
 
 STEP 1: Find OpenL datatype structure
 ```
-list_tables(tableType="Datatype", name="Policy")
-get_table(tableId="Policy")
+openl_list_tables(tableType="Datatype", name="Policy")
+openl_get_table(tableId="Policy")
 ```
 
 STEP 2: Build JSON matching OpenL Datatype structure
@@ -71,12 +71,12 @@ IF returnType = specific type (int, double, etc.) → Returns final cell value
 ## Error Handling (OpenL-Specific)
 
 - **"Parameter type mismatch"** → Check OpenL rule signature types
-- **"Datatype not found"** → `list_tables(tableType="Datatype")` to find available datatypes
+- **"Datatype not found"** → `openl_list_tables(tableType="Datatype")` to find available datatypes
 - **"Missing parameter"** → Provide all required parameters from OpenL rule header
 
 ## Workflow
 
-1. `get_table({if ruleName}tableId="{ruleName}"{end if})` → See OpenL table signature (returnType, parameters)
+1. `openl_get_table({if ruleName}tableId="{ruleName}"{end if})` → See OpenL table signature (returnType, parameters)
 2. Build JSON matching OpenL parameter types
-3. `execute_rule({if ruleName}ruleName="{ruleName}", {end if}parameters: {...})`
+3. `openl_execute_rule({if ruleName}ruleName="{ruleName}", {end if}inputData: {...})`
 4. Review output (matches OpenL returnType?)

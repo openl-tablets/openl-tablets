@@ -29,33 +29,33 @@ Versions are commit hashes (e.g., "7a3f2b1c"), NOT v1/v2/v3
 
 **VIEW history:**
 ```
-get_file_history({if filePath}filePath="{filePath}", {end if}limit=20)
+openl_get_file_history({if filePath}filePath="{filePath}", {end if}limit=20)
 ```
 
 **FIND specific date:**
 ```
-get_file_history({if filePath}filePath="{filePath}", {end if}limit=100) → filter by date → find commitHash
+openl_get_file_history({if filePath}filePath="{filePath}", {end if}limit=100) → filter by date → find commitHash
 ```
 
 **DOWNLOAD old version:**
 ```
-download_file(fileName, version=commitHash)
+openl_download_file(fileName, version=commitHash)
 ```
 
 **COMPARE versions:**
 ```
-compare_versions(baseCommitHash, targetCommitHash)
+Note: openl_compare_versions is temporarily disabled - use OpenL WebStudio UI for version comparison
 ```
 
 **RECOVER deleted file:**
 ```
-1. get_file_history({if filePath}filePath="{filePath}"{end if}) → find last SAVE commit before ERASE
-2. download_file(fileName, version=lastGoodCommitHash)
+1. openl_get_file_history({if filePath}filePath="{filePath}"{end if}) → find last SAVE commit before ERASE
+2. openl_download_file(fileName, version=lastGoodCommitHash)
 ```
 
 **REVERT:**
 ```
-revert_version(targetVersion=oldCommitHash) → Creates NEW commit
+openl_revert_version(targetVersion=oldCommitHash) → Creates NEW commit
 ```
 
 ## OpenL Commit Types

@@ -2,9 +2,10 @@
 
 ## Status Overview
 
-**Current State**: v1.0.0 - Production Ready
+**Current State**: v1.0.0 - Production Ready (Refactored)
 **Test Coverage**: 5.49% overall (critical gaps identified)
-**Last Updated**: 2025-11-13
+**Last Updated**: 2025-11-16
+**Major Milestone**: MCP Refactoring Complete ✅
 
 ## Priority Legend
 
@@ -102,18 +103,19 @@
 
 #### T-004: Implement index.ts Test Coverage (>80%)
 - [ ] Test MCP server initialization
-- [ ] Test tool routing for all 24 tools
+- [ ] Test tool routing for all 18 openl_* tools
 - [ ] Test resource providers (3 resources)
 - [ ] Test prompt integration (11 prompts)
 - [ ] Test error handling at server level
 - [ ] Test configuration validation
+- [ ] Test integration with tool-handlers.ts
 
 **Acceptance Criteria**: >80% coverage on index.ts
 
 ### P1: Important Test Coverage
 
 **Status**: Not Started
-**Estimated Effort**: 20-30 hours
+**Estimated Effort**: 70-90 hours (includes new refactored components)
 
 #### T-005: Implement schemas.ts Test Coverage (>95%)
 - [ ] Validate all Zod schemas against valid inputs
@@ -127,12 +129,13 @@
 **Acceptance Criteria**: >95% coverage, 100% branches
 
 #### T-006: Implement tools.ts Test Coverage (>90%)
-- [ ] Verify all 24 tool definitions are properly structured
+- [ ] Verify all 18 openl_* tool definitions are properly structured
 - [ ] Test getToolByName() for all tools
 - [ ] Test getToolsByCategory() for all categories
 - [ ] Test getAllToolNames()
 - [ ] Validate input schemas are valid JSON Schema
 - [ ] Validate metadata completeness
+- [ ] Verify all tools have openl_ prefix
 
 **Acceptance Criteria**: >90% coverage, 100% branches
 
@@ -146,26 +149,87 @@
 
 **Acceptance Criteria**: >85% coverage
 
+#### T-008: Implement tool-handlers.ts Test Coverage (>85%)
+- [ ] Test registerTool() function
+- [ ] Test tool registration with all tool types
+- [ ] Test handler execution for each tool
+- [ ] Test error handling in handlers
+- [ ] Test parameter validation
+- [ ] Test response formatting integration
+- [ ] Test pagination integration
+- [ ] Verify all 18 openl_* tools are registered
+
+**Acceptance Criteria**: >85% coverage on tool-handlers.ts
+
+#### T-009: Implement formatters.ts Test Coverage (>90%)
+- [ ] Test formatAsMarkdown() for all data types
+- [ ] Test formatAsJson() for all data types
+- [ ] Test table formatting (arrays of objects)
+- [ ] Test nested object formatting
+- [ ] Test large data truncation (25K character limit)
+- [ ] Test error formatting
+- [ ] Test edge cases (null, undefined, circular references)
+
+**Acceptance Criteria**: >90% coverage on formatters.ts
+
+#### T-010: Implement validators.ts Test Coverage (>90%)
+- [ ] Test validateResponseFormat() with valid/invalid values
+- [ ] Test validatePaginationParams() with various inputs
+- [ ] Test limit validation (min/max/default)
+- [ ] Test offset validation (negative/positive)
+- [ ] Test error messages are descriptive
+- [ ] Test edge cases and boundary conditions
+
+**Acceptance Criteria**: >90% coverage on validators.ts
+
+#### T-011: Implement logger.ts Test Coverage (>80%)
+- [ ] Test log level configuration
+- [ ] Test log output formatting
+- [ ] Test credential sanitization in logs
+- [ ] Test error logging
+- [ ] Test debug mode enabling/disabling
+- [ ] Test log redirection (stdout vs file)
+
+**Acceptance Criteria**: >80% coverage on logger.ts
+
+#### T-012: Test Response Formatting Features
+- [ ] Test markdown formatting end-to-end
+- [ ] Test JSON formatting end-to-end
+- [ ] Test format parameter in all 18 tools
+- [ ] Test format fallback behavior
+- [ ] Test character limit enforcement across formats
+
+**Acceptance Criteria**: All formatting features tested in integration
+
+#### T-013: Test Pagination Features
+- [ ] Test limit parameter across all list tools
+- [ ] Test offset parameter across all list tools
+- [ ] Test limit + offset combination
+- [ ] Test edge cases (limit=0, offset > total)
+- [ ] Test default pagination values
+
+**Acceptance Criteria**: All pagination features tested in integration
+
 ### P1: Integration Tests
 
 **Status**: Not Started
 **Estimated Effort**: 30-40 hours
 
-#### T-008: Create End-to-End Workflow Tests
+#### T-014: Create End-to-End Workflow Tests
 - [ ] Discovery Workflow
-  - [ ] list_repositories → list_projects → get_project → list_tables
+  - [ ] openl_list_repositories → openl_list_projects → openl_get_project → openl_list_tables
 - [ ] Rule Creation Workflow
-  - [ ] open_project → upload_file → list_tables → save_project → close_project
+  - [ ] openl_open_project → openl_upload_file → openl_list_tables → openl_save_project → openl_close_project
 - [ ] Testing Workflow
-  - [ ] open_project → run_test → validate_project → get_project_errors
+  - [ ] openl_open_project → openl_run_test → openl_validate_project → openl_get_project_errors
 - [ ] Deployment Workflow
-  - [ ] validate_project → list_deployments → deploy_project
+  - [ ] openl_validate_project → openl_list_deployments → openl_deploy_project
 - [ ] Version Control Workflow
-  - [ ] get_project_history → compare_versions → revert_version
+  - [ ] openl_get_project_history → openl_compare_versions → openl_revert_version
 
 **Acceptance Criteria**: All workflows execute successfully with mocked OpenL API
 
-#### T-009: Create Error Scenario Tests
+#### T-015: Create Error Scenario Tests
 - [ ] Network errors (timeout, connection refused)
 - [ ] Authentication errors (401, 403)
 - [ ] Not found errors (404)
@@ -177,7 +241,7 @@
 
 **Acceptance Criteria**: All error scenarios handled gracefully
 
-#### T-010: Create Performance Benchmark Tests
+#### T-016: Create Performance Benchmark Tests
 - [ ] Tool execution time benchmarks
 - [ ] File upload/download performance
 - [ ] Large project handling (1000+ tables)
@@ -192,7 +256,7 @@
 **Status**: Not Started
 **Estimated Effort**: 10-15 hours
 
-#### T-011: Create API Reference Documentation
+#### T-017: Create API Reference Documentation
 - [ ] Generate API reference from JSDoc comments
 - [ ] Document all public methods with examples
 - [ ] Create parameter reference tables
@@ -201,15 +265,16 @@
 
 **Acceptance Criteria**: Complete API reference published
 
-#### T-012: Create Tool Reference Guide
-- [ ] Create detailed guide for each of 24 tools
+#### T-018: Create Tool Reference Guide
+- [ ] Create detailed guide for each of 18 openl_* tools
 - [ ] Include input schema, examples, use cases
 - [ ] Document error scenarios and recovery
 - [ ] Add troubleshooting tips per tool
+- [ ] Document response_format and pagination parameters
 
 **Acceptance Criteria**: Tool-by-tool reference guide complete
 
-#### T-013: Create Troubleshooting Guide
+#### T-019: Create Troubleshooting Guide
 - [ ] Common error messages and solutions
 - [ ] Debug logging setup
 - [ ] Network troubleshooting
@@ -224,7 +289,7 @@
 **Status**: Not Started
 **Estimated Effort**: 10-15 hours
 
-#### T-014: Improve Error Messages
+#### T-020: Improve Error Messages
 - [ ] Add suggestions to common errors
 - [ ] Include links to documentation
 - [ ] Add examples of correct usage
@@ -232,7 +297,7 @@
 
 **Acceptance Criteria**: All error messages are actionable and helpful
 
-#### T-015: Add Debug Logging
+#### T-021: Add Debug Logging
 - [ ] Implement optional debug mode
 - [ ] Log to file when DEBUG=true
 - [ ] Include request/response details
@@ -241,7 +306,7 @@
 
 **Acceptance Criteria**: Debug logging available without breaking stdio
 
-#### T-016: Refactor Large Functions
+#### T-022: Refactor Large Functions
 - [ ] Break down client.ts methods >100 lines
 - [ ] Extract helper functions
 - [ ] Improve readability
@@ -254,7 +319,7 @@
 **Status**: Not Started
 **Estimated Effort**: 20-30 hours
 
-#### T-017: Add Batch Operations
+#### T-023: Add Batch Operations
 - [ ] Design batch tool execution API
 - [ ] Implement transaction support
 - [ ] Add rollback on failure
@@ -262,7 +327,7 @@
 
 **Acceptance Criteria**: Multiple tools can be executed in one request
 
-#### T-018: Add Caching Layer
+#### T-024: Add Caching Layer
 - [ ] Implement Redis caching (optional)
 - [ ] Cache project metadata
 - [ ] Cache table structures
@@ -271,7 +336,7 @@
 
 **Acceptance Criteria**: Caching reduces API calls by >50%
 
-#### T-019: Add Streaming Support
+#### T-025: Add Streaming Support
 - [ ] Large file download streaming
 - [ ] Progress reporting
 - [ ] Chunked uploads
@@ -284,7 +349,7 @@
 **Status**: Not Started
 **Estimated Effort**: 5-10 hours
 
-#### T-020: Set Up GitHub Actions
+#### T-026: Set Up GitHub Actions
 - [ ] Run tests on every push
 - [ ] Run linter on every push
 - [ ] Generate coverage reports
@@ -294,7 +359,7 @@
 
 **Acceptance Criteria**: Full CI/CD pipeline operational
 
-#### T-021: Add Pre-Commit Hooks
+#### T-027: Add Pre-Commit Hooks
 - [ ] Run linter before commit
 - [ ] Run tests before commit
 - [ ] Check for sensitive data
@@ -307,7 +372,7 @@
 **Status**: Not Started
 **Estimated Effort**: TBD
 
-#### T-022: Add WebSocket Support
+#### T-028: Add WebSocket Support
 - [ ] Design event subscription API
 - [ ] Implement real-time updates
 - [ ] Add push notifications
@@ -315,7 +380,7 @@
 
 **Acceptance Criteria**: Real-time updates available for subscribed resources
 
-#### T-023: Add Metrics and Telemetry
+#### T-029: Add Metrics and Telemetry
 - [ ] Integrate OpenTelemetry
 - [ ] Track performance metrics
 - [ ] Track usage analytics
@@ -323,7 +388,7 @@
 
 **Acceptance Criteria**: Metrics exported to standard monitoring tools
 
-#### T-024: Add Multi-Version Support
+#### T-030: Add Multi-Version Support
 - [ ] Detect OpenL version
 - [ ] Adapt API calls based on version
 - [ ] Document version-specific behavior
@@ -331,7 +396,7 @@
 
 **Acceptance Criteria**: Support OpenL 5.x and 6.x
 
-#### T-025: Create Migration Tools
+#### T-031: Create Migration Tools
 - [ ] Tool to migrate projects between versions
 - [ ] Tool to update project structure
 - [ ] Tool to convert rule formats
@@ -340,6 +405,34 @@
 **Acceptance Criteria**: Automated migration between OpenL versions
 
 ## Completed Tasks
+
+### ✅ COMPLETED: MCP Server Refactoring (November 2025)
+
+#### T-000: Complete MCP Server Refactoring
+- [x] Phase 1: Foundation
+  - [x] Rename server to openl-mcp-server
+  - [x] Create utility files (formatters, validators, logger)
+  - [x] Add .strict() to all schemas
+  - [x] Add response_format and pagination parameters
+- [x] Phase 2: Tool Registration
+  - [x] Rename all 18 tools with openl_ prefix
+  - [x] Create tool-handlers.ts with registerTool pattern
+  - [x] Add MCP annotations to all tools
+  - [x] Replace switch statement in index.ts
+- [x] Phase 3: Features
+  - [x] Implement response formatting (JSON/Markdown)
+  - [x] Implement pagination (limit/offset)
+  - [x] Add character limit enforcement (25K)
+- [x] Phase 4: Documentation
+  - [x] Update README, EXAMPLES, CONTRIBUTING
+  - [x] Update tests with new tool names
+  - [x] Update Spec Kit artifacts
+
+**Completed**: 2025-11-16
+**Effort**: ~15-20 hours
+**Impact**: Major architecture improvement, MCP compliance
+**Files Changed**: 15+ files
+**Lines Changed**: ~2,500 lines (1,500 added, 400 removed, 600 modified)
 
 ### ✅ Core Implementation (v1.0.0)
 
@@ -368,18 +461,22 @@
 **Completed**: 2024-Q4
 
 #### T-103: Implement Tool Definitions
-- [x] 24 tools across 6 categories
+- [x] 18 openl_* tools across 6 categories
 - [x] Tool metadata and categorization
 - [x] Helper functions
+- [x] MCP compliance and annotations
 
 **Completed**: 2024-Q4
+**Updated**: 2025-11-16 (Refactored with openl_ prefix)
 
 #### T-104: Implement Schemas
 - [x] 15 Zod schemas
 - [x] Type inference
 - [x] JSON Schema conversion
+- [x] .strict() validation added
 
 **Completed**: 2024-Q4
+**Updated**: 2025-11-16 (Added strict validation)
 
 #### T-105: Implement Prompts
 - [x] 11 prompts with YAML frontmatter
@@ -406,6 +503,7 @@
 - [x] BEST_PRACTICES.md
 
 **Completed**: 2024-Q4
+**Updated**: 2025-11-16 (Updated for refactored tools and new features)
 
 #### T-108: Set Up Testing
 - [x] Jest configuration
@@ -417,54 +515,67 @@
 
 ## Task Metrics
 
-**Total Tasks**: 33
-- **Completed**: 9 (27%)
-- **Active**: 16 (49%)
-- **Future**: 8 (24%)
+**Total Tasks**: 40
+- **Completed**: 10 (25%)
+- **Active**: 22 (55%)
+- **Future**: 8 (20%)
 
 **By Priority**:
 - **P0**: 4 tasks (35-50 hours)
-- **P1**: 9 tasks (60-85 hours)
+- **P1**: 15 tasks (110-145 hours)
 - **P2**: 6 tasks (35-55 hours)
 - **P3**: 5 tasks (TBD)
 
-**Total Estimated Effort Remaining**: 130-190 hours
+**Total Estimated Effort Remaining**: 180-250 hours
+
+**Recent Completion**: T-000 MCP Server Refactoring (15-20 hours, 2025-11-16)
 
 ## Sprint Planning
 
-### Sprint 1: Test Coverage Foundation (Weeks 1-2)
+### Sprint 1: Test Refactored Components (Weeks 1-2)
+- T-008: tool-handlers.ts tests
+- T-009: formatters.ts tests
+- T-010: validators.ts tests
+- T-011: logger.ts tests
+- T-012: Response formatting integration tests
+- T-013: Pagination integration tests
+
+**Goal**: Test all newly refactored MCP components
+**Priority**: HIGH - Validate refactoring work
+
+### Sprint 2: Test Coverage Foundation (Weeks 3-4)
 - T-001: auth.ts tests
 - T-003: utils.ts tests
 - T-005: schemas.ts tests
 
 **Goal**: Cover all utility and foundation modules
 
-### Sprint 2: Core Client Testing (Weeks 3-4)
+### Sprint 3: Core Client Testing (Weeks 5-6)
 - T-002: client.ts tests (part 1)
 - T-002: client.ts tests (part 2)
 
 **Goal**: Complete client.ts test coverage
 
-### Sprint 3: Integration Testing (Weeks 5-6)
+### Sprint 4: Integration Testing (Weeks 7-8)
 - T-004: index.ts tests
 - T-006: tools.ts tests
 - T-007: prompts.ts tests
-- T-008: Workflow tests
+- T-014: Workflow tests (updated with openl_* tool names)
 
 **Goal**: Complete integration test suite
 
-### Sprint 4: Documentation & Quality (Weeks 7-8)
-- T-009: Error scenario tests
-- T-011: API reference
-- T-012: Tool reference
-- T-013: Troubleshooting guide
+### Sprint 5: Documentation & Quality (Weeks 9-10)
+- T-015: Error scenario tests
+- T-017: API reference
+- T-018: Tool reference (18 openl_* tools)
+- T-019: Troubleshooting guide
 
 **Goal**: Complete documentation and edge case testing
 
-### Sprint 5: CI/CD & Performance (Weeks 9-10)
-- T-010: Performance benchmarks
-- T-020: GitHub Actions
-- T-021: Pre-commit hooks
+### Sprint 6: CI/CD & Performance (Weeks 11-12)
+- T-016: Performance benchmarks
+- T-026: GitHub Actions
+- T-027: Pre-commit hooks
 
 **Goal**: Establish automated quality gates
 
@@ -472,8 +583,14 @@
 
 **T-002 depends on**: T-001 (auth tests needed for client tests)
 **T-004 depends on**: T-002 (client tests needed for server tests)
-**T-008 depends on**: T-002, T-004 (integration tests need unit tests)
-**T-020 depends on**: T-001 through T-010 (CI needs tests to run)
+**T-008 depends on**: None (new utility file from refactoring)
+**T-009 depends on**: None (new utility file from refactoring)
+**T-010 depends on**: None (new utility file from refactoring)
+**T-011 depends on**: None (new utility file from refactoring)
+**T-012 depends on**: T-009 (response formatting tests depend on formatters.ts tests)
+**T-013 depends on**: T-010 (pagination tests depend on validators.ts tests)
+**T-014 depends on**: T-002, T-004, T-008 (workflow tests need unit tests)
+**T-026 depends on**: T-001 through T-016 (CI needs tests to run)
 
 ## Success Criteria
 
@@ -511,6 +628,7 @@ The project is considered complete when:
 
 ---
 
-*Last Updated: 2025-11-13*
-*Version: 1.0.0*
-*Next Review: 2025-12-13*
+*Last Updated: 2025-11-16*
+*Version: 1.0.0 (Refactored)*
+*Next Review: 2025-12-16*
+*Major Update: MCP Server Refactoring Complete - All tools renamed with openl_ prefix, new utility files added, response formatting and pagination implemented*

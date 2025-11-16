@@ -55,10 +55,10 @@ Test table view mirrors Excel structure in JSON:
 ### WHEN Adding Test Cases
 
 ```
-1. get_table(tableId=testTableId) → Get current structure
+1. openl_get_table(tableId=testTableId) → Get current structure
 2. Preserve columns (parameter order matters)
 3. Add new rows with test data
-4. update_table(view={...existingRows, ...newRows})
+4. openl_update_table(view={...existingRows, ...newRows})
 ```
 
 **Example:** Add boundary test
@@ -212,10 +212,10 @@ Use existing `update_table` tool:
 AFTER updating test table:
 
 ```
-1. run_test(tableIds=[testedRuleId]) → Run tests for the rule
+1. openl_test_project(tableIds=[testedRuleId]) → Run tests for the rule
 2. IF all pass → Proceed
 3. IF fail → Review test data (type mismatch, wrong expected value)
-4. save_project() → Persist changes (only after tests pass)
+4. openl_update_project_status() → Persist changes (only after tests pass)
 ```
 
 ## Common Update Scenarios
@@ -226,7 +226,7 @@ AFTER updating test table:
 PROBLEM: Rule logic changed, test expects old behavior
 
 SOLUTION:
-1. get_table(testTableId) → Review test cases
+1. openl_get_table(testTableId) → Review test cases
 2. Identify outdated expected values
 3. Update _res_ to match new rule behavior
 4. run_test → Verify pass
@@ -251,7 +251,7 @@ IF test table has _error_:
 PROBLEM: Test fails with: Expected 100.123, Actual 100.124
 
 SOLUTION:
-1. get_table(testTableId) → Check precision property
+1. openl_get_table(testTableId) → Check precision property
 2. IF no precision → Add table property: { precision: 2 }
 3. OpenL uses delta: |expected - actual| < 10^(-precision)
 ```
@@ -303,11 +303,11 @@ Row: { "policy.vehicle": "> UpdatedPolicies.vehicles", "_res_": 1100 }
 
 | Operation | Command |
 |-----------|---------|
-| Add row | `update_table(view={rows: [...existing, newRow]})` |
-| Modify row | `update_table(view={rows: [modifiedRow]})` |
-| Remove row | `update_table(view={rows: filtered})` |
+| Add row | `openl_update_table(view={rows: [...existing, newRow]})` |
+| Modify row | `openl_update_table(view={rows: [modifiedRow]})` |
+| Remove row | `openl_update_table(view={rows: filtered})` |
 | Fix expected value | Update `_res_` or `_error_` in row |
 | Add context | Add column `_context_.property` |
 | Add description | Add column `_description_` |
-| Verify changes | `run_test(tableIds=[ruleId])` |
-| Persist | `save_project()` (after tests pass) |
+| Verify changes | `openl_test_project(tableIds=[ruleId])` |
+| Persist | `openl_update_project_status()` (after tests pass) |

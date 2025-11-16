@@ -92,13 +92,13 @@ Double     creditScore
 
 ### Step 1: Get Current Structure
 ```
-get_table(projectId, tableId="Person_1234")
+openl_get_table(projectId, tableId="Person_1234")
 → Returns current fields
 ```
 
 ### Step 2: Add New Field
 ```
-update_table(
+openl_update_table(
   projectId,
   tableId="Person_1234",
   view: {
@@ -280,13 +280,13 @@ Datatype Priority <Integer>
 
 ### Step 1: Get Current Values
 ```
-get_table(projectId, tableId="Gender_1234")
+openl_get_table(projectId, tableId="Gender_1234")
 → Returns current values
 ```
 
 ### Step 2: Add New Value
 ```
-update_table(
+openl_update_table(
   projectId,
   tableId="Gender_1234",
   view: {
@@ -401,19 +401,19 @@ CA
 ### Creating Datatype/Vocabulary
 
 ```
-1. create_rule(tableType="Datatype", name=..., parameters=...)
-2. validate_project() → Check for compilation errors
-3. save_project() → Persist changes
+1. openl_create_rule(tableType="Datatype", name=..., parameters=...)
+2. openl_validate_project() → Check for compilation errors
+3. openl_update_project_status() → Persist changes
 ```
 
 ### Updating Datatype/Vocabulary
 
 ```
-1. get_table(tableId=...) → Get current structure
-2. update_table(tableId=..., view={...}) → Add fields/values
-3. validate_project() → Check for errors
+1. openl_get_table(tableId=...) → Get current structure
+2. openl_update_table(tableId=..., view={...}) → Add fields/values
+3. openl_validate_project() → Check for errors
 4. IF errors → Fix references in rules
-5. save_project() → Persist changes
+5. openl_update_project_status() → Persist changes
 ```
 
 ## Common Mistakes
@@ -471,10 +471,10 @@ OpenL validates:
 
 | Operation | Tool | Key Points |
 |-----------|------|------------|
-| Create Datatype | `create_rule(tableType="Datatype")` | Use parameters for fields |
-| Create Vocabulary | `create_rule(tableType="Datatype", returnType=baseType)` | Use angle brackets `<Type>` |
-| Add Field | `update_table(view={rows: [...existing, newField]})` | Just add row! |
-| Add Value | `update_table(view={rows: [...existing, newValue]})` | Just add row! |
-| Inherit | `create_rule(returnType=parentType)` | Parent in returnType |
-| Validate | `validate_project()` | After any change |
-| Save | `save_project()` | Persist changes |
+| Create Datatype | `openl_create_rule(tableType="Datatype")` | Use parameters for fields |
+| Create Vocabulary | `openl_create_rule(tableType="Datatype", returnType=baseType)` | Use angle brackets `<Type>` |
+| Add Field | `openl_update_table(view={rows: [...existing, newField]})` | Just add row! |
+| Add Value | `openl_update_table(view={rows: [...existing, newValue]})` | Just add row! |
+| Inherit | `openl_create_rule(returnType=parentType)` | Parent in returnType |
+| Validate | `openl_validate_project()` | After any change |
+| Save | `openl_update_project_status()` | Persist changes |

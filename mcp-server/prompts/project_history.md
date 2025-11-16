@@ -15,14 +15,14 @@ arguments:
 
 ## When to Use
 
-**USE project_history WHEN:**
+**USE openl_get_project_history WHEN:**
 - Need audit trail across entire OpenL project
 - Find when change affected multiple Excel files
 - Track team activity across project
 - Compare project states at different Git commits
 - Revert entire project to stable commit
 
-**USE file_history WHEN:**
+**USE openl_get_file_history WHEN:**
 - Track single Excel file changes
 - Find who modified specific file
 - Compare file versions
@@ -32,24 +32,24 @@ arguments:
 
 **Project audit:**
 ```
-get_project_history({if projectId}projectId="{projectId}", {end if}limit=50) → All commits, all files
+openl_get_project_history({if projectId}projectId="{projectId}", {end if}limit=50) → All commits, all files
 ```
 
 **Find specific change:**
 ```
-get_project_history({if projectId}projectId="{projectId}", {end if}limit=200) → search commit comments
+openl_get_project_history({if projectId}projectId="{projectId}", {end if}limit=200) → search commit comments
 ```
 
 **Compare project states:**
 ```
-1. get_project_history({if projectId}projectId="{projectId}"{end if}) → get commitHashes
-2. compare_versions(baseCommitHash, targetCommitHash)
+1. openl_get_project_history({if projectId}projectId="{projectId}"{end if}) → get commitHashes
+2. Note: openl_compare_versions is temporarily disabled - use OpenL WebStudio UI for comparison
 ```
 
 **Revert project:**
 ```
-1. get_project_history({if projectId}projectId="{projectId}"{end if}) → find stable commitHash
-2. revert_version(targetVersion=commitHash)
+1. openl_get_project_history({if projectId}projectId="{projectId}"{end if}) → find stable commitHash
+2. openl_revert_version(targetVersion=commitHash)
 ```
 
 ## OpenL Commit Info
