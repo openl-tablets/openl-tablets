@@ -492,56 +492,73 @@ export class OpenLClient {
     // Parse project ID to get the project name
     const [, projectName] = this.parseProjectId(projectId);
 
-    // IMPORTANT: File paths from list_tables include a directory prefix matching the project name
-    // e.g., "Example 2 - Corporate Rating/Corporate Rating.xlsx"
-    // But the download API expects paths relative to the project root: "Corporate Rating.xlsx"
-    // Strip the "{projectName}/" prefix if present
-    let normalizedFileName = fileName;
-    const projectPrefix = `${projectName}/`;
-    if (fileName.startsWith(projectPrefix)) {
-      normalizedFileName = fileName.substring(projectPrefix.length);
-    }
-
     // Build request params
     const params: any = {};
     if (version) {
       params.version = version;  // Git commit hash
     }
 
-    try {
-      const response = await this.axiosInstance.get<ArrayBuffer>(
-        `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
-        {
-          responseType: "arraybuffer",
-          params,
-        }
-      );
+    // Try multiple possible file paths to handle different formats from list_tables
+    const pathsToTry: string[] = [];
+    const projectPrefix = `${projectName}/`;
 
-      return Buffer.from(response.data);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        // Provide helpful error message for file not found
-        throw new Error(
-          `File not found: "${fileName}". ` +
-          `The file does not exist in project "${projectId}". ` +
-          `To find available files: 1) Call list_tables(projectId="${projectId}") to see all tables and their file paths, ` +
-          `2) Use the exact 'file' field value from a table entry as the fileName parameter. ` +
-          `Common causes: File path typo, wrong project, or file was deleted. ` +
-          `Example valid path: "Example 1 - Bank Rating/Bank Rating.xlsx" or "rules/Premium.xlsx".`
-        );
-      } else if (error.response?.status === 400) {
-        // 400 might indicate incorrect file path format
-        throw new Error(
-          `Invalid file path: "${fileName}". ` +
-          `The OpenL API rejected this file path (400 Bad Request). ` +
-          `Make sure to use the exact 'file' field value from list_tables() response. ` +
-          `If the issue persists, the file may not exist or the project may not be properly opened. ` +
-          `Original error: ${error.message}`
-        );
-      }
-      // Re-throw other errors
-      throw error;
+    // Strategy: Try both with and without project name prefix
+    if (fileName.startsWith(projectPrefix)) {
+      // If filename has project prefix, try both with and without
+      pathsToTry.push(fileName);  // Try with prefix first
+      pathsToTry.push(fileName.substring(projectPrefix.length));  // Then without
+    } else {
+      // If filename doesn't have project prefix, try both without and with
+      pathsToTry.push(fileName);  // Try without prefix first
+      pathsToTry.push(`${projectPrefix}${fileName}`);  // Then with
     }
+
+    let lastError: any;
+
+    // Try each path until one works
+    for (const pathToTry of pathsToTry) {
+      try {
+        const response = await this.axiosInstance.get<ArrayBuffer>(
+          `${projectPath}/files/${encodeURIComponent(pathToTry)}`,
+          {
+            responseType: "arraybuffer",
+            params,
+          }
+        );
+
+        return Buffer.from(response.data);
+      } catch (error: any) {
+        lastError = error;
+        // If not a 404, don't try other paths
+        if (error.response?.status !== 404) {
+          break;
+        }
+        // Continue to next path on 404
+      }
+    }
+
+    // All paths failed, provide helpful error message
+    if (lastError?.response?.status === 404) {
+      throw new Error(
+        `File not found: "${fileName}". ` +
+        `Tried paths: ${pathsToTry.map(p => `"${p}"`).join(", ")}. ` +
+        `The file does not exist in project "${projectId}". ` +
+        `To find available files: 1) Call list_tables(projectId="${projectId}") to see all tables and their file paths, ` +
+        `2) Use the exact 'file' field value from a table entry as the fileName parameter. ` +
+        `Common causes: File path typo, wrong project, or file was deleted.`
+      );
+    } else if (lastError?.response?.status === 400) {
+      throw new Error(
+        `Invalid file path: "${fileName}". ` +
+        `The OpenL API rejected this file path (400 Bad Request). ` +
+        `Make sure to use the exact 'file' field value from list_tables() response. ` +
+        `If the issue persists, the file may not exist or the project may not be properly opened. ` +
+        `Original error: ${lastError.message}`
+      );
+    }
+
+    // Re-throw other errors
+    throw lastError;
   }
 
   /**
