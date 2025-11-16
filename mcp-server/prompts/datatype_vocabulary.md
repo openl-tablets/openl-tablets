@@ -3,6 +3,10 @@ name: datatype_vocabulary
 description: Creating custom data structures (Datatypes) and enumerations (Vocabularies) in OpenL
 ---
 
+## Summary
+
+**Define reusable data structures**: Datatype tables create custom types with typed fields (like classes); Vocabulary tables define allowed values (like enums). Use Datatypes for domain objects (Policy, Customer), Vocabularies for fixed sets (RiskLevel, StateCode).
+
 # Datatypes and Vocabularies in OpenL Tablets
 
 Two table types for defining data structures:

@@ -7,6 +7,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Systematic error resolution**: Use OpenL WebStudio UI for validation (MCP tools temporarily disabled). Fix by category: type mismatches (add conversion), missing references (create tables), syntax errors (check BEX grammar), circular dependencies (extract shared logic). Target 0 errors before deployment.
+
 # OpenL Error Analysis
 
 {if projectId}

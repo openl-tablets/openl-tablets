@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Track file changes with Git commit history**: Every save creates a Git commit with hash (not v1/v2). Use openl_get_file_history() to view commits, openl_download_file(version=hash) for old versions, openl_revert_version() to restore previous state.
+
 # OpenL File History (Git-Based Versioning)
 
 {if filePath}

@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Critical Pre-Deployment Checklist**: All deployments MUST pass validation (0 errors), run all tests (100% pass), and follow environment progression (dev → test → staging → prod). Use OpenL WebStudio UI for validation and testing since MCP tools are temporarily disabled.
+
 # OpenL Deployment Workflow
 
 {if projectId}

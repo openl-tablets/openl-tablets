@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Test updates preserve structure**: Use openl_get_table() to fetch current structure, modify rows (add/update/remove test cases or fix _res_/_error_ values), then openl_update_table() with FULL view. Always run tests after updates to verify.
+
 # Updating Test Tables
 
 {if testId}

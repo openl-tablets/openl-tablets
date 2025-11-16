@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**When tables modified, run targeted tests first** (1-5 tables → specific tableIds, 6+ → runAll). Before save/deploy, ALWAYS run all tests (runAll: true, no exceptions).
+
 # Test Selection Logic
 
 {if scope}

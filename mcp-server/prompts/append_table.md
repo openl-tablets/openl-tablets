@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Use openl_append_table for incremental additions**: Append new fields to Datatypes or rows to Data tables without fetching full structure. For modifications or reordering, use openl_update_table instead.
+
 # Appending Data to Tables
 
 {if tableId}
