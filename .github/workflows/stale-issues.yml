@@ -63,7 +63,7 @@ jobs:
 
             If you plan to continue this work:
             - Reopen the PR
-            - Rebase on the latest `master` branch
+            - Rebase on the latest `main` branch
             - Address any merge conflicts
 
             We appreciate your contribution and hope to see it completed!
