@@ -8,19 +8,32 @@ import { PROJECT_ID_PATTERN } from "./constants.js";
 /**
  * Validate base64-encoded content
  *
+ * Strips whitespace (spaces, newlines, tabs) before validation to match
+ * Node.js Buffer.from() behavior, which ignores whitespace in base64 strings.
+ *
  * @param content - Content to validate
  * @returns True if valid base64, false otherwise
  */
 export function validateBase64(content: string): boolean {
+  // Strip all whitespace (spaces, newlines, tabs, carriage returns)
+  // Node.js Buffer.from() with 'base64' encoding automatically ignores whitespace,
+  // so we should accept it too for consistency
+  const stripped = content.replace(/\s/g, "");
+
+  // Empty string is valid base64 (decodes to empty buffer)
+  if (stripped === "") {
+    return true;
+  }
+
   // Check if string matches base64 pattern
   const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
-  if (!base64Regex.test(content)) {
+  if (!base64Regex.test(stripped)) {
     return false;
   }
 
   // Try to decode to verify it's valid base64
   try {
-    Buffer.from(content, "base64");
+    Buffer.from(stripped, "base64");
     return true;
   } catch {
     return false;

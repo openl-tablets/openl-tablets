@@ -429,7 +429,8 @@ describe("OpenLClient", () => {
     describe("uploadFile", () => {
       it("should upload file with base64 content", async () => {
         const buffer = Buffer.from("test file content");
-        mockAxios.onPost("/design/project1/files/Rules.xlsx").reply(200, {
+        // New API format uses base64-encoded project ID
+        mockAxios.onPost("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(200, {
           success: true,
         });
 
@@ -438,7 +439,7 @@ describe("OpenLClient", () => {
       });
 
       it("should URL-encode file name", async () => {
-        mockAxios.onPost(/files\/.*/).reply((config) => {
+        mockAxios.onPost(/\/projects\/ZGVzaWduOnByb2plY3Qx\/files\/.*/).reply((config) => {
           expect(config.url).toContain("My%20Rules.xlsx");
           return [200, {}];
         });
@@ -448,9 +449,9 @@ describe("OpenLClient", () => {
       });
 
       it("should include comment when provided", async () => {
-        mockAxios.onPost("/design/project1/files/Rules.xlsx").reply((config) => {
-          const data = JSON.parse(config.data);
-          expect(data.comment).toBe("Updated rates");
+        mockAxios.onPost("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply((config) => {
+          // Comment is sent as query parameter, not in body
+          expect(config.params?.comment).toBe("Updated rates");
           return [200, {}];
         });
 
@@ -459,7 +460,7 @@ describe("OpenLClient", () => {
       });
 
       it("should handle upload errors", async () => {
-        mockAxios.onPost("/design/project1/files/Rules.xlsx").reply(500);
+        mockAxios.onPost("/projects/ZGVzaWduOnByb2plY3Qx/files/Rules.xlsx").reply(500);
 
         const buffer = Buffer.from("test");
         await expect(

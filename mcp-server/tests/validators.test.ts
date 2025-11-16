@@ -99,12 +99,23 @@ describe("validators", () => {
       expect(validateBase64("Hello@World!")).toBe(false);
     });
 
-    it("should reject base64 with spaces", () => {
-      expect(validateBase64("SGVs bG8=")).toBe(false);
+    it("should accept base64 with spaces (strips whitespace)", () => {
+      // Node.js Buffer.from() ignores whitespace in base64, so we should too
+      expect(validateBase64("SGVs bG8=")).toBe(true);
     });
 
-    it("should reject base64 with newlines", () => {
-      expect(validateBase64("SGVs\nbG8=")).toBe(false);
+    it("should accept base64 with newlines (strips whitespace)", () => {
+      // Node.js Buffer.from() ignores whitespace in base64, so we should too
+      expect(validateBase64("SGVs\nbG8=")).toBe(true);
+    });
+
+    it("should accept base64 with tabs and carriage returns", () => {
+      expect(validateBase64("SGVs\t\rbG8=")).toBe(true);
+    });
+
+    it("should accept multi-line formatted base64", () => {
+      const multiline = "SGVsbG8g\nV29ybGQh\nVGhpcyBp\ncyBhIHRl\nc3Q=";
+      expect(validateBase64(multiline)).toBe(true);
     });
 
     it("should reject invalid characters", () => {
