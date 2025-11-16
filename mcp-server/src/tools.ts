@@ -227,29 +227,44 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   // Testing & Validation Tools
   // =============================================================================
-  // Note: run_all_tests and run_test have been removed because the OpenL Tablets
-  // REST API does not expose /tests/run or /tests/run-selected endpoints.
+  // Note: The following tools are temporarily disabled until client.ts gets proper support:
+  // - validate_project: Validate entire project for compilation errors
+  // - get_project_errors: Get comprehensive project error analysis
+  // - test_project: Run tests (specific or all tests)
+  // - compare_versions: Compare two Git commit versions
   // Use execute_rule to manually test individual rules with input data instead.
-  {
-    name: "validate_project",
-    description: "Validate entire project for compilation errors, type errors, and warnings. Returns validation status and detailed error list if issues found. Required before deployment; use this to catch issues early.",
-    inputSchema: zodToJsonSchema(schemas.validateProjectSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "get_project_errors",
-    description: "Get comprehensive project error analysis with detailed categorization (type errors, syntax errors, reference errors) and auto-fix suggestions. Returns error severity, locations, and actionable guidance. Use this to understand and fix validation failures.",
-    inputSchema: zodToJsonSchema(schemas.getProjectErrorsSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
+
+  // TEMPORARILY DISABLED - Pending client.ts support
+  // {
+  //   name: "validate_project",
+  //   description: "Validate entire project for compilation errors, type errors, and warnings. Returns validation status and detailed error list if issues found. Required before deployment; use this to catch issues early.",
+  //   inputSchema: zodToJsonSchema(schemas.validateProjectSchema) as Record<string, unknown>,
+  //   _meta: {
+  //     version: "1.0.0",
+  //     category: TOOL_CATEGORIES.PROJECT,
+  //     requiresAuth: true,
+  //   },
+  // },
+  // {
+  //   name: "get_project_errors",
+  //   description: "Get comprehensive project error analysis with detailed categorization (type errors, syntax errors, reference errors) and auto-fix suggestions. Returns error severity, locations, and actionable guidance. Use this to understand and fix validation failures.",
+  //   inputSchema: zodToJsonSchema(schemas.getProjectErrorsSchema) as Record<string, unknown>,
+  //   _meta: {
+  //     version: "1.0.0",
+  //     category: TOOL_CATEGORIES.PROJECT,
+  //     requiresAuth: true,
+  //   },
+  // },
+  // {
+  //   name: "test_project",
+  //   description: "Run project tests in OpenL Studio. Can run specific tests by name or all tests in the project. Returns test execution results with pass/fail status, assertions, and coverage information. Use this to verify rule behavior and catch regressions before deployment.",
+  //   inputSchema: zodToJsonSchema(schemas.testProjectSchema) as Record<string, unknown>,
+  //   _meta: {
+  //     version: "1.0.0",
+  //     category: TOOL_CATEGORIES.PROJECT,
+  //     requiresAuth: true,
+  //   },
+  // },
 
   // =============================================================================
   // Phase 3: Versioning & Execution Tools
@@ -264,16 +279,17 @@ export const TOOLS: ToolDefinition[] = [
       requiresAuth: true,
     },
   },
-  {
-    name: "compare_versions",
-    description: "Compare two Git commit versions of a project using commit hashes. Returns detailed diff showing added, modified, and removed tables/files with specific changes. Use this to review what changed between versions before reverting or deploying.",
-    inputSchema: zodToJsonSchema(schemas.compareVersionsSchema) as Record<string, unknown>,
-    _meta: {
-      version: "2.0.0",
-      category: TOOL_CATEGORIES.VERSION_CONTROL,
-      requiresAuth: true,
-    },
-  },
+  // TEMPORARILY DISABLED - Pending client.ts support
+  // {
+  //   name: "compare_versions",
+  //   description: "Compare two Git commit versions of a project using commit hashes. Returns detailed diff showing added, modified, and removed tables/files with specific changes. Use this to review what changed between versions before reverting or deploying.",
+  //   inputSchema: zodToJsonSchema(schemas.compareVersionsSchema) as Record<string, unknown>,
+  //   _meta: {
+  //     version: "2.0.0",
+  //     category: TOOL_CATEGORIES.VERSION_CONTROL,
+  //     requiresAuth: true,
+  //   },
+  // },
 
   // =============================================================================
   // Phase 4: Advanced Features

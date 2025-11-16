@@ -117,10 +117,17 @@ export const deployProjectSchema = z.object({
 // =============================================================================
 // Testing & Validation (Critical Missing Tools)
 // =============================================================================
-// Note: runAllTestsSchema and runTestSchema removed - endpoints don't exist in API
+// Note: The following schemas are placeholders for tools that are temporarily disabled
+// pending client.ts support for the OpenL Studio REST API endpoints.
 
 export const validateProjectSchema = z.object({
   projectId: projectIdSchema,
+});
+
+export const testProjectSchema = z.object({
+  projectId: projectIdSchema,
+  testName: z.string().optional().describe("Specific test name to run (e.g., 'testPremiumCalculation'). Omit to run all tests in the project."),
+  allTests: z.boolean().optional().describe("Set to true to explicitly run all tests in the project (default: false). When false and testName is omitted, runs all tests."),
 });
 
 // =============================================================================
