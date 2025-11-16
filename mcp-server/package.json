@@ -1,11 +1,11 @@
 {
-  "name": "openl-tablets-mcp-server",
+  "name": "openl-mcp-server",
   "version": "1.0.0",
   "description": "MCP Server for OpenL Tablets Rules Management System",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "openl-tablets-mcp": "dist/index.js"
+    "openl-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",

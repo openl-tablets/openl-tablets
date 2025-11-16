@@ -65,7 +65,18 @@ export const PROJECT_ID_PATTERN = /^([^-]+)-(.+)$/;
  * Server information
  */
 export const SERVER_INFO = {
-  NAME: "openl-tablets",
+  NAME: "openl-mcp-server",
   VERSION: "1.0.0",
   DESCRIPTION: "Model Context Protocol server for OpenL Tablets",
+} as const;
+
+/**
+ * Response formatting limits
+ */
+export const RESPONSE_LIMITS = {
+  /** Maximum response character count (~25,000) */
+  MAX_CHARACTERS: 25000,
+
+  /** Truncation warning message */
+  TRUNCATION_MESSAGE: "Response truncated due to size. Use limit/offset parameters or narrower filters to retrieve full data.",
 } as const;
