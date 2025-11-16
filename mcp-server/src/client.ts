@@ -466,17 +466,10 @@ export class OpenLClient {
   async downloadFile(projectId: string, fileName: string, version?: string): Promise<Buffer> {
     const projectPath = this.buildProjectPath(projectId);
 
-    // Extract project name from projectId (format: "repository-projectName")
-    // Some file paths from list_tables include the project directory as prefix
-    // e.g., "Example 1 - Bank Rating/Bank Rating.xlsx"
-    // We need to strip this prefix to get the actual file path
-    const projectName = projectId.split('-').slice(1).join('-');
-
-    let normalizedFileName = fileName;
-    const projectPrefix = projectName + '/';
-    if (fileName.startsWith(projectPrefix)) {
-      normalizedFileName = fileName.substring(projectPrefix.length);
-    }
+    // IMPORTANT: Use the fileName exactly as returned by list_tables
+    // File paths from list_tables already include the correct path structure
+    // e.g., "Example 1 - Bank Rating/Bank Rating.xlsx" or "rules/Premium.xlsx"
+    // DO NOT strip any prefix - the API expects the full path
 
     // Build request params
     const params: any = {};
@@ -486,7 +479,7 @@ export class OpenLClient {
 
     try {
       const response = await this.axiosInstance.get<ArrayBuffer>(
-        `${projectPath}/files/${encodeURIComponent(normalizedFileName)}`,
+        `${projectPath}/files/${encodeURIComponent(fileName)}`,
         {
           responseType: "arraybuffer",
           params,
@@ -498,11 +491,12 @@ export class OpenLClient {
       if (error.response?.status === 404) {
         // Provide helpful error message for file not found
         throw new Error(
-          `File not found: "${normalizedFileName}" (original input: "${fileName}"). ` +
+          `File not found: "${fileName}". ` +
           `The file does not exist in project "${projectId}". ` +
           `To find available files: 1) Call list_tables(projectId="${projectId}") to see all tables and their file paths, ` +
           `2) Use the exact 'file' field value from a table entry as the fileName parameter. ` +
-          `Common issue: File paths in OpenL may not include the project name prefix, or may be in subdirectories like "rules/MyFile.xlsx".`
+          `Common causes: File path typo, wrong project, or file was deleted. ` +
+          `Example valid path: "Example 1 - Bank Rating/Bank Rating.xlsx" or "rules/Premium.xlsx".`
         );
       }
       // Re-throw other errors
