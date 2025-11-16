@@ -7,6 +7,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Project-wide audit trail**: Use openl_get_project_history() for all commits across entire project (multiple files), openl_get_file_history() for single file tracking. Each commit shows author, files changed, tables modified, and commit type (SAVE/MERGE/etc).
+
 # OpenL Project History vs File History
 
 {if projectId}

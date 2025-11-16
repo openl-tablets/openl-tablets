@@ -3,6 +3,10 @@ name: dimension_properties
 description: OpenL dimension properties system for business context versioning and runtime rule selection
 ---
 
+## Summary
+
+**Dimension properties enable context-based rule selection**: Multiple versions of same rule (same signature) exist simultaneously, selected at runtime by properties like state, lob, effectiveDate. Git tracks file changes over time; dimensions track business variations within a commit.
+
 # OpenL Dimension Properties (Business Versioning)
 
 OpenL has TWO INDEPENDENT versioning systems:

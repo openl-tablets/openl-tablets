@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Execute rules for quick validation**: Use openl_execute_rule() to test individual rules with specific input data. Construct inputData as JSON matching rule parameters (simple types as literals, custom Datatypes as nested objects with all required fields).
+
 # OpenL Rule Execution
 
 {if ruleName}

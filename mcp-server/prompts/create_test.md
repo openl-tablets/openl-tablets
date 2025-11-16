@@ -10,6 +10,10 @@ arguments:
     required: false
 ---
 
+## Summary
+
+**Test tables mirror method signatures**: Create with columns matching tested table parameters plus _res_ (expected result) or _error_ (expected error). Minimum 3 rows required (header, column definitions, at least 1 test case). Run tests immediately after creation to verify structure.
+
 # Creating Test Tables in OpenL Tablets
 
 {if tableName}
