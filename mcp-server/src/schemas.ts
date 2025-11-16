@@ -79,6 +79,7 @@ export const updateProjectStatusSchema = z.object({
   status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Project status to set. OPENED = open and available for editing (read-only if locked by another user). EDITING = currently editing with unsaved changes (auto-set by OpenL on first edit, locks project). VIEWING_VERSION = viewing outdated version (another user saved, need to re-open for latest). CLOSED = closed and unlocked"),
   comment: commentSchema.describe("Git commit comment. When provided on a modified project, saves changes before applying status change. Required when closing a project with unsaved changes (unless discardChanges is true)"),
   discardChanges: z.boolean().optional().describe("Explicitly confirm discarding unsaved changes when closing. Set to true to close an EDITING project without saving. Safety flag to prevent accidental data loss."),
+  confirm: z.boolean().optional().describe("Required when performing destructive operations like closing with unsaved changes and discardChanges=true"),
   branch: branchNameSchema.optional().describe("Switch to a different Git branch"),
   revision: z.string().optional().describe("Switch to a specific Git revision/commit hash for read-only viewing"),
   selectedBranches: z.array(z.string()).optional().describe("List of branches to select for multi-branch projects"),
@@ -144,6 +145,7 @@ export const deployProjectSchema = z.object({
   repository: repositoryNameSchema,
   deploymentRepository: z.string().describe("Target deployment repository name (e.g., 'production-deploy', 'staging-deploy'). Must be configured in OpenL Tablets."),
   version: z.string().optional().describe("Specific Git commit hash to deploy (e.g., '7a3f2b1c...'). Omit to deploy latest version (HEAD)."),
+  confirm: z.boolean().describe("Must be true to proceed with deployment to production"),
   response_format: ResponseFormat.optional(),
 }).strict();
 
@@ -249,6 +251,7 @@ export const revertVersionSchema = z.object({
   projectId: projectIdSchema,
   targetVersion: z.string().describe("Git commit hash to revert to (e.g., '7a3f2b1c...')"),
   comment: commentSchema,
+  confirm: z.boolean().describe("Must be true to proceed with this destructive operation"),
   response_format: ResponseFormat.optional(),
 }).strict();
 
