@@ -128,7 +128,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_repositories",
     title: "OpenL List Repositories",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "List all design repositories in OpenL Tablets. Returns repository names, types, and status information. Use this to discover available repositories before accessing projects.",
     inputSchema: zodToJsonSchema(
@@ -178,7 +178,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_branches",
     title: "OpenL List Branches",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
     inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
@@ -231,7 +231,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_projects",
     title: "OpenL List Projects",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
@@ -290,7 +290,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_get_project",
     title: "OpenL Get Project",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status.",
     inputSchema: zodToJsonSchema(schemas.getProjectSchema) as Record<string, unknown>,
@@ -324,7 +324,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_update_project_status",
     title: "OpenL Update Project Status",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Update project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches.",
     inputSchema: zodToJsonSchema(schemas.updateProjectStatusSchema) as Record<string, unknown>,
@@ -374,7 +374,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_upload_file",
     title: "OpenL Upload File",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Upload an Excel file (.xlsx or .xls) containing rules to a project. The file is uploaded to OpenL Studio workspace but NOT committed to Git yet.",
     inputSchema: zodToJsonSchema(schemas.uploadFileSchema) as Record<string, unknown>,
@@ -421,7 +421,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_download_file",
     title: "OpenL Download File",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Download an Excel file from OpenL project. Can download latest version (HEAD) or specific historical version using Git commit hash.",
     inputSchema: zodToJsonSchema(schemas.downloadFileSchema) as Record<string, unknown>,
@@ -469,7 +469,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_tables",
     title: "OpenL List Tables",
-    version: "2.0.0",
+    version: "1.0.0",
     description: "List all tables/rules in a project with optional filters for type, name, and file",
     inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
     annotations: {
@@ -523,7 +523,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_get_table",
     title: "OpenL Get Table",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data.",
     inputSchema: zodToJsonSchema(schemas.getTableSchema) as Record<string, unknown>,
@@ -558,7 +558,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_update_table",
     title: "OpenL Update Table",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields).",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
@@ -599,7 +599,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_append_table",
     title: "OpenL Append Table",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure.",
     inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
@@ -640,7 +640,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_create_rule",
     title: "OpenL Create Rule",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types.",
     inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
@@ -691,7 +691,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_deployments",
     title: "OpenL List Deployments",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "List all active deployments across production environments. Returns deployment names, repositories, versions, and status information.",
     inputSchema: zodToJsonSchema(
@@ -741,7 +741,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_deploy_project",
     title: "OpenL Deploy Project",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution.",
     inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
@@ -797,7 +797,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_execute_rule",
     title: "OpenL Execute Rule",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Execute a rule with input data to test its behavior and validate changes. Runs the rule with provided parameters and returns calculated result.",
     inputSchema: zodToJsonSchema(schemas.executeRuleSchema) as Record<string, unknown>,
@@ -841,7 +841,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_revert_version",
     title: "OpenL Revert Version",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Revert project to a previous Git commit using commit hash. Creates a new commit that restores old content while preserving full history.",
     inputSchema: zodToJsonSchema(schemas.revertVersionSchema) as Record<string, unknown>,
@@ -880,7 +880,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_get_file_history",
     title: "OpenL Get File History",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Get Git commit history for a specific file. Returns list of commits with hashes, authors, timestamps, and commit types.",
     inputSchema: zodToJsonSchema(schemas.getFileHistorySchema) as Record<string, unknown>,
@@ -924,7 +924,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_get_project_history",
     title: "OpenL Get Project History",
-    version: "2.0.0",
+    version: "1.0.0",
     description:
       "Get Git commit history for entire project. Returns chronological list of all commits with metadata about files and tables changed.",
     inputSchema: zodToJsonSchema(schemas.getProjectHistorySchema) as Record<string, unknown>,
