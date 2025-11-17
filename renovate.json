@@ -134,7 +134,6 @@
       "matchUpdateTypes": ["minor", "patch"]
     },
     {
-      "description": "Major Java version updates - Manual review required",
       "matchPackageNames": ["java"],
       "matchUpdateTypes": ["major"],
       "enabled": false,

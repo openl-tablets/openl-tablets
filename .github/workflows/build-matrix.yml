@@ -2,9 +2,9 @@ name: Build Matrix
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ main, develop ]
   workflow_dispatch:
 
 permissions:
@@ -218,7 +218,7 @@ jobs:
     name: Performance Tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

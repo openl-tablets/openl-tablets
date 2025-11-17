@@ -3,11 +3,11 @@ name: Performance Benchmark
 on:
   push:
     branches:
-      - master
+      - main
       - develop
   pull_request:
     branches:
-      - master
+      - main
       - develop
   workflow_dispatch:
   schedule:
@@ -100,7 +100,7 @@ jobs:
 
       - name: Store benchmark results
         uses: benchmark-action/github-action-benchmark@v1
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
         with:
           name: OpenL Tablets Benchmarks
           tool: 'customBiggerIsBetter'

@@ -517,5 +517,5 @@ public class CalculatePremiumResponse {
 - Main conventions: `/WSFrontend/CLAUDE.md`
 - Architecture: `/Docs/architecture/`
 - Analysis: `/Docs/analysis/studio-wsfrontend-util-overview.md`
-- Configuration: `/Docs/Configuration.md`
+- Configuration: `/Docs/configuration/`
 - Deployment: `/Docs/Production_Deployment.md`

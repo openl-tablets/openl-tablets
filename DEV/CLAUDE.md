@@ -670,9 +670,9 @@ If you discover:
 
 ### Module Documentation
 
-- [DEV Module Overview](/Docs/analysis/dev-module-overview.md) - Comprehensive module analysis
-- [Technology Stack](/Docs/architecture/technology-stack.md) - Technology details
-- [Codebase Tour](/Docs/onboarding/codebase-tour.md) - Navigate the code
+- [DEV Module Overview](../Docs/analysis/dev-module-overview.md) - Comprehensive module analysis
+- [Technology Stack](../Docs/architecture/technology-stack.md) - Technology details
+- [Codebase Tour](../Docs/onboarding/codebase-tour.md) - Navigate the code
 
 ### Key Files
 

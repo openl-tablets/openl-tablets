@@ -1,7 +1,8 @@
+![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)](https://central.sonatype.com/search?q=org.openl)
 [![Java Version](https://img.shields.io/badge/Java-21%2B-orange)](https://www.oracle.com/java/technologies/downloads/)
 [![Website](https://img.shields.io/website?label=Website&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
-[![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/openl-tablets/openl-tablets/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://github.com/openl-tablets/openl-tablets/blob/main/LICENSE)
 
 # OpenL Tablets - Business Rules Management Made Simple
 
@@ -155,13 +156,12 @@ Call from Java, Python, JavaScript, C#, Go, or any language via REST.
 ### 🔌 For Developers
 - **[REST API Guide](Docs/API_GUIDE.md)** - Integrate rules into your applications
 - **[Deployment Guide](Docs/DEPLOYMENT.md)** - Deploy to Docker, Kubernetes, AWS, Azure, GCP
-- **[Architecture Overview](Docs/ARCHITECTURE.md)** - System design and components
 - **[Troubleshooting](Docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ### 💻 For Contributors
 - **[Contributing Guide](CONTRIBUTING.md)** - Help improve OpenL Tablets
 - **[Developer Setup](Docs/onboarding/development-setup.md)** - Set up your dev environment
-- **[Architecture Details](Docs/architecture/)** - Deep technical documentation
+- **[Architecture & Module Analysis](Docs/architecture/)** - Deep technical documentation for contributors
 
 **[Browse All Documentation →](Docs/)**
 
@@ -247,7 +247,7 @@ OpenL Tablets is open source under the **[GNU Lesser General Public License (LGP
   <strong>Transform your business rules from spreadsheets to APIs in minutes.</strong><br>
   <a href="https://openl-tablets.org/downloads">Download OpenL Tablets</a> •
   <a href="Docs/user-guides/installation/">Get Started</a> •
-  <a href="https://openl-tablets.org/demo">Try Demo</a>
+  <a href="https://demo.openl-tablets.org/">Try Demo</a>
 </p>
 
 <p align="center">

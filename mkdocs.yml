@@ -5,7 +5,7 @@ site_url: https://openl-tablets.readthedocs.io
 
 repo_name: openl-tablets/openl-tablets
 repo_url: https://github.com/openl-tablets/openl-tablets
-edit_uri: edit/master/Docs/
+edit_uri: edit/main/Docs/
 
 copyright: Copyright &copy; 2025 OpenL Tablets. Licensed under Apache License 2.0.
 
@@ -135,8 +135,6 @@ plugins:
 nav:
   - Home:
       - Welcome: README.md
-      - Migration Plan: MIGRATION_PLAN.md
-      - Migration Guide: MIGRATION_GUIDE.md
       - Contributing to Docs: CONTRIBUTING_DOCS.md
 
   - Downloads: downloads.md
@@ -233,28 +231,6 @@ nav:
       - Apache CXF: integration-guides/cxf.md
       - OpenTelemetry: integration-guides/opentelemetry.md
 
-  - Deployment:
-      - deployment/index.md
-      - Docker:
-          - deployment/docker/index.md
-          - Quick Start: deployment/docker/quick-start.md
-          - Simple Deployment: deployment/docker/docker-compose-simple.yaml
-          - Multi-Container: deployment/docker/docker-compose-multi.yaml
-          - Full Stack: deployment/docker/docker-compose-full.yaml
-      - Kubernetes:
-          - deployment/kubernetes/index.md
-          - Manifests:
-              - Namespace: deployment/kubernetes/manifests/00-namespace.yaml
-              - Secrets: deployment/kubernetes/manifests/01-secrets.yaml
-              - Studio: deployment/kubernetes/manifests/studio-deployment.yaml
-              - Rule Services: deployment/kubernetes/manifests/ruleservices-deployment.yaml
-              - Ingress: deployment/kubernetes/manifests/ingress.yaml
-              - README: deployment/kubernetes/manifests/README.md
-      - Cloud:
-          - AWS: deployment/cloud/aws/index.md
-          - Azure: deployment/cloud/azure/index.md
-      - VM Deployment: deployment/vm/index.md
-
   - Configuration:
       - configuration/index.md
       - Overview: configuration/overview.md
@@ -276,10 +252,6 @@ nav:
       - guides/migration-guide.md
       - guides/performance-tuning.md
 
-  - Operations:
-      - operations/ci-cd.md
-      - operations/docker-guide.md
-
   - Examples:
       - examples/index.md
       - Production Deployment: examples/production/README.md
@@ -289,7 +261,6 @@ nav:
 
   - Contributing:
       - Claude Workflows: claude-workflows.md
-      - Documentation Plan: documentation-plan.md
 
 # Extra CSS and JavaScript
 extra_css:

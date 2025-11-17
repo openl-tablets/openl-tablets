@@ -24,134 +24,93 @@ Get started with OpenL Tablets development in just 5 minutes!
 
 - **JDK 21+** (Java Development Kit)
 - **Maven 3.9.9+**
-- **Docker** (for local databases)
-- **Node.js 18+** (for npm scripts)
+- **Docker** (for local databases - optional)
 
-### One-Command Setup
+### Quick Setup
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/openl-tablets/openl-tablets.git
 cd openl-tablets
 
-# 2. Install npm dependencies (for developer scripts)
-npm install
+# 2. Build the project
+mvn clean install -Dquick -DnoPerf -T1C
 
-# 3. Start infrastructure + OpenL Studio
-npm run dx
+# 3. Run OpenL Studio
+cd STUDIO/org.openl.rules.webstudio
+mvn jetty:run
 ```
-
-This will:
-- Start local PostgreSQL database
-- Build OpenL Tablets (quick mode)
-- Launch OpenL Studio
 
 **Access OpenL Studio**: Open http://localhost:8080 in your browser
 
 ### Daily Development Commands
 
 ```bash
-# Start/Stop Infrastructure
-npm run infra:up         # Start databases (PostgreSQL, MySQL, MariaDB)
-npm run infra:down       # Stop all databases
-npm run infra:logs       # View database logs
-npm run infra:ps         # Check database status
-
-# Development
-npm run dev:studio       # Start OpenL Studio only
-npm run dev:ws           # Start Rule Services only
-npm run dev:ui           # Start React UI dev server
-
 # Building
-npm run build            # Full build with all tests
-npm run build:quick      # Quick build (recommended for development)
-npm run build:no-tests   # Build without tests
+mvn clean install                    # Full build with all tests
+mvn clean install -Dquick -DnoPerf   # Quick build (recommended)
+mvn clean install -DskipTests        # Build without tests
 
 # Testing
-npm test                 # Run unit tests
-npm run test:integration # Run integration tests
-npm run test:ui          # Run React UI tests
+mvn test                             # Run unit tests
+mvn verify                           # Run integration tests
+cd STUDIO/studio-ui && npm test      # Run React UI tests (in studio-ui directory)
 
 # Code Quality
-npm run format           # Auto-format code
-npm run format:check     # Check formatting
-npm run lint             # Run linter
+mvn spotless:apply                   # Auto-format code
+mvn spotless:check                   # Check formatting
+mvn checkstyle:check                 # Run checkstyle
 
 # Clean
-npm run clean            # Clean build artifacts and stop databases
-npm run clean:all        # Full clean including node_modules
+mvn clean                            # Clean build artifacts
 ```
 
-### VS Code Setup
-
-1. **Install Recommended Extensions**
-   - Open the project in VS Code
-   - When prompted, click "Install All" for recommended extensions
-   - Or manually install from `.vscode/extensions.json`
-
-2. **Launch Configurations**
-   - Press `F5` or use Run & Debug panel
-   - Select "OpenL Studio (WebStudio)" to debug
-   - Or select "Full Stack" to run both Studio and Services
-
-3. **Useful Shortcuts**
-   - `Ctrl+Shift+B` - Run Maven build task
-   - `F5` - Start debugging
-   - `Ctrl+Shift+T` - Run tests
 
 ### Using Different Databases
 
 The project supports multiple databases for development:
 
 ```bash
-# PostgreSQL (default) - Port 5432
-# MySQL - Port 3306
-# MariaDB - Port 3307
-
-# Database Management UIs (optional)
-docker compose -f docker-compose.dev.yml --profile tools up -d
-
-# Access:
-# pgAdmin: http://localhost:5050 (admin@openl.local / admin)
-# Adminer: http://localhost:8082
+# Use Docker for local database testing if needed
+# PostgreSQL example:
+docker run -d --name openl-postgres \
+  -e POSTGRES_DB=openl \
+  -e POSTGRES_USER=openl \
+  -e POSTGRES_PASSWORD=openl \
+  -p 5432:5432 \
+  postgres:16
 ```
 
 ### Environment Configuration
 
-Create a `.env` file for custom configuration:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` to customize:
-- Database connection
-- Server port
-- Logging levels
-- Repository paths
+Configure your environment through Maven properties or system properties:
+- Database connection: `-Ddatabase.url=jdbc:postgresql://localhost:5432/openl`
+- Server port: `-Djetty.port=8080`
+- Profiles: `-P<profile-name>`
 
 ### Troubleshooting Quick Start
 
 **Port 8080 already in use?**
 ```bash
-# Change port in .env file
-echo "SERVER_PORT=8082" >> .env
+# Find and kill the process
+lsof -ti:8080 | xargs kill -9
+# Or use a different port
+mvn jetty:run -Djetty.port=8082
 ```
 
 **Database connection errors?**
 ```bash
-# Restart databases
-npm run infra:restart
-
-# Check database status
-npm run infra:ps
+# Check Docker containers
+docker ps
+# Restart PostgreSQL
+docker restart openl-postgres
 ```
 
 **Build failures?**
 ```bash
 # Clean and rebuild
-npm run clean
-npm run build:quick
+mvn clean
+mvn clean install -Dquick -DnoPerf
 ```
 
 **Need help?**
