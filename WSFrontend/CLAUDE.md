@@ -61,7 +61,7 @@ The WSFrontend module provides **production rule deployment and web services**, 
 
 ## Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │              Client Applications                        │
 │   (REST Clients, SOAP Clients, Kafka Producers)       │
@@ -111,12 +111,12 @@ The WSFrontend module provides **production rule deployment and web services**, 
 A **Rule Service** is a dynamically generated web service that exposes OpenL rule methods as service operations.
 
 **Flow**:
-```
+```text
 Rule Project → Service Deployment → Interface Generation → Service Publishing
 ```
 
 **Example**:
-```
+```text
 Excel File: AutoInsurance.xlsx
 Rule Method: calculatePremium(Driver driver, Vehicle vehicle)
 ↓
@@ -146,7 +146,7 @@ Services are deployed from **rule projects** stored in repositories.
 
 Multiple versions of a service can be deployed simultaneously:
 
-```
+```text
 AutoInsuranceService v1.0.0
 AutoInsuranceService v1.1.0
 AutoInsuranceService v2.0.0 (breaking changes)
@@ -341,7 +341,7 @@ public interface IMyService {
 #### SOAP Service Publishing
 
 **Automatic WSDL Generation**:
-```
+```text
 http://localhost:8080/MyService?wsdl
 ```
 

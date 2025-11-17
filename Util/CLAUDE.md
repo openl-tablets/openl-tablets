@@ -444,7 +444,7 @@ results.print(System.out);
 ```
 
 **Output**:
-```
+```text
 Rule Profiling Results
 ======================
 Method: calculatePremium

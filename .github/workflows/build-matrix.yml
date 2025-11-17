@@ -147,11 +147,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Wait for database
-        run: |
-          echo "Waiting for ${{ matrix.database.name }} to be ready..."
-          sleep 10
-
       - name: Build project
         run: mvn clean install -DskipTests -T1C
 
@@ -206,7 +201,7 @@ jobs:
         uses: codecov/codecov-action@v4
         continue-on-error: true  # Don't fail if Codecov token is missing
         with:
-          files: ./target/site/jacoco/jacoco.xml
+          files: ./**/target/site/jacoco/jacoco.xml
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
@@ -216,7 +211,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: target/site/jacoco/
+          path: ./**/target/site/jacoco/
           retention-days: 30
 
   # Performance tests

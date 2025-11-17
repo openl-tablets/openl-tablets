@@ -81,7 +81,7 @@ Add any other context about the problem here, such as:
 
 If applicable, please provide relevant log entries or stack traces:
 
-```
+```text
 Paste logs here
 ```
 

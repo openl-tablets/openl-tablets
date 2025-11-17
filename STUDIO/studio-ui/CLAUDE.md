@@ -56,7 +56,7 @@ The studio-ui module is the **modern React/TypeScript frontend** for OpenL Table
 
 ## Project Structure
 
-```
+```text
 studio-ui/
 ├── src/
 │   ├── components/          # React components

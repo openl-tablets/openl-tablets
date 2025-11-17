@@ -59,7 +59,7 @@ Each major module has its own `CLAUDE.md` file with specific conventions:
 #### Key Conventions
 
 1. **Package Structure**:
-   ```
+   ```text
    org.openl.<module>.<feature>
    Example: org.openl.rules.dt (decision tables)
    ```
@@ -161,7 +161,7 @@ public interface IOpenClass {
 
 OpenL follows a strict layered architecture:
 
-```
+```text
 Application Layer (Generated Proxies)
          ↓
 Runtime Layer (VM, Context)
@@ -488,7 +488,7 @@ mvn clean install -DskipTests
 ### Commit Messages
 
 **Format**:
-```
+```text
 <type>: <subject>
 
 <body>
@@ -499,7 +499,7 @@ mvn clean install -DskipTests
 **Types**: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 
 **Example**:
-```
+```text
 feat: Add support for nested datatype tables
 
 Implement parsing and binding for nested datatype definitions.
@@ -657,8 +657,8 @@ When making architectural changes:
 
 ### External Resources
 
-- **Website**: https://openl-tablets.org
-- **GitHub**: https://github.com/openl-tablets/openl-tablets
+- **Website**: [https://openl-tablets.org](https://openl-tablets.org)
+- **GitHub**: [https://github.com/openl-tablets/openl-tablets](https://github.com/openl-tablets/openl-tablets)
 - **Maven Central**: `org.openl` group ID
 
 ---
