@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -126,8 +126,8 @@ jobs:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Only run if SNYK_TOKEN is available and not on PRs
-    if: github.event_name != 'pull_request' && secrets.SNYK_TOKEN != ''
+    # Only run on push/schedule, not on PRs (requires SNYK_TOKEN secret)
+    if: github.event_name != 'pull_request'
 
     steps:
       - name: Checkout code
@@ -221,10 +221,23 @@ jobs:
             **Commit**: ${{ github.sha }}
 
             ### Failed Jobs
+            `;
 
-            ${{ needs.maven-dependency-check.result == 'failure' ? '- ❌ Maven Dependency Check\n' : '' }}
-            ${{ needs.npm-audit.result == 'failure' ? '- ❌ npm Audit\n' : '' }}
-            ${{ needs.trivy-scan.result == 'failure' ? '- ❌ Trivy Container Scan\n' : '' }}
+            // Build the failed jobs list
+            let failedJobs = [];
+            if (context.payload.workflow_run?.conclusion === 'failure' || '${{ needs.maven-dependency-check.result }}' === 'failure') {
+              failedJobs.push('- ❌ Maven Dependency Check');
+            }
+            if ('${{ needs.npm-audit.result }}' === 'failure') {
+              failedJobs.push('- ❌ npm Audit');
+            }
+            if ('${{ needs.trivy-scan.result }}' === 'failure') {
+              failedJobs.push('- ❌ Trivy Container Scan');
+            }
+
+            const failedJobsText = failedJobs.length > 0 ? failedJobs.join('\n') : '- No specific job failures detected';
+
+            const bodyWithFailures = body + '\n' + failedJobsText + `
 
             ### Action Required
 
@@ -265,7 +278,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: title,
-                body: body,
+                body: bodyWithFailures,
                 labels: ['security', 'vulnerability', 'automated']
               });
               console.log('Created new security issue');
@@ -274,7 +287,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: existingIssue.number,
-                body: `## New Security Scan Failure\n\n${body}`
+                body: `## New Security Scan Failure\n\n${bodyWithFailures}`
               });
               console.log('Updated existing security issue');
             }
