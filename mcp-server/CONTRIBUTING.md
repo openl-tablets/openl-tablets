@@ -57,7 +57,7 @@ npm run lint:fix
 
 The codebase is organized into modular components for maintainability:
 
-```
+```text
 src/
 ├── index.ts             # Main MCP server entry point
 ├── client.ts            # OpenL Tablets API client
@@ -556,7 +556,7 @@ async getProject(projectId: string): Promise<Types.Project> {
 
 Follow conventional commit format:
 
-```
+```text
 type(scope): subject
 
 body (optional)
@@ -574,7 +574,7 @@ Types:
 
 Examples:
 
-```
+```text
 feat(tools): add support for table validation
 
 Add new tool 'openl_validate_table' that checks table structure
@@ -583,7 +583,7 @@ and data integrity before deployment.
 Closes #123
 ```
 
-```
+```text
 fix(auth): handle OAuth token refresh race condition
 
 Prevent concurrent token refresh requests by caching the

@@ -58,7 +58,7 @@ Test table view mirrors Excel structure in JSON:
 
 ### WHEN Adding Test Cases
 
-```
+```text
 1. openl_get_table(tableId=testTableId) → Get current structure
 2. Preserve columns (parameter order matters)
 3. Add new rows with test data
@@ -78,7 +78,7 @@ Test table view mirrors Excel structure in JSON:
 
 ### WHEN Fixing Expected Values
 
-```
+```text
 1. Identify failing test case (row index)
 2. Update _res_ or _error_ value
 3. update_table with corrected row
@@ -95,7 +95,7 @@ Test table view mirrors Excel structure in JSON:
 
 ### WHEN Removing Test Cases
 
-```
+```text
 1. get_table → Get all rows
 2. Filter out obsolete rows
 3. update_table with filtered rows
@@ -117,7 +117,7 @@ Test table view mirrors Excel structure in JSON:
 
 ### Pattern 1: Add Success Test Case
 
-```
+```text
 Original test:
 Row: { param1: "A", param2: 10, _res_: 100 }
 
@@ -127,7 +127,7 @@ Row: { param1: "B", param2: 20, _res_: 200 }
 
 ### Pattern 2: Add Error Test Case
 
-```
+```text
 IF test table has _error_ column:
 Row: { param1: "INVALID", _error_: "Invalid parameter value" }
 
@@ -137,7 +137,7 @@ IF test table has _res_ column only:
 
 ### Pattern 3: Update Complex Datatype
 
-```
+```text
 Test with Datatype parameter:
 Row: { "policy.type": "Auto", "policy.state": "CA", "_res_": 100 }
 
@@ -147,7 +147,7 @@ Row: { "policy.type": "Auto", "policy.state": "TX", "_res_": 90 }
 
 ### Pattern 4: Update Array Test Data
 
-```
+```text
 Test with array reference:
 Row: { "drivers": "> DriversDataTable", "_res_": 5000 }
 
@@ -157,7 +157,7 @@ Row: { "drivers": "> UpdatedDriversDataTable", "_res_": 5500 }
 
 ### Pattern 5: Add Context
 
-```
+```text
 Original (no context):
 Columns: param1, param2, _res_
 
@@ -215,7 +215,7 @@ Use existing `update_table` tool:
 
 AFTER updating test table:
 
-```
+```text
 1. openl_test_project(tableIds=[testedRuleId]) → Run tests for the rule
 2. IF all pass → Proceed
 3. IF fail → Review test data (type mismatch, wrong expected value)
@@ -226,7 +226,7 @@ AFTER updating test table:
 
 ### Scenario 1: Test Fails After Rule Change
 
-```
+```text
 PROBLEM: Rule logic changed, test expects old behavior
 
 SOLUTION:
@@ -238,7 +238,7 @@ SOLUTION:
 
 ### Scenario 2: Add Negative Test Cases
 
-```
+```text
 PROBLEM: Need to test error conditions
 
 SOLUTION:
@@ -251,7 +251,7 @@ IF test table has _error_:
 
 ### Scenario 3: Precision Issues (Floating Point)
 
-```
+```text
 PROBLEM: Test fails with: Expected 100.123, Actual 100.124
 
 SOLUTION:
@@ -262,7 +262,7 @@ SOLUTION:
 
 ### Scenario 4: Test Data Too Large
 
-```
+```text
 PROBLEM: Many test cases, Excel table too long
 
 SOLUTION:
@@ -278,7 +278,7 @@ SOLUTION:
 
 ### Update Data Table Reference
 
-```
+```text
 Original:
 Row: { "customer": "> CustomersDataTable", "_res_": 100 }
 
@@ -288,7 +288,7 @@ Row: { "customer": "> UpdatedCustomersDataTable", "_res_": 150 }
 
 ### Update Nested Reference
 
-```
+```text
 Original:
 Row: { "policy.vehicle": "> Policies.vehicles", "_res_": 1000 }
 

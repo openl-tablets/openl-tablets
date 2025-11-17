@@ -224,7 +224,7 @@ Each field in the `fields` array must include:
 
 ### Step-by-Step Process
 
-```
+```text
 1. Identify table → Use openl_list_tables() to find tableId
 2. Determine fields → Define new fields with types
 3. Call openl_append_table → Add fields to table
@@ -295,7 +295,7 @@ openl_update_project_status(
 
 ### Scenario 1: Extend Customer Datatype
 
-```
+```text
 GOAL: Add email and phone to Customer
 
 SOLUTION:
@@ -313,7 +313,7 @@ openl_append_table(
 
 ### Scenario 2: Add Calculated Field
 
-```
+```text
 GOAL: Add field that stores calculated value
 
 SOLUTION:
@@ -330,7 +330,7 @@ openl_append_table(
 
 ### Scenario 3: Add Metadata Field
 
-```
+```text
 GOAL: Add tracking/audit fields
 
 SOLUTION:
@@ -353,32 +353,32 @@ openl_append_table(
 ### Common Errors
 
 **Invalid Field Name**
-```
+```text
 Error: Field name must be valid Java identifier
 Fix: Use camelCase, start with letter, no spaces/special chars
 ```
 
 **Type Not Found**
-```
+```text
 Error: Type 'CustomType' not found
 Fix: Ensure custom datatype exists in project first
 ```
 
 **Duplicate Field Name**
-```
+```text
 Error: Field 'email' already exists
 Fix: Use openl_update_table to modify existing field, or choose different name
 ```
 
 **Invalid Table Type**
-```
+```text
 Error: Cannot append to table type 'Rules'
 Fix: Use openl_append_table only for Datatype and Data tables
 ```
 
 ## Validation After Append
 
-```
+```text
 # After appending, always verify:
 1. openl_get_table(tableId) → Confirm fields added
 2. Manually validate in OpenL WebStudio UI → Check for type errors

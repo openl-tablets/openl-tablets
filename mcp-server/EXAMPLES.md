@@ -35,7 +35,7 @@ npm run build
 ### List All Repositories
 
 **Prompt to Claude:**
-```
+```text
 List all OpenL Tablets repositories and their features
 ```
 
@@ -61,7 +61,7 @@ List all OpenL Tablets repositories and their features
 
 **With Markdown formatting:**
 You can request the response in Markdown format for better readability:
-```
+```text
 List all OpenL Tablets repositories in markdown format
 ```
 
@@ -91,7 +91,7 @@ List all OpenL Tablets repositories in markdown format
 ### Check Repository Features
 
 **Prompt to Claude:**
-```
+```text
 What features does the 'design' repository support?
 ```
 
@@ -105,20 +105,20 @@ What features does the 'design' repository support?
 ### List All Projects
 
 **Prompt to Claude:**
-```
+```text
 Show me all projects in OpenL Tablets
 ```
 
 **With filters:**
-```
+```text
 Show me all OPENED projects in the 'design' repository
 ```
-```
+```text
 Show me projects tagged with 'production'
 ```
 
 **With pagination:**
-```
+```text
 Show me the first 10 projects in the 'design' repository
 ```
 
@@ -177,7 +177,7 @@ Show me the first 10 projects in the 'design' repository
 ### Get Project Details
 
 **Prompt to Claude:**
-```
+```text
 Get detailed information about the project 'insurance-rules' in the 'design' repository
 ```
 
@@ -192,7 +192,7 @@ Get detailed information about the project 'insurance-rules' in the 'design' rep
 ### Open a Project for Editing
 
 **Prompt to Claude:**
-```
+```text
 Open the project 'design-insurance-rules' for editing
 ```
 
@@ -201,7 +201,7 @@ Open the project 'design-insurance-rules' for editing
 ### Get Project Structure
 
 **Prompt to Claude:**
-```
+```text
 Show me the structure of project 'insurance-rules' including modules and dependencies
 ```
 
@@ -216,7 +216,7 @@ Show me the structure of project 'insurance-rules' including modules and depende
 ### List Tables in a Project
 
 **Prompt to Claude:**
-```
+```text
 List all tables in the project 'design-insurance-rules'
 ```
 
@@ -245,7 +245,7 @@ List all tables in the project 'design-insurance-rules'
 ### Get Table Details
 
 **Prompt to Claude:**
-```
+```text
 Show me the details of the table 'CalculatePremium' in project 'design-insurance-rules'
 ```
 
@@ -326,7 +326,7 @@ Different table types serve different purposes:
 ### Modify a Table
 
 **Prompt to Claude:**
-```
+```text
 Update the 'CalculatePremium' table in project 'design-insurance-rules' to add a new rule for motorcycles
 ```
 
@@ -341,7 +341,7 @@ Update the 'CalculatePremium' table in project 'design-insurance-rules' to add a
 ### View Project History
 
 **Prompt to Claude:**
-```
+```text
 Show me the version history for project 'insurance-rules' in the 'design' repository
 ```
 
@@ -354,14 +354,14 @@ Show me the version history for project 'insurance-rules' in the 'design' reposi
 ### List Branches
 
 **Prompt to Claude:**
-```
+```text
 What branches exist in the 'design' repository?
 ```
 
 ### Create a New Branch
 
 **Prompt to Claude:**
-```
+```text
 Create a new branch called 'feature/new-premium-logic' for the project 'design-insurance-rules'
 ```
 
@@ -370,7 +370,7 @@ Create a new branch called 'feature/new-premium-logic' for the project 'design-i
 ### List Current Deployments
 
 **Prompt to Claude:**
-```
+```text
 Show me all deployed projects
 ```
 
@@ -383,7 +383,7 @@ Show me all deployed projects
 ### Deploy a Project
 
 **Prompt to Claude:**
-```
+```text
 Deploy the project 'insurance-rules' from the 'design' repository to the 'production' repository
 ```
 
@@ -395,7 +395,7 @@ Deploy the project 'insurance-rules' from the 'design' repository to the 'produc
 ### Deploy Specific Version
 
 **Prompt to Claude:**
-```
+```text
 Deploy version 'v2.3.1' of project 'insurance-rules' to production
 ```
 
@@ -405,7 +405,7 @@ Deploy version 'v2.3.1' of project 'insurance-rules' to production
 
 **Conversation with Claude:**
 
-```
+```text
 User: I need to update the premium calculation for young drivers
 
 Claude: I'll help you with that. First, let me list the projects and find the relevant one.
@@ -435,7 +435,7 @@ Claude: Done! The premium for cars with drivers under 25 is now $1400. The chang
 
 **Conversation with Claude:**
 
-```
+```text
 User: Add a new discount rule for senior drivers over 60 years old
 
 Claude: I'll add that rule. First, let me open the project and locate the appropriate table.
@@ -451,7 +451,7 @@ Claude: The new senior discount rule has been added. Drivers over 60 will now re
 
 **Conversation with Claude:**
 
-```
+```text
 User: What changed in the insurance-rules project over the last week?
 
 Claude: Let me check the version history for that project.
@@ -475,7 +475,7 @@ Would you like to see the details of any specific version?
 
 **Conversation with Claude:**
 
-```
+```text
 User: Deploy the latest insurance-rules to production
 
 Claude: I'll help you deploy to production. Let me first verify the current state.
@@ -502,7 +502,7 @@ Claude: Successfully deployed 'insurance-rules' to production. You can verify th
 
 **Conversation with Claude:**
 
-```
+```text
 User: The premium calculation seems wrong for motorcycles
 
 Claude: Let me investigate. I'll check the relevant rules.
@@ -541,28 +541,28 @@ Claude: Updated! Now the premium for young motorcycle riders is calculated as: b
 ### Working with Complex Datatypes
 
 **Prompt:**
-```
+```text
 Show me the structure of the 'Policy' datatype and create a new field for 'discountPercentage'
 ```
 
 ### Batch Operations
 
 **Prompt:**
-```
+```text
 List all decision tables across all projects that contain the word 'premium' in their name
 ```
 
 ### Cross-Project Analysis
 
 **Prompt:**
-```
+```text
 Compare the 'Vehicle' datatype between the 'auto-insurance' and 'fleet-insurance' projects
 ```
 
 ### Generating Documentation
 
 **Prompt:**
-```
+```text
 Generate documentation for all tables in the 'insurance-rules' project, including their purpose and structure
 ```
 
@@ -570,7 +570,7 @@ Generate documentation for all tables in the 'insurance-rules' project, includin
 
 If you encounter issues, ask Claude to help diagnose:
 
-```
+```text
 Claude, I'm getting an error when trying to update a table. Can you check:
 1. Is the project opened?
 2. Do I have the correct table ID?

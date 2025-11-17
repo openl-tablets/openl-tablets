@@ -4,7 +4,7 @@ This document describes the testing strategy and how to run tests for the OpenL 
 
 ## Test Structure
 
-```
+```text
 tests/
 ├── mocks/
 │   └── openl-api-mocks.ts    # Mock data for API responses

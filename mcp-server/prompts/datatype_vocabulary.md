@@ -24,7 +24,7 @@ Two table types for defining data structures:
 
 ### Datatype Structure (2-column minimum)
 
-```
+```text
 Row 1: Datatype <TypeName> [extends <ParentType>]
 Row 2+: <Type>  <fieldName>  [defaultValue]
 ```
@@ -36,7 +36,7 @@ Row 2+: <Type>  <fieldName>  [defaultValue]
 
 ### Creating Datatype - Basic Example
 
-```
+```text
 Datatype Person
 
 String     firstName
@@ -63,7 +63,7 @@ Address    address
 
 ### Creating Datatype with Inheritance
 
-```
+```text
 Datatype InsuredPerson extends Person
 
 Integer    age
@@ -95,13 +95,13 @@ Double     creditScore
 **Scenario:** Add new field to existing datatype
 
 ### Step 1: Get Current Structure
-```
+```text
 openl_get_table(projectId, tableId="Person_1234")
 → Returns current fields
 ```
 
 ### Step 2: Add New Field
-```
+```text
 openl_update_table(
   projectId,
   tableId="Person_1234",
@@ -179,7 +179,7 @@ After type change: Validate project for type errors.
 
 ### Nested Datatype Example
 
-```
+```text
 Datatype Policy
 
 String          policyNumber
@@ -217,8 +217,8 @@ Coverage[]      coverages
 
 ### Vocabulary Structure
 
-```
-Row 1: Datatype <VocabName> <BaseType>
+```text
+Row 1: Vocabulary <VocabName> <BaseType>
 Row 2+: value
 ```
 
@@ -226,7 +226,7 @@ Row 2+: value
 
 ### Creating Vocabulary - String-Based
 
-```
+```text
 Datatype Gender <String>
 
 Male
@@ -252,7 +252,7 @@ Unknown
 
 ### Creating Vocabulary - Integer-Based
 
-```
+```text
 Datatype Priority <Integer>
 
 1
@@ -283,13 +283,13 @@ Datatype Priority <Integer>
 **Scenario:** Add new allowed value to vocabulary
 
 ### Step 1: Get Current Values
-```
+```text
 openl_get_table(projectId, tableId="Gender_1234")
 → Returns current values
 ```
 
 ### Step 2: Add New Value
-```
+```text
 openl_update_table(
   projectId,
   tableId="Gender_1234",
@@ -355,7 +355,7 @@ Better approach: Add new values, update rules, then remove old values.
 
 ### Using Vocabularies in Datatypes
 
-```
+```text
 Datatype Person
 
 String     name
@@ -368,7 +368,7 @@ OpenL validates all Gender/Priority values against vocabulary.
 ### Vocabulary Examples
 
 #### PolicyStatus
-```
+```text
 Datatype PolicyStatus <String>
 
 Active
@@ -379,7 +379,7 @@ Suspended
 ```
 
 #### RiskLevel
-```
+```text
 Datatype RiskLevel <String>
 
 Low
@@ -389,7 +389,7 @@ Critical
 ```
 
 #### USStates (Abbreviated)
-```
+```text
 Datatype USState <String>
 
 AL
@@ -404,7 +404,7 @@ CA
 
 ### Creating Datatype/Vocabulary
 
-```
+```text
 1. openl_create_rule(tableType="Datatype", name=..., parameters=...)
 2. openl_validate_project() → Check for compilation errors
 3. openl_update_project_status() → Persist changes
@@ -412,7 +412,7 @@ CA
 
 ### Updating Datatype/Vocabulary
 
-```
+```text
 1. openl_get_table(tableId=...) → Get current structure
 2. openl_update_table(tableId=..., view={...}) → Add fields/values
 3. openl_validate_project() → Check for errors
@@ -423,33 +423,33 @@ CA
 ## Common Mistakes
 
 ❌ **Wrong:** Vocabulary without angle brackets
-```
+```text
 Datatype Gender String  // WRONG - Missing < >
 ```
 
 ✅ **Correct:** Vocabulary with angle brackets
-```
+```text
 Datatype Gender <String>  // CORRECT
 ```
 
 ❌ **Wrong:** Datatype with angle brackets
-```
+```text
 Datatype Person <String>  // WRONG - This is vocabulary syntax
 ```
 
 ✅ **Correct:** Datatype without angle brackets
-```
+```text
 Datatype Person  // CORRECT
 ```
 
 ❌ **Wrong:** Changing field order (breaks constructor)
-```
+```text
 Original: name, age, gender
 Changed:  age, name, gender  // Constructor order changed
 ```
 
 ✅ **Correct:** Add new fields at end
-```
+```text
 Original: name, age, gender
 Changed:  name, age, gender, email  // Added at end
 ```
