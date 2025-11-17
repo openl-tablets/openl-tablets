@@ -41,7 +41,7 @@ cd STUDIO/org.openl.rules.webstudio
 mvn jetty:run
 ```
 
-**Access OpenL Studio**: Open http://localhost:8080 in your browser
+**Access OpenL Studio**: Open [http://localhost:8080](http://localhost:8080) in your browser
 
 ### Daily Development Commands
 
@@ -205,7 +205,7 @@ Using Docker:
 docker compose up
 ```
 
-Then open http://localhost in your browser.
+Then open [http://localhost](http://localhost) in your browser.
 
 ### Project Structure
 
@@ -281,7 +281,7 @@ mvn test -DnoDocker
 
 We follow conventional commit message format:
 
-```
+```text
 <type>(<scope>): <subject>
 
 <body>
@@ -302,7 +302,7 @@ We follow conventional commit message format:
 
 ### Examples
 
-```
+```text
 feat(studio): add support for Excel table validation
 
 Implement new validation rules for Excel tables including
@@ -311,7 +311,7 @@ type checking and constraint validation.
 Closes #123
 ```
 
-```
+```text
 fix(ruleservice): resolve memory leak in cache implementation
 
 The cache was not properly releasing references to compiled

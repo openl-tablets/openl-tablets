@@ -70,7 +70,7 @@ The STUDIO module provides the **Web-based IDE and management tools** for OpenL 
 
 ## Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Web Browsers                         │
 └────────────────┬───────────────────┬────────────────────┘
@@ -133,7 +133,7 @@ The STUDIO module provides the **Web-based IDE and management tools** for OpenL 
 ### Java/Spring Boot
 
 #### Package Structure
-```
+```text
 org.openl.rules.webstudio/
 ├── controller/           # REST controllers
 ├── service/              # Business logic
@@ -265,7 +265,7 @@ public interface RepositoryFactory {
 
 #### Security Architecture
 
-```
+```text
 ┌──────────────────────────────────────────┐
 │      Spring Security Filter Chain       │
 ├──────────────────────────────────────────┤
@@ -320,7 +320,7 @@ public class ProjectPermissionEvaluator implements PermissionEvaluator {
 Automatically generates OpenAPI 3.0 specifications from OpenL rule projects.
 
 #### How It Works
-```
+```text
 Rule Methods → Type Analysis → OpenAPI Schema → Swagger UI
 ```
 
@@ -349,7 +349,7 @@ openapi:
 ### 4. Workspace Management (`org.openl.rules.workspace`)
 
 #### Workspace Architecture
-```
+```text
 User → UserWorkspace → DesignTimeRepository → LocalWorkspace
                      → ProductionRepository
 ```

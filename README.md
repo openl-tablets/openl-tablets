@@ -48,7 +48,7 @@ OpenL Tablets is an open-source **Business Rules Management System (BRMS)** that
 
 ## How It Works
 
-```
+```text
 Rules in Excel → OpenL Tablets → Production REST API
 ```
 

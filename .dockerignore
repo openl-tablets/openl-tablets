@@ -61,7 +61,6 @@ azure-pipelines.yml
 *.swp
 *.swo
 *~
-.DS_Store
 Thumbs.db
 
 # Configuration (local)

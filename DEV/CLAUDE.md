@@ -47,7 +47,7 @@ The `org.openl.rules` module is the heart of OpenL. Changes here must be:
 
 ### Architecture Layers
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Runtime & Execution                │  🔴 CRITICAL
 │  (SimpleRulesVM, Proxies)           │
@@ -434,7 +434,7 @@ public class MyInstantiationStrategy implements RulesInstantiationStrategy {
 ### Unit Tests
 
 **Structure**:
-```
+```text
 test/
 ├── org/openl/types/           # Type system tests
 ├── org/openl/binding/         # Binding tests
@@ -465,7 +465,7 @@ class IOpenClassTest {
 **Location**: `/test-resources/`
 
 **Structure**:
-```
+```text
 test-resources/
 ├── functionality/
 │   ├── algorithms/
@@ -684,9 +684,9 @@ If you discover:
 
 ### External Resources
 
-- **ASM Guide**: https://asm.ow2.io/asm4-guide.pdf
-- **JavaCC Tutorial**: https://javacc.github.io/javacc/
-- **JVM Specification**: https://docs.oracle.com/javase/specs/jvms/se21/html/
+- **ASM Guide**: [https://asm.ow2.io/asm4-guide.pdf](https://asm.ow2.io/asm4-guide.pdf)
+- **JavaCC Tutorial**: [https://javacc.github.io/javacc/](https://javacc.github.io/javacc/)
+- **JVM Specification**: [https://docs.oracle.com/javase/specs/jvms/se21/html/](https://docs.oracle.com/javase/specs/jvms/se21/html/)
 
 ---
 
