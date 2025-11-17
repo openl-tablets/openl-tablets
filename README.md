@@ -247,7 +247,7 @@ OpenL Tablets is open source under the **[GNU Lesser General Public License (LGP
   <strong>Transform your business rules from spreadsheets to APIs in minutes.</strong><br>
   <a href="https://openl-tablets.org/downloads">Download OpenL Tablets</a> •
   <a href="Docs/user-guides/installation/">Get Started</a> •
-  <a href="https://openl-tablets.org/demo">Try Demo</a>
+  <a href="https://demo.openl-tablets.org/">Try Demo</a>
 </p>
 
 <p align="center">
