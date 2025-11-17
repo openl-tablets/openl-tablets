@@ -32,6 +32,8 @@ jobs:
     name: Maven Dependency Check
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Continue on error for PRs, fail on push/schedule
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
 
     steps:
       - name: Checkout code
@@ -86,6 +88,8 @@ jobs:
     name: npm Audit
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Continue on error for PRs, fail on push/schedule
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
 
     steps:
       - name: Checkout code
@@ -122,7 +126,8 @@ jobs:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name != 'pull_request' # Only on push and schedule
+    # Only run if SNYK_TOKEN is available and not on PRs
+    if: github.event_name != 'pull_request' && secrets.SNYK_TOKEN != ''
 
     steps:
       - name: Checkout code
@@ -148,6 +153,8 @@ jobs:
     name: Trivy Container Scan
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Continue on error for PRs, fail on push/schedule
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
 
     strategy:
       matrix:

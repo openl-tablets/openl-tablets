@@ -12,44 +12,60 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate PR title format
-        uses: amannn/action-semantic-pull-request@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: validate_title
+        uses: actions/github-script@v7
         with:
-          # Support both Conventional Commits and EPBDS-XXX Jira format
-          types: |
-            feat
-            fix
-            docs
-            style
-            refactor
-            perf
-            test
-            chore
-            ci
-            build
-            security
-            EPBDS-\d+
-          scopes: |
-            DEV
-            STUDIO
-            WSFrontend
-            Util
-            ITEST
-            DEMO
-          requireScope: false
-          subjectPattern: ^.{1,100}$
-          validateSingleCommit: false
-          ignoreLabels: |
-            bot
-            dependencies
-            skip-validation
+          script: |
+            const title = context.payload.pull_request.title;
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            // Skip validation for certain labels
+            const skipLabels = ['bot', 'dependencies', 'skip-validation'];
+            const hasSkipLabel = labels.some(label => skipLabels.includes(label));
+
+            if (hasSkipLabel) {
+              core.info('⏭️  Skipping PR title validation due to label: ' + labels.join(', '));
+              return true;
+            }
+
+            // Pattern 1: EPBDS-XXXX format (Jira)
+            const jiraPattern = /^EPBDS-\d+\s+.+$/;
+
+            // Pattern 2: Conventional Commits format
+            const conventionalPattern = /^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|security)(\(DEV|STUDIO|WSFrontend|Util|ITEST|DEMO\))?:\s+.+$/;
+
+            const isValid = jiraPattern.test(title) || conventionalPattern.test(title);
+
+            if (!isValid) {
+              core.setFailed('PR title does not match required format');
+              return false;
+            }
+
+            core.info('✅ PR title validation passed');
+            return true;
 
       - name: Comment on PR (on failure)
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
+            // Check if PR has skip labels
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const skipLabels = ['bot', 'dependencies', 'skip-validation'];
+            const hasSkipLabel = pr.data.labels.some(label =>
+              skipLabels.includes(label.name)
+            );
+
+            if (hasSkipLabel) {
+              core.info('Skipping PR title validation due to label');
+              return;
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -58,26 +74,29 @@ jobs:
 
             Your PR title doesn't follow the required format.
 
+            **Current title:** "${context.payload.pull_request.title}"
+
             ### Supported Formats:
 
-            **1️⃣ GitLab/Jira Format:**
+            **1️⃣ Jira/EPBDS Format:**
             \`\`\`
             EPBDS-1234 Add dark mode toggle to settings
             EPBDS-5678 Fix memory leak in rule parser
             \`\`\`
 
-            **2️⃣ GitHub Conventional Commits:**
+            **2️⃣ Conventional Commits Format:**
             \`\`\`
-            feat(STUDIO): add dark mode toggle
+            feat: add dark mode toggle
+            feat(STUDIO): add dark mode toggle to settings
             fix(DEV): resolve memory leak in parser
             docs: update README with quick start
             \`\`\`
 
-            Valid types: \`feat\`, \`fix\`, \`docs\`, \`style\`, \`refactor\`, \`perf\`, \`test\`, \`chore\`, \`ci\`, \`build\`, \`security\`
+            **Valid types:** \`feat\`, \`fix\`, \`docs\`, \`style\`, \`refactor\`, \`perf\`, \`test\`, \`chore\`, \`ci\`, \`build\`, \`security\`
 
-            Valid scopes (optional): \`DEV\`, \`STUDIO\`, \`WSFrontend\`, \`Util\`, \`ITEST\`, \`DEMO\`
+            **Valid scopes (optional):** \`DEV\`, \`STUDIO\`, \`WSFrontend\`, \`Util\`, \`ITEST\`, \`DEMO\`
 
-            Please update your PR title to match one of these formats.
+            ---
 
-            To skip validation, add the \`skip-validation\` label to this PR.`
+            💡 **To skip validation:** Add the \`skip-validation\` label to this PR.`
             })
