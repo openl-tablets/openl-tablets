@@ -29,7 +29,7 @@ Rules <ReturnType> ruleName(<ParamType1> param1, <ParamType2> param2, ...)
 ```
 
 **Excel Structure** (5+ rows):
-```
+```text
 Row 1: Rules int calculatePremium(String driverType, int age)
 Row 2: C1         C2      A1           RET1
 Row 3: Driver     Age     Risk Factor  Premium
@@ -73,7 +73,7 @@ SimpleRules <ReturnType> ruleName(<ParamType1> param1, <ParamType2> param2, ...)
 ```
 
 **Excel Structure:**
-```
+```text
 Row 1: SimpleRules double calculateDiscount(String tier, double amount)
 Row 2: Tier     Amount     Discount
 Row 3: "GOLD"   >= 1000    0.15
@@ -119,7 +119,7 @@ SmartRules <ReturnType> ruleName(<ParamType1> param1, <ParamType2> param2, ...)
 ```
 
 **Excel Structure:**
-```
+```text
 Row 1: SmartRules boolean validatePolicy(Policy policy, Driver driver)
 Row 2: Driver Age    Policy Type    Valid
 Row 3: >= 25         "STANDARD"     true
@@ -163,7 +163,7 @@ SimpleLookup <ReturnType> ruleName(<ParamType1> param1, <ParamType2> param2, ...
 ```
 
 **Excel Structure** (Combines vertical and horizontal conditions):
-```
+```text
                 HC1: Age Range         HC2: Age Range
                 18-25                  26-35                  36+
 Risk Level
@@ -206,7 +206,7 @@ SmartLookup <ReturnType> ruleName(<ParamType1> param1, <ParamType2> param2, ...)
 ```
 
 **Excel Structure:**
-```
+```text
                 Income: 0-50K    Income: 50-100K    Income: 100K+
 State
 CA              0.05             0.08               0.10
@@ -250,7 +250,7 @@ Spreadsheet <ReturnType> spreadsheetName(<ParamType1> param1, ...)
 ```
 
 **Excel Structure:**
-```
+```text
        | A          | B        | Premium
 -------+------------+----------+---------
 Step1  | baseAmount | 1000     | $A
@@ -334,5 +334,5 @@ Result |            |          | $Premium$Step3
 
 ## Example Workflow
 
-```
+```text
 User: "I want to calculate insurance premiums based on driver type and age"

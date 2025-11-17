@@ -36,7 +36,7 @@ This document outlines all the best practices implemented in the OpenL Tablets M
 
 ### File Structure ✓
 
-```
+```text
 mcp-server/
 ├── src/               # Source code (TypeScript)
 ├── dist/              # Compiled output (JavaScript)
@@ -218,7 +218,7 @@ npm run test:coverage # With coverage
 
 ### Code Metrics ✓
 
-```
+```text
 Module           Lines   Complexity
 --------------------------------
 index.ts         424     Moderate

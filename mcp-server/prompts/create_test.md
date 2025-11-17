@@ -42,7 +42,7 @@ Since you're testing a **{tableType}** table, pay attention to:
 
 OpenL Test tables have this exact structure:
 
-```
+```text
 Row 1: Test <methodName> <testTableName>
 Row 2: param1    param2    ...    _res_    [_error_]    [_context_.*]    [_description_]
 Row 3: Display1  Display2  ...    Result   [Error Msg]  [Context]        [Description]
@@ -83,7 +83,7 @@ Test table parameter columns MUST match rule signature EXACTLY:
 - **Name should match** (for clarity)
 
 **Example:**
-```
+```text
 Rule: Rules double calculatePremium(String driverType, int age)
 
 Test columns: driverType (String), age (int), _res_ (double)
@@ -92,13 +92,13 @@ Test columns: driverType (String), age (int), _res_ (double)
 ### STEP 3: Select Expected Outcome Column
 
 **IF testing success scenarios:**
-```
+```text
 Add _res_ column with expected return values
 Type: Must match method returnType
 ```
 
 **IF testing error scenarios:**
-```
+```text
 Add _error_ column with expected exception messages
 Type: String (error message text)
 ```
@@ -108,14 +108,14 @@ Type: String (error message text)
 ### STEP 4: Add Optional Columns (If Needed)
 
 **Context columns** (for runtime environment):
-```
+```text
 _context_.userId       → Runtime user ID
 _context_.currentDate  → Runtime date context
 _context_.locale       → Runtime locale setting
 ```
 
 **Description column** (for documentation):
-```
+```text
 _description_ → Human-readable test case name
 ```
 
@@ -123,7 +123,7 @@ _description_ → Human-readable test case name
 
 ### 1. Simple Type Test (Primitives)
 
-```
+```text
 Test calculatePremium calculatePremiumTest
 
 driverType    age    _res_
@@ -148,7 +148,7 @@ Driver Type   Age    Premium
 
 ### 2. Complex Datatype Test (OpenL Datatypes)
 
-```
+```text
 Test processPolicy processPolicyTest
 
 policy.type    policy.state    policy.premium    _res_
@@ -161,7 +161,7 @@ Policy Type    State          Premium           Tax
 
 ### 3. Error Testing (Exception Validation)
 
-```
+```text
 Test validateAge validateAgeTest
 
 age    _error_
@@ -185,7 +185,7 @@ null   "Age is required"
 
 ### 4. Context Testing (Runtime Context)
 
-```
+```text
 Test applyDiscount applyDiscountTest
 
 amount    _context_.userLevel    _description_           _res_
@@ -199,7 +199,7 @@ Amount    User Level             Test Description        Discount
 
 **For array parameters, use Data table reference:**
 
-```
+```text
 Test calculateTotalPremium calculateTotalPremiumTest
 
 drivers    _res_
@@ -211,7 +211,7 @@ Drivers    Total Premium
 
 ### 6. SpreadsheetResult Testing
 
-```
+```text
 Test calculateBreakdown calculateBreakdownTest
 
 baseAmount    riskLevel    _res_.Premium    _res_.Tax
@@ -248,12 +248,12 @@ Use the existing `create_rule` tool with `tableType="Test"`:
 ### BEFORE Creating Test
 
 1. Find rule to test:
-```
+```text
 openl_list_tables(projectId, tableType="Rules")
 ```
 
 2. Get rule signature:
-```
+```text
 openl_get_table(projectId, tableId="calculatePremium_1234")
 → Returns: { signature: { name, parameters, returnType } }
 ```
@@ -269,7 +269,7 @@ testParameters = [
 ```
 
 4. Create test table:
-```
+```text
 openl_create_rule(
   projectId,
   name: ruleName + "Test",
@@ -281,7 +281,7 @@ openl_create_rule(
 ### AFTER Creating Test
 
 5. Add test cases:
-```
+```text
 openl_update_table(
   projectId,
   tableId: testTableId,
@@ -293,48 +293,48 @@ openl_update_table(
 ```
 
 6. Run tests to verify:
-```
+```text
 openl_test_project(projectId, tableIds: [ruleTableId])
 → Should show all tests passing
 ```
 
 7. Save project:
-```
+```text
 openl_update_project_status(projectId, comment: "Added tests for calculatePremium")
 ```
 
 ## Common Mistakes to Avoid
 
 ❌ **Wrong:** Mismatch parameter order
-```
+```text
 Rule: calculatePremium(String type, int age)
 Test: age, type, _res_  // WRONG ORDER
 ```
 
 ✅ **Correct:** Match exact parameter order
-```
+```text
 Test: type, age, _res_  // MATCHES RULE
 ```
 
 ❌ **Wrong:** Both _res_ and _error_ in same table
-```
+```text
 Test: param1, _res_, _error_  // AMBIGUOUS
 ```
 
 ✅ **Correct:** Separate test tables
-```
+```text
 SuccessTest: param1, _res_
 ErrorTest: param1, _error_
 ```
 
 ❌ **Wrong:** Type mismatch
-```
+```text
 Rule returns: double
 Test _res_: int  // TYPE MISMATCH
 ```
 
 ✅ **Correct:** Exact type match
-```
+```text
 Rule returns: double
 Test _res_: double  // MATCHES
 ```
