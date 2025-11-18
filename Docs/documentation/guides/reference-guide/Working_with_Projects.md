@@ -1,6 +1,6 @@
 ## Working with Projects
 
-This chapter describes creating an OpenL Tablets project. For more information on projects, see [Projects](introduction/Introducing_OpenL_Tablets.md#projects).
+This chapter describes creating an OpenL Tablets project. For more information on projects, see [Projects](introduction/basic-concepts.md#projects).
 
 The following topics are included in this chapter:
 
