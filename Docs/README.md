@@ -32,7 +32,7 @@ Welcome to the comprehensive documentation for OpenL Tablets Business Rules Mana
 
 - **Main Repository**: [openl-tablets/openl-tablets](https://github.com/openl-tablets/openl-tablets)
 - **Website**: [openl-tablets.org](https://openl-tablets.org)
-- **License**: Apache License 2.0
+- **License**: LGPL-3.0-or-later
 
 ## 📖 About OpenL Tablets
 

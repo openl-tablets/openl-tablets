@@ -9,7 +9,7 @@ assignees: ''
 
 ## Documentation Issue
 
-**Which documentation is affected?**
+### Which documentation is affected?
 - [ ] README.md
 - [ ] User guides (Docs/)
 - [ ] Developer guide
@@ -19,13 +19,13 @@ assignees: ''
 - [ ] Website (openl-tablets.org)
 - [ ] Other (please specify):
 
-**Link to the documentation (if applicable):**
+### Link to the documentation (if applicable):
 
 [Provide URL or file path]
 
 ## Problem Description
 
-**What's wrong with the current documentation?**
+### What's wrong with the current documentation?
 
 A clear description of the issue:
 - Is information missing?
@@ -36,7 +36,7 @@ A clear description of the issue:
 
 ## Suggested Improvement
 
-**How should it be improved?**
+### How should it be improved?
 
 Describe what changes would make the documentation better:
 - What information should be added?
@@ -54,7 +54,7 @@ If you have specific content to suggest, please provide it here:
 
 ## Context
 
-**Why is this documentation important?**
+### Why is this documentation important?
 
 - Who needs this information?
 - What problems does this solve?
@@ -62,7 +62,7 @@ If you have specific content to suggest, please provide it here:
 
 ## Examples
 
-**Can you provide examples?**
+### Can you provide examples?
 
 - Screenshots of confusing documentation
 - Examples from other projects that do it well

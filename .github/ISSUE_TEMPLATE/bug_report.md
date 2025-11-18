@@ -46,22 +46,22 @@ If applicable, add screenshots to help explain your problem.
 
 ## Environment
 
-**OpenL Tablets Version:**
+### OpenL Tablets Version:
 - [ ] 6.0.x
 - [ ] 5.x.x
 - [ ] Other (please specify):
 
-**Deployment Type:**
+### Deployment Type:
 - [ ] Docker
 - [ ] Standalone WAR
 - [ ] Embedded in application
 - [ ] Other (please specify):
 
-**Application Server:** (if applicable)
+### Application Server: (if applicable)
 - Application server: [e.g., Tomcat, Jetty, WebLogic]
 - Version: [e.g., 10.1.x]
 
-**Environment Details:**
+### Environment Details:
 - OS: [e.g., Windows 10, Ubuntu 22.04, macOS 13]
 - Java Version: [e.g., OpenJDK 21]
 - Browser (if UI issue): [e.g., Chrome 120, Firefox 115]

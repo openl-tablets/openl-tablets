@@ -222,7 +222,7 @@ We welcome contributions! OpenL Tablets is built by a global community of develo
 
 ## License
 
-OpenL Tablets is open source under the **[GNU Lesser General Public License (LGPL)](LICENSE)**.
+OpenL Tablets is open source under the **[GNU Lesser General Public License (LGPL)](LICENSE.md)**.
 
 **Commercial support and consulting available** through our partners.
 
