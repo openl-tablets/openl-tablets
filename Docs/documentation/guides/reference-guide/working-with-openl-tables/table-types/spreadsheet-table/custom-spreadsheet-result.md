@@ -47,7 +47,7 @@ The combined SpreadsheetResult type is used when the rules table returns differe
 -   A rule returns SpreadsheetResult.
 -   Different spreadsheets are called in a ternary operation.
     
-    For more information on ternary operations, see [Ternary Operator](../../../OpenL_Tablets_Functions_and_Supported_Data_Types.md#ternary-operator).
+    For more information on ternary operations, see [Ternary Operator](../../../openl_tablets_functions_and_supported_data_types/working-with-functions.md#ternary-operator).
     
 -   The array of SpreadsheetResult is created by united spreadsheet cells (\$Step1:\$Step10).
 

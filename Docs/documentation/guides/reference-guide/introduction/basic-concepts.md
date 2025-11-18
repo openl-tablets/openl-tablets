@@ -24,6 +24,6 @@ Different types of tables serve different purposes. For more information on tabl
 
 #### Projects
 
-An **OpenL Tablets project** is a container of all resources required for processing rule related information. Usually, a project contains Excel files, which are called **modules** of the project, and optionally Java code, library dependencies, and other components. For more information on projects, see [Working with Projects](../Working_with_Projects.md#working-with-projects).
+An **OpenL Tablets project** is a container of all resources required for processing rule related information. Usually, a project contains Excel files, which are called **modules** of the project, and optionally Java code, library dependencies, and other components. For more information on projects, see [Project Structure](../working_with_projects/project-structure.md#project-structure).
 
 There can be situations where OpenL Tablets projects are used in the development environment but not in production, depending on the technical aspects of a solution.
