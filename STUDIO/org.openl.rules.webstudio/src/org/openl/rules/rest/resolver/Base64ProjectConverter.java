@@ -3,6 +3,7 @@ package org.openl.rules.rest.resolver;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +45,7 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
     }
 
     @Override
+    @Nonnull
     public RulesProject convert(String projectId) {
         var project = resolveProjectIdentity(projectId);
         if (project == null) {

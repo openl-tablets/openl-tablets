@@ -1,0 +1,72 @@
+package org.openl.studio.mcp.config;
+
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.common.McpTransportContext;
+import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
+import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpStatelessSyncServer;
+import io.modelcontextprotocol.server.transport.WebMvcStatelessServerTransport;
+import io.modelcontextprotocol.spec.McpSchema;
+import org.springframework.ai.mcp.annotation.spring.SyncMcpAnnotationProviders;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerResponse;
+
+import org.openl.info.OpenLVersion;
+import org.openl.studio.mcp.McpController;
+
+@Configuration
+public class McpServerConfig {
+
+    @Bean
+    public WebMvcStatelessServerTransport webMvcStatelessServerTransport(ObjectMapper objectMapper) {
+        return WebMvcStatelessServerTransport.builder()
+                .jsonMapper(new JacksonMcpJsonMapper(objectMapper))
+                .messageEndpoint("/mcp")
+                .contextExtractor(request -> {
+                    return McpTransportContext.EMPTY;
+                })
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> webMvcStatelessServerRouterFunction(WebMvcStatelessServerTransport webMvcProvider) {
+        return webMvcProvider.getRouterFunction();
+    }
+
+    @Bean
+    public McpSchema.ServerCapabilities.Builder capabilitiesBuilder() {
+        return McpSchema.ServerCapabilities.builder();
+    }
+
+    @Bean
+    public McpStatelessSyncServer mcpSyncServer(WebMvcStatelessServerTransport transportProvider,
+                                                McpSchema.ServerCapabilities.Builder capabilitiesBuilder,
+                                                ApplicationContext applicationContext,
+                                                Environment environment) {
+        McpSchema.Implementation serverInfo = new McpSchema.Implementation("mcp-openl-studio-server", OpenLVersion.getVersion());
+
+        var serverBuilder = McpServer.sync(transportProvider);
+        serverBuilder.serverInfo(serverInfo);
+
+        // configure mcp tools
+        capabilitiesBuilder.tools(true);
+        List<Object> beansByAnnotation = applicationContext.getBeansWithAnnotation(McpController.class).values().stream().toList();
+        if (!CollectionUtils.isEmpty(beansByAnnotation)) {
+            serverBuilder.tools(SyncMcpAnnotationProviders.statelessToolSpecifications(beansByAnnotation));
+        }
+
+        serverBuilder.capabilities(capabilitiesBuilder.build());
+        // It's necessary to share security context between HTTP request and MCP tool execution
+        serverBuilder.immediateExecution(true);
+
+        return serverBuilder.build();
+    }
+
+}

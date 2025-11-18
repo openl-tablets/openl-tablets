@@ -1,35 +1,25 @@
-package org.openl.rules.rest;
+package org.openl.rules.webstudio.repositories.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
 import org.openl.rules.rest.model.RepositoryViewModel;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.security.acl.repository.AclRepositoryType;
 
-@RestController
-@RequestMapping(value = "/production-repos", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Production Repository")
-public class ProductionRepositoryController {
+@Service
+public class ProductionRepositoryServiceImpl implements ProductionRepositoryService {
 
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
 
-    public ProductionRepositoryController(SecureDeploymentRepositoryService deploymentRepositoryService) {
+    public ProductionRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService) {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
-    @GetMapping
-    @Operation(summary = "Get a list of Production Repositories", description = "Get a list of configured Production Repositories.")
-    @ApiResponse(responseCode = "200", description = "List the configured Production Repositories.")
+    @Override
     public List<RepositoryViewModel> getRepositoryList() {
         return deploymentRepositoryService.getRepositories()
                 .stream()

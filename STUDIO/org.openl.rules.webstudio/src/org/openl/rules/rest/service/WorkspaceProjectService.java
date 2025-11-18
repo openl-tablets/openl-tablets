@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,6 +68,8 @@ import org.openl.rules.rest.service.tables.write.SmartRulesWriter;
 import org.openl.rules.rest.service.tables.write.SpreadsheetTableWriter;
 import org.openl.rules.rest.service.tables.write.TableWriter;
 import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
+import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.rest.validation.NewBranchValidator;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -98,18 +101,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
     private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
+    private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
+    private final BeanValidationProvider validationProvider;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
             ProjectStateValidator projectStateValidator,
             ProjectDependencyResolver projectDependencyResolver,
             SummaryTableReader summaryTableReader,
-            List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers) {
+            List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers,
+            Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
+            BeanValidationProvider validationProvider) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
         this.readers = readers;
+        this.newBranchValidatorFactory = newBranchValidatorFactory;
+        this.validationProvider = validationProvider;
     }
 
     @Lookup
@@ -394,6 +403,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var repository = (BranchRepository) project.getDesignRepository();
+        var validator = newBranchValidatorFactory.apply(repository);
+        validationProvider.validate(model.getBranch(), validator);
         try {
             repository.createBranch(project.getDesignFolderName(), model.getBranch(), model.getRevision());
         } catch (IOException e) {

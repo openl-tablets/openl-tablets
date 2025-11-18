@@ -1,4 +1,4 @@
-package org.openl.rules.rest;
+package org.openl.rules.webstudio.repositories.rest.controller;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -46,9 +45,9 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.acl.model.AclRepositoryId;
+import org.openl.rules.rest.SecurityException;
+import org.openl.rules.rest.ZipProjectSaveStrategy;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
@@ -67,9 +66,9 @@ import org.openl.rules.rest.service.RepositoryProjectService;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
+import org.openl.rules.webstudio.repositories.service.DesignTimeRepositoryService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclRole;
-import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.util.FileUtils;
@@ -90,6 +89,7 @@ public class DesignTimeRepositoryController {
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryProjectService projectService;
     private final AclProjectsHelper aclProjectsHelper;
+    private final DesignTimeRepositoryService designTimeRepositoryService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -99,7 +99,8 @@ public class DesignTimeRepositoryController {
                                           ZipArchiveValidator zipArchiveValidator,
                                           ZipProjectSaveStrategy zipProjectSaveStrategy,
                                           @Value("${openl.home.shared}") String homeDirectory,
-                                          RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper) {
+                                          RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper,
+                                          DesignTimeRepositoryService designTimeRepositoryService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -109,6 +110,7 @@ public class DesignTimeRepositoryController {
         this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
         this.projectService = projectService;
         this.aclProjectsHelper = aclProjectsHelper;
+        this.designTimeRepositoryService = designTimeRepositoryService;
     }
 
     @Lookup
@@ -124,26 +126,14 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
-        var supports = repository.supports();
-        return new RepositoryFeatures(supports.branches(), supports.searchable());
+        return designTimeRepositoryService.getFeatures(repository);
     }
 
     @GetMapping
     @Operation(summary = "repos.get-repository-list.summary", description = "repos.get-repository-list.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
     public List<RepositoryViewModel> getRepositoryList() {
-        return designTimeRepository.getRepositories()
-                .stream()
-                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(BasePermission.READ)))
-                .map(repo -> RepositoryViewModel.builder()
-                        .id(repo.getId())
-                        .name(repo.getName())
-                        .aclId(AclRepositoryId.builder()
-                                .id(repo.getId())
-                                .type(AclRepositoryType.DESIGN)
-                                .build())
-                        .build())
-                .collect(Collectors.toList());
+        return designTimeRepositoryService.getRepositoryList();
     }
 
     @GetMapping("/{repo-name}/projects")
@@ -160,15 +150,7 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")
     @GetMapping("/{repo-name}/branches")
     public List<String> listBranches(@DesignRepository("repo-name") Repository repository) throws IOException {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
-            throw new SecurityException();
-        }
-        if (!repository.supports().branches()) {
-            throw new ConflictException("repository.branch.unsupported.message");
-        }
-        var branches = ((BranchRepository) repository).getBranches(null);
-        branches.sort(String.CASE_INSENSITIVE_ORDER);
-        return branches;
+        return designTimeRepositoryService.getBranches(repository);
     }
 
     @GetMapping({"/{repo-name}/projects/{project-name}/history",

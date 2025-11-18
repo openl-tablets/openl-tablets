@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -48,7 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateBranchModel;
@@ -57,15 +55,13 @@ import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.rest.model.tables.AppendTableView;
 import org.openl.rules.rest.model.tables.EditableTableView;
 import org.openl.rules.rest.model.tables.SummaryTableView;
-import org.openl.rules.rest.service.ProjectCriteriaQuery;
-import org.openl.rules.rest.service.ProjectTableCriteriaQuery;
 import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
-import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.rest.validation.NewBranchValidator;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.rules.webstudio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.rules.webstudio.projects.tests.executor.ExecutionTestsResultRegistry;
 import org.openl.rules.webstudio.projects.tests.executor.TestExecutionStatus;
 import org.openl.rules.webstudio.projects.tests.executor.TestsExecutorService;
@@ -88,28 +84,25 @@ public class ProjectsController {
 
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-    private static final String TAGS_PREFIX = "tags.";
-    private static final String PROPERTIES_PREFIX = "properties.";
-
     private final WorkspaceProjectService projectService;
-    private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
-    private final BeanValidationProvider validationProvider;
     private final TestsExecutorService testsExecutorService;
+    private final ProjectCriteriaQueryFactory projectCriteriaQueryFactory;
+    private final ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory;
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final Environment environment;
 
     public ProjectsController(WorkspaceProjectService projectService,
-                              Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
-                              BeanValidationProvider validationProvider,
                               TestsExecutorService testsExecutorService,
+                              ProjectCriteriaQueryFactory projectCriteriaQueryFactory,
+                              ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory,
                               ExecutionTestsResultRegistry executionTestsResultRegistry,
                               SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory,
                               Environment environment) {
         this.projectService = projectService;
-        this.newBranchValidatorFactory = newBranchValidatorFactory;
-        this.validationProvider = validationProvider;
         this.testsExecutorService = testsExecutorService;
+        this.projectCriteriaQueryFactory = projectCriteriaQueryFactory;
+        this.projectTableCriteriaQueryFactory = projectTableCriteriaQueryFactory;
         this.executionTestsResultRegistry = executionTestsResultRegistry;
         this.socketProjectAllTestsExecutionProgressListenerFactory = socketProjectAllTestsExecutionProgressListenerFactory;
         this.environment = environment;
@@ -135,19 +128,8 @@ public class ProjectsController {
     public List<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
                                               @RequestParam(value = "status", required = false) ProjectStatus status,
                                               @RequestParam(value = "repository", required = false) String repository) {
-
-        var queryBuilder = ProjectCriteriaQuery.builder().repositoryId(repository).status(status);
-
-        params.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().startsWith(TAGS_PREFIX))
-                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
-                .forEach(entry -> {
-                    var tag = entry.getKey().substring(TAGS_PREFIX.length());
-                    queryBuilder.tag(tag, entry.getValue());
-                });
-
-        return projectService.getProjects(queryBuilder.build());
+        var query = projectCriteriaQueryFactory.build(params, status, repository);
+        return projectService.getProjects(query);
     }
 
     @Hidden
@@ -179,12 +161,6 @@ public class ProjectsController {
     @Operation(summary = "Create branch (BETA)")
     public void createBranch(@ProjectId @PathVariable("projectId") RulesProject project,
                              @RequestBody CreateBranchModel request) {
-        var repository = project.getDesignRepository();
-        if (!project.isSupportsBranches()) {
-            throw new ConflictException("project.branch.unsupported.message");
-        }
-        var validator = newBranchValidatorFactory.apply((BranchRepository) repository);
-        validationProvider.validate(request.getBranch(), validator);
         try {
             projectService.createBranch(project, request);
             getWebStudio().reset();
@@ -203,18 +179,8 @@ public class ProjectsController {
                                                   @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                   @RequestParam(value = "name", required = false) String name) {
 
-        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
-
-        params.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
-                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
-                .forEach(entry -> {
-                    var tag = entry.getKey().substring(PROPERTIES_PREFIX.length());
-                    queryBuilder.property(tag, entry.getValue());
-                });
-
-        return projectService.getTables(project, queryBuilder.build());
+        var query = projectTableCriteriaQueryFactory.build(params, kinds, name);
+        return projectService.getTables(project, query);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")
