@@ -1,0 +1,172 @@
+site_name: OpenL Tablets Documentation
+site_url: https://openl-tablets.readthedocs.io/en/latest/
+edit_uri: edit/main/Docs/
+
+nav:
+  - Home: README.MD
+
+  - User Guides:
+    - Overview: user-guides/index.md
+    - Installation Guide:
+      - Overview: user-guides/installation/index.md
+      - System Requirements: user-guides/installation/system-requirements.md
+      - Quick Start: user-guides/installation/quick-start.md
+      - Configuration: user-guides/installation/configuration.md
+      - Integration: user-guides/installation/integration.md
+      - Rule Services: user-guides/installation/rule-services.md
+      - Troubleshooting: user-guides/installation/troubleshooting.md
+    - Demo Package Guide: user-guides/demo-package/index.md
+    - Reference Guide:
+      - Overview: user-guides/reference/index.md
+      - Preface: user-guides/reference/preface.md
+      - Introduction: user-guides/reference/introduction.md
+      - Table Basics: user-guides/reference/table-basics.md
+      - Projects: user-guides/reference/projects.md
+      - Table Properties: user-guides/reference/table-properties.md
+      - Data Types: user-guides/reference/data-types.md
+      - Arrays: user-guides/reference/arrays.md
+      - Functions: user-guides/reference/functions.md
+      - Table Types:
+        - Decision Tables: user-guides/reference/table-types/decision-tables.md
+        - Datatype Tables: user-guides/reference/table-types/datatype-tables.md
+        - Data Tables: user-guides/reference/table-types/data-tables.md
+        - Test Tables: user-guides/reference/table-types/test-tables.md
+        - Run Tables: user-guides/reference/table-types/run-tables.md
+        - Method Tables: user-guides/reference/table-types/method-tables.md
+        - Configuration Tables: user-guides/reference/table-types/configuration-tables.md
+        - Properties Tables: user-guides/reference/table-types/properties-tables.md
+        - Spreadsheet Tables: user-guides/reference/table-types/spreadsheet-tables.md
+        - TBasic Tables: user-guides/reference/table-types/tbasic-tables.md
+        - Column Match Tables: user-guides/reference/table-types/column-match-tables.md
+        - Constants Tables: user-guides/reference/table-types/constants-tables.md
+        - Table Part: user-guides/reference/table-types/table-part.md
+      - Appendices:
+        - BEX Language: user-guides/reference/appendices/bex-language.md
+        - Function Reference: user-guides/reference/appendices/function-reference.md
+    - WebStudio User Guide: user-guides/webstudio/index.md
+    - Rule Services Guide:
+      - Overview: user-guides/rule-services/index.md
+      - Advanced Configuration: user-guides/rule-services/advanced-configuration.md
+      - Appendices:
+        - Backward Compatibility: user-guides/rule-services/appendices/backward-compatibility.md
+        - Deployment Structure: user-guides/rule-services/appendices/deployment-structure.md
+        - Exceptions: user-guides/rule-services/appendices/exceptions.md
+        - Launch Projects: user-guides/rule-services/appendices/launch-projects.md
+        - Manifest File: user-guides/rule-services/appendices/manifest-file.md
+        - OpenAPI Support: user-guides/rule-services/appendices/openapi-support.md
+
+  - Developer Guides:
+    - Overview: developer-guides/index.md
+    - Preface: developer-guides/preface.md
+    - Introduction: developer-guides/introduction.md
+    - Rules Projects: developer-guides/rules-projects.md
+    - Business Language: developer-guides/business-language.md
+    - Externalized Configuration: developer-guides/externalized-config.md
+    - Extending OpenL Tablets: developer-guides/extending.md
+    - Developer Guide (Legacy):
+      - Overview: developer-guide/index.md
+      - Configuration: developer-guide/Configuration.md
+      - CXF Customization: developer-guide/CXF_customization.md
+      - Invoking OpenL: developer-guide/Invoking_OpenL.md
+      - OpenAPI: developer-guide/OpenAPI.md
+      - OpenL Studio Extension: developer-guide/OpenL_Studio_extension.md
+      - OpenTelemetry: developer-guide/OpenTelemetry.md
+      - Spring Extension: developer-guide/Spring_extension.md
+
+  - Integration Guides:
+    - Overview: integration-guides/index.md
+    - Activiti Integration: integration-guides/activiti.md
+    - Apache CXF: integration-guides/cxf.md
+    - OpenAPI/REST: integration-guides/openapi.md
+    - OpenTelemetry: integration-guides/opentelemetry.md
+    - Spring Framework: integration-guides/spring.md
+
+  - Configuration & Deployment:
+    - Configuration:
+      - Overview: configuration/index.md
+      - Configuration Reference: configuration/overview.md
+      - Security: configuration/security.md
+      - Deployment: configuration/deployment.md
+    - Deployment Guide: DEPLOYMENT.md
+    - Production Examples: examples/production/README.md
+
+  - Architecture & Design:
+    - Architecture Overview: ARCHITECTURE.md
+    - Technology Stack: architecture/technology-stack.md
+    - Dependencies: architecture/dependencies.md
+    - Legacy System Map: architecture/legacy-system-map.md
+    - Module Analysis:
+      - DEV Module: analysis/dev-module-overview.md
+      - Repository Layer: analysis/repository-layer-overview.md
+      - STUDIO/WSFrontend/Util: analysis/studio-wsfrontend-util-overview.md
+
+  - API Reference:
+    - API Guide: API_GUIDE.md
+    - Public API: api/public-api-reference.md
+
+  - Guides:
+    - Testing Guide: guides/testing-guide.md
+    - Migration Guide: guides/migration-guide.md
+    - Performance Tuning: guides/performance-tuning.md
+
+  - Troubleshooting: TROUBLESHOOTING.md
+
+  - Downloads: downloads.md
+
+theme:
+  name: material
+  navigation_depth: 8
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  features:
+    - content.action.edit
+    - content.action.view
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+repo_url: https://github.com/openl-tablets/openl-tablets/
+repo_name: openl-tablets/openl-tablets
+
+markdown_extensions:
+  - markdown.extensions.admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: True
+      toc_depth: 4
+
+extra_css:
+  - css/extra.css
+
+plugins:
+  - search
+  - mermaid2
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/openl-tablets/openl-tablets
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/openltablets/
+
+docs_dir: .
+site_dir: site

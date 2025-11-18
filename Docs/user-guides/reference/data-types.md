@@ -1,3 +1,4 @@
+### Working with Data Types
 
 Data in OpenL Tablets must have a type of data defined. A data type indicates the meaning of the data, their possible values, and instructs OpenL Tablets how to process operations, which rules can be performed, and how these rules and operations affect data.
 
