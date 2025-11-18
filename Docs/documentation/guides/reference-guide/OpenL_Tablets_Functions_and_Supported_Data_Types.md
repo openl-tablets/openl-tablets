@@ -37,7 +37,7 @@ Data type arrays can be used in rules as follows:
 | By numeric index, <br/>starting from 0            | In this case, by calling `drivers[5]`, a user gets the sixth element of the data type array.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | By user defined index                        | This case is a little more complicated. The first field of data type is considered to be the user defined index. <br/><br/>For example, if there is a **Driver** data type with the first String field name, a data table can be created, initializing two instances <br/>of **Driver** with the following names: John and David. Then in rules, the required instance can be called by `drivers[“David”]`. <br/><br/>All Java types, including primitives, and data types can be used for user specific indexes. <br/>When the first field of data type is of `int` type called `id,` to call the instance from array, wrap it with quotes as in <br/>`drivers[“7”]`. In this case, a user does not get the eighth element in the array, but the **Driver** with ID=7. <br/>For more information on data tables, see [Data Table](working-with-openl-tables/table-types/data-table/using-simple-data-tables.md#data-table). |
 | By conditional index                         | Another case is to use conditions that consider which elements must be selected. <br/>For this purpose, SELECT operators are used, which specify conditions for selection. <br/>For more information on how to use SELECT operators, see [Array Index Operators](#array-index-operators).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| By other array index <br/>operators and functions | Any index operator listed in [Array Index Operators](#array-index-operators) or a function designed to work with arrays can be applied to an array in user rules. <br/>The full list of OpenL Tablets array functions is provided in [Appendix B: Functions Used in OpenL Tablets](Appendix_B_Functions_Used_in_OpenL_Tablets.md#appendix-b-functions-used-in-openl-tablets).                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| By other array index <br/>operators and functions | Any index operator listed in [Array Index Operators](#array-index-operators) or a function designed to work with arrays can be applied to an array in user rules. <br/>The full list of OpenL Tablets array functions is provided in [Array Functions](appendices/array-functions.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 When referencing the non-existing element by array[index], for primitive types, the default value is returned, and for other types, null is returned.
 
@@ -143,7 +143,7 @@ This section describes operators and functions used in work with arrays and incl
 -   [Length Function](#length-function)
 -   [Comparison Operators](#comparison-operators)
 
-For more information on array functions, see [Appendix B: Functions Used in OpenL Tablets](Appendix_B_Functions_Used_in_OpenL_Tablets.md#appendix-b-functions-used-in-openl-tablets).
+For more information on array functions, see [Array Functions](appendices/array-functions.md).
 
 ##### Length Function
 
@@ -169,7 +169,7 @@ Policy2 contains two vehicles as illustrated in the following data table.
 
 ##### Comparison Operators
 
-== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](Appendix_A_BEX_Language_Overview.md#operators-used-in-openl-tablets).
+== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](appendices/operators-used-in-openl-tablets.md).
 
 #### Rules Applied to Array
 
@@ -330,7 +330,7 @@ For example, in the `max(value1, value2)` expression, **max** is the rule or fun
 
 If an action is performed in a rule, use the corresponding function in the rules table. For example, to calculate the best result for a gamer in the following example, use the **max** function and enter *max(score1, score2, score3)* in the **C1** column. This expression instructs OpenL Tablets to select the maximum value in the set. The **contains** function can be used to determine the gamer level.
 
-Subsequent sections provide description for mostly often used OpenL Tablets functions. For a full list of functions, see [Appendix B: Functions Used in OpenL Tablets](Appendix_B_Functions_Used_in_OpenL_Tablets.md#appendix-b-functions-used-in-openl-tablets).
+Subsequent sections provide description for mostly often used OpenL Tablets functions. For a full list of functions, see [Math Functions](appendices/math-functions.md), [Array Functions](appendices/array-functions.md), [Date Functions](appendices/date-functions.md), [String Functions](appendices/string-functions.md), and [Special Functions](appendices/special-functions.md).
 
 #### Understanding Math Functions
 
