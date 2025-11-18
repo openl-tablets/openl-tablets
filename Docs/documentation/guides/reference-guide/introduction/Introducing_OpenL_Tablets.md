@@ -63,7 +63,7 @@ There can be situations where OpenL Tablets projects are used in the development
 
 The following diagram displays how OpenL Tablets is used by different types of users.
 
-![](../ref_guide_images/OpenLTabletsOverview.png)
+![](../../ref_guide_images/OpenLTabletsOverview.png)
 
 *OpenL Tablets overview*
 
@@ -105,13 +105,13 @@ OpenL Tablets provides a set of the tutorial projects demonstrating basic OpenL 
 To create a tutorial project, proceed as follows:
 
 1.  To open Repository Editor, in OpenL Studio, in the top line menu, click the **Repository** item.
-2.  Click the **Create Project** button ![](../ref_guide_images/22ea40949420dc3bdd150c652a5e91a7.png).
+2.  Click the **Create Project** button ![](../../ref_guide_images/22ea40949420dc3bdd150c652a5e91a7.png).
 3.  In the **Create Project from** window, click the required tutorial name.
 4.  Click **Create** to complete.
     
     The project appears in the **Projects** list of Repository Editor.
     
-    ![](../ref_guide_images/1d796f4911707c50e63e853581e010e6.png)
+    ![](../../ref_guide_images/1d796f4911707c50e63e853581e010e6.png)
    
     *Creating tutorial projects*
     
@@ -119,7 +119,7 @@ To create a tutorial project, proceed as follows:
 
 The project is displayed in the **Projects** list and available for usage. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.
 
-![](../ref_guide_images/454d965cb7e291d25f4f1b419e074285.png)
+![](../../ref_guide_images/454d965cb7e291d25f4f1b419e074285.png)
 
 *Tutorial project in the OpenL Studio*
 
