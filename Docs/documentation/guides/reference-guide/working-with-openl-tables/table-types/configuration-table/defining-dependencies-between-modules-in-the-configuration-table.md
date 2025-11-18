@@ -1,0 +1,57 @@
+##### Defining Dependencies between Modules in the Configuration Table
+
+Often several or even all modules in the project have the same symbols in the beginning of their name. In such case, there are several options how to list several dependency modules in the **Environment** table:
+
+-   adding each dependency module by its name
+-   adding a link to all dependency modules using the common part of their names and the asterisk \* symbol for the varying part
+-   adding a link to several dependency modules using the question mark ? symbol to replace one symbol anywhere in the name
+
+All modules that have any letter or number at the position of the question mark symbol will be added as dependency.
+
+The second option, that is, using the asterisk symbol after the common part of names, is considered a good practice because of the following reasons:
+
+-   Any new version of dependency module is not omitted in future and requires no changes to the configuration table.
+-   The configuration table looks simpler.
+
+![](../../../../ref_guide_images/1f238cb8b773a234abf3557905773e52.png)
+
+*Configuration table with dependency modules added by their name*
+
+![](../../../../ref_guide_images/96afdcf447f6cb0280fcbf72751ddb35.png)
+
+*Configuration table with link to all dependency modules*
+
+**Note:** When using the asterisk \* symbol, if the name of the module where dependency is defined matches the pattern, this module is automatically excluded from dependent modules to avoid circular dependencies.
+
+The following example illustrates how displaying dependency modules in the configuration table impacts resulting values calculation. The following modules are defined in the project for an auto insurance policy:
+
+-   `Auto-Rating Algorithm.xlsx`
+-   `Auto-Rating-Domain Model.xlsx`
+-   `Auto-Rating-FL-01012016.xlsx`
+-   `Auto-Rating-OK-01012016.xlsx`
+-   `Auto-Rating Test Data.xlsx`
+
+The purpose of this project is to calculate the Vehicle premium. The main algorithm is located in the `Auto-Rating Algorithm.xlsx` Excel file.
+
+![](../../../../ref_guide_images/09b48ef53e032b906d4d0d07b493bdd9.png)
+
+*Rule with the algorithm to calculate the Vehicle premium*
+
+This file also contains the configuration table with the following dependency modules:
+
+| Module                          | Description                                                                       |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| `Auto-Rating-Domain Model.xlsx` | Contains the domain model.                                                        |
+| `Auto-Rating-FL-01012016.xlsx`  | Contains rules with the FL state specific values used in the premium calculation. |
+| `Auto-Rating-OK-01012016.xlsx`  | Contains rules with the OK state specific values.                                 |
+
+All these modules have a common part at the beginning of the name, `Auto-Rating-.`
+
+The configuration table can be defined with a link to all these modules as follows:
+
+![](../../../../ref_guide_images/b7d1eab657d0dd54df7ecd1b08c5aadf.png)
+
+*Configuration table in the Auto-Rating Algorithm.xlsx file*
+
+**Note:** The dash symbol `-` added to the dependency modules names in a common part helps to prevent inclusion of dependency on `Auto-Rating Algorithm` itself.
+
