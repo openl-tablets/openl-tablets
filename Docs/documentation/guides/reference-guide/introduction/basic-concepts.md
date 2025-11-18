@@ -20,7 +20,7 @@ Basic information OpenL Tablets deals with, such as rules and data, is presented
 
 Tables are referenced by calling their names.
 
-Different types of tables serve different purposes. For more information on table types, see [Table Types](../Creating_Tables_for_OpenL_Tablets.md#table-types).
+Different types of tables serve different purposes. For more information on table types, see [Table Types](../working-with-openl-tables/table-types/decision-table/decision-table-overview-and-structure.md#decision-table).
 
 #### Projects
 
