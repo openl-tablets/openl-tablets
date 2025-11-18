@@ -1,0 +1,5 @@
+jinja2==3.1.2
+markdown==3.3.7
+mkdocs==1.4.2
+pymdown-extensions
+mkdocs-material

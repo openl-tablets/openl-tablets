@@ -1,8 +1,0 @@
-<rules-deploy>
-    <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <serviceName>example-simple</serviceName>
-    <publishers>
-        <publisher>RESTFUL</publisher>
-    </publishers>
-    <url>example-simple</url>
-</rules-deploy>

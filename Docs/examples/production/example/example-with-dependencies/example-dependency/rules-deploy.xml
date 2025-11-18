@@ -1,6 +1,0 @@
-<rules-deploy>
-    <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <serviceName>example-dependency</serviceName>
-    <publishers/>
-    <url>example-dependency</url>
-</rules-deploy>
