@@ -168,5 +168,5 @@ extra:
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/r/openltablets/
 
-docs_dir: .
+docs_dir: Docs
 site_dir: site
