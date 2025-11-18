@@ -64,7 +64,7 @@ The following conventions apply to the rule, field, and function names:
 
 A **Java digit** is a collection of numbers from 0 to 9.
 
-![](ref_guide_images/f2236cca56464249277ee577e06d6a9a.jpeg)
+![](../ref_guide_images/f2236cca56464249277ee577e06d6a9a.jpeg)
 
 *Examples of correct and incorrect rule table names*
 
@@ -91,7 +91,7 @@ OpenL Tablets supports the following table types:
 
 A **decision table** contains a set of rules describing decision situations where the state of a number of conditions determines execution of a set of actions and returned value. It is a basic table type used in OpenL Tablets decision making.
 
-![](ref_guide_images/decisionTableExample.png)
+![](../ref_guide_images/decisionTableExample.png)
 
 *Decision table example*
 
@@ -119,7 +119,7 @@ The following topics are included in this section:
 
 An example of a decision table is as follows:
 
-![](ref_guide_images/7a9db66ab2f047e3c5eec2d6187b2438.png)
+![](../ref_guide_images/7a9db66ab2f047e3c5eec2d6187b2438.png)
 
 *Decision table*
 
@@ -138,11 +138,11 @@ A user can merge cells of parameter values to substitute multiple single cells w
 
 The additional **Rule** column with merged cells is used as the first column when the return value must be a list of values written in multiple rows of the same column, that is, a vertically arranged array. The Rule column determines the height of the result value list.
 
-![](ref_guide_images/0853723eeeb4ffabc332f22b2c8121a9.png)
+![](../ref_guide_images/0853723eeeb4ffabc332f22b2c8121a9.png)
 
 *A table with the Rule column as the first column*
 
-![](ref_guide_images/aa0f7c0c7727206311f570428063a2c8.jpeg)
+![](../ref_guide_images/aa0f7c0c7727206311f570428063a2c8.jpeg)
 
 *Result in the vertically arranged array format*
 
@@ -162,7 +162,7 @@ If the empty return value is calculated by the expression, the system starts pro
 
 The following example contains empty case interpretation. For **Senior Driver**, the marital status of the driver does not matter. Although there is no combination of **Senior Driver** and **Single** mode, the result value is 500 as for an empty marital status value.
 
-![](ref_guide_images/ede4c0cb2b63d3789b426c196e85d0f8.jpeg)
+![](../ref_guide_images/ede4c0cb2b63d3789b426c196e85d0f8.jpeg)
 
 *Empty case interpretation in the Decision table*
 
@@ -189,7 +189,7 @@ The simple rules table header format is as follows:
 
 The following is an example of a simple rules table header:
 
-![](ref_guide_images/89dcde544208ecc9ea8c5470423b392c.png)
+![](../ref_guide_images/89dcde544208ecc9ea8c5470423b392c.png)
 
 *Simple rules table example*
 
@@ -208,7 +208,7 @@ The smart rules table header format is as follows:
 
 `SmartRules <Return type> RuleName(<Parameter type 1> parameterName1, (<Parameter type 2> parameterName 2…)`
 
-![](ref_guide_images/c7f4a486bcfff247a0d22da7f3171468.png)
+![](../ref_guide_images/c7f4a486bcfff247a0d22da7f3171468.png)
 
 *Smart rules table with simple return value*
 
@@ -219,7 +219,7 @@ OpenL Tablets identifies which condition сolumns correspond to which input para
 
 In case of a custom datatype input, OpenL verifies all fields of the input object to match them separately with appropriate conditions using field names, in addition to input names, and column titles.
 
-![](ref_guide_images/4f08cf74060a623db38210cff8541288.png)
+![](../ref_guide_images/4f08cf74060a623db38210cff8541288.png)
 
 *Smart rules table with object-input*
 
@@ -233,19 +233,19 @@ In the example above, the **driverType** value is compared with values from the 
 
 If a string value of the condition contains a comma, the value must be delimited with the backslash (\\) separator followed by the comma. Otherwise, it is treated as an array of string elements as described in [Ranges and Arrays in Smart and Simple Decision Tables](#ranges-and-arrays-in-smart-and-simple-decision-tables):
 
-![](ref_guide_images/1247497969dc26c9e5d136cdaab07644.png)
+![](../ref_guide_images/1247497969dc26c9e5d136cdaab07644.png)
 
 *Comma within a string value in a Smart table*
 
 To define a range of values, two columns of the condition can be merged. In this case, the whole condition is interpreted as` min <= input parameter && input parameter < max`.
 
-![](ref_guide_images/3b94246b45ee0f23c9bc6aeb8d95d03e.jpeg)
+![](../ref_guide_images/3b94246b45ee0f23c9bc6aeb8d95d03e.jpeg)
 
 *Using min and max values for a range in the condition column*
 
 Special conditions not matching any particular input fields can be used in smart rules tables, for example, for validation rules definition. Column header for such condition must contain the word ‘true’. If there are other condition headers containing the word ‘true’, the name must be explicitly declared as “Is True?”. All values in such column are expressions or Boolean values. Such condition can also be used in the smart lookup tables.
 
-![](ref_guide_images/518d68d7a234ad3057174d34ae6b4423.png)
+![](../ref_guide_images/518d68d7a234ad3057174d34ae6b4423.png)
 
 *Example of a condition that is a Boolean expression*
 
@@ -260,13 +260,13 @@ A smart rules table can contain up to three return columns. If the first return 
 
 The following example illustrates a table with multiple return columns.
 
-![](ref_guide_images/6515353e9013232d853eff0f0fa13732.jpeg)
+![](../ref_guide_images/6515353e9013232d853eff0f0fa13732.jpeg)
 
 *Example of a smart rules table with multiple return columns*
 
 In this example, the **QuoteVolume** rule has one condition, **Coverage Type,** and two return columns, **Volume 1** and **Volume 2.** An example of the test table for this rule table is as follows.
 
-![](ref_guide_images/5494974e1c350c7537f6f2048c98d194.png)
+![](../ref_guide_images/5494974e1c350c7537f6f2048c98d194.png)
 
 *Example of the test table for a rule table with multiple return columns*
 
@@ -281,7 +281,7 @@ A simplified rules table can return the value of compound type (custom data type
 
 In the example below, the rule **VehicleDiscount** determines the vehicles’s discount type and rate depending on air bags type and alarm indicator:
 
-![](ref_guide_images/ff0770843538ddb659ad57b9887e01e7.png)
+![](../ref_guide_images/ff0770843538ddb659ad57b9887e01e7.png)
 
 *Smart rules table with compound return value*
 
@@ -289,7 +289,7 @@ In the example below, the rule **VehicleDiscount** determines the vehicles’s d
 
 **Note:** Return object fields are automatically filled in with input values if the return field name and input field name are matched.
 
-![](ref_guide_images/b2bdd5226b413cc20368aed777817c4e_1.png)
+![](../ref_guide_images/b2bdd5226b413cc20368aed777817c4e_1.png)
 
 *Return object fields automatically filled in with input values*
 
@@ -298,7 +298,7 @@ If the rule returns the result of a very complex object (with nested objects ins
 -   titles in one row with names that can be matched to the object fields unambiguously (the previously described approach) as shown in the example below, rule **VehicleDiscount1**;
 -   titles in several rows to define the hierarcy (structure) of the return object; in this case the user can merge cells associated with fields of a nested object as shown on the example below, rule **VehicleDiscount2**. Using this option, merging condition titles is required.
 
-![](ref_guide_images/1b17db7767af7c36e2eb352ee929be6e.png)
+![](../ref_guide_images/1b17db7767af7c36e2eb352ee929be6e.png)
 
 *Smart rules tables with compound return value*
 
@@ -318,7 +318,7 @@ A **lookup table** is a special modification of the decision table which simulta
 
 That means condition values can appear either on the left of the lookup table or on the top of it. The values on the left are called **vertical** and values on the top are called **horizontal**. Any lookup table must have at least one vertical and at least one horizontal value.
 
-![](ref_guide_images/4a72fbdc089f78a6d71e0171f35ab488.jpeg)
+![](../ref_guide_images/4a72fbdc089f78a6d71e0171f35ab488.jpeg)
 
 *A lookup table example*
 
@@ -344,7 +344,7 @@ The simple lookup table header format is as follows:
 
 The following is an example of a simple lookup table.
 
-![](ref_guide_images/7c9fa65d2859ca54b256467063d0a345.png)
+![](../ref_guide_images/7c9fa65d2859ca54b256467063d0a345.png)
 
 *Simple lookup table example*
 
@@ -357,7 +357,7 @@ The smart lookup table header format is as follows:
 
 `SmartLookup <Return type> RuleName(<Parameter type 1> parameterName1, (<Parameter type 2> parameterName2,….)`
 
-![](ref_guide_images/4f6f1dbe10550c0f2465382fac51f333.png)
+![](../ref_guide_images/4f6f1dbe10550c0f2465382fac51f333.png)
 
 *Smart lookup table example*
 
@@ -369,17 +369,17 @@ The number of horizontal conditions is determined by the height of the first col
 
 The following is an example of a smart lookup table with several horizontal conditions:
 
-![](ref_guide_images/e3e4ac40d6a64af2d8b35df902f2c03e.png)
+![](../ref_guide_images/e3e4ac40d6a64af2d8b35df902f2c03e.png)
 
 *Smart lookup table with several horizontal conditions*
 
 OpenL Tablets supports titles for horizontal conditions. A horizontal condition title is defined either together with the last vertical condition header, separated by a slash character, or as a separate column after all vertical conditions.
 
-![](ref_guide_images/a895aa3fff8b709cb93c7ed4abb658c2.jpeg)
+![](../ref_guide_images/a895aa3fff8b709cb93c7ed4abb658c2.jpeg)
 
 *Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets*
 
-![](ref_guide_images/9dab9cab2d9f8a26a6002e462488971d.jpeg)
+![](../ref_guide_images/9dab9cab2d9f8a26a6002e462488971d.jpeg)
 
 *Algorithm identifying the third column as horizontal condition titles because the third column values are empty*
 
@@ -390,7 +390,7 @@ If the height of the horizontal condition is 1, and there is a vertical conditio
 
 Conditions, returns, and actions declarations can be separated and stored in specific tables and then used in Smart Decision Tables via column titles. It allows using the Smart Table type for Decision rule even in case of the complicated condition or return calculation logic. Another benefit is that condition and return declarations can be reused in several rules, for example, Conditions table as a template. An example is as follows.
 
-![](ref_guide_images/7db77e6166ea613d591968acde60c104.png)
+![](../ref_guide_images/7db77e6166ea613d591968acde60c104.png)
 
 *Using external conditions in a smart rules table*
 
@@ -421,19 +421,19 @@ The external element table structure is as follows:
 
 Range and array data types can be used in simplified and smart rules and lookup tables. If a condition is represented as an array or range, the rule is executed for any value from that array or range. As an example, in the following image, there is the same Car Price for all regions of Belarus and Great Britain, so, using an array, three rows for each of these countries can be replaced by a single one as displayed in the following table.
 
-![](ref_guide_images/a28dbd3cd982b17ba9ff61c193bc36ed.png)
+![](../ref_guide_images/a28dbd3cd982b17ba9ff61c193bc36ed.png)
 
 *Simple lookup table with an array*
 
 If a string value contains a comma, the value must be delimited with the backslash (\\) separator followed by a comma as illustrated for **Driver\\, Passenger\\, Side** in the following example. Otherwise, it is treated as an array of string elements.
 
-![](ref_guide_images/777f08634757af05c545fe26311b8210.png)
+![](../ref_guide_images/777f08634757af05c545fe26311b8210.png)
 
 *Comma within a string value in a Simple Rule table*
 
 The following example explains how to use a range in a simple rules table.
 
-![](ref_guide_images/9b8ba198eca41573cd84ba1e8611ca61.png)
+![](../ref_guide_images/9b8ba198eca41573cd84ba1e8611ca61.png)
 
 *Simple rules table with a Range*
 
@@ -441,7 +441,7 @@ OpenL looks through the **Condition** column, that is, **ZIP Code**, meets a ran
 
 Simple and smart rules and smart lookup tables support using arrays of ranges. In the following example, the Z100-Z105, Z107, Z109 condition is a string range array where single elements Z107, Z109 are treated by system as ranges Z107-Z107, Z109-Z109.
 
-![](ref_guide_images/394e9bbdba771dffd4c3fac32121025d.png)
+![](../ref_guide_images/394e9bbdba771dffd4c3fac32121025d.png)
 
 *Using arrays of ranges in a table*
 
@@ -456,19 +456,19 @@ By default, each row of the decision table is a separate rule. Even if some cell
 
 Vertical conditions are marked with the Cn and MC1 characters. The MC1 column plays the role of the Rule column in a table. It determines the height of the result value list. An example is as follows.
 
-![](ref_guide_images/b912a0b5ee38ce8aae0ffa6fc92a3234.png)
+![](../ref_guide_images/b912a0b5ee38ce8aae0ffa6fc92a3234.png)
 
 *A Decision table with merged condition values*
 
 Earthquake Coverage for Brand Y and Brand X has a different list of values, so they are not merged although their first condition is the same.
 
-![](ref_guide_images/3604db15dcf082ce97e22b46d6ef8aba.png)
+![](../ref_guide_images/3604db15dcf082ce97e22b46d6ef8aba.png)
 
 *A list of values as a result*
 
 The horizontal conditions are marked as HC1, HC2 and so on. Every lookup matrix must start from the HC or RET column. The first HC or RET column must go after all vertical conditions, such as C, Rule, and comment columns. There can be no comment column in the horizontal conditions part. The RET section can be placed in any place of the lookup headers row. HC columns do not have the Titles section.
 
-![](ref_guide_images/d54c0f1d4a07c4f68cbbe61232e41e21.jpeg)
+![](../ref_guide_images/d54c0f1d4a07c4f68cbbe61232e41e21.jpeg)
 
 *A lookup table example*
 
@@ -476,7 +476,7 @@ The first cell of column titles must be merged on all rows that contain horizont
 
 To use multiple column parameters for a condition, return, or action, merge the column header and expression cells. Use this approach if a condition cannot be presented as a simple AND combination of one-parameter conditions.
 
-![](ref_guide_images/c6d8e690f09c76be8e0300fca19f9142.png)
+![](../ref_guide_images/c6d8e690f09c76be8e0300fca19f9142.png)
 
 *Example of the merged column header and expression cells*
 
@@ -484,7 +484,7 @@ Any type of decision tables described previously, that is, Simple Rules, Smart R
 
 Colors identify how values are related to conditions. The same table represented as a decision table is as follows:
 
-![](ref_guide_images/c60701563797328cbf8947e862699082.jpeg)
+![](../ref_guide_images/c60701563797328cbf8947e862699082.jpeg)
 
 *Lookup table representation as a decision table*
 
@@ -499,15 +499,15 @@ A decision table returns only the first fired, non-empty result in common case. 
 
 In the example below, rule **InterestTable** returns the list of interest schemes of a particular plan:
 
-![](ref_guide_images/012d51205bc592c0fcada13b3fcf924e.png)
+![](../ref_guide_images/012d51205bc592c0fcada13b3fcf924e.png)
 
 *Collecting results in Smart and Simple rule table*
 
 In the following example, rule **PriceTable** collects car price information for desired specified country and/or ”make” of a car:
 
-![](ref_guide_images/74cb58cd264326588867a5c937cdda77.png)
+![](../ref_guide_images/74cb58cd264326588867a5c937cdda77.png)
 
-![](ref_guide_images/367d2e3f39c43905a7f477511bcbb364.png)
+![](../ref_guide_images/367d2e3f39c43905a7f477511bcbb364.png)
 
 *Collecting results in regular Decision table*
 
@@ -536,13 +536,13 @@ The following topics are included in this section:
 
 The following image represents a situation when users must provide an expression and simple equal operation for condition declaration.
 
-![](ref_guide_images/83efd78678bd3c6befed2d3be5d22752.png)
+![](../ref_guide_images/83efd78678bd3c6befed2d3be5d22752.png)
 
 *Decision table requiring an expression and simple equal operation for condition declaration*
 
 This code snippet can be simplified as displayed in the following example.
 
-![](ref_guide_images/affb2fdd4b01bf4fba88de36c5608d6d.png)
+![](../ref_guide_images/affb2fdd4b01bf4fba88de36c5608d6d.png)
 
 *Simplified decision table*
 
@@ -557,7 +557,7 @@ In the next step, OpenL Tablets will create an appropriate condition evaluator.
 
 **Note:** The parameter name can be omitted in the situation when the `contains(P1, expression value)` operation for condition declaration is to be applied. The type of the parameter must be an array of the expression value type.
 
-![](ref_guide_images/5e67f345969ede8f4dede6cc63c66c11.png)
+![](../ref_guide_images/5e67f345969ede8f4dede6cc63c66c11.png)
 
 *Simplified condition declaration*
 
@@ -566,13 +566,13 @@ In the next step, OpenL Tablets will create an appropriate condition evaluator.
 
 The following example illustrates the **Greeting** rule with the **min \<= value and value \< max** condition expression.
 
-![](ref_guide_images/c94f51c9011f7f3661c3edda3cecf3a8.png)
+![](../ref_guide_images/c94f51c9011f7f3661c3edda3cecf3a8.png)
 
 *The Greeting rule*
 
 Instead of the full expression **min \<= value and value \< max**, a user can simply use **value** and OpenL Tablets automatically recognizes the full condition.
 
-![](ref_guide_images/6100243779d18b9686542ad081fd9319.png)
+![](../ref_guide_images/6100243779d18b9686542ad081fd9319.png)
 
 *Simplified Greeting rule*
 
@@ -583,7 +583,7 @@ Time for executing the OpenL Tablets rules heavily depends on complexity of cond
 
 To speed up rules execution, put simple conditions before more complicated ones. In the following example, simple condition is located before a more complicated one.
 
-![](ref_guide_images/ed9f10ad44784129fc985670bad82cee.png)
+![](../ref_guide_images/ed9f10ad44784129fc985670bad82cee.png)
 
 *Simple condition location*
 
@@ -598,7 +598,7 @@ For test tables, to test the rule table performance, a business analyst uses the
 
 Sometimes decision tables look more convenient in the transposed format where columns become rows and rows become columns. For example, an initial and transposed version of decision table resembles the following:
 
-![](ref_guide_images/8c42186abc29ce6fb32f5c7f198ee500.png)
+![](../ref_guide_images/8c42186abc29ce6fb32f5c7f198ee500.png)
 
 *Transposed decision table*
 
@@ -623,7 +623,7 @@ For all tables that have properties of the `enum[]` type or fields of the array 
 
 The first option is to arrange array values horizontally using multiple subcolumns. The following is an example of this approach:
 
-![](ref_guide_images/84746a0195e99f2a72247bd79dc0cda9.png)
+![](../ref_guide_images/84746a0195e99f2a72247bd79dc0cda9.png)
 
 *Arranging array values horizontally*
 
@@ -631,7 +631,7 @@ In this example, the contents of the `set` variable for the first rule are `[1,3
 
 The second option is to present parameter values vertically as follows:
 
-![](ref_guide_images/5bbccb6558f48ff8587fdba4883cc8e6.png)
+![](../ref_guide_images/5bbccb6558f48ff8587fdba4883cc8e6.png)
 
 *Arranging array values vertically*
 
@@ -641,7 +641,7 @@ In both cases, empty cells are not added to the array.
 
 The third option is to define an array by separating values by a comma. If the value itself contains a comma, it must be escaped using back slash symbol “`\`”` `by putting it before the comma.
 
-![](ref_guide_images/b3359c164b6d654dfa05ed882210e476.png)
+![](../ref_guide_images/b3359c164b6d654dfa05ed882210e476.png)
 
 *Array values separated by comma*
 
@@ -651,7 +651,7 @@ In this example, the array consists of the following values:
 -   test 3, 4
 -   test 2
 
-![](ref_guide_images/d804c51558951eb9cc637bf42237bdc1.png)
+![](../ref_guide_images/d804c51558951eb9cc637bf42237bdc1.png)
 
 *Array values separated by comma. The second example*
 
@@ -663,7 +663,7 @@ In this example, the array consists of the following values:
 
 Two-dimensional arrays can be used in rules tables, where mixing values and expressions in arrays is allowed. An example is as follows:
 
-![](ref_guide_images/2ca6c0bc1a0c1c1d20d42502bbff6d89.png)
+![](../ref_guide_images/2ca6c0bc1a0c1c1d20d42502bbff6d89.png)
 
 *Using two-dimensional arrays in a rules table*
 
@@ -700,7 +700,7 @@ In OpenL, the following data types are designed to work with ranges:
 
 For more information on these data types used for ranges, see [Range Data Types](OpenL_Tablets_Functions_and_Supported_Data_Types.md#range-data-types).
 
-![](ref_guide_images/0dee4ba55b8b0e9e4f61f930cf47b33e.png)
+![](../ref_guide_images/0dee4ba55b8b0e9e4f61f930cf47b33e.png)
 
 *Decision table with IntRange*
 
@@ -712,7 +712,7 @@ OpenL Tablets can perform mathematical calculations involving method input param
 
 The following decision table demonstrates calculations in table cells.
 
-![](ref_guide_images/c737f1e497e23bf0142cc2fa1ede3351.png)
+![](../ref_guide_images/c737f1e497e23bf0142cc2fa1ede3351.png)
 
 *Decision table with calculations*
 
@@ -728,13 +728,13 @@ To address an attribute of an object in a rule, use the following syntaxes:
 
 -   \<object name\>.\<attribute name\>
     
-    ![](ref_guide_images/8b56fda447e327f51bfd27c2696bb926.jpeg)
+    ![](../ref_guide_images/8b56fda447e327f51bfd27c2696bb926.jpeg)
     
     *Defining an object attribute*
     
 -   \<attribute name\> (\<object name\>)
     
-    ![](ref_guide_images/52665537d9ae19b6daaa066ce1001b65.jpeg)
+    ![](../ref_guide_images/52665537d9ae19b6daaa066ce1001b65.jpeg)
     
     *Defining an object attribute*
     
@@ -746,23 +746,23 @@ The following rules apply:
 
 An example of a redundant reference as follows:
 
-![](ref_guide_images/22ed276585da83cd007816efccbb0518.png)
+![](../ref_guide_images/22ed276585da83cd007816efccbb0518.png)
 
 *A spreadsheet with a redundant reference*
 
 A full reference is redundant here and can be omitted as numberOfFamilies is an attribute of the policyEndorsementForm input paramter. The correct way to use the reference is as follows:
 
-![](ref_guide_images/79c24537d30b02c85c7eddccc5400493.png)
+![](../ref_guide_images/79c24537d30b02c85c7eddccc5400493.png)
 
 *A spreadsheet with correct reference*
 
 An example of referencing an attribute of a complex object that is an attribute of a complex object input parameter is as follows:
 
-![](ref_guide_images/6a58e5a49a0946f101bc5a05514db0a2.png)
+![](../ref_guide_images/6a58e5a49a0946f101bc5a05514db0a2.png)
 
 *A model describing complex objects structure and their attributes*
 
-![](ref_guide_images/255db6730e6e8e79541a7b083cf378d2.jpeg)
+![](../ref_guide_images/255db6730e6e8e79541a7b083cf378d2.jpeg)
 
 *A rule that is using reference to the attributes of the nested complex object*
 
@@ -786,7 +786,7 @@ The input parameter attribute type is not specified when calling a nested rule.
 
 In the following example, a nested rule table **HeapedCommissionStrategy** is called from the **CommissionCalculation** smart rule table.
 
-![](ref_guide_images/90e6c4e19266176d5a9806580bfd9065.png)
+![](../ref_guide_images/90e6c4e19266176d5a9806580bfd9065.png)
 
 *Calling a nested rule table from a rule table*
 
@@ -801,9 +801,9 @@ Sometimes specific values must be sent to the nested table. In this case, input 
 
 For example, usually the detailed information about children is not included in the insurance policy and so default values are used to get the rates:
 
-![](ref_guide_images/db14be6ea04a95ef48fbd0c2a540078a.png)
+![](../ref_guide_images/db14be6ea04a95ef48fbd0c2a540078a.png)
 
-![](ref_guide_images/6f985285bc51a83e1cec893c615a5b57.png)
+![](../ref_guide_images/6f985285bc51a83e1cec893c615a5b57.png)
 
 *Declaring specific inputs when calling a nested rule table*
 
@@ -811,17 +811,17 @@ For example, usually the detailed information about children is not included in 
 
 When a condition value from a cell in the Return column must be called, specify the value by using `$C<n>.<variable name> `in the **Return** column.
 
-![](ref_guide_images/EPBDS11443_1.png)
+![](../ref_guide_images/EPBDS11443_1.png)
 
 *A Decision table with referents inside the Return column*
 
-![](ref_guide_images/EPBDS11443_2.png)
+![](../ref_guide_images/EPBDS11443_2.png)
 
 *Tracing Decision table with referents*
 
 Conditions, actions, and result parameters can be accessed from another condition, action, or result using simplified syntax. The same syntax can be also used for smart rules if external tables are used for condition, action, or result.
 
-![](ref_guide_images/86621f116d77a4afeb5c6c8c62241de2.png)
+![](../ref_guide_images/86621f116d77a4afeb5c6c8c62241de2.png)
 
 *Accessing a condition parameter from a return expression by simplified syntax*
 
@@ -831,7 +831,7 @@ Rule names and numbers can be used in the return expression to find out which ru
 
 In the following rule example, the second rule row is executed, and rule ID \#2 is stored in the **priority** field of the return:
 
-![](ref_guide_images/ef7b4bd9e08bec2fe48e1d986f234440.png)
+![](../ref_guide_images/ef7b4bd9e08bec2fe48e1d986f234440.png)
 
 *Using $RuleId and $Rule in the rules table*
 
@@ -840,9 +840,9 @@ In the following rule example, the second rule row is executed, and rule ID \#2 
 References to expressions can be used in decision tables. They can be referenced from table headers and within table body.
 
 -	**$Expr.C1** is used to reference the expression for condition C1. To address action or return expression use RET1 and A1 respectively.
-![](ref_guide_images/a3d9e45b2c71f8b9a0cbe8f7235a41d6.png)
+![](../ref_guide_images/a3d9e45b2c71f8b9a0cbe8f7235a41d6.png)
 -	**$Expr.$C1.param1** is an expression defined as a value in a column for the **param1** condition parameter. $C1 is optional. For instance, in the example below, parameter **cond** is the condition parameter for condition C2. It's important to use named parameters which is possible in decision tables of [Rules type](#decision-table-structure) or when working with [external conditions, actions, or returns](#external-tables-usage-in-smart-decision-tables) in smart tables.
-![](ref_guide_images/f49c7836d2a91e7c4b2e1098d6f375c4.png)
+![](../ref_guide_images/f49c7836d2a91e7c4b2e1098d6f375c4.png)
 
 `$Expr.C1, $Expr.$C1.param1` return the expression type that contains following attributes:
 - `ast` - returns AST (Abstract Syntax Tree) tree for the expression
@@ -883,19 +883,19 @@ A Datatype table has the following structure:
 
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person’s** data elements, such as name, social security number, date of birth, gender, and address.
 
-![](ref_guide_images/ad45a4a8dffb2ceaaa9bb4bad359eed3.png)
+![](../ref_guide_images/ad45a4a8dffb2ceaaa9bb4bad359eed3.png)
 
 *Datatype table Person*
 
 Note that data attribute, or element, address of **Person** has, by-turn, custom data type **Address** and consists of zip code, city, and street attributes.
 
-![](ref_guide_images/ad05529167018d2d8061c354bdcc3099.png)
+![](../ref_guide_images/ad05529167018d2d8061c354bdcc3099.png)
 
 *Datatype table Address*
 
 The following example extends the **Person** data type with default values for specific fields.
 
-![](ref_guide_images/6e498e992fff0996f4f0bfdaa41fe293.png)
+![](../ref_guide_images/6e498e992fff0996f4f0bfdaa41fe293.png)
 
 *Datatype table with default values*
 
@@ -907,19 +907,19 @@ One attribute type can be used for many attribute names if their data elements a
 
 Consider an example of a Datatype table defining a custom data type called Corporation. The following table represents a structure of the Corporation data object and combines Corporation data elements, such as ID, full name, industry, ownership, and number of employees. If necessary, default values can be defined in the Datatype table for the fields of complex type when combination of fields exists with default values.
 
-![](ref_guide_images/b5a73e74ed8682eaf0d16856c2777e7e.png)
+![](../ref_guide_images/b5a73e74ed8682eaf0d16856c2777e7e.png)
 
 *Datatype table containing value \_DEFAULT\_*
 
 FinancialData refers to the FinancialData data type for default values.
 
-![](ref_guide_images/4c590632b13acc464c0dbf996661122d.png)
+![](../ref_guide_images/4c590632b13acc464c0dbf996661122d.png)
 
 *Datatype table with defined default values*
 
 During execution, the system takes default values from FinancialData data type.
 
-![](ref_guide_images/5bf69a312d2a3d4c976e4774c2cb6ae3.png)
+![](../ref_guide_images/5bf69a312d2a3d4c976e4774c2cb6ae3.png)
 
 *Datatype table with default values*
 
@@ -927,7 +927,7 @@ During execution, the system takes default values from FinancialData data type.
 
 **Note:** It is strongly recommended to leave an empty column right after the third column with default values if such column is used. Otherwise, in case the data type has 3 or less attributes, errors occur due to transposed tables support in OpenL Tablets.
 
-![](ref_guide_images/2d34aa03d4b3b8567eabc55f03dbca18.png)
+![](../ref_guide_images/2d34aa03d4b3b8567eabc55f03dbca18.png)
 
 *Datatype table with comments nearby*
 
@@ -939,7 +939,7 @@ Datatype table output results can be customized the same way as spreadsheets as 
   
 If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-datatype-tables).
   
-![](ref_guide_images/EPBDS-10058_3.png)
+![](../ref_guide_images/EPBDS-10058_3.png)
 
 *Filtering data type attributes for the output structure*
 
@@ -969,7 +969,7 @@ The vocabulary data type is created as follows:
 
 In the example described in [Introducing Datatype Tables](#introducing-datatype-tables), the data type **Person** has an attribute **gender** of the **Gender** data type which is the following vocabulary data type.
 
-![](ref_guide_images/d31cf1400142f390ff11cf5381ba2af0.png)
+![](../ref_guide_images/d31cf1400142f390ff11cf5381ba2af0.png)
 
 *Example of vocabulary datatype table with String parameters*
 
@@ -1009,7 +1009,7 @@ Simple data tables define a list of values of data types that have a simple stru
 
 An example of a data table containing an array of numbers is as follows.
 
-![](ref_guide_images/acdc1a72f6412ffb711d8cf7df0ad6b9.png)
+![](../ref_guide_images/acdc1a72f6412ffb711d8cf7df0ad6b9.png)
 
 *Simple data table*
 
@@ -1030,7 +1030,7 @@ Advanced data tables are used for storing information of a complex structure, su
 
 The following diagram displays a datatype table and a corresponding data table with concrete values below it.
 
-![](ref_guide_images/4c3548c5c7101bb2fc6a9b3d682e534b.png)
+![](../ref_guide_images/4c3548c5c7101bb2fc6a9b3d682e534b.png)
 
 *Datatype table and a corresponding data table*
 
@@ -1038,13 +1038,13 @@ The following diagram displays a datatype table and a corresponding data table w
 
 There might be a situation when a user needs a Data table column with unique values, while other columns contain values that are not unique. In this case, add a column with the predefined \_PK\_ attribute name, standing for the primary key. It is called an **explicit definition** of the primary key.
 
-![](ref_guide_images/d53a97c0c724c61a920bed156e6a5592.png)
+![](../ref_guide_images/d53a97c0c724c61a920bed156e6a5592.png)
 
 *A Data table with unique \_PK\_ column*
 
 If the \_PK\_ column is not defined, the first column of the table is used as a primary key. This is called an **implicit definition** of the primary key.
 
-![](ref_guide_images/e13b4f85ffc11adf30d82de8bf335be4.png)
+![](../ref_guide_images/e13b4f85ffc11adf30d82de8bf335be4.png)
 
 *Referring from one Data table to another using a primary key*
 
@@ -1075,7 +1075,7 @@ If a datatype table field is a list or a map, use the following syntax:
 
 An example of the data table with a list of values used for zip codes is as follows:
 
-![](ref_guide_images/7458aefdfc4db9a8041a3ae134e6e3b4.png)
+![](../ref_guide_images/7458aefdfc4db9a8041a3ae134e6e3b4.png)
 
 *Data table using a list field defined in the datatype table*
 
@@ -1083,19 +1083,19 @@ Values of the list type can also be defined as a comma-separated list.
 
 An example of the datatype table for this data table is as follows:
 
-![](ref_guide_images/09231cabcd3db615454ccae54448f258.png)
+![](../ref_guide_images/09231cabcd3db615454ccae54448f258.png)
 
 *Datatype table with a list field*
 
 An example of the data table with a map of values used for zip codes is as follows:
 
-![](ref_guide_images/df2fdf6ea29aceddcd420c67e2f392d5.png)
+![](../ref_guide_images/df2fdf6ea29aceddcd420c67e2f392d5.png)
 
 *Data table for the Map data type containing an aggregated object*
 
 An example of the datatype table for this table is as follows:
 
-![](ref_guide_images/cb2be397a3418304d66cdd351649fd52.png)
+![](../ref_guide_images/cb2be397a3418304d66cdd351649fd52.png)
 
 *A datatype table for the address custom data type*
 
@@ -1107,13 +1107,13 @@ Assume that the data, which values are to be specified and stored in a data tabl
 
 To illustrate this approach, assume there are two data types, `ZipCode` and `Address,` defined:
 
-![](ref_guide_images/0f1863e175418b98482bef1e273cbfa5.png)
+![](../ref_guide_images/0f1863e175418b98482bef1e273cbfa5.png)
 
 *Complex data types defined by Datatype tables*
 
 In the data type structure, the `Address` data type contains a reference to the `ZipCode` data type as its attribute `zip`. An example of a data table that specifies values for both data types at the same time is as follows.
 
-![](ref_guide_images/bb47c8f71e10d1df7d80317970e5bbec.png)
+![](../ref_guide_images/bb47c8f71e10d1df7d80317970e5bbec.png)
 
 *Specifying values for aggregated objects*
 
@@ -1131,7 +1131,7 @@ where `i` – sequence number of an element, starts from 0.
 
 The following example illustrates this approach.
 
-![](ref_guide_images/f75dbd6ad82b931e08b9c4816fadb4bb.png)
+![](../ref_guide_images/f75dbd6ad82b931e08b9c4816fadb4bb.png)
 
 *Specifying values for an array of aggregated objects using the flatten structure*
 
@@ -1142,7 +1142,7 @@ The first policy, **Policy1**, contains two vehicles: **Honda Odyssey** and **Fo
 **The second option** is to leave the format as is, omitting the [] syntax in column definition  
 `<attribute name of aggregated object>.<attribute name of object>, `and define elements of an array in several rows, or in several columns in case of a transposed table.
 
-![](ref_guide_images/7476c0aab15fcae1d021395e40c0f641.png)
+![](../ref_guide_images/7476c0aab15fcae1d021395e40c0f641.png)
 
 *Specifying values for an array of aggregated objects using the matrix structure*
 
@@ -1174,7 +1174,7 @@ If a data table contains values defined in another data table, it is important t
 
 In the following example, the **cities** data table contains values from the **states** table. To ensure that correct values are entered, a reference to the **code** column in the **states** table is defined.
 
-![](ref_guide_images/e7df03d7dd738015ec7b34b852fbee0a.png)
+![](../ref_guide_images/e7df03d7dd738015ec7b34b852fbee0a.png)
 
 *Defining a reference to another data table*
 
@@ -1194,7 +1194,7 @@ If `<column name>` is omitted, the reference by default is constructed using the
 
 In the following diagram, the **claims** data table contains values defined in the **policies** table and related to the **vehicle** attribute. A reference to the **name** column of the **policies** table is omitted as this is the first column in the table.
 
-![](ref_guide_images/6d0c609a8d3bec85987e342d828d0d5f.png)
+![](../ref_guide_images/6d0c609a8d3bec85987e342d828d0d5f.png)
 
 *Defining a reference to another data table*
 
@@ -1206,7 +1206,7 @@ In the following diagram, the **claims** data table contains values defined in t
 
 If the array is stored in the field object of the data table, array elements can be referred. An example is as follows.
 
-![](ref_guide_images/EPBDS-11307.png)
+![](../ref_guide_images/EPBDS-11307.png)
 
 *Referring array elements in a test table*
 
@@ -1224,7 +1224,7 @@ A **test table** is used to perform unit and integration tests on executable rul
 
 For example, in the following diagram, the table on the left is a decision table but the table on the right is a unit test table that tests data of the decision table.
 
-![](ref_guide_images/ba3efb052f98450e0245b4faa213f0e2.png)
+![](../ref_guide_images/ba3efb052f98450e0245b4faa213f0e2.png)
 
 *Decision table and its unit test table*
 
@@ -1252,7 +1252,7 @@ If there are several rule tables with a different number of parameters but ident
 
 Application runtime context values are defined in the runtime environment. Test tables for a table, overloaded by business dimension properties, must provide values for the runtime context significant for the tested table. Runtime context values are accessed in the test table through the **\_context\_** prefix. An example of a test table with the context value Lob follows:
 
-![](ref_guide_images/eab9f9a058ae179b23d673221835818f.png)
+![](../ref_guide_images/eab9f9a058ae179b23d673221835818f.png)
 
 *An example of a test table with a context value*
 
@@ -1264,7 +1264,7 @@ The **\_description\_** column can be used for entering useful information.
 
 The **\_error\_** column of the test table can be used for a test algorithm where the **error** function is used. The OpenL Tablets Engine compares an error message to the value of the **\_error\_** column to decide if test is passed.
 
-![](ref_guide_images/2cf1f943280ccde74bb35ae41dec4219.png)
+![](../ref_guide_images/2cf1f943280ccde74bb35ae41dec4219.png)
 
 *An example of a test table with an expected error column*
 
@@ -1302,19 +1302,19 @@ To create a test table for a spreadsheet or decision table that has another Spre
 
 Consider the following spreadsheet table.
 
-![](ref_guide_images/EPBDS-11369_1.png)
+![](../ref_guide_images/EPBDS-11369_1.png)
 
 *Sample spreadsheet table*
 
 There is also one more spreadsheet table that uses fields from the first spreadsheet table.
 
-![](ref_guide_images/EPBDS-11369_2.png)
+![](../ref_guide_images/EPBDS-11369_2.png)
 
 *Another spreadsheet table referencing fields of the first spreadsheet table*
 
 The following syntax is used to define the bankRatings value from SpreadsheetResult BankRatingCalculation as input for the test table.
 
-![](ref_guide_images/EPBDS-11369_3.png)
+![](../ref_guide_images/EPBDS-11369_3.png)
 
 *A test table for a spreadsheet table with SpreadsheetResult as input parameter*
 
@@ -1326,7 +1326,7 @@ A **run table** calls a particular rule table multiple times and provides input 
 
 An example of a run method table is as follows.
 
-![](ref_guide_images/a9d71a0285081f13294c74f89eedd0b4.png)
+![](../ref_guide_images/a9d71a0285081f13294c74f89eedd0b4.png)
 
 *Run table*
 
@@ -1352,7 +1352,7 @@ For more information on how to specify values of input parameters which have com
 
 A **method table** is a Java method described within a table. An example of a method table is as follows:
 
-![](ref_guide_images/36c37ea2296c8f5f2bab226b9154a5ff.png)
+![](../ref_guide_images/36c37ea2296c8f5f2bab226b9154a5ff.png)
 
 *Method table*
 
@@ -1407,11 +1407,11 @@ The second option, that is, using the asterisk symbol after the common part of n
 -   Any new version of dependency module is not omitted in future and requires no changes to the configuration table.
 -   The configuration table looks simpler.
 
-![](ref_guide_images/1f238cb8b773a234abf3557905773e52.png)
+![](../ref_guide_images/1f238cb8b773a234abf3557905773e52.png)
 
 *Configuration table with dependency modules added by their name*
 
-![](ref_guide_images/96afdcf447f6cb0280fcbf72751ddb35.png)
+![](../ref_guide_images/96afdcf447f6cb0280fcbf72751ddb35.png)
 
 *Configuration table with link to all dependency modules*
 
@@ -1427,7 +1427,7 @@ The following example illustrates how displaying dependency modules in the confi
 
 The purpose of this project is to calculate the Vehicle premium. The main algorithm is located in the `Auto-Rating Algorithm.xlsx` Excel file.
 
-![](ref_guide_images/09b48ef53e032b906d4d0d07b493bdd9.png)
+![](../ref_guide_images/09b48ef53e032b906d4d0d07b493bdd9.png)
 
 *Rule with the algorithm to calculate the Vehicle premium*
 
@@ -1443,7 +1443,7 @@ All these modules have a common part at the beginning of the name, `Auto-Rating-
 
 The configuration table can be defined with a link to all these modules as follows:
 
-![](ref_guide_images/b7d1eab657d0dd54df7ecd1b08c5aadf.png)
+![](../ref_guide_images/b7d1eab657d0dd54df7ecd1b08c5aadf.png)
 
 *Configuration table in the Auto-Rating Algorithm.xlsx file*
 
@@ -1456,7 +1456,7 @@ A **properties** table is used to define the module and category level propertie
 | Element    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Properties | Reserved word that defines the type of the table. It can be followed by a Java identifier. In this case, the properties table value <br/>becomes accessible in rules as a field of such name and of the **TableProperties** type.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| scope      | Identifies levels on which the property inheritance is defined. Available values are as follows: <br/>- **Module** <br/>Identifies properties defined for the whole module and inherited by all tables in it. <br/>There can be only one table with the **Module** scope in one module. <br/>![](ref_guide_images/6f09eade1c609cbb687e29239953d129.png) <br/>*A properties table with the Module level scope* <br/><br/>- **Category** <br/>Identifies properties applied to all tables where the category name equals the name specified in the **category** element. <br/>By default, a category name equals to the worksheet name. <br/>![](ref_guide_images/eecb98fda809923974b4e1024a75b559.png) <br/>*A properties table with the Category level scope* |
+| scope      | Identifies levels on which the property inheritance is defined. Available values are as follows: <br/>- **Module** <br/>Identifies properties defined for the whole module and inherited by all tables in it. <br/>There can be only one table with the **Module** scope in one module. <br/>![](../ref_guide_images/6f09eade1c609cbb687e29239953d129.png) <br/>*A properties table with the Module level scope* <br/><br/>- **Category** <br/>Identifies properties applied to all tables where the category name equals the name specified in the **category** element. <br/>By default, a category name equals to the worksheet name. <br/>![](../ref_guide_images/eecb98fda809923974b4e1024a75b559.png) <br/>*A properties table with the Category level scope* |
 | category   | Defines the category if the **scope** element is set to **Category**. If no value is specified, the category name is retrieved from the sheet name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Module     | Identifies whether properties can be overridden and inherited on the module level.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
@@ -1488,7 +1488,7 @@ The following table describes the spreadsheet table header syntax:
 
 The first column and row of a spreadsheet table, after the header, make the table column and row names. Values in other cells are the table values. An example is as follows.
 
-![](ref_guide_images/a423fb3f19ae42aaa5e8c1178081bf7a.png)
+![](../ref_guide_images/a423fb3f19ae42aaa5e8c1178081bf7a.png)
 
 *Spreadsheet table organization*
 
@@ -1512,7 +1512,7 @@ The following table describes how a cell value can be referenced in a spreadshee
 
 For more information on how to specify a range of cells, see [Using Ranges in Spreadsheet Table](#using-ranges-in-spreadsheet-table). Below is an example of a spreadsheet table with different calculations for an auto insurance policy. Table cells contain simple values, formulas, references to the value of another cell, and other information.
 
-![](ref_guide_images/365f4542b59a8be72e23f663f73605ba.png)
+![](../ref_guide_images/365f4542b59a8be72e23f663f73605ba.png)
 
 *Spreadsheet table with calculations as content*
 
@@ -1545,14 +1545,14 @@ OpenL Tablets processes spreadsheet tables in two different ways depending on th
 
 In the first case, users get the value of SpreadsheetResult type that is an analog of result matrix. All calculated cells of the spreadsheet table are accessible through this result. The following example displays a spreadsheet table of this type.
 
-![](ref_guide_images/2765c4b8d64804f56dcaf31e79ec23f2.png)  
-![](ref_guide_images/f79f28a229ab3605622f61f001f99faa.png)
+![](../ref_guide_images/2765c4b8d64804f56dcaf31e79ec23f2.png)  
+![](../ref_guide_images/f79f28a229ab3605622f61f001f99faa.png)
 
 *Spreadsheet table returns the SpreadsheetResult datatype*
 
 In the second case, the returned result type is a data type as in all other rule tables, so there is no need for **SpreadsheetResult** in the rule table header. The value of the last row, or the latest one if there are several columns, is returned. OpenL Tablets calculates line by line as follows:
 
-![](ref_guide_images/5f40b4d7152505581dc7f331b52a3aa2.png)
+![](../ref_guide_images/5f40b4d7152505581dc7f331b52a3aa2.png)
 
 *Spreadsheet table returning a single value*
 
@@ -1570,7 +1570,7 @@ or
 
 If a spreadsheet has one column only, besides the column holding step names, spreadsheet cells can be referenced by row names. If there is one row and multiple columns, a cell can be referenced by the column name.
 
-![](ref_guide_images/bc3aae72a1f92cc0e10c330b39aada46.png)
+![](../ref_guide_images/bc3aae72a1f92cc0e10c330b39aada46.png)
 
 *Referencing a cell by a row name*
 
@@ -1590,7 +1590,7 @@ $FirstValue:$LastValue
 
 An example of using a range this way in the **TotalAmount** column is as follows.
 
-![](ref_guide_images/90b1ffc6631a3b095b841c80bc9fd7f6.png)
+![](../ref_guide_images/90b1ffc6631a3b095b841c80bc9fd7f6.png)
 
 *Using ranges of Spreadsheet table in functions*
 
@@ -1602,7 +1602,7 @@ An example of using a range this way in the **TotalAmount** column is as follows
 
 OpenL Tablets determines the cell data type automatically without its definition for a row or column. A user can turn on or off this behavior using the **autotype** property. If any row or column contains explicit data type definition, it supersedes automatically determined data type. The following example demonstrates that any data type can be correctly determined in auto mode. A user can put the mouse cursor over the “=” symbol to check the type of the cell value in OpenL Studio.
 
-![](ref_guide_images/a4544122be707709459b3607776a75b0.png)
+![](../ref_guide_images/a4544122be707709459b3607776a75b0.png)
 
 *Auto Type Discovery Property Usage inside Spreadsheet table*
 
@@ -1615,7 +1615,7 @@ The SpreadsheetResult cell type is automatically determined if a user refers to 
 
 This logic also works when a user explicitly defines the type of the value as common SpreadsheetResult, for instance, in the following input parameter definition:
 
-![](ref_guide_images/218ebc707a2d2761cb4186ed757517b9_2.jpeg)
+![](../ref_guide_images/218ebc707a2d2761cb4186ed757517b9_2.jpeg)
 
 *Defining the value type as SpreadsheetResult*
 
@@ -1623,13 +1623,13 @@ However, there are several limitations of auto type discovering when the system 
 
 -   Type identification algorithm is not able to properly identify the cell type when a cell refers to another cell with the same name because of occurred circular dependencies.
    
-    ![](ref_guide_images/311742fa31d56cd04b21657dd6adeb5d_2.png)
+    ![](../ref_guide_images/311742fa31d56cd04b21657dd6adeb5d_2.png)
     
     *Limitation for referring to another cell with the same name*
     
 -   A user explicitly defines the return type of other Rules tables, such as Decision tables, as common SpreadsheetResult as follows:
     
-    ![](ref_guide_images/2faa6c76b2b4654436c6b537b890774d.png)
+    ![](../ref_guide_images/2faa6c76b2b4654436c6b537b890774d.png)
     
     *Explicitly defining the return type of other rules tables*
     
@@ -1637,7 +1637,7 @@ However, there are several limitations of auto type discovering when the system 
     
 -   There is a circular dependency in a spreadsheet table calling the same spreadsheet rule itself in a cell. This cell type must be explicitly defined to allow correct auto type discovering of the whole spreadsheet table as follows:
     
-    ![](ref_guide_images/12ff48c76e91fa56fc1a4144fffdf0ea.png)
+    ![](../ref_guide_images/12ff48c76e91fa56fc1a4144fffdf0ea.png)
     
     *Defining a cell type explicitly*
     
@@ -1661,13 +1661,13 @@ Custom SpreadsheetResult data type is automatically generated by a system and su
 
 To understand how this works, consider the following spreadsheet.
 
-![](ref_guide_images/90907cac7ee52c4e42de5ec8d589b3e2.png)
+![](../ref_guide_images/90907cac7ee52c4e42de5ec8d589b3e2.png)
 
 *An example of a spreadsheet*
 
 The return type is **SpreadsheetResult**, but it becomes **SpreadsheetResultCoveragePremium** data type. Now it is possible to access any calculated cell in a very simplified way without indicating its data type, for example, as displayed in the following figure.
 
-![](ref_guide_images/503d73e101cbe579c8d13cffffbe890e.png)
+![](../ref_guide_images/503d73e101cbe579c8d13cffffbe890e.png)
 
 *Calling Spreadsheet cell*
 
@@ -1675,11 +1675,11 @@ In this example, the spreadsheet table cell is accessed from the returned custom
 
 There is no need to specify a custom SpreadsheetResult data type in the header of the spreadsheet table itself. The return data type is still SpreadsheetResult. Only when passing such spreadsheet as input to another table, the full name must be declared. For example, if the CensusEmployeeCalc spreadsheet is an input parameter for the ClaimCostCalculation spreadsheet, (SpreadsheetResultCensusEmployeeCalc censusCalc) must be included in the list of inputs.
 
-![](ref_guide_images/23186c6b493f71ee5431611382ac86d0.jpeg)
+![](../ref_guide_images/23186c6b493f71ee5431611382ac86d0.jpeg)
 
 *Example of calling a spreadsheet to be used as input*
 
-![](ref_guide_images/fa6c4addb8c882079eb9c82563dd751b.jpeg)
+![](../ref_guide_images/fa6c4addb8c882079eb9c82563dd751b.jpeg)
 
 *Using a custom spreadsheet as an input parameter*
 
@@ -1694,7 +1694,7 @@ The combined SpreadsheetResult type is used when the rules table returns differe
     
 -   The array of SpreadsheetResult is created by united spreadsheet cells (\$Step1:\$Step10).
 
-![](ref_guide_images/b24251315339ac7bb9995f1082a6cffa.png)
+![](../ref_guide_images/b24251315339ac7bb9995f1082a6cffa.png)
 
 *Example of a rule returning a united spreadsheet result*
 
@@ -1721,7 +1721,7 @@ To simplify integration with OpenL rules, customize serialization output of Spre
 
 Consider the following spreadsheets.
 
-![](ref_guide_images/EPBDS-13257_1.png)
+![](../ref_guide_images/EPBDS-13257_1.png)
 
 *Spreadsheets example*
 
@@ -1775,7 +1775,7 @@ For these spreadsheets, output result is as follows.
 
 In the following example, some steps are marked with the asterisk to be included in the output.
 
-![](ref_guide_images/EPBDS-13257_2.png)
+![](../ref_guide_images/EPBDS-13257_2.png)
 
 *Example of spreadsheets with mandatory steps*
 
@@ -1814,7 +1814,7 @@ An output for these tables is as follows:
 
 Within a project, different tables can contain ~ or * markings. Using one or another depends on whether a user needs more steps to include or exclude into the final result. An example is as follows.
 
-![](ref_guide_images/EPBDS-13257_3.png)
+![](../ref_guide_images/EPBDS-13257_3.png)
 
 *An example of spreadsheets with steps marked to be included and excluded*
 
@@ -1860,7 +1860,7 @@ It is also possible to filter spreadsheet columns identifying the ones to be dis
 
 An example is as follows. 
   
-![](ref_guide_images/EPBDS-13257_4.png)
+![](../ref_guide_images/EPBDS-13257_4.png)
 
 *A spreadsheet table with three columns*
 
@@ -1890,7 +1890,7 @@ Note that the step names are in the **ColumnName_RowName** format.
 
 An example of the same spreadsheet with one of the columns excluded using the tilda ~ sign is as follows.
   
-![](ref_guide_images/EPBDS-13257_5.png)
+![](../ref_guide_images/EPBDS-13257_5.png)
 
 *A spreadsheet table with excluded column*
 
@@ -1913,7 +1913,7 @@ Note that the step names are in the **RowName** format because there is only one
   
 Now consider the following example that illustrates simultaneous usage of asterix in columns and steps.
   
-![](ref_guide_images/EPBDS-13257_6.png)
+![](../ref_guide_images/EPBDS-13257_6.png)
 
 *A spreadsheet table with filtered columns and steps*
 
@@ -1932,13 +1932,13 @@ An output result for this spreadsheet is as follows.
 
 Cells of a spreadsheet result, which is returned by the rule table, can be tested as displayed in the following spreadsheet table.
 
-![](ref_guide_images/8a5821a4a51ef3e649ccc27e7f0564ce.png)
+![](../ref_guide_images/8a5821a4a51ef3e649ccc27e7f0564ce.png)
 
 *A sample spreadsheet table*
 
 Simplified syntax is used to pull results from a spreadsheet table if a spreadsheet table contains only one column besides the row name column:` _res_.$<row name>`.
 
-![](ref_guide_images/131a2435015f629720736f1ec7266eea.png)
+![](../ref_guide_images/131a2435015f629720736f1ec7266eea.png)
 
 *Test for the sample spreadsheet table*
 
@@ -1946,7 +1946,7 @@ Columns marked with the grey color determine income values, and columns marked w
 
 The result of running this test in OpenL Studio is provided in the following output table.
 
-![](ref_guide_images/2ec745ab5fb408d59eb5094714b2d643.png)
+![](../ref_guide_images/2ec745ab5fb408d59eb5094714b2d643.png)
 
 *The sample spreadsheet test results*
 
@@ -1970,21 +1970,21 @@ where `i` – sequence number of an element, starts from 0.
 
 Consider an advanced example provided in the following figure. The **PolicyCalculation** spreadsheet table performs lots of calculations regarding an insurance policy, including specific calculations for vehicles and a main driver of the policy. In order to evaluate vehicle and drivers, for example, calculate their score and premium, the **VehicleCalculation** and **DriverCalculation** spreadsheet tables are invoked in cells of the PolicyCalculation rule table.
 
-![](ref_guide_images/7c4c252153209f6574023686b9e59796.png)
+![](../ref_guide_images/7c4c252153209f6574023686b9e59796.png)
 
 *Example of the PolicyCalculation spreadsheet table*
 
-![](ref_guide_images/d0440d5d33ecfcf62f11d3ae15a469e4.png)
+![](../ref_guide_images/d0440d5d33ecfcf62f11d3ae15a469e4.png)
 
 *Example of the VehicleCalculation spreadsheet table*
 
-![](ref_guide_images/0d95b2538e716996dc852104aad9728f.png)
+![](../ref_guide_images/0d95b2538e716996dc852104aad9728f.png)
 
 *The advanced sample spreadsheet table*
 
 The structure of the resulting **PolicyCalculation** spreadsheet is rather complex. Any cell of the result can be tested as illustrated in the **PolicyCalculationTest** test table.
 
-![](ref_guide_images/9ca1d32481cabe45bc2fe9d95c440545.png)
+![](../ref_guide_images/9ca1d32481cabe45bc2fe9d95c440545.png)
 
 *Test for the advanced sample spreadsheet table*
 
@@ -2070,7 +2070,7 @@ The **MATCH** algorithm allows mapping a set of conditions to a single return va
 
 Besides the mandatory columns, such as names, operations, and values, the **MATCH** table expects that the first data row contains **Return Values**, one of which is returned as a result of the ColumnMatch table execution.
 
-![](ref_guide_images/a3607ae37a6d991a8677c81fbdc95c83.png)
+![](../ref_guide_images/a3607ae37a6d991a8677c81fbdc95c83.png)
 
 *An example of the MATCH algorithm table*
 
@@ -2091,7 +2091,7 @@ The **SCORE** algorithm calculates the sum of weighted ratings or scores for all
 
 The algorithm expects that the first row contains **Score**, which is a list of scores or ratings added to the result sum if an argument matches the check value in the corresponding sub column.
 
-![](ref_guide_images/e9184556435621707184863eea503349.png)
+![](../ref_guide_images/e9184556435621707184863eea503349.png)
 
 *An example of the SCORE algorithm table*
 
@@ -2110,7 +2110,7 @@ The **WEIGHTED** algorithm combines the SCORE and simple MATCH algorithms. The r
 
 The WEIGHTED algorithm requires the same columns as the SCORE algorithm. Yet it expects that first three rows are **Return Values**, **Total Score**, and **Score**. **Return Values** and **Total Score** represent the MATCH algorithm, and the **Score** row is the beginning of the SCORE part.
 
-![](ref_guide_images/f52a3954a9f96b8cbc32e797c292141e.png)
+![](../ref_guide_images/f52a3954a9f96b8cbc32e797c292141e.png)
 
 *An example of the WEIGHTED algorithm table*
 
@@ -2122,7 +2122,7 @@ A **constants** table allows defining constants of different non-custom types. T
 
 An example of a constants table and constants usage is as follows.
 
-![](ref_guide_images/db8f76c43fa6c4df916bea0e04c0297f.png)
+![](../ref_guide_images/db8f76c43fa6c4df916bea0e04c0297f.png)
 
 *Constants table and usage example*
 
@@ -2146,11 +2146,11 @@ This functionality is suitable for cases when a user is dealing with `.xls` file
 
 Splitting can be vertical or horizontal. In vertical case, the first N1 rows of an original rule table are placed in the first table part, the next N2 rows in the second table part, and so on. In horizontal case, the first N1 columns of the rule table are placed in the first table part, the next N2 columns in the second table part, and so on. The header of the original rule table and its properties definition must be copied to each table part in case of horizontal splitting. Merging of table parts into the rule table is processed as depicted in the following figures.
 
-![](ref_guide_images/02c98c06e5ddf8ce244df0fb51c104fa.png)
+![](../ref_guide_images/02c98c06e5ddf8ce244df0fb51c104fa.png)
 
 *Vertical merging of table parts*
 
-![](ref_guide_images/a801e9923f6b411768454e55bdcce992.png)
+![](../ref_guide_images/a801e9923f6b411768454e55bdcce992.png)
 
 *Horizontal merging of table parts*
 
@@ -2176,19 +2176,19 @@ The following table describes the TablePart header syntax:
 
 The following examples illustrate vertical and horizontal splitting of the **RiskOfWorkWithCorporate** decision rule.
 
-![](ref_guide_images/1f2d320b59012e661191ea0c8e7a8331.png)
+![](../ref_guide_images/1f2d320b59012e661191ea0c8e7a8331.png)
 
 *Table Parts example. Vertical splitting part 1*
 
-![](ref_guide_images/0bb40e7ead9dbfcd3c5f4fa9418ed67c.png)
+![](../ref_guide_images/0bb40e7ead9dbfcd3c5f4fa9418ed67c.png)
 
 *Table Parts example. Vertical splitting part2*
 
-![](ref_guide_images/f922180cf12f7575fdd36ccb51013f4e.png)
+![](../ref_guide_images/f922180cf12f7575fdd36ccb51013f4e.png)
 
 *Table Part example. Horizontal splitting part 1*
 
-![](ref_guide_images/db63294e1a5812220acaa14b5400f815.png)
+![](../ref_guide_images/db63294e1a5812220acaa14b5400f815.png)
 
 *Table Parts example. Horizontal splitting part 2*
 
@@ -2198,7 +2198,7 @@ For all OpenL Tablets table types, except for [Properties Table](#properties-tab
 
 Table properties are displayed in the section which goes immediately after the table **header** and before other table contents. The properties section is optional and can be omitted in the table. The first cell in the properties row contains the **properties** keyword and is merged across all cells in column if more than one property is defined. The number of rows in the properties section is equal to the number of properties defined for the table. Each row in the properties section contains a pair of a property name and a property value in consecutive cells, that is, second and third columns.
 
-![](ref_guide_images/326e6522284b95a69e0afddbcb16d78b.png)
+![](../ref_guide_images/326e6522284b95a69e0afddbcb16d78b.png)
 
 *Table properties example*
 
@@ -2365,7 +2365,7 @@ The further examples display how these properties define which rule to apply for
 
 The following figure displays a business rule for calculating the quote for 2011.The effective date is 1/1/2011 and the expiration date is 12/31/2011.
 
-![](ref_guide_images/1102018ab7d74983a579181a4e48317a.png)
+![](../ref_guide_images/1102018ab7d74983a579181a4e48317a.png)
 
 *Business rule for calculating a car insurance quote for year 2011*
 
@@ -2381,13 +2381,13 @@ To create the rule for the year 2012, proceed as follows:
 
 The new table resembles the following:
 
-![](ref_guide_images/f5e656415c09e8439509d73b2819ee2c.png)
+![](../ref_guide_images/f5e656415c09e8439509d73b2819ee2c.png)
 
 *Business rule for calculating the same quote for the year 2012*
 
 To check how the rules work, test them for a certain car model and particular dates, for example, 5/10/2011 and 11/2/2012. The test result for BMW is as follows:
 
-![](ref_guide_images/4d371fade06eec544ed9a6606daf4d0f.png)
+![](../ref_guide_images/4d371fade06eec544ed9a6606daf4d0f.png)
 
 *Selection of the Factor based on Effective / Expiration Dates*
 
@@ -2412,13 +2412,13 @@ Users can have multiple rules with different start and end request dates, where 
 
 1.  The system selects the rule with the latest **Start Request** date.
     
-    ![](ref_guide_images/91f0467e1d986856804c10b87a872979.png)
+    ![](../ref_guide_images/91f0467e1d986856804c10b87a872979.png)
     
     *Example of the priority rule applied to rules with intersected Start Request date*
     
 1.  If there are rules with the same **Start Request** date, OpenL Tablets selects the rule with the earliest **End Request** date.
     
-    ![](ref_guide_images/3320df371350210821846fb0bd42fe9b.png)
+    ![](../ref_guide_images/3320df371350210821846fb0bd42fe9b.png)
     
     *Example of the priority rule applied to the rules with End Request date*
     
@@ -2432,13 +2432,13 @@ Consider the same rule for calculating a car insurance quote but add date proper
 
 For some reason, the rule for the year 2012 must be entered into the system in advance, for example, from 12/1/2011. For that purpose, add 12/1/2011 as **Start Request Date** to the rule as displayed in the following figure. Adding this property tells OpenL Tablets that the rule is applicable from the specified **Start Request** date.
 
-![](ref_guide_images/d11b3154f10a7bba336fdf7f357abf21.png)
+![](../ref_guide_images/d11b3154f10a7bba336fdf7f357abf21.png)
 
 *The rule for calculating the quote is introduced from 12/1/2011*
 
 Assume that a new rule with different factors from 2/3/2012 is introduced as displayed in the following figure.
 
-![](ref_guide_images/ffd0e51365aca15a4b064c98b0f108c2.png)
+![](../ref_guide_images/ffd0e51365aca15a4b064c98b0f108c2.png)
 
 *The rule for calculating the Quote is introduced from2.3.2011*
 
@@ -2446,7 +2446,7 @@ However, the US legal regulations require that the same rules for premium calcul
 
 The following figure displays results of testing the rules for BMW for particular request dates and effective dates.
 
-![](ref_guide_images/6884de5830dbb0d3a4f6285efa253603.png)
+![](../ref_guide_images/6884de5830dbb0d3a4f6285efa253603.png)
 
 *Selection of the Factor based on Start / End Request Dates*
 
@@ -2460,7 +2460,7 @@ Context variables can be used as input parameters. It is one more way to define 
 
 An example of using a context variable as an argument is as follows:
 
-![](ref_guide_images/f944d31ac567fdcbe5bb6f9320df3e85.png)
+![](../ref_guide_images/f944d31ac567fdcbe5bb6f9320df3e85.png)
 
 *Using a context variable as an input parameter*
 
@@ -2470,7 +2470,7 @@ The **Origin** Business Dimension property indicates the origin of rules used to
 
 An example is as follows.
 
-![](ref_guide_images/35fea1a38ca14c1847ed784a08f8359a.png)
+![](../ref_guide_images/35fea1a38ca14c1847ed784a08f8359a.png)
 
 *Example Rule table with origin property*
 
@@ -2480,13 +2480,13 @@ By using different sets of Business Dimension properties, a user can flexibly ap
 
 There are two types of overlaps by Business Dimension properties, “good” and “bad” overlaps. The following diagram illustrates overlap of properties, representing properties value sets of a versioned rule as circles. For simplicity, two sets are displayed.
 
-![](ref_guide_images/fb0f118cdcb5782de7bf92cdabb1043e.png)
+![](../ref_guide_images/fb0f118cdcb5782de7bf92cdabb1043e.png)
 
 *Example of logic for “good” and “bad” overlaps*
 
 The **No overlap** case means that property value sets are totally different and the only one rule table can be selected according to the specified client request in runtime context. An example is as follows:
 
-![](ref_guide_images/1ce92175fc36d3be0e00fc1501811716.png)
+![](../ref_guide_images/1ce92175fc36d3be0e00fc1501811716.png)
 
 *Example of No overlap case*
 
@@ -2496,7 +2496,7 @@ The **“Good” overlap** case describes the situation when several rule versio
 
 **Detailed properties values** mean that all these values are mentioned, or included, or implied in properties values of other tables. Consider the following example.
 
-![](ref_guide_images/e73c44a776e3e1d4cd8764e2dd49cd7f.png)
+![](../ref_guide_images/e73c44a776e3e1d4cd8764e2dd49cd7f.png)
 
 *Example of a rule with “good” overlapping*
 
@@ -2504,7 +2504,7 @@ The first rule table is the most general rule: there are no specified states, so
 
 The following diagram illustrates example overlapping.
 
-![](ref_guide_images/77f79b565fbe4436b66309bc3e0c7a9f.png)
+![](../ref_guide_images/77f79b565fbe4436b66309bc3e0c7a9f.png)
 
 *Logic of properties set inclusion*
 
@@ -2514,7 +2514,7 @@ The **“Bad” overlap** is when there is no certain result variant. “Bad” 
 
 Consider the following example.
 
-![](ref_guide_images/3771d3364d06cb17d7634c06a521c9ad.png)
+![](../ref_guide_images/3771d3364d06cb17d7634c06a521c9ad.png)
 
 *Example of a rule with “bad” overlapping*
 
@@ -2559,11 +2559,11 @@ So a user has one common premium calculation rule and several different rules fo
 
 The following OpenL Tablets table snippets illustrate this sample in action.
 
-![](ref_guide_images/cfb29bf85293cd94a07cf84d17ae1151.png)
+![](../ref_guide_images/cfb29bf85293cd94a07cf84d17ae1151.png)
 
-![](ref_guide_images/ab1b771211030885a796eee163f00eee.png)
+![](../ref_guide_images/ab1b771211030885a796eee163f00eee.png)
 
-![](ref_guide_images/15c2951ea4dd299ecee173fe6f6f4415.png)
+![](../ref_guide_images/15c2951ea4dd299ecee173fe6f6f4415.png)
 
 *The group of Decision Tables overloaded by properties*
 
@@ -2591,21 +2591,21 @@ Consider the following example.
 
 To vary rules by the date when insurance was applied for, create a dedicated runtime context property for it in the model or use the existed one if applicable.
 
-![](ref_guide_images/1d4843c40d545010e204b8615c506581.jpeg)
+![](../ref_guide_images/1d4843c40d545010e204b8615c506581.jpeg)
 
 *RequestDate set as applicationDate in a datatype table*
 
 There are two tables describing discount factors, for different request dates.
 
-![](ref_guide_images/81f3abd56835cbc88521a1f7ef792b58.jpeg)
+![](../ref_guide_images/81f3abd56835cbc88521a1f7ef792b58.jpeg)
 
-![](ref_guide_images/8b6f52f023f9059f6f8d1b4d631782a3.jpeg)
+![](../ref_guide_images/8b6f52f023f9059f6f8d1b4d631782a3.jpeg)
 
 *SmartRules tables with data for different request dates*
 
 In the test table, use the attribute name specified in the Datatype table. To test the provided cases, use the applicationDate attribute name only.
 
-![](ref_guide_images/1898ad7c4b9bd888fcf2b2fc8a652edf.jpeg)
+![](../ref_guide_images/1898ad7c4b9bd888fcf2b2fc8a652edf.jpeg)
 
 *Test table example*
 
@@ -2619,7 +2619,7 @@ All rule versions must have the same identity, that is, exactly the same signatu
 
 An example of an inactive rule version is as follows.
 
-![](ref_guide_images/6659108df318234ebaa7e8b49d1021f9.png)
+![](../ref_guide_images/6659108df318234ebaa7e8b49d1021f9.png)
 
 *An inactive rule version*
 
@@ -2645,7 +2645,7 @@ The **Dev** properties group impacts the OpenL Tablets features and enables syst
 
 For example, the **Scope** property defines whether properties are applicable to a particular category of rules or for the module. If **Scope** is defined as **Module**, the properties are applied for all tables in the current module. If **Scope** is defined as **Category**, use the **Category** property to specify the exact category to which the property is applicable.
 
-![](ref_guide_images/b24ac9d5a97c58eba245be0ab9442279.png)
+![](../ref_guide_images/b24ac9d5a97c58eba245be0ab9442279.png)
 
 *The properties are defined for the ‘Police-Scoring’ category*
 
@@ -2801,21 +2801,21 @@ As the interest of the insurer is to get a new value of the **Key** factor for a
 
 On the contrary, the **Protection** factor is not interesting for the insurer, so the **ProtectionFactor** rule is not required to be recalculated. To optimize the recalculation process, recalculation type of the rule must be set up as **Never**. Moreover, other rules tables, such as the **BaseRate** rule, which are not required to be recalculated, must have the recalculation property set to **Never**.
 
-![](ref_guide_images/57ce546e2e84c3b92680886d2cc5d2a2.png)
+![](../ref_guide_images/57ce546e2e84c3b92680886d2cc5d2a2.png)
 
 *Spreadsheet table which contains Recalculate Property*
 
-![](ref_guide_images/2dd4dc220ac31caab45a6e4944bd9ce6.jpeg)
+![](../ref_guide_images/2dd4dc220ac31caab45a6e4944bd9ce6.jpeg)
 
 *Decision table with defined Recalculate Property*
 
-![](ref_guide_images/9dea7feaae15aa1c4caf8919a8df8c79.jpeg)
+![](../ref_guide_images/9dea7feaae15aa1c4caf8919a8df8c79.jpeg)
 
 *Usage of Variation Recalculate Properties*
 
 Consider that the **Coverage A** limit of the quote is 90 and **Protection Class** is 9. A modified value of **Coverage A** limit for a variation is going to be 110. The following spreadsheet results after the first calculation and the second recalculation are obtained:
 
-![](ref_guide_images/8e39082210114f42b650798525819cb8.png)
+![](../ref_guide_images/8e39082210114f42b650798525819cb8.png)
 
 *Results of DwellPremiumCalculation with recalculation = Analyze*
 
@@ -2823,7 +2823,7 @@ Note that the **Key** factor is recalculated, but the **Protection** factor rema
 
 If the recalculation type of DwellPremiumCalculation is defined as **Always**, OpenL Tablets ignores and does not analyze recalculation types of nested rules and recalculates all cells as displayed in the following figure.
 
-![](ref_guide_images/bd4d376b50ac1e583b681ae5ab055f5d.png)
+![](../ref_guide_images/bd4d376b50ac1e583b681ae5ab055f5d.png)
 
 *Results of DwellPremiumCalculation with recalculation = Always*
 
@@ -2841,17 +2841,17 @@ It means that if the expected value is close enough to the returned value, the e
 
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 
-![](ref_guide_images/c3569f254070e12d13fd634ef5026ebd.jpeg)
+![](../ref_guide_images/c3569f254070e12d13fd634ef5026ebd.jpeg)
 
 *An example of Simple Rule*
 
 The first test table has the **Precision** property defined with value 5:
 
-![](ref_guide_images/795ee7b8320088c28b7f370357f6389b.png)
+![](../ref_guide_images/795ee7b8320088c28b7f370357f6389b.png)
 
 *An Example of Test table with Precision Dev property*
 
-![](ref_guide_images/fa84b55f7d3eeb4f625579c39ad0d159.png)
+![](../ref_guide_images/fa84b55f7d3eeb4f625579c39ad0d159.png)
 
 *An example of Test with precision defined*
 
@@ -2867,11 +2867,11 @@ OpenL Tablets allows specifying precision for a particular column which contains
 
 An example of the table using shortcut definition is as follows.
 
-![](ref_guide_images/443915bef83f2c62b2b2d78b399d2968.png)
+![](../ref_guide_images/443915bef83f2c62b2b2d78b399d2968.png)
 
 *Example of using shortcut definition of Precision Property*
 
-![](ref_guide_images/7ed00ee691ae50e3f63f2a0cc99c9c45.png)
+![](../ref_guide_images/7ed00ee691ae50e3f63f2a0cc99c9c45.png)
 
 *An example of Test with precision for the column defined*
 
@@ -2917,11 +2917,11 @@ File name pattern definition can use wildcards. For example, the .\*`-%`startReq
 
 In the following example, the **Bank Rating** project is configured in the way so that a user can specify the **US State** and **Start Request Date** properties values using the module file name:
 
-![](ref_guide_images/9c97ae9fab81cb2886dbcd8b0cbd6ddf.jpeg)
+![](../ref_guide_images/9c97ae9fab81cb2886dbcd8b0cbd6ddf.jpeg)
 
 *File name pattern configured via OpenL Studio*
 
-![](ref_guide_images/54e083c05fb89c951a71023586247217.png)
+![](../ref_guide_images/54e083c05fb89c951a71023586247217.png)
 
 *File name pattern in a rules project descriptor directly*
 
@@ -2933,7 +2933,7 @@ If a file name does not match the pattern, module properties are not defined.
 
 To view detailed information about the properties added to the file name pattern, click information icon next to the **Properties pattern for a file name** field.
 
-![](ref_guide_images/f06a4edf46814323ba15e8406d968ef8.png)
+![](../ref_guide_images/f06a4edf46814323ba15e8406d968ef8.png)
 
 *Properties file name pattern description*
 
@@ -2949,7 +2949,7 @@ A template for this example is as follows: `.*-%lob%-.*-%effectiveDate:ddMMyyyy%
 
 **Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. When the **Custom file name processor** check box is selected, the **File name processor class** field is displayed.
 
-![](ref_guide_images/de47823ff89fb7aec0104e6846f2c98a.png)
+![](../ref_guide_images/de47823ff89fb7aec0104e6846f2c98a.png)
 
 *Custom file name processor class*
 
@@ -2968,7 +2968,7 @@ A naming pattern must be added to the `rules.xml` file, same as for the file nam
 
 
 
-![](ref_guide_images/EPBDS10688.png)
+![](../ref_guide_images/EPBDS10688.png)
 
 *Defining module level properties in a folder name*
 
@@ -2991,7 +2991,7 @@ An alternative keyword for the state business property is CW, which stands for *
 
 To use the feature, define the **Properties** pattern for a file name as described in [Properties Defined in the File Name](#properties-defined-in-the-file-name).
 
-![](ref_guide_images/9fdc9578b2c24441a4cd74fd78b8e4a6.jpeg)
+![](../ref_guide_images/9fdc9578b2c24441a4cd74fd78b8e4a6.jpeg)
 
 *Defining a property pattern for a state and line of business*
 
@@ -3000,7 +3000,7 @@ For instance, consider the **Corporate Bank Calculation** project configured as 
 -   US State is any state
 -   lob = test
 
-![](ref_guide_images/8e680f98ae1bf87752d6a296d80b750a.jpeg)
+![](../ref_guide_images/8e680f98ae1bf87752d6a296d80b750a.jpeg)
 
 *Decision table overloaded with all states*
 

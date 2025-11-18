@@ -48,7 +48,7 @@ Project sources can be added from developer created artifacts, such as jars, Jav
 
 Saved classpath is automatically added to the `rules.xml` file. After that, classpath can be used in rules. Classpath can indicate both specific jar and folder with libraries. The asterisk \* symbol can be used for the varying part in the classpath.
 
-![](ref_guide_images/313c40df8377b0710aea854961525cd3.png)
+![](../ref_guide_images/313c40df8377b0710aea854961525cd3.png)
 
 *Classpath description in the rules.xml*
 
@@ -62,17 +62,17 @@ The following additional internal methods for modification, retrieving, and rest
 
 | Method                                                   | Description                                                                                                                                                                                                                                                                                                                                                                           |
 |----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| getContext()                                             | Returns a copy of the current runtime context. <br/>![](ref_guide_images/cb7b2ebdf5cd9a6c21ff98d007ac5965.png) <br/>*Using the getContext function in a method*                                                                                                                                                                                                                                 |
+| getContext()                                             | Returns a copy of the current runtime context. <br/>![](../ref_guide_images/cb7b2ebdf5cd9a6c21ff98d007ac5965.png) <br/>*Using the getContext function in a method*                                                                                                                                                                                                                                 |
 | emptyContext()                                           | Returns new empty runtime context.                                                                                                                                                                                                                                                                                                                                                    |
 | setContext(IRulesRuntimeContext context)                 | Replaces the current runtime context with the specified one.                                                                                                                                                                                                                                                                                                                          |
-| modifyContext(String propertyName, Object propertyValue) | Modifies the current context by one property: adds a new one or replaces by specified <br/>if property with such a name already exists in the current context. <br/>![](ref_guide_images/345b56e88fcf98c98591398d58985aa0.png) <br/>*Using modifyContext in a rules table* <br/><br/>**Note:** All properties from the current context remain available after modification, <br/>so it is only one property update. |
-| restoreContext()                                         | Discharges the last changes in runtime context. <br/>The context is rolled back to the state before the last **setContext** or **modifyContext**. <br/>![](ref_guide_images/4810ac1a3ef87622504d98f919edc81a.png) <br/>*Using restoreContext in a method table*                                                                                                                                      |
+| modifyContext(String propertyName, Object propertyValue) | Modifies the current context by one property: adds a new one or replaces by specified <br/>if property with such a name already exists in the current context. <br/>![](../ref_guide_images/345b56e88fcf98c98591398d58985aa0.png) <br/>*Using modifyContext in a rules table* <br/><br/>**Note:** All properties from the current context remain available after modification, <br/>so it is only one property update. |
+| restoreContext()                                         | Discharges the last changes in runtime context. <br/>The context is rolled back to the state before the last **setContext** or **modifyContext**. <br/>![](../ref_guide_images/4810ac1a3ef87622504d98f919edc81a.png) <br/>*Using restoreContext in a method table*                                                                                                                                      |
 
 **ATTENTION:** All changes and rollbacks must be controlled manually: all changes applied to runtime context will remain after rule execution. Make sure that the changed context is restored after the rule is executed to prevent unexpected behavior of rules caused by unrestored context.
 
 **Note:** The `org.openl.rules.context` package must be imported as illustrated in the following figure so that a user can work with runtime context from rules:
 
-![](ref_guide_images/c2a04bfd8f5c43ddabd046e276940e66.png)
+![](../ref_guide_images/c2a04bfd8f5c43ddabd046e276940e66.png)
 
 ### Project, Module, and Rule Dependencies
 
@@ -98,19 +98,19 @@ The **module dependency** feature allows making a hierarchy of modules when rule
 
 The following diagram illustrates a project in which the content of **Module_1** and **Module_2** depends on the content of **Module_3**, where thin black arrows are module dependencies:
   
-![](ref_guide_images/example1.png)
+![](../ref_guide_images/example1.png)
   
 *Example of a project with modules hierarchy*
 
 In addition, **project dependency** enables accessing modules of other projects from the current one:
 
-![](ref_guide_images/example2.png)
+![](../ref_guide_images/example2.png)
   
 *Example of a project dependency with all modules*
 
 The previous diagram displays that any module of **Project1** can execute any table of any module of **Project2**: thick gray arrow with the **All Modules** label is a project dependency with all dependency project modules included. This is equivalent to the following schema when each module of **Project1** has implicit dependency declaration to each module of **Project2**:
 
-![](ref_guide_images/example3.png)
+![](../ref_guide_images/example3.png)
   
 *Interpretation of a project dependency (with all modules)*
 
@@ -118,7 +118,7 @@ The project dependency with the **All Modules** setting switched on provides acc
 
 Users may combine module and project dependencies if only a particular module of another project must be used. An example is as follows:
 
-![](ref_guide_images/example4.png)
+![](../ref_guide_images/example4.png)
   
 *Example of a project and module dependencies combined*
 
@@ -126,7 +126,7 @@ In the example, for defined external **Project2**, only the content of **Module2
 
 If the project dependency does not have the **All Modules** setting enabled, dependencies are determined on the module level, and such project dependencies serve the isolation purpose thus enabling getting a dependency module from particular external projects.
 
-![](ref_guide_images/9eb5fa2cced50e13e5a74ef055012aa7.jpeg)
+![](../ref_guide_images/9eb5fa2cced50e13e5a74ef055012aa7.jpeg)
 
 *Defining dependencies for projects in OpenL Studio*
 
@@ -142,7 +142,7 @@ Dependencies can also be used to call a specific rule from another project that 
 `Project`.tableName() must be used if the table name is unique within the whole project.
 `Project/module`.tableName() must be used if the table name is not unique among the modules.
 
-![](ref_guide_images/950b982ad646f2db2bbf49c9feac05e7.jpeg)
+![](../ref_guide_images/950b982ad646f2db2bbf49c9feac05e7.jpeg)
 
 *Example of calling a rule from another project*
 
@@ -156,13 +156,13 @@ This section describes dependencies configuration.
     
     A module can contain any number of dependencies. Dependency modules can also have dependencies. Avoid using cyclic dependencies.
     
-    ![](ref_guide_images/d9de1dad095e2fc163cd190215bfa65c.jpeg)
+    ![](../ref_guide_images/d9de1dad095e2fc163cd190215bfa65c.jpeg)
     
     *Example of configuring module dependencies*
      
 1.  To configure a project dependency, in a rules project descriptor, in the `rules.xml` file created in the project root folder, in the **Dependency** section, for the **name** tag used for defining the dependency project name, set the **autoIncluded** tag to **true** or **false**.
     
-    ![](ref_guide_images/db874ee7c5c4d96ed011451f7547c3a2.png)
+    ![](../ref_guide_images/db874ee7c5c4d96ed011451f7547c3a2.png)
     
     *Example of configuring project dependencies – fragment of rules.xml*
 
@@ -182,7 +182,7 @@ Import configuration is defined using the **Environment** table as described in 
 
 In the following example, the **Environment** table contains an import section with reference to the corresponding Java package:
 
-![](ref_guide_images/bea7dd17a1645006da145c10ae6eb74e.png)
+![](../ref_guide_images/bea7dd17a1645006da145c10ae6eb74e.png)
 
 *Example of configuring module import*
 
