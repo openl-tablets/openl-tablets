@@ -1,6 +1,8 @@
 package org.openl.studio.mcp.config;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.common.McpTransportContext;
@@ -9,11 +11,12 @@ import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpStatelessSyncServer;
 import io.modelcontextprotocol.server.transport.WebMvcStatelessServerTransport;
 import io.modelcontextprotocol.spec.McpSchema;
+import org.springframework.ai.mcp.McpToolUtils;
 import org.springframework.ai.mcp.annotation.spring.SyncMcpAnnotationProviders;
+import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -48,18 +51,35 @@ public class McpServerConfig {
     @Bean
     public McpStatelessSyncServer mcpSyncServer(WebMvcStatelessServerTransport transportProvider,
                                                 McpSchema.ServerCapabilities.Builder capabilitiesBuilder,
-                                                ApplicationContext applicationContext,
-                                                Environment environment) {
+                                                ApplicationContext applicationContext) {
         McpSchema.Implementation serverInfo = new McpSchema.Implementation("mcp-openl-studio-server", OpenLVersion.getVersion());
 
         var serverBuilder = McpServer.sync(transportProvider);
         serverBuilder.serverInfo(serverInfo);
 
         // configure mcp tools
-        capabilitiesBuilder.tools(true);
         List<Object> beansByAnnotation = applicationContext.getBeansWithAnnotation(McpController.class).values().stream().toList();
         if (!CollectionUtils.isEmpty(beansByAnnotation)) {
-            serverBuilder.tools(SyncMcpAnnotationProviders.statelessToolSpecifications(beansByAnnotation));
+            capabilitiesBuilder.tools(true);
+            beansByAnnotation.stream()
+                    .map(bean -> {
+                        try {
+                            return ToolCallbacks.from(bean);
+                        } catch (IllegalStateException ignored) {
+                            // Ignore beans without @Tool methods
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .flatMap(Arrays::stream)
+                    .map(tool -> McpToolUtils.toStatelessSyncToolSpecification(tool, null))
+                    .forEach(serverBuilder::tools);
+
+            var promtSpecs = SyncMcpAnnotationProviders.statelessPromptSpecifications(beansByAnnotation);
+            if (!promtSpecs.isEmpty()) {
+                capabilitiesBuilder.prompts(true);
+                serverBuilder.prompts(promtSpecs);
+            }
         }
 
         serverBuilder.capabilities(capabilitiesBuilder.build());

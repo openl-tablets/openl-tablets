@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.projects.mcp.model;
 
-import org.springaicommunity.mcp.annotation.McpToolParam;
+import org.springframework.ai.tool.annotation.ToolParam;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
 
 public record ListProjectsRequest(
-        @McpToolParam(description = "Project status to filter by", required = false)
+        @ToolParam(description = "Project status to filter by", required = false)
         ProjectStatus status,
-        @McpToolParam(description = "Repository identifier to filter by", required = false)
+        @ToolParam(description = "Repository identifier to filter by", required = false)
         String repository
 ) {
 }

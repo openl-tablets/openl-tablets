@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openl.rules.rest.model.RepositoryViewModel;
 
-public interface ProductionRepositoryService {
+public interface DeploymentRepositoryService {
 
     List<RepositoryViewModel> getRepositoryList();
 }

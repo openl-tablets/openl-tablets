@@ -69,7 +69,6 @@ import org.openl.rules.webstudio.projects.tests.messaging.service.SocketProjectA
 import org.openl.rules.webstudio.projects.tests.model.TestsExecutionSummary;
 import org.openl.rules.webstudio.projects.tests.model.TestsExecutionSummaryResponseMapper;
 import org.openl.rules.webstudio.util.WebTool;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -300,7 +299,7 @@ public class ProjectsController {
 
     private ObjectMapper configureObjectMapper() {
         try {
-            var objectMapperFactory = WebStudioUtils.getWebStudio().getCurrentProjectJacksonObjectMapperFactoryBean();
+            var objectMapperFactory = projectService.getWebStudio().getCurrentProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setEnvironment(environment);
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {

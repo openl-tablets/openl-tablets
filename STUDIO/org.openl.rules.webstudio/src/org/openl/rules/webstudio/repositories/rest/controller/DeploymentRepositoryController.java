@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.rest.model.RepositoryViewModel;
-import org.openl.rules.webstudio.repositories.service.ProductionRepositoryService;
+import org.openl.rules.webstudio.repositories.service.DeploymentRepositoryService;
 
 @RestController
 @RequestMapping(value = "/production-repos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Production Repository")
-public class ProductionRepositoryController {
+public class DeploymentRepositoryController {
 
-    private final ProductionRepositoryService productionRepositoryService;
+    private final DeploymentRepositoryService deploymentRepositoryService;
 
-    public ProductionRepositoryController(ProductionRepositoryService productionRepositoryService) {
-        this.productionRepositoryService = productionRepositoryService;
+    public DeploymentRepositoryController(DeploymentRepositoryService deploymentRepositoryService) {
+        this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
     @GetMapping
-    @Operation(summary = "Get a list of Production Repositories", description = "Get a list of configured Production Repositories.")
+    @Operation(summary = "Get a list of Deployment Repositories", description = "Get a list of configured Deployment Repositories.")
     @ApiResponse(responseCode = "200", description = "List the configured Production Repositories.")
     public List<RepositoryViewModel> getRepositoryList() {
-        return productionRepositoryService.getRepositoryList();
+        return deploymentRepositoryService.getRepositoryList();
     }
 }

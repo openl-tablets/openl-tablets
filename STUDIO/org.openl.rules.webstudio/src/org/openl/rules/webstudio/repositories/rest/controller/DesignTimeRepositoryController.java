@@ -38,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
@@ -49,7 +48,6 @@ import org.openl.rules.rest.SecurityException;
 import org.openl.rules.rest.ZipProjectSaveStrategy;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.rest.model.GenericView;
 import org.openl.rules.rest.model.PageResponse;
@@ -67,6 +65,7 @@ import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.webstudio.repositories.service.DesignTimeRepositoryService;
+import org.openl.rules.webstudio.repositories.service.ProjectRevisionService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -90,6 +89,7 @@ public class DesignTimeRepositoryController {
     private final RepositoryProjectService projectService;
     private final AclProjectsHelper aclProjectsHelper;
     private final DesignTimeRepositoryService designTimeRepositoryService;
+    private final ProjectRevisionService projectRevisionService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -100,7 +100,8 @@ public class DesignTimeRepositoryController {
                                           ZipProjectSaveStrategy zipProjectSaveStrategy,
                                           @Value("${openl.home.shared}") String homeDirectory,
                                           RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper,
-                                          DesignTimeRepositoryService designTimeRepositoryService) {
+                                          DesignTimeRepositoryService designTimeRepositoryService,
+                                          ProjectRevisionService projectRevisionService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -111,6 +112,7 @@ public class DesignTimeRepositoryController {
         this.projectService = projectService;
         this.aclProjectsHelper = aclProjectsHelper;
         this.designTimeRepositoryService = designTimeRepositoryService;
+        this.projectRevisionService = projectRevisionService;
     }
 
     @Lookup
@@ -166,28 +168,13 @@ public class DesignTimeRepositoryController {
                                                             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
                                                             @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
                                                             @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
-        if (branch.isPresent()) {
-            repository = checkoutBranchIfPresent(repository, branch.get());
-        }
-        AProject project;
-        try {
-            project = designTimeRepository.getProject(repository.getId(), projectName);
-        } catch (ProjectException e) {
-            throw new NotFoundException("project.message", projectName);
-        }
-
-        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
-            throw new SecurityException();
-        }
-
-        String fullPath;
-        if (repository.supports().mappedFolders()) {
-            fullPath = designTimeRepository.getProject(repository.getId(), projectName).getFolderPath();
-        } else {
-            fullPath = designTimeRepository.getRulesLocation() + projectName;
-        }
-
-        return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, techRevs, page);
+        return projectRevisionService.getProjectRevision(
+                repository,
+                projectName,
+                branch.orElse(null),
+                searchTerm,
+                techRevs,
+                page);
     }
 
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -276,15 +263,4 @@ public class DesignTimeRepositoryController {
         }
     }
 
-    private Repository checkoutBranchIfPresent(Repository repository, String branch) throws IOException {
-        if (!repository.supports().branches()) {
-            throw new NotFoundException("repository.branch.message");
-        }
-        branch = branch.replace(' ', '/');
-        BranchRepository branchRepo = ((BranchRepository) repository);
-        if (!branchRepo.branchExists(branch)) {
-            throw new NotFoundException("repository.branch.message");
-        }
-        return branchRepo.forBranch(branch);
-    }
 }

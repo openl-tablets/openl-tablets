@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.projects.mcp.model;
 
-import org.springaicommunity.mcp.annotation.McpToolParam;
+import org.springframework.ai.tool.annotation.ToolParam;
 
 public record GetProjectTableRequest(
-        @McpToolParam(description = "Project identifier")
+        @ToolParam(description = "Project identifier")
         String projectId,
-        @McpToolParam(description = "Table identifier")
+        @ToolParam(description = "Table identifier")
         String tableId
 ) {
 }

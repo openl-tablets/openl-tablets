@@ -11,11 +11,11 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.security.acl.repository.AclRepositoryType;
 
 @Service
-public class ProductionRepositoryServiceImpl implements ProductionRepositoryService {
+public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryService {
 
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
 
-    public ProductionRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService) {
+    public DeploymentRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService) {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
