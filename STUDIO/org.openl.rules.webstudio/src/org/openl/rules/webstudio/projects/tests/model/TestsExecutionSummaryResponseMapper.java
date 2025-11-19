@@ -74,7 +74,9 @@ public class TestsExecutionSummaryResponseMapper {
 
         // Map test assertions
         var results = testUnit.getComparisonResults();
-        var resultColumnNames = testCase.getTestResultColumnDisplayNames();
+        var resultColumnNames = testUnit.getActualResult() instanceof Exception
+                ? testCase.getTestErrorColumnDisplayNames()
+                : testCase.getTestResultColumnDisplayNames();
         IntStream.range(0, results.size())
                 .mapToObj(i -> mapToTestAssertionResult(results.get(i))
                         .description(resultColumnNames[i])

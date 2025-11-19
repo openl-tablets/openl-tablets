@@ -2,9 +2,7 @@ package org.openl.rules.webstudio.projects.tests.executor;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,6 +12,7 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.util.RuntimeExceptionWrapper;
 
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -75,7 +74,7 @@ public class ExecutionTestsResultRegistry {
         }
 
         CompletableFuture<List<TestUnitsResults>> future = e.task();
-        if (!future.isDone() || future.isCompletedExceptionally() || future.isCancelled()) {
+        if (!future.isDone() || future.isCancelled()) {
             return null;
         }
 
@@ -84,8 +83,8 @@ public class ExecutionTestsResultRegistry {
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             return null;
-        } catch (CancellationException | ExecutionException | CompletionException ex) {
-            return null;
+        } catch (ExecutionException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
         }
     }
 }
