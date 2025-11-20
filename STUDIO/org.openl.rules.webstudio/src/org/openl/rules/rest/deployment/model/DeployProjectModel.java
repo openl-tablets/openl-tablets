@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.rest.validation.ProjectNameConstraint;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 @JsonDeserialize(builder = DeployProjectModel.Builder.class)
 @Schema(description = "Deploy project request model")

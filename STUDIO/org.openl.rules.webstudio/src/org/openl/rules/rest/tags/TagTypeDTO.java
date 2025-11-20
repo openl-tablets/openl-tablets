@@ -5,7 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 
-import org.openl.rules.rest.model.GenericView;
+import org.openl.studio.common.model.GenericView;
 
 public class TagTypeDTO {
 

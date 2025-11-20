@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.rest.model.ProjectIdModel;
+import org.openl.studio.common.model.GenericView;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 @Schema(description = "Deployment view model")
 public class DeploymentViewModel {

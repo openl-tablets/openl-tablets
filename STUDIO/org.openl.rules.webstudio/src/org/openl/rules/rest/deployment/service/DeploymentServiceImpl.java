@@ -19,15 +19,15 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.rest.model.ProjectIdModel;
-import org.openl.rules.rest.project.ProjectStateValidator;
-import org.openl.rules.rest.service.ProjectDependencyResolver;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.service.ProjectDependencyResolver;
+import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
 public class DeploymentServiceImpl implements DeploymentService {

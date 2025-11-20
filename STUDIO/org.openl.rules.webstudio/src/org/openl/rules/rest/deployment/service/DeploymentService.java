@@ -5,7 +5,7 @@ import java.util.List;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.rest.model.ProjectIdModel;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 public interface DeploymentService {
 

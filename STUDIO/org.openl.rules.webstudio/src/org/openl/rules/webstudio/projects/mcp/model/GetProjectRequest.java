@@ -1,9 +1,0 @@
-package org.openl.rules.webstudio.projects.mcp.model;
-
-import org.springframework.ai.tool.annotation.ToolParam;
-
-public record GetProjectRequest(
-        @ToolParam(description = "Project identifier")
-        String projectId
-) {
-}

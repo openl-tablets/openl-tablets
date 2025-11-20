@@ -26,9 +26,9 @@ import org.openl.rules.rest.deployment.model.DeploymentViewModel;
 import org.openl.rules.rest.deployment.model.RedeployProjectModel;
 import org.openl.rules.rest.deployment.service.DeploymentCriteriaQuery;
 import org.openl.rules.rest.deployment.service.DeploymentService;
-import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.rest.model.ProjectIdModel;
-import org.openl.rules.rest.resolver.Base64ProjectConverter;
+import org.openl.studio.common.model.GenericView;
+import org.openl.studio.projects.converter.Base64ProjectConverter;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
