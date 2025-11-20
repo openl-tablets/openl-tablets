@@ -22,6 +22,8 @@ This reference guide is organized into the following sections:
 - [Representing Values of Different Types](02-working-with-openl-tables/03-representing-values-of-different-types.md) - How to represent arrays, dates, booleans, and ranges in table cells
 
 #### Table Types
+
+##### Core Table Types
 OpenL Tablets supports various table types for different purposes:
 
 - [Datatype Tables](02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md) - Define custom data types and structures
@@ -30,13 +32,17 @@ OpenL Tablets supports various table types for different purposes:
 - [Data Tables](02-working-with-openl-tables/04-table-types/04-data-table/01-using-simple-data-tables.md) - Store and manage data collections
 - [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md) - Unit testing for rules and methods
 - [Configuration Tables](02-working-with-openl-tables/04-table-types/06-configuration-table/01-configuration-table-description.md) - Configure module behavior
-- [Column Match Tables](02-working-with-openl-tables/04-table-types/07-column-match-table.md) - Pattern matching across columns
-- [Method Tables](02-working-with-openl-tables/04-table-types/08-method-table.md) - Define callable methods
-- [Properties Tables](02-working-with-openl-tables/04-table-types/09-properties-table.md) - Set table and method properties
-- [Run Tables](02-working-with-openl-tables/04-table-types/10-run-table.md) - Execute test scenarios
-- [TBasic Tables](02-working-with-openl-tables/04-table-types/11-tbasic-table.md) - BASIC-style procedural code
-- [Constants Tables](02-working-with-openl-tables/04-table-types/12-constants-table.md) - Define constant values
-- [Table Part](02-working-with-openl-tables/04-table-types/13-table-part.md) - Reusable table components
+
+##### Less Common Table Types
+Specialized table types for specific use cases:
+
+- [Column Match Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/01-column-match-table.md) - Pattern matching across columns
+- [Method Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/02-method-table.md) - Define callable methods
+- [Properties Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/03-properties-table.md) - Set table and method properties
+- [Run Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/04-run-table.md) - Execute test scenarios
+- [TBasic Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/05-tbasic-table.md) - BASIC-style procedural code
+- [Constants Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/06-constants-table.md) - Define constant values
+- [Table Part](02-working-with-openl-tables/04-table-types/07-less-common-table-types/07-table-part.md) - Reusable table components
 
 #### Table Configuration
 - [Table Properties Overview](02-working-with-openl-tables/05-table-properties/01-category-and-module-level-properties.md) - Comprehensive guide to table properties and metadata
@@ -79,7 +85,7 @@ OpenL Tablets supports various table types for different purposes:
 - **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/04-table-types/02-decision-table/01-decision-table-overview-and-structure.md)
 - **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/04-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
 - **Storing data** → [Data Tables](02-working-with-openl-tables/04-table-types/04-data-table/01-using-simple-data-tables.md)
-- **Testing rules** → [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/04-table-types/10-run-table.md)
+- **Testing rules** → [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/04-table-types/07-less-common-table-types/04-run-table.md)
 - **Representing values** → [Arrays, Dates, Booleans, Ranges](02-working-with-openl-tables/03-representing-values-of-different-types.md)
 - **Working with collections** → [Arrays](03-openl-tablets-functions-and-supported-data-types/03-working-with-arrays.md)
 - **Using functions** → [Functions Overview](03-openl-tablets-functions-and-supported-data-types/02-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
