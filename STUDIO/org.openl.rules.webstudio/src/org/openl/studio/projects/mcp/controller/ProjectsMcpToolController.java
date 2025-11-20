@@ -180,7 +180,7 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-local-history", description = "Retrieves local history for a specified project.")
+    @Tool(name = TOOL_PREFIX + "-list-local-changes", description = "Retrieves local history for a specified project.")
     public List<ProjectHistoryItem> getProjectHistory(@ToolParam(description = "Project identifier")
                                                       String projectId) {
         var project = base64ProjectConverter.convert(projectId);
@@ -188,7 +188,7 @@ public class ProjectsMcpToolController {
         return projectHistoryService.getProjectHistory(projectService.getWebStudio());
     }
 
-    @Tool(name = TOOL_PREFIX + "-restore-version", description = "Restores a project to a specified version from its local history.")
+    @Tool(name = TOOL_PREFIX + "-restore-local-change", description = "Restores a project to a specified version from its local history.")
     public void restoreProjectVersion(@ToolParam(description = "Project identifier")
                                       String projectId,
                                       @ToolParam(description = "History ID to restore")

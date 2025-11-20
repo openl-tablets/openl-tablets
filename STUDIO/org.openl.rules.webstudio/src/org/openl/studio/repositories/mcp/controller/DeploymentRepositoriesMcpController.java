@@ -11,7 +11,7 @@ import org.openl.studio.repositories.service.DeploymentRepositoryService;
 @McpController
 public class DeploymentRepositoriesMcpController {
 
-    private static final String TOOL_PREFIX = "deployment-repositories";
+    private static final String TOOL_PREFIX = "deployment-repos";
 
     private final DeploymentRepositoryService deploymentRepositoryService;
 

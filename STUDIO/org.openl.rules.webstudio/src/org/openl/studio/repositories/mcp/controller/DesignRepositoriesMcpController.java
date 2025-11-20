@@ -21,7 +21,7 @@ import org.openl.studio.repositories.service.ProjectRevisionService;
 @McpController
 public class DesignRepositoriesMcpController {
 
-    private static final String TOOL_PREFIX = "design-repositories";
+    private static final String TOOL_PREFIX = "design-repos";
 
     private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectRevisionService projectRevisionService;
