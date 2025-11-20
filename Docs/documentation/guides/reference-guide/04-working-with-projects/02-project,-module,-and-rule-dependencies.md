@@ -76,7 +76,7 @@ This syntax is applicable when there is a dependency on a project and the **All 
 
 This section describes dependencies configuration.
 
-1.  To add a dependency to a module, add the instruction to a configuration table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/05-configuration-table/01-configuration-table-description.md#configuration-table) using the **dependency** command and the name of the module to be added.
+1.  To add a dependency to a module, add the instruction to a configuration table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/06-configuration-table/01-configuration-table-description.md#configuration-table) using the **dependency** command and the name of the module to be added.
 
     A module can contain any number of dependencies. Dependency modules can also have dependencies. Avoid using cyclic dependencies.
 
@@ -102,7 +102,7 @@ When OpenL Tablets is processing a module, if there is any dependency declaratio
 
 Using import instructions allows adding external rules and data types from developer created artifacts, such as jars, Java classes, and Groovy scripts, located outside the Excel based rule tables. In the import instruction, list all Java packages, Java classes, and libraries that must become accessible in the module.
 
-Import configuration is defined using the **Environment** table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/05-configuration-table/01-configuration-table-description.md#configuration-table). Configuration can be made for any user mode, single-user mode or multi-user mode. For proper import configuration, classpath must be registered in project sources as described in [Project Sources](project-structure.md#project-sources).
+Import configuration is defined using the **Environment** table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/06-configuration-table/01-configuration-table-description.md#configuration-table). Configuration can be made for any user mode, single-user mode or multi-user mode. For proper import configuration, classpath must be registered in project sources as described in [Project Sources](project-structure.md#project-sources).
 
 In the following example, the **Environment** table contains an import section with reference to the corresponding Java package:
 
@@ -126,9 +126,9 @@ Common Java imports can be placed only into the main, or dependency, project or 
 
 All OpenL Tablets components can be divided into three types:
 
--   Rules in rule tables as described in [Decision Table](../../02-working-with-openl-tables/03-table-types/01-decision-table/01-decision-table-overview-and-structure.md#decision-table), [Spreadsheet Table](../../02-working-with-openl-tables/03-table-types/06-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table), [Method Table](../../02-working-with-openl-tables/03-table-types/08-method-table.md#method-table), [TBasic Table](../../02-working-with-openl-tables/03-table-types/11-tbasic-table.md#tbasic-table).
--   Data in data tables as described in [Data table](../../02-working-with-openl-tables/03-table-types/03-data-table/01-using-simple-data-tables.md#data-table).
--   Data types in data type tables as described in [Datatype Table](../../02-working-with-openl-tables/03-table-types/02-datatype-table/01-introducing-datatype-tables.md#datatype-table).
+-   Rules in rule tables as described in [Decision Table](../../02-working-with-openl-tables/03-table-types/02-decision-tab../02-decision-table-overview-and-structure.md#decision-table), [Spreadsheet Table](../../02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table), [Method Table](../../02-working-with-openl-tables/03-table-types/08-method-table.md#method-table), [TBasic Table](../../02-working-with-openl-tables/03-table-types/11-tbasic-table.md#tbasic-table).
+-   Data in data tables as described in [Data table](../../02-working-with-openl-tables/03-table-types/04-data-table/01-using-simple-data-tables.md#data-table).
+-   Data types in data type tables as described in [Datatype Table](../../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 
 The following table describes behavior of different OpenL Tablets components in dependency infrastructure:
 

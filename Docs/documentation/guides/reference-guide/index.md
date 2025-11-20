@@ -23,12 +23,12 @@ This reference guide is organized into the following sections:
 #### Table Types
 OpenL Tablets supports various table types for different purposes:
 
-- [Decision Tables](02-working-with-openl-tables/03-table-types/01-decision-table/01-decision-table-overview-and-structure.md) - Core decision logic tables with conditions and actions
-- [Datatype Tables](02-working-with-openl-tables/03-table-types/02-datatype-table/01-introducing-datatype-tables.md) - Define custom data types and structures
-- [Data Tables](02-working-with-openl-tables/03-table-types/03-data-table/01-using-simple-data-tables.md) - Store and manage data collections
-- [Test Tables](02-working-with-openl-tables/03-table-types/04-test-table/01-understanding-test-tables.md) - Unit testing for rules and methods
-- [Configuration Tables](02-working-with-openl-tables/03-table-types/05-configuration-table/01-configuration-table-description.md) - Configure module behavior
-- [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/06-spreadsheet-table/01-parsing-a-spreadsheet-table.md) - Complex calculations with spreadsheet logic
+- [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md) - Define custom data types and structures
+- [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md) - Core decision logic tables with conditions and actions
+- [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md) - Complex calculations with spreadsheet logic
+- [Data Tables](02-working-with-openl-tables/03-table-types/04-data-table/01-using-simple-data-tables.md) - Store and manage data collections
+- [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md) - Unit testing for rules and methods
+- [Configuration Tables](02-working-with-openl-tables/03-table-types/06-configuration-table/01-configuration-table-description.md) - Configure module behavior
 - [Column Match Tables](02-working-with-openl-tables/03-table-types/07-column-match-table.md) - Pattern matching across columns
 - [Method Tables](02-working-with-openl-tables/03-table-types/08-method-table.md) - Define callable methods
 - [Properties Tables](02-working-with-openl-tables/03-table-types/09-properties-table.md) - Set table and method properties
@@ -74,17 +74,17 @@ OpenL Tablets supports various table types for different purposes:
 ## Quick Links
 
 ### By Task
-- **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/03-table-types/01-decision-table/01-decision-table-overview-and-structure.md)
-- **Defining data structures** → [Datatype Tables](02-working-with-openl-tables/03-table-types/02-datatype-table/01-introducing-datatype-tables.md)
-- **Storing data** → [Data Tables](02-working-with-openl-tables/03-table-types/03-data-table/01-using-simple-data-tables.md)
-- **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/04-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/10-run-table.md)
-- **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/06-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
+- **Defining data structures** → [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md)
+- **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md)
+- **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
+- **Storing data** → [Data Tables](02-working-with-openl-tables/03-table-types/04-data-table/01-using-simple-data-tables.md)
+- **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/10-run-table.md)
 - **Working with collections** → [Arrays](03-openl-tablets-functions-and-supported-data-types/03-working-with-arrays.md)
 - **Using functions** → [Functions Overview](03-openl-tablets-functions-and-supported-data-types/02-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
 
 ### By Experience Level
 - **New users** → Start with [What Is OpenL Tablets?](01-introduction/02-what-is-openl-tablets.md), then [Basic Concepts](01-introduction/03-basic-concepts.md)
-- **Intermediate users** → Explore specific [Table Types](02-working-with-openl-tables/03-table-types/01-decision-table/01-decision-table-overview-and-structure.md)
+- **Intermediate users** → Explore specific [Table Types](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md)
 - **Advanced users** → [Table Properties](02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md), [BEX Language](05-appendices/01-bex-language-overview.md)
 
 ## Navigation Tips
@@ -92,10 +92,10 @@ OpenL Tablets supports various table types for different purposes:
 This reference guide is comprehensive and detailed. For best results:
 
 1. **Start with basics**: Read [What Is OpenL Tablets?](01-introduction/02-what-is-openl-tablets.md) and [Table Recognition Algorithm](02-working-with-openl-tables/01-table-recognition-algorithm.md)
-2. **Learn by doing**: Use [Decision Tables](02-working-with-openl-tables/03-table-types/01-decision-table/01-decision-table-overview-and-structure.md) to create your first rules
+2. **Learn by doing**: Use [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md) and [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md) to create your first rules
 3. **Reference as needed**: Bookmark specific table types and features you use frequently
 4. **Search effectively**: Use your browser's find function (Ctrl+F/Cmd+F) within pages
-5. **Test your understanding**: Create [Test Tables](02-working-with-openl-tables/03-table-types/04-test-table/01-understanding-test-tables.md) to verify your rules
+5. **Test your understanding**: Create [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md) to verify your rules
 
 ## Document Organization
 

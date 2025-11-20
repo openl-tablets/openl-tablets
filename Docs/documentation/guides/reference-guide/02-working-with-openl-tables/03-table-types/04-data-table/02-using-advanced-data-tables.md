@@ -1,6 +1,6 @@
 ##### Using Advanced Data Tables
 
-Advanced data tables are used for storing information of a complex structure, such as custom data types and arrays. For more information on data types, see [Datatype Table](../02-datatype-table/01-introducing-datatype-tables.md#datatype-table).
+Advanced data tables are used for storing information of a complex structure, such as custom data types and arrays. For more information on data types, see [Datatype Table](../01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 
 1.  The first row of an advanced data table contains text in the following format:
     

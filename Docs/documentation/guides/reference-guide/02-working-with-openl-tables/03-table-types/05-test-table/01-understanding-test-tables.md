@@ -28,9 +28,9 @@ A test table has the following structure:
 2.  The third row contains display values intended for business users.
 3.  Starting with the fourth row, each row is an individual test case.
 
-For more information on how to specify values of input parameters and expected test results of complex constructions, see [Specifying Data for Aggregated Objects](../03-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](../03-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
+For more information on how to specify values of input parameters and expected test results of complex constructions, see [Specifying Data for Aggregated Objects](../04-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](../04-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
 
-If a test table field is a list or a map, it can be used to create a data table or test table in the same way as for data tables as described in [Specifying Data in Data Tables with List and Map Fields](../03-data-table/03-specifying-data-in-data-tables-with-list-and-map-fields.md#specifying-data-in-data-tables-with-list-and-map-fields).
+If a test table field is a list or a map, it can be used to create a data table or test table in the same way as for data tables as described in [Specifying Data in Data Tables with List and Map Fields](../04-data-table/03-specifying-data-in-data-tables-with-list-and-map-fields.md#specifying-data-in-data-tables-with-list-and-map-fields).
 
 **Note for experienced users:** Test tables can be used to execute any Java method. In this case, a method table must be used as a proxy.
 

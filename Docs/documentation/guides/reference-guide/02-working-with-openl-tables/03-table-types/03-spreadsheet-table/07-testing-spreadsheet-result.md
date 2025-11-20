@@ -26,7 +26,7 @@ It is possible to test cells of the resulting spreadsheet which contain values o
 -   custom data type with several attributes
 -   other spreadsheets nested in the current one
 
-For this purpose, the same syntax described in [Specifying Data for Aggregated Objects](../03-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) can be used. It also includes simplified options.
+For this purpose, the same syntax described in [Specifying Data for Aggregated Objects](../04-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) can be used. It also includes simplified options.
 
 ```
 _res_.$<column name>$<row name>[i]

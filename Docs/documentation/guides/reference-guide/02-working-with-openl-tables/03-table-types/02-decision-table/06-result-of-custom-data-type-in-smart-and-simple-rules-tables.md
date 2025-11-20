@@ -1,6 +1,6 @@
 ###### Result of Custom Data Type in Smart and Simple Rules Tables
 
-A simplified rules table can return the value of compound type (custom data type) – the whole data object. To accomplish this, the user must make return column titles close to the corresponding fields of the object so the system can associate the data from the return columns with the returned object fields correctly. For more information on datatype tables, see [Datatype Table](../02-datatype-table/01-introducing-datatype-tables.md#datatype-table).
+A simplified rules table can return the value of compound type (custom data type) – the whole data object. To accomplish this, the user must make return column titles close to the corresponding fields of the object so the system can associate the data from the return columns with the returned object fields correctly. For more information on datatype tables, see [Datatype Table](../01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 
 In the example below, the rule **VehicleDiscount** determines the vehicles’s discount type and rate depending on air bags type and alarm indicator:
 
