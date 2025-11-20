@@ -19,35 +19,36 @@ This reference guide is organized into the following sections:
 #### Table Basics
 - [Table Recognition Algorithm](02-working-with-openl-tables/01-table-recognition-algorithm.md) - How OpenL recognizes and processes tables
 - [Naming Conventions](02-working-with-openl-tables/02-naming-conventions.md) - Best practices for naming tables
+- [Representing Values of Different Types](02-working-with-openl-tables/03-representing-values-of-different-types.md) - How to represent arrays, dates, booleans, and ranges in table cells
 
 #### Table Types
 OpenL Tablets supports various table types for different purposes:
 
-- [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md) - Define custom data types and structures
-- [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md) - Core decision logic tables with conditions and actions
-- [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md) - Complex calculations with spreadsheet logic
-- [Data Tables](02-working-with-openl-tables/03-table-types/04-data-table/01-using-simple-data-tables.md) - Store and manage data collections
-- [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md) - Unit testing for rules and methods
-- [Configuration Tables](02-working-with-openl-tables/03-table-types/06-configuration-table/01-configuration-table-description.md) - Configure module behavior
-- [Column Match Tables](02-working-with-openl-tables/03-table-types/07-column-match-table.md) - Pattern matching across columns
-- [Method Tables](02-working-with-openl-tables/03-table-types/08-method-table.md) - Define callable methods
-- [Properties Tables](02-working-with-openl-tables/03-table-types/09-properties-table.md) - Set table and method properties
-- [Run Tables](02-working-with-openl-tables/03-table-types/10-run-table.md) - Execute test scenarios
-- [TBasic Tables](02-working-with-openl-tables/03-table-types/11-tbasic-table.md) - BASIC-style procedural code
-- [Constants Tables](02-working-with-openl-tables/03-table-types/12-constants-table.md) - Define constant values
-- [Table Part](02-working-with-openl-tables/03-table-types/13-table-part.md) - Reusable table components
+- [Datatype Tables](02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md) - Define custom data types and structures
+- [Decision Tables](02-working-with-openl-tables/04-table-types/02-decision-table/01-decision-table-overview-and-structure.md) - Core decision logic tables with conditions and actions
+- [Spreadsheet Tables](02-working-with-openl-tables/04-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md) - Complex calculations with spreadsheet logic
+- [Data Tables](02-working-with-openl-tables/04-table-types/04-data-table/01-using-simple-data-tables.md) - Store and manage data collections
+- [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md) - Unit testing for rules and methods
+- [Configuration Tables](02-working-with-openl-tables/04-table-types/06-configuration-table/01-configuration-table-description.md) - Configure module behavior
+- [Column Match Tables](02-working-with-openl-tables/04-table-types/07-column-match-table.md) - Pattern matching across columns
+- [Method Tables](02-working-with-openl-tables/04-table-types/08-method-table.md) - Define callable methods
+- [Properties Tables](02-working-with-openl-tables/04-table-types/09-properties-table.md) - Set table and method properties
+- [Run Tables](02-working-with-openl-tables/04-table-types/10-run-table.md) - Execute test scenarios
+- [TBasic Tables](02-working-with-openl-tables/04-table-types/11-tbasic-table.md) - BASIC-style procedural code
+- [Constants Tables](02-working-with-openl-tables/04-table-types/12-constants-table.md) - Define constant values
+- [Table Part](02-working-with-openl-tables/04-table-types/13-table-part.md) - Reusable table components
 
 #### Table Configuration
-- [Table Properties Overview](02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md) - Comprehensive guide to table properties and metadata
-- [Default Values](02-working-with-openl-tables/04-table-properties/02-default-value.md) - Setting default property values
-- [System Properties](02-working-with-openl-tables/04-table-properties/03-system-properties.md) - Built-in system properties
-- [Properties for Specific Table Types](02-working-with-openl-tables/04-table-properties/04-properties-for-a-particular-table-type.md) - Table type-specific properties
-- [Rule Versioning](02-working-with-openl-tables/04-table-properties/05-rule-versioning.md) - Version management for rules
-- [Info Properties](02-working-with-openl-tables/04-table-properties/06-info-properties.md) - Informational metadata
-- [Dev Properties](02-working-with-openl-tables/04-table-properties/07-dev-properties.md) - Development-time properties
-- [Properties in File Names](02-working-with-openl-tables/04-table-properties/08-properties-defined-in-the-file-name.md) - File name-based properties
-- [Properties in Folder Names](02-working-with-openl-tables/04-table-properties/09-properties-defined-in-the-folder-name.md) - Folder-based properties
-- [Keywords Usage in File Names](02-working-with-openl-tables/04-table-properties/10-keywords-usage-in-a-file-name.md) - File name keywords
+- [Table Properties Overview](02-working-with-openl-tables/05-table-properties/01-category-and-module-level-properties.md) - Comprehensive guide to table properties and metadata
+- [Default Values](02-working-with-openl-tables/05-table-properties/02-default-value.md) - Setting default property values
+- [System Properties](02-working-with-openl-tables/05-table-properties/03-system-properties.md) - Built-in system properties
+- [Properties for Specific Table Types](02-working-with-openl-tables/05-table-properties/04-properties-for-a-particular-table-type.md) - Table type-specific properties
+- [Rule Versioning](02-working-with-openl-tables/05-table-properties/05-rule-versioning.md) - Version management for rules
+- [Info Properties](02-working-with-openl-tables/05-table-properties/06-info-properties.md) - Informational metadata
+- [Dev Properties](02-working-with-openl-tables/05-table-properties/07-dev-properties.md) - Development-time properties
+- [Properties in File Names](02-working-with-openl-tables/05-table-properties/08-properties-defined-in-the-file-name.md) - File name-based properties
+- [Properties in Folder Names](02-working-with-openl-tables/05-table-properties/09-properties-defined-in-the-folder-name.md) - Folder-based properties
+- [Keywords Usage in File Names](02-working-with-openl-tables/05-table-properties/10-keywords-usage-in-a-file-name.md) - File name keywords
 
 ### OpenL Tablets Functions and Supported Data Types
 
@@ -74,28 +75,29 @@ OpenL Tablets supports various table types for different purposes:
 ## Quick Links
 
 ### By Task
-- **Defining data structures** → [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md)
-- **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md)
-- **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
-- **Storing data** → [Data Tables](02-working-with-openl-tables/03-table-types/04-data-table/01-using-simple-data-tables.md)
-- **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/10-run-table.md)
+- **Defining data structures** → [Datatype Tables](02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md)
+- **Creating decision logic** → [Decision Tables](02-working-with-openl-tables/04-table-types/02-decision-table/01-decision-table-overview-and-structure.md)
+- **Complex calculations** → [Spreadsheet Tables](02-working-with-openl-tables/04-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md)
+- **Storing data** → [Data Tables](02-working-with-openl-tables/04-table-types/04-data-table/01-using-simple-data-tables.md)
+- **Testing rules** → [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/04-table-types/10-run-table.md)
+- **Representing values** → [Arrays, Dates, Booleans, Ranges](02-working-with-openl-tables/03-representing-values-of-different-types.md)
 - **Working with collections** → [Arrays](03-openl-tablets-functions-and-supported-data-types/03-working-with-arrays.md)
 - **Using functions** → [Functions Overview](03-openl-tablets-functions-and-supported-data-types/02-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
 
 ### By Experience Level
 - **New users** → Start with [What Is OpenL Tablets?](01-introduction/02-what-is-openl-tablets.md), then [Basic Concepts](01-introduction/03-basic-concepts.md)
-- **Intermediate users** → Explore specific [Table Types](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md)
-- **Advanced users** → [Table Properties](02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md), [BEX Language](05-appendices/01-bex-language-overview.md)
+- **Intermediate users** → Explore specific [Table Types](02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md)
+- **Advanced users** → [Table Properties](02-working-with-openl-tables/05-table-properties/01-category-and-module-level-properties.md), [BEX Language](05-appendices/01-bex-language-overview.md)
 
 ## Navigation Tips
 
 This reference guide is comprehensive and detailed. For best results:
 
 1. **Start with basics**: Read [What Is OpenL Tablets?](01-introduction/02-what-is-openl-tablets.md) and [Table Recognition Algorithm](02-working-with-openl-tables/01-table-recognition-algorithm.md)
-2. **Learn by doing**: Use [Datatype Tables](02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md) and [Decision Tables](02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md) to create your first rules
+2. **Learn by doing**: Use [Datatype Tables](02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md) and [Decision Tables](02-working-with-openl-tables/04-table-types/02-decision-table/01-decision-table-overview-and-structure.md) to create your first rules
 3. **Reference as needed**: Bookmark specific table types and features you use frequently
 4. **Search effectively**: Use your browser's find function (Ctrl+F/Cmd+F) within pages
-5. **Test your understanding**: Create [Test Tables](02-working-with-openl-tables/03-table-types/05-test-table/01-understanding-test-tables.md) to verify your rules
+5. **Test your understanding**: Create [Test Tables](02-working-with-openl-tables/04-table-types/05-test-table/01-understanding-test-tables.md) to verify your rules
 
 ## Document Organization
 
