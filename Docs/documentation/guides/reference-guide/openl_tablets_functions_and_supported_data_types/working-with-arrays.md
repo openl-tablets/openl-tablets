@@ -153,7 +153,7 @@ Policy2 contains two vehicles as illustrated in the following data table.
 
 #### Comparison Operators
 
-== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](../../appendices/operators-used-in-openl-tablets.md).
+== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](../../appendices/bex-language-overview.md#operators-used-in-openl-tablets).
 
 ### Rules Applied to Array
 
