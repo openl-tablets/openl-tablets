@@ -20,9 +20,9 @@ The general table recognition algorithm is as follows:
     |-----------------------|---------------------------------------------|
     | Constants           | [Constants Table](03-table-types/12-constants-table.md#constants-table)        |
     | ColumnMatch         | [Column Match Table](03-table-types/07-column-match-table.md#column-match-table)   |
-    | Data                | [Data Table](03-table-types/04-data-table/01-using-simple-data-tables.md#data-table)                  |
+    | Data                | [Data Table](03-table-types/07-data-table/01-using-simple-data-tables.md#data-table)                  |
     | Datatype            | [Datatype Table](03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table)           |
-    | Environment         | [Configuration Table](03-table-types/06-configuration-table/01-configuration-table-description.md#configuration-table) |
+    | Environment         | [Configuration Table](03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table) |
     | Method              | [Method Table](03-table-types/08-method-table.md#method-table)               |
     | Properties          | [Properties Table](03-table-types/09-properties-table.md#properties-table)       |
     | Rules               | [Decision Table](03-table-types/02-decision-tab../02-decision-table-overview-and-structure.md#decision-table)           |
@@ -34,7 +34,7 @@ The general table recognition algorithm is as follows:
     | Spreadsheet         | [Spreadsheet Table](03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table)     |
     | TablePart           | [Table Part](03-table-types/13-table-part.md#table-part)                   |
     | TBasic or Algorithm | [TBasic Table](03-table-types/11-tbasic-table.md#tbasic-table)               |
-    | Test                | [Test Table](03-table-types/05-test-table/01-understanding-test-tables.md#test-table)                  |
+    | Test                | [Test Table](03-table-types/08-test-table/01-understanding-test-tables.md#test-table)                  |
     
     All tables that do not have any of the preceding keywords in the top left cell are ignored. They can be used as comments in Excel files.
     

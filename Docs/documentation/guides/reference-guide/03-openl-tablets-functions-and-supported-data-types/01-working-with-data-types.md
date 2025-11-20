@@ -7,7 +7,7 @@ All data types used in OpenL Tablets can be divided into the following groups:
 | Type                               | Description                                                                            |
 |------------------------------------|----------------------------------------------------------------------------------------|
 | Predefined data types              | Types that exist in OpenL Tablets, can be used, but cannot be modified.                |
-| Custom data types and vocabularies | Types created by a user as described in the [Datatype Table](../../02-working-with-openl-tables/04-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table) section. |
+| Custom data types and vocabularies | Types created by a user as described in the [Datatype Table](../../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table) section. |
 
 This section describes predefined data types that include the following ones:
 
