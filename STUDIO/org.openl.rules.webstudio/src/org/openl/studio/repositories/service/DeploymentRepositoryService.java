@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
-public interface DeployRepositoryService {
+public interface DeploymentRepositoryService {
 
     List<RepositoryViewModel> getRepositoryList();
 }

@@ -1,10 +1,11 @@
-package org.openl.rules.rest.deployment.model;
+package org.openl.studio.deployment.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.ai.tool.annotation.ToolParam;
 
 import org.openl.rules.rest.validation.ProjectNameConstraint;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -13,17 +14,26 @@ import org.openl.studio.projects.model.ProjectIdModel;
 @Schema(description = "Deploy project request model")
 public class DeployProjectModel {
 
-    @Parameter(description = "Production repository id", required = true)
+    private static final String FIELD_PROD_REPO_ID_DESC = "Production repository id";
+    private static final String FIELD_DEPLOYMENT_NAME_DESC = "Deployment name";
+    private static final String FIELD_PROJECT_ID_DESC = "Project identifier to deploy";
+    private static final String FIELD_DEPLOYMENT_COMMENT_DESC = "Deployment reason comment";
+
+    @Parameter(description = FIELD_PROD_REPO_ID_DESC, required = true)
+    @ToolParam(description = FIELD_PROD_REPO_ID_DESC)
     public final String productionRepositoryId;
 
-    @Parameter(description = "Deployment name", required = true)
+    @Parameter(description = FIELD_DEPLOYMENT_NAME_DESC, required = true)
+    @ToolParam(description = FIELD_DEPLOYMENT_NAME_DESC)
     @ProjectNameConstraint
     public final String deploymentName;
 
-    @Parameter(description = "Project identifier to deploy", required = true)
+    @Parameter(description = FIELD_PROJECT_ID_DESC, required = true)
+    @ToolParam(description = FIELD_PROJECT_ID_DESC)
     public final ProjectIdModel projectId;
 
-    @Parameter(description = "Deployment reason comment")
+    @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
+    @ToolParam(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
 
     public DeployProjectModel(Builder builder) {

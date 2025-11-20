@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.studio.repositories.model.RepositoryViewModel;
-import org.openl.studio.repositories.service.DeployRepositoryService;
+import org.openl.studio.repositories.service.DeploymentRepositoryService;
 
 @RestController
 @RequestMapping(value = "/production-repos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Production Repository")
 public class DeployRepositoryController {
 
-    private final DeployRepositoryService deploymentRepositoryService;
+    private final DeploymentRepositoryService deploymentRepositoryService;
 
-    public DeployRepositoryController(DeployRepositoryService deploymentRepositoryService) {
+    public DeployRepositoryController(DeploymentRepositoryService deploymentRepositoryService) {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 

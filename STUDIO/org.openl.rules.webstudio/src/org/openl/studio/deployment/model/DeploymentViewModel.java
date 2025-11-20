@@ -1,4 +1,4 @@
-package org.openl.rules.rest.deployment.model;
+package org.openl.studio.deployment.model;
 
 import java.util.List;
 

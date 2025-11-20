@@ -11,11 +11,11 @@ import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 
 @Service
-public class DeployRepositoryServiceImpl implements DeployRepositoryService {
+public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryService {
 
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
 
-    public DeployRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService) {
+    public DeploymentRepositoryServiceImpl(SecureDeploymentRepositoryService deploymentRepositoryService) {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 

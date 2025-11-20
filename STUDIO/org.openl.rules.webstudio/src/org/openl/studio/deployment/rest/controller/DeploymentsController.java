@@ -1,4 +1,4 @@
-package org.openl.rules.rest.deployment;
+package org.openl.studio.deployment.rest.controller;
 
 import java.util.List;
 
@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.rest.deployment.model.DeployProjectModel;
-import org.openl.rules.rest.deployment.model.DeploymentViewModel;
-import org.openl.rules.rest.deployment.model.RedeployProjectModel;
-import org.openl.rules.rest.deployment.service.DeploymentCriteriaQuery;
-import org.openl.rules.rest.deployment.service.DeploymentService;
 import org.openl.studio.common.model.GenericView;
+import org.openl.studio.deployment.model.DeployProjectModel;
+import org.openl.studio.deployment.model.DeploymentViewModel;
+import org.openl.studio.deployment.model.RedeployProjectModel;
+import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
+import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.projects.converter.Base64ProjectConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
 
@@ -55,7 +55,7 @@ public class DeploymentsController {
                 .repository(repository)
                 .build();
         return deploymentService.getDeployments(query).stream()
-                .map(deployment -> mapToViewModel(deployment).build())
+                .map(this::mapToViewModel)
                 .toList();
     }
 
@@ -80,14 +80,15 @@ public class DeploymentsController {
         deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);
     }
 
-    private DeploymentViewModel.Builder mapToViewModel(Deployment deployment) {
+    private DeploymentViewModel mapToViewModel(Deployment deployment) {
         return DeploymentViewModel.builder()
                 .id(ProjectIdModel.builder()
                         .repository(deployment.getRepository().getId())
                         .projectName(deployment.getDeploymentName())
                         .build())
                 .name(deployment.getName())
-                .repository(deployment.getRepository().getId());
+                .repository(deployment.getRepository().getId())
+                .build();
     }
 
 }

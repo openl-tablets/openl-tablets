@@ -1,10 +1,11 @@
-package org.openl.rules.rest.deployment.model;
+package org.openl.studio.deployment.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.ai.tool.annotation.ToolParam;
 
 import org.openl.studio.projects.model.ProjectIdModel;
 
@@ -12,10 +13,15 @@ import org.openl.studio.projects.model.ProjectIdModel;
 @Schema(description = "Redeploy project request model")
 public class RedeployProjectModel {
 
-    @Parameter(description = "Project identifier to redeploy", required = true)
+    private static final String FIELD_PROJECT_ID_DESC = "Project identifier to redeploy";
+    private static final String FIELD_DEPLOYMENT_COMMENT_DESC = "Redeployment reason comment";
+
+    @Parameter(description = FIELD_PROJECT_ID_DESC, required = true)
+    @ToolParam(description = FIELD_PROJECT_ID_DESC)
     public final ProjectIdModel projectId;
 
-    @Parameter(description = "Redeployment reason comment")
+    @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
+    @ToolParam(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
 
     public RedeployProjectModel(Builder builder) {

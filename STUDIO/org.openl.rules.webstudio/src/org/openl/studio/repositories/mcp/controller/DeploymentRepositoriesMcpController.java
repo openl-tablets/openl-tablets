@@ -6,16 +6,16 @@ import org.springframework.ai.tool.annotation.Tool;
 
 import org.openl.studio.mcp.McpController;
 import org.openl.studio.repositories.model.RepositoryViewModel;
-import org.openl.studio.repositories.service.DeployRepositoryService;
+import org.openl.studio.repositories.service.DeploymentRepositoryService;
 
 @McpController
-public class DeployRepositoriesMcpController {
+public class DeploymentRepositoriesMcpController {
 
-    private static final String TOOL_PREFIX = "deploy-repositories";
+    private static final String TOOL_PREFIX = "deployment-repositories";
 
-    private final DeployRepositoryService deploymentRepositoryService;
+    private final DeploymentRepositoryService deploymentRepositoryService;
 
-    public DeployRepositoriesMcpController(DeployRepositoryService deploymentRepositoryService) {
+    public DeploymentRepositoriesMcpController(DeploymentRepositoryService deploymentRepositoryService) {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
