@@ -83,7 +83,7 @@ During execution, the system takes default values from FinancialData data type.
 
 For more information on using runtime context properties in Datatype tables, see [Runtime Context Properties in Datatype Tables](../../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
 
-Datatype table output results can be customized the same way as spreadsheets as described in [Spreadsheet Result Output Customization](../spreadsheet-table/06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
+Datatype table output results can be customized the same way as spreadsheets as described in [Spreadsheet Result Output Customization](../03-spreadsheet-table/06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
   
 If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-datatype-tables).
   

@@ -12,7 +12,7 @@ The vocabulary data type is created as follows:
     
     The values can be of the indicated predefined data type only.
 
-In the example described in [Introducing Datatype Tables](introducing-datatype-tables.md#introducing-datatype-tables), the data type **Person** has an attribute **gender** of the **Gender** data type which is the following vocabulary data type.
+In the example described in [Introducing Datatype Tables](01-introducing-datatype-tables.md#introducing-datatype-tables), the data type **Person** has an attribute **gender** of the **Gender** data type which is the following vocabulary data type.
 
 ![](../../../../ref_guide_images/d31cf1400142f390ff11cf5381ba2af0.png)
 

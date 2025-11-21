@@ -18,22 +18,22 @@ The general table recognition algorithm is as follows:
     
     | Keyword               | Table type                                  |
     |-----------------------|---------------------------------------------|
-    | Constants           | [Constants Table](03-table-types/12-constants-table.md#constants-table)        |
-    | ColumnMatch         | [Column Match Table](03-table-types/07-column-match-table.md#column-match-table)   |
+    | Constants           | [Constants Table](03-table-types/11-less-common-table-types/06-constants-table.md#constants-table)        |
+    | ColumnMatch         | [Column Match Table](03-table-types/11-less-common-table-types/01-column-match-table.md#column-match-table)   |
     | Data                | [Data Table](03-table-types/07-data-table/01-using-simple-data-tables.md#data-table)                  |
     | Datatype            | [Datatype Table](03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table)           |
     | Environment         | [Configuration Table](03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table) |
-    | Method              | [Method Table](03-table-types/08-method-table.md#method-table)               |
-    | Properties          | [Properties Table](03-table-types/09-properties-table.md#properties-table)       |
-    | Rules               | [Decision Table](03-table-types/02-decision-tab../02-decision-table-overview-and-structure.md#decision-table)           |
-    | Run                 | [Run Table](03-table-types/10-run-table.md#run-table)                    |
+    | Method              | [Method Table](03-table-types/11-less-common-table-types/02-method-table.md#method-table)               |
+    | Properties          | [Properties Table](03-table-types/11-less-common-table-types/03-properties-table.md#properties-table)       |
+    | Rules               | [Decision Table](03-table-types/02-decision-table/01-decision-table-overview-and-structure.md#decision-table)           |
+    | Run                 | [Run Table](03-table-types/11-less-common-table-types/04-run-table.md#run-table)                    |
     | SimpleLookup        | [Simple Lookup Table](03-table-types/02-decision-table/09-simple-lookup-tables.md#simple-lookup-table) |
     | SimpleRules         | [Simple Rules Table](03-table-types/02-decision-table/04-simple-rules-tables.md#simple-rules-table)   |
     | SmartLookup         | [Smart Lookup Table](03-table-types/02-decision-table/10-smart-lookup-tables.md#smart-lookup-table)   |
     | SmartRules          | [Smart Rules Table](03-table-types/02-decision-table/05-smart-rules-tables.md#smart-rules-table)    |
     | Spreadsheet         | [Spreadsheet Table](03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table)     |
-    | TablePart           | [Table Part](03-table-types/13-table-part.md#table-part)                   |
-    | TBasic or Algorithm | [TBasic Table](03-table-types/11-tbasic-table.md#tbasic-table)               |
+    | TablePart           | [Table Part](03-table-types/11-less-common-table-types/07-table-part.md#table-part)                   |
+    | TBasic or Algorithm | [TBasic Table](03-table-types/11-less-common-table-types/05-tbasic-table.md#tbasic-table)               |
     | Test                | [Test Table](03-table-types/08-test-table/01-understanding-test-tables.md#test-table)                  |
     
     All tables that do not have any of the preceding keywords in the top left cell are ignored. They can be used as comments in Excel files.
