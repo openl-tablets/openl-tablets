@@ -94,7 +94,7 @@ The preview auto-reloads when you save changes.
 
 3. **Directory structure**:
    ```
-   docs/user-guides/webstudio/
+   docs/user-guides/openlstudio/
    ├── index.md              # Navigation overview
    ├── preface.md
    ├── introduction.md
@@ -499,7 +499,7 @@ To verify the installation:
 
 - [Quick Start Tutorial](../demo-package/)
 - [Configuration Guide](../../configuration/)
-- [User Guide](../webstudio/)
+- [User Guide](../openlstudio/)
 ```
 
 ---

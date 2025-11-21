@@ -49,7 +49,7 @@ Observability, monitoring, and distributed tracing with OpenTelemetry. Learn how
 
 ### User Guides
 - [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime deployment and configuration
-- [WebStudio User Guide](../user-guides/webstudio/index.md) - Rule development environment
+- [WebStudio User Guide](../user-guides/openlstudio/index.md) - Rule development environment
 
 ### Developer Resources
 - [Developer Guide](../developer-guides/index.md) - Core development topics

@@ -136,7 +136,7 @@ OpenL Studio operates in single-user mode with automatic sign-in and a welcome s
 
 ### Rules Editor
 
-Several examples and tutorials are already in the **No Changes** status, therefore available in **Rules Editor** by default. See [OpenL Studio Guide > Using Rules Editor](../webstudio/index.md) for management details.
+Several examples and tutorials are already in the **No Changes** status, therefore available in **Rules Editor** by default. See [OpenL Studio Guide > Using Rules Editor](../openlstudio/index.md) for management details.
 
 ![Projects in Rules Editor available for editing](../../assets/images/demo-package/demo_studio_editor.png)
 
@@ -144,7 +144,7 @@ Several examples and tutorials are already in the **No Changes** status, therefo
 
 ### Repository Editor
 
-Users manage projects in the Repository and create new ones. The "Example 3 – Auto Policy Calculation" project deploys automatically and integrates with Rule Services and the Demo Client. For details, see [OpenL Studio Guide > Using Repository Editor](../webstudio/index.md).
+Users manage projects in the Repository and create new ones. The "Example 3 – Auto Policy Calculation" project deploys automatically and integrates with Rule Services and the Demo Client. For details, see [OpenL Studio Guide > Using Repository Editor](../openlstudio/index.md).
 
 All projects in the Repository are created and modified by the "DEFAULT" user in single-user mode.
 
@@ -380,7 +380,7 @@ See [Rule Services Guide](../rule-services/index.md) for production configuratio
 ## Additional Resources
 
 - **Installation Guide**: [Full Installation Guide](../installation/index.md)
-- **WebStudio User Guide**: [WebStudio Documentation](../webstudio/index.md)
+- **WebStudio User Guide**: [WebStudio Documentation](../openlstudio/index.md)
 - **Rule Services Guide**: [Rule Services Documentation](../rule-services/index.md)
 - **Configuration**: [Configuration Overview](../../configuration/overview.md)
 - **Official Website**: [openl-tablets.org](https://openl-tablets.org)

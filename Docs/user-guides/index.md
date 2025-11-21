@@ -28,7 +28,7 @@ Comprehensive reference documentation for OpenL Tablets features and syntax.
 - Rule syntax reference
 - Best practices
 
-### 🖥️ [WebStudio User Guide](webstudio/index.md)
+### 🖥️ [WebStudio User Guide](openlstudio/index.md)
 Master the OpenL Tablets WebStudio interface.
 
 - WebStudio overview
