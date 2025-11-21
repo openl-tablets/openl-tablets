@@ -81,7 +81,7 @@ During execution, the system takes default values from FinancialData data type.
 
 **Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
 
-For more information on using runtime context properties in Datatype tables, see [Runtime Context Properties in Datatype Tables](../../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
+For more information on using runtime context properties in Datatype tables, see [Runtime Context Properties in Datatype Tables](../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
 
 Datatype table output results can be customized the same way as spreadsheets as described in [Spreadsheet Result Output Customization](../03-spreadsheet-table/06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
   
