@@ -31,5 +31,5 @@ This guide is organized into the following sections:
 ## Additional Resources
 
 - [OpenL Tablets Reference Guide](../reference/index.md) - Complete language reference
-- [WebStudio User Guide](../webstudio/index.md) - Rule development and management
+- [WebStudio User Guide](../openlstudio/index.md) - Rule development and management
 - [Installation Guide](../installation/index.md) - Installation and deployment instructions
