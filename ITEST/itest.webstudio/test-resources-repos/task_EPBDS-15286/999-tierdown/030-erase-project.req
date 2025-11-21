@@ -1,4 +1,4 @@
-DELETE /rest/user-workspace/design-flat/projects/EPBDS-15286/erase HTTP/1.1
+DELETE /rest/user-workspace/design-flat/projects/EPBDS-15286%3A8e17442543b545c2bd944ab23824091f4c3682f9d55bdf184e255367c4c23d5a/erase HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/x-www-form-urlencoded
 
