@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": "***",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"aclId\":\"REVTSUdOOmRlc2lnbg==\",\"id\":\"design\",\"name\":\"Design\"}]"
+      }
+    ],
+    "isError": false
+  }
+}

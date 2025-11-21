@@ -1,6 +1,7 @@
 package org.openl.studio.mcp.config;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,9 +33,7 @@ public class McpServerConfig {
         return WebMvcStatelessServerTransport.builder()
                 .jsonMapper(new JacksonMcpJsonMapper(objectMapper))
                 .messageEndpoint("/mcp")
-                .contextExtractor(request -> {
-                    return McpTransportContext.EMPTY;
-                })
+                .contextExtractor(request -> McpTransportContext.EMPTY)
                 .build();
     }
 
@@ -73,12 +72,15 @@ public class McpServerConfig {
                     .filter(Objects::nonNull)
                     .flatMap(Arrays::stream)
                     .map(tool -> McpToolUtils.toStatelessSyncToolSpecification(tool, null))
+                    .sorted(Comparator.comparing(spec -> spec.tool().name()))
                     .forEach(serverBuilder::tools);
 
             var promtSpecs = SyncMcpAnnotationProviders.statelessPromptSpecifications(beansByAnnotation);
             if (!promtSpecs.isEmpty()) {
                 capabilitiesBuilder.prompts(true);
-                serverBuilder.prompts(promtSpecs);
+                promtSpecs.stream()
+                        .sorted(Comparator.comparing(spec -> spec.prompt().name()))
+                        .forEach(serverBuilder::prompts);
             }
         }
 

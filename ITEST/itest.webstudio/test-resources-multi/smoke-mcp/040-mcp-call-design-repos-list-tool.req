@@ -1,0 +1,17 @@
+POST /rest/mcp HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "method": "tools/call",
+  "params": {
+    "name": "design-repos-list",
+    "arguments": {},
+    "_meta": {
+      "progressToken": 2
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

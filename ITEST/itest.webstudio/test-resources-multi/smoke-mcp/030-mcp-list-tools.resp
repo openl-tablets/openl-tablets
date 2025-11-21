@@ -1,0 +1,1013 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": "***",
+  "result": {
+    "tools": [
+      {
+        "name": "deployment-repos-list",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "deployments-deploy",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "deployProject": {
+              "type": "object",
+              "properties": {
+                "comment": {
+                  "type": "string",
+                  "description": "***"
+                },
+                "deploymentName": {
+                  "type": "string",
+                  "description": "***"
+                },
+                "productionRepositoryId": {
+                  "type": "string",
+                  "description": "***"
+                },
+                "projectId": {
+                  "type": "object",
+                  "properties": {
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "projectName",
+                    "repository"
+                  ],
+                  "description": "***"
+                }
+              },
+              "required": [
+                "comment",
+                "deploymentName",
+                "productionRepositoryId",
+                "projectId"
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "deployProject"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "deployments-list",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "deployments-redeploy",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "deploymentId": {
+              "type": "string",
+              "description": "***"
+            },
+            "redeployProject": {
+              "type": "object",
+              "properties": {
+                "comment": {
+                  "type": "string",
+                  "description": "***"
+                },
+                "projectId": {
+                  "type": "object",
+                  "properties": {
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "projectName",
+                    "repository"
+                  ],
+                  "description": "***"
+                }
+              },
+              "required": [
+                "comment",
+                "projectId"
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "deploymentId",
+            "redeployProject"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "design-repos-list",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "design-repos-list-branches",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "design-repos-list-features",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "design-repos-list-project-revisions",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            },
+            "projectName": {
+              "type": "string",
+              "description": "***"
+            },
+            "branch": {
+              "type": "string",
+              "description": "***"
+            },
+            "search": {
+              "type": "string",
+              "description": "***"
+            },
+            "techRevs": {
+              "type": "boolean",
+              "description": "***"
+            },
+            "page": {
+              "type": "integer",
+              "description": "***"
+            },
+            "size": {
+              "type": "integer",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId",
+            "projectName",
+            "techRevs",
+            "page",
+            "size"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-branch-create",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "branch": {
+              "type": "string",
+              "description": "***"
+            },
+            "revision": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "branch"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-change-status",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPENED",
+                "CLOSED"
+              ],
+              "description": "***"
+            },
+            "branch": {
+              "type": "string",
+              "description": "***"
+            },
+            "revision": {
+              "type": "string",
+              "description": "***"
+            },
+            "comment": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-get-details",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-list",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "LOCAL",
+                "ARCHIVED",
+                "VIEWING",
+                "VIEWING_VERSION",
+                "EDITING",
+                "CLOSED"
+              ],
+              "description": "***"
+            },
+            "repository": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repository"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-list-local-changes",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-list-tables",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "name": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-restore-local-change",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "historyId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "historyId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-run-tests",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            },
+            "testRanges": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-table-append-rows",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            },
+            "editTable": {
+              "$defs": {
+                "LinkedHashMap_String.Object_": {
+                  "type": "object"
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "required": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "defaultValue",
+                          "name",
+                          "required",
+                          "type"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Datatype"
+                    }
+                  },
+                  "required": [
+                    "fields",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Vocabulary"
+                    }
+                  },
+                  "required": [
+                    "values",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type",
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleSpreadsheet"
+                    }
+                  },
+                  "required": [
+                    "steps",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleRules"
+                    }
+                  },
+                  "required": [
+                    "rules",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SmartRules"
+                    }
+                  },
+                  "required": [
+                    "rules",
+                    "tableType"
+                  ]
+                }
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "tableId",
+            "editTable"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-table-body",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "tableId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "projects-table-replace-body",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            },
+            "editTable": {
+              "$defs": {
+                "ArgumentView": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ]
+                },
+                "LinkedHashMap_String.Object_": {
+                  "type": "object"
+                },
+                "Map_String.Object_": {
+                  "type": "object"
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "extends": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "required": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "defaultValue",
+                          "name",
+                          "required",
+                          "type"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "tableType": {
+                      "const": "Datatype"
+                    }
+                  },
+                  "required": [
+                    "fields",
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Vocabulary"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "type",
+                    "values",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/ArgumentView"
+                      }
+                    },
+                    "cells": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "value"
+                          ]
+                        }
+                      }
+                    },
+                    "columns": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "returnType": {
+                      "type": "string"
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Spreadsheet"
+                    }
+                  },
+                  "required": [
+                    "args",
+                    "cells",
+                    "columns",
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "returnType",
+                    "rows",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/ArgumentView"
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "returnType": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type",
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleSpreadsheet"
+                    }
+                  },
+                  "required": [
+                    "args",
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "returnType",
+                    "steps",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/ArgumentView"
+                      }
+                    },
+                    "headers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "returnType": {
+                      "type": "string"
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleRules"
+                    }
+                  },
+                  "required": [
+                    "args",
+                    "headers",
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "returnType",
+                    "rules",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/ArgumentView"
+                      }
+                    },
+                    "headers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "$ref": "#/$defs/Map_String.Object_"
+                    },
+                    "returnType": {
+                      "type": "string"
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SmartRules"
+                    }
+                  },
+                  "required": [
+                    "args",
+                    "headers",
+                    "id",
+                    "kind",
+                    "name",
+                    "properties",
+                    "returnType",
+                    "rules",
+                    "tableType"
+                  ]
+                }
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "tableId",
+            "editTable"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ]
+  }
+}
