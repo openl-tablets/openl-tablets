@@ -1,4 +1,4 @@
-## Untitled
+##### Spreadsheet Result Output Customization
 
 
 To simplify integration with OpenL rules, customize serialization output of SpreadsheetResult objects by adding or removing steps or columns from spreadsheet result output.

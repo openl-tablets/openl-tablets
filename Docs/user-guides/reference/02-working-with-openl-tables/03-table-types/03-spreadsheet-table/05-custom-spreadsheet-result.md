@@ -67,6 +67,3 @@ Rate = coverage.fundingType == "FullyInsured" ? RateCalculation ( rateBasis, $To
 ```
 
 If passing results of the Rate step to another rule, the type of the spreadsheet defined in this step is a united spreadsheet SRRateCalculation & SRASORate.
-
-
-##### Spreadsheet Result Output Customization
