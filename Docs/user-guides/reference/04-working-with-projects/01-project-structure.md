@@ -23,7 +23,7 @@ Projects with several rule modules are called **multi module projects.** All mod
 
 When there are many modules, OpenL Tablets engine may start processing modules from any of them. That is why it is important to specify the root file and compilation order of modules in a project. For this purpose, **module dependencies** are used.
 
-To run a rule table from another project, connect projects by dependencies as described in [Project, Module, and Rule Dependencies](project,-module,-and-rule-dependencies.md#project-module-and-rule-dependencies).
+To run a rule table from another project, connect projects by dependencies as described in [Project, Module, and Rule Dependencies](02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
 ### Creating a Project
 

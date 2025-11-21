@@ -73,7 +73,7 @@ Specialized table types for specific use cases:
 ### Working with Projects
 
 - [Project Structure](04-working-with-projects/01-project-structure.md) - Project organization and file structure
-- [Project, Module, and Rule Dependencies](04-working-with-projects/02-project,-module,-and-rule-dependencies.md) - Managing dependencies
+- [Project, Module, and Rule Dependencies](04-working-with-projects/02-project-module-and-rule-dependencies.md) - Managing dependencies
 - [Rules Runtime Context Management](04-working-with-projects/03-rules-runtime-context-management-from-rules.md) - Runtime context handling
 - [Project Localization](04-working-with-projects/04-project-localization.md) - Internationalization support
 
