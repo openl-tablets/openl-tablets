@@ -191,7 +191,7 @@ To create a project using the Maven archetype, proceed as follows:
 	```
 	After executing this command, the following files can be found in the target folder:
 1.  zip file with "-deployable" suffix for importing the project to OpenL Studio.
-	For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+        For more information, see [WebStudio User Guide](../user-guides/webstudio/index.md).
 1.  zip file (with "-runnable" suffix) that can be executed after extracting it.
 	It demonstrates how OpenL Tablets rules can be invoked from Java code.
 1.  jar file that contains only compiled Java classes.
@@ -215,7 +215,7 @@ When a user starts editing a project, it is extracted from Design Repository and
 
 OpenL Rule Services use separate repository instance, Production Repository. OpenL Studio can be configured to deploy complete and tested rules projects to that repository.
 
-For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+For more information, see [WebStudio User Guide](../user-guides/webstudio/index.md).
 
 #### Creating a Project Manually
 OpenL does not oblige a user to use predefined ways of project creation and enables using the user’s own project structure. The [Project Resolving](#project-resolving) mechanism can be used as a base for the project structure definition. Depending on the resolving strategy, more or less files and folders are to be created, but several project elements definition is mandatory. For more information on manually creating a project, see [OpenL Rules Project](#openl-rules-project).

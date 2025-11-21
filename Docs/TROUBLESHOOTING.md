@@ -45,7 +45,7 @@ curl http://localhost:8080/actuator/health | jq
 
 | Component | Log Location |
 |-----------|--------------|
-| **OpenL Studio** | `/var/log/openl/studio.log` or `STUDIO/target/studio.log` |
+| **WebStudio** | `/var/log/openl/studio.log` or `STUDIO/target/studio.log` |
 | **Rule Service** | `/var/log/openl/ruleservice.log` or `WSFrontend/target/ruleservice.log` |
 | **Docker Container** | `docker logs <container-id>` |
 | **Kubernetes Pod** | `kubectl logs <pod-name> -n openl-tablets` |

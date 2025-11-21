@@ -2,6 +2,8 @@
 
 Thank you for your interest in improving OpenL Tablets documentation! This guide will help you contribute effectively.
 
+**Active working branch:** All in-progress documentation updates currently live on `test-epoyasok-work-branch`. Fetch and check out this branch before editing to ensure you are building on the latest changes.
+
 ## Table of Contents
 
 - [Documentation Structure](#documentation-structure)
@@ -22,7 +24,7 @@ OpenL Tablets documentation is organized into several categories:
 - **Installation Guide** - Installation and setup instructions
 - **Demo Package Guide** - Getting started with demos
 - **Reference Guide** - Language reference and syntax
-- **WebStudio User Guide** - Using OpenL Studio
+- **WebStudio User Guide** - Using WebStudio
 - **Rule Services Guide** - Deploying rule services
 
 ### Developer Documentation

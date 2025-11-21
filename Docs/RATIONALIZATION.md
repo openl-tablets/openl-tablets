@@ -23,7 +23,7 @@ This document clarifies the scope and purpose of each.
 **Scope**:
 - ✅ Download and run the demo package
 - ✅ Explore pre-loaded example projects
-- ✅ Learn OpenL Studio features
+- ✅ Learn WebStudio features
 - ✅ Try rule services with demo client
 - ✅ Tutorial-style walkthroughs
 - ❌ Production deployment scenarios
@@ -77,7 +77,7 @@ This document clarifies the scope and purpose of each.
 **Typical User Journey**:
 1. Check system requirements
 2. Install prerequisites (JDK, Tomcat)
-3. Deploy OpenL Studio WAR
+3. Deploy WebStudio WAR
 4. Configure database
 5. Complete setup wizard
 6. Start development → Move to deployment for production

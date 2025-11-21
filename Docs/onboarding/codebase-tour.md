@@ -39,7 +39,7 @@ openl-tablets/
 │   ├── org.openl.spring/        # Spring integration
 │   └── ...                      # 5 other support modules
 │
-├── STUDIO/                       # Web Studio (22 modules)
+├── STUDIO/                       # WebStudio (22 modules)
 │   ├── org.openl.rules.webstudio/   # ⭐ Main WAR application
 │   ├── studio-ui/                    # ⭐ React/TypeScript frontend
 │   ├── org.openl.rules.repository*/  # Repository backends (Git, AWS, Azure)

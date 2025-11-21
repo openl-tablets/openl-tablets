@@ -14,7 +14,7 @@ The system is built around five roles and four workflow stages:
 
 ### Key Roles
 
-- **Rule Author** – edits business rules using OpenL Studio
+- **Rule Author** – edits business rules using WebStudio
 - **OpenL Developer** – extends, configures, or customizes the platform (e.g., Java, Groovy, extensions)
 - **DevOps Engineer** – manages build pipelines and environment deployments
 - **CI/CD System** – builds artifacts and creates container images
@@ -24,7 +24,7 @@ The system is built around five roles and four workflow stages:
 
 This setup divides the delivery pipeline into four distinct stages. Each is illustrated below with a focused diagram and logical handoff to the next stage.
 
-1. **Authoring** – Rule authors modify rules through OpenL Studio.
+1. **Authoring** – Rule authors modify rules through WebStudio.
 2. **Development** – OpenL developers customize project structure or logic.
 3. **Build & Package** – CI/CD builds artifacts and Docker images from Git.
 4. **Deploy & Promote** – Images are promoted from development to production environments.
@@ -36,7 +36,7 @@ This setup divides the delivery pipeline into four distinct stages. Each is illu
 ```mermaid
 graph LR
     classDef handoff fill:#fdf6e3,stroke:#b58900,stroke-width:2px,stroke-dasharray: 5;
-    A1["Rule Author (OpenL Studio)"] --> B["Git Repository"]
+    A1["Rule Author (WebStudio)"] --> B["Git Repository"]
     A2["OpenL Developer"] --> B
     B --> OUT1(["▶ Next: CI/CD"])
     class OUT1 handoff;
@@ -73,7 +73,7 @@ graph LR
 
 ## Rationale
 
-- OpenL Studio is used for editing, not execution
+- WebStudio is used for editing, not execution
 - Git serves as the single source of truth for rules and custom code
 - OpenL Developers manage reusable logic and structure
 - CI/CD provides traceability, automation, and artifact reproducibility
@@ -85,7 +85,7 @@ graph LR
 
 ### Rule Author
 
-- Uses OpenL Studio to edit and test rules
+- Uses WebStudio to edit and test rules
 - Commits changes to the Git repository
 
 ### OpenL Developer
@@ -122,7 +122,7 @@ Artifacts are deployed progressively across isolated environments.
 
 | Environment     | Purpose                   | Editable | Deployment Method     |
 |-----------------|---------------------------|----------|------------------------|
-| Tooling         | Rule editing and testing  | Rules only (via OpenL Studio) | CI-triggered            |
+| Tooling         | Rule editing and testing  | Rules only (via WebStudio) | CI-triggered            |
 | Development     | Integration testing       | No       | CI/CD automatic        |
 | Staging         | Pre-production validation | No       | Manual or gated promo  |
 | Production      | Live execution            | No       | Manual approval        |

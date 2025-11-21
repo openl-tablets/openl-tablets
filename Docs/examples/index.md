@@ -7,7 +7,7 @@ Practical examples demonstrating OpenL Tablets features, integration patterns, a
 ### [Production Deployment Examples](production/README.md)
 Complete examples and configurations for deploying OpenL Tablets in production environments:
 
-- **Studio Configuration** - Docker Compose configs for OpenL Studio
+- **Studio Configuration** - Docker Compose configs for WebStudio
 - **Authentication Extension** - Custom authentication implementation
 - **Simple Deployment** - Basic project deployment pattern
 - **Multi-Project Dependencies** - Complex project structures with dependencies

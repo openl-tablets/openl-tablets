@@ -5,7 +5,7 @@ This directory contains practical examples and configurations for deploying Open
 ## Directory Structure
 
 ### studio-config/
-Configuration examples for OpenL Studio in production:
+Configuration examples for WebStudio in production:
 - `compose.yaml` - Docker Compose configuration for Studio
 - `compose.ad.yaml` - Docker Compose configuration with Active Directory integration
 - `README.md` - Studio configuration documentation

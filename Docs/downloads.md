@@ -37,7 +37,7 @@ Comprehensive reference documentation for OpenL Tablets features and syntax.
 - **Format**: PDF
 
 #### WebStudio User Guide
-Complete guide to using OpenL Studio for creating and managing business rules.
+Complete guide to using WebStudio for creating and managing business rules.
 
 - **Topics**: Interface overview, rules editor, testing, repository management, administration
 - **Audience**: Business analysts, rule authors, administrators

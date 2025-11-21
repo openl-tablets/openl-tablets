@@ -3,6 +3,8 @@
 **Version**: 6.0.0-SNAPSHOT
 **Last Updated**: 2025-11-06
 **Repository**: <https://github.com/openl-tablets/openl-tablets>
+**Working Branch**: `test-epoyasok-work-branch`
+> All current documentation updates, including the WebStudio guide refresh, are being tracked on this branch. Check it out locally with `git fetch origin test-epoyasok-work-branch && git checkout test-epoyasok-work-branch` to review the in-progress docs.
 
 ---
 
@@ -209,8 +211,8 @@ OpenL Tablets is organized into 5 major module groups:
 - **Add a new table type** → [Custom Extensions Guide](guides/custom-extensions.md)
 - **Modify the parser** → [DEV/CLAUDE.md: Parser Guidelines](/DEV/CLAUDE.md)
 
-#### Work on Web Studio
-- **Understand Web Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
+#### Work on OpenL Studio
+- **Understand WebStudio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
 - **Follow STUDIO conventions** → [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
 - **Work on React frontend** → [studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)
 - **Migrate JSF to React** → [Migration Guide](guides/migration-guide.md)
@@ -261,7 +263,7 @@ OpenL Tablets is organized into 5 major module groups:
 | **Technical Documentation** | | |
 | Core Engine (DEV) | ✅ 100% | Complete |
 | Repository Layer (STUDIO) | ✅ 100% | Complete |
-| Web Studio (STUDIO) | ✅ 100% | Complete |
+| OpenL Studio (STUDIO) | ✅ 100% | Complete |
 | Rule Services (WSFrontend) | ✅ 100% | Complete |
 | Utilities (Util) | ✅ 100% | Complete |
 | Integration Tests (ITEST) | ✅ 100% | Complete |
