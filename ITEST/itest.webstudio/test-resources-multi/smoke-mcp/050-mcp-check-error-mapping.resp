@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": "***",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "The project identifier is invalid or not found."
+      }
+    ],
+    "isError": true
+  }
+}

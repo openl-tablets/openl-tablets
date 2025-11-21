@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
-import org.openl.rules.rest.config.ValidationConfiguration;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.studio.config.ValidationConfiguration;
 
 @Configuration
 @ComponentScan(basePackages = {"org.openl.studio.repositories.validator", "org.openl.rules.rest.validation"})

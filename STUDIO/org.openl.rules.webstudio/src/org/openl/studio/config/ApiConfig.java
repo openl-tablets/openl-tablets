@@ -1,19 +1,14 @@
-package org.openl.rules.rest.config;
+package org.openl.studio.config;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -37,7 +32,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import org.openl.rules.serialization.ExtendedStdDateFormat;
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 /**
@@ -46,10 +40,9 @@ import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
  * @author Vladyslav Pikus
  */
 @Configuration
-@Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
+@Import(SpringMvcOpenApiConfiguration.class)
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
 
     // No custom argument resolvers in Wizard
@@ -63,12 +56,15 @@ public class ApiConfig implements WebMvcConfigurer {
     @Qualifier("webstudioValidatorBean")
     private CustomValidatorBean validator;
 
+    @Autowired
+    private ObjectProvider<ObjectMapper> objectMapperProvider;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
         converters.add(new ResourceHttpMessageConverter());
         converters.add(new StringHttpMessageConverter());
-        var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
+        var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapperProvider.getObject());
         jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON,
                 new MediaType("application", "merge-patch+json")));
         converters.add(jacksonMessageConverter);
@@ -97,17 +93,6 @@ public class ApiConfig implements WebMvcConfigurer {
         ObjectProvider validatorBeanProvider = context.getBeanProvider(LocalValidatorFactoryBean.class);
         processor.setValidatorProvider((ObjectProvider<jakarta.validation.Validator>) validatorBeanProvider);
         return processor;
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        var mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule())
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
-        mapper.setDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").withLenient(false));
-        return mapper;
     }
 
     @Bean

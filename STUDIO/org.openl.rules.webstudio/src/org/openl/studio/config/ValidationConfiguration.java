@@ -1,4 +1,4 @@
-package org.openl.rules.rest.config;
+package org.openl.studio.config;
 
 import java.util.List;
 import jakarta.validation.ValidatorFactory;

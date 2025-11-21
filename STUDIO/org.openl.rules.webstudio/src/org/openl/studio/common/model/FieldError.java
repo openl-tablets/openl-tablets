@@ -1,12 +1,14 @@
-package org.openl.rules.rest.common.model;
+package org.openl.studio.common.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.studio.common.ApiExceptionControllerAdvice;
 
 /**
  * Field Validation Error model for handling Binding Exceptions (validation) in OpenL Studio REST API
  *
  * @author Vladyslav Pikus
- * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice
+ * @see ApiExceptionControllerAdvice
  */
 public final class FieldError extends BaseError {
 

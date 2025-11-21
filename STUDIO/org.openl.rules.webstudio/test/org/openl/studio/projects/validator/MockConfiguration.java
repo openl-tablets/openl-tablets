@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
-import org.openl.rules.rest.config.ValidationConfiguration;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.studio.config.ValidationConfiguration;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.studio.projects.validator")

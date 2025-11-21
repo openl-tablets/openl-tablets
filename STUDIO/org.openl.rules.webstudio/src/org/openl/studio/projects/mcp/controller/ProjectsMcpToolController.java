@@ -79,7 +79,7 @@ public class ProjectsMcpToolController {
         return projectService.getProject(project);
     }
 
-    @Tool(name = TOOL_PREFIX + "-change-status", description = "Updates project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing), CLOSED (close). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save and close: {status: 'CLOSED', comment: 'changes'}, 3) Save only: {comment: 'intermediate save'}, 4) Switch branch: {branch: 'develop'}")
+    @Tool(name = TOOL_PREFIX + "-change-status", description = "Updates project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing), CLOSED (close). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save {status:'OPENED', comment: 'changes'}, 3) Save and close: {status: 'CLOSED', comment: 'changes'}, 4) Save only: {comment: 'intermediate save'}, 5) Switch branch: {branch: 'develop'}")
     public void updateProjectStatus(@ToolParam(description = "Project identifier")
                                     String projectId,
                                     @ToolParam(description = "Project status to set", required = false)

@@ -1,4 +1,4 @@
-package org.openl.rules.rest.common;
+package org.openl.studio.common;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -1,15 +1,17 @@
-package org.openl.rules.rest.common.model;
+package org.openl.studio.common.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
+import org.openl.studio.common.ApiExceptionControllerAdvice;
+
 /**
  * Validation Error model for handling Binding Exceptions (validation) in OpenL Studio REST API
  *
  * @author Vladyslav Pikus
- * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice
+ * @see ApiExceptionControllerAdvice
  */
 public final class ValidationError extends BaseError {
 

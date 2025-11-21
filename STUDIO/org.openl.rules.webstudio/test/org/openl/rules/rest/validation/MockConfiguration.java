@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.openl.rules.rest.config.ValidationConfiguration;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -22,6 +21,7 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.studio.config.ValidationConfiguration;
 import org.openl.studio.security.CurrentUserInfo;
 
 @Configuration
