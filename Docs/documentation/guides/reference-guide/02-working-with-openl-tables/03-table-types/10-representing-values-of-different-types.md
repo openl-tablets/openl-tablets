@@ -92,7 +92,7 @@ In OpenL, the following data types are designed to work with ranges:
 -   IntRange
 -   DoubleRange
 
-For more information on these data types used for ranges, see [Range Data Types](../../../03-openl-tablets-functions-and-supported-data-types/01-working-with-data-types.md#range-data-types).
+For more information on these data types used for ranges, see [Range Data Types](../../../03-openl-tablets-functions-and-supported-data-types/02-working-with-data-types.md#range-data-types).
 
 ![](../../../ref_guide_images/0dee4ba55b8b0e9e4f61f930cf47b33e.png)
 
