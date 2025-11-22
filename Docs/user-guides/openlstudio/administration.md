@@ -339,7 +339,7 @@ While creating a user, make sure to include the user in at least one group. Proc
     
 1.  To create a user locally, ensure that the **Local user** check box is selected.
     
-    This option is selected by default. For local users, password information is stored in OpenL Tablets OpenL Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
+    This option is selected by default. For local users, password information is stored in OpenL Tablets Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
     
 1.  Specify the user’s login name in the **Username** field.
 2.  Optionally, enter the user email.

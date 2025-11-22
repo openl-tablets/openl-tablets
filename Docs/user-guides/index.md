@@ -29,7 +29,7 @@ Comprehensive reference documentation for OpenL Tablets features and syntax.
 - Best practices
 
 ### 🖥️ [OpenL Studio User Guide](openlstudio/index.md)
-Master the OpenL Tablets OpenL Studio interface.
+Master the OpenL Tablets Studio interface.
 
 - OpenL Studio overview
 - Creating and editing rules
