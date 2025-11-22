@@ -76,7 +76,7 @@ docs/
 │   ├── installation/               # Installation for dev/test
 │   ├── demo-package/               # Demo package guide
 │   ├── reference/                  # Reference guide (24 files)
-│   ├── webstudio/                  # WebStudio user guide
+│   ├── webstudio/                  # OpenL Studio user guide
 │   └── rule-services/              # Rule Services guide
 │
 ├── deployment/                     # Production Deployment (NEW!)

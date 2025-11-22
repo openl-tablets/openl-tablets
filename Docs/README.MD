@@ -19,7 +19,7 @@ Comprehensive guides for using OpenL Tablets:
 - **[Installation Guide](user-guides/installation/)** - System requirements, installation procedures, and configuration
 - **[Demo Package Guide](user-guides/demo-package/)** - Quick start with demo examples and tutorials
 - **[Reference Guide](user-guides/reference/)** - Complete language reference, table types, and syntax
-- **[WebStudio User Guide](user-guides/openlstudio/)** - Using OpenL Studio for rule authoring and management
+- **[OpenL Studio User Guide](user-guides/openlstudio/)** - Using OpenL Studio for rule authoring and management
 - **[Rule Services Guide](user-guides/rule-services/)** - Deploying and configuring OpenL Tablets Rule Services
 
 ### Integration Guides
@@ -252,7 +252,7 @@ OpenL Tablets is organized into 5 major module groups:
 | Installation Guide | ✅ 100% | Complete |
 | Demo Package Guide | ✅ 100% | Complete |
 | Reference Guide | ✅ 100% | Complete (refactoring planned) |
-| WebStudio User Guide | ✅ 100% | Complete |
+| OpenL Studio User Guide | ✅ 100% | Complete |
 | Rule Services Guide | ✅ 100% | Complete |
 | **Developer Documentation** | | |
 | Developer Guide | ✅ 100% | Complete |

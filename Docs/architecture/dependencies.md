@@ -19,7 +19,7 @@
 │              STUDIO & WSFrontend                        │
 │         (Web Applications)                              │
 ├──────────────────────────────────────────────────────────┤
-│ WebStudio                RuleService                    │
+│ OpenL Studio                RuleService                    │
 │   ├─ studio-ui            ├─ ruleservice.ws             │
 │   ├─ webstudio.ai         ├─ ruleservice.kafka          │
 │   ├─ tableeditor          └─ ruleservice.deployer       │

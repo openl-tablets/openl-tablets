@@ -25,9 +25,9 @@ OpenL Tablets scans `openl-default.properties` in all resources in the classpath
 1.  Create the` openl-default.properties` file in the module where the property is used.
 2.  Ensure that property names are unique across all `openl-default.properties` files.
 
-When OpenL WebStudio and OpenL Rule Services builds are created, the `application.properties` file is generated with all default settings.
+When OpenL OpenL Studio and OpenL Rule Services builds are created, the `application.properties` file is generated with all default settings.
 
-To override default values for your own build of OpenL WebStudio or OpenL Rule Services, add the `application-default.properties` file to the `WEB-INF/classes `folder of the .`war` application.
+To override default values for your own build of OpenL OpenL Studio or OpenL Rule Services, add the `application-default.properties` file to the `WEB-INF/classes `folder of the .`war` application.
 
 It is possible to define several `application-{custom}-default.properties `files which will be loaded alphabetically with last-win strategy to override default properties.
 

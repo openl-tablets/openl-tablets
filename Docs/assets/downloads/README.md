@@ -8,7 +8,7 @@ This directory contains downloadable documentation files in PDF format.
 - **Installation Guide** - Step-by-step installation instructions
 - **Demo Package Guide** - Getting started with demo packages
 - **Reference Guide** - Comprehensive OpenL Tablets reference
-- **WebStudio User Guide** - Complete guide to using OpenL Studio
+- **OpenL Studio User Guide** - Complete guide to using OpenL Studio
 - **Rule Services Guide** - Deploying and configuring rule services
 
 ### Developer Guides

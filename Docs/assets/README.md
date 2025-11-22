@@ -11,7 +11,7 @@ docs/assets/
 │   ├── installation/    # Installation guide images
 │   ├── demo-package/    # Demo package guide images
 │   ├── reference/       # Reference guide images
-│   ├── webstudio/       # WebStudio guide images
+│   ├── webstudio/       # OpenL Studio guide images
 │   └── rule-services/   # Rule services guide images
 ├── css/                 # Custom stylesheets
 ├── js/                  # Custom JavaScript
@@ -36,7 +36,7 @@ Images are organized by their corresponding guide:
 - **demo-package/** - Images for the Demo Package Guide (Batch 3)
   - OpenLHome.png - Copied from general for guide use
 - **reference/** - Images for the Reference Guide (Batch 4)
-- **webstudio/** - Images for the WebStudio User Guide (Batch 4)
+- **webstudio/** - Images for the OpenL Studio User Guide (Batch 4)
 - **rule-services/** - Images for the Rule Services Guide (Batch 5)
 
 ## Stylesheets
@@ -150,7 +150,7 @@ This directory will contain:
 ### Future Batches
 
 **Batch 3**: Installation & Demo guide images will be added
-**Batch 4**: Reference & WebStudio guide images will be added
+**Batch 4**: Reference & OpenL Studio guide images will be added
 **Batch 5**: Rule Services guide images will be added
 **Batch 10**: PDF downloads will be generated
 

@@ -131,7 +131,7 @@ OpenL Tablets has dedicated integration test modules in `/ITEST/`:
 | Module | Purpose |
 |--------|---------|
 | `itest.smoke` | Basic functionality smoke tests |
-| `itest.webstudio` | Web Studio integration tests |
+| `itest.webstudio` | OpenL Studio integration tests |
 | `itest.security` | Security and authentication tests |
 | `itest.security` | authentication tests |
 | `itest.webservice` | REST API tests |

@@ -67,7 +67,7 @@
 - org.openl.security.acl
 - SAML, CAS, JWT integration
 
-**Batch 4 - Web Studio Core** (4 modules):
+**Batch 4 - OpenL Studio Core** (4 modules):
 - org.openl.rules.webstudio (main WAR)
 - org.openl.rules.webstudio.web
 - org.openl.rules.webstudio.ai
@@ -187,7 +187,7 @@
 
 3. **studio-wsfrontend-util-overview.md** (2,000+ lines)
    - Security (3 modules)
-   - Web Studio (4 modules)
+   - OpenL Studio (4 modules)
    - React UI (1 module)
    - OpenAPI (3 modules)
    - Rule Services (12 modules)
@@ -258,7 +258,7 @@
 |------|----------|
 | **Core Engine (DEV)** | ✅ 100% |
 | **Repository Layer (STUDIO)** | ✅ 100% |
-| **Web Studio (STUDIO)** | ✅ 100% |
+| **OpenL Studio (STUDIO)** | ✅ 100% |
 | **Rule Services (WSFrontend)** | ✅ 100% |
 | **Utilities (Util)** | ✅ 100% |
 | **Integration Tests (ITEST)** | ✅ 100% |

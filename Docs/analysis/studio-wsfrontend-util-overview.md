@@ -1,6 +1,6 @@
 # STUDIO, WSFrontend, and Util Modules Overview
 
-**Module Groups**: STUDIO (Security, WebStudio, UI, OpenAPI), WSFrontend (Rule Services), Util (Tools)
+**Module Groups**: STUDIO (Security, OpenL Studio, UI, OpenAPI), WSFrontend (Rule Services), Util (Tools)
 **Batches Covered**: 3-9
 **Last Updated**: 2025-11-05
 
@@ -8,11 +8,11 @@
 
 ## Executive Summary
 
-This document provides comprehensive coverage of the upper layers of OpenL Tablets: Security framework, Web Studio application, Rule Services deployment, and utility tools. These modules build upon the core engine (DEV) and repository layer to provide production-ready web applications and services.
+This document provides comprehensive coverage of the upper layers of OpenL Tablets: Security framework, OpenL Studio application, Rule Services deployment, and utility tools. These modules build upon the core engine (DEV) and repository layer to provide production-ready web applications and services.
 
 **Total Coverage**:
 - **Security**: 3 modules (authentication, authorization, ACL)
-- **Web Studio**: 4 core modules + React UI
+- **OpenL Studio**: 4 core modules + React UI
 - **OpenAPI**: 3 modules (generation, validation, integration)
 - **Rule Services**: 12 modules (deployment, web services, Kafka)
 - **Utilities**: 9 modules (Maven plugin, profiler, OpenTelemetry)
@@ -25,7 +25,7 @@ This document provides comprehensive coverage of the upper layers of OpenL Table
 ### Overview
 
 **Location**: `/home/user/openl-tablets/STUDIO/org.openl.security*/`
-**Purpose**: Authentication, authorization, and access control for WebStudio and RuleService
+**Purpose**: Authentication, authorization, and access control for OpenL Studio and RuleService
 
 ### Module Structure
 
@@ -182,7 +182,7 @@ security.jwt.expiration = 86400
 
 ---
 
-## BATCH 4: Web Studio Core (4 Modules)
+## BATCH 4: OpenL Studio Core (4 Modules)
 
 ### Overview
 
@@ -197,7 +197,7 @@ security.jwt.expiration = 86400
 
 **Architecture**:
 ```
-WebStudio (Spring Boot)
+OpenL Studio (Spring Boot)
   ├─ REST Controllers (/api/*)
   ├─ JSF Managed Beans (legacy UI)
   ├─ React SPA (/studio-ui/*)
@@ -423,7 +423,7 @@ const MyComponent: React.FC = () => {
 };
 ```
 
-**Build**: Webpack 5.100.2, produces static assets served by WebStudio
+**Build**: Webpack 5.100.2, produces static assets served by OpenL Studio
 
 ---
 
@@ -882,7 +882,7 @@ class IntegrationTest {
 
 **Contents**:
 - Sample rules project
-- WebStudio instance
+- OpenL Studio instance
 - RuleService instance
 - Configuration examples
 - Getting started guide
@@ -913,7 +913,7 @@ cd openl-tablets-demo
 
 ### Configuration Properties Reference
 
-**WebStudio**:
+**OpenL Studio**:
 ```properties
 webstudio.mode = multi-user
 webstudio.workspace = ${openl.home}/workspace
@@ -952,7 +952,7 @@ security.password.encoder = bcrypt
 
 ```
 Server
-├─ WebStudio (port 8080)
+├─ OpenL Studio (port 8080)
 └─ RuleService (port 8081)
 ```
 
@@ -960,7 +960,7 @@ Server
 
 ```
 Studio Server (Internal)
-└─ WebStudio (rule authoring)
+└─ OpenL Studio (rule authoring)
 
 Service Servers (Public)
 ├─ RuleService Instance 1
@@ -1021,7 +1021,7 @@ volumes:
 
 ## Performance Tuning
 
-### WebStudio Performance
+### OpenL Studio Performance
 
 **Concurrent Builds**:
 ```properties
@@ -1063,7 +1063,7 @@ ruleservice.cache.size = 10000
 
 ### Health Checks
 
-**WebStudio**:
+**OpenL Studio**:
 ```
 GET /actuator/health
 
@@ -1111,7 +1111,7 @@ GET /admin/health
 
 **Distributed traces**:
 ```
-HTTP Request → WebStudio
+HTTP Request → OpenL Studio
   ├─ Repository.read()
   ├─ Compiler.compile()
   │   ├─ Parser.parse()

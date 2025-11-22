@@ -349,7 +349,7 @@ This document provides guidance for using Claude Code when working with the Open
    - Real databases/services
 
 3. Manual testing
-   - Test with WebStudio UI
+   - Test with OpenL Studio UI
    - Test with RuleService
    - Test with sample rules
 ```
@@ -445,7 +445,7 @@ Update code
 ```
 "Show me all decision table implementations"
 "Find usages of IOpenClass"
-"List all REST controllers in WebStudio"
+"List all REST controllers in OpenL Studio"
 "Show me the repository implementations"
 ```
 

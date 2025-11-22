@@ -124,7 +124,7 @@ OpenL Tablets follows a strict layered architecture:
 | **org.openl.rules.data** | ~12K | Datatype tables and data binding |
 | **org.openl.rules.runtime** | ~5K | Runtime environment and bytecode execution |
 | **org.openl.rules.project** | ~18K | Project model and dependency resolution |
-| **org.openl.rules.webstudio.lib** | ~3K | WebStudio integration libraries |
+| **org.openl.rules.webstudio.lib** | ~3K | OpenL Studio integration libraries |
 
 #### Architecture Layers within DEV
 
