@@ -103,7 +103,7 @@ Integration patterns with popular frameworks:
 Deep-dive documentation for each major module group:
 - **[DEV Module Overview](analysis/dev-module-overview.md)** - Core rules engine (9 submodules)
 - **[Repository Layer Overview](analysis/repository-layer-overview.md)** - Repository & workspace management (9 submodules)
-- **[STUDIO/WSFrontend/Util Overview](analysis/studio-wsfrontend-util-overview.md)** - Web Studio, Rule Services, Utilities (50+ submodules)
+- **[STUDIO/WSFrontend/Util Overview](analysis/studio-wsfrontend-util-overview.md)** - OpenL Studio, Rule Services, Utilities (50+ submodules)
 
 ### Guides
 Practical guides for specific tasks:
