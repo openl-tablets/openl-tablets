@@ -147,7 +147,7 @@ OpenL Tablets is organized into 5 major module groups:
 **Documentation**: [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md) | [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
 
 **Key Submodules**:
-- `org.openl.rules.webstudio` - Main Web Studio application (WAR)
+- `org.openl.rules.webstudio` - Main OpenL Studio application (WAR)
 - `studio-ui` - React/TypeScript frontend
 - `org.openl.rules.repository*` - Repository backends (Git, AWS, Azure)
 - `org.openl.security*` - Security framework
@@ -209,8 +209,8 @@ OpenL Tablets is organized into 5 major module groups:
 - **Add a new table type** → [Custom Extensions Guide](guides/custom-extensions.md)
 - **Modify the parser** → [DEV/CLAUDE.md: Parser Guidelines](/DEV/CLAUDE.md)
 
-#### Work on Web Studio
-- **Understand Web Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
+#### Work on OpenL Studio
+- **Understand OpenL Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
 - **Follow STUDIO conventions** → [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
 - **Work on React frontend** → [studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)
 - **Migrate JSF to React** → [Migration Guide](guides/migration-guide.md)
