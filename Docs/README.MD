@@ -72,7 +72,7 @@ Integration patterns with popular frameworks:
 ### Conventions & Workflows
 - **[/CLAUDE.md](/CLAUDE.md)** - Repository-wide coding conventions and architecture principles
 - **[/DEV/CLAUDE.md](/DEV/CLAUDE.md)** - Core engine-specific conventions
-- **[/STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)** - Web Studio conventions
+- **[/STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)** - OpenL Studio conventions
 - **[/WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)** - Rule services conventions
 - **[/Util/CLAUDE.md](/Util/CLAUDE.md)** - Utilities and tools conventions
 - **[/STUDIO/studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)** - React/TypeScript frontend conventions
