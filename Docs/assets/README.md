@@ -11,7 +11,7 @@ docs/assets/
 │   ├── installation/    # Installation guide images
 │   ├── demo-package/    # Demo package guide images
 │   ├── reference/       # Reference guide images
-│   ├── webstudio/       # OpenL Studio guide images
+│   ├── openlstudio/     # OpenL Studio guide images
 │   └── rule-services/   # Rule services guide images
 ├── css/                 # Custom stylesheets
 ├── js/                  # Custom JavaScript
