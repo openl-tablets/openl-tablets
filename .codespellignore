@@ -1,0 +1,57 @@
+# Codespell ignore file
+# Add file paths or patterns that should be excluded from spell checking
+# One path per line, supports wildcards
+
+# Generated files
+*.min.js
+*.min.css
+*.map
+package-lock.json
+pom.xml.versionsBackup
+
+# Dependencies
+node_modules/
+target/
+dist/
+build/
+.mvn/
+
+# Test data and fixtures
+**/test-resources/**
+**/testdata/**
+**/fixtures/**
+
+# Binary and media files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Third-party code
+**/vendor/**
+**/third-party/**
+**/thirdparty/**
+
+# Excel files (OpenL rules)
+*.xls
+*.xlsx
+*.xlsm
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+
+# Git
+.git/
