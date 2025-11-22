@@ -380,7 +380,7 @@ See [Rule Services Guide](../rule-services/index.md) for production configuratio
 ## Additional Resources
 
 - **Installation Guide**: [Full Installation Guide](../installation/index.md)
-- **WebStudio User Guide**: [WebStudio Documentation](../openlstudio/index.md)
+- **OpenL Studio User Guide**: [OpenL Studio Documentation](../openlstudio/index.md)
 - **Rule Services Guide**: [Rule Services Documentation](../rule-services/index.md)
 - **Configuration**: [Configuration Overview](../../configuration/overview.md)
 - **Official Website**: [openl-tablets.org](https://openl-tablets.org)

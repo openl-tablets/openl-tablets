@@ -197,7 +197,7 @@ docker compose down
 
 ### Option B: Run from Source
 
-#### Running WebStudio
+#### Running OpenL Studio
 
 ```bash
 cd STUDIO/org.openl.rules.webstudio
@@ -327,7 +327,7 @@ public class TestOpenL {
 }
 ```
 
-### Test WebStudio
+### Test OpenL Studio
 
 1. Navigate to http://localhost:8080
 2. Login with admin/admin
@@ -432,7 +432,7 @@ git config core.editor "vim"  # or "code --wait" for VS Code
 cd DEV/org.openl.rules
 mvn test
 
-# Test WebStudio
+# Test OpenL Studio
 cd STUDIO/org.openl.rules.webstudio
 mvn test
 

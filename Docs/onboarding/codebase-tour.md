@@ -39,7 +39,7 @@ openl-tablets/
 │   ├── org.openl.spring/        # Spring integration
 │   └── ...                      # 5 other support modules
 │
-├── STUDIO/                       # Web Studio (22 modules)
+├── STUDIO/                       # OpenL Studio (22 modules)
 │   ├── org.openl.rules.webstudio/   # ⭐ Main WAR application
 │   ├── studio-ui/                    # ⭐ React/TypeScript frontend
 │   ├── org.openl.rules.repository*/  # Repository backends (Git, AWS, Azure)
@@ -279,7 +279,7 @@ constrainer, annotations, util, gen, test
 **Test Coverage**:
 - Smoke tests
 - Security tests (SAML, CAS, JWT)
-- WebStudio tests
+- OpenL Studio tests
 - Kafka integration
 - Cloud storage (MinIO)
 - Spring Boot integration
@@ -306,7 +306,7 @@ constrainer, annotations, util, gen, test
 
 ### Finding UI Code
 
-**Question**: Where is the WebStudio UI?
+**Question**: Where is the OpenL Studio UI?
 
 **Answer**:
 1. **Modern React UI**: `/STUDIO/studio-ui/src/`
@@ -319,7 +319,7 @@ constrainer, annotations, util, gen, test
 
 **Answer**:
 1. **RuleService**: `/WSFrontend/org.openl.rules.ruleservice.ws/src/` (CXF-based)
-2. **WebStudio**: `/STUDIO/org.openl.rules.webstudio/src/` (Spring REST controllers)
+2. **OpenL Studio**: `/STUDIO/org.openl.rules.webstudio/src/` (Spring REST controllers)
 
 ### Finding Configuration
 

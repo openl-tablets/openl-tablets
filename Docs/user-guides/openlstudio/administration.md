@@ -6,7 +6,7 @@ To perform administration tasks, in the top line menu, click **ADMIN**.
 
 By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System, Users, Groups & Privileges**, and **Notification** groups. To open the group, click the corresponding tab on the left.
 
-![](../../assets/images/webstudio/0ed3e90037fbfab31576872e5d9b58d7.jpeg)
+![](../../assets/images/openlstudio/0ed3e90037fbfab31576872e5d9b58d7.jpeg)
 
 *OpenL Studio administration*
 
@@ -91,7 +91,7 @@ The **Repository** section contains connection settings of design and deployment
     
     For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
     
-    ![](../../assets/images/webstudio/05b0bc614e21e2e705d0e76d7518be08.jpeg)
+    ![](../../assets/images/openlstudio/05b0bc614e21e2e705d0e76d7518be08.jpeg)
     
     *Configuring deployment repository settings*
     
@@ -100,7 +100,7 @@ The **Repository** section contains connection settings of design and deployment
 1.  To store deploy configurations in the Design repository, in the **Repository \> Deploy configuration** tab, select the **Use Design Repository** check box and provide required parameter values.
 2.  To add design or deployment repositories, click **Add** **Repository** and enter required information.
     
-    ![](../../assets/images/webstudio/522f9b767a9ec8f404d460bf60bcf6ef.jpeg)
+    ![](../../assets/images/openlstudio/522f9b767a9ec8f404d460bf60bcf6ef.jpeg)
     
     *Using another repository for deployment configurations*
     
@@ -141,7 +141,7 @@ In the **ADMIN** tab, in the **Repository** section, define values for the follo
 | Protected branches                    | Branches that can be set as protected from any modifications. <br/>For more information on protected branches, see [Using Protected Branches](#using-protected-branches).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Changes check interval                | Repository changes check interval in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Connection timeout                    | Repository connection timeout in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Default branch name                   | Pattern for a default branch name. The default value is WebStudio/{project-name}/{username}/{current-date}.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Default branch name                   | Pattern for a default branch name. The default value is OpenL Studio/{project-name}/{username}/{current-date}.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Branch name pattern                   | Additional regular expression to be used for validation of the new branch name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Invalid branch name <br/>message hint | Error message displayed when trying to create a branch with a name that does not match the additional regular expression.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Customize comments                    | Custom comment message template for Git commits. <br/>Comments can be customized using the following placeholders: <br/>**- {user-message}** represents a user defined commit message. It is also used as a commit message in OpenL Studio. <br/>**- {commit-type}** is used by commits to recognize the commit type of the message. <br/>**- {project-name}** is replaced by the current project in the message and used for user message templates for **Create project**, **Save project**, <br/>**Archive project**, **Restore project**, **Erase project**, and **Copy project**. <br/>**- {revision}** represents a project revision used for commit. <br/>By default, all commits are submitted to Git with a message in the following format: <br/>`{user-message} Type: {commit-type}` <br/>The following placeholders can be used for the **Restore from old version** user message templates: <br/>**- {revision}** is replaced by the old revision number. <br/>**- {author}** is replaced by the author of the old project version. <br/>**- {datetime}** is replaced by the date of the old project version. <br/>An additional validation rule can be set up for user message templates in the **User message pattern** field, in the form of a regular expression. <br/>If the validation according to the pattern fails, an error text set in the **Invalid user message hint** field is displayed to a user. |
@@ -207,7 +207,7 @@ To view a list of groups, proceed as follows:
     
     The system displays a list of groups similar to the following one:
     
-    ![](../../assets/images/webstudio/57a30f5b0d7de4ae821098ab307a52e0.jpeg)
+    ![](../../assets/images/openlstudio/57a30f5b0d7de4ae821098ab307a52e0.jpeg)
     
     *User groups in the* **Groups & Privileges** *tab*
     
@@ -229,7 +229,7 @@ To add a new group, proceed as follows:
     
     To assign a set of privileges for a group, click the group name above the list of privileges, such as Developers, Testers, or Administrators. The **Authenticated** default group with the **Viewer** privilege is created if the **All authenticated users have View access** check box is selected in the installation wizard. The group is displayed in the user table if no other groups are assigned to this user.
     
-    ![](../../assets/images/webstudio/b3f34ff98d6e111209332e0252ed93fb.png)
+    ![](../../assets/images/openlstudio/b3f34ff98d6e111209332e0252ed93fb.png)
     
     *Adding a user group with required set of privileges*
     
@@ -239,7 +239,7 @@ To add a new group, proceed as follows:
 
 To modify a user group, proceed as follows:
 
-1.  In the list of groups, locate the group that needs to be changed and click the **Edit** icon ![](../../assets/images/webstudio/d3ea5213930b8049e191654119114d07.png).
+1.  In the list of groups, locate the group that needs to be changed and click the **Edit** icon ![](../../assets/images/openlstudio/d3ea5213930b8049e191654119114d07.png).
 2.  In the **Edit Group** form, change the group name, add or modify its description, and change privileges as needed.
 3.  Click **Save** to complete.
 
@@ -247,7 +247,7 @@ To modify a user group, proceed as follows:
 
 To delete a user group, proceed as follows:
 
-1.  Locate the group to be deleted and click the red cross on the right: ![](../../assets/images/webstudio/0fda9cdfad6951b6b2345913d0045c36.png).
+1.  Locate the group to be deleted and click the red cross on the right: ![](../../assets/images/openlstudio/0fda9cdfad6951b6b2345913d0045c36.png).
 2.  Click **OK** in the confirmation dialog.
 
 ##### Managing a Group in Case of Third Party Identity Provider
@@ -258,7 +258,7 @@ When a user from the third-party server logs into OpenL Studio, external user gr
 
 -   If an external group cannot be matched with the OpenL Studio group, that is, no group with such name exists in OpenL Studio, the group is displayed as a collapsed number, for example, +1, and when the value is expanded, the group is highlighted grey.
     
-    ![](../../assets/images/webstudio/ee4a2bedc13ee312f08f2b364d1c3af3.png)
+    ![](../../assets/images/openlstudio/ee4a2bedc13ee312f08f2b364d1c3af3.png)
     
     *Groups non-existing in OpenL Studio displayed as collapsed numbers*
     
@@ -266,13 +266,13 @@ When a user from the third-party server logs into OpenL Studio, external user gr
     
 -   If an external group is matched with the OpenL Studio group but it does not have the Administrator privilege assigned, the group is highlighted green.
     
-    ![](../../assets/images/webstudio/baeffab9dc6ae249ccc19093751707a5.png)
+    ![](../../assets/images/openlstudio/baeffab9dc6ae249ccc19093751707a5.png)
     
     *Groups without the administrative privilege matched with the OpenL Studio groups*
     
 -   If a group has the Administrator privilege, the group is highlighted red in the user table.
     
-    ![](../../assets/images/webstudio/6d6a6bca6559eacb1c0e413629e717cf.png)
+    ![](../../assets/images/openlstudio/6d6a6bca6559eacb1c0e413629e717cf.png)
     
     *Groups without the administrative privilege matched with the OpenL Studio groups*
 
@@ -333,13 +333,13 @@ While creating a user, make sure to include the user in at least one group. Proc
     
     The system displays the **Add New User** form.
     
-    ![](../../assets/images/webstudio/2a82416bdc26b5badb9f4f0257104a6d.png)
+    ![](../../assets/images/openlstudio/2a82416bdc26b5badb9f4f0257104a6d.png)
     
     *Creating a user*
     
 1.  To create a user locally, ensure that the **Local user** check box is selected.
     
-    This option is selected by default. For local users, password information is stored in OpenL Tablets Web Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
+    This option is selected by default. For local users, password information is stored in OpenL Tablets Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
     
 1.  Specify the user’s login name in the **Username** field.
 2.  Optionally, enter the user email.
@@ -365,7 +365,7 @@ While creating a user, make sure to include the user in at least one group. Proc
 
 The system displays the new user in the **Users** list. If the username and password values are the same, an exclamation mark is displayed next to the username. A user can change the password to improve security.
 
-![](../../assets/images/webstudio/6d47073a836f7c46f45a187e9211751d.png)
+![](../../assets/images/openlstudio/6d47073a836f7c46f45a187e9211751d.png)
 
 *A list of users*
 
@@ -389,7 +389,7 @@ Initial users created during OpenL Studio installation and the currently logged 
 
 To delete a user, proceed as follows:
 
-1.  In the **Users** list, locate the user for deletion and click the **Delete** icon: ![](../../assets/images/webstudio/0fda9cdfad6951b6b2345913d0045c36.png).
+1.  In the **Users** list, locate the user for deletion and click the **Delete** icon: ![](../../assets/images/openlstudio/0fda9cdfad6951b6b2345913d0045c36.png).
 2.  Click **OK** in the confirmation dialog.
 
 ##### Managing Users in Case of Third Party Identity Provider
@@ -423,7 +423,7 @@ In the **ADMIN \> Notification** section, users with the administrator privilege
 When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL 
 Studio instances. To remove the message for all users and OpenL Studio instances, click **Remove**.
 
-![](../../assets/images/webstudio/d6cc06b1b16257286a870e26923da933.jpeg)
+![](../../assets/images/openlstudio/d6cc06b1b16257286a870e26923da933.jpeg)
 
 *Red bar identifying a notification sent to all active users and instances*
 
@@ -439,7 +439,7 @@ To create project tags, proceed as follows:
 
 1.  In the **ADMIN** tab, click **Tags** on the left.
     
-    ![](../../assets/images/webstudio/d2f7222f460ee0e300160cd30bc2e2d2.jpeg)
+    ![](../../assets/images/openlstudio/d2f7222f460ee0e300160cd30bc2e2d2.jpeg)
     
     *Selecting tags*
     
@@ -447,15 +447,15 @@ To create project tags, proceed as follows:
     
     When at least one tag type is added, a field for adding tag values appears.
     
-    ![](../../assets/images/webstudio/42641ef9498fcf79828ccd5e3d40d751.jpeg)
+    ![](../../assets/images/openlstudio/42641ef9498fcf79828ccd5e3d40d751.jpeg)
     
     *Adding tag values*
     
 1.  To edit a tag type, click the tag type name field and make the necessary changes.
 2.  To delete a tag type, click the red cross icon for the appropriate tag.
 3.  To add a tag value, in the **New Tag** field, enter the tag name and press **Enter.**
-4.  To edit a tag, click the menu icon ![](../../assets/images/webstudio/f2996d868400e9a96780f9111861cfa7.png), select **Edit,** modify the tag, and press **Enter** or click outside the field.
-5.  To delete a tag, click the menu icon ![](../../assets/images/webstudio/f2996d868400e9a96780f9111861cfa7.png)and select **Delete.**
+4.  To edit a tag, click the menu icon ![](../../assets/images/openlstudio/f2996d868400e9a96780f9111861cfa7.png), select **Edit,** modify the tag, and press **Enter** or click outside the field.
+5.  To delete a tag, click the menu icon ![](../../assets/images/openlstudio/f2996d868400e9a96780f9111861cfa7.png)and select **Delete.**
     
     All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
     
@@ -469,7 +469,7 @@ The **Projects without tags** window appears. It contains all projects that have
 
 Please note that only projects currently opened by the user can be modified. If a project exists in the repository but is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
 
-![](../../assets/images/webstudio/288b7d29e213832eb063e5b0814defc3.png)
+![](../../assets/images/openlstudio/288b7d29e213832eb063e5b0814defc3.png)
 
 *Applying tags for projects matching project name templates.*
 
@@ -499,31 +499,31 @@ To manage email server configuration, proceed as follows:
     
     When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified mailboxes manually defined by a user.
     
-    ![](../../assets/images/webstudio/0fb7500bee79ff665441b5e318d69fb1.png)
+    ![](../../assets/images/openlstudio/0fb7500bee79ff665441b5e318d69fb1.png)
     
     *Defining verification emails sender*
     
     If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
     
-    ![](../../assets/images/webstudio/f2cadb07631751bf665a582465aa0486.png)
+    ![](../../assets/images/openlstudio/f2cadb07631751bf665a582465aa0486.png)
     
     *A user with unverified email*
     
 1.  If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record and click **Resend**.
 
-![](../../assets/images/webstudio/32efcc3b25c8c305afeb092129199861.png)
+![](../../assets/images/openlstudio/32efcc3b25c8c305afeb092129199861.png)
 
 *Resending a verification email*
 
 A user can resend the verification email on his or her own by clicking the username in the top right corner, selecting **User Details,** and clicking **Resend.**
 
-![](../../assets/images/webstudio/a307bbf12b79c2c3869d6f487123e739.png)
+![](../../assets/images/openlstudio/a307bbf12b79c2c3869d6f487123e739.png)
 
 *A user initiating verification email resending*
 
 The verification email resembles the following:
 
-![](../../assets/images/webstudio/1a395078ab9e92f23d671d175dfe6c67.png)
+![](../../assets/images/openlstudio/1a395078ab9e92f23d671d175dfe6c67.png)
 
 *Verification email example*
 

@@ -22,7 +22,7 @@ OpenL Tablets documentation is organized into several categories:
 - **Installation Guide** - Installation and setup instructions
 - **Demo Package Guide** - Getting started with demos
 - **Reference Guide** - Language reference and syntax
-- **WebStudio User Guide** - Using OpenL Studio
+- **OpenL Studio User Guide** - Using OpenL Studio
 - **Rule Services Guide** - Deploying rule services
 
 ### Developer Documentation
@@ -83,7 +83,7 @@ The preview auto-reloads when you save changes.
 ### File Organization
 
 1. **Multi-file structure**: Split large guides (>500 lines) into logical sections
-   - Example: WebStudio User Guide split into 12 files
+   - Example: OpenL Studio User Guide split into 12 files
    - Create `index.md` for navigation overview
    - Use subdirectories for appendices or subsections
 
@@ -123,7 +123,7 @@ The preview auto-reloads when you save changes.
 
 4. **Images**:
    - Store in `docs/assets/images/[guide-name]/`
-   - Use relative paths: `![Alt text](../../assets/images/webstudio/screenshot.png)`
+   - Use relative paths: `![Alt text](../../assets/images/openlstudio/screenshot.png)`
    - Provide alt text for accessibility
    - Optimize images (PNG for screenshots, JPG for photos)
 
@@ -354,7 +354,7 @@ guide/
 3. Reference in markdown:
 
 ```markdown
-![Descriptive alt text](../../assets/images/webstudio/screenshot.png)
+![Descriptive alt text](../../assets/images/openlstudio/screenshot.png)
 ```
 
 4. Verify the image displays correctly in preview

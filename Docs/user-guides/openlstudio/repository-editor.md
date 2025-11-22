@@ -36,13 +36,13 @@ The status of each project in the tree is identified by a specific icon. The fol
 
 | Icon                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](../../assets/images/webstudio/8e2af296adafbac75872d0fab66dda6b.png) | Project is closed. It is available only in Design repository and must be opened to copy it to user's workspace.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ![](../../assets/images/webstudio/cf865a109e2be06a20865e2e72d28c8b.png) | Project is opened for viewing. It is copied to user's workspace and can be modified. <br/>If the product is restored from the previous revision, its status is set to **Viewing Revision,** otherwise its status is set to **No Changes.**                                                                                                                                                                                                                                                                                                                                                                 |
-| ![](../../assets/images/webstudio/2612691cc1108289c7fafbdefb85bdb9.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/webstudio/92724abe4cfd4fd2ef78a6586a595ba0.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/webstudio/0911850e55e28478fb5a39990c19ba03.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ![](../../assets/images/webstudio/2c331509e4c7655949ad8055eb387d98.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/webstudio/4d37af564602b82442d8138a551c3229.png) | Project is marked for deletion. In OpenL Studio, deletion of a project takes place in the following phases: <br/>- Deleting a project: Project is removed from user's workspace and marked for deletion. <br/>In this phase, the project can be restored using the undelete function. <br/>For information on deleting a project, see [Deleting a Project](#deleting-a-project). <br/><br/>- Erasing a project: Deleted project is permanently removed from Design repository. <Br/>After this phase, the project cannot be restored. <br/>For information on erasing a project, see [Erasing a Project](#erasing-a-project). |
+| ![](../../assets/images/openlstudio/8e2af296adafbac75872d0fab66dda6b.png) | Project is closed. It is available only in Design repository and must be opened to copy it to user's workspace.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ![](../../assets/images/openlstudio/cf865a109e2be06a20865e2e72d28c8b.png) | Project is opened for viewing. It is copied to user's workspace and can be modified. <br/>If the product is restored from the previous revision, its status is set to **Viewing Revision,** otherwise its status is set to **No Changes.**                                                                                                                                                                                                                                                                                                                                                                 |
+| ![](../../assets/images/openlstudio/2612691cc1108289c7fafbdefb85bdb9.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ![](../../assets/images/openlstudio/92724abe4cfd4fd2ef78a6586a595ba0.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ![](../../assets/images/openlstudio/0911850e55e28478fb5a39990c19ba03.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ![](../../assets/images/openlstudio/2c331509e4c7655949ad8055eb387d98.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
+| ![](../../assets/images/openlstudio/4d37af564602b82442d8138a551c3229.png) | Project is marked for deletion. In OpenL Studio, deletion of a project takes place in the following phases: <br/>- Deleting a project: Project is removed from user's workspace and marked for deletion. <br/>In this phase, the project can be restored using the undelete function. <br/>For information on deleting a project, see [Deleting a Project](#deleting-a-project). <br/><br/>- Erasing a project: Deleted project is permanently removed from Design repository. <Br/>After this phase, the project cannot be restored. <br/>For information on erasing a project, see [Erasing a Project](#erasing-a-project). |
 
 ### Filtering and Grouping the Project Tree
 
@@ -50,15 +50,15 @@ Projects in the repository editor are filtered the same way as in Rules Editor.
 
 To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
 
-To group projects by repository or tag types, click the **Group Projects** icon ![](../../assets/images/webstudio/f418655e8c30ace7c19b27edcce5d992.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](#managing-tags).
+To group projects by repository or tag types, click the **Group Projects** icon ![](../../assets/images/openlstudio/f418655e8c30ace7c19b27edcce5d992.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](#managing-tags).
 
-![](../../assets/images/webstudio/6591bdf7659bde341a89431f286763f5.jpeg)
+![](../../assets/images/openlstudio/6591bdf7659bde341a89431f286763f5.jpeg)
 
 *Grouping projects by tags*
 
-To expand or collapse the repository tree, use the expand and collapse icons ![](../../assets/images/webstudio/70ea87784e324e0c231ea3cc4cad4bef.png).
+To expand or collapse the repository tree, use the expand and collapse icons ![](../../assets/images/openlstudio/70ea87784e324e0c231ea3cc4cad4bef.png).
 
-To view archived deleted projects, click the advanced filter icon ![](../../assets/images/webstudio/2ad8c5cb644cb4a787c63fa8252298ec.png)and clear that the **Hide deleted projects** option.
+To view archived deleted projects, click the advanced filter icon ![](../../assets/images/openlstudio/2ad8c5cb644cb4a787c63fa8252298ec.png)and clear that the **Hide deleted projects** option.
 
 ### Creating Projects in Design Repository
 
@@ -114,7 +114,7 @@ To create a new project from template, proceed as follows:
     
     The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
     
-    ![](../../assets/images/webstudio/378491ed832403ed3b92dbde1f8ee639.jpeg)
+    ![](../../assets/images/openlstudio/378491ed832403ed3b92dbde1f8ee639.jpeg)
     
     *Creating a simple project from a template*
     
@@ -149,7 +149,7 @@ A custom project template can be created and then used during new projects defin
     
     For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
     
-    ![](../../assets/images/webstudio/2dad049ecf5a852d113b0f8c9410636b.jpeg)
+    ![](../../assets/images/openlstudio/2dad049ecf5a852d113b0f8c9410636b.jpeg)
     
     *Creating a custom project template*
 
@@ -166,7 +166,7 @@ Proceed as follows:
     
     All files are listed in the **File** area.
     
-    ![](../../assets/images/webstudio/1ee3493194983039dc558e5868ccdf91.jpeg)
+    ![](../../assets/images/openlstudio/1ee3493194983039dc558e5868ccdf91.jpeg)
     
     *Creating a project from Excel files*
     
@@ -198,7 +198,7 @@ To create a project from the OpenAPI file, proceed as follows:
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
     
-    ![](../../assets/images/webstudio/a95a35530e08fe3a9c233f5bfa430bdc.png)
+    ![](../../assets/images/openlstudio/a95a35530e08fe3a9c233f5bfa430bdc.png)
     
     *Creating a project from an OpenAPI file*
     
@@ -222,7 +222,7 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
 2.  In the **Create Project from** dialog, click the **Zip Archive** tab.
 3.  Click the **Add** button, locate the necessary zip archive and click **Open**.
     
-    ![](../../assets/images/webstudio/f0f5790682bf45cfc5361e3d73dec561.jpeg)
+    ![](../../assets/images/openlstudio/f0f5790682bf45cfc5361e3d73dec561.jpeg)
     
     *Creating a project from ZIP file*
     
@@ -249,7 +249,7 @@ A new project can be created in Design repository by loading a project with the 
     
     The system displays rule projects available in the workspace:
     
-    ![](../../assets/images/webstudio/1669f8514ccf7c91f556df66ef3272f7.jpeg)
+    ![](../../assets/images/openlstudio/1669f8514ccf7c91f556df66ef3272f7.jpeg)
     
     *Creating a project from Workspace*
     
@@ -266,7 +266,7 @@ A project existing in the Git repository can be imported into OpenL Studio as fo
 2.  In the **Create Project from** dialog, click the **Repository** tab.
 3.  Select a repository and path and click **Import.**
 
-![](../../assets/images/webstudio/4ead93a992dcee3b4f8047f2ca2be884.jpeg)
+![](../../assets/images/openlstudio/4ead93a992dcee3b4f8047f2ca2be884.jpeg)
 
 *Importing a project from a Git repository*
 
@@ -280,7 +280,7 @@ A new project may already contain tag values. This can happen, for instance, whe
 
 If the project contains tags that cannot be applied, a **Missing tags** pop-up window is displayed. This window lists the tag values, explains why they cannot be applied, and indicates what will happen next. If a tag type is not configured in OpenL Studio, the corresponding tag will be ignored. If a tag value is not permitted, a follow-up dialog prompts the user to enter a valid value.
 
-![](../../assets/images/webstudio/9188d1765621c994c526b6f5bc3ac4cf477854b2.png)
+![](../../assets/images/openlstudio/9188d1765621c994c526b6f5bc3ac4cf477854b2.png)
 
 *Some tags are not configured properly*
 
@@ -292,7 +292,7 @@ Default tag values are determined in the following order:
 2. If a tag value can be derived from the project name templates, it is applied.
 3. Otherwise, **None** is set as the default.
 
-![](../../assets/images/webstudio/f760348e2e6acd823dd72a04b9841f40.jpeg)
+![](../../assets/images/openlstudio/f760348e2e6acd823dd72a04b9841f40.jpeg)
     
 *Selecting project tags*
 
@@ -321,7 +321,7 @@ To open a project revision using the **Open Revision** button, proceed as follow
 1.  Click the **Open Revision** button.
 2.  In the **Project Revisions** field, select the required revision.
     
-    ![](../../assets/images/webstudio/1d03e5defebfa102b32e946799ba24f0.png)
+    ![](../../assets/images/openlstudio/1d03e5defebfa102b32e946799ba24f0.png)
     
     *Opening a project revision using the Open Revision button*
     
@@ -336,7 +336,7 @@ To open a project revision using the **Revisions** tab, proceed as follows:
     
     A list of revisions appears.
     
-    ![](../../assets/images/webstudio/900b1b5325f41510b5214427d81320f5.jpeg)
+    ![](../../assets/images/openlstudio/900b1b5325f41510b5214427d81320f5.jpeg)
     
     *List of project revisions*
     
@@ -369,7 +369,7 @@ To save a project, proceed as follows:
     
     The **Save changes** window appears:
     
-    ![](../../assets/images/webstudio/a0454a137ca0961bb3048aabafcdc453.jpeg)
+    ![](../../assets/images/openlstudio/a0454a137ca0961bb3048aabafcdc453.jpeg)
     
     *Save changes in a project*
     
@@ -383,7 +383,7 @@ An editable project can be saved and closed directly from Rules Editor as descri
 
 Each rule project has a set of properties displayed in the **Properties** tab when a project is selected.
 
-![](../../assets/images/webstudio/261485d1d65f649a6c119254b97a1fbf.jpeg)
+![](../../assets/images/openlstudio/261485d1d65f649a6c119254b97a1fbf.jpeg)
 
 *Project properties*
 
@@ -434,7 +434,7 @@ To upload a file to a project folder, proceed as follows:
     
     The **Upload File** window appears:
     
-    ![](../../assets/images/webstudio/11c044d881e270ea6f5b83f7171a6bca.png)
+    ![](../../assets/images/openlstudio/11c044d881e270ea6f5b83f7171a6bca.png)
     
     *Uploading a file*
     
@@ -459,13 +459,13 @@ To delete a folder or a file in the project structure, proceed as follows:
 1.  Perform one of the following steps as required:
     -   Expand the project tree, select the folder or file to be deleted and, in the right pane, click **Delete**.
     
-    ![](../../assets/images/webstudio/6362ea02fd15e637fa016cc13ea4fa9f.png)
+    ![](../../assets/images/openlstudio/6362ea02fd15e637fa016cc13ea4fa9f.png)
     
     *Deleting a project element*
     
-    -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](../../assets/images/webstudio/b3283d9b02e8eafc5dfac475347f0c88.png)at the right of the item to be deleted.
+    -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](../../assets/images/openlstudio/b3283d9b02e8eafc5dfac475347f0c88.png)at the right of the item to be deleted.
     
-    ![](../../assets/images/webstudio/fbc10c0636ac762909f8bf7c611af605.png)
+    ![](../../assets/images/openlstudio/fbc10c0636ac762909f8bf7c611af605.png)
     
     *Deleting project elements from the* **Elements** *tab*
     
@@ -476,12 +476,12 @@ To delete a folder or a file in the project structure, proceed as follows:
 A user can create a copy of a file using the repository editor. The current revision of the file or any revision stored in the repository can be used for copying. Proceed as follows:
 
 1.  Select a project that contains a file to copy and in the files tree, select the required file.
-2.  In the upper left corner of the page, click **Copy file** ![](../../assets/images/webstudio/26296206519d54461c96e40f613604dc.png).
+2.  In the upper left corner of the page, click **Copy file** ![](../../assets/images/openlstudio/26296206519d54461c96e40f613604dc.png).
 3.  In the window that appears, select the **Current Revision** or clear it and in the **File Revision** field, select a value.
 4.  Optionally, enter the **New File Path** property value.
 5.  In the **New File Name** field, enter the file name.
     
-    ![](../../assets/images/webstudio/5f5774680d54bc0b7b9f1a626f1beb5e.png)
+    ![](../../assets/images/openlstudio/5f5774680d54bc0b7b9f1a626f1beb5e.png)
     
     *Copying a file in repository editor*
     
@@ -497,7 +497,7 @@ To copy a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the required project and, in the right pane, click the **Copy** button.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](../../assets/images/webstudio/d2a06016b3a5f28c837d524b8f20f8fa.png)** on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](../../assets/images/openlstudio/d2a06016b3a5f28c837d524b8f20f8fa.png)** on the right.
 1.  In the **Copy Project** window, enter the new project name.
 2.  Select whether a new project must be linked to the origin project.
     
@@ -530,7 +530,7 @@ To delete a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the project and, in the right pane, click **Delete**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](../../assets/images/webstudio/b3283d9b02e8eafc5dfac475347f0c88.png)** on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](../../assets/images/openlstudio/b3283d9b02e8eafc5dfac475347f0c88.png)** on the right.
 1.  In the confirmation window, click **Delete** or **OK**.
     
     Deleted projects, except for those in the **Local** status, can be restored by using the **Undelete** button.
@@ -599,7 +599,7 @@ To add a new project to deploy to the deploy configuration, proceed as follows:
 
 1.  In the **Deploy Configurations** tree, select the deploy configuration and, in the right pane, select the **Projects to Deploy** tab.
     
-    ![](../../assets/images/webstudio/8c27bc98646284c2e73349402468d445.png)
+    ![](../../assets/images/openlstudio/8c27bc98646284c2e73349402468d445.png)
     
     *Deploy configuration with projects to deploy*
     
@@ -607,7 +607,7 @@ To add a new project to deploy to the deploy configuration, proceed as follows:
     
 1.  To add a new project to deploy, click **Add** and specify the repository, project name, branch, and revision to be included in the deploy configuration.
     
-    ![](../../assets/images/webstudio/70ed8c6681d4577de2c20b772582d2cd.jpeg)
+    ![](../../assets/images/openlstudio/70ed8c6681d4577de2c20b772582d2cd.jpeg)
     
     *Adding a project to deploy*
     
@@ -619,13 +619,13 @@ To deploy a deploy configuration, click **Deploy**.
 
 **Note:** The **Deploy** button is disabled if deploy configuration is in the **In** **Editing** status.
 
-![](../../assets/images/webstudio/752a0bdd9ba60a9ad00a1f09abd1c33e.png)
+![](../../assets/images/openlstudio/752a0bdd9ba60a9ad00a1f09abd1c33e.png)
 
 *Deploying configuration to deployment repository*
 
 The specified projects are deployed to deployment repository and a deployment message is displayed.
 
-![](../../assets/images/webstudio/704ba6cdd0eb6b0a3dd811706c9cdfcd.png)
+![](../../assets/images/openlstudio/704ba6cdd0eb6b0a3dd811706c9cdfcd.png)
 
 *Deployment message*
 
@@ -657,7 +657,7 @@ To update related deploy configurations and redeploy a rule project, proceed as 
     
     The **Auto Deploy** window appears listing all existing deploy configurations which’s latest revision contains a reference to the selected rule project. Deploy configurations marked for deletion are not displayed.
     
-    ![](../../assets/images/webstudio/568c1427aaa0589680b223a5234bae17.png)
+    ![](../../assets/images/openlstudio/568c1427aaa0589680b223a5234bae17.png)
     
     *Deploying a project*
     
@@ -673,7 +673,7 @@ To update related deploy configurations and redeploy a rule project, proceed as 
 
 Update and deployment results are displayed in the user interface.
 
-![](../../assets/images/webstudio/c02fb4bd07921f53f8b0f1010aa04d18.png)
+![](../../assets/images/openlstudio/c02fb4bd07921f53f8b0f1010aa04d18.png)
 
 *Redeployment results*
 
@@ -718,7 +718,7 @@ Proceed as follows:
     
     The selected rules are displayed in the **Rules Deploy Configuration** tab.
     
-    ![](../../assets/images/webstudio/cb56c11b5d220dbe316410763acd311d.png)
+    ![](../../assets/images/openlstudio/cb56c11b5d220dbe316410763acd311d.png)
     
     *Defining rules deploy configuration settings*
 
@@ -728,7 +728,7 @@ OpenL Studio supports versioning definition for rule services. This functionalit
 
 To check the services version deployment, in OpenL Tablets Rule Services, find the name of the deployed project. Services version is set both in the services header and in the services URL.
 
-![](../../assets/images/webstudio/a509cab9401acecd82d157e44ebaf70c.png)
+![](../../assets/images/openlstudio/a509cab9401acecd82d157e44ebaf70c.png)
 
 *Services header and URL with the version number*
 
@@ -745,7 +745,7 @@ To define the rule service version, proceed as follows:
     
     For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
     
-    ![](../../assets/images/webstudio/051ff8dd63dc3613e9d8ba08404bcfba.png)
+    ![](../../assets/images/openlstudio/051ff8dd63dc3613e9d8ba08404bcfba.png)
     
     *Defining services versioning*
     
@@ -763,7 +763,7 @@ To compare contents of the currently opened project revision with any other revi
     
         A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
 
-    ![](../../assets/images/webstudio/a06d3841680295798c7a25bfdb6af501.png)
+    ![](../../assets/images/openlstudio/a06d3841680295798c7a25bfdb6af501.png)
     
     *Comparing the current project revision from user workspace to the second project revision*
     
@@ -787,7 +787,7 @@ To export any revision of a file from Repository, proceed as follows:
 3.  In the right pane, click **Export file**.
 4.  In the displayed window, select the required file revision and click **Export**.
 
-![](../../assets/images/webstudio/dfdde8607313b1f7db276af495834e3f.png)
+![](../../assets/images/openlstudio/dfdde8607313b1f7db276af495834e3f.png)
 
 *Exporting a file from a project*
 
@@ -801,7 +801,7 @@ To unlock a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the project and, in the right pane, click **Unlock**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project that needs to be removed and click the corresponding **Unlock** item ![](../../assets/images/webstudio/db81abb8713c03cc7413fc20bf951cbb.png) on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project that needs to be removed and click the corresponding **Unlock** item ![](../../assets/images/openlstudio/db81abb8713c03cc7413fc20bf951cbb.png) on the right.
 1.  In the confirmation window, click **OK**.
 
 It is recommended to grant permission to the “Unlock” functionality only for administrators.
@@ -813,7 +813,7 @@ It is recommended to grant permission to the “Unlock” functionality only for
 To browse a deployment repository, proceed as follows:
 
 1.  Switch from the **Design repository** view to the **Deployment repositories** view by clicking **Deployment** in the top of the left pane.
-2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](../../assets/images/webstudio/55814fc7139e046c446b4c3e39762201.png) icon).
+2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](../../assets/images/openlstudio/55814fc7139e046c446b4c3e39762201.png) icon).
     
     The list of project deployments or deployed configurations – deploy configurations which consist of rule projects and specific project revisions and deployed to the selected deployment repository – are displayed in the middle pane.
     
@@ -823,7 +823,7 @@ OpenL Studio displays only the latest revisions of each deployed configuration i
 
 Also, when browsing deployed configurations in the deployment repository, users can see their content, namely what rules projects are deployed.
 
-![](../../assets/images/webstudio/c9186ff78edf3757eaba4fb1492cfa88.png)
+![](../../assets/images/openlstudio/c9186ff78edf3757eaba4fb1492cfa88.png)
 
 *Deployment repository with deployed projects*
 

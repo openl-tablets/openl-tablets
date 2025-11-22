@@ -24,7 +24,7 @@ The following topics are included in this chapter:
 
 To limit a list of projects displayed in the **Projects** list, start typing a project name in the field located above the list of projects.
 
-![](../../assets/images/webstudio/e157a7677f40ede17006495ee0d22c16.png)
+![](../../assets/images/openlstudio/e157a7677f40ede17006495ee0d22c16.png)
 
 *Filtering projects by Name*
 
@@ -34,7 +34,7 @@ To get a full list of projects, delete filter text value in the field.
 
 Rules Editor allows a user to work with one project at a time. To select a project, in the **Projects** tree, select the blue hyperlink of the required project name. The project page with general information about the project and configuration details appears in the middle pane of the editor.
 
-![](../../assets/images/webstudio/4fc34f40b2046e82254cff4c11c44b04.jpeg)
+![](../../assets/images/openlstudio/4fc34f40b2046e82254cff4c11c44b04.jpeg)
 
 *A project page in Rules Editor*
 
@@ -55,7 +55,7 @@ For more information on project and module dependencies, see [OpenL Tablets Refe
 
 The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The loading progress bar is displayed in the **Problems** section. Errors and warnings are displayed dynamically while more modules are compiled.
 
-![](../../assets/images/webstudio/f84cc5d3c3896a414e52678b54291295.jpeg)
+![](../../assets/images/openlstudio/f84cc5d3c3896a414e52678b54291295.jpeg)
 
 *Loading progress bar*
 
@@ -87,7 +87,7 @@ This section explains the following tasks that can be performed on projects in R
 
 A project can be opened for editing and saved directly in Rules Editor.
 
-1.  To save the edited project, click **Save** ![](../../assets/images/webstudio/065a365a7725869b00c56a0709886a2e.png).
+1.  To save the edited project, click **Save** ![](../../assets/images/openlstudio/065a365a7725869b00c56a0709886a2e.png).
 
     **Note:** If a project is in the **Local** status, this option is not available in Rules Editor.
 
@@ -95,9 +95,9 @@ A project can be opened for editing and saved directly in Rules Editor.
 
 | Project details                                                                                                                               | Available actions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](../../assets/images/webstudio/a7e355d8941719d3c854bc573f7b5e57.png) . <br/>For more information on OpenL version compatibility, see [Saving a Project for Backward Compatibility](#saving-a-project-for-backward-compatibility). <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
-| Project sources                                                                                                                               | Put the mouse cursor over the **Sources** label and click **Manage Sources** ![](../../assets/images/webstudio/a7e355d8941719d3c854bc573f7b5e57.png) .                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Modules configuration                                                                                                                         | Put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](../../assets/images/webstudio/b1bc8af33d20e0e52b2bbdd4ad1a7ea3.png) or **Edit Module** ![](../../assets/images/webstudio/a7e355d8941719d3c854bc573f7b5e57.png) <br/>or **Remove Module** ![](../../assets/images/webstudio/bc579ab11b13186a7e43f09904b47ccc.png).                                                                                                                                                                                                                                                                                                                                                                                                         |
+| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](../../assets/images/openlstudio/a7e355d8941719d3c854bc573f7b5e57.png) . <br/>For more information on OpenL version compatibility, see [Saving a Project for Backward Compatibility](#saving-a-project-for-backward-compatibility). <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
+| Project sources                                                                                                                               | Put the mouse cursor over the **Sources** label and click **Manage Sources** ![](../../assets/images/openlstudio/a7e355d8941719d3c854bc573f7b5e57.png) .                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Modules configuration                                                                                                                         | Put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](../../assets/images/openlstudio/b1bc8af33d20e0e52b2bbdd4ad1a7ea3.png) or **Edit Module** ![](../../assets/images/openlstudio/a7e355d8941719d3c854bc573f7b5e57.png) <br/>or **Remove Module** ![](../../assets/images/openlstudio/bc579ab11b13186a7e43f09904b47ccc.png).                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Project dependencies                                                                                                                          | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 All changes are saved in the project `rules.xml` file. For more information on this XML file, see the [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
@@ -108,7 +108,7 @@ For backward compatibility, a project can be saved in earlier OpenL versions, fo
 
 It is important that the structure of `rules.xml` and `rules-deploy.xml` is changed after saving a project in a previous OpenL version, and may result, for example, in disappeared UI fragments.
 
-![](../../assets/images/webstudio/d1ec1ce13567b835cd0af2ac8e60671d.png)
+![](../../assets/images/openlstudio/d1ec1ce13567b835cd0af2ac8e60671d.png)
 
 *Selecting an OpenL Tablets version for creating a backward compatible project version*
 
@@ -126,7 +126,7 @@ The default project version for export is the one that a user has currently open
 
 Exported project is downloaded as a `.zip` archive.
 
-![](../../assets/images/webstudio/971b9e39f9b504f6f2e6068dc53dfb13.png)
+![](../../assets/images/openlstudio/971b9e39f9b504f6f2e6068dc53dfb13.png)
 
 *Importing and updating the project from a .zip file*
 
@@ -142,7 +142,7 @@ To create a copy of a project, proceed as follows:
 
 The new project appears in the project list.
 
-![](../../assets/images/webstudio/6b03d1b84a9d8ba45eaee2013001c312.jpeg)
+![](../../assets/images/openlstudio/6b03d1b84a9d8ba45eaee2013001c312.jpeg)
 
 *Copying a project*
 
@@ -155,17 +155,17 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
     
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
     
-1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](../../assets/images/webstudio/a7e355d8941719d3c854bc573f7b5e57.png).
+1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](../../assets/images/openlstudio/a7e355d8941719d3c854bc573f7b5e57.png).
     
-    ![](../../assets/images/webstudio/10843000fe9311158adc8206237ae958.png)
+    ![](../../assets/images/openlstudio/10843000fe9311158adc8206237ae958.png)
     
     *Initiating module editing*
     
-    ![](../../assets/images/webstudio/97bcd40ba7866874989f723a25f51534.png)
+    ![](../../assets/images/openlstudio/97bcd40ba7866874989f723a25f51534.png)
     
     *Editing module information*
     
-1.  To save the changes, click **Save** ![](../../assets/images/webstudio/065a365a7725869b00c56a0709886a2e.png).
+1.  To save the changes, click **Save** ![](../../assets/images/openlstudio/065a365a7725869b00c56a0709886a2e.png).
 
 **Notes:** The 'Included Methods' and 'Excluded Methods' fields provide the ability to set method filters. For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
 
@@ -178,25 +178,25 @@ To compare module versions, proceed as follows:
 2.  In the top line menu, select **More** **\>** **Local** **Changes**.
     The **Local** **Changes** page appears displaying all module versions, with the latest versions on the top.
     
-    ![](../../assets/images/webstudio/1a554098a1f584fa7f6d0b6922d05b8b.jpeg)
+    ![](../../assets/images/openlstudio/1a554098a1f584fa7f6d0b6922d05b8b.jpeg)
     
     *Displaying the Changes window*
     
-    When a project is modified, upon clicking the **Save** icon ![](../../assets/images/webstudio/7cb3dcd35c8672b10e5c931de331b408.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
+    When a project is modified, upon clicking the **Save** icon ![](../../assets/images/openlstudio/7cb3dcd35c8672b10e5c931de331b408.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
     
-    ![](../../assets/images/webstudio/be93798eadb10fd4553148886ad8012d.jpeg)
+    ![](../../assets/images/openlstudio/be93798eadb10fd4553148886ad8012d.jpeg)
     
     *Clicking Save to complete project update and save changes as a revision version*
     
 1. To compare the changes, select check boxes for two required versions and click **Compare**.
     
-    ![](../../assets/images/webstudio/6e36755fc51d6b93b3a7d9632c5a36dc.jpeg)
+    ![](../../assets/images/openlstudio/6e36755fc51d6b93b3a7d9632c5a36dc.jpeg)
     
     *Comparing module versions*
     
     The system displays the module in a separate browser window where changed tables are marked as displayed in the following example.
      
-    ![](../../assets/images/webstudio/9140048a2c374acb80aa5246c9f03de6.jpeg)
+    ![](../../assets/images/openlstudio/9140048a2c374acb80aa5246c9f03de6.jpeg)
     
     *Tables with changes*
     
@@ -204,7 +204,7 @@ To compare module versions, proceed as follows:
     
     The result of the comparison is displayed in the bottom of the window.
     
-    ![](../../assets/images/webstudio/3356efaccc4fc27518b62adbd2f70379.jpeg)
+    ![](../../assets/images/openlstudio/3356efaccc4fc27518b62adbd2f70379.jpeg)
     
     *The result of the module version comparison*
     
@@ -224,8 +224,8 @@ OpenL Studio allows creating a copy of the existing module, in Editor, in either
 To create a copy of a module, proceed as follows:
 
 1.  Do one of the following:
-    -   To create a copy of a module using the **Project** page, in the project tree, select a project which module must be copied, in the modules list, put the mouse cursor over the selected module name, and click **Copy Module** ![](../../assets/images/webstudio/01c68072b080e6fc98abdeaf4d55020c.png).
-    -   To create a copy of a module using the **Module** page, in the project tree, select a module to be copied, put the mouse cursor over the module name, and click **Copy Module** ![](../../assets/images/webstudio/01c68072b080e6fc98abdeaf4d55020c.png).
+    -   To create a copy of a module using the **Project** page, in the project tree, select a project which module must be copied, in the modules list, put the mouse cursor over the selected module name, and click **Copy Module** ![](../../assets/images/openlstudio/01c68072b080e6fc98abdeaf4d55020c.png).
+    -   To create a copy of a module using the **Module** page, in the project tree, select a module to be copied, put the mouse cursor over the module name, and click **Copy Module** ![](../../assets/images/openlstudio/01c68072b080e6fc98abdeaf4d55020c.png).
 1.  In the window that appears, enter the new module name.
     
     When the new module name is entered, the **Copy** button becomes enabled.
@@ -242,7 +242,7 @@ To create a copy of a module, proceed as follows:
     
 A new simple module is displayed in the modules list.
 
-![](../../assets/images/webstudio/d037bbf438749fbad9509e1f977335ee.png)
+![](../../assets/images/openlstudio/d037bbf438749fbad9509e1f977335ee.png)
 
 *Creating a copy of a module*
 
@@ -251,15 +251,15 @@ A new simple module is displayed in the modules list.
 If the module is defined using **File Path Pattern**, to copy such module, proceed as follows:
 
 1.  Do one of the following:
-    -   To create a copy of a module using the **Project** page, put the mouse cursor over multiple modules, click **Copy Module** ![](../../assets/images/webstudio/01c68072b080e6fc98abdeaf4d55020c.png), in the window that appears, click **Select module,** and in the **File Path** drop-down list, select the name of the module to copy.
-    -   To create a copy of a module using the **Module** page, in the project tree, select a module to copy, put the mouse cursor over the module name, and click **Copy Module** ![](../../assets/images/webstudio/01c68072b080e6fc98abdeaf4d55020c.png).
+    -   To create a copy of a module using the **Project** page, put the mouse cursor over multiple modules, click **Copy Module** ![](../../assets/images/openlstudio/01c68072b080e6fc98abdeaf4d55020c.png), in the window that appears, click **Select module,** and in the **File Path** drop-down list, select the name of the module to copy.
+    -   To create a copy of a module using the **Module** page, in the project tree, select a module to copy, put the mouse cursor over the module name, and click **Copy Module** ![](../../assets/images/openlstudio/01c68072b080e6fc98abdeaf4d55020c.png).
 1.  Click **Select module** and in the **File Path** drop-down list, select the name of the module to copy.
 2.  Enter the new module name.
 3.  Click **Copy**.
 
 The new module is displayed in the modules list.
 
-![](../../assets/images/webstudio/5be694816c896cc8d727493c5bdf2738.png)
+![](../../assets/images/openlstudio/5be694816c896cc8d727493c5bdf2738.png)
 
 *Copying a module with the defined file path and properties patterns*
 
@@ -273,10 +273,10 @@ To define a dependency on another project, proceed as follows:
 
 1.  In Rules Editor, in the project tree, select a project name.
 2.  If the project is not editable, make it editable as described in [Editing and Saving a Project](#editing-and-saving-a-project).
-3.  Put the mouse cursor over the **Dependencies** label and click **Manage Dependencies** ![](../../assets/images/webstudio/a7e355d8941719d3c854bc573f7b5e57.png) .
+3.  Put the mouse cursor over the **Dependencies** label and click **Manage Dependencies** ![](../../assets/images/openlstudio/a7e355d8941719d3c854bc573f7b5e57.png) .
 4.  In the window that appears, update information as required and click **Save**.
 
-![](../../assets/images/webstudio/c100aa6a4ed53a17fe232c2a83d820fe.png)
+![](../../assets/images/openlstudio/c100aa6a4ed53a17fe232c2a83d820fe.png)
 
 *Managing project dependencies*
 
@@ -296,21 +296,21 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 
 | Icon                                                             | Table type                                                                           |
 |------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| ![](../../assets/images/webstudio/addf20fe8e0cb28afd74fc8b07709933.png) | Decision table.                                                                      |
-| ![](../../assets/images/webstudio/0871b3ba511933c19e83ccb9a3ceead5.png) | Decision table with unit tests.                                                      |
-| ![](../../assets/images/webstudio/99b625f9f4b96684375f87c9222b6587.png) | Column match table.                                                                  |
-| ![](../../assets/images/webstudio/82aa2454028e7fca9530156d56d57910.png) | Column match table with unit tests.                                                  |
-| ![](../../assets/images/webstudio/409461d40e46b5ada7f90053fefe7271.png) | Tbasic table.                                                                        |
-| ![](../../assets/images/webstudio/7a5382921ca4c9ebf92e7143b88d4698.png) | Tbasic table with unit tests.                                                        |
-| ![](../../assets/images/webstudio/5a849e452c0675f14dc1ece015603e3a.png) | Data table.                                                                          |
-| ![](../../assets/images/webstudio/463a0c232c78123525d2ca20723adb9f.png) | Datatype table.                                                                      |
-| ![](../../assets/images/webstudio/61fe16bb498a3465544df36be6eed15a.png) | Method table.                                                                        |
-| ![](../../assets/images/webstudio/4443ef45bf879803759ef413590f52e5.png) | Unit test table.                                                                     |
-| ![](../../assets/images/webstudio/ad615071b0fc21923ff85aa93e239faf.png) | Run method table.                                                                    |
-| ![](../../assets/images/webstudio/a3b08852e2becc41e47eb6a8e69011bf.png) | Environment table.                                                                   |
-| ![](../../assets/images/webstudio/8fbbd353411228d87f1a4229e893ddb5.png) | Property table.                                                                      |
-| ![](../../assets/images/webstudio/68dc4948dbd4c8482b80fd5e6b4784d8.png) | Table not corresponding to any preceding types. Such tables are considered comments. |
-| ![](../../assets/images/webstudio/ba46e66267834235c3ad9244cf2924bc.png) | Spreadsheet table, Constants table.                                                  |
+| ![](../../assets/images/openlstudio/addf20fe8e0cb28afd74fc8b07709933.png) | Decision table.                                                                      |
+| ![](../../assets/images/openlstudio/0871b3ba511933c19e83ccb9a3ceead5.png) | Decision table with unit tests.                                                      |
+| ![](../../assets/images/openlstudio/99b625f9f4b96684375f87c9222b6587.png) | Column match table.                                                                  |
+| ![](../../assets/images/openlstudio/82aa2454028e7fca9530156d56d57910.png) | Column match table with unit tests.                                                  |
+| ![](../../assets/images/openlstudio/409461d40e46b5ada7f90053fefe7271.png) | Tbasic table.                                                                        |
+| ![](../../assets/images/openlstudio/7a5382921ca4c9ebf92e7143b88d4698.png) | Tbasic table with unit tests.                                                        |
+| ![](../../assets/images/openlstudio/5a849e452c0675f14dc1ece015603e3a.png) | Data table.                                                                          |
+| ![](../../assets/images/openlstudio/463a0c232c78123525d2ca20723adb9f.png) | Datatype table.                                                                      |
+| ![](../../assets/images/openlstudio/61fe16bb498a3465544df36be6eed15a.png) | Method table.                                                                        |
+| ![](../../assets/images/openlstudio/4443ef45bf879803759ef413590f52e5.png) | Unit test table.                                                                     |
+| ![](../../assets/images/openlstudio/ad615071b0fc21923ff85aa93e239faf.png) | Run method table.                                                                    |
+| ![](../../assets/images/openlstudio/a3b08852e2becc41e47eb6a8e69011bf.png) | Environment table.                                                                   |
+| ![](../../assets/images/openlstudio/8fbbd353411228d87f1a4229e893ddb5.png) | Property table.                                                                      |
+| ![](../../assets/images/openlstudio/68dc4948dbd4c8482b80fd5e6b4784d8.png) | Table not corresponding to any preceding types. Such tables are considered comments. |
+| ![](../../assets/images/openlstudio/ba46e66267834235c3ad9244cf2924bc.png) | Spreadsheet table, Constants table.                                                  |
 
 For more information on table types, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/). If a table contains an error, a small red cross is displayed in the corner of the icon.
 
@@ -324,7 +324,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     
     The selected table is displayed in the middle pane in read mode.
     
-    ![](../../assets/images/webstudio/58be1b760b04808e8744445b19341d1e.png)
+    ![](../../assets/images/openlstudio/58be1b760b04808e8744445b19341d1e.png)
     
     *Table opened in OpenL Studio*
     
@@ -338,7 +338,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     
     The following table is switched to the edit mode:
     
-    ![](../../assets/images/webstudio/23b8fc70e8af17b2a2e789750dd31557.png)
+    ![](../../assets/images/openlstudio/23b8fc70e8af17b2a2e789750dd31557.png)
     
     *Table in the edit mode*
     
@@ -346,40 +346,40 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     
     | Button                                                           | Description                                             |
     |------------------------------------------------------------------|---------------------------------------------------------|
-    | ![](../../assets/images/webstudio/d8c95f4dcb60bd3fb575f1b12ecace96.png) | Saves changes in table.                                 |
-    | ![](../../assets/images/webstudio/04ac7759c44374e90e413dc2fd217f5b.png) | Reverses last changes.                                  |
-    | ![](../../assets/images/webstudio/225b46e5d5a80065fcc332f22e1e5140.png) | Reapplies reversed changes.                             |
-    | ![](../../assets/images/webstudio/2b0484ad327df2659d21f31e5b7ab595.png) | Inserts a row.                                          |
-    | ![](../../assets/images/webstudio/848196d133a9067249f07a16602a64c4.png) | Deletes a row.                                          |
-    | ![](../../assets/images/webstudio/b060076776efca7ffd3020a7ceb07b37.png) | Inserts a column.                                       |
-    | ![](../../assets/images/webstudio/d2e889488d2236d03b9f4b7d8de3d38e.png) | Deletes a column.                                       |
-    | ![](../../assets/images/webstudio/e417a6a5c7848ad41cb079683eef7332.png) | Aligns text in currently selected cell with left edge.  |
-    | ![](../../assets/images/webstudio/b0373d015cd2a67cca7bf335c5429a48.png) | Centers text in currently selected cell.                |
-    | ![](../../assets/images/webstudio/960cc5b05fb167ba3ad1351de5cb7530.png) | Aligns text in currently selected cell with right edge. |
-    | ![](../../assets/images/webstudio/b08d515ccfe8607bc5e5e61704f2c7ae.png) | Make the text font **bold**.                            |
-    | ![](../../assets/images/webstudio/3431a1b839f979aecc47dc528ac78cf8.png) | Applies *italics* to the cell text.                     |
-    | ![](../../assets/images/webstudio/33b8ec973f2a791d1adff82bc943b72d.png) | Underlines the cell text.                               |
-    | ![](../../assets/images/webstudio/fbe95646e37bb452bdf33c83d016b7ce.png) | Sets the fill color.                                    |
-    | ![](../../assets/images/webstudio/069066ebe2c7e5132e9e4d3807e8d3ac.png) | Sets the font color.                                    |
-    | ![](../../assets/images/webstudio/a42383f84cfac3f73c1a13be01afae72.png) | Decreases indent.                                       |
-    | ![](../../assets/images/webstudio/4ab19634e2840ef5dc3487e13a935ef3.png) | Increases indent.                                       |
+    | ![](../../assets/images/openlstudio/d8c95f4dcb60bd3fb575f1b12ecace96.png) | Saves changes in table.                                 |
+    | ![](../../assets/images/openlstudio/04ac7759c44374e90e413dc2fd217f5b.png) | Reverses last changes.                                  |
+    | ![](../../assets/images/openlstudio/225b46e5d5a80065fcc332f22e1e5140.png) | Reapplies reversed changes.                             |
+    | ![](../../assets/images/openlstudio/2b0484ad327df2659d21f31e5b7ab595.png) | Inserts a row.                                          |
+    | ![](../../assets/images/openlstudio/848196d133a9067249f07a16602a64c4.png) | Deletes a row.                                          |
+    | ![](../../assets/images/openlstudio/b060076776efca7ffd3020a7ceb07b37.png) | Inserts a column.                                       |
+    | ![](../../assets/images/openlstudio/d2e889488d2236d03b9f4b7d8de3d38e.png) | Deletes a column.                                       |
+    | ![](../../assets/images/openlstudio/e417a6a5c7848ad41cb079683eef7332.png) | Aligns text in currently selected cell with left edge.  |
+    | ![](../../assets/images/openlstudio/b0373d015cd2a67cca7bf335c5429a48.png) | Centers text in currently selected cell.                |
+    | ![](../../assets/images/openlstudio/960cc5b05fb167ba3ad1351de5cb7530.png) | Aligns text in currently selected cell with right edge. |
+    | ![](../../assets/images/openlstudio/b08d515ccfe8607bc5e5e61704f2c7ae.png) | Make the text font **bold**.                            |
+    | ![](../../assets/images/openlstudio/3431a1b839f979aecc47dc528ac78cf8.png) | Applies *italics* to the cell text.                     |
+    | ![](../../assets/images/openlstudio/33b8ec973f2a791d1adff82bc943b72d.png) | Underlines the cell text.                               |
+    | ![](../../assets/images/openlstudio/fbe95646e37bb452bdf33c83d016b7ce.png) | Sets the fill color.                                    |
+    | ![](../../assets/images/openlstudio/069066ebe2c7e5132e9e4d3807e8d3ac.png) | Sets the font color.                                    |
+    | ![](../../assets/images/openlstudio/a42383f84cfac3f73c1a13be01afae72.png) | Decreases indent.                                       |
+    | ![](../../assets/images/openlstudio/4ab19634e2840ef5dc3487e13a935ef3.png) | Increases indent.                                       |
     
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
     
     Now a user can enter formulas in the selected cell.
     
-1.  To save changes, click **Save** ![](../../assets/images/webstudio/d8c95f4dcb60bd3fb575f1b12ecace96.png).
+1.  To save changes, click **Save** ![](../../assets/images/openlstudio/d8c95f4dcb60bd3fb575f1b12ecace96.png).
     
     If a table contains an error, the appropriate message is displayed.
     
-    ![](../../assets/images/webstudio/2f31884fc61a15b01c31a3a6a48b10a0.png)
+    ![](../../assets/images/openlstudio/2f31884fc61a15b01c31a3a6a48b10a0.png)
     
     *Example of an error in a table*
     
     The arrow under the message allows viewing all stack trace for this error.
     
-    ![](../../assets/images/webstudio/4ae30d4d267b3669a0db34507004d66a.png)
+    ![](../../assets/images/openlstudio/4ae30d4d267b3669a0db34507004d66a.png)
     
     *Error stack trace example*
 
@@ -395,19 +395,19 @@ Links to the following tables are allowed:
 
 Links to the rule tables are underlined and marked blue. When a mouse cursor is put over the link, a tooltip with method name and input parameters with types is displayed.
 
-![](../../assets/images/webstudio/be17a7b133234d35936a0acd42f9a517.jpeg)
+![](../../assets/images/openlstudio/be17a7b133234d35936a0acd42f9a517.jpeg)
 
 *A tooltip for the linked method to a decision table*
 
 Links to the data and datatype tables are underlined with a dotted line and has an appropriate tooltip with description.
 
-![](../../assets/images/webstudio/0cbde5698b690b1c3a9661fb2f2d75fd.png)
+![](../../assets/images/openlstudio/0cbde5698b690b1c3a9661fb2f2d75fd.png)
 
 *Links to the datatype tables from the decision and datatype table*
 
 All fields of the datatype tables are also linked and contain tooltips.
 
-![](../../assets/images/webstudio/d41e56df8884b92092a3f1a0bc6a0701.png)
+![](../../assets/images/openlstudio/d41e56df8884b92092a3f1a0bc6a0701.png)
 
 *A link to the field of the Corporate datatype table*
 
@@ -429,7 +429,7 @@ If any editor control is used, for example, a check box or the **Done** button, 
 
 The following example displays the decision table with data represented as a range:
 
-![](../../assets/images/webstudio/35139e023741aaed3100495bf6d2ac1e.png)
+![](../../assets/images/openlstudio/35139e023741aaed3100495bf6d2ac1e.png)
 
 *Decision table with a range data type*
 
@@ -451,7 +451,7 @@ To create a range, proceed as follows:
     
     For example, edit the cell containing 18-21. The table is extended by the pop-up window with a set of controls for editing the range.
     
-    ![](../../assets/images/webstudio/98662bef33f0aeeae129dc052be8b6b5.png)
+    ![](../../assets/images/openlstudio/98662bef33f0aeeae129dc052be8b6b5.png)
     
     *Creating a range in Range Editor*
     
@@ -465,7 +465,7 @@ To create a range, proceed as follows:
     
     The last cell in the **Hour** column is filled as follows:
     
-    ![](../../assets/images/webstudio/ebc70e182e94de0d5ff4b5cb7ad638fc.png)
+    ![](../../assets/images/openlstudio/ebc70e182e94de0d5ff4b5cb7ad638fc.png)
     
     *New range created in Range Editor*
     
@@ -473,7 +473,7 @@ To create a range, proceed as follows:
     
     The table resembles the following:
     
-    ![](../../assets/images/webstudio/aac1251fcc154839730f9c216b011783.png)
+    ![](../../assets/images/openlstudio/aac1251fcc154839730f9c216b011783.png)
     
     *Editing a range in Range Editor*
     
@@ -482,7 +482,7 @@ To create a range, proceed as follows:
     
     The range resembles the following:
     
-    ![](../../assets/images/webstudio/e67b81800fa38f0c47f6955fb4649d90.png)
+    ![](../../assets/images/openlstudio/e67b81800fa38f0c47f6955fb4649d90.png)
     
     *The range edited in Range Editor*
 
@@ -501,10 +501,10 @@ A table can be created based on another table using one of the following methods
 To create a table as a copy of the existing table, proceed as follows:
 
 1.  In the module list, select a table to copy.
-2.  Click the **Copy Table** icon ![](../../assets/images/webstudio/42a58d83f10d78964b87c3a1efadd92b.png).
+2.  Click the **Copy Table** icon ![](../../assets/images/openlstudio/42a58d83f10d78964b87c3a1efadd92b.png).
     The system displays the **Copy Table** form with **New Table** selected by default.
     
-    ![](../../assets/images/webstudio/c325ec08c39fe56d3c8df7a33ff7ac63.png)
+    ![](../../assets/images/openlstudio/c325ec08c39fe56d3c8df7a33ff7ac63.png)
     
     *Copying the existing table*
     
@@ -541,13 +541,13 @@ OpenL Studio provides search functionality to look through all module tables dat
 In the **simple search** mode, the system searches for a specific word or phrase across all tables within the current module, the current project, or the current project and its dependency projects depending on the selected option.
 To perform a simple search, in the **Search** field, enter a word or phrase and press **Enter**.
 
-![](../../assets/images/webstudio/7fa01db8589e92f2ef054e15a86be21c.png)
+![](../../assets/images/openlstudio/7fa01db8589e92f2ef054e15a86be21c.png)
 
 *Starting a simple search*
 
 OpenL Studio displays all tables containing the entered text. The **View Table** link opens the table in Rules Editor.
 
-![](../../assets/images/webstudio/5419dbed08d7b6086179295a8e07bcb2.png)
+![](../../assets/images/openlstudio/5419dbed08d7b6086179295a8e07bcb2.png)
 
 *Search results*
 
@@ -559,13 +559,13 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
 1.  To launch an advanced search, click the arrow to the right of the search window.
     
-    ![](../../assets/images/webstudio/614dc76daa751a30bd43a633a830e3cc.png)
+    ![](../../assets/images/openlstudio/614dc76daa751a30bd43a633a830e3cc.png)
     
     *Initiating the advanced search*
     
 1.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
     
-    ![](../../assets/images/webstudio/ad19dceb5bf472f91f290e5afb6883de.png)
+    ![](../../assets/images/openlstudio/ad19dceb5bf472f91f290e5afb6883de.png)
     
     *Specifying search area*
     
@@ -579,7 +579,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 2.  In the similar way, add as many table properties as required.
 3.  To remove a property, click the cross icon to the right of the property.
     
-    ![](../../assets/images/webstudio/bba2ff05d014679939d8b822b0fcaa39.png)
+    ![](../../assets/images/openlstudio/bba2ff05d014679939d8b822b0fcaa39.png)
     
     *A filled form for advanced search*
     
@@ -587,7 +587,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
 As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **Edit Table** links leading to the table editing page.
 
-![](../../assets/images/webstudio/2db8c71d7acd6671d5d2a9be6af19862.png)
+![](../../assets/images/openlstudio/2db8c71d7acd6671d5d2a9be6af19862.png)
 
 *Advanced search result*
 
@@ -601,7 +601,7 @@ OpenL Studio allows creating tables of the following types:
 -   properties table
 -   simple rules table
 
-Tables are created via the wizard initiated by clicking the **Create Table** button ![](../../assets/images/webstudio/6e2e80e87665feea8c2d3249748e299e.png). The wizard creates a table for the current module. The table is available for all included modules and modules linked by dependencies. For more information on dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+Tables are created via the wizard initiated by clicking the **Create Table** button ![](../../assets/images/openlstudio/6e2e80e87665feea8c2d3249748e299e.png). The wizard creates a table for the current module. The table is available for all included modules and modules linked by dependencies. For more information on dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
 
 The following topics are included in this section:
 
@@ -617,7 +617,7 @@ To create a datatype table, proceed as follows:
 1.  In OpenL Studio, click **Create Table**.
 2.  In the list of table types, select **Datatype Table** and click **Next**.
     
-    ![](../../assets/images/webstudio/9ca72d99ad66b8bb821f8238d444cef9.png)
+    ![](../../assets/images/openlstudio/9ca72d99ad66b8bb821f8238d444cef9.png)
     
     *Creating a datatype table*
     
@@ -626,13 +626,13 @@ To create a datatype table, proceed as follows:
     
     This option is unavailable if no custom data types are created in the module.
     
-    ![](../../assets/images/webstudio/a7dc6f519d39b98e1c58470ba125806b.png)
+    ![](../../assets/images/openlstudio/a7dc6f519d39b98e1c58470ba125806b.png)
     
     *Specifying the data type name and parent type*
     
 1.  To define data type fields, click **Add parameter**, specify values as required, and then click **Next**.
     
-    ![](../../assets/images/webstudio/caca6cab092c8498fea98e1896d13408.png)
+    ![](../../assets/images/openlstudio/caca6cab092c8498fea98e1896d13408.png)
     
     *Defining data type fields*
     
@@ -640,7 +640,7 @@ To create a datatype table, proceed as follows:
     
     The **Module** value cannot be changed. All created tables go to the current module.
     
-    ![](../../assets/images/webstudio/961137f64696a6b67a41c59a5b4678b9.png)
+    ![](../../assets/images/openlstudio/961137f64696a6b67a41c59a5b4678b9.png)
     
     *Specifying table location*
     
@@ -654,27 +654,27 @@ Creating a data table resembles creating a datatype table described in [Creating
 1.  In OpenL Studio, click **Create Table**.
 2.  Select the **Data Table** item and click **Next**.
     
-    ![](../../assets/images/webstudio/3dba085b0981250107ed82677e8f485a.png)
+    ![](../../assets/images/openlstudio/3dba085b0981250107ed82677e8f485a.png)
     
     *Initiating data table creation*
     
 1.  Select the table type, enter the table name, and click **Next**.
     
-    ![](../../assets/images/webstudio/540b45c84fba045b2ff255ddb7be274b.png)
+    ![](../../assets/images/openlstudio/540b45c84fba045b2ff255ddb7be274b.png)
     
     *Defining table type and name*
     
 1.  Define the table columns configuration.
     For the **Loss1** type selected in the previous window, column configuration resembles the following:
     
-    ![](../../assets/images/webstudio/5d6090603e9b5d711dba74616dcb2f2e.png)
+    ![](../../assets/images/openlstudio/5d6090603e9b5d711dba74616dcb2f2e.png)
     
     *Defining column configuration*
     
 1.  To indicate new data table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
     The **Module** value cannot be changed. All created tables go to the current module.
     
-    ![](../../assets/images/webstudio/eef90b784fd45397c68a302adc74fd30.png)
+    ![](../../assets/images/openlstudio/eef90b784fd45397c68a302adc74fd30.png)
     
     *Specifying table location*
     
@@ -697,13 +697,13 @@ To create a test table, proceed as follows:
 1.  In OpenL Studio, click **Create Table**.
 2.  Select **Test Table** and click **Next**.
     
-    ![](../../assets/images/webstudio/969e2826ecb4728150476fe6f5c40eb5.png)
+    ![](../../assets/images/openlstudio/969e2826ecb4728150476fe6f5c40eb5.png)
     
     *Creating a test table*
     
 1.  In the **Select table** window, select the rule table and click **Next**.
     
-    ![](../../assets/images/webstudio/8206cc985b31891b6cdbe9cf5842a0f1.png)
+    ![](../../assets/images/openlstudio/8206cc985b31891b6cdbe9cf5842a0f1.png)
     
     *Selecting a rule table to create a test table for*
     
@@ -711,14 +711,14 @@ To create a test table, proceed as follows:
     
 1.  In the **Input name** window, if necessary, modify the generated test table name and click **Next**.
     
-    ![](../../assets/images/webstudio/c1ee4957624b94f72f8cdde69a3d91fe.png)
+    ![](../../assets/images/openlstudio/c1ee4957624b94f72f8cdde69a3d91fe.png)
     
     *Reviewing the test table name*
     
 1.  To define the test table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
     The **Module** value cannot be changed. All created tables go to the current module.
     
-    ![](../../assets/images/webstudio/5be60ad6f55676120ba0114712f827dd.png)
+    ![](../../assets/images/openlstudio/5be60ad6f55676120ba0114712f827dd.png)
     
     *Specifying table location*
     
@@ -731,20 +731,20 @@ OpenL Tablets supports array value definition in test tables as described in [Op
 
 The ID column is not mandatory in a test table. A user can define the ID column and set the appropriate unique value for each test case.
 
-![](../../assets/images/webstudio/d6a1ce96702007aa08406d3be7e12e93.png)
+![](../../assets/images/openlstudio/d6a1ce96702007aa08406d3be7e12e93.png)
 
 *A test table with the ID column defined*
 
 If the ID column is not defined for the test table, default numeric values are displayed beside each test case.
 When running a test table, to run the test cases, expand the additional settings for the **Run** button and select the required cases.
 
-![](../../assets/images/webstudio/80cce53b8b6655496217bca8bfc164de.png)
+![](../../assets/images/openlstudio/80cce53b8b6655496217bca8bfc164de.png)
 
 *Running the specified test cases*
 
 To use ranges of IDs for executing the required cases, enable the **Use the Range** setting and in the **Range of IDs** field, specify the ID values separated by dash or comma.
 
-![](../../assets/images/webstudio/e3b6e1047d06dfb174d440f91adbe9b6.png)
+![](../../assets/images/openlstudio/e3b6e1047d06dfb174d440f91adbe9b6.png)
 
 *Specifying test cases ID range*
 
@@ -755,14 +755,14 @@ This section describes how to create a new simple rules table in OpenL Studio.
 1.  In OpenL Studio, click **Create Table**.
 2.  Select **Simple Rules Table** and click **Next**.
     
-    ![](../../assets/images/webstudio/e44390622ef2d348d05b9763480569d0.png)
+    ![](../../assets/images/openlstudio/e44390622ef2d348d05b9763480569d0.png)
     
     *Initiating table creation*
     
 1.  Enter table name and select the required data type to return.
 2.  Click **Add Input Parameters** and specify values as required.
     
-    ![](../../assets/images/webstudio/8ff257223a07802fed34b30e0c83ec0f.png)
+    ![](../../assets/images/openlstudio/8ff257223a07802fed34b30e0c83ec0f.png)
     
     *Specifying table parameters*
     
@@ -770,13 +770,13 @@ This section describes how to create a new simple rules table in OpenL Studio.
     
     In the **Construct a table** window that appears, a blank simple rules table with the header constructed based on the previously entered values appears.
     
-    ![](../../assets/images/webstudio/dd77d39d70eb8d48dd2b32a980c135c4.png)
+    ![](../../assets/images/openlstudio/dd77d39d70eb8d48dd2b32a980c135c4.png)
     
     *Adding data to a table*
     
     Now the table can be filled with data.
     
-    ![](../../assets/images/webstudio/65462d7abdd264cfdaf7e00c9ab2e202.png)
+    ![](../../assets/images/openlstudio/65462d7abdd264cfdaf7e00c9ab2e202.png)
     
     *Selecting an action from the context menu*
     
@@ -785,8 +785,8 @@ This section describes how to create a new simple rules table in OpenL Studio.
     | Action                                                   | Description                                                                                                                                                                                                                      |
     |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
     | **Add Property**                                         | Appears after selecting a property in the drop-down list and indicating its value.                                                                                                                                               |
-    | **Add Rule**                                             | Allows entering data. An example is as follows: <br/>![](../../assets/images/webstudio/d507cf888bc177a035f2f9d0df48418c.png) <br/>*Entering table data* <br/>This action can be repeated as many times as required.                                    |
-    | **Insert Condition Before** <br/>/ **Insert Condition After** | Adds a condition column to the specified position. An example of the added **DriverOccupation** condition column is as follows: <br/>![](../../assets/images/webstudio/30a25a53f40dd15c0a98cb861ede558e.png) <br/>*Adding a condition column* |
+    | **Add Rule**                                             | Allows entering data. An example is as follows: <br/>![](../../assets/images/openlstudio/d507cf888bc177a035f2f9d0df48418c.png) <br/>*Entering table data* <br/>This action can be repeated as many times as required.                                    |
+    | **Insert Condition Before** <br/>/ **Insert Condition After** | Adds a condition column to the specified position. An example of the added **DriverOccupation** condition column is as follows: <br/>![](../../assets/images/openlstudio/30a25a53f40dd15c0a98cb861ede558e.png) <br/>*Adding a condition column* |
     | **Delete Condition** / **Delete Rule**                   | Removes a condition or rule.                                                                                                                                                                                                 |
     
 1.  When finished, click **Next**.
@@ -803,14 +803,14 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
 
 1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
     
-    ![](../../assets/images/webstudio/f4dc285d2cfd850149ee33a4146b5a35.png)
+    ![](../../assets/images/openlstudio/f4dc285d2cfd850149ee33a4146b5a35.png)
     
     *Initiating Excel comparison functionality*
     
 1.  In the window that appears, click **Add** and select two Excel files to compare.
 2.  Click **Upload** and wait until file status is changed to **Done.**
     
-    ![](../../assets/images/webstudio/c6ddede80c436a2da27bc49ecaa1ab38.png)
+    ![](../../assets/images/openlstudio/c6ddede80c436a2da27bc49ecaa1ab38.png)
     
     *Excel files ready for comparison*
     
@@ -818,11 +818,11 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
     
     The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
     
-    ![](../../assets/images/webstudio/a5a113dd2485add8924c817988fd9ed4.jpeg)
+    ![](../../assets/images/openlstudio/a5a113dd2485add8924c817988fd9ed4.jpeg)
     
     *Excel file comparison results*
     
-    Elements and tables that changed the location or contents are marked with the asterisk icon ![](../../assets/images/webstudio/2fa6082304b71636adcd5d0aeb872641.png). Added elements are marked with the plus sign icon ![](../../assets/images/webstudio/bd04610a773ff9db7e14dd8d2151dea2.png). Removed elements or tables are marked with the deletion icon ![](../../assets/images/webstudio/e0e42e29e021404ff525b226ed35c59b.png).
+    Elements and tables that changed the location or contents are marked with the asterisk icon ![](../../assets/images/openlstudio/2fa6082304b71636adcd5d0aeb872641.png). Added elements are marked with the plus sign icon ![](../../assets/images/openlstudio/bd04610a773ff9db7e14dd8d2151dea2.png). Removed elements or tables are marked with the deletion icon ![](../../assets/images/openlstudio/e0e42e29e021404ff525b226ed35c59b.png).
     
 1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
 2.  To display all equal tables and Excel file elements in the selected Excel files, select **Show equal elements** check box and click **Compare.**
@@ -837,7 +837,7 @@ When a project is generated from the imported OpenAPI file, it becomes available
 
 The generated project contains information about the last file import date, name of the OpenAPI file, mode, and modules names in rules.xml. This information is available in OpenL Studio, the OpenAPI section.
 
-![](../../assets/images/webstudio/e74be11d559d97523688c560a9fd8ccc.png)
+![](../../assets/images/openlstudio/e74be11d559d97523688c560a9fd8ccc.png)
 
 *OpenAPI project in Rules Editor, in the Tables Generation mode*
 
@@ -865,13 +865,13 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 1.  In Rules Editor, open the project overview page.
 2.  Click the **OpenAPI** section.
     
-    ![](../../assets/images/webstudio/21df39652489e7898bc8c21ccf2c7d3b.png)
+    ![](../../assets/images/openlstudio/21df39652489e7898bc8c21ccf2c7d3b.png)
     
     *Initiating OpenAPI file generation*
     
 1.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
     
-    ![](../../assets/images/webstudio/3f8ac8f625297a57ead86355d96a8c1f.jpeg)
+    ![](../../assets/images/openlstudio/3f8ac8f625297a57ead86355d96a8c1f.jpeg)
     
     *Reviewing settings for the OpenAPI file generation*
     
@@ -881,7 +881,7 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
 The file creation confirmation message is displayed. The OpenAPI file is added to the project and appears in the OpenAPI section.
 
-![](../../assets/images/webstudio/e5178ddae9f590500e1feb5b380c5f18.png)
+![](../../assets/images/openlstudio/e5178ddae9f590500e1feb5b380c5f18.png)
 
 *The OpenAPI file added to the OpenAPI section*
 
@@ -894,27 +894,27 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
 2.  In Rules Editor, click **Click to Import OpenAPI File.**
     
-    ![](../../assets/images/webstudio/530e59c521ce7cb1f6747ee861eaf447.png)
+    ![](../../assets/images/openlstudio/530e59c521ce7cb1f6747ee861eaf447.png)
     
     *Initiating OpenAPI file import*
     
 1.  Enter the name of the OpenAPI imported file, such as example.json.
 2.  Select the **Tables generation** mode.
     
-    ![](../../assets/images/webstudio/8b169ca659da3c159634211cd9434453.png)
+    ![](../../assets/images/openlstudio/8b169ca659da3c159634211cd9434453.png)
     
     *Selecting the generation mode*
     
 1.  If necessary, modify the default values for the rules and data modules and click **Import**.
 2.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
     
-    ![](../../assets/images/webstudio/8ddc985b1b122f47b307ee4f8df90507.png)
+    ![](../../assets/images/openlstudio/8ddc985b1b122f47b307ee4f8df90507.png)
     
     *Module settings window, both modules are new*
     
     If a module already exists, it will be overwritten, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
     
-    ![](../../assets/images/webstudio/ff3b997c2baca85a51cbbce28fddc2e6.png)
+    ![](../../assets/images/openlstudio/ff3b997c2baca85a51cbbce28fddc2e6.png)
     
     *Module settings window, one of modules already exists*
     
@@ -933,21 +933,21 @@ When the project is generated from the OpenAPI file and reconciliation is done, 
 To reconcile a project using an OpenAPI file with a different name, proceed as follows:
 
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
-2.  In Rules Editor, click **OpenAPI Import icon ![](../../assets/images/webstudio/2e0ac2477a2ef46417855fcfad305c36.png).**
+2.  In Rules Editor, click **OpenAPI Import icon ![](../../assets/images/openlstudio/2e0ac2477a2ef46417855fcfad305c36.png).**
     
-    ![](../../assets/images/webstudio/5ecf6f1a839b5fba461ce1f14e9ee2cf.jpeg)
+    ![](../../assets/images/openlstudio/5ecf6f1a839b5fba461ce1f14e9ee2cf.jpeg)
     
     *Initiating OpenAPI import*
     
 1.  In the Import OpenAPI File window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
     
-    ![](../../assets/images/webstudio/7d0efb8da20e3bea5f75f2e0154813f3.png)
+    ![](../../assets/images/openlstudio/7d0efb8da20e3bea5f75f2e0154813f3.png)
     
     *Selecting an OpenAPI file for reconciliation*
 
 The project is validated using the newly imported file.
 
-![](../../assets/images/webstudio/43a70316fd78de31918534d49f428dfb.png)
+![](../../assets/images/openlstudio/43a70316fd78de31918534d49f428dfb.png)
 
 *Viewing results of the last reconciliation*
 

@@ -19,7 +19,7 @@ Comprehensive guides for using OpenL Tablets:
 - **[Installation Guide](user-guides/installation/)** - System requirements, installation procedures, and configuration
 - **[Demo Package Guide](user-guides/demo-package/)** - Quick start with demo examples and tutorials
 - **[Reference Guide](user-guides/reference/)** - Complete language reference, table types, and syntax
-- **[WebStudio User Guide](user-guides/openlstudio/)** - Using OpenL Studio for rule authoring and management
+- **[OpenL Studio User Guide](user-guides/openlstudio/)** - Using OpenL Studio for rule authoring and management
 - **[Rule Services Guide](user-guides/rule-services/)** - Deploying and configuring OpenL Tablets Rule Services
 
 ### Integration Guides
@@ -72,7 +72,7 @@ Integration patterns with popular frameworks:
 ### Conventions & Workflows
 - **[/CLAUDE.md](/CLAUDE.md)** - Repository-wide coding conventions and architecture principles
 - **[/DEV/CLAUDE.md](/DEV/CLAUDE.md)** - Core engine-specific conventions
-- **[/STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)** - Web Studio conventions
+- **[/STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)** - OpenL Studio conventions
 - **[/WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)** - Rule services conventions
 - **[/Util/CLAUDE.md](/Util/CLAUDE.md)** - Utilities and tools conventions
 - **[/STUDIO/studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)** - React/TypeScript frontend conventions
@@ -103,7 +103,7 @@ Integration patterns with popular frameworks:
 Deep-dive documentation for each major module group:
 - **[DEV Module Overview](analysis/dev-module-overview.md)** - Core rules engine (9 submodules)
 - **[Repository Layer Overview](analysis/repository-layer-overview.md)** - Repository & workspace management (9 submodules)
-- **[STUDIO/WSFrontend/Util Overview](analysis/studio-wsfrontend-util-overview.md)** - Web Studio, Rule Services, Utilities (50+ submodules)
+- **[STUDIO/WSFrontend/Util Overview](analysis/studio-wsfrontend-util-overview.md)** - OpenL Studio, Rule Services, Utilities (50+ submodules)
 
 ### Guides
 Practical guides for specific tasks:
@@ -147,7 +147,7 @@ OpenL Tablets is organized into 5 major module groups:
 **Documentation**: [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md) | [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
 
 **Key Submodules**:
-- `org.openl.rules.webstudio` - Main Web Studio application (WAR)
+- `org.openl.rules.webstudio` - Main OpenL Studio application (WAR)
 - `studio-ui` - React/TypeScript frontend
 - `org.openl.rules.repository*` - Repository backends (Git, AWS, Azure)
 - `org.openl.security*` - Security framework
@@ -209,8 +209,8 @@ OpenL Tablets is organized into 5 major module groups:
 - **Add a new table type** → [Custom Extensions Guide](guides/custom-extensions.md)
 - **Modify the parser** → [DEV/CLAUDE.md: Parser Guidelines](/DEV/CLAUDE.md)
 
-#### Work on Web Studio
-- **Understand Web Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
+#### Work on OpenL Studio
+- **Understand OpenL Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
 - **Follow STUDIO conventions** → [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
 - **Work on React frontend** → [studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)
 - **Migrate JSF to React** → [Migration Guide](guides/migration-guide.md)
@@ -252,7 +252,7 @@ OpenL Tablets is organized into 5 major module groups:
 | Installation Guide | ✅ 100% | Complete |
 | Demo Package Guide | ✅ 100% | Complete |
 | Reference Guide | ✅ 100% | Complete (refactoring planned) |
-| WebStudio User Guide | ✅ 100% | Complete |
+| OpenL Studio User Guide | ✅ 100% | Complete |
 | Rule Services Guide | ✅ 100% | Complete |
 | **Developer Documentation** | | |
 | Developer Guide | ✅ 100% | Complete |
@@ -261,7 +261,7 @@ OpenL Tablets is organized into 5 major module groups:
 | **Technical Documentation** | | |
 | Core Engine (DEV) | ✅ 100% | Complete |
 | Repository Layer (STUDIO) | ✅ 100% | Complete |
-| Web Studio (STUDIO) | ✅ 100% | Complete |
+| OpenL Studio (STUDIO) | ✅ 100% | Complete |
 | Rule Services (WSFrontend) | ✅ 100% | Complete |
 | Utilities (Util) | ✅ 100% | Complete |
 | Integration Tests (ITEST) | ✅ 100% | Complete |

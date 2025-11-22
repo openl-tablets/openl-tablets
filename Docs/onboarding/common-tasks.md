@@ -9,7 +9,7 @@
 
 - [Build & Development](#build--development)
 - [Working with Core Engine](#working-with-core-engine)
-- [Working with Web Studio](#working-with-web-studio)
+- [Working with OpenL Studio](#working-with-web-studio)
 - [Working with Rule Services](#working-with-rule-services)
 - [Testing](#testing)
 - [Git Workflow](#git-workflow)
@@ -52,7 +52,7 @@ cd WSFrontend
 mvn clean install -DskipTests
 ```
 
-### Run Web Studio Locally
+### Run OpenL Studio Locally
 
 ```bash
 # Build studio-ui frontend
@@ -60,7 +60,7 @@ cd STUDIO/studio-ui
 npm install
 npm run build
 
-# Start WebStudio
+# Start OpenL Studio
 cd ../org.openl.rules.webstudio
 mvn spring-boot:run
 
@@ -222,7 +222,7 @@ mvn verify
 
 ---
 
-## Working with Web Studio
+## Working with OpenL Studio
 
 ### Task: Add New REST Endpoint
 
@@ -420,7 +420,7 @@ npm test
 </rules>
 ```
 
-2. **Publish rule project** from WebStudio to production repository
+2. **Publish rule project** from OpenL Studio to production repository
 
 3. **Restart rule service** or wait for auto-deployment:
 ```bash
@@ -633,7 +633,7 @@ npm install
 
 ### Runtime Issues
 
-**Problem**: WebStudio won't start
+**Problem**: OpenL Studio won't start
 
 **Check**:
 ```bash
@@ -691,8 +691,8 @@ mvn test -Dtest=!FlakyTest
 | Module | Path |
 |--------|------|
 | Core Engine | `/DEV/org.openl.rules/` |
-| Web Studio Backend | `/STUDIO/org.openl.rules.webstudio/` |
-| Web Studio Frontend | `/STUDIO/studio-ui/` |
+| OpenL Studio Backend | `/STUDIO/org.openl.rules.webstudio/` |
+| OpenL Studio Frontend | `/STUDIO/studio-ui/` |
 | Rule Services | `/WSFrontend/org.openl.rules.ruleservice/` |
 | Maven Plugin | `/Util/openl-maven-plugin/` |
 
@@ -700,7 +700,7 @@ mvn test -Dtest=!FlakyTest
 
 | Service | Default Port |
 |---------|-------------|
-| Web Studio | 8080 |
+| OpenL Studio | 8080 |
 | Rule Service | 8081 |
 | Frontend Dev Server | 3000 |
 

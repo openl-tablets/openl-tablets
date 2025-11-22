@@ -39,7 +39,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 
 **Usage**:
 - Spring is optional for core engine
-- Required for WebStudio and RuleService modules
+- Required for OpenL Studio and RuleService modules
 - Integration point: `org.openl.spring` module
 
 ### Jakarta EE Components
