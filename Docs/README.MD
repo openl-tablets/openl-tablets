@@ -261,7 +261,7 @@ OpenL Tablets is organized into 5 major module groups:
 | **Technical Documentation** | | |
 | Core Engine (DEV) | ✅ 100% | Complete |
 | Repository Layer (STUDIO) | ✅ 100% | Complete |
-| Web Studio (STUDIO) | ✅ 100% | Complete |
+| OpenL Studio (STUDIO) | ✅ 100% | Complete |
 | Rule Services (WSFrontend) | ✅ 100% | Complete |
 | Utilities (Util) | ✅ 100% | Complete |
 | Integration Tests (ITEST) | ✅ 100% | Complete |
