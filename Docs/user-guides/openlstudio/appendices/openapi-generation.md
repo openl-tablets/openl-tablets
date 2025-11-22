@@ -28,7 +28,7 @@ The OpenAPI specification provides multiple places where properties for the endp
 
 The OpenAPI specification allows describing multiple operations for one path, such as GET, PATCH, or DELETE. An example is as follows.
 
-![](../../../assets/images/webstudio/03d478a49b65d8b7d31e0660f8b7e60e.png)
+![](../../../assets/images/openlstudio/03d478a49b65d8b7d31e0660f8b7e60e.png)
 
 *Example of the path with multiple operations*
 
@@ -54,13 +54,13 @@ If the request body is used only once per all OpenAPI schema and it has more tha
 
 An example of the OpenAPI schema with decomposed request body is as follows.
 
-![](../../../assets/images/webstudio/fe937d41fc2dc055ed8f2e612a6dc441.png)
+![](../../../assets/images/openlstudio/fe937d41fc2dc055ed8f2e612a6dc441.png)
 
 *Request body schema to be decomposed*
 
 An example of request body decomposition result is as follows.
 
-![](../../../assets/images/webstudio/25b316f9cc588aa9d40451f21034e625.png)
+![](../../../assets/images/openlstudio/25b316f9cc588aa9d40451f21034e625.png)
 
 *Generated spreadsheet with a decomposed schema in parameters*
 
@@ -77,13 +77,13 @@ The following keywords are responsible for the inheritance and polymorphism in t
 
 An example of a schema with included nesting is as follows:
 
-![](../../../assets/images/webstudio/5de027a9121e1ec4228041c0919e75a7.png)
+![](../../../assets/images/openlstudio/5de027a9121e1ec4228041c0919e75a7.png)
 
 *Example of nesting in the OpenAPI schema*
 
 An example of result is as follows.
 
-![](../../../assets/images/webstudio/4802e3c75993d61a11dcfd8261e82488.png)
+![](../../../assets/images/openlstudio/4802e3c75993d61a11dcfd8261e82488.png)
 
 *Example of generated datatypes*
 
@@ -111,7 +111,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
     
     If any path in the OpenAPI document has an input parameter with a link to DefaultRulesRuntimeContext as \#/components/schemas/DefaultRulesRuntimeContext, the generated project will contain the corresponding setting and RuntimeContext will be enabled.
     
-    ![](../../../assets/images/webstudio/3e4b2b936c9baa8d9fcf97fc72534861.png)
+    ![](../../../assets/images/openlstudio/3e4b2b936c9baa8d9fcf97fc72534861.png)
     
     *The enabled option for providing runtime context*
     
@@ -119,7 +119,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
     
     An example of a schema with partially provided runtime context is as follows.
     
-    ![](../../../assets/images/webstudio/9fa467ceff42e098546f38009bcac342.png)
+    ![](../../../assets/images/openlstudio/9fa467ceff42e098546f38009bcac342.png)
     
     *Example of partially provided runtime context*
     
@@ -129,7 +129,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
     
     If the OpenAPI schema contains all schemas named Variation, NoVariation, VariationsPack, ArgumentReplacementVariation, ComplexVariation, DeepCloningVariation, JXPathVariation, and VariationResult, it is considered that the OpenAPI file is generated from the project with variations support enabled.
     
-    ![](../../../assets/images/webstudio/dec09f25687684ebc31fd9b5a9f30294.png)
+    ![](../../../assets/images/openlstudio/dec09f25687684ebc31fd9b5a9f30294.png)
     
     *The enabled option for providing variations*
     
@@ -152,19 +152,19 @@ In addition, if there is a schema in the OpenAPI document that has a reference t
 
 An example of the schema with the spreadsheet result that is not returned by any path is as follows.
 
-![](../../../assets/images/webstudio/eaf154621182110513a5515426b6b6ec.png)
+![](../../../assets/images/openlstudio/eaf154621182110513a5515426b6b6ec.png)
 
 *An example of a schema with two spreadsheet results*
 
 The result of generation is as follows.
 
-![](../../../assets/images/webstudio/7e6f0cb2f4c0420039b4a37db2835a8f.png)
+![](../../../assets/images/openlstudio/7e6f0cb2f4c0420039b4a37db2835a8f.png)
 
 *Lost spreadsheet generation result*
 
 The LostSpreadsheet is generated because it has a reference to the mySpr spreadsheet result, which is converted as a spreadsheet result call. Nevertheless, this LostSpreadsheet is not included in the Included Methods section not to break full validation of the project.
 
-![](../../../assets/images/webstudio/f583e1d8dbfe9a8cfa1c5cb50f9172e5.png)
+![](../../../assets/images/openlstudio/f583e1d8dbfe9a8cfa1c5cb50f9172e5.png)
 
 *Module settings*
 
@@ -222,11 +222,11 @@ Original paths are stored in the generated service interface and OpenL Rule Serv
 
 The annotation template class will be applied by OpenL Tablets Rule Services due to automatically generated property in the rules-deploy.xml available at **Repository \> Project \> Rules Deploy Configuration.**
 
-![](../../../assets/images/webstudio/a258bf4a15e81d52cd8eb48eb632d197.png)
+![](../../../assets/images/openlstudio/a258bf4a15e81d52cd8eb48eb632d197.png)
 
 *Example of project properties with annotation template class*
 
-![](../../../assets/images/webstudio/cf7f9061c2f8fb1ec057bea90dbc8612.png)
+![](../../../assets/images/openlstudio/cf7f9061c2f8fb1ec057bea90dbc8612.png)
 
 *Example of the generated Groovy file location*
 
@@ -234,7 +234,7 @@ By default, the script is saved to `classes/org/openl/generated/services/Service
 
 An example of the OpenAPI JSON file with the annotation template class generated script is as follows.
 
-![](../../../assets/images/webstudio/d98afbe9c7bd71b3b766f8a9d51b380c.png)
+![](../../../assets/images/openlstudio/d98afbe9c7bd71b3b766f8a9d51b380c.png)
 
 *Path which requires script generation*
 
@@ -242,7 +242,7 @@ In this example, the file contains the path name “/api/save” and the path it
 
 An example of the generated spreadsheet table is as follows.
 
-![](../../../assets/images/webstudio/a25936ba6b4914da78c70f916a1d8e3c.png)
+![](../../../assets/images/openlstudio/a25936ba6b4914da78c70f916a1d8e3c.png)
 
 *Example of the formatted path name*
 
@@ -250,7 +250,7 @@ The api/save path is transformed to the apisave spreadsheet table name.
 
 An example of the generated script is as follows.
 
-![](../../../assets/images/webstudio/f6b08e6ab62213a565e35a2072aa9d8a.png)
+![](../../../assets/images/openlstudio/f6b08e6ab62213a565e35a2072aa9d8a.png)
 
 *Example of the generated Groovy script*
 

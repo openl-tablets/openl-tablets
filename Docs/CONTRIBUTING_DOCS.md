@@ -123,7 +123,7 @@ The preview auto-reloads when you save changes.
 
 4. **Images**:
    - Store in `docs/assets/images/[guide-name]/`
-   - Use relative paths: `![Alt text](../../assets/images/webstudio/screenshot.png)`
+   - Use relative paths: `![Alt text](../../assets/images/openlstudio/screenshot.png)`
    - Provide alt text for accessibility
    - Optimize images (PNG for screenshots, JPG for photos)
 
@@ -354,7 +354,7 @@ guide/
 3. Reference in markdown:
 
 ```markdown
-![Descriptive alt text](../../assets/images/webstudio/screenshot.png)
+![Descriptive alt text](../../assets/images/openlstudio/screenshot.png)
 ```
 
 4. Verify the image displays correctly in preview
