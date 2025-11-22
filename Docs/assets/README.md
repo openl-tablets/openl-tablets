@@ -36,7 +36,7 @@ Images are organized by their corresponding guide:
 - **demo-package/** - Images for the Demo Package Guide (Batch 3)
   - OpenLHome.png - Copied from general for guide use
 - **reference/** - Images for the Reference Guide (Batch 4)
-- **webstudio/** - Images for the OpenL Studio User Guide (Batch 4)
+- **openlstudio/** - Images for the OpenL Studio User Guide (Batch 4)
 - **rule-services/** - Images for the Rule Services Guide (Batch 5)
 
 ## Stylesheets
