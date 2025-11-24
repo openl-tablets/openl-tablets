@@ -25,7 +25,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production && \
+RUN npm ci --omit=dev && \
     npm cache clean --force
 
 # Copy built files from builder
@@ -40,11 +40,15 @@ USER mcp
 
 # Environment variables (can be overridden)
 ENV NODE_ENV=production
-ENV OPENL_BASE_URL=http://localhost:8080/webstudio/rest
+ENV PORT=3000
+ENV OPENL_BASE_URL=http://studio:8080/rest
 
-# Health check - verify MCP server process is running
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ps aux | grep -q "[n]ode dist/index.js" || exit 1
+# Expose HTTP port
+EXPOSE 3000
 
-# Run the MCP server
-CMD ["node", "dist/index.js"]
+# Health check - verify HTTP server is responding
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+
+# Run the Express HTTP server
+CMD ["node", "dist/server.js"]

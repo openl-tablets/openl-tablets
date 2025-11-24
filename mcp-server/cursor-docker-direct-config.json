@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "openl-mcp-server-docker": {
+      "comment": "OpenL Tablets MCP Server via Docker (Direct HTTP SSE Connection)",
+      "url": "http://localhost:3000/mcp/sse",
+      "transport": "sse"
+    }
+  }
+}
+

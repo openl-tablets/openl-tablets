@@ -43,9 +43,11 @@ export function validateBase64(content: string): boolean {
 /**
  * Validate and parse project ID
  *
- * Expected format: "repository-projectName" (e.g., "design-InsuranceRules")
+ * Expected format: base64-encoded string in format "repository:projectName:hashCode"
+ * Example: "ZGVzaWduOTpTYW1wbGUgUHJvamVjdDpjY2VkYzY5MmJlZWM5YmNmYTdiZmFiOTZmNzZmYTNhZjU0MTk4MjFkM2M5NDVkYTlmN2VjNzZjNmNkMDhlMDQ0"
+ * decodes to: "design9:Sample Project:ccedc692beec9bcfa7bfab96f76fa3af5419821d3c945da9f7ec76c6cd08e044"
  *
- * @param projectId - Project ID to validate
+ * @param projectId - Project ID to validate (base64 string)
  * @returns Parsed repository and project name
  * @throws McpError if format is invalid
  */
@@ -53,19 +55,48 @@ export function validateProjectId(projectId: string): {
   repository: string;
   projectName: string;
 } {
-  const match = PROJECT_ID_PATTERN.exec(projectId);
-  if (!match) {
+  // Strip whitespace (Node.js Buffer.from() ignores whitespace in base64)
+  const stripped = projectId.replace(/\s/g, "");
+
+  // Check if it matches base64 pattern
+  if (!PROJECT_ID_PATTERN.test(stripped)) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `Invalid projectId format. Expected 'repository-projectName', got '${projectId}'. ` +
+      `Invalid projectId format. Expected base64-encoded string, got '${projectId}'. ` +
       `To find valid project IDs, use: openl_list_projects()`
     );
   }
 
-  return {
-    repository: match[1],
-    projectName: match[2],
-  };
+  try {
+    // Decode base64
+    const decoded = Buffer.from(stripped, "base64").toString("utf-8");
+
+    // Parse "repository:projectName:hashCode" format
+    const parts = decoded.split(":");
+    if (parts.length !== 3) {
+      throw new Error(`Invalid decoded format: expected "repository:projectName:hashCode" (3 parts), got "${decoded}" (${parts.length} parts)`);
+    }
+
+    const repository = parts[0];
+    const projectName = parts[1];
+    const hashCode = parts[2];
+
+    if (!repository || !projectName || !hashCode) {
+      throw new Error(`Invalid decoded format: empty repository, projectName, or hashCode in "${decoded}"`);
+    }
+
+    return {
+      repository,
+      projectName,
+    };
+  } catch (error) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Invalid projectId format: ${error instanceof Error ? error.message : String(error)}. ` +
+      `Expected base64-encoded "repository:projectName:hashCode". ` +
+      `To find valid project IDs, use: openl_list_projects()`
+    );
+  }
 }
 
 /**
@@ -80,8 +111,8 @@ export function validatePagination(
   limit?: number,
   offset?: number
 ): { limit: number; offset: number } {
-  const validatedLimit = limit ?? 50;
-  const validatedOffset = offset ?? 0;
+  const validatedLimit = (limit !== undefined && limit !== null) ? limit : 50;
+  const validatedOffset = (offset !== undefined && offset !== null) ? offset : 0;
 
   if (validatedLimit < 1) {
     throw new McpError(

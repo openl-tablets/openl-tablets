@@ -62,7 +62,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "openl_list_repositories",
-    description: "List all design repositories in OpenL Tablets. Returns repository names, types, and status information. Use this to discover available repositories before accessing projects.",
+    description: "List all design repositories in OpenL Tablets. Returns repository information including 'id' (use this for filtering projects) and 'name' (display name). IMPORTANT: When filtering projects by repository, use the 'id' field from this response, NOT the 'name' field. Example: if response contains {id: 'design-repo', name: 'Design Repository'}, use 'design-repo' in list_projects(repository: 'design-repo').",
     inputSchema: zodToJsonSchema(schemas.z.object({
       response_format: schemas.ResponseFormat.optional(),
       limit: schemas.z.number().int().positive().max(200).default(50).optional(),
@@ -84,6 +84,36 @@ export const TOOLS: ToolDefinition[] = [
       requiresAuth: true,
     },
   },
+  {
+    name: "openl_list_repository_features",
+    description: "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features.",
+    inputSchema: zodToJsonSchema(schemas.getRepositoryFeaturesSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.REPOSITORY,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "openl_repository_project_revisions",
+    description: "Get revision history (commit history) of a project in a design repository. Returns list of revisions with commit hashes, authors, timestamps, and commit types. Supports pagination and filtering by branch and search term.",
+    inputSchema: zodToJsonSchema(schemas.getProjectRevisionsSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.REPOSITORY,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "openl_list_deploy_repositories",
+    description: "List all deployment repositories in OpenL Tablets. Returns repository names, their types, and status information. Use this to discover all available deployment repositories before deploying projects.",
+    inputSchema: zodToJsonSchema(schemas.listDeployRepositoriesSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.DEPLOYMENT,
+      requiresAuth: true,
+    },
+  },
 
   // =============================================================================
   // Project Tools
@@ -91,7 +121,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "openl_list_projects",
     description:
-      "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.",
+      "List all projects with optional filters (repository, status, tags). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (base64-encoded format from API) to use with other tools. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. The 'repository' parameter must be the repository 'id' from openl_list_repositories() response, NOT the repository 'name'. Example: if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use repository: 'design-repo' (not 'Design Repository'). Use this to discover and filter projects before opening them for editing.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.1.0",
@@ -115,6 +145,38 @@ export const TOOLS: ToolDefinition[] = [
     inputSchema: zodToJsonSchema(schemas.updateProjectStatusSchema) as Record<string, unknown>,
     _meta: {
       version: "2.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "openl_create_project_branch",
+    description: "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Use this to manage project versions and isolate development work.",
+    inputSchema: zodToJsonSchema(schemas.createBranchSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "openl_list_project_local_changes",
+    description: "List local change history for a project. Returns list of workspace history items with versions, authors, timestamps, and comments. Use this to see all local changes before restoring a previous version.",
+    inputSchema: zodToJsonSchema(schemas.listProjectLocalChangesSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+    },
+  },
+  {
+    name: "openl_restore_project_local_change",
+    description: "Restore a project to a specified version from its local history. Use the historyId from list_project_local_changes response. This restores the workspace state to a previous local change.",
+    inputSchema: zodToJsonSchema(schemas.restoreProjectLocalChangeSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
       modifiesState: true,
@@ -231,14 +293,34 @@ export const TOOLS: ToolDefinition[] = [
       modifiesState: true,
     },
   },
+  {
+    name: "openl_redeploy_project",
+    description: "Redeploy an existing deployment with a new project version. Use this to update a deployment with a newer version of the project or rollback to a previous version.",
+    inputSchema: zodToJsonSchema(schemas.redeployProjectSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.DEPLOYMENT,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
 
   // =============================================================================
   // Testing & Validation Tools
   // =============================================================================
+  {
+    name: "openl_run_project_tests",
+    description: "Run tests for a project with options to target specific tables and test ranges. Returns a summary of test execution results including passed/failed tests. Use this to validate project functionality through automated tests.",
+    inputSchema: zodToJsonSchema(schemas.runProjectTestsSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.0.0",
+      category: TOOL_CATEGORIES.PROJECT,
+      requiresAuth: true,
+    },
+  },
   // Note: The following tools are temporarily disabled until client.ts gets proper support:
   // - validate_project: Validate entire project for compilation errors
   // - get_project_errors: Get comprehensive project error analysis
-  // - test_project: Run tests (specific or all tests)
   // - compare_versions: Compare two Git commit versions
   // Use execute_rule to manually test individual rules with input data instead.
 

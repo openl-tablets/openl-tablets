@@ -64,7 +64,7 @@ export function formatResponse<T>(
   };
 
   // Add pagination metadata if provided
-  if (options?.pagination) {
+  if (options && options.pagination) {
     const { limit, offset, total } = options.pagination;
     const has_more = offset + limit < total;
     response.pagination = {
@@ -81,16 +81,16 @@ export function formatResponse<T>(
   if (format === "json") {
     formattedString = safeStringify(response, 2);
   } else if (format === "markdown_concise") {
-    formattedString = toMarkdownConcise(response, options?.dataType);
+    formattedString = toMarkdownConcise(response, options && options.dataType);
   } else if (format === "markdown_detailed") {
-    formattedString = toMarkdownDetailed(response, options?.dataType);
+    formattedString = toMarkdownDetailed(response, options && options.dataType);
   } else {
     // Default markdown
-    formattedString = toMarkdown(response, options?.dataType);
+    formattedString = toMarkdown(response, options && options.dataType);
   }
 
   // Check character limit
-  const charLimit = options?.characterLimit ?? RESPONSE_LIMITS.MAX_CHARACTERS;
+  const charLimit = (options && options.characterLimit) || RESPONSE_LIMITS.MAX_CHARACTERS;
   if (formattedString.length > charLimit) {
     const truncated = formattedString.slice(0, charLimit);
     const truncationNote = `\n\n${RESPONSE_LIMITS.TRUNCATION_MESSAGE}`;
@@ -193,7 +193,7 @@ export function toMarkdownConcise<T>(
   // Generate concise summary based on data type
   if (Array.isArray(data)) {
     const count = data.length;
-    const total = response.pagination?.total_count ?? count;
+    const total = (response.pagination && response.pagination.total_count) || count;
 
     switch (dataType) {
       case "repositories":
@@ -277,7 +277,7 @@ export function toMarkdownDetailed<T>(
   // Add contextual header with metadata
   if (Array.isArray(data)) {
     const count = data.length;
-    const total = response.pagination?.total_count ?? count;
+    const total = (response.pagination && response.pagination.total_count) || count;
     parts.push(`# ${dataType ? dataType.charAt(0).toUpperCase() + dataType.slice(1) : 'Results'}`);
     parts.push(`\n**Summary:** ${total} total ${total === 1 ? 'item' : 'items'}${count < total ? ` (showing ${count} on this page)` : ''}`);
 
