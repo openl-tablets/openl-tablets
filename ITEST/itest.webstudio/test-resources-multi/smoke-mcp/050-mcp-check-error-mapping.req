@@ -1,0 +1,19 @@
+POST /rest/mcp HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "method": "tools/call",
+  "params": {
+    "name": "projects-get-details",
+    "arguments": {
+      "projectId": "ZGVzaWduOlVOS05PV04="
+    },
+    "_meta": {
+      "progressToken": 4
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 4
+}

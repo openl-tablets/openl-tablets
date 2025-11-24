@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.FileTool;
 
 @Service

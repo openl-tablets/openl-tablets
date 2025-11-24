@@ -1,0 +1,19 @@
+POST /rest/mcp HTTP/1.1
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-06-18",
+    "capabilities": {
+      "sampling": {},
+      "elicitation": {},
+      "roots": {
+        "listChanged": true
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}

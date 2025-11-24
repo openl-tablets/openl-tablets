@@ -15,13 +15,13 @@ import org.springframework.web.context.annotation.SessionScope;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.rest.deployment.service.DeploymentCriteriaQuery;
-import org.openl.rules.rest.deployment.service.DeploymentService;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
+import org.openl.studio.deployment.service.DeploymentService;
 
 @Service
 @SessionScope

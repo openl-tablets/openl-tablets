@@ -40,10 +40,10 @@ import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
-import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 @Validated
 @RestController

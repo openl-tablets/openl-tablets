@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.security.acl.permission.AclRole;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 @Schema(description = "ACL Project Model")
 public class AclProjectModel {

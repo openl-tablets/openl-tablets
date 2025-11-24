@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 
+import org.openl.studio.common.model.GenericView;
+
 public class UserInfoModel {
 
     @Email(message = "{openl.constraints.user.email.format.message}")

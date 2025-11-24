@@ -1,0 +1,15 @@
+POST /rest/mcp HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "method": "tools/list",
+  "params": {
+    "_meta": {
+      "progressToken": 1
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
