@@ -511,7 +511,7 @@ Example:
 /**
  * Get detailed project information
  *
- * @param projectId - Project ID in format "repository-projectName"
+ * @param projectId - Project ID in base64-encoded format (default). Supports backward compatibility with "repository-projectName" and "repository:projectName" formats.
  * @returns Project details including metadata and configuration
  * @throws Error if project ID format is invalid
  *

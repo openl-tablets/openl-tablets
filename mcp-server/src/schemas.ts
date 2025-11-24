@@ -34,8 +34,8 @@ export const PaginationParams = z.object({
   offset: z.number().int().nonnegative().default(0).optional(),
 }).optional();
 
-// Project ID format: repository-name_project-name or repository-name-project-name
-export const projectIdSchema = z.string().describe("Project ID in format 'repository_name-project_name' (e.g., 'design-InsuranceRules', 'production-AutoPremium')");
+// Project ID: base64-encoded format from openl_list_projects() response
+export const projectIdSchema = z.string().describe("Project ID - base64-encoded format (default). Use the exact 'projectId' value returned from openl_list_projects() API response. Do not modify or reformat this value. The API returns projectId in base64 format: base64('repository:projectName:hashCode').");
 
 export const repositoryNameSchema = z.string().describe("Repository name (e.g., 'design', 'production', 'test')");
 
@@ -49,10 +49,9 @@ export const commentSchema = z.string().optional().describe("Commit comment desc
 
 // Tool input schemas
 export const listProjectsSchema = z.object({
-  repository: z.string().optional().describe("Filter by repository name (e.g., 'design', 'production'). Omit to show projects from all repositories."),
-  status: z.string().optional().describe("Filter by project status: 'OPENED' (currently being edited), 'CLOSED' (not locked), or other status values."),
-  tag: z.string().optional().describe("Filter by tag name (e.g., 'v1.0', 'production', 'QA-approved'). Omit to show all tagged and untagged projects."),
-  branch: z.string().optional().describe("Filter by branch name (e.g., 'main', 'development'). Omit to show projects from all branches."),
+  repository: z.string().optional().describe("Filter by repository ID (NOT repository name). Use the 'id' field from openl_list_repositories() response (e.g., if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use 'design-repo' here, NOT 'Design Repository'). Omit to show projects from all repositories."),
+  status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Filter by project status. Valid values: 'LOCAL', 'ARCHIVED', 'OPENED', 'VIEWING_VERSION', 'EDITING', 'CLOSED'."),
+  tags: z.record(z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
   response_format: ResponseFormat.optional(),
   limit: z.number().int().positive().max(200).default(50).optional(),
   offset: z.number().int().nonnegative().default(0).optional(),
@@ -76,10 +75,8 @@ export const projectActionSchema = z.object({
 
 export const updateProjectStatusSchema = z.object({
   projectId: projectIdSchema,
-  status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Project status to set. OPENED = open and available for editing (read-only if locked by another user). EDITING = currently editing with unsaved changes (auto-set by OpenL on first edit, locks project). VIEWING_VERSION = viewing outdated version (another user saved, need to re-open for latest). CLOSED = closed and unlocked"),
-  comment: commentSchema.describe("Git commit comment. When provided on a modified project, saves changes before applying status change. Required when closing a project with unsaved changes (unless discardChanges is true)"),
-  discardChanges: z.boolean().optional().describe("Explicitly confirm discarding unsaved changes when closing. Set to true to close an EDITING project without saving. Safety flag to prevent accidental data loss."),
-  confirm: z.boolean().optional().describe("Required when performing destructive operations like closing with unsaved changes and discardChanges=true"),
+  status: z.enum(["OPENED", "CLOSED"]).optional().describe("Project status to set. OPENED = open and available for editing (read-only if locked by another user). CLOSED = closed and unlocked. Note: Other statuses (LOCAL, ARCHIVED, VIEWING_VERSION, EDITING) are set automatically by OpenL and cannot be set manually."),
+  comment: commentSchema.describe("Git commit comment. When provided on a modified project, saves changes before applying status change."),
   branch: branchNameSchema.optional().describe("Switch to a different Git branch"),
   revision: z.string().optional().describe("Switch to a specific Git revision/commit hash for read-only viewing"),
   selectedBranches: z.array(z.string()).optional().describe("List of branches to select for multi-branch projects"),
@@ -88,9 +85,9 @@ export const updateProjectStatusSchema = z.object({
 
 export const listTablesSchema = z.object({
   projectId: projectIdSchema,
-  tableType: z.string().optional().describe("Filter by table type: 'Rules', 'SimpleRules', 'SmartRules', 'SimpleLookup', 'SmartLookup', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'Method', etc. Omit to show all types."),
-  name: z.string().optional().describe("Filter by table name pattern using wildcards (e.g., 'calculate*', '*Premium*', 'validate*'). Omit to show all tables."),
-  file: z.string().optional().describe("Filter by Excel file name (e.g., 'rules/Insurance.xlsx', 'Premium.xlsx'). Omit to show tables from all files."),
+  kind: z.array(z.string()).optional().describe("Filter by table kinds (array of strings). Valid values: 'XLS_DT', 'XLS_SPREADSHEET', 'XLS_DATATYPE', 'XLS_VOCABULARY', 'XLS_METHOD', 'XLS_PROPERTIES', 'XLS_DATA', 'XLS_TEST', 'XLS_RUN'. Omit to show all kinds."),
+  name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
+  properties: z.record(z.string()).optional().describe("Filter by project properties. Properties must be prefixed with 'properties.' in the query string (e.g., properties.state='CA', properties.lob='Auto'). This is handled automatically by the API client."),
   response_format: ResponseFormat.optional(),
   limit: z.number().int().positive().max(200).default(50).optional(),
   offset: z.number().int().nonnegative().default(0).optional(),
@@ -113,15 +110,38 @@ export const updateTableSchema = z.object({
 export const appendTableSchema = z.object({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  appendData: z.object({
-    tableType: z.string().describe("Table type (e.g., 'Datatype', 'Data')"),
-    fields: z.array(z.object({
-      name: z.string().describe("Field name"),
-      type: z.string().describe("Field type (e.g., 'String', 'int', 'double')"),
-      required: z.boolean().optional().describe("Whether field is required"),
-      defaultValue: z.any().optional().describe("Default value for the field"),
-    })).describe("Array of field definitions to append to the table"),
-  }).describe("Data structure to append to the table"),
+  appendData: z.discriminatedUnion("tableType", [
+    // DatatypeAppend
+    z.object({
+      tableType: z.literal("Datatype"),
+      fields: z.array(z.object({
+        name: z.string().describe("Field name"),
+        type: z.string().describe("Field type (e.g., 'String', 'int', 'double')"),
+        required: z.boolean().optional().describe("Whether field is required"),
+        defaultValue: z.any().optional().describe("Default value for the field"),
+      })).describe("Array of field definitions to append"),
+    }),
+    // SimpleRulesAppend
+    z.object({
+      tableType: z.literal("SimpleRules"),
+      rules: z.array(z.record(z.any())).describe("Array of rule objects to append. Each rule is a map with condition and action columns."),
+    }),
+    // SimpleSpreadsheetAppend
+    z.object({
+      tableType: z.literal("SimpleSpreadsheet"),
+      steps: z.array(z.any()).describe("Array of spreadsheet step objects to append"),
+    }),
+    // SmartRulesAppend
+    z.object({
+      tableType: z.literal("SmartRules"),
+      rules: z.array(z.record(z.any())).describe("Array of rule objects to append. Each rule is a map with condition and action columns."),
+    }),
+    // VocabularyAppend
+    z.object({
+      tableType: z.literal("Vocabulary"),
+      values: z.array(z.any()).describe("Array of vocabulary value objects to append"),
+    }),
+  ]).describe("Data structure to append to the table. Structure depends on tableType: Datatype uses 'fields', SimpleRules/SmartRules use 'rules', SimpleSpreadsheet uses 'steps', Vocabulary uses 'values'"),
   comment: commentSchema,
   response_format: ResponseFormat.optional(),
 }).strict();
@@ -136,16 +156,15 @@ export const listBranchesSchema = z.object({
 export const createBranchSchema = z.object({
   projectId: projectIdSchema,
   branchName: branchNameSchema,
-  comment: commentSchema,
+  revision: z.string().optional().describe("Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used."),
   response_format: ResponseFormat.optional(),
 }).strict();
 
 export const deployProjectSchema = z.object({
-  projectName: projectNameSchema,
-  repository: repositoryNameSchema,
-  deploymentRepository: z.string().describe("Target deployment repository name (e.g., 'production-deploy', 'staging-deploy'). Must be configured in OpenL Tablets."),
-  version: z.string().optional().describe("Specific Git commit hash to deploy (e.g., '7a3f2b1c...'). Omit to deploy latest version (HEAD)."),
-  confirm: z.boolean().describe("Must be true to proceed with deployment to production"),
+  projectId: projectIdSchema.describe("Project ID to deploy - base64-encoded format (default). Use the exact 'projectId' value from openl_list_projects() response (e.g., base64-encoded string)."),
+  deploymentName: z.string().describe("Name for the deployment (e.g., 'InsuranceRules', 'AutoPremium'). This will be the deployment identifier."),
+  productionRepositoryId: z.string().describe("Target production repository ID where the project will be deployed (e.g., 'production-deploy', 'staging-deploy'). Must be configured in OpenL Tablets."),
+  comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
   response_format: ResponseFormat.optional(),
 }).strict();
 
@@ -272,6 +291,72 @@ export const getProjectHistorySchema = z.object({
   limit: z.number().int().positive().max(200).optional().describe("Maximum commits to return (default: 50, max: 200)"),
   offset: z.number().int().nonnegative().optional().describe("Commits to skip for pagination (default: 0)"),
   branch: z.string().optional().describe("Git branch name (default: current branch)"),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+// =============================================================================
+// Repository Features & Revisions Schemas
+// =============================================================================
+
+export const getRepositoryFeaturesSchema = z.object({
+  repository: repositoryNameSchema,
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+export const getProjectRevisionsSchema = z.object({
+  repository: repositoryNameSchema,
+  projectName: projectNameSchema,
+  branch: branchNameSchema.optional().describe("Branch name (optional, only if repository supports branches)"),
+  search: z.string().optional().describe("Search term to filter revisions by commit message or author"),
+  techRevs: z.boolean().optional().describe("Include technical revisions (default: false)"),
+  page: z.number().int().nonnegative().optional().describe("Page number (0-based, default: 0)"),
+  size: z.number().int().positive().max(200).optional().describe("Page size (default: 50, max: 200)"),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+export const listDeployRepositoriesSchema = z.object({
+  response_format: ResponseFormat.optional(),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+}).strict();
+
+// =============================================================================
+// Local Changes & Restore Schemas
+// =============================================================================
+
+export const listProjectLocalChangesSchema = z.object({
+  projectId: projectIdSchema,
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+export const restoreProjectLocalChangeSchema = z.object({
+  projectId: projectIdSchema,
+  historyId: z.string().describe("History ID to restore (from list_project_local_changes response)"),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+// =============================================================================
+// Test Execution Schema
+// =============================================================================
+
+export const runProjectTestsSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: z.string().optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
+  testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
+  failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+// =============================================================================
+// Redeploy Schema
+// =============================================================================
+
+export const redeployProjectSchema = z.object({
+  deploymentId: z.string().describe("Deployment ID to redeploy (from list_deployments response)"),
+  projectId: projectIdSchema,
+  comment: commentSchema,
   response_format: ResponseFormat.optional(),
 }).strict();
 

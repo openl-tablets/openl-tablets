@@ -12,7 +12,7 @@ npm install
 npm run build
 
 # Configure
-export OPENL_BASE_URL="http://localhost:8080/webstudio/rest"
+export OPENL_BASE_URL="http://localhost:8080/rest"
 export OPENL_USERNAME="admin"
 export OPENL_PASSWORD="admin"
 
@@ -180,7 +180,10 @@ OPENL_API_KEY=your-api-key
 # Auth Method 3: OAuth 2.1
 OPENL_OAUTH2_CLIENT_ID=client-id
 OPENL_OAUTH2_CLIENT_SECRET=client-secret
+# Use either token-url or issuer-uri (issuer-uri auto-appends /token)
 OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
+# OR
+OPENL_OAUTH2_ISSUER_URI=https://auth.example.com
 OPENL_OAUTH2_SCOPE=openl:read openl:write
 
 # Optional

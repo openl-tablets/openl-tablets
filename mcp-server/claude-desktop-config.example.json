@@ -26,7 +26,7 @@
       }
     },
     "openl-mcp-server-oauth2": {
-      "comment": "OpenL Tablets MCP Server with OAuth 2.1 Authentication",
+      "comment": "OpenL Tablets MCP Server with OAuth 2.1 Authentication (using token-url)",
       "command": "node",
       "args": [
         "/absolute/path/to/openl-mcp-server/dist/index.js"
@@ -36,6 +36,23 @@
         "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
         "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
         "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
+        "OPENL_OAUTH2_SCOPE": "openl:read openl:write",
+        "OPENL_OAUTH2_GRANT_TYPE": "client_credentials",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1",
+        "OPENL_TIMEOUT": "60000"
+      }
+    },
+    "openl-mcp-server-oauth2-issuer": {
+      "comment": "OpenL Tablets MCP Server with OAuth 2.1 Authentication (using issuer-uri)",
+      "command": "node",
+      "args": [
+        "/absolute/path/to/openl-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_OAUTH2_CLIENT_ID": "OpenL_Studio",
+        "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
+        "OPENL_OAUTH2_ISSUER_URI": "https://auth.example.com",
         "OPENL_OAUTH2_SCOPE": "openl:read openl:write",
         "OPENL_OAUTH2_GRANT_TYPE": "client_credentials",
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1",
