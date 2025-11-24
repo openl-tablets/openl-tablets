@@ -6,12 +6,21 @@ export type AuthMethod = "basic" | "apiKey" | "oauth2";
 
 export interface OAuth2Config {
   clientId: string;
-  clientSecret: string;
+  clientSecret?: string; // Optional for PKCE flow (public clients)
   tokenUrl: string;
   authorizationUrl?: string;
   scope?: string;
   grantType?: "client_credentials" | "authorization_code" | "refresh_token";
   refreshToken?: string;
+  useBasicAuth?: boolean; // Use Basic Auth header instead of form data for client credentials
+  audience?: string; // OAuth2 audience parameter (required by some providers like Auth0, Ping Identity)
+  resource?: string; // OAuth2 resource parameter (required by some providers)
+  // PKCE (Proof Key for Code Exchange) parameters
+  codeVerifier?: string; // Random string for PKCE (43-128 characters, URL-safe)
+  codeChallenge?: string; // SHA256(codeVerifier) encoded as base64url
+  codeChallengeMethod?: "S256" | "plain"; // Default: S256
+  authorizationCode?: string; // Authorization code from authorization endpoint
+  redirectUri?: string; // Redirect URI registered with OAuth provider
 }
 
 export interface OAuth2Token {
@@ -138,23 +147,48 @@ export interface EditableTableView {
   file?: string;
 }
 
-/** Append data to project table (OpenAPI 3.0.1) */
-export interface AppendTableView {
-  /** Table type */
-  tableType: string;
-  /** Table fields */
-  fields: Array<{
-    /** Field name (required) */
-    name: string;
-    /** Field type (required) */
-    type: string;
-    /** Required flag */
-    required?: boolean;
-    /** Default value */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    defaultValue?: any;
-  }>;
-}
+/** Append data to project table (OpenAPI 3.0.1) - polymorphic type based on tableType */
+export type AppendTableView =
+  | {
+      /** Table type: Datatype */
+      tableType: "Datatype";
+      /** Table fields */
+      fields: Array<{
+        /** Field name (required) */
+        name: string;
+        /** Field type (required) */
+        type: string;
+        /** Required flag */
+        required?: boolean;
+        /** Default value */
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        defaultValue?: any;
+      }>;
+    }
+  | {
+      /** Table type: SimpleRules */
+      tableType: "SimpleRules";
+      /** Array of rule objects to append */
+      rules: Array<Record<string, any>>;
+    }
+  | {
+      /** Table type: SimpleSpreadsheet */
+      tableType: "SimpleSpreadsheet";
+      /** Array of spreadsheet step objects to append */
+      steps: Array<any>;
+    }
+  | {
+      /** Table type: SmartRules */
+      tableType: "SmartRules";
+      /** Array of rule objects to append */
+      rules: Array<Record<string, any>>;
+    }
+  | {
+      /** Table type: Vocabulary */
+      tableType: "Vocabulary";
+      /** Array of vocabulary value objects to append */
+      values: Array<any>;
+    };
 
 export interface DatatypeView extends EditableTableView {
   fields?: Array<{
@@ -185,14 +219,38 @@ export interface SimpleRulesView extends EditableTableView {
 }
 
 export interface RepositoryInfo {
+  aclId: string;
+  /** Repository ID */
   id: string;
+  /** Repository name */
   name: string;
-  type: string;
-  features?: {
-    branches?: boolean;
-    mappedFolders?: boolean;
-    searchable?: boolean;
+  // type: string;
+  // features?: {
+  //   branches?: boolean;
+  //   mappedFolders?: boolean;
+  //   searchable?: boolean;
+  // };
+}
+
+/** Repository features (from OpenAPI) */
+export interface RepositoryFeatures {
+  branches: boolean;
+  searchable: boolean;
+}
+
+/** Project revision from repository history (from OpenAPI) */
+export interface ProjectRevision {
+  revisionNo: string;
+  shortRevisionNo?: string;
+  createdAt: string;
+  fullComment: string;
+  author?: {
+    name: string;
+    email?: string;
   };
+  deleted: boolean;
+  technicalRevision: boolean;
+  commentParts?: string[];
 }
 
 export interface FileData {
@@ -284,7 +342,7 @@ export interface DeployRequest {
 
 /** Branch create request (OpenAPI 3.0.1) */
 export interface BranchCreateRequest {
-  branchName: string;   // Branch name (required)
+  branch: string;   // Branch name (required)
   revision?: string;    // Revision to branch from (optional)
 }
 
@@ -363,6 +421,52 @@ export interface TestSuiteResult {
   tests: TestResult[];
 }
 
+/** Test unit execution result (from OpenAPI) */
+export interface TestUnitExecutionResult {
+  name: string;
+  status: "PASSED" | "FAILED" | "ERROR";
+  executionTimeMs: number;
+  message?: string;
+  failureDetails?: string;
+}
+
+/** Test case execution result (from OpenAPI) */
+export interface TestCaseExecutionResult {
+  name: string;
+  tableId: string;
+  description?: string;
+  executionTimeMs: number;
+  numberOfTests: number;
+  numberOfFailures: number;
+  testUnits: TestUnitExecutionResult[];
+}
+
+/** Tests execution summary (from OpenAPI) */
+export interface TestsExecutionSummary {
+  testCases: TestCaseExecutionResult[];
+  executionTimeMs: number;
+  numberOfTests: number;
+  numberOfFailures: number;
+  pageNumber?: number;
+  pageSize?: number;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+/** Run project tests request */
+export interface RunProjectTestsRequest {
+  projectId: string;
+  tableId?: string;
+  testRanges?: string;
+  query?: {
+    failuresOnly?: boolean;
+  };
+  pagination?: {
+    offset?: number;
+    limit?: number;
+  };
+}
+
 /** Project validation result */
 export interface ValidationResult {
   valid: boolean;
@@ -409,12 +513,12 @@ export interface ComprehensiveProject extends ProjectViewModel {
 
 /** Filters for listing tables */
 export interface TableFilters {
-  /** Filter by table type (datatype, spreadsheet, simplerules, etc.) */
-  tableType?: TableType;
-  /** Filter by table name pattern */
+  /** Filter by table kinds (array of strings like 'XLS_DT', 'XLS_SPREADSHEET', etc.) */
+  kind?: string[];
+  /** Filter by table name fragment */
   name?: string;
-  /** Filter by Excel file name */
-  file?: string;
+  /** Filter by project properties (will be prefixed with 'properties.' in query string) */
+  properties?: Record<string, string>;
 }
 
 /** Save project result */
@@ -619,6 +723,16 @@ export interface ProjectRevision_Short {
   commitType?: CommitType;
   filesChanged?: number;
   tablesChanged?: number;
+}
+
+/** Generic paginated response */
+export interface PageResponse<T> {
+  content: T[];
+  numberOfElements: number;
+  pageNumber: number;
+  pageSize: number;
+  totalElements?: number;
+  totalPages?: number;
 }
 
 /** Paginated response for project history (OpenAPI 3.0.1) */

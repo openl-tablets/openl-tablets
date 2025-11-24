@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "openl-mcp-server": {
+      "comment": "OpenL Tablets MCP Server with OAuth 2.1 (Ping Identity) - Automatic Browser Flow",
+      "command": "node",
+      "args": [
+        "/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
+        "OPENL_CLIENT_DOCUMENT_ID": "cursor-ide-1",
+        
+        "OPENL_OAUTH2_CLIENT_ID": "OpenL_Studio",
+        "OPENL_OAUTH2_CLIENT_SECRET": "Exigen/2024.02",
+        "OPENL_OAUTH2_TOKEN_URL": "https://testping-sso.eisgroup.com/as/token.oauth2",
+        "OPENL_OAUTH2_AUTHORIZATION_URL": "https://testping-sso.eisgroup.com/as/authorization.oauth2",
+        "OPENL_OAUTH2_REDIRECT_URI": "http://localhost:3000/oauth2/callback",
+        "OPENL_OAUTH2_GRANT_TYPE": "authorization_code",
+        "OPENL_OAUTH2_SCOPE": "openid profile email"
+      }
+    }
+  }
+}
+

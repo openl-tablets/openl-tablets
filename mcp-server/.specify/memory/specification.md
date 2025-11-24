@@ -236,7 +236,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - `openl_list_deployments` - List all deployments (supports pagination)
 - `openl_deploy_project` - Deploy project to production
 
-**Temporarily Disabled Tools (7)**:
+
 - `openl_upload_file` - Upload Excel file to project *(needs implementation fixes)*
 - `openl_download_file` - Download Excel file from project *(needs implementation fixes)*
 - `openl_get_file_history` - Get file commit history *(needs implementation fixes)*

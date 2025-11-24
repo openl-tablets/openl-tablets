@@ -22,7 +22,6 @@ services:
       - openl-home:/opt/openl/shared
     environment:
       JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
-#      _REACT_UI_ROOT_: http://localhost:3100
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,7 +58,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
 
   proxy:
     image: nginx:alpine

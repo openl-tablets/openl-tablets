@@ -14,60 +14,88 @@ import {
 
 describe("validators", () => {
   describe("validateProjectId", () => {
-    it("should validate correct projectId with hyphen separator", () => {
-      const result = validateProjectId("design-InsuranceRules");
+    it("should validate correct base64 projectId with format repository:projectName:hashCode", () => {
+      // Example: "design9:Sample Project:ccedc692beec9bcfa7bfab96f76fa3af5419821d3c945da9f7ec76c6cd08e044"
+      const base64Id = "ZGVzaWduOTpTYW1wbGUgUHJvamVjdDpjY2VkYzY5MmJlZWM5YmNmYTdiZmFiOTZmNzZmYTNhZjU0MTk4MjFkM2M5NDVkYTlmN2VjNzZjNmNkMDhlMDQ0";
+      const result = validateProjectId(base64Id);
+      expect(result).toEqual({
+        repository: "design9",
+        projectName: "Sample Project",
+      });
+    });
+
+    it("should validate base64 projectId with simple project name", () => {
+      // "design:InsuranceRules:abc123"
+      const base64Id = Buffer.from("design:InsuranceRules:abc123").toString("base64");
+      const result = validateProjectId(base64Id);
       expect(result).toEqual({
         repository: "design",
         projectName: "InsuranceRules",
       });
     });
 
-    it("should throw error for projectId with underscore separator (not supported)", () => {
-      // Only hyphen is supported as separator, not underscore
-      expect(() => validateProjectId("production_AutoPremium")).toThrow(McpError);
-      expect(() => validateProjectId("production_AutoPremium")).toThrow(/Invalid projectId format/);
-    });
-
-    it("should validate projectId with spaces in project name", () => {
-      const result = validateProjectId("design-Example 1 - Bank Rating");
+    it("should validate base64 projectId with spaces in project name", () => {
+      // "design:Example 1 - Bank Rating:hash123"
+      const base64Id = Buffer.from("design:Example 1 - Bank Rating:hash123").toString("base64");
+      const result = validateProjectId(base64Id);
       expect(result).toEqual({
         repository: "design",
         projectName: "Example 1 - Bank Rating",
       });
     });
 
-    it("should validate projectId with multiple hyphens", () => {
-      const result = validateProjectId("design-my-complex-project-name");
+    it("should validate base64 projectId with complex project name", () => {
+      // "design:my-complex-project-name:hash456"
+      const base64Id = Buffer.from("design:my-complex-project-name:hash456").toString("base64");
+      const result = validateProjectId(base64Id);
       expect(result).toEqual({
         repository: "design",
         projectName: "my-complex-project-name",
       });
     });
 
-    it("should throw error for invalid format (no separator)", () => {
-      expect(() => validateProjectId("invalidprojectid")).toThrow(McpError);
-      expect(() => validateProjectId("invalidprojectid")).toThrow(/Invalid projectId format/);
+    it("should throw error for invalid base64 format", () => {
+      expect(() => validateProjectId("invalid@base64!")).toThrow(McpError);
+      expect(() => validateProjectId("invalid@base64!")).toThrow(/Invalid projectId format/);
+    });
+
+    it("should throw error for base64 that doesn't decode to correct format", () => {
+      // Valid base64 but invalid format (no colons)
+      const invalidBase64 = Buffer.from("no-colons-here").toString("base64");
+      expect(() => validateProjectId(invalidBase64)).toThrow(McpError);
+      expect(() => validateProjectId(invalidBase64)).toThrow(/Invalid decoded format/);
+    });
+
+    it("should throw error for base64 with wrong number of parts", () => {
+      // Only 2 parts instead of 3
+      const twoPartsBase64 = Buffer.from("design:InsuranceRules").toString("base64");
+      expect(() => validateProjectId(twoPartsBase64)).toThrow(McpError);
+      expect(() => validateProjectId(twoPartsBase64)).toThrow(/3 parts/);
     });
 
     it("should throw error for empty projectId", () => {
       expect(() => validateProjectId("")).toThrow(McpError);
     });
 
-    it("should throw error for projectId with only separator", () => {
-      expect(() => validateProjectId("-")).toThrow(McpError);
-      expect(() => validateProjectId("_")).toThrow(McpError);
-    });
-
-    it("should throw error for projectId missing repository", () => {
-      expect(() => validateProjectId("-ProjectName")).toThrow(McpError);
-    });
-
-    it("should throw error for projectId missing project name", () => {
-      expect(() => validateProjectId("repository-")).toThrow(McpError);
+    it("should throw error for base64 with empty parts", () => {
+      // ":projectName:hashCode" - empty repository
+      const emptyRepoBase64 = Buffer.from(":projectName:hashCode").toString("base64");
+      expect(() => validateProjectId(emptyRepoBase64)).toThrow(McpError);
     });
 
     it("should include actionable error message", () => {
       expect(() => validateProjectId("invalid")).toThrow(/openl_list_projects/);
+    });
+
+    it("should accept base64 with whitespace (strips whitespace)", () => {
+      // Base64 with spaces/newlines should be accepted
+      const base64Id = Buffer.from("design:InsuranceRules:hash123").toString("base64");
+      const withSpaces = base64Id.replace(/(.{10})/g, "$1 ");
+      const result = validateProjectId(withSpaces);
+      expect(result).toEqual({
+        repository: "design",
+        projectName: "InsuranceRules",
+      });
     });
   });
 
