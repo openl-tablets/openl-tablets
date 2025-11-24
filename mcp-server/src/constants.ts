@@ -57,9 +57,11 @@ export const TOOL_CATEGORIES = {
 } as const;
 
 /**
- * Project ID format pattern: {repository-name}-{project-name}
+ * Project ID format pattern: base64-encoded string in format "repository:projectName:hashCode"
+ * Example: "ZGVzaWduOTpTYW1wbGUgUHJvamVjdDpjY2VkYzY5MmJlZWM5YmNmYTdiZmFiOTZmNzZmYTNhZjU0MTk4MjFkM2M5NDVkYTlmN2VjNzZjNmNkMDhlMDQ0"
+ * decodes to: "design9:Sample Project:ccedc692beec9bcfa7bfab96f76fa3af5419821d3c945da9f7ec76c6cd08e044"
  */
-export const PROJECT_ID_PATTERN = /^([^-]+)-(.+)$/;
+export const PROJECT_ID_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
 
 /**
  * Server information
