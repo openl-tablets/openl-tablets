@@ -1,9 +1,8 @@
 package org.openl.rules.repository.azure;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.openl.rules.repository.RepositoryFactory;
-import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 
 public class AzureBlobRepositoryFactory implements RepositoryFactory {
@@ -20,9 +19,9 @@ public class AzureBlobRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(Consumer<Repository> initParamsCallback) {
         AzureBlobRepository repository = new AzureBlobRepository();
-        RepositoryInstatiator.setParams(repository, settings);
+        initParamsCallback.accept(repository);
         repository.initialize();
         return repository;
     }

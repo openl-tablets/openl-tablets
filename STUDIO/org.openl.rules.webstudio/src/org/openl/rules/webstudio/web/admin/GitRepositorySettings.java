@@ -212,19 +212,19 @@ public class GitRepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    public int getConnectionTimeout() {
+    public Integer getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public void setConnectionTimeout(int connectionTimeout) {
+    public void setConnectionTimeout(Integer connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public int getFailedAuthenticationSeconds() {
+    public Integer getFailedAuthenticationSeconds() {
         return failedAuthenticationSeconds;
     }
 
-    public void setFailedAuthenticationSeconds(int failedAuthenticationSeconds) {
+    public void setFailedAuthenticationSeconds(Integer failedAuthenticationSeconds) {
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
     }
 

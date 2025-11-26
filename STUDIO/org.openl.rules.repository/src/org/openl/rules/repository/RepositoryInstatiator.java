@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.ServiceLoader;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.openl.rules.repository.api.DefaultWhenNotSpecified;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
@@ -43,14 +45,9 @@ public class RepositoryInstatiator {
         for (RepositoryFactory factory : factories) {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
-                return new PathCheckedRepository(factory.create(key -> {
-                    if ("id".equals(key)) {
-                        // FIXME: Remove assumption that id is the last part of the prefix.
-                        int dot = prefix.lastIndexOf('.');
-                        return prefix.substring(dot + 1);
-                    }
-                    return props.apply(prefix + '.' + key);
-                }));
+                return new PathCheckedRepository(factory.create(
+                        instance -> setParams(instance,
+                            settingsValueReader(props, prefix, factoryId))));
             }
         }
         throw new IllegalArgumentException(String.format(
@@ -72,15 +69,34 @@ public class RepositoryInstatiator {
         }
         return null;
     }
+    
+    private static BiFunction<String, Boolean, String> settingsValueReader(Function<String, String> props, String prefix, String factoryId) {
+        return (key, useDefaultIfNotSpecified) -> {
+            if ("id".equals(key)) {
+                // FIXME: Remove assumption that id is the last part of the prefix.
+                int dot = prefix.lastIndexOf('.');
+                return prefix.substring(dot + 1);
+            }
+            String value = props.apply(prefix + '.' + key);
+            if (StringUtils.isBlank(value) 
+                    && useDefaultIfNotSpecified != null 
+                    && useDefaultIfNotSpecified) {
+                return props.apply(factoryId + '.' + key);
+            } else {
+                return value;
+            }
+        };
+    }
 
-    public static void setParams(Object instance, Function<String, String> props) {
+    public static void setParams(Object instance, BiFunction<String, Boolean, String> settingsValueReader) {
         Class<?> clazz = instance.getClass();
         try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
             stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))
                     .forEach(method -> {
+                        boolean useDefaultIfNotSpecified = method.isAnnotationPresent(DefaultWhenNotSpecified.class);
                         String fieldName = method.getName().substring(3);
                         String propertyName = StringUtils.camelToKebab(fieldName);
-                        String propertyValue = props.apply(propertyName);
+                        String propertyValue = settingsValueReader.apply(propertyName, useDefaultIfNotSpecified);
                         boolean propertyExists = StringUtils.isNotBlank(propertyValue);
                         if (propertyExists) {
                             Class<?> type = method.getParameterTypes()[0];

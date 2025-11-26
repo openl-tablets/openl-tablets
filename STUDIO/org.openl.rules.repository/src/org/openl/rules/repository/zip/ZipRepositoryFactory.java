@@ -1,9 +1,8 @@
 package org.openl.rules.repository.zip;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.openl.rules.repository.RepositoryFactory;
-import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 
 /**
@@ -25,9 +24,9 @@ public class ZipRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(Consumer<Repository> initParamsCallback) {
         ZippedLocalRepository repository = new ZippedLocalRepository();
-        RepositoryInstatiator.setParams(repository, settings);
+        initParamsCallback.accept(repository);
         repository.initialize();
         return repository;
     }
