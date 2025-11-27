@@ -101,7 +101,7 @@ npm install
 
 ## Runtime Issues
 
-### WebStudio Won't Start
+### OpenL Studio Won't Start
 
 **Symptoms**:
 ```

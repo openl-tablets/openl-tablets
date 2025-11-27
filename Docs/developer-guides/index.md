@@ -40,7 +40,7 @@ This guide is organized into the following sections:
 
 ### User Guides
 - [Reference Guide](../user-guides/reference/index.md) - Complete language reference
-- [WebStudio User Guide](../user-guides/webstudio/index.md) - Rule development and management
+- [OpenL Studio User Guide](../user-guides/webstudio/index.md) - Rule development and management
 - [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime deployment and configuration
 - [Installation Guide](../user-guides/installation/index.md) - Installation and deployment
 

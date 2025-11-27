@@ -36,7 +36,7 @@ Comprehensive reference documentation for OpenL Tablets features and syntax.
 - **Audience**: Rule authors, developers
 - **Format**: PDF
 
-#### WebStudio User Guide
+#### OpenL Studio User Guide
 Complete guide to using OpenL Studio for creating and managing business rules.
 
 - **Topics**: Interface overview, rules editor, testing, repository management, administration
@@ -155,7 +155,7 @@ Typical PDF sizes:
 | Installation Guide | 2-3 MB |
 | Demo Package Guide | 3-4 MB |
 | Reference Guide | 5-7 MB |
-| WebStudio User Guide | 8-10 MB |
+| OpenL Studio User Guide | 8-10 MB |
 | Rule Services Guide | 4-5 MB |
 | Developer Guide | 3-4 MB |
 | Integration Guides | 2-3 MB |

@@ -1037,7 +1037,7 @@ java -Djavax.net.ssl.trustStore=/path/to/truststore.jks \
 
 ## UI Issues
 
-### Issue: WebStudio UI Not Loading
+### Issue: OpenL Studio UI Not Loading
 
 **Symptoms**:
 - Blank page

@@ -158,7 +158,7 @@ Once OpenL Tablets is installed:
 1. **Complete the setup wizard** - Configure initial settings
 2. **Explore the demo projects** - Learn by example
 3. **Read the user guides**:
-   - [WebStudio User Guide](../webstudio/) - Using OpenL Studio
+   - [OpenL Studio User Guide](../webstudio/) - Using OpenL Studio
    - [Reference Guide](../reference/) - OpenL Tablets language reference
 4. **Create your first project** - Start building rules
 
@@ -194,7 +194,7 @@ When you're ready to deploy to production:
 - [System Requirements](system-requirements.md) - Prerequisites
 - [Configuration Guide](../../configuration/) - Configuration options
 - **[Deployment Guide](../../deployment/)** - Production deployment
-- [WebStudio User Guide](../webstudio/) - Using OpenL Studio
+- [OpenL Studio User Guide](../webstudio/) - Using OpenL Studio
 
 ---
 
