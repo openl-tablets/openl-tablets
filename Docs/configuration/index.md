@@ -35,7 +35,7 @@ Production deployment guide and best practices. Covers:
 ### User Guides
 - [Installation Guide](../user-guides/installation/index.md) - Initial installation and setup
 - [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime configuration
-- [WebStudio User Guide](../user-guides/webstudio/index.md) - Studio configuration
+- [OpenL Studio User Guide](../user-guides/webstudio/index.md) - Studio configuration
 
 ### Integration
 - [Spring Framework](../integration-guides/spring.md) - Spring configuration

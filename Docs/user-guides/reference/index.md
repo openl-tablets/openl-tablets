@@ -67,7 +67,7 @@ OpenL Tablets supports various table types for different purposes:
 ## Related Documentation
 
 - [Installation Guide](../installation/) - Installing and configuring OpenL Tablets
-- [WebStudio User Guide](../webstudio/) - Using OpenL Studio for rule authoring
+- [OpenL Studio User Guide](../webstudio/) - Using OpenL Studio for rule authoring
 - [Developer Guide](../../developer-guides/) - Developing with OpenL Tablets
 - [Rule Services Guide](../rule-services/) - Deploying rules as services
 
