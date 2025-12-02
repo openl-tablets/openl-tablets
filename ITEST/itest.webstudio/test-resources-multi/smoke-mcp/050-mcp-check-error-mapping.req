@@ -6,7 +6,7 @@ Content-Type: application/json
 {
   "method": "tools/call",
   "params": {
-    "name": "projects-get-details",
+    "name": "openl_get_project_table",
     "arguments": {
       "projectId": "ZGVzaWduOlVOS05PV04="
     },

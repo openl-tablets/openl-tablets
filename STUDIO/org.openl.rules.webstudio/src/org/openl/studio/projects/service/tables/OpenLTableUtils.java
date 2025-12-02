@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITable;
+import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.model.tables.SmartRulesView;
 import org.openl.studio.projects.service.tables.write.VocabularyTableWriter;
@@ -100,6 +101,20 @@ public abstract class OpenLTableUtils {
         return isRules(table, SmartRulesView.TABLE_TYPE);
     }
 
+    /**
+     * Checks if provided table is a smart lookup table.
+     *
+     * @param table table to check
+     * @return {@code true} if provided table is a smart lookup table, {@code false} otherwise
+     */
+    public static boolean isSmartLookup(IOpenLTable table) {
+        return isRules(table, LookupView.SMART_TABLE_TYPE);
+    }
+
+    public static boolean isSimpleLookup(IOpenLTable table) {
+        return isRules(table, LookupView.SIMPLE_TABLE_TYPE);
+    }
+
     private static boolean isRules(IOpenLTable table, String tableType) {
         if (isRulesTable(table)) {
             var headerSource = table.getSyntaxNode().getHeader().getSourceString();
@@ -154,6 +169,16 @@ public abstract class OpenLTableUtils {
      */
     public static boolean isSpreadsheetTable(IOpenLTable table) {
         return XlsNodeTypes.getEnumByValue(table.getType()) == XlsNodeTypes.XLS_SPREADSHEET;
+    }
+
+    /**
+     * Checks if provided table is a data table.
+     *
+     * @param table table to check
+     * @return {@code true} if provided table is a data table, {@code false} otherwise
+     */
+    public static boolean isDataTable(IOpenLTable table) {
+        return XlsNodeTypes.getEnumByValue(table.getType()) == XlsNodeTypes.XLS_DATA;
     }
 
     /**

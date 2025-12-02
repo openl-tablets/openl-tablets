@@ -3,21 +3,346 @@ Content-Type: application/json
 
 {
   "jsonrpc": "2.0",
-  "id": "***",
+  "id": "*",
   "result": {
     "tools": [
       {
-        "name": "deployment-repos-list",
+        "name": "openl_append_project_table",
         "description": "***",
         "inputSchema": {
           "type": "object",
-          "properties": {},
-          "required": [],
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            },
+            "editTable": {
+              "$defs": {
+                "DataRowView": {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "description": "***",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "values"
+                  ]
+                },
+                "LinkedHashMap_String.Object_": {
+                  "type": "object"
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "fields": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "defaultValue": {
+                            "description": "***"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "***"
+                          },
+                          "required": {
+                            "type": "string",
+                            "description": "***"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "***"
+                          }
+                        },
+                        "required": [
+                          "defaultValue",
+                          "name",
+                          "required",
+                          "type"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Datatype"
+                    }
+                  },
+                  "required": [
+                    "fields",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "description": "***"
+                          }
+                        },
+                        "required": [
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "Vocabulary"
+                    }
+                  },
+                  "required": [
+                    "values",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "steps": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "***"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "***"
+                          },
+                          "value": {
+                            "description": "***"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "type",
+                          "value"
+                        ]
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleSpreadsheet"
+                    }
+                  },
+                  "required": [
+                    "steps",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SimpleRules"
+                    }
+                  },
+                  "required": [
+                    "rules",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                      }
+                    },
+                    "tableType": {
+                      "const": "SmartRules"
+                    }
+                  },
+                  "required": [
+                    "rules",
+                    "tableType"
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "LookupAppend"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/DataRowView"
+                      }
+                    },
+                    "tableType": {
+                      "const": "Data"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/DataRowView"
+                      }
+                    },
+                    "tableType": {
+                      "const": "Test"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "tableType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "colspan": {
+                              "type": "integer",
+                              "format": "int32",
+                              "description": "***"
+                            },
+                            "covered": {
+                              "type": "boolean",
+                              "description": "***"
+                            },
+                            "rowspan": {
+                              "type": "integer",
+                              "format": "int32",
+                              "description": "***"
+                            },
+                            "value": {
+                              "description": "***"
+                            }
+                          },
+                          "required": [
+                            "colspan",
+                            "covered",
+                            "rowspan",
+                            "value"
+                          ]
+                        }
+                      }
+                    },
+                    "tableType": {
+                      "const": "RawSource"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "tableType"
+                  ]
+                }
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "tableId",
+            "editTable"
+          ],
           "additionalProperties": false
         }
       },
       {
-        "name": "deployments-deploy",
+        "name": "openl_create_project_branch",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "branch": {
+              "type": "string",
+              "description": "***"
+            },
+            "revision": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "branch"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_deploy_project",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -70,7 +395,56 @@ Content-Type: application/json
         }
       },
       {
-        "name": "deployments-list",
+        "name": "openl_get_project",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_get_project_table",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "tableId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_deploy_repositories",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_deployments",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -87,7 +461,163 @@ Content-Type: application/json
         }
       },
       {
-        "name": "deployments-redeploy",
+        "name": "openl_list_design_repositories",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_design_repository_branches",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_design_repository_features",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_design_repository_project_revisions",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoId": {
+              "type": "string",
+              "description": "***"
+            },
+            "projectName": {
+              "type": "string",
+              "description": "***"
+            },
+            "branch": {
+              "type": "string",
+              "description": "***"
+            },
+            "search": {
+              "type": "string",
+              "description": "***"
+            },
+            "techRevs": {
+              "type": "boolean",
+              "description": "***"
+            },
+            "page": {
+              "type": "integer",
+              "description": "***"
+            },
+            "size": {
+              "type": "integer",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repoId",
+            "projectName",
+            "techRevs",
+            "page",
+            "size"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_project_local_changes",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_project_tables",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "name": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_list_projects",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "LOCAL",
+                "ARCHIVED",
+                "VIEWING",
+                "VIEWING_VERSION",
+                "EDITING",
+                "CLOSED"
+              ],
+              "description": "***"
+            },
+            "repository": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "repository"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_redeploy_project",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -135,96 +665,7 @@ Content-Type: application/json
         }
       },
       {
-        "name": "design-repos-list",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "design-repos-list-branches",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "repoId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "repoId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "design-repos-list-features",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "repoId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "repoId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "design-repos-list-project-revisions",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "repoId": {
-              "type": "string",
-              "description": "***"
-            },
-            "projectName": {
-              "type": "string",
-              "description": "***"
-            },
-            "branch": {
-              "type": "string",
-              "description": "***"
-            },
-            "search": {
-              "type": "string",
-              "description": "***"
-            },
-            "techRevs": {
-              "type": "boolean",
-              "description": "***"
-            },
-            "page": {
-              "type": "integer",
-              "description": "***"
-            },
-            "size": {
-              "type": "integer",
-              "description": "***"
-            }
-          },
-          "required": [
-            "repoId",
-            "projectName",
-            "techRevs",
-            "page",
-            "size"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-branch-create",
+        "name": "openl_restore_project_local_change",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -233,24 +674,45 @@ Content-Type: application/json
               "type": "string",
               "description": "***"
             },
-            "branch": {
-              "type": "string",
-              "description": "***"
-            },
-            "revision": {
+            "historyId": {
               "type": "string",
               "description": "***"
             }
           },
           "required": [
             "projectId",
-            "branch"
+            "historyId"
           ],
           "additionalProperties": false
         }
       },
       {
-        "name": "projects-change-status",
+        "name": "openl_run_project_tests",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "tableId": {
+              "type": "string",
+              "description": "***"
+            },
+            "testRanges": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "openl_update_project_status",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -287,316 +749,7 @@ Content-Type: application/json
         }
       },
       {
-        "name": "projects-get-details",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-list",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "status": {
-              "type": "string",
-              "enum": [
-                "LOCAL",
-                "ARCHIVED",
-                "VIEWING",
-                "VIEWING_VERSION",
-                "EDITING",
-                "CLOSED"
-              ],
-              "description": "***"
-            },
-            "repository": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "repository"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-list-local-changes",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-list-tables",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            },
-            "name": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-restore-local-change",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            },
-            "historyId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId",
-            "historyId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-run-tests",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            },
-            "tableId": {
-              "type": "string",
-              "description": "***"
-            },
-            "testRanges": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-table-append-rows",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            },
-            "tableId": {
-              "type": "string",
-              "description": "***"
-            },
-            "editTable": {
-              "$defs": {
-                "LinkedHashMap_String.Object_": {
-                  "type": "object"
-                }
-              },
-              "anyOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "fields": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "required": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "defaultValue",
-                          "name",
-                          "required",
-                          "type"
-                        ]
-                      }
-                    },
-                    "tableType": {
-                      "const": "Datatype"
-                    }
-                  },
-                  "required": [
-                    "fields",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "values": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "value"
-                        ]
-                      }
-                    },
-                    "tableType": {
-                      "const": "Vocabulary"
-                    }
-                  },
-                  "required": [
-                    "values",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "name",
-                          "type",
-                          "value"
-                        ]
-                      }
-                    },
-                    "tableType": {
-                      "const": "SimpleSpreadsheet"
-                    }
-                  },
-                  "required": [
-                    "steps",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "rules": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
-                      }
-                    },
-                    "tableType": {
-                      "const": "SimpleRules"
-                    }
-                  },
-                  "required": [
-                    "rules",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "rules": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
-                      }
-                    },
-                    "tableType": {
-                      "const": "SmartRules"
-                    }
-                  },
-                  "required": [
-                    "rules",
-                    "tableType"
-                  ]
-                }
-              ],
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId",
-            "tableId",
-            "editTable"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-table-body",
-        "description": "***",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string",
-              "description": "***"
-            },
-            "tableId": {
-              "type": "string",
-              "description": "***"
-            }
-          },
-          "required": [
-            "projectId",
-            "tableId"
-          ],
-          "additionalProperties": false
-        }
-      },
-      {
-        "name": "projects-table-replace-body",
+        "name": "openl_update_project_table",
         "description": "***",
         "inputSchema": {
           "type": "object",
@@ -615,10 +768,12 @@ Content-Type: application/json
                   "type": "object",
                   "properties": {
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "***"
                     },
                     "type": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "***"
                     }
                   },
                   "required": [
@@ -626,8 +781,62 @@ Content-Type: application/json
                     "type"
                   ]
                 },
+                "DataHeaderView": {
+                  "type": "object",
+                  "properties": {
+                    "displayName": {
+                      "type": "string",
+                      "description": "***"
+                    },
+                    "fieldName": {
+                      "type": "string",
+                      "description": "***"
+                    },
+                    "foreignKey": {
+                      "type": "string",
+                      "description": "***"
+                    }
+                  },
+                  "required": [
+                    "displayName",
+                    "fieldName",
+                    "foreignKey"
+                  ]
+                },
+                "DataRowView": {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "description": "***",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "values"
+                  ]
+                },
                 "LinkedHashMap_String.Object_": {
                   "type": "object"
+                },
+                "LookupHeaderView": {
+                  "type": "object",
+                  "properties": {
+                    "children": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LookupHeaderView"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "***"
+                    }
+                  },
+                  "required": [
+                    "children",
+                    "title"
+                  ]
                 },
                 "Map_String.Object_": {
                   "type": "object"
@@ -635,365 +844,1002 @@ Content-Type: application/json
               },
               "anyOf": [
                 {
-                  "type": "object",
-                  "properties": {
-                    "extends": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "required": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "extends": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "fields": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "defaultValue": {
+                                "description": "***"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "required": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "defaultValue",
+                              "name",
+                              "required",
+                              "type"
+                            ]
                           }
                         },
-                        "required": [
-                          "defaultValue",
-                          "name",
-                          "required",
-                          "type"
-                        ]
-                      }
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "tableType": {
-                      "const": "Datatype"
-                    }
-                  },
-                  "required": [
-                    "fields",
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "type": {
-                      "type": "string"
-                    },
-                    "values": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "value"
-                        ]
-                      }
-                    },
-                    "tableType": {
-                      "const": "Vocabulary"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "type",
-                    "values",
-                    "tableType"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "args": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/ArgumentView"
-                      }
-                    },
-                    "cells": {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "value"
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
                           ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
                         }
-                      }
+                      },
+                      "required": [
+                        "fields",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "tableType"
+                      ]
                     },
-                    "columns": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "name",
-                          "type"
-                        ]
-                      }
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "returnType": {
-                      "type": "string"
-                    },
-                    "rows": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "name",
-                          "type"
-                        ]
-                      }
-                    },
-                    "tableType": {
-                      "const": "Spreadsheet"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Datatype"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
                     }
-                  },
-                  "required": [
-                    "args",
-                    "cells",
-                    "columns",
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "returnType",
-                    "rows",
-                    "tableType"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "args": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/ArgumentView"
-                      }
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "returnType": {
-                      "type": "string"
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string"
-                          }
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "***"
                         },
-                        "required": [
-                          "name",
-                          "type",
-                          "value"
-                        ]
-                      }
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "values": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "value"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "tableType",
+                        "type",
+                        "values"
+                      ]
                     },
-                    "tableType": {
-                      "const": "SimpleSpreadsheet"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Vocabulary"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
                     }
-                  },
-                  "required": [
-                    "args",
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "returnType",
-                    "steps",
-                    "tableType"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "args": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/ArgumentView"
-                      }
-                    },
-                    "headers": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "title": {
-                            "type": "string"
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
                           }
                         },
-                        "required": [
-                          "title"
-                        ]
-                      }
+                        "cells": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "description": "***"
+                                }
+                              },
+                              "required": [
+                                "value"
+                              ]
+                            }
+                          }
+                        },
+                        "columns": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type"
+                            ]
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "cells",
+                        "columns",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rows",
+                        "tableType"
+                      ]
                     },
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "returnType": {
-                      "type": "string"
-                    },
-                    "rules": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
-                      }
-                    },
-                    "tableType": {
-                      "const": "SimpleRules"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Spreadsheet"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
                     }
-                  },
-                  "required": [
-                    "args",
-                    "headers",
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "returnType",
-                    "rules",
-                    "tableType"
                   ]
                 },
                 {
-                  "type": "object",
-                  "properties": {
-                    "args": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/ArgumentView"
-                      }
-                    },
-                    "headers": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "title": {
-                            "type": "string"
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
                           }
                         },
-                        "required": [
-                          "title"
-                        ]
-                      }
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "steps": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "value": {
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type",
+                              "value"
+                            ]
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "steps",
+                        "tableType"
+                      ]
                     },
-                    "id": {
-                      "type": "string"
-                    },
-                    "kind": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "properties": {
-                      "$ref": "#/$defs/Map_String.Object_"
-                    },
-                    "returnType": {
-                      "type": "string"
-                    },
-                    "rules": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/$defs/LinkedHashMap_String.Object_"
-                      }
-                    },
-                    "tableType": {
-                      "const": "SmartRules"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SimpleSpreadsheet"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
                     }
-                  },
-                  "required": [
-                    "args",
-                    "headers",
-                    "id",
-                    "kind",
-                    "name",
-                    "properties",
-                    "returnType",
-                    "rules",
-                    "tableType"
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "title"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rules": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rules",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SimpleRules"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "title"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rules": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rules",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SmartRules"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LookupHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "LookupView"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "dataType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataRowView"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "dataType",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Data"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataRowView"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "testedTableName": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "rows",
+                        "tableType",
+                        "testedTableName"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Test"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "source": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "colspan": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "description": "***"
+                                },
+                                "covered": {
+                                  "type": "boolean",
+                                  "description": "***"
+                                },
+                                "rowspan": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "description": "***"
+                                },
+                                "value": {
+                                  "description": "***"
+                                }
+                              },
+                              "required": [
+                                "colspan",
+                                "covered",
+                                "rowspan",
+                                "value"
+                              ]
+                            }
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "name",
+                        "source",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "RawSource"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
                   ]
                 }
               ],

@@ -1,0 +1,102 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/5bd8922c903afffdfb749b3841eddcf1 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "source": [
+    [
+      {
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "C1",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "value": "hour",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "greeting + \", World!\""
+      }
+    ],
+    [
+      {
+        "value": "Integer min"
+      },
+      {
+        "value": "Integer max"
+      },
+      {
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "value": "From time"
+      },
+      {
+        "value": "To time"
+      },
+      {
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "value": 0
+      },
+      {
+        "value": 12
+      },
+      {
+        "value": "Good Morning"
+      }
+    ],
+    [
+      {
+        "value": 12
+      },
+      {
+        "value": 18
+      },
+      {
+        "value": "Good Afternoon"
+      }
+    ],
+    [
+      {
+        "value": 18
+      },
+      {
+        "value": 22
+      },
+      {
+        "value": "Good Evening"
+      }
+    ]
+  ]
+}

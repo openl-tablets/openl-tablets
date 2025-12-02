@@ -12,6 +12,7 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.mcp.McpController;
+import org.openl.studio.mcp.McpToolNameConstants;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
@@ -21,7 +22,7 @@ import org.openl.studio.repositories.service.ProjectRevisionService;
 @McpController
 public class DesignRepositoriesMcpController {
 
-    private static final String TOOL_PREFIX = "design-repos";
+    private static final String LIST_TOOL_FOR_REPO_PREFIX = McpToolNameConstants.LIST_TOOL_PREFIX + "_design_repository";
 
     private final DesignTimeRepositoryService designTimeRepositoryService;
     private final ProjectRevisionService projectRevisionService;
@@ -35,22 +36,22 @@ public class DesignRepositoriesMcpController {
         this.designTimeRepository = designTimeRepository;
     }
 
-    @Tool(name = TOOL_PREFIX + "-list", description = "Returns all Design Repositories in OpenL Tablets.\nReturns repository names, their types, and status information.\nUse this to discover all available Design repositories before accessing projects.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_design_repositories", description = "Returns all Design Repositories in OpenL Tablets.\nReturns repository names, their types, and status information.\nUse this to discover all available Design repositories before accessing projects.")
     public List<RepositoryViewModel> listRepositories() {
         return designTimeRepositoryService.getRepositoryList();
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-branches", description = "Returns a list of branches for the specified Design repository. It is applicable only for repositories that support branching. Use feature check to verify if the repository supports branches.")
+    @Tool(name = LIST_TOOL_FOR_REPO_PREFIX + "_branches", description = "Returns a list of branches for the specified Design repository. It is applicable only for repositories that support branching. Use feature check to verify if the repository supports branches.")
     public List<String> listBranches(@ToolParam(description = "Design repository identifier") String repoId) throws IOException {
         return designTimeRepositoryService.getBranches(repoId);
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-features", description = "Returns the features supported by the specified Design repository.\nUse this to check if a repository supports specific features like branching before performing operations that depend on those features.")
+    @Tool(name = LIST_TOOL_FOR_REPO_PREFIX + "_features", description = "Returns the features supported by the specified Design repository.\nUse this to check if a repository supports specific features like branching before performing operations that depend on those features.")
     public RepositoryFeatures getRepositoryFeatures(@ToolParam(description = "Design repository identifier") String repoId) {
         return designTimeRepositoryService.getFeatures(repoId);
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-project-revisions", description = "Returns the revision history (commit history) of a project in the Design Repository.\nInclude pagination parameters to control which revisions are returned.\nOptionally filter by branch name and search term to find specific revisions.")
+    @Tool(name = LIST_TOOL_FOR_REPO_PREFIX + "_project_revisions", description = "Returns the revision history (commit history) of a project in the Design Repository.\nInclude pagination parameters to control which revisions are returned.\nOptionally filter by branch name and search term to find specific revisions.")
     public PageResponse<ProjectRevision> getProjectRevision(@ToolParam(description = "Design repository identifier")
                                                             String repoId,
                                                             @ToolParam(description = "Project name")

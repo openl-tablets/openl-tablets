@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Step view model for spreadsheet tables
@@ -12,8 +13,13 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SpreadsheetStepView.Builder.class)
 public class SpreadsheetStepView {
 
+    @Schema(description = "Name of the step")
     public final String name;
+
+    @Schema(description = "Type of the step (e.g., String, Integer, etc.)")
     public final String type;
+
+    @Schema(description = "Value of the step")
     public final Object value;
 
     private SpreadsheetStepView(Builder builder) {

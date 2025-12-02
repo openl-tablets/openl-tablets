@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Decision header abstract model
  *
@@ -9,6 +11,7 @@ public abstract class ARuleHeaderView {
 
     public static final String UNKNOWN_HEADER_NAME = "col";
 
+    @Schema(description = "Title of the rule column")
     public final String title;
 
     protected ARuleHeaderView(Builder<?> builder) {

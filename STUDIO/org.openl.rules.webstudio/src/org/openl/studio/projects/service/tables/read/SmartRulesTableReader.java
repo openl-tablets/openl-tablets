@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.SmartRulesHeaderView;
@@ -43,16 +42,17 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
 
         var headers = getConditionHeaders(tableBody.getRow(0));
         builder.headers(headers);
+        var cellValueReader = new CellValueReader(tsn.getMetaInfoReader());
         processRules(builder,
                 headers,
                 tableBody.getSubtable(0, 1, tableBody.getWidth(), tableBody.getHeight() - 1),
-                tsn.getMetaInfoReader());
+                cellValueReader);
     }
 
     private void processRules(SmartRulesView.Builder builder,
                               List<SmartRulesHeaderView> headers,
                               ILogicalTable rulesBody,
-                              MetaInfoReader metaInfoReader) {
+                              CellValueReader cellValueReader) {
         var list = new ArrayList<LinkedHashMap<String, Object>>();
         var sourceTable = rulesBody.getSource();
         var height = OpenLTableUtils.getHeightWithoutEmptyRows(sourceTable);
@@ -62,12 +62,12 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
             for (var header : headers) {
                 Object value;
                 if (header.width == 1) {
-                    value = getCellValue(sourceTable.getCell(colId, rowId), metaInfoReader);
+                    value = cellValueReader.apply(sourceTable.getCell(colId, rowId));
                     colId++;
                 } else if (header.width == 2) {
                     var rangeRule = new HashMap<String, Object>();
-                    rangeRule.put(RANGE_RULE_MIN, getCellValue(sourceTable.getCell(colId, rowId), metaInfoReader));
-                    rangeRule.put(RANGE_RULE_MAX, getCellValue(sourceTable.getCell(colId + 1, rowId), metaInfoReader));
+                    rangeRule.put(RANGE_RULE_MIN, cellValueReader.apply(sourceTable.getCell(colId, rowId)));
+                    rangeRule.put(RANGE_RULE_MAX, cellValueReader.apply(sourceTable.getCell(colId + 1, rowId)));
                     colId += 2;
                     value = rangeRule;
                 } else {

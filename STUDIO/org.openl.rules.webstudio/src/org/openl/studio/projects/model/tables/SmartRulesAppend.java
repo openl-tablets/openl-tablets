@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Request model for append lines to {@code SmartRules} table
  *
@@ -10,6 +12,7 @@ import java.util.List;
  */
 public class SmartRulesAppend implements AppendTableView {
 
+    @Schema(description = "List of smart rule rows to append as key-value maps with hierarchical structure")
     private List<LinkedHashMap<String, Object>> rules;
 
     public List<LinkedHashMap<String, Object>> getRules() {
@@ -23,5 +26,9 @@ public class SmartRulesAppend implements AppendTableView {
     @Override
     public String getTableType() {
         return SmartRulesView.TABLE_TYPE;
+    }
+
+    public void setTableType(String tableType) {
+        // no op
     }
 }

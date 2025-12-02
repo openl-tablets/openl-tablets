@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Cell view model for spreadsheet tables
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SpreadsheetCellView.Builder.class)
 public class SpreadsheetCellView {
 
+    @Schema(description = "Value of the spreadsheet cell")
     public final Object value;
 
     private SpreadsheetCellView(Builder builder) {

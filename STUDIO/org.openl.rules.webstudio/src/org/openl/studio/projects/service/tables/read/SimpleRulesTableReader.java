@@ -35,6 +35,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
 
         var tsn = openLTable.getSyntaxNode();
         var metaInfoReader = tsn.getMetaInfoReader();
+        var cellValueReader = new CellValueReader(metaInfoReader);
         var tableBody = tsn.getTableBody();
 
         var headers = getConditionHeaders(tableBody.getRow(0));
@@ -53,7 +54,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
                 if (ruleName == null) {
                     ruleName = SimpleRuleHeaderView.UNKNOWN_HEADER_NAME + col;
                 }
-                rule.put(ruleName, getCellValue(tableBody.getCell(col, row), metaInfoReader));
+                rule.put(ruleName, cellValueReader.apply(tableBody.getCell(col, row)));
             }
             list.add(rule);
         }

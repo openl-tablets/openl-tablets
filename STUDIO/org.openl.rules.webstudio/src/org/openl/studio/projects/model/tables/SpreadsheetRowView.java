@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Row view model for spreadsheet tables
@@ -12,7 +13,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SpreadsheetRowView.Builder.class)
 public class SpreadsheetRowView {
 
+    @Schema(description = "Name of the row")
     public final String name;
+
+    @Schema(description = "Type of the row (e.g., String, Integer, etc.)")
     public final String type;
 
     private SpreadsheetRowView(Builder builder) {

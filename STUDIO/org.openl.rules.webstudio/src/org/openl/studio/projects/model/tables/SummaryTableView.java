@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Summary table view model that contains summarized information about tables
  *
@@ -7,9 +9,16 @@ package org.openl.studio.projects.model.tables;
  */
 public class SummaryTableView extends TableView {
 
+    @Schema(description = "Return type of the table (e.g., Integer, String, etc.)")
     public final String returnType;
+
+    @Schema(description = "Signature of the table")
     public final String signature;
+
+    @Schema(description = "File where the table is located")
     public final String file;
+
+    @Schema(description = "Position of the table within the file")
     public final String pos;
 
     private SummaryTableView(Builder builder) {

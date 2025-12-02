@@ -2543,48 +2543,73 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "tableType": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "kind": {
-            "type": "string"
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "Rules", "Spreadsheet", "Datatype", "Data", "Test", "TBasic", "Column Match", "Method", "Run",
+              "Constants", "Conditions", "Actions", "Returns", "Environment", "Properties", "Other"
+            ]
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "properties": {
             "type": "object",
+            "description": "***",
             "additionalProperties": {
-              "type": "object"
+              "type": "object",
+              "description": "***"
             }
           },
           "returnType": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "signature": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "file": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "pos": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
       "EditableTableView": {
-        "required": [
-          "tableType"
-        ],
         "type": "object",
         "properties": {
           "tableType": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         },
         "discriminator": {
+          "mapping": {
+            "Datatype": "#/components/schemas/DatatypeView",
+            "Vocabulary": "#/components/schemas/VocabularyView",
+            "Spreadsheet": "#/components/schemas/SpreadsheetView",
+            "SimpleSpreadsheet": "#/components/schemas/SimpleSpreadsheetView",
+            "SimpleRules": "#/components/schemas/SimpleRulesView",
+            "SmartRules": "#/components/schemas/SmartRulesView",
+            "SmartLookup": "#/components/schemas/LookupView",
+            "SimpleLookup": "#/components/schemas/LookupView",
+            "Data": "#/components/schemas/DataView",
+            "Test": "#/components/schemas/TestView",
+            "RawSource": "#/components/schemas/RawTableView"
+          },
           "propertyName": "tableType"
         },
         "oneOf": [
@@ -2605,8 +2630,366 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/SmartRulesView"
+          },
+          {
+            "$ref": "#/components/schemas/LookupView"
+          },
+          {
+            "$ref": "#/components/schemas/DataView"
+          },
+          {
+            "$ref": "#/components/schemas/TestView"
+          },
+          {
+            "$ref": "#/components/schemas/RawTableView"
           }
         ]
+      },
+      "RawTableView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EditableTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "source": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "description": "***",
+                  "items": {
+                    "$ref": "#/components/schemas/RawTableCell"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RawTableCell": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "colspan": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "covered": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "rowspan": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
+      "TestView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EditableTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "headers": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataHeaderView"
+                }
+              },
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataRowView"
+                }
+              },
+              "testedTableName": {
+                "type": "string",
+                "description": "***"
+              }
+            }
+          }
+        ]
+      },
+      "DataView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EditableTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dataType": {
+                "type": "string",
+                "description": "***"
+              },
+              "headers": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataHeaderView"
+                }
+              },
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataRowView"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DataHeaderView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "***"
+          },
+          "fieldName": {
+            "type": "string",
+            "description": "***"
+          },
+          "foreignKey": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "DataRowView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "values": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "object",
+              "description": "***"
+            }
+          }
+        }
+      },
+      "LookupView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EditableTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "args": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/ArgumentView"
+                }
+              },
+              "headers": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/LookupHeaderView"
+                }
+              },
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "returnType": {
+                "type": "string",
+                "description": "***"
+              },
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LookupHeaderView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "children": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/LookupHeaderView"
+            }
+          },
+          "title": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "SimpleRulesView": {
         "type": "object",
@@ -2619,41 +3002,70 @@ Content-Type: application/json
             "properties": {
               "args": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/ArgumentView"
                 }
               },
               "headers": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/SimpleRuleHeaderView"
                 }
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "object"
-                }
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
               },
               "returnType": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "rules": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "type": "object",
                   "additionalProperties": {
-                    "type": "object"
-                  }
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
                 }
               }
             }
@@ -2662,9 +3074,11 @@ Content-Type: application/json
       },
       "SimpleRuleHeaderView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -2677,32 +3091,58 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "properties": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                }
-              },
-              "returnType": {
-                "type": "string"
-              },
               "args": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/ArgumentView"
                 }
               },
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "returnType": {
+                "type": "string",
+                "description": "***"
+              },
               "steps": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetStepView"
                 }
@@ -2722,11 +3162,14 @@ Content-Type: application/json
             "properties": {
               "rules": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "type": "object",
                   "additionalProperties": {
-                    "type": "object"
-                  }
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
                 }
               }
             }
@@ -2735,9 +3178,11 @@ Content-Type: application/json
       },
       "SmartRulesHeaderView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -2752,41 +3197,70 @@ Content-Type: application/json
             "properties": {
               "args": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/ArgumentView"
                 }
               },
               "headers": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/SmartRulesHeaderView"
                 }
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "object"
-                }
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
               },
               "returnType": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "rules": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "type": "object",
                   "additionalProperties": {
-                    "type": "object"
-                  }
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
                 }
               }
             }
@@ -2795,45 +3269,57 @@ Content-Type: application/json
       },
       "SpreadsheetStepView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "value": {
-            "type": "object"
+            "type": "object",
+            "description": "***"
           }
         }
       },
       "SpreadsheetCellView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "value": {
-            "type": "object"
+            "type": "object",
+            "description": "***"
           }
         }
       },
       "SpreadsheetColumnView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
       "SpreadsheetRowView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -2846,49 +3332,78 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "properties": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                }
-              },
-              "returnType": {
-                "type": "string"
-              },
               "args": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/ArgumentView"
                 }
               },
-              "rows": {
+              "cells": {
                 "type": "array",
+                "description": "***",
                 "items": {
-                  "$ref": "#/components/schemas/SpreadsheetRowView"
+                  "type": "array",
+                  "description": "***",
+                  "items": {
+                    "$ref": "#/components/schemas/SpreadsheetCellView"
+                  }
                 }
               },
               "columns": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetColumnView"
                 }
               },
-              "cells": {
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
+              },
+              "returnType": {
+                "type": "string",
+                "description": "***"
+              },
+              "rows": {
                 "type": "array",
+                "description": "***",
                 "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SpreadsheetCellView"
-                  }
+                  "$ref": "#/components/schemas/SpreadsheetRowView"
                 }
               }
             }
@@ -2897,12 +3412,15 @@ Content-Type: application/json
       },
       "ArgumentView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -2916,25 +3434,50 @@ Content-Type: application/json
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "object"
-                }
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
               },
               "type": {
-                "type": "string"
+                "type": "string",
+                "description": "***"
               },
               "values": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/VocabularyValueView"
                 }
@@ -2945,9 +3488,11 @@ Content-Type: application/json
       },
       "VocabularyValueView": {
         "type": "object",
+        "description": "***",
         "properties": {
           "value": {
-            "type": "object"
+            "type": "object",
+            "description": "***"
           }
         }
       },
@@ -2960,29 +3505,54 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "properties": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object"
-                }
+              "extends": {
+                "type": "string",
+                "description": "***"
               },
               "fields": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/DatatypeFieldView"
                 }
               },
-              "extends": {
-                "type": "string"
+              "id": {
+                "type": "string",
+                "description": "***"
+              },
+              "kind": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "Rules",
+                  "Spreadsheet",
+                  "Datatype",
+                  "Data",
+                  "Test",
+                  "TBasic",
+                  "Column Match",
+                  "Method",
+                  "Run",
+                  "Constants",
+                  "Conditions",
+                  "Actions",
+                  "Returns",
+                  "Environment",
+                  "Properties",
+                  "Other"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "***"
+                },
+                "description": "***"
               }
             }
           }
@@ -2990,32 +3560,41 @@ Content-Type: application/json
       },
       "DatatypeFieldView": {
         "type": "object",
+        "description": "***",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
           "defaultValue": {
-            "type": "object"
+            "type": "object",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
           },
           "required": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
       "AppendTableView": {
-        "required": [
-          "tableType"
-        ],
         "type": "object",
-        "properties": {
-          "tableType": {
-            "type": "string"
-          }
-        },
         "discriminator": {
+          "mapping": {
+            "Datatype": "#/components/schemas/DatatypeAppend",
+            "Vocabulary": "#/components/schemas/VocabularyAppend",
+            "SimpleSpreadsheet": "#/components/schemas/SimpleSpreadsheetAppend",
+            "SimpleRules": "#/components/schemas/SimpleRulesAppend",
+            "SmartRules": "#/components/schemas/SmartRulesAppend",
+            "SmartLookup": "#/components/schemas/LookupAppend",
+            "SimpleLookup": "#/components/schemas/LookupAppend",
+            "Data": "#/components/schemas/DataAppend",
+            "Test": "#/components/schemas/TestAppend",
+            "RawSource": "#/components/schemas/RawTableAppend"
+          },
           "propertyName": "tableType"
         },
         "oneOf": [
@@ -3033,6 +3612,113 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/SmartRulesAppend"
+          },
+          {
+            "$ref": "#/components/schemas/LookupAppend"
+          },
+          {
+            "$ref": "#/components/schemas/DataAppend"
+          },
+          {
+            "$ref": "#/components/schemas/TestAppend"
+          },
+          {
+            "$ref": "#/components/schemas/RawTableAppend"
+          }
+        ],
+        "properties": {
+          "tableType": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "LookupAppend": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DataAppend": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataRowView"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "TestAppend": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/DataRowView"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RawTableAppend": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "type": "array",
+                  "description": "***",
+                  "items": {
+                    "$ref": "#/components/schemas/RawTableCell"
+                  }
+                }
+              }
+            }
           }
         ]
       },
@@ -3047,11 +3733,14 @@ Content-Type: application/json
             "properties": {
               "rules": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "type": "object",
                   "additionalProperties": {
-                    "type": "object"
-                  }
+                    "type": "object",
+                    "description": "***"
+                  },
+                  "description": "***"
                 }
               }
             }
@@ -3069,6 +3758,7 @@ Content-Type: application/json
             "properties": {
               "steps": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetStepView"
                 }
@@ -3088,6 +3778,7 @@ Content-Type: application/json
             "properties": {
               "values": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/VocabularyValueView"
                 }
@@ -3107,6 +3798,7 @@ Content-Type: application/json
             "properties": {
               "fields": {
                 "type": "array",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/DatatypeFieldView"
                 }
@@ -13103,17 +13795,18 @@ Content-Type: application/json
         "operationId": "appendTable",
         "parameters": [
           {
-            "name": "projectId",
+            "description": "***",
             "in": "path",
-            "description": "Project ID",
+            "name": "projectId",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "tableId",
+            "description": "***",
             "in": "path",
+            "name": "tableId",
             "required": true,
             "schema": {
               "type": "string"
@@ -13423,15 +14116,34 @@ Content-Type: application/json
           {
             "name": "kind",
             "in": "query",
-            "description": "Table kinds",
+            "description": "***",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "description": "Kind of the table object",
+              "enum": [
+                "Rules",
+                "Spreadsheet",
+                "Datatype",
+                "Data",
+                "Test",
+                "TBasic",
+                "Column Match",
+                "Method",
+                "Run",
+                "Constants",
+                "Conditions",
+                "Actions",
+                "Returns",
+                "Environment",
+                "Properties",
+                "Other"
+              ]
             }
           },
           {
             "name": "name",
             "in": "query",
-            "description": "Table name fragment",
+            "description": "***",
             "schema": {
               "type": "string"
             }
@@ -13439,7 +14151,7 @@ Content-Type: application/json
           {
             "name": "properties",
             "in": "query",
-            "description": "Project properties. Must start with `properties.` ",
+            "description": "***",
             "style": "form",
             "explode": true,
             "schema": {
@@ -13449,7 +14161,7 @@ Content-Type: application/json
           {
             "name": "projectId",
             "in": "path",
-            "description": "Project ID",
+            "description": "***",
             "required": true,
             "schema": {
               "type": "string"
@@ -13542,20 +14254,30 @@ Content-Type: application/json
         "operationId": "getTable",
         "parameters": [
           {
-            "name": "projectId",
+            "description": "***",
             "in": "path",
-            "description": "Project ID",
+            "name": "projectId",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "tableId",
+            "description": "***",
             "in": "path",
+            "name": "tableId",
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "raw",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -13640,17 +14362,18 @@ Content-Type: application/json
         "operationId": "updateTable",
         "parameters": [
           {
-            "name": "projectId",
+            "description": "***",
             "in": "path",
-            "description": "Project ID",
+            "name": "projectId",
             "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "tableId",
+            "description": "***",
             "in": "path",
+            "name": "tableId",
             "required": true,
             "schema": {
               "type": "string"

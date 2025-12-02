@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * {@code Vocabulary} table model
@@ -16,8 +17,10 @@ public class VocabularyView extends TableView implements EditableTableView {
 
     public static final String TABLE_TYPE = "Vocabulary";
 
+    @Schema(description = "Type of vocabulary values (e.g., String, Integer, etc.)")
     public final String type;
 
+    @Schema(description = "Collection of vocabulary values")
     public final Collection<VocabularyValueView> values;
 
     private VocabularyView(Builder builder) {

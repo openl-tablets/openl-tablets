@@ -120,7 +120,8 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
         }
     }
 
-    protected String getBusinessTableType() {
+    @Override
+    protected String getBusinessTableType(SmartRulesView tableView) {
         return SmartRulesView.TABLE_TYPE;
     }
 }

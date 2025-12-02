@@ -19,7 +19,7 @@ public abstract class ExecutableTableWriter<T extends ExecutableView> extends Ta
 
     @Override
     protected void updateHeader(T tableView) {
-        var header = new StringBuilder(getBusinessTableType()).append(' ')
+        var header = new StringBuilder(getBusinessTableType(tableView)).append(' ')
                 .append(tableView.returnType)
                 .append(' ')
                 .append(tableView.name)

@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * {@code SimpleRules} table model
@@ -17,8 +18,10 @@ public class SimpleRulesView extends ExecutableView {
 
     public static final String TABLE_TYPE = "SimpleRules";
 
+    @Schema(description = "List of rule headers")
     public final List<SimpleRuleHeaderView> headers;
 
+    @Schema(description = "List of rule rows as key-value maps")
     public final List<LinkedHashMap<String, Object>> rules;
 
     public SimpleRulesView(Builder builder) {

@@ -13,13 +13,12 @@ import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.mcp.McpController;
+import org.openl.studio.mcp.McpToolNameConstants;
 import org.openl.studio.projects.converter.Base64ProjectConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
 
 @McpController
 public class DeploymentsMcpController {
-
-    private static final String TOOL_PREFIX = "deployments";
 
     private final DeploymentService deploymentService;
     private final Base64ProjectConverter projectConverter;
@@ -29,7 +28,7 @@ public class DeploymentsMcpController {
         this.projectConverter = projectConverter;
     }
 
-    @Tool(name = TOOL_PREFIX + "-list", description = "Returns a list of deployments.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_deployments", description = "Returns a list of deployments.")
     public List<DeploymentViewModel> getDeployments(@ToolParam(description = "Production repository id to filter deployments")
                                                     String repoId) {
         var query = DeploymentCriteriaQuery.builder()
@@ -40,7 +39,7 @@ public class DeploymentsMcpController {
                 .toList();
     }
 
-    @Tool(name = TOOL_PREFIX + "-deploy", description = "Deploys a project to the specified deployment target.")
+    @Tool(name = McpToolNameConstants.TOOL_PREFIX + "_deploy_project", description = "Deploys a project to the specified deployment target.")
     public void deploy(@ToolParam(description = "Deployment details") DeployProjectModel deployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.builder()
                 .repository(deployProject.productionRepositoryId)
@@ -50,7 +49,7 @@ public class DeploymentsMcpController {
         deploymentService.deploy(deploymentId, projectToDeploy, deployProject.comment);
     }
 
-    @Tool(name = TOOL_PREFIX + "-redeploy", description = "Redeploys a project to the specified deployment.")
+    @Tool(name = McpToolNameConstants.TOOL_PREFIX + "_redeploy_project", description = "Redeploys a project to the specified deployment.")
     public void redeploy(@ToolParam(description = "Deployment identifier") String deploymentId,
                          @ToolParam(description = "Deployment details") RedeployProjectModel redeployProject) throws ProjectException {
         var id = ProjectIdModel.decode(deploymentId);

@@ -51,7 +51,7 @@ public class McpServerConfig {
     public McpStatelessSyncServer mcpSyncServer(WebMvcStatelessServerTransport transportProvider,
                                                 McpSchema.ServerCapabilities.Builder capabilitiesBuilder,
                                                 ApplicationContext applicationContext) {
-        McpSchema.Implementation serverInfo = new McpSchema.Implementation("mcp-openl-studio-server", OpenLVersion.getVersion());
+        McpSchema.Implementation serverInfo = new McpSchema.Implementation("openl-studio-mcp-server", OpenLVersion.getVersion());
 
         var serverBuilder = McpServer.sync(transportProvider);
         serverBuilder.serverInfo(serverInfo);

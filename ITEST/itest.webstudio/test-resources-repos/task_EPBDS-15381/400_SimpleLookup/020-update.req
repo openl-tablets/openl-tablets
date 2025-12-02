@@ -1,0 +1,42 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/6b8777a24966c7a25664a0d492d112e3 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleLookup",
+  "kind": "Rules",
+  "name": "IsAdequateMaxCreditRiskScore",
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "countryCode",
+      "type": "String"
+    },
+    {
+      "name": "isAdequateMaxCreditRisk",
+      "type": "Boolean"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Country Code/AdequateMaxCreditRisk"
+    },
+    {
+      "title": "yes"
+    },
+    {
+      "title": "no"
+    }
+  ],
+  "rows": [
+    {
+      "Country Code/AdequateMaxCreditRisk": "ME",
+      "yes": 11,
+      "no": 10
+    },
+    {
+      "yes": 10,
+      "no": 7
+    }
+  ]
+}

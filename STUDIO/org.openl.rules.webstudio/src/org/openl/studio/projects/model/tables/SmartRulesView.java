@@ -7,19 +7,17 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-/**
- * TODO description
- *
- * @author Vladyslav Pikus
- */
 @JsonDeserialize(builder = SmartRulesView.Builder.class)
 public class SmartRulesView extends ExecutableView {
 
     public static final String TABLE_TYPE = "SmartRules";
 
+    @Schema(description = "List of smart rule headers with grouping support")
     public final List<SmartRulesHeaderView> headers;
 
+    @Schema(description = "List of smart rule rows as key-value maps with hierarchical structure")
     public final List<LinkedHashMap<String, Object>> rules;
 
     public SmartRulesView(Builder builder) {

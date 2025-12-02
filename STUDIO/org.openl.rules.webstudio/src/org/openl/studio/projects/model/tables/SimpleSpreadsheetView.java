@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * {@code SimpleSpreadsheet} table model
@@ -16,6 +17,7 @@ public class SimpleSpreadsheetView extends ExecutableView {
 
     public static final String TABLE_TYPE = "SimpleSpreadsheet";
 
+    @Schema(description = "Collection of spreadsheet steps/rows")
     public final Collection<SpreadsheetStepView> steps;
 
     private SimpleSpreadsheetView(Builder builder) {

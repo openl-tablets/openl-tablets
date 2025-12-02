@@ -28,7 +28,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
 
     @Override
     protected void updateHeader(DatatypeView tableView) {
-        var header = new StringBuilder(getBusinessTableType()).append(' ').append(tableView.name);
+        var header = new StringBuilder(getBusinessTableType(tableView)).append(' ').append(tableView.name);
         if (StringUtils.isNotBlank(tableView.extendz)) {
             header.append(' ').append(EXTENDS_KEYWORD).append(' ').append(tableView.extendz);
         }
