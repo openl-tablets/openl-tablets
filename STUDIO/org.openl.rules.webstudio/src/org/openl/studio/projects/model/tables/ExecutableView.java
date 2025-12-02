@@ -2,6 +2,8 @@ package org.openl.studio.projects.model.tables;
 
 import java.util.Collection;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Parent model for executable tables
  *
@@ -9,8 +11,10 @@ import java.util.Collection;
  */
 public abstract class ExecutableView extends TableView implements EditableTableView {
 
+    @Schema(description = "Return type of the executable table")
     public final String returnType;
 
+    @Schema(description = "List of input arguments/parameters for the executable table")
     public final Collection<ArgumentView> args;
 
     protected ExecutableView(Builder<?> builder) {

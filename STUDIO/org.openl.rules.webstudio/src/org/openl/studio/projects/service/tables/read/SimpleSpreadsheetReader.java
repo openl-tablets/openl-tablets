@@ -30,9 +30,11 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
     @Override
     protected void initialize(SimpleSpreadsheetView.Builder builder, IOpenLTable openLTable) {
         super.initialize(builder, openLTable);
+        builder.tableType(SimpleSpreadsheetView.TABLE_TYPE);
 
         var tsn = openLTable.getSyntaxNode();
         var metaInfoReader = tsn.getMetaInfoReader();
+        var cellValueReader = new CellValueReader(metaInfoReader);
         var tableBody = tsn.getTableBody();
         int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
@@ -47,7 +49,7 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
             var stepBuilder = SpreadsheetStepView.builder()
                     .name(stepParts.getLeft())
                     .type(stepParts.getRight())
-                    .value(getCellValue(tableBody.getCell(1, row), metaInfoReader));
+                    .value(cellValueReader.apply(tableBody.getCell(1, row)));
             steps.add(stepBuilder.build());
         }
         builder.steps(steps);

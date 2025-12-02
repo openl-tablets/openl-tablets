@@ -17,6 +17,7 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.mcp.McpController;
+import org.openl.studio.mcp.McpToolNameConstants;
 import org.openl.studio.projects.converter.Base64ProjectConverter;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectStatusToSet;
@@ -40,8 +41,6 @@ import org.openl.util.StringUtils;
 @McpController
 public class ProjectsMcpToolController {
 
-    private static final String TOOL_PREFIX = "projects";
-
     private final WorkspaceProjectService projectService;
     private final ProjectCriteriaQueryFactory projectCriteriaQueryFactory;
     private final ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory;
@@ -63,7 +62,7 @@ public class ProjectsMcpToolController {
         this.testsExecutorService = testsExecutorService;
     }
 
-    @Tool(name = TOOL_PREFIX + "-list", description = "Returns all projects from specified design repository, filtered by additional criteria.\nReturns project names, their statuses, and associated design repositories.\nUse this to discover all available projects before accessing specific project details.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_projects", description = "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.")
     public List<ProjectViewModel> listProjects(@ToolParam(description = "Project status to filter by", required = false)
                                                ProjectStatus status,
                                                @ToolParam(description = "Design repository identifier")
@@ -72,14 +71,14 @@ public class ProjectsMcpToolController {
         return projectService.getProjects(query);
     }
 
-    @Tool(name = TOOL_PREFIX + "-get-details", description = "Gets comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Use this to understand project organization before making changes.")
+    @Tool(name = McpToolNameConstants.GET_TOOL_PREFIX + "_project", description = "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Use this to understand project organization before making changes.")
     public ProjectViewModel getProject(@ToolParam(description = "Project identifier")
                                        String projectId) {
         var project = base64ProjectConverter.convert(projectId);
         return projectService.getProject(project);
     }
 
-    @Tool(name = TOOL_PREFIX + "-change-status", description = "Updates project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing), CLOSED (close). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save {status:'OPENED', comment: 'changes'}, 3) Save and close: {status: 'CLOSED', comment: 'changes'}, 4) Save only: {comment: 'intermediate save'}, 5) Switch branch: {branch: 'develop'}")
+    @Tool(name = McpToolNameConstants.UPDATE_TOOL_PREFIX + "_project_status", description = "Updates project status with safety checks for unsaved changes. Unified tool for all project state transitions: opening, closing, saving, or switching branches. Status behavior: OPENED (open for editing), CLOSED (close). Prevents accidental data loss by requiring explicit confirmation when closing EDITING projects. Use cases: 1) Open: {status: 'OPENED'}, 2) Save {status:'OPENED', comment: 'changes'}, 3) Save and close: {status: 'CLOSED', comment: 'changes'}, 4) Save only: {comment: 'intermediate save'}, 5) Switch branch: {branch: 'develop'}")
     public void updateProjectStatus(@ToolParam(description = "Project identifier")
                                     String projectId,
                                     @ToolParam(description = "Project status to set", required = false)
@@ -112,7 +111,7 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = TOOL_PREFIX + "-branch-create", description = "Creates a new branch in the project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Use this to manage project versions and isolate development work.")
+    @Tool(name = McpToolNameConstants.CREATE_TOOL_PREFIX + "_project_branch", description = "Creates a new branch in the project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Use this to manage project versions and isolate development work.")
     public void createProjectBranch(@ToolParam(description = "Project identifier")
                                     String projectId,
                                     @ToolParam(description = "New branch name to create")
@@ -131,7 +130,7 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-tables", description = "Lists all tables within a specified project, with optional filtering by table name.\nReturns table summaries including names and types.\nUse this to explore project contents before accessing specific tables.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_project_tables", description = "Lists all tables within a specified project, with optional filtering by table name.\nReturns table summaries including names and types.\nUse this to explore project contents before accessing specific tables.")
     public Collection<SummaryTableView> getProjectTables(@ToolParam(description = "Project identifier")
                                                          String projectId,
                                                          @ToolParam(description = "Table name to filter by", required = false)
@@ -141,7 +140,7 @@ public class ProjectsMcpToolController {
         return projectService.getTables(project, query);
     }
 
-    @Tool(name = TOOL_PREFIX + "-table-body", description = "Retrieves the full editable content of a specific table within a project.\nReturns all rows and columns of the table for viewing or editing.\nUse this to access and modify the detailed data of a particular table.")
+    @Tool(name = McpToolNameConstants.GET_TOOL_PREFIX + "_project_table", description = "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data. Use this to understand existing rules before modifying them.")
     public EditableTableView getTable(@ToolParam(description = "Project identifier")
                                       String projectId,
                                       @ToolParam(description = "Table identifier")
@@ -150,7 +149,7 @@ public class ProjectsMcpToolController {
         return (EditableTableView) projectService.getTable(project, tableId);
     }
 
-    @Tool(name = TOOL_PREFIX + "-table-replace-body", description = "Replaces the entire content of a specific table within a project with new data.\nAccepts full table data to overwrite existing content.\nUse this to completely update or reset a table's data.")
+    @Tool(name = McpToolNameConstants.UPDATE_TOOL_PREFIX + "_project_table", description = "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).")
     public void updateTable(@ToolParam(description = "Project identifier")
                             String projectId,
                             @ToolParam(description = "Table identifier")
@@ -165,7 +164,7 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = TOOL_PREFIX + "-table-append-rows", description = "Appends new rows to the end of a specific table within a project.\nAccepts partial table data containing only the new rows to be added.\nUse this to incrementally add data to an existing table without modifying its current content.")
+    @Tool(name = McpToolNameConstants.APPEND_TOOL_PREFIX + "_project_table", description = "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure. Specify the table type and array of field definitions with names, types, and optional required/defaultValue properties. More efficient than update_table for simple additions. Modifies table in memory (requires save_project to persist changes).")
     public void appendTable(@ToolParam(description = "Project identifier")
                             String projectId,
                             @ToolParam(description = "Table identifier")
@@ -180,7 +179,7 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = TOOL_PREFIX + "-list-local-changes", description = "Retrieves local history for a specified project.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_project_local_changes", description = "Lists the local change history for a specified project.")
     public List<ProjectHistoryItem> getProjectHistory(@ToolParam(description = "Project identifier")
                                                       String projectId) {
         var project = base64ProjectConverter.convert(projectId);
@@ -188,7 +187,7 @@ public class ProjectsMcpToolController {
         return projectHistoryService.getProjectHistory(projectService.getWebStudio());
     }
 
-    @Tool(name = TOOL_PREFIX + "-restore-local-change", description = "Restores a project to a specified version from its local history.")
+    @Tool(name = McpToolNameConstants.RESTORE_TOOL_PREFIX + "_project_local_change", description = "Restores a project to a specified version from its local history.")
     public void restoreProjectVersion(@ToolParam(description = "Project identifier")
                                       String projectId,
                                       @ToolParam(description = "History ID to restore")
@@ -198,7 +197,7 @@ public class ProjectsMcpToolController {
         projectHistoryService.restore(projectService.getWebStudio(), historyId);
     }
 
-    @Tool(name = TOOL_PREFIX + "-run-tests", description = "Runs tests for a specified project, with options to target specific tables and test ranges.\nReturns a summary of test execution results including passed/failed tests.\nUse this to validate project functionality through automated tests.")
+    @Tool(name = McpToolNameConstants.RUN_TOOL_PREFIX + "_project_tests", description = "Runs tests for a specified project, with options to target specific tables and test ranges.\nReturns a summary of test execution results including passed/failed tests.\nUse this to validate project functionality through automated tests.")
     public TestsExecutionSummary runProjectTests(@ToolParam(description = "Project identifier")
                                                  String projectId,
                                                  @ToolParam(description = "Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run.", required = false)

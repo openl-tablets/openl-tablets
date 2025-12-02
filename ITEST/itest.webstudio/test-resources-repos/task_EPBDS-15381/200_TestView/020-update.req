@@ -1,0 +1,63 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/5d64e98cfb043d16d9aedc659e4b2674 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "CoverageRateTest",
+  "testedTableName": "CoverageRate",
+  "headers": [
+    {
+      "fieldName": "coverageForm.",
+      "foreignKey": "CoverageFormData",
+      "displayName": "Coverage Form Data"
+    },
+    {
+      "fieldName": "numberOfEmployees",
+      "displayName": "Number Of Employees"
+    },
+    {
+      "fieldName": "area",
+      "displayName": "Area"
+    },
+    {
+      "fieldName": "_res_",
+      "displayName": "Expected Premium"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        1,
+        7,
+        "High",
+        301
+      ]
+    },
+    {
+      "values": [
+        2,
+        125,
+        "Low",
+        602
+      ]
+    },
+    {
+      "values": [
+        3,
+        38,
+        "Low",
+        763
+      ]
+    },
+    {
+      "values": [
+        4,
+        4,
+        "High",
+        501
+      ]
+    }
+  ]
+}

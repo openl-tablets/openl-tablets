@@ -76,7 +76,8 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
         }
     }
 
-    protected String getBusinessTableType() {
+    @Override
+    protected String getBusinessTableType(SimpleRulesView tableView) {
         return SimpleRulesView.TABLE_TYPE;
     }
 }

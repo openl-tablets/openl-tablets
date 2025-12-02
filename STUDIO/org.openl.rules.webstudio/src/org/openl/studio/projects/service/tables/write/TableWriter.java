@@ -2,20 +2,25 @@ package org.openl.studio.projects.service.tables.write;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CellKey.CellKeyFactory;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
+import org.openl.rules.table.actions.MergeCellsAction;
 import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
@@ -151,7 +156,12 @@ public abstract class TableWriter<T extends TableView> {
         return action;
     }
 
+    @SuppressWarnings("rawtypes")
     private IUndoableGridTableAction updateCellValue(IGridTable gridTable, int gcol, int grow, Object value) {
+        if (value instanceof Collection collection) {
+            // OpenL table cell can store only array, not collection
+            value = collection.toArray();
+        }
         var action = new UndoableSetValueAction(gcol, grow, value, getMetaInfoWriter());
         action.doAction(gridTable);
         return action;
@@ -191,8 +201,40 @@ public abstract class TableWriter<T extends TableView> {
         return CellKeyFactory.getCellKey(col, row);
     }
 
-    protected String getBusinessTableType() {
+    protected String getBusinessTableType(T tableView) {
         return OpenLTableUtils.getTableTypeItems().get(table.getType());
+    }
+
+    /**
+     * Apply merge regions to the grid.
+     * <p>
+     * Creates MergeCellsAction for each merge region and executes them.
+     * This should be called after all cell values are written to ensure
+     * grid dimensions are correct.
+     *
+     * @param gridTable    The grid table to apply merges to
+     * @param mergeRegions The list of regions to merge
+     */
+    protected void applyMergeRegions(IGridTable gridTable, List<IGridRegion> mergeRegions) {
+        var tableRegion = gridTable.getRegion();
+        List<IUndoableGridTableAction> mergeActions = mergeRegions.stream()
+                .map(mr -> toAbsolute(mr, tableRegion))
+                .map(MergeCellsAction::new)
+                .collect(Collectors.toList());
+
+        if (!mergeActions.isEmpty()) {
+            var compositeAction = new UndoableCompositeAction(mergeActions);
+            compositeAction.doAction(gridTable);
+            actionsQueue.addNewAction(compositeAction);
+        }
+    }
+
+    private IGridRegion toAbsolute(IGridRegion mr, IGridRegion tableRegion) {
+        int top = mr.getTop() + tableRegion.getTop();
+        int left = mr.getLeft() + tableRegion.getLeft();
+        int bottom = mr.getBottom() + tableRegion.getTop();
+        int right = mr.getRight() + tableRegion.getLeft();
+        return new GridRegion(top, left, bottom, right);
     }
 
 }

@@ -1,0 +1,20 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/d2bb169ab4ac556aa8b147f99a723719/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SmartLookup",
+  "rows": [
+    {
+      "Coverage Type": "Additional",
+      "<= 14": {
+        "Low": 30,
+        "High": 50
+      },
+      ">= 15": {
+        "Low": 60,
+        "High": 88
+      }
+    }
+  ]
+}

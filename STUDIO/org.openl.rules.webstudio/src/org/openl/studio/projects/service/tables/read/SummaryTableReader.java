@@ -7,10 +7,13 @@ import java.nio.file.Path;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.DataView;
+import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetView;
 import org.openl.studio.projects.model.tables.SmartRulesView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.types.impl.AMethod;
@@ -58,6 +61,14 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             builder.tableType(SimpleRulesView.TABLE_TYPE);
         } else if (OpenLTableUtils.isSmartRules(table)) {
             builder.tableType(SmartRulesView.TABLE_TYPE);
+        } else if (OpenLTableUtils.isTestTable(table)) {
+            builder.tableType(TestView.TABLE_TYPE);
+        } else if (OpenLTableUtils.isDataTable(table)) {
+            builder.tableType(DataView.TABLE_TYPE);
+        } else if (OpenLTableUtils.isSimpleLookup(table)) {
+            builder.tableType(LookupView.SIMPLE_TABLE_TYPE);
+        } else if (OpenLTableUtils.isSmartLookup(table)) {
+            builder.tableType(LookupView.SMART_TABLE_TYPE);
         } else {
             builder.tableType(OpenLTableUtils.getTableTypeItems().get(table.getType()));
         }

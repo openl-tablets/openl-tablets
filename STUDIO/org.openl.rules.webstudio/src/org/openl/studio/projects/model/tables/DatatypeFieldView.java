@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Field model for datatype tables
@@ -12,9 +13,16 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = DatatypeFieldView.Builder.class)
 public class DatatypeFieldView {
 
+    @Schema(description = "Name of the datatype field")
     public final String name;
+
+    @Schema(description = "Data type of the datatype field (e.g., String, Integer, etc.)")
     public final String type;
+
+    @Schema(description = "Default value of the datatype field")
     public final Object defaultValue;
+
+    @Schema(description = "Indicates whether the datatype field is required")
     public final String required;
 
     private DatatypeFieldView(Builder builder) {

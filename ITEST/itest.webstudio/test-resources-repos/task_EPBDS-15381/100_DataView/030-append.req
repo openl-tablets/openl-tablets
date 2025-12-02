@@ -1,0 +1,16 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/572eb024e1c3f2b1b94d76740067e605/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Data",
+  "rows": [
+    {
+      "values": [
+        5,
+        "Additional",
+        401
+      ]
+    }
+  ]
+}

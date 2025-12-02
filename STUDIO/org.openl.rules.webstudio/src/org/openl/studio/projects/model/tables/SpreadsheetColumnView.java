@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.tables;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Column view model for spreadsheet tables
@@ -12,7 +13,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SpreadsheetColumnView.Builder.class)
 public class SpreadsheetColumnView {
 
+    @Schema(description = "Name of the column")
     public final String name;
+
+    @Schema(description = "Type of the column (e.g., String, Integer, etc.)")
     public final String type;
 
     private SpreadsheetColumnView(Builder builder) {

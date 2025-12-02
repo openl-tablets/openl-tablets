@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Spreadsheet table model
@@ -16,10 +17,13 @@ public class SpreadsheetView extends ExecutableView {
 
     public static final String TABLE_TYPE = "Spreadsheet";
 
+    @Schema(description = "Collection of spreadsheet rows")
     public final Collection<SpreadsheetRowView> rows;
 
+    @Schema(description = "Collection of spreadsheet columns")
     public final Collection<SpreadsheetColumnView> columns;
 
+    @Schema(description = "2D array of spreadsheet cells")
     public final SpreadsheetCellView[][] cells;
 
     private SpreadsheetView(Builder builder) {

@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.tables;
 import java.util.Map;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Base class for all table views
  *
@@ -10,14 +12,37 @@ import java.util.Optional;
  */
 public abstract class TableView {
 
+    @Schema(description = "Unique identifier of the table")
     public final String id;
 
+    @Schema(description = "Type of the table (e.g., 'Datatype', 'Vocabulary', 'Spreadsheet', etc.)")
     public final String tableType;
 
+    @Schema(description = "Kind of the table object",
+            allowableValues = {
+                    "Rules",
+                    "Spreadsheet",
+                    "Datatype",
+                    "Data",
+                    "Test",
+                    "TBasic",
+                    "Column Match",
+                    "Method",
+                    "Run",
+                    "Constants",
+                    "Conditions",
+                    "Actions",
+                    "Returns",
+                    "Environment",
+                    "Properties",
+                    "Other"
+            })
     public final String kind;
 
+    @Schema(description = "Name of the table")
     public final String name;
 
+    @Schema(description = "Custom properties associated with the table")
     public final Map<String, Object> properties;
 
     protected TableView(Builder<?> builder) {

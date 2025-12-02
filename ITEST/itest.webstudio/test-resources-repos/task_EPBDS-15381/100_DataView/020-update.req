@@ -1,0 +1,54 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/572eb024e1c3f2b1b94d76740067e605 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Data",
+  "kind": "Data",
+  "name": "CoverageFormData",
+  "dataType": "CoverageForm",
+  "headers": [
+    {
+      "fieldName": "_PK_",
+      "displayName": "Primary Key"
+    },
+    {
+      "fieldName": "coverageType",
+      "displayName": "Coverage Type"
+    },
+    {
+      "fieldName": "limit",
+      "displayName": "Limit"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        1,
+        "Basic",
+        100
+      ]
+    },
+    {
+      "values": [
+        2,
+        "Basic",
+        25
+      ]
+    },
+    {
+      "values": [
+        3,
+        "Additional",
+        7001
+      ]
+    },
+    {
+      "values": [
+        4,
+        "Additional",
+        4002
+      ]
+    }
+  ]
+}

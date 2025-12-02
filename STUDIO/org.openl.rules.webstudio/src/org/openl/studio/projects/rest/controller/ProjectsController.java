@@ -170,9 +170,29 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/tables")
     @Operation(summary = "Get project tables (BETA)")
-    @Parameters({@Parameter(name = "kind", description = "Table kinds", in = ParameterIn.QUERY),
+    @Parameters({
+            @Parameter(name = "kind", description = "Table kinds", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class, description = "Kind of the table object",
+                    allowableValues = {
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                    })),
             @Parameter(name = "name", description = "Table name fragment", in = ParameterIn.QUERY),
-            @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)})
+            @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
+    })
     public Collection<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                   @Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                   @RequestParam(value = "kind", required = false) Set<String> kinds,
@@ -185,14 +205,18 @@ public class ProjectsController {
     @GetMapping("/{projectId}/tables/{tableId}")
     @Operation(summary = "Get project table (BETA)")
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                      @PathVariable("tableId") String tableId) {
+                                      @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
+                                      @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "Whether to get the raw table view") boolean raw) {
+        if (raw) {
+            return projectService.getTableRaw(project, tableId);
+        }
         return (EditableTableView) projectService.getTable(project, tableId);
     }
 
     @Operation(summary = "Update project table (BETA)")
     @PutMapping("/{projectId}/tables/{tableId}")
     public void updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                            @PathVariable("tableId") String tableId,
+                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
                             @RequestBody EditableTableView editTable) throws ProjectException {
         try {
             projectService.updateTable(project, tableId, editTable);
@@ -204,7 +228,7 @@ public class ProjectsController {
     @Operation(summary = "Append project table (BETA)")
     @PostMapping("/{projectId}/tables/{tableId}/lines")
     public void appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                            @PathVariable("tableId") String tableId,
+                            @PathVariable("tableId") @Parameter(description = "Table ID") String tableId,
                             @RequestBody AppendTableView editTable) throws ProjectException {
         try {
             projectService.appendTableLines(project, tableId, editTable);
@@ -221,7 +245,7 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void runAllTests(@ProjectId @PathVariable("projectId") RulesProject project,
                             @RequestParam(value = "fromModule", required = false) String fromModule,
-                            @RequestParam(value = "tableId", required = false) String tableId,
+                            @RequestParam(value = "tableId", required = false) @Parameter(description = "Table ID") String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectService.resolveProjectId(project);

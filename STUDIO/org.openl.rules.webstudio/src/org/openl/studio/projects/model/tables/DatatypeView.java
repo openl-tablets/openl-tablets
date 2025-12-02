@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Datatype table model
@@ -17,9 +18,11 @@ public class DatatypeView extends TableView implements EditableTableView {
 
     public static final String TABLE_TYPE = "Datatype";
 
+    @Schema(description = "Name of the parent datatype to extend (inheritance)")
     @JsonProperty("extends")
     public final String extendz;
 
+    @Schema(description = "Collection of fields defined in this datatype")
     public final Collection<DatatypeFieldView> fields;
 
     private DatatypeView(Builder builder) {

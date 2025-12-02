@@ -1,0 +1,93 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/d2bb169ab4ac556aa8b147f99a723719 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "id": "d2bb169ab4ac556aa8b147f99a723719",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "CoverageRate",
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "coverageForm",
+      "type": "CoverageForm"
+    },
+    {
+      "name": "numberOfEmployees",
+      "type": "Integer"
+    },
+    {
+      "name": "area",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Coverage Type"
+    },
+    {
+      "title": "Limit"
+    },
+    {
+      "title": "<= 14",
+      "children": [
+        {
+          "title": "Low"
+        },
+        {
+          "title": "High"
+        }
+      ]
+    },
+    {
+      "title": ">= 15",
+      "children": [
+        {
+          "title": "Low"
+        },
+        {
+          "title": "High"
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "Coverage Type": "Basic",
+      "Limit": 100,
+      "<= 14": {
+        "Low": 20,
+        "High": 30
+      },
+      ">= 15": {
+        "Low": 30,
+        "High": 66
+      }
+    },
+    {
+      "Coverage Type": "Basic",
+      "Limit": 200,
+      "<= 14": {
+        "Low": 25,
+        "High": 40
+      },
+      ">= 15": {
+        "Low": 45,
+        "High": 77
+      }
+    },
+    {
+      "Coverage Type": "Basic",
+      "Limit": "[200.0..300.0]",
+      "<= 14": {
+        "Low": 30,
+        "High": 50
+      },
+      ">= 15": {
+        "Low": 60,
+        "High": 88
+      }
+    }
+  ]
+}

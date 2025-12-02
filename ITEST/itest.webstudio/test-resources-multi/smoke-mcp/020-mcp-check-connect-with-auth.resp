@@ -15,7 +15,7 @@ Content-Type: application/json
       }
     },
     "serverInfo": {
-      "name": "mcp-openl-studio-server",
+      "name": "openl-studio-mcp-server",
       "version": "***"
     }
   }

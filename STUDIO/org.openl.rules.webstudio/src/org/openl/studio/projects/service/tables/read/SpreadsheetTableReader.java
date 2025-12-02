@@ -36,7 +36,7 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
-        var metaInfoReader = tsn.getMetaInfoReader();
+        var cellValueReader = new CellValueReader(tsn.getMetaInfoReader());
         var tableBody = tsn.getTableBody();
         int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
@@ -58,7 +58,7 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
         SpreadsheetCellView[][] cells = new SpreadsheetCellView[height - 1][width - 1];
         for (int row = 1; row < height; row++) {
             for (int col = 1; col < width; col++) {
-                var cellValue = getCellValue(tableBody.getCell(col, row), metaInfoReader);
+                var cellValue = cellValueReader.apply(tableBody.getCell(col, row));
                 var cellBuilder = SpreadsheetCellView.builder().value(cellValue);
                 cells[row - 1][col - 1] = cellBuilder.build();
             }

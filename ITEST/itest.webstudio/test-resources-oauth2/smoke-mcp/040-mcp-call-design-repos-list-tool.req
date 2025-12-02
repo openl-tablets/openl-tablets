@@ -6,7 +6,7 @@ Content-Type: application/json
 {
   "method": "tools/call",
   "params": {
-    "name": "design-repos-list",
+    "name": "openl_list_design_repositories",
     "arguments": {},
     "_meta": {
       "progressToken": 2

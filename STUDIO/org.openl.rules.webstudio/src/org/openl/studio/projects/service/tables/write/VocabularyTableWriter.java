@@ -22,7 +22,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
 
     @Override
     protected void updateHeader(VocabularyView tableView) {
-        String headerSign = getBusinessTableType() + " " + tableView.name + " " + TYPE_OPEN + tableView.type + TYPE_CLOSE;
+        String headerSign = getBusinessTableType(tableView) + " " + tableView.name + " " + TYPE_OPEN + tableView.type + TYPE_CLOSE;
         createOrUpdateCell(table.getGridTable(), buildCellKey(0, 0), headerSign);
     }
 

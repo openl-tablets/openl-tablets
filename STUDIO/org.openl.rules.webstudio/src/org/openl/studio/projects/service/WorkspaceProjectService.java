@@ -54,9 +54,15 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.DataAppend;
+import org.openl.studio.projects.model.tables.DataView;
 import org.openl.studio.projects.model.tables.DatatypeAppend;
 import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.LookupAppend;
+import org.openl.studio.projects.model.tables.LookupView;
+import org.openl.studio.projects.model.tables.RawTableAppend;
+import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SimpleRulesAppend;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetAppend;
@@ -66,18 +72,25 @@ import org.openl.studio.projects.model.tables.SmartRulesView;
 import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
+import org.openl.studio.projects.model.tables.TestAppend;
+import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyAppend;
 import org.openl.studio.projects.model.tables.VocabularyView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
+import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.write.DataTableWriter;
 import org.openl.studio.projects.service.tables.write.DatatypeTableWriter;
+import org.openl.studio.projects.service.tables.write.LookupWriter;
+import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.studio.projects.service.tables.write.SimpleRulesWriter;
 import org.openl.studio.projects.service.tables.write.SimpleSpreadsheetTableWriter;
 import org.openl.studio.projects.service.tables.write.SmartRulesWriter;
 import org.openl.studio.projects.service.tables.write.SpreadsheetTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriter;
+import org.openl.studio.projects.service.tables.write.TestTableWriter;
 import org.openl.studio.projects.service.tables.write.VocabularyTableWriter;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -100,6 +113,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
+    private final RawTableReader rawTableReader;
     private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
     private final BeanValidationProvider validationProvider;
@@ -109,6 +123,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectStateValidator projectStateValidator,
             ProjectDependencyResolver projectDependencyResolver,
             SummaryTableReader summaryTableReader,
+            RawTableReader rawTableReader,
             List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers,
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
             BeanValidationProvider validationProvider) {
@@ -116,6 +131,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
+        this.rawTableReader = rawTableReader;
         this.readers = readers;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
@@ -521,8 +537,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
                 .findFirst()
-                .orElseThrow(() -> new BadRequestException("unsupported.table.type.message"));
-        return reader.read(table);
+                .orElse(null);
+        return reader != null ? reader.read(table) : rawTableReader.read(table);
+    }
+
+    /**
+     * Get table in raw format as 2D matrix with merge information
+     *
+     * @param project project
+     * @param tableId table id
+     * @return raw table data
+     */
+    public RawTableView getTableRaw(RulesProject project, String tableId) {
+        var table = getOpenLTable(project, tableId);
+        return rawTableReader.read(table);
     }
 
     private IOpenLTable getOpenLTable(RulesProject project, String tableId) {
@@ -563,22 +591,30 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        if (writer instanceof VocabularyTableWriter) {
-            ((VocabularyTableWriter) writer).write((VocabularyView) tableView);
-        } else if (writer instanceof DatatypeTableWriter) {
-            ((DatatypeTableWriter) writer).write((DatatypeView) tableView);
-        } else if (writer instanceof SimpleSpreadsheetTableWriter) {
-            ((SimpleSpreadsheetTableWriter) writer).write((SimpleSpreadsheetView) tableView);
-        } else if (writer instanceof SpreadsheetTableWriter) {
-            ((SpreadsheetTableWriter) writer).write((SpreadsheetView) tableView);
-        } else if (writer instanceof SimpleRulesWriter) {
-            ((SimpleRulesWriter) writer).write((SimpleRulesView) tableView);
-        } else if (writer instanceof SmartRulesWriter) {
-            ((SmartRulesWriter) writer).write((SmartRulesView) tableView);
+        switch (writer) {
+            case VocabularyTableWriter vocabularyTableWriter -> vocabularyTableWriter.write((VocabularyView) tableView);
+            case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.write((DatatypeView) tableView);
+            case SimpleSpreadsheetTableWriter simpleSpreadsheetTableWriter ->
+                    simpleSpreadsheetTableWriter.write((SimpleSpreadsheetView) tableView);
+            case SpreadsheetTableWriter spreadsheetTableWriter ->
+                    spreadsheetTableWriter.write((SpreadsheetView) tableView);
+            case SimpleRulesWriter simpleRulesWriter -> simpleRulesWriter.write((SimpleRulesView) tableView);
+            case SmartRulesWriter smartRulesWriter -> smartRulesWriter.write((SmartRulesView) tableView);
+            case LookupWriter smartLookupWriter -> smartLookupWriter.write((LookupView) tableView);
+            case DataTableWriter dataTableWriter -> dataTableWriter.write((DataView) tableView);
+            case TestTableWriter testTableWriter -> testTableWriter.write((TestView) tableView);
+            case RawTableWriter rawTableWriter -> rawTableWriter.write((RawTableView) tableView);
+            default -> {
+            }
         }
     }
 
     private TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
+        // RawTableView can be used for any table type, so check it first
+        if (RawTableView.TABLE_TYPE.equals(tableType)) {
+            return new RawTableWriter(table);
+        }
+
         if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {
             if (VocabularyView.TABLE_TYPE.equals(tableType)) {
                 return new VocabularyTableWriter(table);
@@ -596,6 +632,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 return new SimpleRulesWriter(table);
             } else if (SmartRulesView.TABLE_TYPE.equals(tableType)) {
                 return new SmartRulesWriter(table);
+            } else if (LookupView.SMART_TABLE_TYPE.equals(tableType) || LookupView.SIMPLE_TABLE_TYPE.equals(tableType)) {
+                return new LookupWriter(table);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_DATA.toString(), table.getType())) {
+            if (DataView.TABLE_TYPE.equals(tableType)) {
+                return new DataTableWriter(table);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_TEST_METHOD.toString(), table.getType())) {
+            if (TestView.TABLE_TYPE.equals(tableType)) {
+                return new TestTableWriter(table);
             }
         }
         throw new UnsupportedOperationException("Table type doesn't match writer type");
@@ -618,16 +664,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        if (writer instanceof VocabularyTableWriter) {
-            ((VocabularyTableWriter) writer).append((VocabularyAppend) tableView);
-        } else if (writer instanceof DatatypeTableWriter) {
-            ((DatatypeTableWriter) writer).append((DatatypeAppend) tableView);
-        } else if (writer instanceof SimpleSpreadsheetTableWriter) {
-            ((SimpleSpreadsheetTableWriter) writer).append((SimpleSpreadsheetAppend) tableView);
-        } else if (writer instanceof SimpleRulesWriter) {
-            ((SimpleRulesWriter) writer).append((SimpleRulesAppend) tableView);
-        } else if (writer instanceof SmartRulesWriter) {
-            ((SmartRulesWriter) writer).append((SmartRulesAppend) tableView);
+        switch (writer) {
+            case VocabularyTableWriter vocabularyTableWriter ->
+                    vocabularyTableWriter.append((VocabularyAppend) tableView);
+            case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.append((DatatypeAppend) tableView);
+            case SimpleSpreadsheetTableWriter simpleSpreadsheetTableWriter ->
+                    simpleSpreadsheetTableWriter.append((SimpleSpreadsheetAppend) tableView);
+            case SimpleRulesWriter simpleRulesWriter -> simpleRulesWriter.append((SimpleRulesAppend) tableView);
+            case SmartRulesWriter smartRulesWriter -> smartRulesWriter.append((SmartRulesAppend) tableView);
+            case LookupWriter smartLookupWriter -> smartLookupWriter.append((LookupAppend) tableView);
+            case DataTableWriter dataTableWriter -> dataTableWriter.append((DataAppend) tableView);
+            case TestTableWriter testTableWriter -> testTableWriter.append((TestAppend) tableView);
+            case RawTableWriter rawTableWriter -> rawTableWriter.append((RawTableAppend) tableView);
+            default -> {
+            }
         }
     }
 

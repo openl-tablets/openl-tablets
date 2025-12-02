@@ -1,0 +1,75 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "98d0fbd4f35d05522a1a557864552a70",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "CoverageForm",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B4:C6"
+  },
+  {
+    "id": "572eb024e1c3f2b1b94d76740067e605",
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "CoverageFormData",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B5:D11"
+  },
+  {
+    "id": "d2bb169ab4ac556aa8b147f99a723719",
+    "tableType": "SmartLookup",
+    "kind": "Rules",
+    "name": "CoverageRate",
+    "returnType": "Double",
+    "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B4:G11"
+  },
+  {
+    "id": "5d64e98cfb043d16d9aedc659e4b2674",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "CoverageRateTest",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B6:E13"
+  },
+  {
+    "id": "5bd8922c903afffdfb749b3841eddcf1",
+    "tableType": "Rules",
+    "kind": "Rules",
+    "name": "Greeting1",
+    "returnType": "String",
+    "signature": "Greeting1 (Integer hour)",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B4:D12"
+  },
+  {
+    "id": "35496a553200efac713de14c74b2b525",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "Greeting1Test",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B20:C26"
+  },
+  {
+    "id": "6b8777a24966c7a25664a0d492d112e3",
+    "tableType": "SimpleLookup",
+    "kind": "Rules",
+    "name": "IsAdequateMaxCreditRiskScore",
+    "returnType": "Double",
+    "signature": "IsAdequateMaxCreditRiskScore (String countryCode, Boolean isAdequateMaxCreditRisk)",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B4:D7"
+  },
+  {
+    "id": "7bba2e7cd1c547716d17dfd37f6b79ee",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "IsAdequateMaxCreditRiskScoreTest",
+    "file": "EPBDS-15381/EPBDS-15381.xlsx",
+    "pos": "B21:D27"
+  }
+]

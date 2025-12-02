@@ -29,11 +29,12 @@ public class VocabularyTableReader extends EditableTableReader<VocabularyView, V
         super.initialize(builder, openLTable);
         var tsn = openLTable.getSyntaxNode();
         var metaInfoReader = tsn.getMetaInfoReader();
+        var cellValueReader = new CellValueReader(metaInfoReader);
         var table = tsn.getTableBody();
         List<VocabularyValueView> values = new ArrayList<>();
         for (int row = 0; row < table.getHeight(); row++) {
             var cell = table.getCell(0, row);
-            var cellValue = getCellValue(cell, metaInfoReader);
+            var cellValue = cellValueReader.apply(cell);
             values.add(VocabularyValueView.builder().value(cellValue).build());
         }
         var header = tsn.getHeader();

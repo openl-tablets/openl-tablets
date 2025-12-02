@@ -1,0 +1,63 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5d64e98cfb043d16d9aedc659e4b2674",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "CoverageRateTest",
+  "testedTableName": "CoverageRate",
+  "headers": [
+    {
+      "fieldName": "coverageForm.",
+      "foreignKey": "CoverageFormData",
+      "displayName": "Limit"
+    },
+    {
+      "fieldName": "numberOfEmployees",
+      "displayName": "Number Of Employees"
+    },
+    {
+      "fieldName": "area",
+      "displayName": "Area"
+    },
+    {
+      "fieldName": "_res_",
+      "displayName": "Premium"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        1,
+        7,
+        "High",
+        30
+      ]
+    },
+    {
+      "values": [
+        2,
+        125,
+        "Low",
+        60
+      ]
+    },
+    {
+      "values": [
+        3,
+        38,
+        "Low",
+        76
+      ]
+    },
+    {
+      "values": [
+        4,
+        4,
+        "High",
+        50
+      ]
+    }
+  ]
+}

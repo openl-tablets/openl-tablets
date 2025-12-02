@@ -1,0 +1,14 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/6b8777a24966c7a25664a0d492d112e3/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleLookup",
+  "rows": [
+    {
+      "Country Code/AdequateMaxCreditRisk": "ME",
+      "true": 11,
+      "false": 10
+    }
+  ]
+}
