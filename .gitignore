@@ -39,8 +39,7 @@ dist
 bun.lock
 
 # Ignore AI assistant files
-CLAUDE.md
-.claude
+.claude/*.local.json
 
 # Ignore DEMO files
 /DEMO/jre/
