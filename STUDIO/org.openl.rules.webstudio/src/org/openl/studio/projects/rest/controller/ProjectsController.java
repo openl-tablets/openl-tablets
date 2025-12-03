@@ -209,7 +209,7 @@ public class ProjectsController {
     @PostMapping("/{projectId}/tables")
     @Hidden
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                           @Valid @RequestBody CreateNewTableRequest request) {
+                                           @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
         try {
             return projectService.createNewTable(project, request);
         } finally {

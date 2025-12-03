@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,11 +19,11 @@ public class SimpleSpreadsheetView extends ExecutableView {
     public static final String TABLE_TYPE = "SimpleSpreadsheet";
 
     @Schema(description = "Collection of spreadsheet steps/rows")
-    public final Collection<SpreadsheetStepView> steps;
+    public final List<SpreadsheetStepView> steps;
 
     private SimpleSpreadsheetView(Builder builder) {
         super(builder);
-        this.steps = builder.steps;
+        this.steps = Optional.ofNullable(builder.steps).map(List::copyOf).orElseGet(List::of);
     }
 
     @JsonCreator
@@ -32,7 +33,7 @@ public class SimpleSpreadsheetView extends ExecutableView {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
-        private Collection<SpreadsheetStepView> steps;
+        private List<SpreadsheetStepView> steps;
 
         private Builder() {
             tableType(TABLE_TYPE);
@@ -43,7 +44,7 @@ public class SimpleSpreadsheetView extends ExecutableView {
             return this;
         }
 
-        public Builder steps(Collection<SpreadsheetStepView> steps) {
+        public Builder steps(List<SpreadsheetStepView> steps) {
             this.steps = steps;
             return this;
         }

@@ -599,6 +599,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
+        executeTableWrite(writer, tableView);
+    }
+
+    private void executeTableWrite(TableWriter<? extends TableView> writer, EditableTableView tableView) {
         switch (writer) {
             case VocabularyTableWriter vocabularyTableWriter -> vocabularyTableWriter.write((VocabularyView) tableView);
             case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.write((DatatypeView) tableView);
@@ -612,8 +616,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             case DataTableWriter dataTableWriter -> dataTableWriter.write((DataView) tableView);
             case TestTableWriter testTableWriter -> testTableWriter.write((TestView) tableView);
             case RawTableWriter rawTableWriter -> rawTableWriter.write((RawTableView) tableView);
-            default -> {
-            }
+            default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
         }
     }
 
@@ -684,8 +687,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             case DataTableWriter dataTableWriter -> dataTableWriter.append((DataAppend) tableView);
             case TestTableWriter testTableWriter -> testTableWriter.append((TestAppend) tableView);
             case RawTableWriter rawTableWriter -> rawTableWriter.append((RawTableAppend) tableView);
-            default -> {
-            }
+            default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
         }
     }
 
@@ -704,42 +706,52 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return super.resolveProjectName(src);
     }
 
-    public SummaryTableView createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) {
+    public SummaryTableView createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
+        }
         var projectModel = getProjectModel(project, createTableRequest.moduleName());
         var table = (TableView) createTableRequest.table();
         if (!validateUniqueness(projectModel, table.name)) {
             throw new ConflictException("table.exists.message", table.name);
         }
+        getWebStudio().getCurrentProject().tryLockOrThrow();
 
         var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
+        var tableWriter = getTableCreator(table, gridModel);
+        executeTableWrite(tableWriter, createTableRequest.table());
+        return null;
+    }
 
-        switch (table) {
+    private TableWriter<? extends TableView> getTableCreator(TableView tableView, XlsSheetGridModel gridModel) {
+        return switch (tableView) {
             case DatatypeView datatypeView -> {
                 var fieldsNumb = datatypeView.fields.size();
                 var rect = gridModel.findEmptyRect(3, fieldsNumb + 1);
                 var gridTable = new GridTable(rect, gridModel);
-                var writer = new DatatypeTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-                writer.write(datatypeView);
+                yield new DatatypeTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
             }
             case VocabularyView vocabularyView -> {
                 var fieldsNumb = vocabularyView.values.size();
                 var rect = gridModel.findEmptyRect(3, fieldsNumb + 1);
                 var gridTable = new GridTable(rect, gridModel);
-                var writer = new VocabularyTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-                writer.write(vocabularyView);
+                yield new VocabularyTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
             }
             case SpreadsheetView spreadsheetView -> {
                 var rowsNumb = spreadsheetView.rows.size();
                 var colsNumb = spreadsheetView.columns.size();
                 var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
                 var gridTable = new GridTable(rect, gridModel);
-                var writer = new SpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-                writer.write(spreadsheetView);
+                yield new SpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
             }
-            default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + table.tableType);
-        }
-
-        return null;
+            case SimpleSpreadsheetView simpleSpreadsheetView -> {
+                var rowsNumb = simpleSpreadsheetView.steps.size();
+                var rect = gridModel.findEmptyRect(2, rowsNumb + 1);
+                var gridTable = new GridTable(rect, gridModel);
+                yield new SimpleSpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
+            }
+            default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + tableView.tableType);
+        };
     }
 
     private static XlsSheetGridModel getXlsSheetGridModel(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
