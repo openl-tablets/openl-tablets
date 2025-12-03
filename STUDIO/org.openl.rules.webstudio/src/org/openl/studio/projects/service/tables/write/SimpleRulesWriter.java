@@ -1,6 +1,10 @@
 package org.openl.studio.projects.service.tables.write;
 
+import java.util.List;
+
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -8,6 +12,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.studio.projects.model.tables.SimpleRulesAppend;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.service.tables.read.SimpleRulesTableReader;
+import org.openl.util.CollectionUtils;
 
 /**
  * Writes {@link SimpleRulesView} model to {@code SimpleRules} table.
@@ -20,14 +25,26 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
         super(table);
     }
 
+    public SimpleRulesWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
+    }
+
     @Override
     protected void mergeHeaderCells(SimpleRulesView tableView) {
-
+        if (!isUpdateMode()) {
+            int latestCol = tableView.headers.size() - 1;
+            if (CollectionUtils.isNotEmpty(tableView.properties)) {
+                latestCol = NUMBER_PROPERTIES_COLUMNS - 1;
+            }
+            var gridTable = getGridTable();
+            var mergeTitleRegion = new GridRegion(0, 0, 0, latestCol);
+            applyMergeRegions(gridTable, List.of(mergeTitleRegion));
+        }
     }
 
     @Override
     protected void updateBusinessBody(SimpleRulesView tableView) {
-        var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+        var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);
         int row = 1;
         int colMax = 0;
@@ -40,16 +57,18 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
             row++;
         }
 
-        // clean up removed columns
-        var width = IGridRegion.Tool.width(tableBody.getRegion());
-        if (colMax < width) {
-            removeColumns(tableBody, width - colMax, colMax);
-        }
+        if (isUpdateMode()) {
+            // clean up removed columns
+            var width = IGridRegion.Tool.width(tableBody.getRegion());
+            if (colMax < width) {
+                removeColumns(tableBody, width - colMax, colMax);
+            }
 
-        // clean up removed rows
-        var height = IGridRegion.Tool.height(tableBody.getRegion());
-        if (row < height) {
-            removeRows(tableBody, height - row, row);
+            // clean up removed rows
+            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            if (row < height) {
+                removeRows(tableBody, height - row, row);
+            }
         }
     }
 
@@ -62,6 +81,9 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     }
 
     public void append(SimpleRulesAppend tableAppend) {
+        if (!isUpdateMode()) {
+            throw new IllegalStateException("Append operation is only allowed in update mode.");
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);

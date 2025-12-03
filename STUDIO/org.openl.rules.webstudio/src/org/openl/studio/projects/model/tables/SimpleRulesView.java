@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.tables;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -26,8 +27,8 @@ public class SimpleRulesView extends ExecutableView {
 
     public SimpleRulesView(Builder builder) {
         super(builder);
-        this.rules = builder.rules;
-        this.headers = builder.headers;
+        this.rules = Optional.ofNullable(builder.rules).map(List::copyOf).orElseGet(List::of);
+        this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElseGet(List::of);
     }
 
     @JsonCreator

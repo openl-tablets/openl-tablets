@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
@@ -262,7 +263,14 @@ public abstract class TableWriter<T extends TableView> {
         if (isUpdateMode()) {
             return table.getGridTable(view);
         } else {
-            return originalTable;
+            if (IXlsTableNames.VIEW_BUSINESS.equals(view)) {
+                return originalTable.getSubtable(0,
+                        1,
+                        originalTable.getWidth(),
+                        originalTable.getHeight());
+            } else {
+                return originalTable;
+            }
         }
     }
 
