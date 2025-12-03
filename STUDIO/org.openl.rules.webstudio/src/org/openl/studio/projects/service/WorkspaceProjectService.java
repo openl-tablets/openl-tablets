@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -22,10 +23,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoWriter;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -39,7 +44,9 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
@@ -54,6 +61,7 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.DataAppend;
 import org.openl.studio.projects.model.tables.DataView;
 import org.openl.studio.projects.model.tables.DatatypeAppend;
@@ -694,5 +702,51 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         return super.resolveProjectName(src);
+    }
+
+    public SummaryTableView createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) {
+        var projectModel = getProjectModel(project, createTableRequest.moduleName());
+        var table = (TableView) createTableRequest.table();
+        if (!validateUniqueness(projectModel, table.name)) {
+            throw new ConflictException("table.exists.message", table.name);
+        }
+
+        var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
+
+        switch (table) {
+            case DatatypeView datatypeView -> {
+                var fieldsNumb = datatypeView.fields.size();
+                var rect = gridModel.findEmptyRect(3, fieldsNumb + 1);
+                var gridTable = new GridTable(rect, gridModel);
+                var writer = new DatatypeTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
+                writer.write((DatatypeView) table);
+            }
+            default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + table.tableType);
+        }
+
+        return null;
+    }
+
+    private static XlsSheetGridModel getXlsSheetGridModel(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
+        var currentWorkbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
+                .getWorkbookSourceCodeModule();
+
+        var excelWorkbook = currentWorkbook.getWorkbook();
+        var sheetName = createTableRequest.sheetName();
+        var sheet = excelWorkbook.getSheet(sheetName);
+        if (sheet == null) {
+            sheet = excelWorkbook.createSheet(sheetName);
+        }
+
+        var sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), currentWorkbook);
+        return new XlsSheetGridModel(sourceCodeModule);
+    }
+
+    private static boolean validateUniqueness(ProjectModel model, String tableName) {
+        return model.getAllTableSyntaxNodes().stream()
+                .noneMatch(node -> Optional.ofNullable(node.getMember())
+                        .map(INamedThing::getName)
+                        .map(name -> name.equalsIgnoreCase(tableName))
+                        .orElse(false));
     }
 }

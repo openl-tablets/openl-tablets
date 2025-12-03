@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,6 +60,7 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -79,6 +82,7 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects (BETA)", description = "Experimental projects API")
+@Validated
 public class ProjectsController {
 
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -200,6 +204,17 @@ public class ProjectsController {
 
         var query = projectTableCriteriaQueryFactory.build(params, kinds, name);
         return projectService.getTables(project, query);
+    }
+
+    @PostMapping("/{projectId}/tables")
+    @Hidden
+    public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                           @Valid @RequestBody CreateNewTableRequest request) {
+        try {
+            return projectService.createNewTable(project, request);
+        } finally {
+            getWebStudio().reset();
+        }
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

@@ -54,15 +54,22 @@ public abstract class TableWriter<T extends TableView> {
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
     }
 
+    protected TableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        this.originalTable = gridTable;
+        this.metaInfoWriter = metaInfoWriter;
+        this.table = null;
+        this.actionsQueue = new UndoableActions();
+    }
+
     public void write(T tableView) {
         try {
-            table.getGridTable().edit();
+            getGridTable().edit();
             updateBusinessBody(tableView);
             updateTableProperties(tableView.properties);
             updateHeader(tableView);
             save();
         } finally {
-            table.getGridTable().stopEditing();
+            getGridTable().stopEditing();
         }
     }
 
@@ -182,7 +189,7 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     private MetaInfoWriter getMetaInfoWriter() {
-        if (metaInfoWriter == null) {
+        if (metaInfoWriter == null && isUpdateMode()) {
             metaInfoWriter = new MetaInfoWriterImpl(table.getMetaInfoReader(), table.getGridTable());
         }
         return metaInfoWriter;
@@ -190,7 +197,7 @@ public abstract class TableWriter<T extends TableView> {
 
     protected void save() {
         try {
-            var xlsgrid = (XlsSheetGridModel) table.getGridTable().getGrid();
+            var xlsgrid = (XlsSheetGridModel) getGridTable().getGrid();
             xlsgrid.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
@@ -202,7 +209,9 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     protected String getBusinessTableType(T tableView) {
-        return OpenLTableUtils.getTableTypeItems().get(table.getType());
+        return isUpdateMode()
+                ? OpenLTableUtils.getTableTypeItems().get(table.getType())
+                : tableView.tableType;
     }
 
     /**
@@ -235,6 +244,26 @@ public abstract class TableWriter<T extends TableView> {
         int bottom = mr.getBottom() + tableRegion.getTop();
         int right = mr.getRight() + tableRegion.getLeft();
         return new GridRegion(top, left, bottom, right);
+    }
+
+    protected boolean isUpdateMode() {
+        return table != null;
+    }
+
+    protected IGridTable getGridTable() {
+        if (isUpdateMode()) {
+            return table.getGridTable();
+        } else {
+            return originalTable;
+        }
+    }
+
+    protected IGridTable getGridTable(String view) {
+        if (isUpdateMode()) {
+            return table.getGridTable(view);
+        } else {
+            return originalTable;
+        }
     }
 
 }
