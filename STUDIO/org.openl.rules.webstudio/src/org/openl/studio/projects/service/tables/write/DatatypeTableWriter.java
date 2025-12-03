@@ -40,10 +40,11 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
         if (StringUtils.isNotBlank(tableView.extendz)) {
             header.append(' ').append(EXTENDS_KEYWORD).append(' ').append(tableView.extendz);
         }
-        createOrUpdateCell(getGridTable(), buildCellKey(0, 0), header.toString());
+        var gridTable = getGridTable();
+        createOrUpdateCell(gridTable, buildCellKey(0, 0), header.toString());
         if (!isUpdateMode()) {
             var mergeTitleRegion = new GridRegion(0, 0, 0, DEFAULT_VALUE_COLUMN);
-            applyMergeRegions(getGridTable(), List.of(mergeTitleRegion));
+            applyMergeRegions(gridTable, List.of(mergeTitleRegion));
         }
     }
 
@@ -75,6 +76,9 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
     }
 
     public void append(DatatypeAppend tableAppend) {
+        if (!isUpdateMode()) {
+            throw new IllegalStateException("Append operation is only allowed in update mode.");
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);

@@ -41,7 +41,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public abstract class TableWriter<T extends TableView> {
 
-    private static final int NUMBER_PROPERTIES_COLUMNS = 3;
+    protected static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     protected final UndoableActions actionsQueue;
     protected final IOpenLTable table;
