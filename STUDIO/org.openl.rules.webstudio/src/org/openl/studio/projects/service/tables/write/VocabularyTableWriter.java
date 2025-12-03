@@ -47,10 +47,6 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
     protected void updateBusinessBody(VocabularyView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         int row = 0;
-        if (!isUpdateMode()) {
-            // in creation mode, table does not have business body yet
-            row = 1;
-        }
         for (var value : tableView.values) {
             createOrUpdateCell(tableBody, buildCellKey(0, row), value.value);
             row++;

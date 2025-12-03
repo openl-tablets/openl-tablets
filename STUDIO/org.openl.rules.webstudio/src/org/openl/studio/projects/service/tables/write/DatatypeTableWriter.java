@@ -52,10 +52,6 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
     protected void updateBusinessBody(DatatypeView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         int row = 0;
-        if (!isUpdateMode()) {
-            // in creation mode, table does not have business body yet
-            row = 1;
-        }
         for (var field : tableView.fields) {
             write(tableBody, row, field);
             row++;

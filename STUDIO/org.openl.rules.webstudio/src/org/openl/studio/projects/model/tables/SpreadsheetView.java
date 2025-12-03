@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,18 +19,18 @@ public class SpreadsheetView extends ExecutableView {
     public static final String TABLE_TYPE = "Spreadsheet";
 
     @Schema(description = "Collection of spreadsheet rows")
-    public final Collection<SpreadsheetRowView> rows;
+    public final List<SpreadsheetRowView> rows;
 
     @Schema(description = "Collection of spreadsheet columns")
-    public final Collection<SpreadsheetColumnView> columns;
+    public final List<SpreadsheetColumnView> columns;
 
     @Schema(description = "2D array of spreadsheet cells")
     public final SpreadsheetCellView[][] cells;
 
     private SpreadsheetView(Builder builder) {
         super(builder);
-        this.rows = builder.rows;
-        this.columns = builder.columns;
+        this.rows = Optional.ofNullable(builder.rows).map(List::copyOf).orElse(List.of());
+        this.columns = Optional.ofNullable(builder.columns).map(List::copyOf).orElse(List.of());
         this.cells = builder.cells;
     }
 
@@ -40,8 +41,8 @@ public class SpreadsheetView extends ExecutableView {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
-        private Collection<SpreadsheetRowView> rows;
-        private Collection<SpreadsheetColumnView> columns;
+        private List<SpreadsheetRowView> rows;
+        private List<SpreadsheetColumnView> columns;
         private SpreadsheetCellView[][] cells;
 
         private Builder() {
@@ -53,12 +54,12 @@ public class SpreadsheetView extends ExecutableView {
             return this;
         }
 
-        public Builder rows(Collection<SpreadsheetRowView> rows) {
+        public Builder rows(List<SpreadsheetRowView> rows) {
             this.rows = rows;
             return this;
         }
 
-        public Builder columns(Collection<SpreadsheetColumnView> columns) {
+        public Builder columns(List<SpreadsheetColumnView> columns) {
             this.columns = columns;
             return this;
         }

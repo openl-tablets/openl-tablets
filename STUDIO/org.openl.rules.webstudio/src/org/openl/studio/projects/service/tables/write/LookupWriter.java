@@ -26,6 +26,10 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
     }
 
     @Override
+    protected void mergeHeaderCells(LookupView tableView) {
+    }
+
+    @Override
     protected void updateBusinessBody(LookupView tableView) {
         var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
         var rowNum = getHeaderDepth(tableView.headers);

@@ -21,6 +21,11 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
     }
 
     @Override
+    protected void mergeHeaderCells(SimpleRulesView tableView) {
+
+    }
+
+    @Override
     protected void updateBusinessBody(SimpleRulesView tableView) {
         var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);

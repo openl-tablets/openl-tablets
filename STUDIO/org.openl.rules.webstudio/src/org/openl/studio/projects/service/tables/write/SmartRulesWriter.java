@@ -26,6 +26,11 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
     }
 
     @Override
+    protected void mergeHeaderCells(SmartRulesView tableView) {
+
+    }
+
+    @Override
     protected void updateBusinessBody(SmartRulesView tableView) {
         var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);

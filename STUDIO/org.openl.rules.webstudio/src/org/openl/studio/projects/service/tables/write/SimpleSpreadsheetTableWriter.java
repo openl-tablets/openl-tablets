@@ -26,6 +26,11 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
     }
 
     @Override
+    protected void mergeHeaderCells(SimpleSpreadsheetView tableView) {
+
+    }
+
+    @Override
     protected void updateBusinessBody(SimpleSpreadsheetView tableView) {
         var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
 

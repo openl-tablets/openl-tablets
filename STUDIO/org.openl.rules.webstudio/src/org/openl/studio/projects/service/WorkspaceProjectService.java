@@ -728,6 +728,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var writer = new VocabularyTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
                 writer.write(vocabularyView);
             }
+            case SpreadsheetView spreadsheetView -> {
+                var rowsNumb = spreadsheetView.rows.size();
+                var colsNumb = spreadsheetView.columns.size();
+                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
+                var gridTable = new GridTable(rect, gridModel);
+                var writer = new SpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
+                writer.write(spreadsheetView);
+            }
             default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + table.tableType);
         }
 
