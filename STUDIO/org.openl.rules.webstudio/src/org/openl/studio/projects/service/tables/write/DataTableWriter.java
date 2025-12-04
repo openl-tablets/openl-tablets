@@ -1,8 +1,14 @@
 package org.openl.studio.projects.service.tables.write;
 
+import java.util.List;
+
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.DataAppend;
 import org.openl.studio.projects.model.tables.DataView;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -21,6 +27,10 @@ public class DataTableWriter extends AbstractDataTableWriter<DataView> {
         super(table);
     }
 
+    public DataTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
+    }
+
     @Override
     protected void updateHeader(DataView tableView) {
         var header = new StringBuilder(getBusinessTableType(tableView));
@@ -28,8 +38,16 @@ public class DataTableWriter extends AbstractDataTableWriter<DataView> {
             header.append(' ').append(tableView.dataType);
         }
         header.append(' ').append(tableView.name);
-        createOrUpdateCell(table.getGridTable(), buildCellKey(0, 0), header.toString());
-        updateTableHeaders(tableView);
+        var gridTable = getGridTable();
+        createOrUpdateCell(gridTable, buildCellKey(0, 0), header.toString());
+        if (!isUpdateMode()) {
+            int latestCol = tableView.headers.size();
+            if (CollectionUtils.isNotEmpty(tableView.properties)) {
+                latestCol = Math.max(NUMBER_PROPERTIES_COLUMNS, latestCol);
+            }
+            var mergeTitleRegion = new GridRegion(0, 0, 0, latestCol - 1);
+            applyMergeRegions(gridTable, List.of(mergeTitleRegion));
+        }
     }
 
     /**
