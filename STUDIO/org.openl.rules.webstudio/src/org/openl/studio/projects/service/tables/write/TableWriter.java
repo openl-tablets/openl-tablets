@@ -267,7 +267,7 @@ public abstract class TableWriter<T extends TableView> {
                 return originalTable.getSubtable(0,
                         1,
                         originalTable.getWidth(),
-                        originalTable.getHeight());
+                        originalTable.getHeight() - 1);
             } else {
                 return originalTable;
             }
