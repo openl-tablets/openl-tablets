@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.TestAppend;
 import org.openl.studio.projects.model.tables.TestView;
@@ -7,7 +9,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Writes {@link TestView} to {@code Test} table.
- *
+ * <p>
  * Structure:
  * - updateHeader(): Writes table header ("Test <testedTableName> <testName>")
  * - updateTableHeaders(): Inherited from AbstractDataTableWriter - writes field names (row 0) and foreign keys (row 1)
@@ -21,6 +23,10 @@ public class TestTableWriter extends AbstractDataTableWriter<TestView> {
         super(table);
     }
 
+    public TestTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
+    }
+
     @Override
     protected void updateHeader(TestView tableView) {
         var header = new StringBuilder(getBusinessTableType(tableView));
@@ -31,6 +37,7 @@ public class TestTableWriter extends AbstractDataTableWriter<TestView> {
             header.append(' ').append(tableView.name);
         }
         createOrUpdateCell(table.getGridTable(), buildCellKey(0, 0), header.toString());
+        mergeHeader(tableView);
     }
 
     /**

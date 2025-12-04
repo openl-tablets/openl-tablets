@@ -773,6 +773,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var gridTable = new GridTable(rect, gridModel);
                 yield new DataTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
             }
+            case TestView testView -> {
+                var rowsNumb = testView.rows.size();
+                var colsNumb = testView.headers.size();
+                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
+                var gridTable = new GridTable(rect, gridModel);
+                yield new TestTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
+            }
             default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + tableView.tableType);
         };
     }

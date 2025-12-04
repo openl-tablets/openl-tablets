@@ -1,9 +1,11 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -11,6 +13,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.AbstractDataView;
 import org.openl.studio.projects.model.tables.DataHeaderView;
 import org.openl.studio.projects.model.tables.DataRowView;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -29,6 +32,17 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
 
     public AbstractDataTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
+    }
+
+    protected void mergeHeader(T tableView) {
+        if (!isUpdateMode()) {
+            int latestCol = tableView.headers.size();
+            if (CollectionUtils.isNotEmpty(tableView.properties)) {
+                latestCol = Math.max(NUMBER_PROPERTIES_COLUMNS, latestCol);
+            }
+            var mergeTitleRegion = new GridRegion(0, 0, 0, latestCol - 1);
+            applyMergeRegions(getGridTable(), List.of(mergeTitleRegion));
+        }
     }
 
     /**
