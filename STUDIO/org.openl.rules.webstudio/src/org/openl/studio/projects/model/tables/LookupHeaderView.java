@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +40,27 @@ public class LookupHeaderView extends ARuleHeaderView {
     private LookupHeaderView(Builder builder) {
         super(builder);
         this.children = Optional.ofNullable(builder.children).map(List::copyOf).orElse(List.of());
+    }
+
+    @JsonIgnore
+    public int getWidth() {
+        if (children.isEmpty()) {
+            return 1;
+        }
+        return children.stream()
+                .mapToInt(LookupHeaderView::getWidth)
+                .sum();
+    }
+
+    @JsonIgnore
+    public int getHeight() {
+        if (children.isEmpty()) {
+            return 1;
+        }
+        return 1 + children.stream()
+                .mapToInt(LookupHeaderView::getHeight)
+                .max()
+                .orElse(0);
     }
 
     @JsonCreator
