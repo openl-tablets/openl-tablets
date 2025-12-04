@@ -211,7 +211,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             try {
                 ClassLoader classloader = service.getClassLoader();
                 OpenClassUtil.releaseClassLoader(classloader);
-            } catch (RuleServiceInstantiationException ignored) {
+            } catch (Exception e) {
+                // Log but don't fail undeploy - cleanup is critical for preventing memory leaks
+                log.warn("Failed to release classloader for service '{}'. This may cause memory leaks.", serviceName, e);
             }
             cleanDeploymentResources(serviceDescription);
         }
