@@ -4,6 +4,27 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "CreateNewTableRequest": {
+        "type": "object",
+        "properties": {
+          "moduleName": {
+            "type": "string",
+            "minLength": 1,
+            "description": "***"
+          },
+          "sheetName": {
+            "type": "string",
+            "description": "***"
+          },
+          "table": {
+            "$ref": "#/components/schemas/EditableTableView"
+          }
+        },
+        "required": [
+          "moduleName",
+          "table"
+        ]
+      },
       "TestsExecutionSummary": {
         "type": "object",
         "properties": {
@@ -14022,6 +14043,106 @@ Content-Type: application/json
             }
           }
         }
+      },
+      "post": {
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNewTableRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryTableView"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
       }
     },
     "/projects/{projectId}/tables/{tableId}": {

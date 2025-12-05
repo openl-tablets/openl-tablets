@@ -1,0 +1,54 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "52f0004740a46b31f8d69e3b4c935117",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "Greeting4",
+  "returnType": "String",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Hour"
+    },
+    {
+      "title": "Greeting"
+    }
+  ],
+  "rules": [
+    {
+      "Hour": {
+        "min": 0,
+        "max": 12
+      },
+      "Greeting": "Good Morning, World!"
+    },
+    {
+      "Hour": {
+        "min": 12,
+        "max": 18
+      },
+      "Greeting": "Good Afternoon, World!"
+    },
+    {
+      "Hour": {
+        "min": 18,
+        "max": 22
+      },
+      "Greeting": "Good Evening, World!"
+    },
+    {
+      "Hour": {
+        "min": 22,
+        "max": 24
+      },
+      "Greeting": "Good Night, World!"
+    }
+  ]
+}

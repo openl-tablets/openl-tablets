@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5138844e874c4f1c5e99fe759f338653",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "USState",
+  "fields": [
+    {
+      "name": "name",
+      "type": "String"
+    },
+    {
+      "name": "code",
+      "type": "String"
+    }
+  ]
+}

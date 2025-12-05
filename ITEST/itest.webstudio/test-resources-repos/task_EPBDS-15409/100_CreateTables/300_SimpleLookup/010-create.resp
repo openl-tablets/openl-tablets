@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "486ad8912c803f93bf850cfcd8ae4ba0",
+  "tableType": "SimpleLookup",
+  "kind": "Rules",
+  "name": "IsAdequateMaxCreditRiskScore",
+  "returnType": "Double",
+  "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B22:D25"
+}

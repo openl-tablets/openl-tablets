@@ -104,6 +104,7 @@ import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Implementation of project service for workspace projects.
@@ -706,7 +707,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return super.resolveProjectName(src);
     }
 
-    public SummaryTableView createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
+    public void createNewTable(RulesProject project, CreateNewTableRequest createTableRequest) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
@@ -720,7 +721,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
         var tableWriter = getTableCreator(table, gridModel);
         executeTableWrite(tableWriter, createTableRequest.table());
-        return null;
     }
 
     private TableWriter<? extends TableView> getTableCreator(TableView tableView, XlsSheetGridModel gridModel) {
@@ -808,7 +808,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .getWorkbookSourceCodeModule();
 
         var excelWorkbook = currentWorkbook.getWorkbook();
-        var sheetName = createTableRequest.sheetName();
+        var sheetName = Optional.ofNullable(createTableRequest.sheetName())
+                .filter(StringUtils::isNotBlank)
+                .orElseGet(() -> ((TableView) createTableRequest.table()).name);
         var sheet = excelWorkbook.getSheet(sheetName);
         if (sheet == null) {
             sheet = excelWorkbook.createSheet(sheetName);

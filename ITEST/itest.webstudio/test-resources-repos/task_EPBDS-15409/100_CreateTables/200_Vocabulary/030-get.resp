@@ -1,0 +1,66 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "b2369915f4ec978641d2c2666e24daa7",
+  "tableType": "Vocabulary",
+  "kind": "Datatype",
+  "name": "CountryCode",
+  "type": "String",
+  "values": [
+    {
+      "value": "DE"
+    },
+    {
+      "value": "BE"
+    },
+    {
+      "value": "NL"
+    },
+    {
+      "value": "AT"
+    },
+    {
+      "value": "CH"
+    },
+    {
+      "value": "DK"
+    },
+    {
+      "value": "US"
+    },
+    {
+      "value": "FR"
+    },
+    {
+      "value": "IT"
+    },
+    {
+      "value": "CZ"
+    },
+    {
+      "value": "SE"
+    },
+    {
+      "value": "FI"
+    },
+    {
+      "value": "UA"
+    },
+    {
+      "value": "KZ"
+    },
+    {
+      "value": "PL"
+    },
+    {
+      "value": "GB"
+    },
+    {
+      "value": "RU"
+    },
+    {
+      "value": "IE"
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "e6d3431647a5aaf3ceb61321cc0f2a6b",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Address",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B104:D110"
+  },
+  {
+    "id": "65a33615d73a96b433ff8de865eae168",
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "addresses",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B92:G97"
+  },
+  {
+    "id": "db956ceeb6b34b8a871c16062f9eebe3",
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "AmPmTo24",
+    "returnType": "Integer",
+    "signature": "AmPmTo24(Integer ampmHr, String ampm)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B2:D7"
+  },
+  {
+    "id": "6def787c5c25d257324341d76d840a29",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "AssetsCompare",
+    "returnType": "SpreadsheetResult",
+    "signature": "AssetsCompare()",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B26:C31"
+  },
+  {
+    "id": "b2369915f4ec978641d2c2666e24daa7",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "CountryCode",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B2:B20"
+  },
+  {
+    "id": "cae587d92128935a6bf8b3acabe77dcc",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "CoverageForm",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B116:D118"
+  },
+  {
+    "id": "8df4e0ddc94f4496c2b6e8391ce8ba52",
+    "tableType": "SmartLookup",
+    "kind": "Rules",
+    "name": "CoverageRate",
+    "returnType": "Double",
+    "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B18:G25"
+  },
+  {
+    "id": "5415cda46d85fc7bba0120e399c8f50e",
+    "tableType": "Rules",
+    "kind": "Rules",
+    "name": "Greeting1",
+    "returnType": "String",
+    "signature": "Greeting1 (Integer hour)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B2:D10"
+  },
+  {
+    "id": "52f0004740a46b31f8d69e3b4c935117",
+    "tableType": "SmartRules",
+    "kind": "Rules",
+    "name": "Greeting4",
+    "returnType": "String",
+    "signature": "Greeting4(Integer hour)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B10:D15"
+  },
+  {
+    "id": "ca41574d94ff2fa79f8f5feddf65a09c",
+    "tableType": "Spreadsheet",
+    "kind": "Spreadsheet",
+    "name": "IncomeForecast",
+    "returnType": "SpreadsheetResult",
+    "signature": "IncomeForecast(Double bonusRate, Double sharePrice)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B34:F42"
+  },
+  {
+    "id": "648692d7506498397754f8d1b7f86f66",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "IncomeForecastTest",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B63:E68"
+  },
+  {
+    "id": "486ad8912c803f93bf850cfcd8ae4ba0",
+    "tableType": "SimpleLookup",
+    "kind": "Rules",
+    "name": "IsAdequateMaxCreditRiskScore",
+    "returnType": "Double",
+    "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B22:D25"
+  },
+  {
+    "id": "02a4e96a07443d1bdce777b1eabcbd15",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "IsAdequateMaxCreditRiskScoreTest",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B28:D34"
+  },
+  {
+    "id": "db6350a152ba9904ffc637512e1f8b2a",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Loss",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B21:D24"
+  },
+  {
+    "id": "861e54c9e001948e9375d4b345e949b8",
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "lossData",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B10:E18"
+  },
+  {
+    "id": "ea764e4435c57a632077752108809778",
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "LossFreeDiscount",
+    "returnType": "Double",
+    "signature": "LossFreeDiscount(Double liabLosses)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B2:C7"
+  },
+  {
+    "id": "ec2acd8de37772f7d38de3c76310820c",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "LossFreeDiscountCalc",
+    "returnType": "Double",
+    "signature": "LossFreeDiscountCalc(Loss[] losses, Date currentDate)",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B55:C60"
+  },
+  {
+    "id": "c838f619cdf5e8d88f08052872409470",
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "LossFreeDiscountCalcTest",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B71:D77"
+  },
+  {
+    "id": "caa95ab9dd37dfb746293219c2aa9bd0",
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "states",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B28:C89"
+  },
+  {
+    "id": "13bd9c6615d5916339bec10edd8d1c97",
+    "tableType": "Spreadsheet",
+    "kind": "Spreadsheet",
+    "name": "TotalAssets",
+    "returnType": "SpreadsheetResult",
+    "signature": "TotalAssets()",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B45:E52"
+  },
+  {
+    "id": "5138844e874c4f1c5e99fe759f338653",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "USState",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B100:D102"
+  },
+  {
+    "id": "9de65eeb1ba73a035450e02e115d5caa",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "ZipCode",
+    "file": "EPBDS-15409/Main.xlsx",
+    "pos": "B112:D114"
+  }
+]

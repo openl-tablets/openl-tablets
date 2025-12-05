@@ -1,0 +1,64 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial3",
+  "table": {
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "addresses",
+    "headers": [
+      {
+        "fieldName": "street1",
+        "displayName": "Street1"
+      },
+      {
+        "fieldName": "street2",
+        "displayName": "Street2"
+      },
+      {
+        "fieldName": "city",
+        "displayName": "City"
+      },
+      {
+        "fieldName": "state",
+        "foreignKey": "states code",
+        "displayName": "State"
+      },
+      {
+        "fieldName": "zip.zip1",
+        "displayName": "Zip1"
+      },
+      {
+        "fieldName": "zip.zip2",
+        "displayName": "Zip2"
+      }
+    ],
+    "rows": [
+      {
+        "values": [
+          "1600 Pennsylvania Avenue NW",
+          null,
+          "Washington",
+          "DC",
+          20500,
+          null
+        ]
+      },
+      {
+        "values": [
+          "1085 Summit Dr",
+          null,
+          "Beverly Hills",
+          "CA",
+          90210,
+          2814
+        ]
+      }
+    ],
+    "dataType": "Address"
+  }
+}
+

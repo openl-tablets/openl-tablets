@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "b2369915f4ec978641d2c2666e24daa7",
+  "tableType": "Vocabulary",
+  "kind": "Datatype",
+  "name": "CountryCode",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B2:B20"
+}

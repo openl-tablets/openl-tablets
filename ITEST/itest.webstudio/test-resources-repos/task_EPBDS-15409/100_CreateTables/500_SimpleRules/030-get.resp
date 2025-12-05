@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "db956ceeb6b34b8a871c16062f9eebe3",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "AmPmTo24",
+  "returnType": "Integer",
+  "args": [
+    {
+      "name": "ampmHr",
+      "type": "Integer"
+    },
+    {
+      "name": "ampm",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "AM/PM hour"
+    },
+    {
+      "title": "AM or PM"
+    },
+    {
+      "title": "24 hour"
+    }
+  ],
+  "rules": [
+    {
+      "AM/PM hour": 12,
+      "AM or PM": "AM",
+      "24 hour": 0
+    },
+    {
+      "AM/PM hour": "1-11",
+      "AM or PM": "AM",
+      "24 hour": "=ampmHr"
+    },
+    {
+      "AM/PM hour": 12,
+      "AM or PM": "PM",
+      "24 hour": 12
+    },
+    {
+      "AM/PM hour": "1-11",
+      "AM or PM": "PM",
+      "24 hour": "=ampmHr+12"
+    }
+  ]
+}

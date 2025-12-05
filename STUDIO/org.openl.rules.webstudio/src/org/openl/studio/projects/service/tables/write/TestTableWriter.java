@@ -36,7 +36,7 @@ public class TestTableWriter extends AbstractDataTableWriter<TestView> {
         if (StringUtils.isNotBlank(tableView.name)) {
             header.append(' ').append(tableView.name);
         }
-        createOrUpdateCell(table.getGridTable(), buildCellKey(0, 0), header.toString());
+        createOrUpdateCell(getGridTable(), buildCellKey(0, 0), header.toString());
         mergeHeader(tableView);
     }
 

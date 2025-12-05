@@ -1,0 +1,43 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "LossFreeDiscountCalc",
+    "returnType": "Double",
+    "args": [
+      {
+        "name": "losses",
+        "type": "Loss[]"
+      },
+      {
+        "name": "currentDate",
+        "type": "Date"
+      }
+    ],
+    "steps": [
+      {
+        "name": "Number_Of_Years",
+        "value": 3
+      },
+      {
+        "name": "Number_Of_Liability Losses",
+        "value": "= length ( losses[@ type == \"Liability\" && yearDiff(currentDate, date) < $Number_Of_Years] )"
+      },
+      {
+        "name": "Loss_Free_Discount",
+        "value": "= LossFreeDiscount ( $Number_Of_Liability Losses )"
+      },
+      {
+        "name": "RETURN",
+        "value": "= $Loss_Free_Discount"
+      }
+    ]
+  }
+}
+

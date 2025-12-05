@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "cae587d92128935a6bf8b3acabe77dcc",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "CoverageForm",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B116:D118"
+}

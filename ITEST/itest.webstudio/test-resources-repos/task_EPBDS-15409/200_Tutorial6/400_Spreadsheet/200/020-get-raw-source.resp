@@ -1,0 +1,159 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ca41574d94ff2fa79f8f5feddf65a09c",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "IncomeForecast",
+  "source": [
+    [
+      {
+        "value": "Spreadsheet SpreadsheetResult IncomeForecast(Double bonusRate, Double sharePrice)",
+        "colspan": 5
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {},
+      {
+        "value": "Year1"
+      },
+      {
+        "value": "Year2"
+      },
+      {
+        "value": "Year3"
+      },
+      {
+        "value": "TotalAmount"
+      }
+    ],
+    [
+      {
+        "value": "Salary"
+      },
+      {
+        "value": 45000
+      },
+      {
+        "value": "= round ($Year1$Salary * 1.10)"
+      },
+      {
+        "value": "=round ($Year1$Salary * 1.20)"
+      },
+      {
+        "value": "= $Year1 + $Year2 + $Year3"
+      }
+    ],
+    [
+      {
+        "value": "Shares"
+      },
+      {
+        "value": 0
+      },
+      {
+        "value": 0
+      },
+      {
+        "value": 1000
+      },
+      {
+        "value": "= $Year1 + $Year2 + $Year3"
+      }
+    ],
+    [
+      {
+        "value": "Bonus"
+      },
+      {
+        "value": "=$Salary * bonusRate"
+      },
+      {
+        "value": "= $Salary * bonusRate"
+      },
+      {
+        "value": "= $Salary * bonusRate"
+      },
+      {
+        "value": "= $Year1 + $Year2 + $Year3"
+      }
+    ],
+    [
+      {
+        "value": "bonusRate"
+      },
+      {
+        "value": "=bonusRate"
+      },
+      {
+        "value": "=bonusRate"
+      },
+      {
+        "value": "=bonusRate"
+      },
+      {}
+    ],
+    [
+      {
+        "value": "sharePrice"
+      },
+      {
+        "value": "=sharePrice"
+      },
+      {
+        "value": "=sharePrice"
+      },
+      {
+        "value": "=sharePrice"
+      },
+      {}
+    ],
+    [
+      {
+        "value": "MinSalary"
+      },
+      {
+        "value": "= $Salary"
+      },
+      {
+        "value": "= $Salary"
+      },
+      {
+        "value": "= $Salary"
+      },
+      {
+        "value": "= $Year1 + $Year2 + $Year3"
+      }
+    ],
+    [
+      {
+        "value": "MaxSalary"
+      },
+      {
+        "value": "= $Salary + $Bonus + $Shares * sharePrice"
+      },
+      {
+        "value": "= $Salary + $Bonus + $Shares * sharePrice"
+      },
+      {
+        "value": "= $Salary + $Bonus + $Shares * sharePrice"
+      },
+      {
+        "value": "= $Year1 + $Year2 + $Year3"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,58 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial3",
+  "table": {
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "AmPmTo24",
+    "returnType": "Integer",
+    "args": [
+      {
+        "name": "ampmHr",
+        "type": "Integer"
+      },
+      {
+        "name": "ampm",
+        "type": "String"
+      }
+    ],
+    "headers": [
+      {
+        "title": "AM/PM hour"
+      },
+      {
+        "title": "AM or PM"
+      },
+      {
+        "title": "24 hour"
+      }
+    ],
+    "rules": [
+      {
+        "AM/PM hour": 12,
+        "AM or PM": "AM",
+        "24 hour": 0
+      },
+      {
+        "AM/PM hour": "1-11",
+        "AM or PM": "AM",
+        "24 hour": "=ampmHr"
+      },
+      {
+        "AM/PM hour": 12,
+        "AM or PM": "PM",
+        "24 hour": 12
+      },
+      {
+        "AM/PM hour": "1-11",
+        "AM or PM": "PM",
+        "24 hour": "=ampmHr+12"
+      }
+    ]
+  }
+}
+

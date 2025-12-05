@@ -1,0 +1,59 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "BankRating",
+  "table": {
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "IsAdequateMaxCreditRiskScoreTest",
+    "headers": [
+      {
+        "fieldName": "countryCode",
+        "displayName": "Country Code"
+      },
+      {
+        "fieldName": "isAdequateMaxCreditRisk",
+        "displayName": "Adequate Max Credit Risk"
+      },
+      {
+        "fieldName": "_res_",
+        "displayName": "IsAdequate Max Credit Risk Score"
+      }
+    ],
+    "rows": [
+      {
+        "values": [
+          "CH",
+          true,
+          1
+        ]
+      },
+      {
+        "values": [
+          "DE",
+          true,
+          1
+        ]
+      },
+      {
+        "values": [
+          "DE",
+          false,
+          1
+        ]
+      },
+      {
+        "values": [
+          "IT",
+          false,
+          0.7
+        ]
+      }
+    ],
+    "testedTableName": "IsAdequateMaxCreditRiskScore"
+  }
+}
+

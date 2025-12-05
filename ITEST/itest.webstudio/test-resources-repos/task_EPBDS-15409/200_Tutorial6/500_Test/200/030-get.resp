@@ -1,0 +1,56 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "c838f619cdf5e8d88f08052872409470",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "LossFreeDiscountCalcTest",
+  "headers": [
+    {
+      "fieldName": "losses",
+      "foreignKey": "lossData",
+      "displayName": "Losses"
+    },
+    {
+      "fieldName": "currentDate",
+      "displayName": "Current Date"
+    },
+    {
+      "fieldName": "_res_",
+      "displayName": "Discount"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        null,
+        "2012-12-26",
+        0.1
+      ]
+    },
+    {
+      "values": [
+        [
+          "LL1",
+          "LL6"
+        ],
+        "2012-12-26",
+        0.05
+      ]
+    },
+    {
+      "values": [
+        [
+          "LL1",
+          "LL6",
+          "LP1",
+          "LL4"
+        ],
+        "2012-12-26",
+        0.05
+      ]
+    }
+  ],
+  "testedTableName": "LossFreeDiscountCalc"
+}

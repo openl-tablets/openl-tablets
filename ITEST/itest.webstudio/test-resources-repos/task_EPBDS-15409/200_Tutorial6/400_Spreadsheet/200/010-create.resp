@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "ca41574d94ff2fa79f8f5feddf65a09c",
+  "tableType": "Spreadsheet",
+  "kind": "Spreadsheet",
+  "name": "IncomeForecast",
+  "returnType": "SpreadsheetResult",
+  "signature": "IncomeForecast(Double bonusRate, Double sharePrice)",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B34:F42"
+}

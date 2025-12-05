@@ -1,0 +1,136 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "executionTimeMs": "##.##",
+  "numberOfTests": 3,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "IncomeForecastTest",
+      "tableId": "***",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 3,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Min Total Salary",
+              "expectedValue": 148500,
+              "actualValue": 148500,
+              "status": "TR_OK"
+            },
+            {
+              "description": "Max Total Salary",
+              "expectedValue": 185775.0,
+              "actualValue": 185775.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bonusRate",
+              "description": "Bonus Rate",
+              "value": 0.15,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "sharePrice",
+              "description": "Share Price",
+              "value": 15.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Min Total Salary",
+              "expectedValue": 148500,
+              "actualValue": 148500,
+              "status": "TR_OK"
+            },
+            {
+              "description": "Max Total Salary",
+              "expectedValue": 188350.0,
+              "actualValue": 188350.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bonusRate",
+              "description": "Bonus Rate",
+              "value": 0.1,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "sharePrice",
+              "description": "Share Price",
+              "value": 25.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Min Total Salary",
+              "expectedValue": 148500,
+              "actualValue": 148500,
+              "status": "TR_OK"
+            },
+            {
+              "description": "Max Total Salary",
+              "expectedValue": 190925.0,
+              "actualValue": 190925.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bonusRate",
+              "description": "Bonus Rate",
+              "value": 0.05,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "sharePrice",
+              "description": "Share Price",
+              "value": 35.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

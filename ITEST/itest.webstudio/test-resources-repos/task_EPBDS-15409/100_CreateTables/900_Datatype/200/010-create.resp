@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "e6d3431647a5aaf3ceb61321cc0f2a6b",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Address",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B104:D110"
+}

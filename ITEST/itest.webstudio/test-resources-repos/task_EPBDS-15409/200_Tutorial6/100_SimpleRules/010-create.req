@@ -1,0 +1,46 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "LossFreeDiscount",
+    "returnType": "Double",
+    "args": [
+      {
+        "name": "liabLosses",
+        "type": "Double"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Number of Liability Losses"
+      },
+      {
+        "title": "Loss Free Discount"
+      }
+    ],
+    "rules": [
+      {
+        "Number of Liability Losses": 0,
+        "Loss Free Discount": 0.1
+      },
+      {
+        "Number of Liability Losses": 1,
+        "Loss Free Discount": 0.05
+      },
+      {
+        "Number of Liability Losses": 2,
+        "Loss Free Discount": 0.02
+      },
+      {
+        "Loss Free Discount": 0
+      }
+    ]
+  }
+}
+

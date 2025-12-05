@@ -1,0 +1,79 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "52f0004740a46b31f8d69e3b4c935117",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting4",
+  "source": [
+    [
+      {
+        "value": "SmartRules String Greeting4(Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Hour",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "value": 0
+      },
+      {
+        "value": 12
+      },
+      {
+        "value": "Good Morning, World!"
+      }
+    ],
+    [
+      {
+        "value": 12
+      },
+      {
+        "value": 18
+      },
+      {
+        "value": "Good Afternoon, World!"
+      }
+    ],
+    [
+      {
+        "value": 18
+      },
+      {
+        "value": 22
+      },
+      {
+        "value": "Good Evening, World!"
+      }
+    ],
+    [
+      {
+        "value": 22
+      },
+      {
+        "value": 24
+      },
+      {
+        "value": "Good Night, World!"
+      }
+    ]
+  ]
+}

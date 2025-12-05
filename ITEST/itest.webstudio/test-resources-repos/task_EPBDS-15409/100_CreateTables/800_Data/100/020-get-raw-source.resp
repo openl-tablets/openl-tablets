@@ -1,0 +1,508 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "caa95ab9dd37dfb746293219c2aa9bd0",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "states",
+  "source": [
+    [
+      {
+        "value": "Data USState states",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "name"
+      },
+      {
+        "value": "code"
+      }
+    ],
+    [
+      {
+        "value": "State/Possession"
+      },
+      {
+        "value": "Abbreviation"
+      }
+    ],
+    [
+      {
+        "value": "ALABAMA"
+      },
+      {
+        "value": "AL"
+      }
+    ],
+    [
+      {
+        "value": "ALASKA"
+      },
+      {
+        "value": "AK"
+      }
+    ],
+    [
+      {
+        "value": "AMERICAN SAMOA"
+      },
+      {
+        "value": "AS"
+      }
+    ],
+    [
+      {
+        "value": "ARIZONA"
+      },
+      {
+        "value": "AZ"
+      }
+    ],
+    [
+      {
+        "value": "ARKANSAS"
+      },
+      {
+        "value": "AR"
+      }
+    ],
+    [
+      {
+        "value": "CALIFORNIA"
+      },
+      {
+        "value": "CA"
+      }
+    ],
+    [
+      {
+        "value": "COLORADO"
+      },
+      {
+        "value": "CO"
+      }
+    ],
+    [
+      {
+        "value": "CONNECTICUT"
+      },
+      {
+        "value": "CT"
+      }
+    ],
+    [
+      {
+        "value": "DELAWARE"
+      },
+      {
+        "value": "DE"
+      }
+    ],
+    [
+      {
+        "value": "DISTRICT OF COLUMBIA"
+      },
+      {
+        "value": "DC"
+      }
+    ],
+    [
+      {
+        "value": "FEDERATED STATES OF MICRONESIA"
+      },
+      {
+        "value": "FM"
+      }
+    ],
+    [
+      {
+        "value": "FLORIDA"
+      },
+      {
+        "value": "FL"
+      }
+    ],
+    [
+      {
+        "value": "GEORGIA"
+      },
+      {
+        "value": "GA"
+      }
+    ],
+    [
+      {
+        "value": "GUAM"
+      },
+      {
+        "value": "GU"
+      }
+    ],
+    [
+      {
+        "value": "HAWAII"
+      },
+      {
+        "value": "HI"
+      }
+    ],
+    [
+      {
+        "value": "IDAHO"
+      },
+      {
+        "value": "ID"
+      }
+    ],
+    [
+      {
+        "value": "ILLINOIS"
+      },
+      {
+        "value": "IL"
+      }
+    ],
+    [
+      {
+        "value": "INDIANA"
+      },
+      {
+        "value": "IN"
+      }
+    ],
+    [
+      {
+        "value": "IOWA"
+      },
+      {
+        "value": "IA"
+      }
+    ],
+    [
+      {
+        "value": "KANSAS"
+      },
+      {
+        "value": "KS"
+      }
+    ],
+    [
+      {
+        "value": "KENTUCKY"
+      },
+      {
+        "value": "KY"
+      }
+    ],
+    [
+      {
+        "value": "LOUISIANA"
+      },
+      {
+        "value": "LA"
+      }
+    ],
+    [
+      {
+        "value": "MAINE"
+      },
+      {
+        "value": "ME"
+      }
+    ],
+    [
+      {
+        "value": "MARSHALL ISLANDS"
+      },
+      {
+        "value": "MH"
+      }
+    ],
+    [
+      {
+        "value": "MARYLAND"
+      },
+      {
+        "value": "MD"
+      }
+    ],
+    [
+      {
+        "value": "MASSACHUSETTS"
+      },
+      {
+        "value": "MA"
+      }
+    ],
+    [
+      {
+        "value": "MICHIGAN"
+      },
+      {
+        "value": "MI"
+      }
+    ],
+    [
+      {
+        "value": "MINNESOTA"
+      },
+      {
+        "value": "MN"
+      }
+    ],
+    [
+      {
+        "value": "MISSISSIPPI"
+      },
+      {
+        "value": "MS"
+      }
+    ],
+    [
+      {
+        "value": "MISSOURI"
+      },
+      {
+        "value": "MO"
+      }
+    ],
+    [
+      {
+        "value": "MONTANA"
+      },
+      {
+        "value": "MT"
+      }
+    ],
+    [
+      {
+        "value": "NEBRASKA"
+      },
+      {
+        "value": "NE"
+      }
+    ],
+    [
+      {
+        "value": "NEVADA"
+      },
+      {
+        "value": "NV"
+      }
+    ],
+    [
+      {
+        "value": "NEW HAMPSHIRE"
+      },
+      {
+        "value": "NH"
+      }
+    ],
+    [
+      {
+        "value": "NEW JERSEY"
+      },
+      {
+        "value": "NJ"
+      }
+    ],
+    [
+      {
+        "value": "NEW MEXICO"
+      },
+      {
+        "value": "NM"
+      }
+    ],
+    [
+      {
+        "value": "NEW YORK"
+      },
+      {
+        "value": "NY"
+      }
+    ],
+    [
+      {
+        "value": "NORTH CAROLINA"
+      },
+      {
+        "value": "NC"
+      }
+    ],
+    [
+      {
+        "value": "NORTH DAKOTA"
+      },
+      {
+        "value": "ND"
+      }
+    ],
+    [
+      {
+        "value": "NORTHERN MARIANA ISLANDS"
+      },
+      {
+        "value": "MP"
+      }
+    ],
+    [
+      {
+        "value": "OHIO"
+      },
+      {
+        "value": "OH"
+      }
+    ],
+    [
+      {
+        "value": "OKLAHOMA"
+      },
+      {
+        "value": "OK"
+      }
+    ],
+    [
+      {
+        "value": "OREGON"
+      },
+      {
+        "value": "OR"
+      }
+    ],
+    [
+      {
+        "value": "PALAU"
+      },
+      {
+        "value": "PW"
+      }
+    ],
+    [
+      {
+        "value": "PENNSYLVANIA"
+      },
+      {
+        "value": "PA"
+      }
+    ],
+    [
+      {
+        "value": "PUERTO RICO"
+      },
+      {
+        "value": "PR"
+      }
+    ],
+    [
+      {
+        "value": "RHODE ISLAND"
+      },
+      {
+        "value": "RI"
+      }
+    ],
+    [
+      {
+        "value": "SOUTH CAROLINA"
+      },
+      {
+        "value": "SC"
+      }
+    ],
+    [
+      {
+        "value": "SOUTH DAKOTA"
+      },
+      {
+        "value": "SD"
+      }
+    ],
+    [
+      {
+        "value": "TENNESSEE"
+      },
+      {
+        "value": "TN"
+      }
+    ],
+    [
+      {
+        "value": "TEXAS"
+      },
+      {
+        "value": "TX"
+      }
+    ],
+    [
+      {
+        "value": "UTAH"
+      },
+      {
+        "value": "UT"
+      }
+    ],
+    [
+      {
+        "value": "VERMONT"
+      },
+      {
+        "value": "VT"
+      }
+    ],
+    [
+      {
+        "value": "VIRGIN ISLANDS"
+      },
+      {
+        "value": "VI"
+      }
+    ],
+    [
+      {
+        "value": "VIRGINIA"
+      },
+      {
+        "value": "VA"
+      }
+    ],
+    [
+      {
+        "value": "WASHINGTON"
+      },
+      {
+        "value": "WA"
+      }
+    ],
+    [
+      {
+        "value": "WEST VIRGINIA"
+      },
+      {
+        "value": "WV"
+      }
+    ],
+    [
+      {
+        "value": "WISCONSIN"
+      },
+      {
+        "value": "WI"
+      }
+    ],
+    [
+      {
+        "value": "WYOMING"
+      },
+      {
+        "value": "WY"
+      }
+    ]
+  ]
+}

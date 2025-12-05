@@ -63,9 +63,11 @@ import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -206,15 +208,20 @@ public class ProjectsController {
         return projectService.getTables(project, query);
     }
 
+    @Operation(summary = "Create new project table (BETA)")
+    @Parameter(name = "projectId", description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
     @PostMapping("/{projectId}/tables")
-    @Hidden
+    @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
         try {
-            return projectService.createNewTable(project, request);
+            projectService.createNewTable(project, request);
         } finally {
             getWebStudio().reset();
         }
+        var table = (TableView) request.table();
+        var query = ProjectTableCriteriaQuery.builder().name(table.name).build();
+        return projectService.getTables(project, query).stream().findFirst().orElse(null);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

@@ -1,0 +1,54 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "02a4e96a07443d1bdce777b1eabcbd15",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "IsAdequateMaxCreditRiskScoreTest",
+  "headers": [
+    {
+      "fieldName": "countryCode",
+      "displayName": "Country Code"
+    },
+    {
+      "fieldName": "isAdequateMaxCreditRisk",
+      "displayName": "Adequate Max Credit Risk"
+    },
+    {
+      "fieldName": "_res_",
+      "displayName": "IsAdequate Max Credit Risk Score"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        "CH",
+        true,
+        1
+      ]
+    },
+    {
+      "values": [
+        "DE",
+        true,
+        1
+      ]
+    },
+    {
+      "values": [
+        "DE",
+        false,
+        1
+      ]
+    },
+    {
+      "values": [
+        "IT",
+        false,
+        0.7
+      ]
+    }
+  ],
+  "testedTableName": "IsAdequateMaxCreditRiskScore"
+}

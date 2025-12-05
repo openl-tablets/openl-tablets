@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "5415cda46d85fc7bba0120e399c8f50e",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "returnType": "String",
+  "signature": "Greeting1 (Integer hour)",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B2:D10"
+}

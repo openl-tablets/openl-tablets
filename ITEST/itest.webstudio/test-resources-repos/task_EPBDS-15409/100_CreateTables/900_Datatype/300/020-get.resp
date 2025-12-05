@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "9de65eeb1ba73a035450e02e115d5caa",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "ZipCode",
+  "fields": [
+    {
+      "name": "zip1",
+      "type": "String"
+    },
+    {
+      "name": "zip2",
+      "type": "String"
+    }
+  ]
+}

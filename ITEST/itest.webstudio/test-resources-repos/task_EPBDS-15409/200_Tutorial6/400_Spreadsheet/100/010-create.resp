@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "6def787c5c25d257324341d76d840a29",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "AssetsCompare",
+  "returnType": "SpreadsheetResult",
+  "signature": "AssetsCompare()",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B26:C31"
+}

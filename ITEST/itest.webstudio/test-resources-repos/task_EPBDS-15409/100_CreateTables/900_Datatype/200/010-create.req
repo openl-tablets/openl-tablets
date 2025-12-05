@@ -1,0 +1,40 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial3",
+  "table": {
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Address",
+    "fields": [
+      {
+        "name": "street1",
+        "type": "String"
+      },
+      {
+        "name": "street2",
+        "type": "String"
+      },
+      {
+        "name": "street",
+        "type": "String"
+      },
+      {
+        "name": "zip",
+        "type": "ZipCode"
+      },
+      {
+        "name": "state",
+        "type": "USState"
+      },
+      {
+        "name": "city",
+        "type": "String"
+      }
+    ]
+  }
+}
+

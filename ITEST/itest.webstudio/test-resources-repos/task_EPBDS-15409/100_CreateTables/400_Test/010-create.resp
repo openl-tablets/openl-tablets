@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "02a4e96a07443d1bdce777b1eabcbd15",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "IsAdequateMaxCreditRiskScoreTest",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B28:D34"
+}

@@ -1,0 +1,31 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Loss",
+    "fields": [
+      {
+        "name": "date",
+        "type": "Date",
+        "defaultValue": "2000-01-01"
+      },
+      {
+        "name": "amount",
+        "type": "Double",
+        "defaultValue": 0
+      },
+      {
+        "name": "type",
+        "type": "String",
+        "defaultValue": "Other"
+      }
+    ]
+  }
+}
+
