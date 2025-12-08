@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -23,14 +22,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoWriter;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -44,9 +39,7 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
@@ -62,49 +55,22 @@ import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
-import org.openl.studio.projects.model.tables.DataAppend;
-import org.openl.studio.projects.model.tables.DataView;
-import org.openl.studio.projects.model.tables.DatatypeAppend;
-import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.model.tables.EditableTableView;
-import org.openl.studio.projects.model.tables.LookupAppend;
-import org.openl.studio.projects.model.tables.LookupView;
-import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableView;
-import org.openl.studio.projects.model.tables.SimpleRulesAppend;
-import org.openl.studio.projects.model.tables.SimpleRulesView;
-import org.openl.studio.projects.model.tables.SimpleSpreadsheetAppend;
-import org.openl.studio.projects.model.tables.SimpleSpreadsheetView;
-import org.openl.studio.projects.model.tables.SmartRulesAppend;
-import org.openl.studio.projects.model.tables.SmartRulesView;
-import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
-import org.openl.studio.projects.model.tables.TestAppend;
-import org.openl.studio.projects.model.tables.TestView;
-import org.openl.studio.projects.model.tables.VocabularyAppend;
-import org.openl.studio.projects.model.tables.VocabularyView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
-import org.openl.studio.projects.service.tables.write.DataTableWriter;
-import org.openl.studio.projects.service.tables.write.DatatypeTableWriter;
-import org.openl.studio.projects.service.tables.write.LookupWriter;
-import org.openl.studio.projects.service.tables.write.RawTableWriter;
-import org.openl.studio.projects.service.tables.write.SimpleRulesWriter;
-import org.openl.studio.projects.service.tables.write.SimpleSpreadsheetTableWriter;
-import org.openl.studio.projects.service.tables.write.SmartRulesWriter;
-import org.openl.studio.projects.service.tables.write.SpreadsheetTableWriter;
-import org.openl.studio.projects.service.tables.write.TableWriter;
-import org.openl.studio.projects.service.tables.write.TestTableWriter;
-import org.openl.studio.projects.service.tables.write.VocabularyTableWriter;
+import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
+import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
-import org.openl.util.StringUtils;
 
 /**
  * Implementation of project service for workspace projects.
@@ -126,6 +92,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
     private final BeanValidationProvider validationProvider;
+    private final TableWriterExecutor tableWriterExecutor;
+    private final TableCreatorService tableCreatorService;
+    private final TableWritersFactory tableWritersFactory;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -135,7 +104,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             RawTableReader rawTableReader,
             List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers,
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
-            BeanValidationProvider validationProvider) {
+            BeanValidationProvider validationProvider,
+            TableCreatorService tableCreatorService,
+            TableWriterExecutor tableWriterExecutor,
+            TableWritersFactory tableWritersFactory) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -144,6 +116,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.readers = readers;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
+        this.tableCreatorService = tableCreatorService;
+        this.tableWriterExecutor = tableWriterExecutor;
+        this.tableWritersFactory = tableWritersFactory;
     }
 
     @Lookup
@@ -598,65 +573,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
-        var writer = getTableWriter(table, tableView.getTableType());
+        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        executeTableWrite(writer, tableView);
-    }
-
-    private void executeTableWrite(TableWriter<? extends TableView> writer, EditableTableView tableView) {
-        switch (writer) {
-            case VocabularyTableWriter vocabularyTableWriter -> vocabularyTableWriter.write((VocabularyView) tableView);
-            case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.write((DatatypeView) tableView);
-            case SimpleSpreadsheetTableWriter simpleSpreadsheetTableWriter ->
-                    simpleSpreadsheetTableWriter.write((SimpleSpreadsheetView) tableView);
-            case SpreadsheetTableWriter spreadsheetTableWriter ->
-                    spreadsheetTableWriter.write((SpreadsheetView) tableView);
-            case SimpleRulesWriter simpleRulesWriter -> simpleRulesWriter.write((SimpleRulesView) tableView);
-            case SmartRulesWriter smartRulesWriter -> smartRulesWriter.write((SmartRulesView) tableView);
-            case LookupWriter smartLookupWriter -> smartLookupWriter.write((LookupView) tableView);
-            case DataTableWriter dataTableWriter -> dataTableWriter.write((DataView) tableView);
-            case TestTableWriter testTableWriter -> testTableWriter.write((TestView) tableView);
-            case RawTableWriter rawTableWriter -> rawTableWriter.write((RawTableView) tableView);
-            default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
-        }
-    }
-
-    private TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
-        // RawTableView can be used for any table type, so check it first
-        if (RawTableView.TABLE_TYPE.equals(tableType)) {
-            return new RawTableWriter(table);
-        }
-
-        if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {
-            if (VocabularyView.TABLE_TYPE.equals(tableType)) {
-                return new VocabularyTableWriter(table);
-            } else if (DatatypeView.TABLE_TYPE.equals(tableType)) {
-                return new DatatypeTableWriter(table);
-            }
-        } else if (Objects.equals(XlsNodeTypes.XLS_SPREADSHEET.toString(), table.getType())) {
-            if (SimpleSpreadsheetView.TABLE_TYPE.equals(tableType)) {
-                return new SimpleSpreadsheetTableWriter(table);
-            } else if (SpreadsheetView.TABLE_TYPE.equals(tableType)) {
-                return new SpreadsheetTableWriter(table);
-            }
-        } else if (Objects.equals(XlsNodeTypes.XLS_DT.toString(), table.getType())) {
-            if (SimpleRulesView.TABLE_TYPE.equals(tableType)) {
-                return new SimpleRulesWriter(table);
-            } else if (SmartRulesView.TABLE_TYPE.equals(tableType)) {
-                return new SmartRulesWriter(table);
-            } else if (LookupView.SMART_TABLE_TYPE.equals(tableType) || LookupView.SIMPLE_TABLE_TYPE.equals(tableType)) {
-                return new LookupWriter(table);
-            }
-        } else if (Objects.equals(XlsNodeTypes.XLS_DATA.toString(), table.getType())) {
-            if (DataView.TABLE_TYPE.equals(tableType)) {
-                return new DataTableWriter(table);
-            }
-        } else if (Objects.equals(XlsNodeTypes.XLS_TEST_METHOD.toString(), table.getType())) {
-            if (TestView.TABLE_TYPE.equals(tableType)) {
-                return new TestTableWriter(table);
-            }
-        }
-        throw new UnsupportedOperationException("Table type doesn't match writer type");
+        tableWriterExecutor.executeWrite(writer, tableView);
     }
 
     /**
@@ -674,22 +593,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
-        var writer = getTableWriter(table, tableView.getTableType());
+        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        switch (writer) {
-            case VocabularyTableWriter vocabularyTableWriter ->
-                    vocabularyTableWriter.append((VocabularyAppend) tableView);
-            case DatatypeTableWriter datatypeTableWriter -> datatypeTableWriter.append((DatatypeAppend) tableView);
-            case SimpleSpreadsheetTableWriter simpleSpreadsheetTableWriter ->
-                    simpleSpreadsheetTableWriter.append((SimpleSpreadsheetAppend) tableView);
-            case SimpleRulesWriter simpleRulesWriter -> simpleRulesWriter.append((SimpleRulesAppend) tableView);
-            case SmartRulesWriter smartRulesWriter -> smartRulesWriter.append((SmartRulesAppend) tableView);
-            case LookupWriter smartLookupWriter -> smartLookupWriter.append((LookupAppend) tableView);
-            case DataTableWriter dataTableWriter -> dataTableWriter.append((DataAppend) tableView);
-            case TestTableWriter testTableWriter -> testTableWriter.append((TestAppend) tableView);
-            case RawTableWriter rawTableWriter -> rawTableWriter.append((RawTableAppend) tableView);
-            default -> throw new UnsupportedOperationException("Unsupported writer: " + writer);
-        }
+        tableWriterExecutor.executeAppend(writer, tableView);
     }
 
     @Override
@@ -712,119 +618,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ForbiddenException("default.message");
         }
         var projectModel = getProjectModel(project, createTableRequest.moduleName());
-        var table = (TableView) createTableRequest.table();
-        if (!validateUniqueness(projectModel, table.name)) {
-            throw new ConflictException("table.exists.message", table.name);
-        }
         getWebStudio().getCurrentProject().tryLockOrThrow();
-
-        var gridModel = getXlsSheetGridModel(createTableRequest, projectModel);
-        var tableWriter = getTableCreator(table, gridModel);
-        executeTableWrite(tableWriter, createTableRequest.table());
+        tableCreatorService.createTable(createTableRequest, projectModel);
     }
 
-    private TableWriter<? extends TableView> getTableCreator(TableView tableView, XlsSheetGridModel gridModel) {
-        return switch (tableView) {
-            case DatatypeView datatypeView -> {
-                var fieldsNumb = datatypeView.fields.size();
-                var rect = gridModel.findEmptyRect(3, fieldsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new DatatypeTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case VocabularyView vocabularyView -> {
-                var fieldsNumb = vocabularyView.values.size();
-                var rect = gridModel.findEmptyRect(3, fieldsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new VocabularyTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case SpreadsheetView spreadsheetView -> {
-                var rowsNumb = spreadsheetView.rows.size();
-                var colsNumb = spreadsheetView.columns.size();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new SpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case SimpleSpreadsheetView simpleSpreadsheetView -> {
-                var rowsNumb = simpleSpreadsheetView.steps.size();
-                var rect = gridModel.findEmptyRect(2, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new SimpleSpreadsheetTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case SimpleRulesView simpleRulesView -> {
-                var rowsNumb = simpleRulesView.rules.size();
-                var colsNumb = simpleRulesView.headers.size();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new SimpleRulesWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case SmartRulesView smartRulesView -> {
-                var rowsNumb = smartRulesView.rules.size();
-                var colsNumb = smartRulesView.headers.stream()
-                        .mapToInt(h -> Math.max(h.width, 1))
-                        .sum();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new SmartRulesWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case DataView dataView -> {
-                var rowsNumb = dataView.rows.size();
-                var colsNumb = dataView.headers.size();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new DataTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case TestView testView -> {
-                var rowsNumb = testView.rows.size();
-                var colsNumb = testView.headers.size();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new TestTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case LookupView lookupView -> {
-                var rowsNumb = lookupView.rows.size();
-                var colsNumb = lookupView.headers.stream()
-                        .mapToInt(h -> Math.max(h.getWidth(), 1))
-                        .sum();
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb + 1);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new LookupWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            case RawTableView rawTableView -> {
-                var rowsNumb = rawTableView.source.size();
-                var colsNumb = rawTableView.source.stream()
-                        .mapToInt(List::size)
-                        .max()
-                        .orElse(1);
-                var rect = gridModel.findEmptyRect(colsNumb, rowsNumb);
-                var gridTable = new GridTable(rect, gridModel);
-                yield new RawTableWriter(gridTable, EmptyMetaInfoWriter.getInstance());
-            }
-            default -> throw new UnsupportedOperationException("Table creation is not supported for table type: " + tableView.tableType);
-        };
-    }
-
-    private static XlsSheetGridModel getXlsSheetGridModel(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
-        var currentWorkbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
-                .getWorkbookSourceCodeModule();
-
-        var excelWorkbook = currentWorkbook.getWorkbook();
-        var sheetName = Optional.ofNullable(createTableRequest.sheetName())
-                .filter(StringUtils::isNotBlank)
-                .orElseGet(() -> ((TableView) createTableRequest.table()).name);
-        var sheet = excelWorkbook.getSheet(sheetName);
-        if (sheet == null) {
-            sheet = excelWorkbook.createSheet(sheetName);
-        }
-
-        var sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), currentWorkbook);
-        return new XlsSheetGridModel(sourceCodeModule);
-    }
-
-    private static boolean validateUniqueness(ProjectModel model, String tableName) {
-        return model.getAllTableSyntaxNodes().stream()
-                .noneMatch(node -> Optional.ofNullable(node.getMember())
-                        .map(INamedThing::getName)
-                        .map(name -> name.equalsIgnoreCase(tableName))
-                        .orElse(false));
-    }
 }

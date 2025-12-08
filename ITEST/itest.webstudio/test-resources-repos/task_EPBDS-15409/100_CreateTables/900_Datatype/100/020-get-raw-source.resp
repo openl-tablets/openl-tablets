@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "5138844e874c4f1c5e99fe759f338653",
+  "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "USState",

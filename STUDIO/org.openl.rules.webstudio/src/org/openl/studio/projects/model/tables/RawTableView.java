@@ -50,6 +50,29 @@ public class RawTableView extends TableView implements EditableTableView {
     }
 
     @Override
+    public int getHeight() {
+        return getBodyHeight();
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        return source.size();
+    }
+
+    @Override
+    public int getWidth() {
+        return getBodyWidth();
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return source.stream()
+                .mapToInt(List::size)
+                .max()
+                .orElse(1);
+    }
+
+    @Override
     public String getTableType() {
         return tableType;
     }

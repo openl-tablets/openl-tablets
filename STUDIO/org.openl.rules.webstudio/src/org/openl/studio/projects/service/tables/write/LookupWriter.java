@@ -50,7 +50,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
     @Override
     protected void updateBusinessBody(LookupView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
-        var rowNum = getHeaderDepth(tableView.headers);
+        var rowNum = LookupHeaderView.getHeaderDepth(tableView.headers);
         var colMax = writeSubHeader(tableBody, tableView.headers, 0, 0);
 
         rowNum = writeRows(tableBody, tableView.headers, tableView.rows, rowNum);
@@ -115,7 +115,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
 
     private int writeSubHeader(IGridTable tableBody, List<LookupHeaderView>  headers, int fromCol, int fromRow) {
         int col = fromCol;
-        int maxHeight = getHeaderDepth(headers);
+        int maxHeight = LookupHeaderView.getHeaderDepth(headers);
         List<IGridRegion> mergeRegions = new ArrayList<>();
         for (var header : headers) {
             var width = header.getWidth();
@@ -138,16 +138,6 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
         }
         applyMergeRegions(tableBody, mergeRegions);
         return col;
-    }
-
-    /**
-     * Calculates the maximum depth of the header hierarchy.
-     */
-    private int getHeaderDepth(List<LookupHeaderView> headers) {
-        return headers.stream()
-                .mapToInt(LookupHeaderView::getHeight)
-                .max()
-                .orElse(1);
     }
 
     public void append(LookupAppend tableAppend) {

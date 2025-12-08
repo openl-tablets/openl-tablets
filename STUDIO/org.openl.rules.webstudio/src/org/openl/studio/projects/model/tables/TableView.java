@@ -3,7 +3,10 @@ package org.openl.studio.projects.model.tables;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.util.CollectionUtils;
 
 /**
  * Base class for all table views
@@ -11,6 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @author Vladyslav Pikus
  */
 public abstract class TableView {
+
+    protected static final int BASE_HEADER_HEIGHT = 1;
+    protected static final int PROPERTIES_PART_WIDTH = 3;
+
 
     @Schema(description = "Unique identifier of the table")
     public final String id;
@@ -52,6 +59,22 @@ public abstract class TableView {
         this.kind = builder.kind;
         this.properties = Optional.ofNullable(builder.properties).map(Map::copyOf).orElse(Map.of());
     }
+
+    @JsonIgnore
+    public int getHeight() {
+        var propertiesHeight = CollectionUtils.isNotEmpty(properties) ? properties.size() : 0;
+        return BASE_HEADER_HEIGHT + propertiesHeight + getBodyHeight();
+    }
+
+    protected abstract int getBodyHeight();
+
+    @JsonIgnore
+    public int getWidth() {
+        var propertiesWidth = CollectionUtils.isNotEmpty(properties) ? PROPERTIES_PART_WIDTH : 0;
+        return Math.max(getBodyWidth(), propertiesWidth);
+    }
+
+    protected abstract int getBodyWidth();
 
     public static abstract class Builder<T extends Builder<T>> {
         private String id;

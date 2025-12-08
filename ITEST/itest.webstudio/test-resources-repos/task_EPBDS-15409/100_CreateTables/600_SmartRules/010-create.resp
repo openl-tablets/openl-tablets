@@ -2,12 +2,12 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "52f0004740a46b31f8d69e3b4c935117",
+  "id": "ba41a332a59792fbbf6ffcaca80e8312",
   "tableType": "SmartRules",
   "kind": "Rules",
   "name": "Greeting4",
   "returnType": "String",
   "signature": "Greeting4(Integer hour)",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B10:D15"
+  "pos": "B9:D14"
 }

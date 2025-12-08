@@ -63,6 +63,13 @@ public class LookupHeaderView extends ARuleHeaderView {
                 .orElse(0);
     }
 
+    public static int getHeaderDepth(List<LookupHeaderView> headers) {
+        return headers.stream()
+                .mapToInt(LookupHeaderView::getHeight)
+                .max()
+                .orElse(1);
+    }
+
     @JsonCreator
     public static Builder builder() {
         return new Builder();

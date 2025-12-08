@@ -2,12 +2,12 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "8df4e0ddc94f4496c2b6e8391ce8ba52",
+  "id": "089f8508b0ec1284de97ba1c27ac5f7a",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",
   "returnType": "Double",
   "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B18:G25"
+  "pos": "B16:G23"
 }

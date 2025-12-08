@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.util.CollectionUtils;
+
 /**
  * Spreadsheet table model
  *
@@ -15,6 +17,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonDeserialize(builder = SpreadsheetView.Builder.class)
 public class SpreadsheetView extends ExecutableView {
+
+    protected static final int RESERVED_HEADER_HEIGHT = 1;
+    private static final int RESERVED_STEPS_WIDTH = 1;
 
     public static final String TABLE_TYPE = "Spreadsheet";
 
@@ -32,6 +37,18 @@ public class SpreadsheetView extends ExecutableView {
         this.rows = Optional.ofNullable(builder.rows).map(List::copyOf).orElse(List.of());
         this.columns = Optional.ofNullable(builder.columns).map(List::copyOf).orElse(List.of());
         this.cells = builder.cells;
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        var stepsCount = CollectionUtils.isNotEmpty(rows) ? rows.size() : 0;
+        return stepsCount + RESERVED_HEADER_HEIGHT;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        var colCount = CollectionUtils.isNotEmpty(rows) ? rows.size() : 0;
+        return colCount + RESERVED_STEPS_WIDTH;
     }
 
     @JsonCreator

@@ -2,10 +2,10 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "5138844e874c4f1c5e99fe759f338653",
+  "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "USState",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B100:D102"
+  "pos": "B95:D97"
 }

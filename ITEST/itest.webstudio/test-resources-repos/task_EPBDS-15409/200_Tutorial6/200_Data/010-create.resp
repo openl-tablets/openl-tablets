@@ -2,10 +2,10 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "861e54c9e001948e9375d4b345e949b8",
+  "id": "8716a4aa80fff7cb555df3aec9088fe2",
   "tableType": "Data",
   "kind": "Data",
   "name": "lossData",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B10:E18"
+  "pos": "B9:E17"
 }

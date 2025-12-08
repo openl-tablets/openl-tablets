@@ -2,10 +2,10 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "c838f619cdf5e8d88f08052872409470",
+  "id": "c6b479d0645a4fea79b818f569295462",
   "tableType": "Test",
   "kind": "Test",
   "name": "LossFreeDiscountCalcTest",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B71:D77"
+  "pos": "B64:D70"
 }
