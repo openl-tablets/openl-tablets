@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
@@ -42,6 +44,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     public RawTableWriter(IOpenLTable table) {
         super(table);
+    }
+
+    public RawTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
     }
 
     /**
@@ -88,7 +94,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     @Override
     protected void updateBusinessBody(RawTableView tableView) {
-        var tableBody = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+        var tableBody = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         int maxSourceRow = tableView.source.size();
         List<IGridRegion> mergeRegions = new ArrayList<>();
 
@@ -110,10 +116,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             }
         }
 
-        // Clean up removed rows
-        var height = Tool.height(tableBody.getRegion());
-        if (maxSourceRow < height) {
-            removeRows(tableBody, height - maxSourceRow, maxSourceRow);
+        if (isUpdateMode()) {
+            // Clean up removed rows
+            var height = Tool.height(tableBody.getRegion());
+            if (maxSourceRow < height) {
+                removeRows(tableBody, height - maxSourceRow, maxSourceRow);
+            }
         }
 
         // Phase 2: Apply merge regions after all cells are written
@@ -139,6 +147,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * @param tableAppend The append request containing rows to add
      */
     public void append(RawTableAppend tableAppend) {
+        if (!isUpdateMode()) {
+            throw new IllegalStateException("Append operation is only allowed in update mode.");
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);

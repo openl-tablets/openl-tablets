@@ -342,6 +342,1117 @@ Content-Type: application/json
         }
       },
       {
+        "name": "openl_create_project_table",
+        "description": "***",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "***"
+            },
+            "moduleName": {
+              "type": "string",
+              "description": "***"
+            },
+            "sheetName": {
+              "type": "string",
+              "description": "***"
+            },
+            "table": {
+              "$defs": {
+                "ArgumentView": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "***"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "***"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ]
+                },
+                "DataHeaderView": {
+                  "type": "object",
+                  "properties": {
+                    "displayName": {
+                      "type": "string",
+                      "description": "***"
+                    },
+                    "fieldName": {
+                      "type": "string",
+                      "description": "***"
+                    },
+                    "foreignKey": {
+                      "type": "string",
+                      "description": "***"
+                    }
+                  },
+                  "required": [
+                    "displayName",
+                    "fieldName",
+                    "foreignKey"
+                  ]
+                },
+                "DataRowView": {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "description": "***",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "values"
+                  ]
+                },
+                "LinkedHashMap_String.Object_": {
+                  "type": "object"
+                },
+                "LookupHeaderView": {
+                  "type": "object",
+                  "properties": {
+                    "children": {
+                      "description": "***",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/LookupHeaderView"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "***"
+                    }
+                  },
+                  "required": [
+                    "children",
+                    "title"
+                  ]
+                },
+                "Map_String.Object_": {
+                  "type": "object"
+                }
+              },
+              "anyOf": [
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "extends": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "fields": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "defaultValue": {
+                                "description": "***"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "required": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "defaultValue",
+                              "name",
+                              "required",
+                              "type"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "fields",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Datatype"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "values": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "value"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "tableType",
+                        "type",
+                        "values"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Vocabulary"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "cells": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "description": "***"
+                                }
+                              },
+                              "required": [
+                                "value"
+                              ]
+                            }
+                          }
+                        },
+                        "columns": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type"
+                            ]
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "cells",
+                        "columns",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Spreadsheet"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "steps": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "***"
+                              },
+                              "value": {
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type",
+                              "value"
+                            ]
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "steps",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SimpleSpreadsheet"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "title"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rules": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rules",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SimpleRules"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "description": "***"
+                              }
+                            },
+                            "required": [
+                              "title"
+                            ]
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rules": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rules",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "SmartRules"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "args": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/ArgumentView"
+                          }
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LookupHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "returnType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/LinkedHashMap_String.Object_"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "args",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "returnType",
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "LookupView"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "dataType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataRowView"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "dataType",
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "rows",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Data"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "headers": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataHeaderView"
+                          }
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "properties": {
+                          "$ref": "#/$defs/Map_String.Object_",
+                          "description": "***"
+                        },
+                        "rows": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/DataRowView"
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "testedTableName": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "headers",
+                        "id",
+                        "kind",
+                        "name",
+                        "properties",
+                        "rows",
+                        "tableType",
+                        "testedTableName"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "Test"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "description": "***",
+                          "enum": [
+                            "Rules",
+                            "Spreadsheet",
+                            "Datatype",
+                            "Data",
+                            "Test",
+                            "TBasic",
+                            "Column Match",
+                            "Method",
+                            "Run",
+                            "Constants",
+                            "Conditions",
+                            "Actions",
+                            "Returns",
+                            "Environment",
+                            "Properties",
+                            "Other"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "***"
+                        },
+                        "source": {
+                          "description": "***",
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "colspan": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "description": "***"
+                                },
+                                "covered": {
+                                  "type": "boolean",
+                                  "description": "***"
+                                },
+                                "rowspan": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "description": "***"
+                                },
+                                "value": {
+                                  "description": "***"
+                                }
+                              },
+                              "required": [
+                                "colspan",
+                                "covered",
+                                "rowspan",
+                                "value"
+                              ]
+                            }
+                          }
+                        },
+                        "tableType": {
+                          "type": "string",
+                          "description": "***"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "name",
+                        "source",
+                        "tableType"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tableType": {
+                          "const": "RawSource"
+                        }
+                      },
+                      "required": [
+                        "tableType"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "description": "***"
+            }
+          },
+          "required": [
+            "projectId",
+            "moduleName",
+            "sheetName",
+            "table"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
         "name": "openl_deploy_project",
         "description": "***",
         "inputSchema": {

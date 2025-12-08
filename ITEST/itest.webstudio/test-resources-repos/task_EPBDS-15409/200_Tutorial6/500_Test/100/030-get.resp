@@ -1,0 +1,54 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "26102dbb3042a4ec644718f9bd106a86",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "IncomeForecastTest",
+  "headers": [
+    {
+      "fieldName": "bonusRate",
+      "displayName": "Bonus Rate"
+    },
+    {
+      "fieldName": "sharePrice",
+      "displayName": "Share Price"
+    },
+    {
+      "fieldName": "_res_.$TotalAmount$MinSalary",
+      "displayName": "Min Total Salary"
+    },
+    {
+      "fieldName": "_res_.$TotalAmount$MaxSalary",
+      "displayName": "Max Total Salary"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        0.15,
+        15,
+        148500,
+        185775
+      ]
+    },
+    {
+      "values": [
+        0.1,
+        25,
+        148500,
+        188350
+      ]
+    },
+    {
+      "values": [
+        0.05,
+        35,
+        148500,
+        190925
+      ]
+    }
+  ],
+  "testedTableName": "IncomeForecast"
+}

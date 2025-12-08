@@ -1,0 +1,60 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "47d020cdaf10119d4bd11c190f87856e",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "AssetsCompare",
+  "source": [
+    [
+      {
+        "value": "Spreadsheet SpreadsheetResult AssetsCompare()",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Steps"
+      },
+      {
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "value": "AssetsCalc2012:SpreadsheetResultTotalAssets"
+      },
+      {
+        "value": "= TotalAssets()"
+      }
+    ],
+    [
+      {
+        "value": "TotalAssets2012"
+      },
+      {
+        "value": "= $AssetsCalc2012.$USDValue$Total"
+      }
+    ],
+    [
+      {
+        "value": "TotalAssets2011"
+      },
+      {
+        "value": 8767500
+      }
+    ],
+    [
+      {
+        "value": "Change in %"
+      },
+      {
+        "value": "= round(($TotalAssets2012 - $TotalAssets2011) / $TotalAssets2011 * 100, 2)"
+      }
+    ]
+  ]
+}

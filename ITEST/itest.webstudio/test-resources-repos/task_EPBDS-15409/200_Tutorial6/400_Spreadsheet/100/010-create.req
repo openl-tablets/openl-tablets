@@ -1,0 +1,34 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "AssetsCompare",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "AssetsCalc2012",
+        "type": "SpreadsheetResultTotalAssets",
+        "value": "= TotalAssets()"
+      },
+      {
+        "name": "TotalAssets2012",
+        "value": "= $AssetsCalc2012.$USDValue$Total"
+      },
+      {
+        "name": "TotalAssets2011",
+        "value": 8767500
+      },
+      {
+        "name": "Change in %",
+        "value": "= round(($TotalAssets2012 - $TotalAssets2011) / $TotalAssets2011 * 100, 2)"
+      }
+    ]
+  }
+}
+

@@ -1,0 +1,83 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "Data",
+    "kind": "Data",
+    "name": "lossData",
+    "headers": [
+      {
+        "fieldName": "_PK_",
+        "displayName": "_PK_"
+      },
+      {
+        "fieldName": "date",
+        "displayName": "loss date"
+      },
+      {
+        "fieldName": "amount",
+        "displayName": "loss amount"
+      },
+      {
+        "fieldName": "type",
+        "displayName": "loss type"
+      }
+    ],
+    "rows": [
+      {
+        "values": [
+          "LL1",
+          "2010-01-01",
+          1000,
+          "Liability"
+        ]
+      },
+      {
+        "values": [
+          "LL4",
+          "2009-01-04",
+          500,
+          "Liability"
+        ]
+      },
+      {
+        "values": [
+          "LP1",
+          "2010-01-01",
+          1000,
+          "Property"
+        ]
+      },
+      {
+        "values": [
+          "LL5",
+          "2009-09-19",
+          500,
+          "Liability"
+        ]
+      },
+      {
+        "values": [
+          "LL3",
+          "2009-09-20",
+          500,
+          "Liability"
+        ]
+      },
+      {
+        "values": [
+          "LL6",
+          "1999-09-19",
+          500,
+          "Liability"
+        ]
+      }
+    ],
+    "dataType": "Loss"
+  }
+}
+

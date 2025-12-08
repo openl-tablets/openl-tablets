@@ -1,0 +1,113 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5415cda46d85fc7bba0120e399c8f50e",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "source": [
+    [
+      {
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "C1",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "value": "min <= hour  and  hour < max",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "greeting + \", World!\""
+      }
+    ],
+    [
+      {
+        "value": "Integer min"
+      },
+      {
+        "value": "Integer max"
+      },
+      {
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "value": "From"
+      },
+      {
+        "value": "To"
+      },
+      {
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "value": 0
+      },
+      {
+        "value": 12
+      },
+      {
+        "value": "Good Morning"
+      }
+    ],
+    [
+      {
+        "value": 12
+      },
+      {
+        "value": 18
+      },
+      {
+        "value": "Good Afternoon"
+      }
+    ],
+    [
+      {
+        "value": 18
+      },
+      {
+        "value": 22
+      },
+      {
+        "value": "Good Evening"
+      }
+    ],
+    [
+      {
+        "value": 22
+      },
+      {
+        "value": 24
+      },
+      {
+        "value": "Good Night"
+      }
+    ]
+  ]
+}

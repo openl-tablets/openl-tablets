@@ -1,0 +1,115 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "CoverageRate",
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "coverageForm",
+      "type": "CoverageForm"
+    },
+    {
+      "name": "numberOfEmployees",
+      "type": "Integer"
+    },
+    {
+      "name": "area",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Coverage Type"
+    },
+    {
+      "title": "Limit"
+    },
+    {
+      "title": "<= 14",
+      "children": [
+        {
+          "title": "Low"
+        },
+        {
+          "title": "High"
+        }
+      ]
+    },
+    {
+      "title": ">= 15",
+      "children": [
+        {
+          "title": "Low"
+        },
+        {
+          "title": "High"
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "Coverage Type": "Basic",
+      "Limit": 100,
+      "<= 14": {
+        "Low": 20,
+        "High": 30
+      },
+      ">= 15": {
+        "Low": 30,
+        "High": 66
+      }
+    },
+    {
+      "Coverage Type": "Basic",
+      "Limit": 200,
+      "<= 14": {
+        "Low": 25,
+        "High": 40
+      },
+      ">= 15": {
+        "Low": 45,
+        "High": 77
+      }
+    },
+    {
+      "Coverage Type": "Basic",
+      "Limit": "[200.0..300.0]",
+      "<= 14": {
+        "Low": 30,
+        "High": 50
+      },
+      ">= 15": {
+        "Low": 60,
+        "High": 88
+      }
+    },
+    {
+      "Coverage Type": "Basic",
+      "Limit": ">= 500.0",
+      "<= 14": {
+        "Low": 35,
+        "High": 60
+      },
+      ">= 15": {
+        "Low": "= 2 * numberOfEmployees",
+        "High": 99
+      }
+    },
+    {
+      "Coverage Type": "Additional",
+      "<= 14": {
+        "Low": 30,
+        "High": 50
+      },
+      ">= 15": {
+        "Low": 60,
+        "High": 88
+      }
+    }
+  ]
+}

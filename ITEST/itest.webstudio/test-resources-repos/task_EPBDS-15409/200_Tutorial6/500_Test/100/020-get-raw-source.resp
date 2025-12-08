@@ -1,0 +1,96 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "26102dbb3042a4ec644718f9bd106a86",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "IncomeForecastTest",
+  "source": [
+    [
+      {
+        "value": "Test IncomeForecast IncomeForecastTest",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "bonusRate"
+      },
+      {
+        "value": "sharePrice"
+      },
+      {
+        "value": "_res_.$TotalAmount$MinSalary"
+      },
+      {
+        "value": "_res_.$TotalAmount$MaxSalary"
+      }
+    ],
+    [
+      {
+        "value": "Bonus Rate"
+      },
+      {
+        "value": "Share Price"
+      },
+      {
+        "value": "Min Total Salary"
+      },
+      {
+        "value": "Max Total Salary"
+      }
+    ],
+    [
+      {
+        "value": 0.15
+      },
+      {
+        "value": 15
+      },
+      {
+        "value": 148500
+      },
+      {
+        "value": 185775
+      }
+    ],
+    [
+      {
+        "value": 0.1
+      },
+      {
+        "value": 25
+      },
+      {
+        "value": 148500
+      },
+      {
+        "value": 188350
+      }
+    ],
+    [
+      {
+        "value": 0.05
+      },
+      {
+        "value": 35
+      },
+      {
+        "value": 148500
+      },
+      {
+        "value": 190925
+      }
+    ]
+  ]
+}

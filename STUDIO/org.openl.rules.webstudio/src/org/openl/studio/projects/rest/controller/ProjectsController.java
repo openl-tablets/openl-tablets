@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,11 +60,14 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -79,6 +84,7 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects (BETA)", description = "Experimental projects API")
+@Validated
 public class ProjectsController {
 
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -200,6 +206,22 @@ public class ProjectsController {
 
         var query = projectTableCriteriaQueryFactory.build(params, kinds, name);
         return projectService.getTables(project, query);
+    }
+
+    @Operation(summary = "Create new project table (BETA)")
+    @Parameter(name = "projectId", description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+    @PostMapping("/{projectId}/tables")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                           @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
+        try {
+            projectService.createNewTable(project, request);
+        } finally {
+            getWebStudio().reset();
+        }
+        var table = (TableView) request.table();
+        var query = ProjectTableCriteriaQuery.builder().name(table.name).build();
+        return projectService.getTables(project, query).stream().findFirst().orElse(null);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

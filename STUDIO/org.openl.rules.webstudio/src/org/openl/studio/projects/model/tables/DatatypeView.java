@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.util.CollectionUtils;
+
 /**
  * Datatype table model
  *
@@ -15,6 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonDeserialize(builder = DatatypeView.Builder.class)
 public class DatatypeView extends TableView implements EditableTableView {
+
+    private static final int BASE_BODY_WIDTH = 3;
 
     public static final String TABLE_TYPE = "Datatype";
 
@@ -34,6 +38,16 @@ public class DatatypeView extends TableView implements EditableTableView {
     @Override
     public String getTableType() {
         return tableType;
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        return CollectionUtils.isNotEmpty(fields) ? fields.size() : 0;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return BASE_BODY_WIDTH;
     }
 
     @JsonCreator

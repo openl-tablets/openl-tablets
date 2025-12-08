@@ -1,0 +1,71 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "BankRating",
+  "table": {
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "CountryCode",
+    "type": "String",
+    "values": [
+      {
+        "value": "DE"
+      },
+      {
+        "value": "BE"
+      },
+      {
+        "value": "NL"
+      },
+      {
+        "value": "AT"
+      },
+      {
+        "value": "CH"
+      },
+      {
+        "value": "DK"
+      },
+      {
+        "value": "US"
+      },
+      {
+        "value": "FR"
+      },
+      {
+        "value": "IT"
+      },
+      {
+        "value": "CZ"
+      },
+      {
+        "value": "SE"
+      },
+      {
+        "value": "FI"
+      },
+      {
+        "value": "UA"
+      },
+      {
+        "value": "KZ"
+      },
+      {
+        "value": "PL"
+      },
+      {
+        "value": "GB"
+      },
+      {
+        "value": "RU"
+      },
+      {
+        "value": "IE"
+      }
+    ]
+  }
+}
+

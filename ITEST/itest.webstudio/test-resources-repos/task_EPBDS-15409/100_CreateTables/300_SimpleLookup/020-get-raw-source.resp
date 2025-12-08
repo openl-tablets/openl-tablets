@@ -1,0 +1,54 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "486ad8912c803f93bf850cfcd8ae4ba0",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "IsAdequateMaxCreditRiskScore",
+  "source": [
+    [
+      {
+        "value": "SimpleLookup Double IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Country Code/AdequateMaxCreditRisk"
+      },
+      {
+        "value": true
+      },
+      {
+        "value": false
+      }
+    ],
+    [
+      {
+        "value": "DE"
+      },
+      {
+        "value": 1
+      },
+      {
+        "value": 1
+      }
+    ],
+    [
+      {},
+      {
+        "value": 1
+      },
+      {
+        "value": 0.7
+      }
+    ]
+  ]
+}

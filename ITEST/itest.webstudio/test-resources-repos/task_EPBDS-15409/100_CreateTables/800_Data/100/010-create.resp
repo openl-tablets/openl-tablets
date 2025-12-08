@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "be271364faadb34a625a7711c8900b6f",
+  "tableType": "Data",
+  "kind": "Data",
+  "name": "states",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B25:C86"
+}

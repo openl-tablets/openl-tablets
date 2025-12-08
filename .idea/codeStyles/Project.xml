@@ -1,8 +1,5 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <JSON>
-      <option name="ARRAY_WRAPPING" value="1" />
-    </JSON>
     <JavaCodeStyleSettings>
       <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="50" />
       <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="30" />

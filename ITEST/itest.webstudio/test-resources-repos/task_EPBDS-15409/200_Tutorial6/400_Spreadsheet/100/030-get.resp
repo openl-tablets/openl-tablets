@@ -1,0 +1,29 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "47d020cdaf10119d4bd11c190f87856e",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "AssetsCompare",
+  "returnType": "SpreadsheetResult",
+  "steps": [
+    {
+      "name": "AssetsCalc2012",
+      "type": "SpreadsheetResultTotalAssets",
+      "value": "= TotalAssets()"
+    },
+    {
+      "name": "TotalAssets2012",
+      "value": "= $AssetsCalc2012.$USDValue$Total"
+    },
+    {
+      "name": "TotalAssets2011",
+      "value": 8767500
+    },
+    {
+      "name": "Change in %",
+      "value": "= round(($TotalAssets2012 - $TotalAssets2011) / $TotalAssets2011 * 100, 2)"
+    }
+  ]
+}

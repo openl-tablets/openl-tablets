@@ -1,0 +1,91 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "c6b479d0645a4fea79b818f569295462",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "LossFreeDiscountCalcTest",
+  "source": [
+    [
+      {
+        "value": "Test LossFreeDiscountCalc LossFreeDiscountCalcTest",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "losses"
+      },
+      {
+        "value": "currentDate"
+      },
+      {
+        "value": "_res_"
+      }
+    ],
+    [
+      {
+        "value": ">lossData"
+      },
+      {},
+      {}
+    ],
+    [
+      {
+        "value": "Losses"
+      },
+      {
+        "value": "Current Date"
+      },
+      {
+        "value": "Discount"
+      }
+    ],
+    [
+      {},
+      {
+        "value": "2012-12-26"
+      },
+      {
+        "value": 0.1
+      }
+    ],
+    [
+      {
+        "value": [
+          "LL1",
+          "LL6"
+        ]
+      },
+      {
+        "value": "2012-12-26"
+      },
+      {
+        "value": 0.05
+      }
+    ],
+    [
+      {
+        "value": [
+          "LL1",
+          "LL6",
+          "LP1",
+          "LL4"
+        ]
+      },
+      {
+        "value": "2012-12-26"
+      },
+      {
+        "value": 0.05
+      }
+    ]
+  ]
+}

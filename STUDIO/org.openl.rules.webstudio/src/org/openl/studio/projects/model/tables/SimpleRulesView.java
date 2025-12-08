@@ -2,11 +2,14 @@ package org.openl.studio.projects.model.tables;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.util.CollectionUtils;
 
 /**
  * {@code SimpleRules} table model
@@ -15,6 +18,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonDeserialize(builder = SimpleRulesView.Builder.class)
 public class SimpleRulesView extends ExecutableView {
+
+    private static final int DEFAULT_HEADER_HEIGHT = 1;
 
     public static final String TABLE_TYPE = "SimpleRules";
 
@@ -26,8 +31,19 @@ public class SimpleRulesView extends ExecutableView {
 
     public SimpleRulesView(Builder builder) {
         super(builder);
-        this.rules = builder.rules;
-        this.headers = builder.headers;
+        this.rules = Optional.ofNullable(builder.rules).map(List::copyOf).orElseGet(List::of);
+        this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElseGet(List::of);
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        var height = CollectionUtils.isNotEmpty(rules) ? rules.size() : 0;
+        return height + DEFAULT_HEADER_HEIGHT;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return CollectionUtils.isNotEmpty(headers) ? headers.size() : 0;
     }
 
     @JsonCreator

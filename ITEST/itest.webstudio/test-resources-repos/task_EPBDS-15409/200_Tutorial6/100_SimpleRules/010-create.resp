@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "ea764e4435c57a632077752108809778",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "LossFreeDiscount",
+  "returnType": "Double",
+  "signature": "LossFreeDiscount(Double liabLosses)",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B2:C7"
+}

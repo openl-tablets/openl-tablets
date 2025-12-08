@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "db956ceeb6b34b8a871c16062f9eebe3",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "AmPmTo24",
+  "returnType": "Integer",
+  "signature": "AmPmTo24(Integer ampmHr, String ampm)",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B2:D7"
+}

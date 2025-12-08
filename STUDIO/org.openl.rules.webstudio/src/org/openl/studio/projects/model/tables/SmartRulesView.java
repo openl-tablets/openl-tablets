@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.util.CollectionUtils;
+
 @JsonDeserialize(builder = SmartRulesView.Builder.class)
 public class SmartRulesView extends ExecutableView {
 
+    private static final int DEFAULT_HEADER_HEIGHT = 1;
     public static final String TABLE_TYPE = "SmartRules";
 
     @Schema(description = "List of smart rule headers with grouping support")
@@ -24,6 +28,27 @@ public class SmartRulesView extends ExecutableView {
         super(builder);
         this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElse(List.of());
         this.rules = Optional.ofNullable(builder.rules).map(List::copyOf).orElse(List.of());
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        var height = CollectionUtils.isNotEmpty(rules) ? rules.size() : 0;
+        return height + DEFAULT_HEADER_HEIGHT;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return getConditionHeaderWidth();
+    }
+
+    @JsonIgnore
+    public int getConditionHeaderWidth() {
+        if (CollectionUtils.isEmpty(headers)) {
+            return 0;
+        }
+        return headers.stream()
+                .mapToInt(h -> Math.max(h.width, 1))
+                .sum();
     }
 
     @JsonCreator

@@ -1,0 +1,376 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "be271364faadb34a625a7711c8900b6f",
+  "tableType": "Data",
+  "kind": "Data",
+  "name": "states",
+  "headers": [
+    {
+      "fieldName": "name",
+      "displayName": "State/Possession"
+    },
+    {
+      "fieldName": "code",
+      "displayName": "Abbreviation"
+    }
+  ],
+  "rows": [
+    {
+      "values": [
+        "ALABAMA",
+        "AL"
+      ]
+    },
+    {
+      "values": [
+        "ALASKA",
+        "AK"
+      ]
+    },
+    {
+      "values": [
+        "AMERICAN SAMOA",
+        "AS"
+      ]
+    },
+    {
+      "values": [
+        "ARIZONA",
+        "AZ"
+      ]
+    },
+    {
+      "values": [
+        "ARKANSAS",
+        "AR"
+      ]
+    },
+    {
+      "values": [
+        "CALIFORNIA",
+        "CA"
+      ]
+    },
+    {
+      "values": [
+        "COLORADO",
+        "CO"
+      ]
+    },
+    {
+      "values": [
+        "CONNECTICUT",
+        "CT"
+      ]
+    },
+    {
+      "values": [
+        "DELAWARE",
+        "DE"
+      ]
+    },
+    {
+      "values": [
+        "DISTRICT OF COLUMBIA",
+        "DC"
+      ]
+    },
+    {
+      "values": [
+        "FEDERATED STATES OF MICRONESIA",
+        "FM"
+      ]
+    },
+    {
+      "values": [
+        "FLORIDA",
+        "FL"
+      ]
+    },
+    {
+      "values": [
+        "GEORGIA",
+        "GA"
+      ]
+    },
+    {
+      "values": [
+        "GUAM",
+        "GU"
+      ]
+    },
+    {
+      "values": [
+        "HAWAII",
+        "HI"
+      ]
+    },
+    {
+      "values": [
+        "IDAHO",
+        "ID"
+      ]
+    },
+    {
+      "values": [
+        "ILLINOIS",
+        "IL"
+      ]
+    },
+    {
+      "values": [
+        "INDIANA",
+        "IN"
+      ]
+    },
+    {
+      "values": [
+        "IOWA",
+        "IA"
+      ]
+    },
+    {
+      "values": [
+        "KANSAS",
+        "KS"
+      ]
+    },
+    {
+      "values": [
+        "KENTUCKY",
+        "KY"
+      ]
+    },
+    {
+      "values": [
+        "LOUISIANA",
+        "LA"
+      ]
+    },
+    {
+      "values": [
+        "MAINE",
+        "ME"
+      ]
+    },
+    {
+      "values": [
+        "MARSHALL ISLANDS",
+        "MH"
+      ]
+    },
+    {
+      "values": [
+        "MARYLAND",
+        "MD"
+      ]
+    },
+    {
+      "values": [
+        "MASSACHUSETTS",
+        "MA"
+      ]
+    },
+    {
+      "values": [
+        "MICHIGAN",
+        "MI"
+      ]
+    },
+    {
+      "values": [
+        "MINNESOTA",
+        "MN"
+      ]
+    },
+    {
+      "values": [
+        "MISSISSIPPI",
+        "MS"
+      ]
+    },
+    {
+      "values": [
+        "MISSOURI",
+        "MO"
+      ]
+    },
+    {
+      "values": [
+        "MONTANA",
+        "MT"
+      ]
+    },
+    {
+      "values": [
+        "NEBRASKA",
+        "NE"
+      ]
+    },
+    {
+      "values": [
+        "NEVADA",
+        "NV"
+      ]
+    },
+    {
+      "values": [
+        "NEW HAMPSHIRE",
+        "NH"
+      ]
+    },
+    {
+      "values": [
+        "NEW JERSEY",
+        "NJ"
+      ]
+    },
+    {
+      "values": [
+        "NEW MEXICO",
+        "NM"
+      ]
+    },
+    {
+      "values": [
+        "NEW YORK",
+        "NY"
+      ]
+    },
+    {
+      "values": [
+        "NORTH CAROLINA",
+        "NC"
+      ]
+    },
+    {
+      "values": [
+        "NORTH DAKOTA",
+        "ND"
+      ]
+    },
+    {
+      "values": [
+        "NORTHERN MARIANA ISLANDS",
+        "MP"
+      ]
+    },
+    {
+      "values": [
+        "OHIO",
+        "OH"
+      ]
+    },
+    {
+      "values": [
+        "OKLAHOMA",
+        "OK"
+      ]
+    },
+    {
+      "values": [
+        "OREGON",
+        "OR"
+      ]
+    },
+    {
+      "values": [
+        "PALAU",
+        "PW"
+      ]
+    },
+    {
+      "values": [
+        "PENNSYLVANIA",
+        "PA"
+      ]
+    },
+    {
+      "values": [
+        "PUERTO RICO",
+        "PR"
+      ]
+    },
+    {
+      "values": [
+        "RHODE ISLAND",
+        "RI"
+      ]
+    },
+    {
+      "values": [
+        "SOUTH CAROLINA",
+        "SC"
+      ]
+    },
+    {
+      "values": [
+        "SOUTH DAKOTA",
+        "SD"
+      ]
+    },
+    {
+      "values": [
+        "TENNESSEE",
+        "TN"
+      ]
+    },
+    {
+      "values": [
+        "TEXAS",
+        "TX"
+      ]
+    },
+    {
+      "values": [
+        "UTAH",
+        "UT"
+      ]
+    },
+    {
+      "values": [
+        "VERMONT",
+        "VT"
+      ]
+    },
+    {
+      "values": [
+        "VIRGIN ISLANDS",
+        "VI"
+      ]
+    },
+    {
+      "values": [
+        "VIRGINIA",
+        "VA"
+      ]
+    },
+    {
+      "values": [
+        "WASHINGTON",
+        "WA"
+      ]
+    },
+    {
+      "values": [
+        "WEST VIRGINIA",
+        "WV"
+      ]
+    },
+    {
+      "values": [
+        "WISCONSIN",
+        "WI"
+      ]
+    },
+    {
+      "values": [
+        "WYOMING",
+        "WY"
+      ]
+    }
+  ],
+  "dataType": "USState"
+}

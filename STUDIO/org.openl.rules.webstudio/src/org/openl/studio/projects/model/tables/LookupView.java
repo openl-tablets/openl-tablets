@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -89,6 +90,28 @@ public class LookupView extends ExecutableView {
         super(builder);
         this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElse(List.of());
         this.rows = Optional.ofNullable(builder.rows).map(List::copyOf).orElse(List.of());
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        return rows.size() + getHeaderHeight();
+    }
+
+    @JsonIgnore
+    public int getHeaderHeight() {
+        return LookupHeaderView.getHeaderDepth(this.headers);
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return getHeaderWidth();
+    }
+
+    @JsonIgnore
+    public int getHeaderWidth() {
+        return headers.stream()
+                .mapToInt(h -> Math.max(h.getWidth(), 1))
+                .sum();
     }
 
     @JsonCreator

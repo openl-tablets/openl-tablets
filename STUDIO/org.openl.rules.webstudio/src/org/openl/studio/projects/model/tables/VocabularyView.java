@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.util.CollectionUtils;
+
 /**
  * {@code Vocabulary} table model
  *
@@ -14,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonDeserialize(builder = VocabularyView.Builder.class)
 public class VocabularyView extends TableView implements EditableTableView {
+
+    private static final int BASE_BODY_WIDTH = 1;
 
     public static final String TABLE_TYPE = "Vocabulary";
 
@@ -27,6 +31,16 @@ public class VocabularyView extends TableView implements EditableTableView {
         super(builder);
         this.type = builder.type;
         this.values = builder.values;
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        return CollectionUtils.isNotEmpty(values) ? values.size() : 0;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return BASE_BODY_WIDTH;
     }
 
     @JsonCreator

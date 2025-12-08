@@ -1,0 +1,174 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "CoverageRate",
+  "source": [
+    [
+      {
+        "value": "SmartLookup Double CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
+        "colspan": 6
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Coverage Type",
+        "rowspan": 2
+      },
+      {
+        "value": "Limit",
+        "rowspan": 2
+      },
+      {
+        "value": "<= 14",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": ">= 15",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "Low"
+      },
+      {
+        "value": "High"
+      },
+      {
+        "value": "Low"
+      },
+      {
+        "value": "High"
+      }
+    ],
+    [
+      {
+        "value": "Basic"
+      },
+      {
+        "value": 100
+      },
+      {
+        "value": 20
+      },
+      {
+        "value": 30
+      },
+      {
+        "value": 30
+      },
+      {
+        "value": 66
+      }
+    ],
+    [
+      {
+        "value": "Basic"
+      },
+      {
+        "value": 200
+      },
+      {
+        "value": 25
+      },
+      {
+        "value": 40
+      },
+      {
+        "value": 45
+      },
+      {
+        "value": 77
+      }
+    ],
+    [
+      {
+        "value": "Basic"
+      },
+      {
+        "value": "[200.0..300.0]"
+      },
+      {
+        "value": 30
+      },
+      {
+        "value": 50
+      },
+      {
+        "value": 60
+      },
+      {
+        "value": 88
+      }
+    ],
+    [
+      {
+        "value": "Basic"
+      },
+      {
+        "value": ">= 500.0"
+      },
+      {
+        "value": 35
+      },
+      {
+        "value": 60
+      },
+      {
+        "value": "= 2 * numberOfEmployees"
+      },
+      {
+        "value": 99
+      }
+    ],
+    [
+      {
+        "value": "Additional"
+      },
+      {},
+      {
+        "value": 30
+      },
+      {
+        "value": 50
+      },
+      {
+        "value": 60
+      },
+      {
+        "value": 88
+      }
+    ]
+  ]
+}

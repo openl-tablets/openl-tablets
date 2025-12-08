@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
@@ -41,7 +42,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public abstract class TableWriter<T extends TableView> {
 
-    private static final int NUMBER_PROPERTIES_COLUMNS = 3;
+    protected static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     protected final UndoableActions actionsQueue;
     protected final IOpenLTable table;
@@ -54,15 +55,22 @@ public abstract class TableWriter<T extends TableView> {
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
     }
 
+    protected TableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        this.originalTable = gridTable;
+        this.metaInfoWriter = metaInfoWriter;
+        this.table = null;
+        this.actionsQueue = new UndoableActions();
+    }
+
     public void write(T tableView) {
         try {
-            table.getGridTable().edit();
+            getGridTable().edit();
             updateBusinessBody(tableView);
             updateTableProperties(tableView.properties);
             updateHeader(tableView);
             save();
         } finally {
-            table.getGridTable().stopEditing();
+            getGridTable().stopEditing();
         }
     }
 
@@ -182,7 +190,7 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     private MetaInfoWriter getMetaInfoWriter() {
-        if (metaInfoWriter == null) {
+        if (metaInfoWriter == null && isUpdateMode()) {
             metaInfoWriter = new MetaInfoWriterImpl(table.getMetaInfoReader(), table.getGridTable());
         }
         return metaInfoWriter;
@@ -190,7 +198,7 @@ public abstract class TableWriter<T extends TableView> {
 
     protected void save() {
         try {
-            var xlsgrid = (XlsSheetGridModel) table.getGridTable().getGrid();
+            var xlsgrid = (XlsSheetGridModel) getGridTable().getGrid();
             xlsgrid.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
@@ -202,7 +210,9 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     protected String getBusinessTableType(T tableView) {
-        return OpenLTableUtils.getTableTypeItems().get(table.getType());
+        return isUpdateMode()
+                ? OpenLTableUtils.getTableTypeItems().get(table.getType())
+                : tableView.tableType;
     }
 
     /**
@@ -235,6 +245,33 @@ public abstract class TableWriter<T extends TableView> {
         int bottom = mr.getBottom() + tableRegion.getTop();
         int right = mr.getRight() + tableRegion.getLeft();
         return new GridRegion(top, left, bottom, right);
+    }
+
+    protected boolean isUpdateMode() {
+        return table != null;
+    }
+
+    protected IGridTable getGridTable() {
+        if (isUpdateMode()) {
+            return table.getGridTable();
+        } else {
+            return originalTable;
+        }
+    }
+
+    protected IGridTable getGridTable(String view) {
+        if (isUpdateMode()) {
+            return table.getGridTable(view);
+        } else {
+            if (IXlsTableNames.VIEW_BUSINESS.equals(view)) {
+                return originalTable.getSubtable(0,
+                        1,
+                        originalTable.getWidth(),
+                        originalTable.getHeight() - 1);
+            } else {
+                return originalTable;
+            }
+        }
     }
 
 }

@@ -1,0 +1,89 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "66cdd9f08f318f91a401060b4787acdb",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "IsAdequateMaxCreditRiskScoreTest",
+  "source": [
+    [
+      {
+        "value": "Test IsAdequateMaxCreditRiskScore IsAdequateMaxCreditRiskScoreTest",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "countryCode"
+      },
+      {
+        "value": "isAdequateMaxCreditRisk"
+      },
+      {
+        "value": "_res_"
+      }
+    ],
+    [
+      {
+        "value": "Country Code"
+      },
+      {
+        "value": "Adequate Max Credit Risk"
+      },
+      {
+        "value": "IsAdequate Max Credit Risk Score"
+      }
+    ],
+    [
+      {
+        "value": "CH"
+      },
+      {
+        "value": true
+      },
+      {
+        "value": 1
+      }
+    ],
+    [
+      {
+        "value": "DE"
+      },
+      {
+        "value": true
+      },
+      {
+        "value": 1
+      }
+    ],
+    [
+      {
+        "value": "DE"
+      },
+      {
+        "value": false
+      },
+      {
+        "value": 1
+      }
+    ],
+    [
+      {
+        "value": "IT"
+      },
+      {
+        "value": false
+      },
+      {
+        "value": 0.7
+      }
+    ]
+  ]
+}

@@ -1,0 +1,78 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "db956ceeb6b34b8a871c16062f9eebe3",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "AmPmTo24",
+  "source": [
+    [
+      {
+        "value": "SimpleRules Integer AmPmTo24(Integer ampmHr, String ampm)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "AM/PM hour"
+      },
+      {
+        "value": "AM or PM"
+      },
+      {
+        "value": "24 hour"
+      }
+    ],
+    [
+      {
+        "value": 12
+      },
+      {
+        "value": "AM"
+      },
+      {
+        "value": 0
+      }
+    ],
+    [
+      {
+        "value": "1-11"
+      },
+      {
+        "value": "AM"
+      },
+      {
+        "value": "=ampmHr"
+      }
+    ],
+    [
+      {
+        "value": 12
+      },
+      {
+        "value": "PM"
+      },
+      {
+        "value": 12
+      }
+    ],
+    [
+      {
+        "value": "1-11"
+      },
+      {
+        "value": "PM"
+      },
+      {
+        "value": "=ampmHr+12"
+      }
+    ]
+  ]
+}

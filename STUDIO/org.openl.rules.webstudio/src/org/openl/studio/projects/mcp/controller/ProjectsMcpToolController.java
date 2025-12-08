@@ -6,10 +6,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -25,11 +29,14 @@ import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.history.ProjectHistoryItem;
 import org.openl.studio.projects.model.tables.AppendTableView;
+import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -39,6 +46,7 @@ import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.util.StringUtils;
 
 @McpController
+@Validated
 public class ProjectsMcpToolController {
 
     private final WorkspaceProjectService projectService;
@@ -147,6 +155,29 @@ public class ProjectsMcpToolController {
                                       String tableId) {
         var project = base64ProjectConverter.convert(projectId);
         return (EditableTableView) projectService.getTable(project, tableId);
+    }
+
+    @Tool(name = McpToolNameConstants.CREATE_TOOL_PREFIX + "_project_table", description = "Creates a new table in the specified module and sheet within a project. Provide complete table data including structure, fields, and initial rows. Use this to add new rules or data tables to your project.")
+    public SummaryTableView createProjectTable(@ToolParam(description = "Project identifier")
+                                               String projectId,
+                                               @ToolParam(description = "Name of the module where the table will be created")
+                                               @NotBlank
+                                               String moduleName,
+                                               @ToolParam(description = "Name of the sheet where the table will be created. If not provided, table name will be used as sheet name.")
+                                               String sheetName,
+                                               @ToolParam(description = "Table data to create")
+                                               @NotNull
+                                               @Valid
+                                               EditableTableView table) throws ProjectException {
+        var project = base64ProjectConverter.convert(projectId);
+        var request = new CreateNewTableRequest(moduleName, sheetName, table);
+        try {
+            projectService.createNewTable(project, request);
+        } finally {
+            projectService.getWebStudio().reset();
+        }
+        var query = ProjectTableCriteriaQuery.builder().name(((TableView) table).name).build();
+        return projectService.getTables(project, query).stream().findFirst().orElse(null);
     }
 
     @Tool(name = McpToolNameConstants.UPDATE_TOOL_PREFIX + "_project_table", description = "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).")

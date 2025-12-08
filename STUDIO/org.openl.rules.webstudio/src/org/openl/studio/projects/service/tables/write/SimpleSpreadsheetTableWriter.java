@@ -1,12 +1,19 @@
 package org.openl.studio.projects.service.tables.write;
 
+import java.util.List;
+
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetAppend;
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetView;
 import org.openl.studio.projects.model.tables.SpreadsheetStepView;
+import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -25,9 +32,26 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
         super(table);
     }
 
+    public SimpleSpreadsheetTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
+    }
+
+    @Override
+    protected void mergeHeaderCells(SimpleSpreadsheetView tableView) {
+        if (!isUpdateMode()) {
+            int latestCol = STEP_VALUE_COLUMN;
+            if (CollectionUtils.isNotEmpty(tableView.properties)) {
+                latestCol = NUMBER_PROPERTIES_COLUMNS - 1;
+            }
+            var gridTable = getGridTable();
+            var mergeTitleRegion = new GridRegion(0, 0, 0, latestCol);
+            applyMergeRegions(gridTable, List.of(mergeTitleRegion));
+        }
+    }
+
     @Override
     protected void updateBusinessBody(SimpleSpreadsheetView tableView) {
-        var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+        var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
         int row = 0;
         createOrUpdateCell(tableBody, buildCellKey(STEP_NAME_COLUMN, row), "Steps");
@@ -38,16 +62,18 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
             row++;
         }
 
-        // clean up removed columns
-        var width = IGridRegion.Tool.width(tableBody.getRegion());
-        if (2 < width) {
-            removeColumns(tableBody, width - 2, 2);
-        }
+        if (isUpdateMode()) {
+            // clean up removed columns
+            var width = IGridRegion.Tool.width(tableBody.getRegion());
+            if (2 < width) {
+                removeColumns(tableBody, width - 2, 2);
+            }
 
-        // clean up removed rows
-        var height = IGridRegion.Tool.height(tableBody.getRegion());
-        if (row < height) {
-            removeRows(tableBody, height - row, row);
+            // clean up removed rows
+            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            if (row < height) {
+                removeRows(tableBody, height - row, row);
+            }
         }
     }
 
@@ -65,6 +91,9 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
     }
 
     public void append(SimpleSpreadsheetAppend appendTable) {
+        if (!isUpdateMode()) {
+            throw new IllegalStateException("Append operation is only allowed in update mode.");
+        }
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
@@ -77,5 +106,10 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
         } finally {
             table.getGridTable().stopEditing();
         }
+    }
+
+    @Override
+    protected String getBusinessTableType(SimpleSpreadsheetView tableView) {
+        return OpenLTableUtils.getTableTypeItems().get(XlsNodeTypes.XLS_SPREADSHEET.toString());
     }
 }

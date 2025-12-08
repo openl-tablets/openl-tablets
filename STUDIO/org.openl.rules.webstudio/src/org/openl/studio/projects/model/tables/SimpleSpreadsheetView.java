@@ -1,11 +1,14 @@
 package org.openl.studio.projects.model.tables;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.util.CollectionUtils;
 
 /**
  * {@code SimpleSpreadsheet} table model
@@ -15,14 +18,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonDeserialize(builder = SimpleSpreadsheetView.Builder.class)
 public class SimpleSpreadsheetView extends ExecutableView {
 
+    private static final int DEFAULT_WIDTH = 2;
+
     public static final String TABLE_TYPE = "SimpleSpreadsheet";
 
     @Schema(description = "Collection of spreadsheet steps/rows")
-    public final Collection<SpreadsheetStepView> steps;
+    public final List<SpreadsheetStepView> steps;
 
     private SimpleSpreadsheetView(Builder builder) {
         super(builder);
-        this.steps = builder.steps;
+        this.steps = Optional.ofNullable(builder.steps).map(List::copyOf).orElseGet(List::of);
+    }
+
+    @Override
+    protected int getBodyHeight() {
+        var stepsCount = CollectionUtils.isNotEmpty(steps) ? steps.size() : 0;
+        return stepsCount + SpreadsheetView.RESERVED_HEADER_HEIGHT;
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        return DEFAULT_WIDTH;
     }
 
     @JsonCreator
@@ -32,7 +48,7 @@ public class SimpleSpreadsheetView extends ExecutableView {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
-        private Collection<SpreadsheetStepView> steps;
+        private List<SpreadsheetStepView> steps;
 
         private Builder() {
             tableType(TABLE_TYPE);
@@ -43,7 +59,7 @@ public class SimpleSpreadsheetView extends ExecutableView {
             return this;
         }
 
-        public Builder steps(Collection<SpreadsheetStepView> steps) {
+        public Builder steps(List<SpreadsheetStepView> steps) {
             this.steps = steps;
             return this;
         }

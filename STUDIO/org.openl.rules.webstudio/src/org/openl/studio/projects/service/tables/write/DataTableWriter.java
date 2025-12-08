@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.DataAppend;
 import org.openl.studio.projects.model.tables.DataView;
@@ -21,6 +23,10 @@ public class DataTableWriter extends AbstractDataTableWriter<DataView> {
         super(table);
     }
 
+    public DataTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+        super(gridTable, metaInfoWriter);
+    }
+
     @Override
     protected void updateHeader(DataView tableView) {
         var header = new StringBuilder(getBusinessTableType(tableView));
@@ -28,8 +34,9 @@ public class DataTableWriter extends AbstractDataTableWriter<DataView> {
             header.append(' ').append(tableView.dataType);
         }
         header.append(' ').append(tableView.name);
-        createOrUpdateCell(table.getGridTable(), buildCellKey(0, 0), header.toString());
-        updateTableHeaders(tableView);
+        var gridTable = getGridTable();
+        createOrUpdateCell(gridTable, buildCellKey(0, 0), header.toString());
+        mergeHeader(tableView);
     }
 
     /**

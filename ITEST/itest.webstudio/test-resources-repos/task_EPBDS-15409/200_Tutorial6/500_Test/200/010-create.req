@@ -1,0 +1,61 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Tutorial6",
+  "table": {
+    "tableType": "Test",
+    "kind": "Test",
+    "name": "LossFreeDiscountCalcTest",
+    "headers": [
+      {
+        "fieldName": "losses",
+        "foreignKey": "lossData",
+        "displayName": "Losses"
+      },
+      {
+        "fieldName": "currentDate",
+        "displayName": "Current Date"
+      },
+      {
+        "fieldName": "_res_",
+        "displayName": "Discount"
+      }
+    ],
+    "rows": [
+      {
+        "values": [
+          null,
+          "2012-12-26",
+          0.1
+        ]
+      },
+      {
+        "values": [
+          [
+            "LL1",
+            "LL6"
+          ],
+          "2012-12-26",
+          0.05
+        ]
+      },
+      {
+        "values": [
+          [
+            "LL1",
+            "LL6",
+            "LP1",
+            "LL4"
+          ],
+          "2012-12-26",
+          0.05
+        ]
+      }
+    ],
+    "testedTableName": "LossFreeDiscountCalc"
+  }
+}
+

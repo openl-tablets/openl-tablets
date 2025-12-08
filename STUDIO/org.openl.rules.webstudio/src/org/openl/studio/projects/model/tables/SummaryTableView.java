@@ -29,6 +29,16 @@ public class SummaryTableView extends TableView {
         this.pos = builder.pos;
     }
 
+    @Override
+    protected int getBodyHeight() {
+        throw  new UnsupportedOperationException();
+    }
+
+    @Override
+    protected int getBodyWidth() {
+        throw  new UnsupportedOperationException();
+    }
+
     public static Builder builder() {
         return new Builder();
     }

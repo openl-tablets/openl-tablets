@@ -1,0 +1,198 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "executionTimeMs": "##.##",
+  "numberOfTests": 3,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "LossFreeDiscountCalcTest",
+      "tableId": "***",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 3,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Discount",
+              "expectedValue": 0.1,
+              "actualValue": 0.1,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "losses",
+              "description": "Losses",
+              "value": null,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "currentDate",
+              "description": "Current Date",
+              "value": "2012-12-26T00:00:00.000",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Discount",
+              "expectedValue": 0.05,
+              "actualValue": 0.05,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "losses",
+              "description": "Losses",
+              "value": [
+                {
+                  "date": "2010-01-01T00:00:00.000",
+                  "amount": 1000.0,
+                  "type": "Liability"
+                },
+                {
+                  "date": "1999-09-19T00:00:00.000",
+                  "amount": 500.0,
+                  "type": "Liability"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "currentDate",
+              "description": "Current Date",
+              "value": "2012-12-26T00:00:00.000",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Discount",
+              "expectedValue": 0.05,
+              "actualValue": 0.05,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "losses",
+              "description": "Losses",
+              "value": [
+                {
+                  "date": "2010-01-01T00:00:00.000",
+                  "amount": 1000.0,
+                  "type": "Liability"
+                },
+                {
+                  "date": "1999-09-19T00:00:00.000",
+                  "amount": 500.0,
+                  "type": "Liability"
+                },
+                {
+                  "date": "2010-01-01T00:00:00.000",
+                  "amount": 1000.0,
+                  "type": "Property"
+                },
+                {
+                  "date": "2009-01-04T00:00:00.000",
+                  "amount": 500.0,
+                  "type": "Liability"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "currentDate",
+              "description": "Current Date",
+              "value": "2012-12-26T00:00:00.000",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

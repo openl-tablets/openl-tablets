@@ -495,7 +495,7 @@ public class GridTool {
 
     }
 
-    private static boolean tableWithoutPropertySection(String propsHeader) {
+    public static boolean tableWithoutPropertySection(String propsHeader) {
         boolean containsPropSection = false;
         if (propsHeader != null && propsHeader.equals(PROPERTIES_SECTION_NAME)) {
             containsPropSection = true;

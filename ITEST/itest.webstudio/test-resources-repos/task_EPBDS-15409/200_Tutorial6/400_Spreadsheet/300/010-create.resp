@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "fc832505fba8bba61221f9eb03ffeb5c",
+  "tableType": "Spreadsheet",
+  "kind": "Spreadsheet",
+  "name": "TotalAssets",
+  "returnType": "SpreadsheetResult",
+  "signature": "TotalAssets()",
+  "file": "EPBDS-15409/Main.xlsx",
+  "pos": "B41:E48"
+}

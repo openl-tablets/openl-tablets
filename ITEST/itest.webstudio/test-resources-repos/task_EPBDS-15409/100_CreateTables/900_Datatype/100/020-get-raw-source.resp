@@ -1,0 +1,41 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "USState",
+  "source": [
+    [
+      {
+        "value": "Datatype USState",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "String"
+      },
+      {
+        "value": "name"
+      },
+      {}
+    ],
+    [
+      {
+        "value": "String"
+      },
+      {
+        "value": "code"
+      },
+      {}
+    ]
+  ]
+}
