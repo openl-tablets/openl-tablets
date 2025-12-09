@@ -12,10 +12,10 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.SecurityException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.repositories.model.ProjectRevision;
 
@@ -58,7 +58,7 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
         // Check read permission
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
-            throw new SecurityException();
+            throw new ForbiddenException();
         }
 
         // Get full path based on repository features

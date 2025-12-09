@@ -8,8 +8,8 @@ import org.springframework.ai.tool.annotation.ToolParam;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.Page;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.mcp.McpController;
 import org.openl.studio.mcp.McpToolNameConstants;

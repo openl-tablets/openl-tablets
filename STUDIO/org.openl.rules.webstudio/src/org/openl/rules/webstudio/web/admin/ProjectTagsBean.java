@@ -11,18 +11,17 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.TagService;
-import org.openl.rules.webstudio.service.TagTemplateService;
-import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositorySelectNodeStateHolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.tags.service.TagService;
+import org.openl.studio.tags.service.TagTemplateService;
+import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 @Service

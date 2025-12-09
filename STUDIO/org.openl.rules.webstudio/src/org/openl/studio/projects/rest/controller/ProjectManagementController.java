@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.SecurityException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -38,6 +38,7 @@ import org.openl.studio.repositories.rest.resolver.DesignRepository;
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "User Workspace")
+@Deprecated(forRemoval = true)
 public class ProjectManagementController {
 
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -82,7 +83,7 @@ public class ProjectManagementController {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(BasePermission.READ))) {
-                throw new SecurityException();
+                throw new ForbiddenException();
             }
             ProjectInfo info = new ProjectInfo(project);
             info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
@@ -161,7 +162,7 @@ public class ProjectManagementController {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
-                throw new SecurityException();
+                throw new ForbiddenException();
             }
             if (!projectStateValidator.canDelete(project)) {
                 if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
@@ -195,7 +196,7 @@ public class ProjectManagementController {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
-                throw new SecurityException();
+                throw new ForbiddenException();
             }
             if (!projectStateValidator.canErase(project)) {
                 throw new ConflictException("project.erase.message");

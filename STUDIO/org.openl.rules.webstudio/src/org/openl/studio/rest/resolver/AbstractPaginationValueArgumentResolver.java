@@ -9,7 +9,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.util.StringUtils;
 
 /**

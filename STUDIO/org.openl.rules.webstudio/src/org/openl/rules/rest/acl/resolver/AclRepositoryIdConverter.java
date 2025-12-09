@@ -5,10 +5,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.springframework.core.convert.converter.Converter;
 
 import org.openl.rules.rest.acl.model.AclRepositoryId;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.repository.AclRepositoryType;
+import org.openl.studio.common.exception.NotFoundException;
 
 @ParametersAreNonnullByDefault
 public class AclRepositoryIdConverter implements Converter<String, AclRepositoryId> {

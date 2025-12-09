@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -31,6 +30,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;

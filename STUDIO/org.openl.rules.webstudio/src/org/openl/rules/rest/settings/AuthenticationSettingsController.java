@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.settings.model.CreateAuthenticationTemplateModel;
 import org.openl.rules.rest.settings.service.AuthenticationSettingsFactory;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.rules.webstudio.web.admin.security.AuthenticationSettings;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.security.AdminPrivilege;
 
 @RestController

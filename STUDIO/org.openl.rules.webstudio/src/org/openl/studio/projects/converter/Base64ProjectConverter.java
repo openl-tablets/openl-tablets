@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.ProjectIdModel;
 
 /**

@@ -24,8 +24,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
+import org.openl.studio.common.exception.RestRuntimeException;
+import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
 import org.openl.util.StringUtils;

@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.service;
+package org.openl.studio.tags.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.dao.TagDao;
@@ -20,25 +21,19 @@ import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.util.StringUtils;
 
+@Service
 public class TagTemplateService {
     private static final Logger LOG = LoggerFactory.getLogger(TagTemplateService.class);
     private static final Pattern TAG_PATTERN = Pattern.compile("%([^%]+)%");
     private static final Pattern NONE_WILDCARD_PATTERN = Pattern.compile("([^*?]+)");
 
-    private TagTypeDao tagTypeDao;
-    private TagDao tagDao;
+    private final TagTypeDao tagTypeDao;
+    private final TagDao tagDao;
+    private final TagTemplateDao tagTemplateDao;
 
-    private TagTemplateDao tagTemplateDao;
-
-    public void setTagTypeDao(TagTypeDao tagTypeDao) {
+    public TagTemplateService(TagTypeDao tagTypeDao, TagDao tagDao, TagTemplateDao tagTemplateDao) {
         this.tagTypeDao = tagTypeDao;
-    }
-
-    public void setTagDao(TagDao tagDao) {
         this.tagDao = tagDao;
-    }
-
-    public void setTagTemplateDao(TagTemplateDao tagTemplateDao) {
         this.tagTemplateDao = tagTemplateDao;
     }
 

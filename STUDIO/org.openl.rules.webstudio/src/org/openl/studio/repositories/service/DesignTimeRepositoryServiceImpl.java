@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.model.AclRepositoryId;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.repositories.model.RepositoryFeatures;
 import org.openl.studio.repositories.model.RepositoryViewModel;
 

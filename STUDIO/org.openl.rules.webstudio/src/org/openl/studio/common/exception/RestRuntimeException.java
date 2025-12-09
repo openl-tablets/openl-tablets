@@ -1,4 +1,4 @@
-package org.openl.rules.rest.exception;
+package org.openl.studio.common.exception;
 
 import java.util.Optional;
 

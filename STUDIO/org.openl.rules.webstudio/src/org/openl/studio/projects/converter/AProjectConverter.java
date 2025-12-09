@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.ProjectIdModel;
 
 @Component

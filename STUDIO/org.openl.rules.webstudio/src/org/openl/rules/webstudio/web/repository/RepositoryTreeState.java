@@ -39,7 +39,6 @@ import org.openl.rules.security.standalone.persistence.ProjectGrouping;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
-import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.ErrorsContainer;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
@@ -54,6 +53,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.security.CurrentUserInfo;
+import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 /**
