@@ -121,6 +121,7 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.DefaultWhenNotSpecified;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.RepositorySettings;
@@ -966,6 +967,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         this.password = password;
     }
 
+    @DefaultWhenNotSpecified
     public void setLocalRepositoriesFolder(String localRepositoriesFolder) {
         this.localRepositoriesFolder = localRepositoriesFolder;
     }

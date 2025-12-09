@@ -5,15 +5,14 @@ Content-Type: application/json
   "message": "Bad Request",
   "fields": [
     {
-      "code": "openl.error.Min",
-      "message": "must be greater than or equal to 1",
-      "field": "settings.connectionTimeout",
-      "rejectedValue": 0
-    }, {
-      "code": "openl.error.Min",
-      "message": "must be greater than or equal to 1",
-      "field": "settings.failedAuthenticationSeconds",
-      "rejectedValue": 0
+      "code": "openl.error.NotNull",
+      "message": "must not be null",
+      "field": "settings.connectionTimeout"
+    },
+    {
+      "code": "openl.error.NotNull",
+      "message": "must not be null",
+      "field": "settings.failedAuthenticationSeconds"
     }, {
       "code": "openl.error.NotNull",
       "message": "must not be null",

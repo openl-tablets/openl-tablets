@@ -1,9 +1,8 @@
 package org.openl.rules.repository.db;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.openl.rules.repository.RepositoryFactory;
-import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 
 /**
@@ -26,9 +25,9 @@ public class DatasourceDBRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(Consumer<Repository> initParamsCallback) {
         DatasourceDBRepository repository = new DatasourceDBRepository();
-        RepositoryInstatiator.setParams(repository, settings);
+        initParamsCallback.accept(repository);
         repository.initialize();
         return repository;
     }

@@ -15,6 +15,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.GitRepository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.IOUtils;
 
@@ -62,18 +63,12 @@ public class ProjectVersionCacheMonitorTest {
     }
 
     private Repository createRepository(File local) {
-        return new GitRepositoryFactory().create(s -> {
-            switch (s) {
-                case "id":
-                    return "design";
-                case "uri":
-                    return local.toURI().toString();
-                case "local-repositories-folder":
-                    return localRepositoriesFolder.getAbsolutePath();
-                case "comment-template":
-                    return "OpenL Studio: {commit-type}. {user-message}";
-            }
-            return null;
+        return new GitRepositoryFactory().create(r -> {
+            GitRepository gitRepository = (GitRepository) r;
+            gitRepository.setId("design");
+            gitRepository.setUri(local.toURI().toString());
+            gitRepository.setLocalRepositoriesFolder(localRepositoriesFolder.getAbsolutePath());
+            gitRepository.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         });
     }
 

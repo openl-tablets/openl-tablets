@@ -1,6 +1,6 @@
 package org.openl.rules.repository;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.openl.rules.repository.api.Repository;
 
@@ -10,5 +10,5 @@ public interface RepositoryFactory {
 
     String getRefID();
 
-    Repository create(Function<String, String> settings);
+    Repository create(Consumer<Repository> initParamsCallback);
 }
