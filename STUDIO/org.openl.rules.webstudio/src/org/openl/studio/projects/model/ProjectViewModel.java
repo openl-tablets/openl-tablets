@@ -1,64 +1,17 @@
 package org.openl.studio.projects.model;
 
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.studio.common.model.GenericView;
-import org.openl.studio.projects.converter.ProjectStatusSerializer;
-import org.openl.util.StringUtils;
 
-public class ProjectViewModel {
-
-    @Parameter(description = "Project Name", required = true)
-    @JsonView(GenericView.Full.class)
-    public final String name;
-
-    @Parameter(description = "Author of latest update", required = true)
-    @JsonView(GenericView.Full.class)
-    public final String modifiedBy;
-
-    @Parameter(description = "Date and time of latest update", required = true)
-    @JsonView(GenericView.Full.class)
-    public final ZonedDateTime modifiedAt;
-
-    @Parameter(description = "Lock info")
-    @JsonView(GenericView.Full.class)
-    public final ProjectLockInfo lockInfo;
-
-    @Parameter(description = "Branch Name. Can be absent if current repository doesn't support branches")
-    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
-    public final String branch;
-
-    @Parameter(description = "Revision ID", required = true)
-    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
-    public final String revision;
-
-    @Parameter(description = "Project path in target repository. Can be absent if Design Repository is flat")
-    @JsonView(GenericView.Full.class)
-    public final String path;
-
-    @Parameter(description = "Project identifier", required = true)
-    @JsonView(GenericView.Full.class)
-    public final ProjectIdModel id;
-
-    @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
-            "ARCHIVED",
-            "OPENED",
-            "VIEWING_VERSION",
-            "EDITING",
-            "CLOSED"}))
-    @JsonSerialize(using = ProjectStatusSerializer.class)
-    @JsonView(GenericView.Full.class)
-    public final ProjectStatus status;
+public class ProjectViewModel extends AProjectViewModel {
 
     @Parameter(description = "Project Tags")
     @JsonView(GenericView.Full.class)
@@ -68,92 +21,27 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String comment;
 
-    @Parameter(description = "Source Repository")
-    @JsonView(GenericView.Full.class)
-    public final String repository;
-
     @Parameter(description = "The list of selected branches")
     @JsonView(GenericView.Full.class)
     public final List<String> selectedBranches;
 
     private ProjectViewModel(Builder from) {
-        this.name = from.name;
-        this.modifiedBy = from.modifiedBy;
-        this.modifiedAt = from.modifiedAt;
-        this.branch = from.branch;
-        this.revision = from.revision;
-        this.path = from.path;
-        this.id = from.id;
-        this.status = from.status;
+        super(from);
         this.tags = new TreeMap<>(from.tags);
         this.comment = from.comment;
-        this.repository = from.repository;
-        this.lockInfo = from.lockInfo;
-        this.selectedBranches = from.selectedBranches;
+        this.selectedBranches = Optional.ofNullable(from.selectedBranches).map(List::copyOf).orElseGet(List::of);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder {
-        private String name;
-        private String modifiedBy;
-        private ZonedDateTime modifiedAt;
-        private String branch;
-        private String revision;
-        private String path;
-        public ProjectIdModel id;
-        public ProjectStatus status;
+    public static class Builder extends ABuilder<Builder> {
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
-        private String repository;
-        private ProjectLockInfo lockInfo;
         private List<String> selectedBranches;
 
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder modifiedBy(String modifiedBy) {
-            this.modifiedBy = modifiedBy;
-            return this;
-        }
-
-        public Builder lockInfo(ProjectLockInfo lockInfo) {
-            this.lockInfo = lockInfo;
-            return this;
-        }
-
-        public Builder modifiedAt(ZonedDateTime modifiedAt) {
-            this.modifiedAt = modifiedAt;
-            return this;
-        }
-
-        public Builder branch(String branch) {
-            this.branch = branch;
-            return this;
-        }
-
-        public Builder revision(String revision) {
-            this.revision = revision;
-            return this;
-        }
-
-        public Builder path(String path) {
-            this.path = StringUtils.isEmpty(path) ? null : path;
-            return this;
-        }
-
-        public Builder id(ProjectIdModel id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder status(ProjectStatus status) {
-            this.status = status;
-            return this;
+        private Builder() {
         }
 
         public Builder addTag(String name, String value) {
@@ -166,13 +54,13 @@ public class ProjectViewModel {
             return this;
         }
 
-        public Builder repository(String repository) {
-            this.repository = repository;
+        public Builder selectedBranches(List<String> selectedBranches) {
+            this.selectedBranches = selectedBranches;
             return this;
         }
 
-        public Builder selectedBranches(List<String> selectedBranches) {
-            this.selectedBranches = selectedBranches;
+        @Override
+        protected Builder self() {
             return this;
         }
 

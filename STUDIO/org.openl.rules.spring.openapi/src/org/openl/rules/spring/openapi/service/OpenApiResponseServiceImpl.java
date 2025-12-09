@@ -50,7 +50,7 @@ import org.openl.util.StringUtils;
 @Component
 public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
-    private static final Set<String> ALLOWED_EXCEPTIONS_PACKAGES = Set.of("org.openl.rules.rest");
+    private static final Set<String> ALLOWED_EXCEPTIONS_PACKAGES = Set.of("org.openl.rules.rest", "org.openl.studio.common.exception");
     private final OpenApiParameterService apiParameterService;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
     private final OpenApiPropertyResolver apiPropertyResolver;

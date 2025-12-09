@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 
 import org.openl.rules.repository.api.Offset;
 import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.rest.resolver.test.PaginationTestController;
 
 @SpringJUnitConfig(classes = {MockConfiguration.class, PageValueArgumentResolverTest.TestConfig.class})

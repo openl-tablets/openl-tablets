@@ -12,8 +12,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
 
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
+import org.openl.studio.common.exception.RestRuntimeException;
+import org.openl.studio.common.exception.ValidationException;
 
 public class AbstractConstraintValidatorTest {
 

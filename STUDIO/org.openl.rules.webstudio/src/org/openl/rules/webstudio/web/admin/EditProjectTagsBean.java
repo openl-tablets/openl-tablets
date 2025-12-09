@@ -14,14 +14,14 @@ import org.springframework.web.context.annotation.RequestScope;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.TagService;
-import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.tags.service.TagService;
+import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 @Service

@@ -3,11 +3,11 @@ package org.openl.rules.rest.settings.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.settings.service.DesignRepositorySettingsService;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
+import org.openl.studio.common.exception.ForbiddenException;
 
 public class DesignRepositorySettingsServiceImpl extends ARepositorySettingsServiceImpl implements DesignRepositorySettingsService {
 

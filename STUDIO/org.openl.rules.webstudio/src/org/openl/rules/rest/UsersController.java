@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.GroupModel;
 import org.openl.rules.rest.model.GroupType;
@@ -63,6 +62,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.studio.security.OwnerOrAdminPrivilege;

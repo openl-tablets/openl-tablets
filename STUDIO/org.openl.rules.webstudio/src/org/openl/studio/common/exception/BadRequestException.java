@@ -1,4 +1,4 @@
-package org.openl.rules.rest.exception;
+package org.openl.studio.common.exception;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;

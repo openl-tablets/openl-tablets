@@ -17,9 +17,9 @@ import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.mcp.McpController;
 import org.openl.studio.mcp.McpToolNameConstants;
 import org.openl.studio.projects.converter.Base64ProjectConverter;

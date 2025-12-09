@@ -44,15 +44,14 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.SecurityException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -143,7 +142,7 @@ public class DesignTimeRepositoryController {
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
         if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
-            throw new SecurityException();
+            throw new ForbiddenException();
         }
         return projectService.getProjects(
                 ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
@@ -190,10 +189,10 @@ public class DesignTimeRepositoryController {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
-                throw new SecurityException();
+                throw new ForbiddenException();
             }
         } else if (!aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
-            throw new SecurityException();
+            throw new ForbiddenException();
         }
 
         allowedToPush(repository);

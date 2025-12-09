@@ -6,7 +6,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.settings.model.CURepositoryConfigurationModel;
 import org.openl.rules.rest.settings.service.RepositorySettingsService;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -14,6 +13,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
+import org.openl.studio.common.exception.NotFoundException;
 
 public abstract class ARepositorySettingsServiceImpl implements RepositorySettingsService {
 

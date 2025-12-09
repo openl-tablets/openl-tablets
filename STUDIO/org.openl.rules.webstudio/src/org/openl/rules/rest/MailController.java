@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.rest.model.NotificationModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -33,6 +31,8 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.studio.security.OwnerOrAdminPrivilege;

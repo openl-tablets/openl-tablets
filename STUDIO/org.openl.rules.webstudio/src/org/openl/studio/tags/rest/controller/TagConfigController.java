@@ -1,4 +1,4 @@
-package org.openl.rules.rest.tags;
+package org.openl.studio.tags.rest.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,16 +26,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.TagService;
-import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.security.AdminPrivilege;
+import org.openl.studio.tags.model.TagTypeDTO;
+import org.openl.studio.tags.service.TagService;
+import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 @RestController

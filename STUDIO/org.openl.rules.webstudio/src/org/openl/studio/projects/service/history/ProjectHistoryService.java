@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.rest.exception.LockedException;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -32,6 +31,7 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.projects.model.history.ProjectHistoryItem;
 import org.openl.util.FileUtils;
 

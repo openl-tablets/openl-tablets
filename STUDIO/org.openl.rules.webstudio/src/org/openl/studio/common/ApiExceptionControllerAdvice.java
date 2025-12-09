@@ -20,8 +20,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
+import org.openl.studio.common.exception.RestRuntimeException;
+import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
 import org.openl.util.StringUtils;

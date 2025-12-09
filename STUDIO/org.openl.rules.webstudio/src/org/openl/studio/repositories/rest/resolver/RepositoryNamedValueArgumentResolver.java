@@ -13,8 +13,8 @@ import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumen
 import org.springframework.web.servlet.HandlerMapping;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.util.StringUtils;
 
 /**

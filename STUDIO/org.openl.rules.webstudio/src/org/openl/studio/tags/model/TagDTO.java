@@ -1,4 +1,4 @@
-package org.openl.rules.rest.tags;
+package org.openl.studio.tags.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

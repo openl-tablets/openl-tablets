@@ -22,8 +22,6 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
@@ -36,6 +34,8 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 
 /**
  * Creates demo projects in a repository.
