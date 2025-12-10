@@ -2,47 +2,53 @@ package org.openl.studio.projects.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.studio.projects.model.ProjectIdModel;
 
 /**
  * Project criteria query. Used to filter projects in {@link ProjectService}.
  *
  * @author Vladyslav Pikus
  */
-public class ProjectCriteriaQuery {
+@JsonDeserialize(builder = ProjectCriteriaQuery.Builder.class)
+public record ProjectCriteriaQuery(
+        @Schema(description = "Identifier of the repository to filter projects by.")
+        String repositoryId,
 
-    private final String repositoryId;
-    private final ProjectStatus status;
-    private final Map<String, String> tags;
+        @Schema(description = "Status of the projects to filter by.")
+        ProjectStatus status,
+
+        @Schema(description = "Identifier of the project that the returned projects depend on.")
+        ProjectIdModel dependsOn,
+
+        @Schema(description = "Set of tags to filter projects by.")
+        Map<String, String> tags
+) {
 
     private ProjectCriteriaQuery(Builder builder) {
-        this.repositoryId = builder.repositoryId;
-        this.status = builder.status;
-        this.tags = Map.copyOf(builder.tags);
+        this(builder.repositoryId,
+                builder.status,
+                builder.dependsOn,
+                Map.copyOf(builder.tags));
     }
 
-    public Optional<String> getRepositoryId() {
-        return Optional.ofNullable(repositoryId);
-    }
-
-    public Map<String, String> getTags() {
-        return tags;
-    }
-
-    public Optional<ProjectStatus> getStatus() {
-        return Optional.ofNullable(status);
-    }
-
+    @JsonCreator
     public static Builder builder() {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
         private String repositoryId;
         private ProjectStatus status;
+        private ProjectIdModel dependsOn;
         private final Map<String, String> tags = new HashMap<>();
 
         private Builder() {
@@ -55,6 +61,11 @@ public class ProjectCriteriaQuery {
 
         public Builder status(ProjectStatus status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder dependsOn(ProjectIdModel dependsOn) {
+            this.dependsOn = dependsOn;
             return this;
         }
 

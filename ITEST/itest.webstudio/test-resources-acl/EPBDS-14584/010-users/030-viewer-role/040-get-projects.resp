@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "EPBDS_14584_Project",
-    "modifiedBy": "EPBDS_14584",
-    "modifiedAt": "*",
-    "revision": "*",
-    "id": "ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=",
-    "status": "OPENED",
-    "comment": "EPBDS_14584 saved the project",
-    "repository": "design"
-  }
-]
+{
+  "content": [
+    {
+      "name": "EPBDS_14584_Project",
+      "modifiedBy": "EPBDS_14584",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=",
+      "status": "OPENED",
+      "comment": "EPBDS_14584 saved the project",
+      "repository": "design"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

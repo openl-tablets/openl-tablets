@@ -1,35 +1,40 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "EPBDS-14095",
-    "modifiedBy": "admin",
-    "modifiedAt": "*",
-    "revision": "*",
-    "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
-    "status": "EDITING",
-    "comment": "Project EPBDS-14095 is created.",
-    "repository": "design"
-  },
-  {
-    "name": "Project",
-    "modifiedBy": "admin",
-    "modifiedAt": "*",
-    "revision": "*",
-    "id": "ZGVzaWduOlByb2plY3Q=",
-    "status": "CLOSED",
-    "comment": "Project is created.",
-    "repository": "design"
-  },
-  {
-    "name": "Project2",
-    "modifiedBy": "admin",
-    "modifiedAt": "*",
-    "revision": "*",
-    "id": "ZGVzaWduOlByb2plY3Qy",
-    "status": "CLOSED",
-    "comment": "Project is created.",
-    "repository": "design"
-  }
-]
+{
+  "content": [
+    {
+      "name": "EPBDS-14095",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "status": "EDITING",
+      "comment": "Project EPBDS-14095 is created.",
+      "repository": "design"
+    },
+    {
+      "name": "Project",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOlByb2plY3Q=",
+      "status": "CLOSED",
+      "comment": "Project is created.",
+      "repository": "design"
+    },
+    {
+      "name": "Project2",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOlByb2plY3Qy",
+      "status": "CLOSED",
+      "comment": "Project is created.",
+      "repository": "design"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3
+}

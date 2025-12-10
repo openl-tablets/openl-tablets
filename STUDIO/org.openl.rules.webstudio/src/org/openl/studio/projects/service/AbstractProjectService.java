@@ -20,8 +20,10 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectLockInfo;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -34,6 +36,8 @@ import org.openl.studio.projects.model.ProjectViewModel;
 @ParametersAreNonnullByDefault
 public abstract class AbstractProjectService<T extends AProject> implements ProjectService<T> {
 
+    protected static final Comparator<AProject> PROJECT_BUSINESS_NAME_ORDER =
+            Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER);
     private static final Predicate<AProject> ALL_PROJECTS = project -> true;
 
     protected final RepositoryAclService designRepositoryAclService;
@@ -44,15 +48,23 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     @Override
     @Nonnull
-    public List<ProjectViewModel> getProjects(ProjectCriteriaQuery query) {
+    public PageResponse<ProjectViewModel> getProjects(ProjectCriteriaQuery query, Pageable page) {
         var criteriaFilter = buildFilterCriteria(query)
                 .and(proj -> designRepositoryAclService.isGranted(proj, List.of(BasePermission.READ)))
                 .and(buildTagsFilterCriteria(query));
-        return getProjects0(query).filter(criteriaFilter)
-                .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
+        var content = getProjects0(query).filter(criteriaFilter)
+                .sorted(PROJECT_BUSINESS_NAME_ORDER)
+                .skip(page.getOffset())
+                .limit(page.getPageSize())
                 .map(this::mapProjectResponse)
                 .map(ProjectViewModel.Builder::build)
                 .collect(Collectors.toList());
+
+        if (page.isUnpaged()) {
+            return new PageResponse<>(content, -1, content.size());
+        } else {
+            return new PageResponse<>(content, page.getPageNumber(), page.getPageSize());
+        }
     }
 
     @Nonnull
@@ -63,10 +75,10 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     @Nonnull
     private Predicate<AProject> buildTagsFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = ALL_PROJECTS;
-        if (!query.getTags().isEmpty()) {
+        if (!query.tags().isEmpty()) {
             filter = project ->
                     project instanceof RulesProject
-                            && projectHasTags((RulesProject) project, query.getTags());
+                            && projectHasTags((RulesProject) project, query.tags());
         }
         return filter;
     }

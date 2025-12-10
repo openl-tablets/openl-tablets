@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -49,14 +48,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
@@ -66,14 +68,14 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
-import org.openl.studio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
-import org.openl.studio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
+import org.openl.studio.rest.resolver.PaginationDefault;
 import org.openl.util.StringUtils;
 
 /**
@@ -87,27 +89,23 @@ import org.openl.util.StringUtils;
 @Validated
 public class ProjectsController {
 
+    private static final String TAGS_PREFIX = "tags.";
+    private static final String PROPERTIES_PREFIX = "properties.";
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     private final WorkspaceProjectService projectService;
     private final TestsExecutorService testsExecutorService;
-    private final ProjectCriteriaQueryFactory projectCriteriaQueryFactory;
-    private final ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory;
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final Environment environment;
 
     public ProjectsController(WorkspaceProjectService projectService,
                               TestsExecutorService testsExecutorService,
-                              ProjectCriteriaQueryFactory projectCriteriaQueryFactory,
-                              ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory,
                               ExecutionTestsResultRegistry executionTestsResultRegistry,
                               SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory,
                               Environment environment) {
         this.projectService = projectService;
         this.testsExecutorService = testsExecutorService;
-        this.projectCriteriaQueryFactory = projectCriteriaQueryFactory;
-        this.projectTableCriteriaQueryFactory = projectTableCriteriaQueryFactory;
         this.executionTestsResultRegistry = executionTestsResultRegistry;
         this.socketProjectAllTestsExecutionProgressListenerFactory = socketProjectAllTestsExecutionProgressListenerFactory;
         this.environment = environment;
@@ -129,16 +127,37 @@ public class ProjectsController {
                     "EDITING",
                     "CLOSED"})),
             @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
-            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)})
-    public List<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
-                                              @RequestParam(value = "status", required = false) ProjectStatus status,
-                                              @RequestParam(value = "repository", required = false) String repository) {
-        var query = projectCriteriaQueryFactory.build(params, status, repository);
-        return projectService.getProjects(query);
+            @Parameter(name = "dependsOn", description = "Identifier of the project that the returned projects depend on.", in = ParameterIn.QUERY),
+            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE),
+            @Parameter(name = "offset", description = "pagination.param.offset.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
+            @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
+            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))
+    })
+    public PageResponse<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
+                                                      @RequestParam(value = "status", required = false) ProjectStatus status,
+                                                      @RequestParam(value = "repository", required = false) String repository,
+                                                      @RequestParam(value = "dependsOn", required = false) String dependsOn,
+                                                      @PaginationDefault(size = 50) Pageable page) {
+        var queryBuilder = ProjectCriteriaQuery.builder()
+                .repositoryId(repository)
+                .status(status);
+
+        if (StringUtils.isNotEmpty(dependsOn)) {
+            queryBuilder.dependsOn(ProjectIdModel.decode(dependsOn));
+        }
+
+        params.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(TAGS_PREFIX))
+                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
+                .forEach(entry -> {
+                    var tag = entry.getKey().substring(TAGS_PREFIX.length());
+                    queryBuilder.tag(tag, entry.getValue());
+                });
+        return projectService.getProjects(queryBuilder.build(), page);
     }
 
-    @Hidden
     @GetMapping("/{projectId}")
+    @Operation(summary = "Get project (BETA)")
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         return projectService.getProject(project);
     }
@@ -204,8 +223,17 @@ public class ProjectsController {
                                                   @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                   @RequestParam(value = "name", required = false) String name) {
 
-        var query = projectTableCriteriaQueryFactory.build(params, kinds, name);
-        return projectService.getTables(project, query);
+        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
+        params.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
+                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
+                .forEach(entry -> {
+                    var tag = entry.getKey().substring(PROPERTIES_PREFIX.length());
+                    queryBuilder.property(tag, entry.getValue());
+                });
+
+        return projectService.getTables(project, queryBuilder.build());
     }
 
     @Operation(summary = "Create new project table (BETA)")

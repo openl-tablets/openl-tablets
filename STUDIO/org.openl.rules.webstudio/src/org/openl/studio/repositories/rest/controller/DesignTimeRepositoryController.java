@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -140,12 +141,13 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/projects")
     @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
-    public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
+    @Deprecated(forRemoval = true)
+    public Collection<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
         if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(BasePermission.READ))) {
             throw new ForbiddenException();
         }
-        return projectService.getProjects(
-                ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
+        var query = ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build();
+        return projectService.getProjects(query, Pageable.unpaged()).getContent();
     }
 
     @Operation(summary = "repos.list-branches.summary", description = "repos.list-branches.desc")

@@ -1,31 +1,41 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "Project",
-    "modifiedBy": "OpenL Admin",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "Project",
-    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
-    "status": "CLOSED",
-    "comment": "Project Project is created.",
-    "repository": "design-flat",
-    "selectedBranches":["admin/feature-1","master"]
-  },
-  {
-    "name": "ProjectUser1",
-    "modifiedBy": "User User1",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "ProjectUser1",
-    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
-    "status": "CLOSED",
-    "comment": "Project ProjectUser1 is created.",
-    "repository": "design-flat",
-    "selectedBranches":["master"]
-  }
-]
+{
+  "content": [
+    {
+      "name": "Project",
+      "modifiedBy": "OpenL Admin",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "Project",
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "status": "CLOSED",
+      "comment": "Project Project is created.",
+      "repository": "design-flat",
+      "selectedBranches": [
+        "admin/feature-1",
+        "master"
+      ]
+    },
+    {
+      "name": "ProjectUser1",
+      "modifiedBy": "User User1",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "ProjectUser1",
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+      "status": "CLOSED",
+      "comment": "Project ProjectUser1 is created.",
+      "repository": "design-flat",
+      "selectedBranches": [
+        "master"
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2
+}

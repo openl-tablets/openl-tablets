@@ -1,57 +1,70 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "Project",
-    "modifiedBy": "Admin",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "Project",
-    "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
-    "status": "CLOSED",
-    "comment": "EPBDS-10682 Create project via rest",
-    "repository": "design-non-flat",
-    "selectedBranches": ["master"]
-  },
-  {
-    "name": "Project2",
-    "modifiedBy": "Admin",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "Project2",
-    "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
-    "status": "CLOSED",
-    "comment": "EPBDS-10682 Create project via rest",
-    "repository": "design-non-flat",
-    "selectedBranches": ["master"]
-  },
-  {
-    "name": "Project4",
-    "modifiedBy": "Admin",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "foo/bar/Project4",
-    "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
-    "status": "CLOSED",
-    "comment": "EPBDS-10682 Create project via rest",
-    "repository": "design-non-flat",
-    "selectedBranches": ["master"]
-  },
-  {
-    "name": "Project7",
-    "modifiedBy": "Admin",
-    "modifiedAt": "*",
-    "branch": "master",
-    "revision": "*",
-    "path": "foo/bar/project-custom-name",
-    "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
-    "status": "CLOSED",
-    "comment": "EPBDS-10682 Update project via rest",
-    "repository": "design-non-flat",
-    "selectedBranches": ["master"]
-  }
-]
+{
+  "content": [
+    {
+      "name": "Project",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "Project",
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "status": "CLOSED",
+      "comment": "EPBDS-10682 Create project via rest",
+      "repository": "design-non-flat",
+      "selectedBranches": [
+        "master"
+      ]
+    },
+    {
+      "name": "Project2",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "Project2",
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
+      "status": "CLOSED",
+      "comment": "EPBDS-10682 Create project via rest",
+      "repository": "design-non-flat",
+      "selectedBranches": [
+        "master"
+      ]
+    },
+    {
+      "name": "Project4",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "foo/bar/Project4",
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
+      "status": "CLOSED",
+      "comment": "EPBDS-10682 Create project via rest",
+      "repository": "design-non-flat",
+      "selectedBranches": [
+        "master"
+      ]
+    },
+    {
+      "name": "Project7",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "branch": "master",
+      "revision": "*",
+      "path": "foo/bar/project-custom-name",
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
+      "status": "CLOSED",
+      "comment": "EPBDS-10682 Update project via rest",
+      "repository": "design-non-flat",
+      "selectedBranches": [
+        "master"
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4
+}

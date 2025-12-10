@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDE6ZDUyMjg0YjVmMzk5N2Y4N2I5MTNmNzAyN2ZlN2ZlMTE2MjI1MzM1N2M0M2ZkNmY5ZTlhM2NmZmI0OWVjN2E2Mg==",
+      "name": "EPBDS-15425_Project1",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-15425_Project1",
+      "comment": "Project EPBDS-15425_Project1 is created.",
+      "selectedBranches": [
+        "master"
+      ],
+      "dependencies": [
+        {
+          "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+          "name": "EPBDS-15425_Project2",
+          "branch": "master",
+          "status": "CLOSED",
+          "repository": "design-flat"
+        }
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 5,
+  "numberOfElements": 1
+}

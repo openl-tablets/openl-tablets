@@ -2,7 +2,6 @@ package org.openl.studio.projects.mcp.controller;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -17,13 +16,19 @@ import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.repository.api.Offset;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.PageRequest;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.mcp.McpController;
 import org.openl.studio.mcp.McpToolNameConstants;
 import org.openl.studio.projects.converter.Base64ProjectConverter;
+import org.openl.studio.projects.mcp.model.ProjectTag;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusToSet;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -35,9 +40,8 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
-import org.openl.studio.projects.service.ProjectCriteriaQueryFactory;
+import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
-import org.openl.studio.projects.service.ProjectTableCriteriaQueryFactory;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -50,33 +54,45 @@ import org.openl.util.StringUtils;
 public class ProjectsMcpToolController {
 
     private final WorkspaceProjectService projectService;
-    private final ProjectCriteriaQueryFactory projectCriteriaQueryFactory;
-    private final ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory;
     private final Base64ProjectConverter base64ProjectConverter;
     private final ProjectHistoryService projectHistoryService;
     private final TestsExecutorService testsExecutorService;
 
     public ProjectsMcpToolController(WorkspaceProjectService projectService,
-                                     ProjectCriteriaQueryFactory projectCriteriaQueryFactory,
-                                     ProjectTableCriteriaQueryFactory projectTableCriteriaQueryFactory,
                                      Base64ProjectConverter base64ProjectConverter,
                                      ProjectHistoryService projectHistoryService,
                                      TestsExecutorService testsExecutorService) {
         this.projectService = projectService;
-        this.projectCriteriaQueryFactory = projectCriteriaQueryFactory;
-        this.projectTableCriteriaQueryFactory = projectTableCriteriaQueryFactory;
         this.base64ProjectConverter = base64ProjectConverter;
         this.projectHistoryService = projectHistoryService;
         this.testsExecutorService = testsExecutorService;
     }
 
     @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_projects", description = "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.")
-    public List<ProjectViewModel> listProjects(@ToolParam(description = "Project status to filter by", required = false)
-                                               ProjectStatus status,
-                                               @ToolParam(description = "Design repository identifier")
-                                               String repository) {
-        var query = projectCriteriaQueryFactory.build(Map.of(), status, repository);
-        return projectService.getProjects(query);
+    public PageResponse<ProjectViewModel> listProjects(@ToolParam(description = "Project status to filter by", required = false)
+                                                       ProjectStatus status,
+                                                       @ToolParam(description = "Design repository identifier")
+                                                       String repository,
+                                                       @ToolParam(description = "Identifier of the project that the returned projects depend on.", required = false)
+                                                       ProjectIdModel dependsOn,
+                                                       @ToolParam(description = "Pagination parameters", required = false)
+                                                       PageRequest pagination,
+                                                       @ToolParam(description = "Project tags to filter by", required = false)
+                                                       Set<ProjectTag> tags) {
+        var queryBuilder = ProjectCriteriaQuery.builder()
+                .repositoryId(repository)
+                .status(status)
+                .dependsOn(dependsOn);
+        if (tags != null) {
+            tags.forEach(tag -> queryBuilder.tag(tag.name(), tag.value()));
+        }
+        Pageable pageable;
+        if (pagination != null) {
+            pageable = Offset.of(pagination.offset(), pagination.limit());
+        } else {
+            pageable = Pageable.unpaged();
+        }
+        return projectService.getProjects(queryBuilder.build(), pageable);
     }
 
     @Tool(name = McpToolNameConstants.GET_TOOL_PREFIX + "_project", description = "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Use this to understand project organization before making changes.")
@@ -143,7 +159,9 @@ public class ProjectsMcpToolController {
                                                          String projectId,
                                                          @ToolParam(description = "Table name to filter by", required = false)
                                                          String name) {
-        var query = projectTableCriteriaQueryFactory.build(Map.of(), Set.of(), name);
+        var query = ProjectTableCriteriaQuery.builder()
+                .name(name)
+                .build();
         var project = base64ProjectConverter.convert(projectId);
         return projectService.getTables(project, query);
     }

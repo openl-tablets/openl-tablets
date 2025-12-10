@@ -1,0 +1,3 @@
+GET /rest/projects?page=2&size=5 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

@@ -1,18 +1,26 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "EPBDS-13931",
-    "modifiedBy": "Admin",
-    "modifiedAt": "*",
-    "branch": "EPBDS-13931_1",
-    "revision": "*",
-    "path": "EPBDS-13931",
-    "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
-    "status": "OPENED",
-    "comment": "Save changes",
-    "repository": "design-flat",
-    "selectedBranches": ["EPBDS-13931_1", "master"]
-  }
-]
+{
+  "content": [
+    {
+      "name": "EPBDS-13931",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "branch": "EPBDS-13931_1",
+      "revision": "*",
+      "path": "EPBDS-13931",
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "status": "OPENED",
+      "comment": "Save changes",
+      "repository": "design-flat",
+      "selectedBranches": [
+        "EPBDS-13931_1",
+        "master"
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

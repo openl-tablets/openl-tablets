@@ -1,9 +1,10 @@
 package org.openl.studio.projects.service;
 
-import java.util.List;
 import jakarta.annotation.Nonnull;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.repository.api.Pageable;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.model.ProjectViewModel;
 
 /**
@@ -20,6 +21,6 @@ public interface ProjectService<T extends AProject> {
      * @return list of projects
      */
     @Nonnull
-    List<ProjectViewModel> getProjects(@Nonnull ProjectCriteriaQuery query);
+    PageResponse<ProjectViewModel> getProjects(@Nonnull ProjectCriteriaQuery query, @Nonnull Pageable page);
 
 }
