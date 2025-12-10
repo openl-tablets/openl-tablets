@@ -2,11 +2,13 @@ package org.openl.studio.common.model;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 
 public class PageResponse<T> {
 
     @Parameter(description = "Current page content")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final Collection<T> content;
 
     @Parameter(description = "Current page number", required = true)

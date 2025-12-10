@@ -48,11 +48,11 @@ public abstract class AProjectViewModel {
     }
 
     public static abstract class ABuilder<T extends ABuilder<T>> {
-        protected String name;
-        protected String branch;
-        protected ProjectIdModel id;
-        protected ProjectStatus status;
-        protected String repository;
+        private String name;
+        private String branch;
+        private ProjectIdModel id;
+        private ProjectStatus status;
+        private String repository;
 
         protected ABuilder() {
 

@@ -128,16 +128,13 @@ public class ProjectsController {
                     "CLOSED"})),
             @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
             @Parameter(name = "dependsOn", description = "Identifier of the project that the returned projects depend on.", in = ParameterIn.QUERY),
-            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE),
-            @Parameter(name = "offset", description = "pagination.param.offset.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
-            @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
-            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))
+            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                       @RequestParam(value = "status", required = false) ProjectStatus status,
                                                       @RequestParam(value = "repository", required = false) String repository,
                                                       @RequestParam(value = "dependsOn", required = false) String dependsOn,
-                                                      @PaginationDefault(size = 50) Pageable page) {
+                                                      @PaginationDefault Pageable page) {
         var queryBuilder = ProjectCriteriaQuery.builder()
                 .repositoryId(repository)
                 .status(status);

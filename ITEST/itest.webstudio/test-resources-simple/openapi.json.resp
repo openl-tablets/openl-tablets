@@ -11625,33 +11625,14 @@ Content-Type: application/json
         "parameters": [
           {
             "description": "***",
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "default": 0,
-              "format": "int32",
-              "minimum": 0,
-              "type": "integer"
-            }
-          }, {
-            "description": "***",
-            "in": "query",
-            "name": "size",
-            "schema": {
-              "default": 50,
-              "format": "int32",
-              "minimum": 1,
-              "type": "integer"
-            }
-          }, {
-            "description": "***",
             "in": "path",
             "name": "repo-name",
             "required": true,
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "path",
             "name": "branch-name",
@@ -11659,7 +11640,8 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "path",
             "name": "project-name",
@@ -11667,39 +11649,74 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "search",
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "techRevs",
             "schema": {
-              "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
             }
           }
         ],
         "responses": {
-          "200": {
+          "423": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
             "description": "***"
           },
-          "400": {
+          "500": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
@@ -11735,21 +11752,21 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "423": {
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
             "description": "***"
           },
-          "500": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
                 }
               }
             },
@@ -12187,33 +12204,14 @@ Content-Type: application/json
         "parameters": [
           {
             "description": "***",
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "default": 0,
-              "format": "int32",
-              "minimum": 0,
-              "type": "integer"
-            }
-          }, {
-            "description": "***",
-            "in": "query",
-            "name": "size",
-            "schema": {
-              "default": 50,
-              "format": "int32",
-              "minimum": 1,
-              "type": "integer"
-            }
-          }, {
-            "description": "***",
             "in": "path",
             "name": "repo-name",
             "required": true,
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "path",
             "name": "project-name",
@@ -12221,39 +12219,74 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "search",
             "schema": {
               "type": "string"
             }
-          }, {
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "techRevs",
             "schema": {
-              "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
             }
           }
         ],
         "responses": {
-          "200": {
+          "423": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
             "description": "***"
           },
-          "400": {
+          "500": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
@@ -12289,21 +12322,21 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "423": {
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
             "description": "***"
           },
-          "500": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
                 }
               }
             },
