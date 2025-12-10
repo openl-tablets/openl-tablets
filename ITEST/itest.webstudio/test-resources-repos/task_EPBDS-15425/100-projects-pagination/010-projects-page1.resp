@@ -1,0 +1,82 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "name": "EPBDS-13931",
+      "branch": "EPBDS-13931_1",
+      "status": "OPENED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-13931",
+      "comment": "Save changes",
+      "selectedBranches": [
+        "EPBDS-13931_1",
+        "master"
+      ]
+    },
+    {
+      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "name": "EPBDS-14095",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "lockInfo": {
+        "lockedBy": "EPBDS_14095_user1",
+        "lockedAt": "*"
+      },
+      "revision": "*",
+      "comment": "Project EPBDS-14095 is created."
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ==",
+      "name": "EPBDS-14376",
+      "branch": "EPBDS-14376_1",
+      "status": "EDITING",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-14376",
+      "comment": "Project EPBDS-14376 is created.",
+      "selectedBranches": [
+        "EPBDS-14376_1",
+        "master"
+      ]
+    },
+    {
+      "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
+      "name": "EPBDS-14418",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project EPBDS-14418 is created."
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "name": "EPBDS-15409",
+      "branch": "EPBDS-15409_1",
+      "status": "EDITING",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-15409",
+      "comment": "Project EPBDS-15409 is created.",
+      "selectedBranches": [
+        "EPBDS-15409_1",
+        "master"
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 5,
+  "numberOfElements": 5
+}

@@ -37,8 +37,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     @SuppressWarnings("unchecked")
     protected Stream<AProject> getProjects0(ProjectCriteriaQuery query) {
         Collection<? extends AProject> projects;
-        if (query.getRepositoryId().isPresent()) {
-            var repositoryId = query.getRepositoryId().get();
+        if (query.repositoryId() != null) {
+            var repositoryId = query.repositoryId();
             if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.READ))) {
                 return Stream.empty();
             }
@@ -53,8 +53,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     @Override
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         var filter = super.buildFilterCriteria(query);
-        if (query.getStatus().isPresent()) {
-            var status = query.getStatus().get();
+        if (query.status() != null) {
+            var status = query.status();
             if (status == ProjectStatus.ARCHIVED) {
                 filter = filter.and(AProject::isDeleted);
             } else if (status == ProjectStatus.EDITING) {

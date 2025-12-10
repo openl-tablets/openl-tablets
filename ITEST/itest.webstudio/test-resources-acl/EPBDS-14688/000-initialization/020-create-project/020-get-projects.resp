@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "EPBDS_14670_Project",
-    "modifiedBy": "jsmith",
-    "modifiedAt": "*",
-    "revision": "*",
-    "id": "ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=",
-    "status": "CLOSED",
-    "comment": "Project EPBDS_14670_Project is created.",
-    "repository": "design"
-  }
-]
+{
+  "content": [
+    {
+      "name": "EPBDS_14670_Project",
+      "modifiedBy": "jsmith",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=",
+      "status": "CLOSED",
+      "comment": "Project EPBDS_14670_Project is created.",
+      "repository": "design"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

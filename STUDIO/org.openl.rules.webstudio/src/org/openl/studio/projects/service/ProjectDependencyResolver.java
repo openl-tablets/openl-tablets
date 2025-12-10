@@ -15,7 +15,7 @@ public interface ProjectDependencyResolver {
     /**
      * Returns all projects that project depends on.
      */
-    List<RulesProject> getProjectDependencies(RulesProject project) throws ProjectException;
+    List<RulesProject> getProjectDependencies(RulesProject project);
 
     /**
      * Returns all projects that depend on project

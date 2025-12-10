@@ -24,12 +24,12 @@ public abstract class Pageable {
 
         @Override
         public int getPageSize() {
-            throw new UnsupportedOperationException();
+            return Integer.MAX_VALUE;
         }
 
         @Override
         public int getOffset() {
-            throw new UnsupportedOperationException();
+            return 0;
         }
     };
 

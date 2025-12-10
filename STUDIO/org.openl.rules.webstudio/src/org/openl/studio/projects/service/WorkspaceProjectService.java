@@ -51,6 +51,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
@@ -147,6 +148,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 LOG.warn("Failed to retrieve project branches", e);
             }
         }
+        projectDependencyResolver.getProjectDependencies(src).stream()
+                .sorted(PROJECT_BUSINESS_NAME_ORDER)
+                .map(this::mapProjectDependency)
+                .map(ProjectDependencyViewModel.Builder::build)
+                .forEach(builder::addDependency);
+        return builder;
+    }
+
+    protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {
+        var repository = src.getRepository();
+        var builder = ProjectDependencyViewModel.builder().name(src.getBusinessName())
+                .id(resolveProjectId(src))
+                .repository(repository.getId());
+        builder.status(src.getStatus()).branch(src.getBranch());
         return builder;
     }
 
@@ -154,8 +169,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected Stream<RulesProject> getProjects0(ProjectCriteriaQuery query) {
         var workspace = getUserWorkspace();
         Collection<RulesProject> projects;
-        if (query.getRepositoryId().isPresent()) {
-            var repositoryId = query.getRepositoryId().get();
+        if (query.repositoryId() != null) {
+            var repositoryId = query.repositoryId();
             projects = workspace.getProjects(repositoryId);
         } else {
             projects = workspace.getProjects();
@@ -168,10 +183,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = super.buildFilterCriteria(query);
 
-        if (query.getStatus().isPresent()) {
+        if (query.status() != null) {
             filter = filter.and(project -> {
                 var workspaceProject = (UserWorkspaceProject) project;
-                return workspaceProject.getStatus() == query.getStatus().get();
+                return workspaceProject.getStatus() == query.status();
+            });
+        }
+
+        if (query.dependsOn() != null) {
+            filter = filter.and(project -> {
+                var rulesProject = (RulesProject) project;
+                var dependencies = projectDependencyResolver.getProjectDependencies(rulesProject);
+                return dependencies.stream().anyMatch(dependency -> {
+                    var dependencyId = resolveProjectId(dependency);
+                    return dependencyId.equals(query.dependsOn());
+                });
             });
         }
 

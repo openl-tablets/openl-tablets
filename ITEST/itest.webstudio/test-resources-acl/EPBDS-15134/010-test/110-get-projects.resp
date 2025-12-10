@@ -1,16 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "name": "Some_Project",
-    "modifiedBy": "admin",
-    "modifiedAt": "***",
-    "revision": "***",
-    "id": "***",
-    "status": "CLOSED",
-    "comment": "***",
-    "repository": "design"
-  }
-]
-
+{
+  "content": [
+    {
+      "name": "Some_Project",
+      "modifiedBy": "admin",
+      "modifiedAt": "***",
+      "revision": "***",
+      "id": "***",
+      "status": "CLOSED",
+      "comment": "***",
+      "repository": "design"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

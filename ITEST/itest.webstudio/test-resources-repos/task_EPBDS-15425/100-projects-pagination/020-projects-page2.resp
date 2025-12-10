@@ -1,0 +1,89 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDE6ZDUyMjg0YjVmMzk5N2Y4N2I5MTNmNzAyN2ZlN2ZlMTE2MjI1MzM1N2M0M2ZkNmY5ZTlhM2NmZmI0OWVjN2E2Mg==",
+      "name": "EPBDS-15425_Project1",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-15425_Project1",
+      "comment": "Project EPBDS-15425_Project1 is created.",
+      "selectedBranches": [
+        "master"
+      ],
+      "dependencies": [
+        {
+          "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+          "name": "EPBDS-15425_Project2",
+          "branch": "master",
+          "status": "CLOSED",
+          "repository": "design-flat"
+        }
+      ]
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+      "name": "EPBDS-15425_Project2",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-15425_Project2",
+      "comment": "Project EPBDS-15425_Project2 is created.",
+      "selectedBranches": [
+        "master"
+      ]
+    },
+    {
+      "id": "ZGVzaWduOlByb2plY3Q=",
+      "name": "Project",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project is created."
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "name": "Project",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "comment": "Project Project is created.",
+      "selectedBranches": [
+        "master"
+      ]
+    },
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "name": "Project",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-non-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "comment": "EPBDS-10682 Create project via rest",
+      "selectedBranches": [
+        "master"
+      ]
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 5,
+  "numberOfElements": 5
+}

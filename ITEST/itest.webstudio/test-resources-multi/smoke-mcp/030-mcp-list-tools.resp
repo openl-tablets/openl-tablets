@@ -1719,6 +1719,63 @@ Content-Type: application/json
             "repository": {
               "type": "string",
               "description": "***"
+            },
+            "dependsOn": {
+              "type": "object",
+              "properties": {
+                "projectName": {
+                  "type": "string"
+                },
+                "repository": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectName",
+                "repository"
+              ],
+              "description": "***"
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "***"
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "***"
+                }
+              },
+              "required": [
+                "limit",
+                "offset"
+              ],
+              "description": "***"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "***"
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "***"
+                  }
+                },
+                "required": [
+                  "name",
+                  "value"
+                ]
+              },
+              "description": "***"
             }
           },
           "required": [

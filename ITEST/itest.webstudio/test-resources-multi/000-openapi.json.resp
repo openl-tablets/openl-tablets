@@ -4,6 +4,38 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "PageResponseProjectViewModel": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectViewModel"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
+      },
       "CreateNewTableRequest": {
         "type": "object",
         "properties": {
@@ -1657,50 +1689,65 @@ Content-Type: application/json
         "type": "object"
       },
       "ProjectViewModel": {
-        "required": [
-          "id",
-          "modifiedAt",
-          "modifiedBy",
-          "name",
-          "revision"
-        ],
         "type": "object",
         "properties": {
-          "name": {
+          "id": {
             "type": "string",
-            "description": "Project Name"
-          },
-          "lockInfo" : {
-            "$ref" : "#/components/schemas/ProjectLockInfo"
-          },
-          "modifiedBy": {
-            "type": "string",
-            "description": "Author of latest update"
-          },
-          "modifiedAt": {
-            "type": "string",
-            "description": "Date and time of latest update",
-            "format": "date-time"
+            "description": "***"
           },
           "branch": {
             "type": "string",
-            "description": "Branch Name. Can be absent if current repository doesn't support branches"
+            "description": "***"
           },
-          "revision": {
+          "comment": {
             "type": "string",
-            "description": "Revision ID"
+            "description": "***"
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDependencyViewModel"
+            }
+          },
+          "lockInfo": {
+            "$ref": "#/components/schemas/ProjectLockInfo"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
           },
           "path": {
             "type": "string",
-            "description": "Project path in target repository. Can be absent if Design Repository is flat"
+            "description": "***"
           },
-          "id": {
+          "repository": {
             "type": "string",
-            "description": "Project identifier"
+            "description": "***"
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          },
+          "selectedBranches": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
           },
           "status": {
             "type": "string",
-            "description": "Project Status",
+            "description": "***",
             "enum": [
               "LOCAL",
               "ARCHIVED",
@@ -1715,24 +1762,53 @@ Content-Type: application/json
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Project Tags"
-          },
-          "comment": {
+            "description": "***"
+          }
+        },
+        "required": [
+          "id",
+          "modifiedAt",
+          "modifiedBy",
+          "name",
+          "revision"
+        ]
+      },
+      "ProjectDependencyViewModel": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string",
-            "description": "Project Comment"
+            "description": "***"
+          },
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
           },
           "repository": {
             "type": "string",
-            "description": "Source Repository"
+            "description": "***"
           },
-          "selectedBranches" : {
-            "type": "array",
+          "status": {
+            "type": "string",
             "description": "***",
-            "items": {
-              "type": "string"
-            }
+            "enum": [
+              "LOCAL",
+              "ARCHIVED",
+              "OPENED",
+              "VIEWING_VERSION",
+              "EDITING",
+              "CLOSED"
+            ]
           }
-        }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
       },
       "ProjectViewModel_CreateOrUpdate": {
         "properties": {
@@ -12098,6 +12174,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "description": "***",
@@ -13912,17 +13989,103 @@ Content-Type: application/json
       }
     },
     "/projects/{projectId}": {
-      "patch": {
-        "tags": [
-          "Projects (BETA)"
-        ],
-        "summary": "Update project status (BETA)",
-        "operationId": "updateProjectStatus",
+      "get": {
+        "operationId": "*",
         "parameters": [
           {
-            "name": "projectId",
+            "description": "***",
             "in": "path",
-            "description": "Project ID",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectViewModel"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
+      "patch": {
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
             "required": true,
             "schema": {
               "type": "string"
@@ -13940,84 +14103,84 @@ Content-Type: application/json
           "required": true
         },
         "responses": {
-          "204": {
-            "description": "default response"
-          },
           "400": {
-            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationError"
                 }
               }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
+            },
+            "description": "***"
           },
           "423": {
-            "description": "Locked",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseError"
                 }
               }
-            }
+            },
+            "description": "***"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseError"
                 }
               }
-            }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "204": {
+            "description": "***"
           }
-        }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
       }
     },
     "/projects": {
       "get": {
-        "tags": [
-          "Projects (BETA)"
-        ],
-        "summary": "Get projects (BETA)",
         "operationId": "*",
         "parameters": [
           {
-            "name": "status",
+            "description": "***",
             "in": "query",
-            "description": "Project status",
+            "name": "status",
             "schema": {
               "type": "string",
               "enum": [
@@ -14031,99 +14194,141 @@ Content-Type: application/json
             }
           },
           {
-            "name": "repository",
+            "description": "***",
             "in": "query",
-            "description": "Repository ID",
+            "name": "repository",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "tags",
+            "description": "***",
             "in": "query",
-            "description": "Project tags. Must start with `tags.` ",
-            "style": "form",
+            "name": "dependsOn",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
             "explode": true,
+            "in": "query",
+            "name": "tags",
             "schema": {
               "type": "object"
+            },
+            "style": "form"
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "default response",
+          "423": {
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProjectViewModel"
-                  }
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
-            }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
           },
           "400": {
-            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationError"
                 }
               }
-            }
+            },
+            "description": "***"
           },
-          "403": {
-            "description": "Forbidden",
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/PageResponseProjectViewModel"
                 }
               }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            }
+            },
+            "description": "***"
           }
-        }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
       }
     },
     "/projects/{projectId}/tables": {
