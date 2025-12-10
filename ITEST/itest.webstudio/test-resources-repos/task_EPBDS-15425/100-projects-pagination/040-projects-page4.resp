@@ -2,6 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "content": [],
   "pageNumber": 3,
   "pageSize": 5,
   "numberOfElements": 0

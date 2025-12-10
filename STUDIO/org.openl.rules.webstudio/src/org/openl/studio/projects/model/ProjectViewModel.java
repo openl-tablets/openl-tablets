@@ -72,13 +72,13 @@ public class ProjectViewModel extends AProjectViewModel {
     public static class Builder extends ABuilder<Builder> {
         private String modifiedBy;
         private ZonedDateTime modifiedAt;
-        protected ProjectLockInfo lockInfo;
-        protected String revision;
-        protected String path;
+        private ProjectLockInfo lockInfo;
+        private String revision;
+        private String path;
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
         private List<String> selectedBranches;
-        public List<ProjectDependencyViewModel> dependencies;
+        private List<ProjectDependencyViewModel> dependencies;
 
         private Builder() {
         }

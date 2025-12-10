@@ -13,11 +13,8 @@ import jakarta.xml.bind.JAXBException;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,9 +155,6 @@ public class DesignTimeRepositoryController {
 
     @GetMapping({"/{repo-name}/projects/{project-name}/history",
             "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
-    @Parameters({
-            @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
-            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))})
     @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
     @JsonView({UserInfoModel.View.Short.class})
     public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
@@ -168,7 +162,7 @@ public class DesignTimeRepositoryController {
                                                             @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
                                                             @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
-                                                            @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
+                                                            @PaginationDefault Pageable page) throws IOException, ProjectException {
         return projectRevisionService.getProjectRevision(
                 repository,
                 projectName,

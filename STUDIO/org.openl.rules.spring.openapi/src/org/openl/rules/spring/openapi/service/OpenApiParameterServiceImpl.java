@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,6 +28,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -92,7 +92,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
                     continue;
                 }
                 var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-                parameters.putIfAbsent(new PKey(parameter), parameter);
+                parameters.putIfAbsent(PKey.of(parameter), parameter);
             }
         }
 
@@ -105,7 +105,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
                     continue;
                 }
                 var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-                parameters.putIfAbsent(new PKey(parameter), parameter);
+                parameters.putIfAbsent(PKey.of(parameter), parameter);
             }
         }
 
@@ -114,12 +114,24 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
             var wrappedParam = parseParameter(paramInfo, methodInfo, apiContext.getComponents());
             if (wrappedParam.isPresent()) {
                 var param = wrappedParam.get();
-                var key = new PKey(param);
+                var key = PKey.of(param);
                 var duplicatedParam = parameters.get(key);
                 if (duplicatedParam == null) {
                     parameters.put(key, param);
                 } else {
                     mergeParameters(duplicatedParam, param);
+                }
+            } else {
+                var parametersAnno = AnnotatedElementUtils.findMergedAnnotation(paramInfo.getMethodParameter().getParameter(),
+                        io.swagger.v3.oas.annotations.Parameters.class);
+                if (parametersAnno != null) {
+                    for (var apiParameter : parametersAnno.value()) {
+                        if (ignore.contains(apiParameter)) {
+                            continue;
+                        }
+                        var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
+                        parameters.putIfAbsent(PKey.of(parameter), parameter);
+                    }
                 }
             }
         }
@@ -338,30 +350,9 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         return possibleMediaTypes.stream().map(Object::toString).toArray(String[]::new);
     }
 
-    private static final class PKey {
-        public final String name;
-        public final String in;
-
-        public PKey(Parameter p) {
-            this.name = p.getName();
-            this.in = p.getIn();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            PKey pKey = (PKey) o;
-            return Objects.equals(name, pKey.name) && Objects.equals(in, pKey.in);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, in);
+    private record PKey(String name, String in) {
+        static PKey of(Parameter p) {
+            return new PKey(p.getName(), p.getIn());
         }
     }
 
