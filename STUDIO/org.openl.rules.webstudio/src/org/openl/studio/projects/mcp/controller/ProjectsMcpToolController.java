@@ -38,6 +38,7 @@ import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
+import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
@@ -279,7 +280,7 @@ public class ProjectsMcpToolController {
         }
 
         var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
-        return mapper.mapExecutionSummary(testTask.get());
+        return mapper.mapExecutionSummary(testTask.get(), TestExecutionSummaryQuery.builder().build(), Pageable.unpaged());
     }
 
     /**

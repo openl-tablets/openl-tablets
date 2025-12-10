@@ -58,9 +58,21 @@ public class TestsExecutionSummary {
 
         public Builder putTestCase(TestCaseExecutionResult testCase) {
             this.testCases.add(testCase);
-            this.executionTimeMs += testCase.getExecutionTimeMs();
-            this.numberOfTests += testCase.getNumberOfTests();
-            this.numberOfFailures += testCase.getNumberOfFailures();
+            return this;
+        }
+
+        public Builder executionTimeMs(double executionTimeMs) {
+            this.executionTimeMs = executionTimeMs;
+            return this;
+        }
+
+        public Builder numberOfTests(int numberOfTests) {
+            this.numberOfTests = numberOfTests;
+            return this;
+        }
+
+        public Builder numberOfFailures(int numberOfFailures) {
+            this.numberOfFailures = numberOfFailures;
             return this;
         }
 

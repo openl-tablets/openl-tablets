@@ -13,6 +13,7 @@ import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -41,16 +42,33 @@ public class TestsExecutionSummaryResponseMapper {
         return new SchemaGenerator(schemaGeneratorConfig);
     }
 
-    public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults) {
+    public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
         var builder = TestsExecutionSummary.builder();
+        calculateSummaryStats(testUnitsResults, builder);
         testUnitsResults.stream()
                 .sorted(TEST_COMPARATOR)
-                .map(this::mapToTestCaseResult)
+                .skip(page.getOffset())
+                .limit(page.getPageSize())
+                .map(testCase -> mapToTestCaseResult(testCase, query))
                 .forEach(builder::putTestCase);
         return builder.build();
     }
 
-    public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase) {
+    public void calculateSummaryStats(List<TestUnitsResults> testUnitsResults, TestsExecutionSummary.Builder builder) {
+        double executionTimeMs = 0;
+        int numberOfTests = 0;
+        int numberOfFailures = 0;
+        for (TestUnitsResults testCase : testUnitsResults) {
+            executionTimeMs += testCase.getExecutionTime() / NANOS_IN_MILLISECOND;
+            numberOfTests += testCase.getNumberOfTestUnits();
+            numberOfFailures += testCase.getNumberOfFailures();
+        }
+        builder.executionTimeMs(executionTimeMs)
+               .numberOfTests(numberOfTests)
+               .numberOfFailures(numberOfFailures);
+    }
+
+    public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase, TestExecutionSummaryQuery query) {
         var builder = TestCaseExecutionResult.builder()
                 .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
                 .tableId(TableUtils.makeTableId(testCase.getTestSuite().getUri()))
@@ -59,7 +77,7 @@ public class TestsExecutionSummaryResponseMapper {
                 .numberOfTests(testCase.getNumberOfTestUnits())
                 .numberOfFailures(testCase.getNumberOfFailures());
 
-        testCase.getTestUnits().stream()
+        testCase.getFilteredTestUnits(query.failedOnly(), query.failures()).stream()
                 .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit))
                 .forEach(builder::putTestUnit);
         return builder.build();
