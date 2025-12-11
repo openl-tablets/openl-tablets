@@ -10,7 +10,7 @@ Content-Type: application/json
   "deleted": false,
   "dependencies": [
     {
-      "name": "EPBDS-13550 Dependency Project2",
+      "name": "EPBDS-13550 Dependency Project1",
       "modified": false,
       "opened": false,
       "localOnly": false,
@@ -18,7 +18,7 @@ Content-Type: application/json
       "deleted": false
     },
     {
-      "name": "EPBDS-13550 Dependency Project1",
+      "name": "EPBDS-13550 Dependency Project2",
       "modified": false,
       "opened": false,
       "localOnly": false,

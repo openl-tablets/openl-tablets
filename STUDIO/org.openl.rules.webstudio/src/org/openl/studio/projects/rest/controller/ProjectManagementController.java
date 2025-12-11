@@ -1,7 +1,7 @@
 package org.openl.studio.projects.rest.controller;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import jakarta.xml.bind.JAXBException;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -88,12 +88,14 @@ public class ProjectManagementController {
             ProjectInfo info = new ProjectInfo(project);
             info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
                     .stream()
+                    .sorted(Comparator.comparing(RulesProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
                     .map(ProjectInfo::new)
-                    .collect(Collectors.toList());
+                    .toList();
             info.dependencies = projectDependencyResolver.getProjectDependencies(project)
                     .stream()
+                    .sorted(Comparator.comparing(RulesProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
                     .map(ProjectInfo::new)
-                    .collect(Collectors.toList());
+                    .toList();
             return info;
         } catch (ProjectException | JAXBException e) {
             throw new NotFoundException("project.message", name);
