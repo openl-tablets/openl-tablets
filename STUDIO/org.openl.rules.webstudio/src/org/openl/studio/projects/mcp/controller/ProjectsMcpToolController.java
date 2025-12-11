@@ -2,6 +2,7 @@ package org.openl.studio.projects.mcp.controller;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -253,7 +254,11 @@ public class ProjectsMcpToolController {
                                                  @ToolParam(description = "Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run.", required = false)
                                                  String tableId,
                                                  @ToolParam(description = "Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run.", required = false)
-                                                 String testRanges) throws ExecutionException, InterruptedException {
+                                                 String testRanges,
+                                                 @ToolParam(description = "Test execution summary result query parameters", required = false)
+                                                 TestExecutionSummaryQuery query,
+                                                 @ToolParam(description = "Pagination parameters", required = false)
+                                                 PageRequest pagination) throws ExecutionException, InterruptedException {
         var project = base64ProjectConverter.convert(projectId);
 
         var projectModel = projectService.getProjectModel(project);
@@ -280,7 +285,15 @@ public class ProjectsMcpToolController {
         }
 
         var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
-        return mapper.mapExecutionSummary(testTask.get(), TestExecutionSummaryQuery.builder().build(), Pageable.unpaged());
+        Pageable pageable;
+        if (pagination != null) {
+            pageable = Offset.of(pagination.offset(), pagination.limit());
+        } else {
+            pageable = Pageable.unpaged();
+        }
+        return mapper.mapExecutionSummary(testTask.get(),
+                Optional.ofNullable(query).orElseGet(TestExecutionSummaryQuery::noFilter),
+                pageable);
     }
 
     /**

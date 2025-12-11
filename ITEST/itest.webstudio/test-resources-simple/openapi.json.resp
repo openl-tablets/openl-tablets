@@ -65,12 +65,27 @@ Content-Type: application/json
             "format": "double",
             "description": "***"
           },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
           "numberOfFailures": {
             "type": "integer",
             "format": "int32",
             "description": "***"
           },
           "numberOfTests": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32",
             "description": "***"
@@ -82,7 +97,12 @@ Content-Type: application/json
               "$ref": "#/components/schemas/TestCaseExecutionResult"
             }
           }
-        }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
       },
       "TestCaseExecutionResult": {
         "type": "object",
@@ -3867,6 +3887,58 @@ Content-Type: application/json
             }
           },
           {
+            "description": "***",
+            "in": "query",
+            "name": "failuresOnly",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "failures",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
             "in": "header",
             "name": "Accept",
             "required": true,
@@ -3926,8 +3998,8 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "406" : {
-            "description" : "***"
+          "406": {
+            "description": "***"
           },
           "200": {
             "content": {
@@ -3943,6 +4015,7 @@ Content-Type: application/json
                 }
               }
             },
+            "description": "***",
             "headers": {
               "Content-Disposition": {
                 "description": "***",
@@ -3951,12 +4024,13 @@ Content-Type: application/json
                 },
                 "style": "simple"
               }
-            },
-            "description": "***"
+            }
           }
         },
         "summary": "***",
-        "tags": ["Projects (BETA)"]
+        "tags": [
+          "Projects (BETA)"
+        ]
       }
     },
     "/projects/{projectId}/tests/run": {

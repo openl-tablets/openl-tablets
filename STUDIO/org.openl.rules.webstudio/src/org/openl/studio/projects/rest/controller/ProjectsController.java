@@ -346,10 +346,16 @@ public class ProjectsController {
     @GetMapping(value = "/{projectId}/tests/summary", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> getTestsSummary(@ProjectId @PathVariable("projectId") RulesProject project,
-                                             @RequestParam(value = "failuresOnly", defaultValue = "false") boolean failuresOnly,
-                                             @RequestParam(value = "failures", defaultValue = "5") int failures,
-                                             @PaginationDefault(size = 50) Pageable pageable,
-                                             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})) @RequestHeader(name = HttpHeaders.ACCEPT) String acceptMediaType) throws IOException {
+                                             @RequestParam(value = "failuresOnly", defaultValue = "false")
+                                             @Parameter(description = "Whether to include only failed test units in the summary")
+                                             boolean failuresOnly,
+                                             @RequestParam(value = "failures", defaultValue = "5")
+                                             @Parameter(description = "Number of failed test units to include in the summary")
+                                             int failures,
+                                             @PaginationDefault Pageable page,
+                                             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
+                                             @RequestHeader(name = HttpHeaders.ACCEPT)
+                                             String acceptMediaType) throws IOException {
         var projectId = projectService.resolveProjectId(project);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
@@ -368,10 +374,10 @@ public class ProjectsController {
                     .failedOnly(failuresOnly)
                     .failures(failures)
                     .build();
-            return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, pageable));
+            return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
-            new TestResultExport().export(output, -1, executionResults.toArray(new TestUnitsResults[0]));
+            new TestResultExport().export(output, page.getPageSize(), executionResults.toArray(new TestUnitsResults[0]));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)

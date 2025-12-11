@@ -1,11 +1,16 @@
 package org.openl.studio.projects.model.tests;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 
-public class TestsExecutionSummary {
+import org.openl.rules.repository.api.Pageable;
+import org.openl.studio.common.model.PageResponse;
+
+public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult> {
 
     @Parameter(description = "Total execution time of all tests in milliseconds")
     private final double executionTimeMs;
@@ -16,18 +21,18 @@ public class TestsExecutionSummary {
     @Parameter(description = "Total number of failed tests")
     private final int numberOfFailures;
 
-    @Parameter(description = "List of test case execution results")
-    private final List<TestCaseExecutionResult> testCases;
-
-    public TestsExecutionSummary(Builder builder) {
+    private TestsExecutionSummary(Builder builder) {
+        super(builder.testCases, builder.page.getPageNumber(), builder.page.getPageSize());
         this.executionTimeMs = builder.executionTimeMs;
         this.numberOfTests = builder.numberOfTests;
         this.numberOfFailures = builder.numberOfFailures;
-        this.testCases = List.copyOf(builder.testCases);
     }
 
-    public List<TestCaseExecutionResult> getTestCases() {
-        return testCases;
+    @Override
+    @Parameter(description = "List of test case execution results")
+    @JsonProperty("testCases")
+    public Collection<TestCaseExecutionResult> getContent() {
+        return super.getContent();
     }
 
     public double getExecutionTimeMs() {
@@ -51,6 +56,7 @@ public class TestsExecutionSummary {
         private double executionTimeMs;
         private int numberOfTests;
         private int numberOfFailures;
+        private Pageable page;
         private final List<TestCaseExecutionResult> testCases = new ArrayList<>();
 
         private Builder() {
@@ -73,6 +79,11 @@ public class TestsExecutionSummary {
 
         public Builder numberOfFailures(int numberOfFailures) {
             this.numberOfFailures = numberOfFailures;
+            return this;
+        }
+
+        public  Builder page(Pageable page) {
+            this.page = page;
             return this;
         }
 

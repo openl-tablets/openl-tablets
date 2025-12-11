@@ -5,6 +5,9 @@ Content-Type: application/json
   "executionTimeMs": "##.##",
   "numberOfTests": 34,
   "numberOfFailures": 0,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements":14,
   "testCases": [
     {
       "name": "BankLimitIndexTest",
@@ -37,10 +40,12 @@ Content-Type: application/json
                   {
                     "ratingAgency": "Moody's Investors Service",
                     "rating": "A2"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Fitch",
                     "rating": "A+"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Standard & Poor's",
                     "rating": "A"
                   }
@@ -175,7 +180,11 @@ Content-Type: application/json
                         },
                         "ratingAgency": {
                           "type": "string",
-                          "enum": ["Moody's Investors Service", "Fitch", "Standard & Poor's"]
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
                         }
                       }
                     }
@@ -183,8 +192,24 @@ Content-Type: application/json
                   "countryCode": {
                     "type": "string",
                     "enum": [
-                      "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB",
-                      "RU", "IE"
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
                     ]
                   },
                   "currentFinancialData": {
@@ -228,7 +253,8 @@ Content-Type: application/json
                   }
                 }
               }
-            }, {
+            },
+            {
               "name": "bankRatingGroup",
               "description": "Bank Rating Group",
               "value": "R2",
@@ -240,7 +266,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "BankRatingGroupTest",
       "tableId": "94c99ffff3a802b2adad89c3ddd3ab6a",
       "executionTimeMs": "##.##",
@@ -270,7 +297,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -293,7 +321,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -316,7 +345,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -339,7 +369,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "5",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -364,7 +395,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "BankRatingTest",
       "tableId": "e396d60e2c8bd2b9cbd93e9606c85f5a",
       "executionTimeMs": "##.##",
@@ -381,7 +413,8 @@ Content-Type: application/json
               "expectedValue": "R3",
               "actualValue": "R3",
               "status": "TR_OK"
-            }, {
+            },
+            {
               "description": "Limit",
               "expectedValue": 5000.0,
               "actualValue": 5000.0,
@@ -400,10 +433,12 @@ Content-Type: application/json
                   {
                     "ratingAgency": "Moody's Investors Service",
                     "rating": "A2"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Fitch",
                     "rating": "A+"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Standard & Poor's",
                     "rating": "A"
                   }
@@ -538,7 +573,11 @@ Content-Type: application/json
                         },
                         "ratingAgency": {
                           "type": "string",
-                          "enum": ["Moody's Investors Service", "Fitch", "Standard & Poor's"]
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
                         }
                       }
                     }
@@ -546,8 +585,24 @@ Content-Type: application/json
                   "countryCode": {
                     "type": "string",
                     "enum": [
-                      "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB",
-                      "RU", "IE"
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
                     ]
                   },
                   "currentFinancialData": {
@@ -595,7 +650,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "CapitalAdequacyScoreTest",
       "tableId": "5d5c41f1cbd99676077c27088bf87fbc",
       "executionTimeMs": "##.##",
@@ -625,7 +681,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -648,7 +705,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -671,7 +729,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -696,7 +755,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "DynamicIndexTest",
       "tableId": "ddc57e7614fa5b0f37166a25da1d9c4c",
       "executionTimeMs": "##.##",
@@ -796,7 +856,8 @@ Content-Type: application/json
                   }
                 }
               }
-            }, {
+            },
+            {
               "name": "previousFinancialData",
               "description": "rowID Financial Data of Previous Period",
               "value": {
@@ -880,7 +941,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "EquityScoreTest",
       "tableId": "04fe22f6c8e48c577b07651fc90e9ce5",
       "executionTimeMs": "##.##",
@@ -908,7 +970,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "equity",
               "description": "Equity",
               "value": 100.0,
@@ -918,7 +981,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -939,7 +1003,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "equity",
               "description": "Equity",
               "value": 1000.0,
@@ -949,7 +1014,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -970,7 +1036,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "equity",
               "description": "Equity",
               "value": 2000.0,
@@ -980,7 +1047,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1001,7 +1069,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "equity",
               "description": "Equity",
               "value": 300.0,
@@ -1013,7 +1082,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "tableId": "8c397fb28c5f4e6c3824d0c92377780b",
       "executionTimeMs": "##.##",
@@ -1041,7 +1111,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "isAdequateMaxCreditRisk",
               "description": "Adequate Max Credit Risk",
               "value": true,
@@ -1051,7 +1122,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1072,7 +1144,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "isAdequateMaxCreditRisk",
               "description": "Adequate Max Credit Risk",
               "value": true,
@@ -1082,7 +1155,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1103,7 +1177,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "isAdequateMaxCreditRisk",
               "description": "Adequate Max Credit Risk",
               "value": false,
@@ -1113,7 +1188,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1134,7 +1210,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "string"
               }
-            }, {
+            },
+            {
               "name": "isAdequateMaxCreditRisk",
               "description": "Adequate Max Credit Risk",
               "value": false,
@@ -1146,7 +1223,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "IsAdequateNormativeIndexTest",
       "tableId": "8cc4cdd4931a49205d52013a16f6dc82",
       "executionTimeMs": "##.##",
@@ -1177,10 +1255,12 @@ Content-Type: application/json
                   {
                     "ratingAgency": "Moody's Investors Service",
                     "rating": "A2"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Fitch",
                     "rating": "A+"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Standard & Poor's",
                     "rating": "A"
                   }
@@ -1315,7 +1395,11 @@ Content-Type: application/json
                         },
                         "ratingAgency": {
                           "type": "string",
-                          "enum": ["Moody's Investors Service", "Fitch", "Standard & Poor's"]
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
                         }
                       }
                     }
@@ -1323,8 +1407,24 @@ Content-Type: application/json
                   "countryCode": {
                     "type": "string",
                     "enum": [
-                      "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB",
-                      "RU", "IE"
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
                     ]
                   },
                   "currentFinancialData": {
@@ -1372,7 +1472,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "LossesInThisYearScoreTest",
       "tableId": "de3f571665da1a7a04810b6741bfa9f8",
       "executionTimeMs": "##.##",
@@ -1402,7 +1503,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1427,7 +1529,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "ProfitDynamicScoreTest",
       "tableId": "1c9546e8b5d814ad4fa885524be0c6fa",
       "executionTimeMs": "##.##",
@@ -1455,7 +1558,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "profit",
               "description": "Current Profit",
               "value": 1500.0,
@@ -1465,7 +1569,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1486,7 +1591,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "profit",
               "description": "Current Profit",
               "value": -5000.0,
@@ -1496,7 +1602,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1517,7 +1624,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "profit",
               "description": "Current Profit",
               "value": 0.0,
@@ -1527,7 +1635,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -1548,7 +1657,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "profit",
               "description": "Current Profit",
               "value": 10.0,
@@ -1560,7 +1670,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "QualitativeIndexTest",
       "tableId": "17ef460663c611aaec6cbe741e6c9681",
       "executionTimeMs": "##.##",
@@ -1591,10 +1702,12 @@ Content-Type: application/json
                   {
                     "ratingAgency": "Moody's Investors Service",
                     "rating": "A2"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Fitch",
                     "rating": "A+"
-                  }, {
+                  },
+                  {
                     "ratingAgency": "Standard & Poor's",
                     "rating": "A"
                   }
@@ -1729,7 +1842,11 @@ Content-Type: application/json
                         },
                         "ratingAgency": {
                           "type": "string",
-                          "enum": ["Moody's Investors Service", "Fitch", "Standard & Poor's"]
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
                         }
                       }
                     }
@@ -1737,8 +1854,24 @@ Content-Type: application/json
                   "countryCode": {
                     "type": "string",
                     "enum": [
-                      "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB",
-                      "RU", "IE"
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
                     ]
                   },
                   "currentFinancialData": {
@@ -1786,7 +1919,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "QualityIndexTest",
       "tableId": "e93f6aa07260ba1be1384425cf92f8df",
       "executionTimeMs": "##.##",
@@ -1890,7 +2024,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "SetNonZeroValuesTest",
       "tableId": "165b00e666afa91ebaf29474945bd626",
       "executionTimeMs": "##.##",
@@ -1994,7 +2129,8 @@ Content-Type: application/json
           ]
         }
       ]
-    }, {
+    },
+    {
       "name": "TotalBalanceScoreTest",
       "tableId": "409387032863ebdc11824a5af4d11ddc",
       "executionTimeMs": "##.##",
@@ -2022,7 +2158,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "DE",
@@ -2032,7 +2169,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -2053,7 +2191,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "IT",
@@ -2063,7 +2202,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -2084,7 +2224,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "DE",
@@ -2094,7 +2235,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -2115,7 +2257,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "FR",

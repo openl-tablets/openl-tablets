@@ -43,7 +43,7 @@ public class TestsExecutionSummaryResponseMapper {
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
-        var builder = TestsExecutionSummary.builder();
+        var builder = TestsExecutionSummary.builder().page(page);
         calculateSummaryStats(testUnitsResults, builder);
         testUnitsResults.stream()
                 .sorted(TEST_COMPARATOR)
