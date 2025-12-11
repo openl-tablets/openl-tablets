@@ -1,0 +1,222 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 14,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 34,
+  "numberOfFailures": 4,
+  "testCases": [
+    {
+      "name": "BankRatingGroupTest",
+      "tableId": "15e6cf0af151bda0361c7fcf3f57b52d",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 5,
+      "numberOfFailures": 2,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "*",
+              "expectedValue": "R3",
+              "actualValue": "R5",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "*",
+              "value": 0.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "*",
+              "expectedValue": "R3",
+              "actualValue": "R5",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "*",
+              "value": 0.25,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CapitalAdequacyScoreTest",
+      "tableId": "e330475dab5410390947e63ef88df41f",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "*",
+              "expectedValue": 0.951,
+              "actualValue": 0.95,
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "capitalAdequacy",
+              "description": "*",
+              "value": 12.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TotalBalanceScoreTest",
+      "tableId": "a951c4dde77b537c8af285090fef182e",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "*",
+              "expectedValue": 0.91,
+              "actualValue": 0.9,
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "*",
+              "value": 2000.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "countryCode",
+              "description": "*",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BankLimitIndexTest",
+      "tableId": "786f9d6a8a1c247811e71dd1f870ebfd",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "BankRatingTest",
+      "tableId": "4a8cf60f081bb2e49da09c88fc06c663",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "DynamicIndexTest",
+      "tableId": "4548092b1b5f499622dba47b88873ac7",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "EquityScoreTest",
+      "tableId": "d028b6994dd3841fadd941da6c998312",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "tableId": "15b2f6665966da7a7e1678b78333b64e",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateNormativeIndexTest",
+      "tableId": "daeddb1471de275a5f3527777c77a1e7",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "LossesInThisYearScoreTest",
+      "tableId": "0f1ecc0343403c96f4ea0a6dc5167a3d",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 2,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "ProfitDynamicScoreTest",
+      "tableId": "3204477e4a9815606f0cbb42284237f2",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualitativeIndexTest",
+      "tableId": "8363076eb1ec04e8d7aeb84a06db44e1",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualityIndexTest",
+      "tableId": "22dbcb4d8a67e8f4c6ec4267534bddc6",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "SetNonZeroValuesTest",
+      "tableId": "e4ba33fb5e210b214a613ca1f14ff98c",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    }
+  ]
+}

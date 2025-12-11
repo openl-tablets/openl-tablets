@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -351,6 +352,7 @@ public class ProjectsController {
                                              boolean failuresOnly,
                                              @RequestParam(value = "failures", defaultValue = "5")
                                              @Parameter(description = "Number of failed test units to include in the summary")
+                                             @Min(1)
                                              int failures,
                                              @PaginationDefault Pageable page,
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))

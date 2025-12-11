@@ -1,0 +1,4 @@
+GET /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mjc6OWEzYjg5MjI0ZWE0Mjc1Y2JjYzRhNzkxY2Y2MWVmOWRhZjQyYTk4MGVkOGE3MzRlZmI3N2U0M2Q4MzkxOWFmMA==/tests/summary?page=2&size=10 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Accept: application/json
+
