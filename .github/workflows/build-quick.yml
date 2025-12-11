@@ -11,11 +11,15 @@ on:
       - main
       - master
       - '5.*.x'
+    paths-ignore:
+      - 'Docs/**'
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
+    paths-ignore:
+      - 'Docs/**'
   workflow_dispatch:
 
 jobs:
