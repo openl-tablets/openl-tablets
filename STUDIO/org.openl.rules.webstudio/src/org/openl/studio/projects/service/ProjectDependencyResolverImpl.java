@@ -41,8 +41,13 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     @Override
     public List<RulesProject> getProjectDependencies(RulesProject project) {
+        // Fetch all projects once and build an index for O(1) lookup by business name
+        Collection<RulesProject> allProjects = getAllProjects();
+        Map<String, List<RulesProject>> projectIndex = allProjects.stream()
+                .collect(Collectors.groupingBy(RulesProject::getBusinessName));
+
         List<RulesProject> dependencies = new ArrayList<>();
-        calcDependencies(project, new HashSet<>(Set.of(project.getBusinessName())), dependencies);
+        calcDependencies(project, new HashSet<>(Set.of(project.getBusinessName())), dependencies, projectIndex);
         return dependencies;
     }
 
@@ -60,7 +65,8 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
 
     private void calcDependencies(RulesProject project,
                                   Set<String> processedProjects,
-                                  Collection<RulesProject> result) {
+                                  Collection<RulesProject> result,
+                                  Map<String, List<RulesProject>> projectIndex) {
         List<ProjectDependencyDescriptor> dependenciesDescriptors;
         try {
             dependenciesDescriptors = projectDescriptorResolver.getDependencies(project);
@@ -73,45 +79,49 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
             return;
         }
 
-        Set<String> dependencyNames = dependenciesDescriptors.stream()
-                .map(ProjectDependencyDescriptor::getName)
-                .collect(Collectors.toSet());
         String repoId = project.getRepository().getId();
+        String projectBranch = project.getBranch();
 
-        // Separate projects based on the match of the repository with the repository of the project for which the
-        // dependencies are searched, since such projects have priority when the name matches.
-        Map<Boolean, List<RulesProject>> projects = getAllProjects().stream()
-                .filter(p -> dependencyNames.contains(p.getBusinessName()))
-                .collect(Collectors.partitioningBy(p -> p.getRepository().getId().equals(repoId)));
-
-        for (String dependencyName : dependencyNames) {
+        for (ProjectDependencyDescriptor dependency : dependenciesDescriptors) {
+            String dependencyName = dependency.getName();
             if (!processedProjects.add(dependencyName)) {
                 continue;
             }
-            // Since there can be projects with the same name even in the same repository, if the source repository has
-            // a project with the search name in the same branch as the project for which the dependency is searched,
-            // then it is returned. But if the dependent project is in another branch, then the search in other
-            // repositories
-            // is not performed.
-            Optional<RulesProject> dependentProject = Optional.empty();
-            if (!projects.get(Boolean.TRUE).isEmpty()) {
-                dependentProject = projects.get(Boolean.TRUE)
-                        .stream()
-                        .filter(
-                                // businessName same and branch is the same, if branch is not null - typically when repository does not support branches
-                                p -> p.getBusinessName().equals(dependencyName) && (null == p.getBranch() || p.getBranch().equals(project.getBranch())))
-                        .findFirst();
+
+            // Use index for O(1) lookup instead of filtering all projects
+            List<RulesProject> candidateProjects = projectIndex.get(dependencyName);
+            if (candidateProjects == null || candidateProjects.isEmpty()) {
+                continue;
             }
-            if (dependentProject.isEmpty() && !projects.get(Boolean.FALSE).isEmpty()) {
-                dependentProject = projects.get(Boolean.FALSE)
-                        .stream()
-                        .filter(p -> p.getBusinessName().equals(dependencyName))
+
+            // Find the best matching project:
+            // 1. Priority: same repository and same branch (or null branch)
+            // 2. Fallback: same repository, different branch (but don't search other repos if found)
+            // 3. Fallback: different repository
+
+            // Try to find in the same repository with matching branch
+            Optional<RulesProject> dependentProject = candidateProjects.stream()
+                    .filter(p -> p.getRepository().getId().equals(repoId))
+                    .filter(p -> projectBranch == null || p.getBranch() == null || p.getBranch().equals(projectBranch))
+                    .findFirst();
+
+            // If no match in same repo with same branch, check if any project exists in same repo
+            boolean foundInSameRepo = false;
+            if (dependentProject.isEmpty()) {
+                foundInSameRepo = candidateProjects.stream()
+                        .anyMatch(p -> p.getRepository().getId().equals(repoId));
+            }
+
+            // Only search in other repositories if not found in the same repository
+            if (dependentProject.isEmpty() && !foundInSameRepo) {
+                dependentProject = candidateProjects.stream()
+                        .filter(p -> !p.getRepository().getId().equals(repoId))
                         .findFirst();
             }
 
             dependentProject.ifPresent(dep -> {
                 result.add(dep);
-                calcDependencies(dep, processedProjects, result);
+                calcDependencies(dep, processedProjects, result, projectIndex);
             });
         }
     }
