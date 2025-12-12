@@ -5,66 +5,28 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
-public class TestCaseExecutionResult {
+public record TestCaseExecutionResult(
+        @Parameter(description = "Name of the test case")
+        String name,
 
-    @Parameter(description = "Name of the test case")
-    private final String name;
+        @Parameter(description = "Test table identifier")
+        String tableId,
 
-    @Parameter(description = "Test table identifier")
-    private final String tableId;
+        @Parameter(description = "Description of the test case")
+        String description,
 
-    @Parameter(description = "Description of the test case")
-    private final String description;
+        @Parameter(description = "Execution time of the test case in milliseconds")
+        double executionTimeMs,
 
-    @Parameter(description = "Execution time of the test case in milliseconds")
-    private final double executionTimeMs;
+        @Parameter(description = "Total number of tests in the test case")
+        int numberOfTests,
 
-    @Parameter(description = "Total number of tests in the test case")
-    private final int numberOfTests;
+        @Parameter(description = "Number of failed tests in the test case")
+        int numberOfFailures,
 
-    @Parameter(description = "Number of failed tests in the test case")
-    private final int numberOfFailures;
-
-    @Parameter(description = "List of test unit execution results")
-    private final List<TestUnitExecutionResult> testUnits;
-
-    public TestCaseExecutionResult(Builder builder) {
-        this.name = builder.name;
-        this.tableId = builder.tableId;
-        this.description = builder.description;
-        this.executionTimeMs = builder.executionTimeMs;
-        this.numberOfTests = builder.numberOfTests;
-        this.numberOfFailures = builder.numberOfFailures;
-        this.testUnits = List.copyOf(builder.testUnits);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getTableId() {
-        return tableId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public double getExecutionTimeMs() {
-        return executionTimeMs;
-    }
-
-    public int getNumberOfTests() {
-        return numberOfTests;
-    }
-
-    public int getNumberOfFailures() {
-        return numberOfFailures;
-    }
-
-    public List<TestUnitExecutionResult> getTestUnits() {
-        return testUnits;
-    }
+        @Parameter(description = "List of test unit execution results")
+        List<TestUnitExecutionResult> testUnits
+) {
 
     public static Builder builder() {
         return new Builder();
@@ -119,7 +81,13 @@ public class TestCaseExecutionResult {
         }
 
         public TestCaseExecutionResult build() {
-            return new TestCaseExecutionResult(this);
+            return new TestCaseExecutionResult(name,
+                    tableId,
+                    description,
+                    executionTimeMs,
+                    numberOfTests,
+                    numberOfFailures,
+                    List.copyOf(testUnits));
         }
     }
 

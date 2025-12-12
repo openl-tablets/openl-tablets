@@ -8,74 +8,31 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestStatus;
 
-public class TestUnitExecutionResult {
+public record TestUnitExecutionResult(
+        @Parameter(description = "Identifier of the test unit")
+        String id,
 
-    @Parameter(description = "Identifier of the test unit")
-    private final String id;
+        @Parameter(description = "Description of the test unit")
+        String description,
 
-    @Parameter(description = "Description of the test unit")
-    private final String description;
+        @Parameter(description = "Execution time of the test unit in milliseconds")
+        double executionTimeMs,
 
-    @Parameter(description = "Execution time of the test unit in milliseconds")
-    private final double executionTimeMs;
+        @Parameter(description = "Status of the test unit execution")
+        TestStatus status,
 
-    @Parameter(description = "Status of the test unit execution")
-    private final TestStatus status;
+        @Parameter(description = "List of test assertion execution results")
+        List<TestAssertionExecutionResult> testAssertions,
 
-    @Parameter(description = "List of test assertion execution results")
-    private final List<TestAssertionExecutionResult> testAssertions;
+        @Parameter(description = "List of test parameter values")
+        List<TestParameterValue> parameters,
 
-    @Parameter(description = "List of test parameter values")
-    private final List<TestParameterValue> parameters;
+        @Parameter(description = "List of context parameter values")
+        List<TestParameterValue> contextParameters,
 
-    @Parameter(description = "List of context parameter values")
-    private final List<TestParameterValue> contextParameters;
-
-    @Parameter(description = "List of error messages occurred during test unit execution")
-    private final List<MessageDescription> errors;
-
-    public TestUnitExecutionResult(Builder builder) {
-        this.id = builder.id;
-        this.description = builder.description;
-        this.executionTimeMs = builder.executionTimeMs;
-        this.status = builder.status;
-        this.testAssertions = List.copyOf(builder.testAssertions);
-        this.parameters = List.copyOf(builder.parameters);
-        this.contextParameters = List.copyOf(builder.contextParameters);
-        this.errors = List.copyOf(builder.errors);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public double getExecutionTimeMs() {
-        return executionTimeMs;
-    }
-
-    public TestStatus getStatus() {
-        return status;
-    }
-
-    public List<TestAssertionExecutionResult> getTestAssertions() {
-        return testAssertions;
-    }
-
-    public List<TestParameterValue> getParameters() {
-        return parameters;
-    }
-
-    public List<TestParameterValue> getContextParameters() {
-        return contextParameters;
-    }
-
-    public List<MessageDescription> getErrors() {
-        return errors;
-    }
+        @Parameter(description = "List of error messages occurred during test unit execution")
+        List<MessageDescription> errors
+) {
 
     public static Builder builder() {
         return new Builder();
@@ -136,7 +93,14 @@ public class TestUnitExecutionResult {
         }
 
         public TestUnitExecutionResult build() {
-            return new TestUnitExecutionResult(this);
+            return new TestUnitExecutionResult(id,
+                    description,
+                    executionTimeMs,
+                    status,
+                    List.copyOf(testAssertions),
+                    List.copyOf(parameters),
+                    List.copyOf(contextParameters),
+                    List.copyOf(errors));
         }
 
     }

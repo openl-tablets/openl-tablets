@@ -5,6 +5,9 @@ Content-Type: application/json
   "executionTimeMs": "##.##",
   "numberOfTests": 3,
   "numberOfFailures": 0,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
   "testCases": [
     {
       "name": "LossFreeDiscountCalcTest",

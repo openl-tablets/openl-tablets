@@ -1,0 +1,1672 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 10,
+  "numberOfElements": 10,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 34,
+  "numberOfFailures": 4,
+  "testCases": [
+    {
+      "name": "BankRatingGroupTest",
+      "tableId": "15e6cf0af151bda0361c7fcf3f57b52d",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 5,
+      "numberOfFailures": 2,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R3",
+              "actualValue": "R5",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 0.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R3",
+              "actualValue": "R5",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 0.25,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R3",
+              "actualValue": "R3",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 0.7,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R2",
+              "actualValue": "R2",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 0.85,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R1",
+              "actualValue": "R1",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bankRating",
+              "description": "Bank Rating",
+              "value": 1.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CapitalAdequacyScoreTest",
+      "tableId": "e330475dab5410390947e63ef88df41f",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Capital Adequacy Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "capitalAdequacy",
+              "description": "Capital Adequacy (%)",
+              "value": 1.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Capital Adequacy Score",
+              "expectedValue": 0.8,
+              "actualValue": 0.8,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "capitalAdequacy",
+              "description": "Capital Adequacy (%)",
+              "value": 9.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Capital Adequacy Score",
+              "expectedValue": 0.951,
+              "actualValue": 0.95,
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "capitalAdequacy",
+              "description": "Capital Adequacy (%)",
+              "value": 12.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Capital Adequacy Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "capitalAdequacy",
+              "description": "Capital Adequacy (%)",
+              "value": 51.2,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TotalBalanceScoreTest",
+      "tableId": "a951c4dde77b537c8af285090fef182e",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 1,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 1500.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 100.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "IT",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 0.91,
+              "actualValue": 0.9,
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 2000.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Total Balance Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "totalBalance",
+              "description": "Total Balance",
+              "value": 600.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            },
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "FR",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BankLimitIndexTest",
+      "tableId": "786f9d6a8a1c247811e71dd1f870ebfd",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Limit Index",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bank",
+              "description": "bank ID",
+              "value": {
+                "bankID": "commerz",
+                "bankFullName": "Commerzbank",
+                "countryCode": "DE",
+                "bankRatings": [
+                  {
+                    "ratingAgency": "Moody's Investors Service",
+                    "rating": "A2"
+                  },
+                  {
+                    "ratingAgency": "Fitch",
+                    "rating": "A+"
+                  },
+                  {
+                    "ratingAgency": "Standard & Poor's",
+                    "rating": "A"
+                  }
+                ],
+                "currentFinancialData": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "totalAssets": 754299.0,
+                  "claimsOnDemand": 74502.0,
+                  "claimsUpTo3Months": 179938.0,
+                  "claimsSecuredByPropertyCharges": 134321.0,
+                  "claimsOnBanks": 110956.0,
+                  "claimsOnCustomers": 336872.0,
+                  "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+                  "otherAssets": 7349.0,
+                  "capital": 40857.0,
+                  "equity": 28658.0,
+                  "liabilities": 725641.0,
+                  "liabilitiesToBanks": 137626.0,
+                  "liabilitiesToCustomers": 262827.0,
+                  "liabilitiesOnDemand": 193986.0,
+                  "liabilitiesToCustomersOnDemand": 143807.0,
+                  "consolidatedProfit": 1489.0
+                },
+                "previousFinancialData": {
+                  "reportDate": "2009-01-01T00:00:00.000",
+                  "totalAssets": 0.0,
+                  "claimsOnDemand": 69940.0,
+                  "claimsUpTo3Months": 176674.0,
+                  "claimsSecuredByPropertyCharges": 0.0,
+                  "claimsOnBanks": 0.0,
+                  "claimsOnCustomers": 1.0E-4,
+                  "loanLossProvisionsForClaimsOnCustomers": 0.0,
+                  "otherAssets": 0.0,
+                  "capital": 41437.0,
+                  "equity": 0.0,
+                  "liabilities": 817527.0,
+                  "liabilitiesToBanks": 0.0,
+                  "liabilitiesToCustomers": 264618.0,
+                  "liabilitiesOnDemand": 179283.0,
+                  "liabilitiesToCustomersOnDemand": 0.0,
+                  "consolidatedProfit": -4633.0
+                },
+                "qualityIndicators": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "lossesInThisYear": false,
+                  "negativeHistoryRelations": false,
+                  "negativeMassMedia": false,
+                  "negativeInfoShareHoldersOrManagement": false,
+                  "downgradesOfBankRating": true,
+                  "isAdequateCoreCapitalRatio": true,
+                  "isAdequateLiquidityRatio": true,
+                  "isAdequateMaxCreditRisk": true
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$defs": {
+                  "FinancialData": {
+                    "type": "object",
+                    "properties": {
+                      "capital": {
+                        "type": "number"
+                      },
+                      "claimsOnBanks": {
+                        "type": "number"
+                      },
+                      "claimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "claimsOnDemand": {
+                        "type": "number"
+                      },
+                      "claimsSecuredByPropertyCharges": {
+                        "type": "number"
+                      },
+                      "claimsUpTo3Months": {
+                        "type": "number"
+                      },
+                      "consolidatedProfit": {
+                        "type": "number"
+                      },
+                      "equity": {
+                        "type": "number"
+                      },
+                      "liabilities": {
+                        "type": "number"
+                      },
+                      "liabilitiesOnDemand": {
+                        "type": "number"
+                      },
+                      "liabilitiesToBanks": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomers": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomersOnDemand": {
+                        "type": "number"
+                      },
+                      "loanLossProvisionsForClaimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "otherAssets": {
+                        "type": "number"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "totalAssets": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "type": "object",
+                "properties": {
+                  "bankFullName": {
+                    "type": "string"
+                  },
+                  "bankID": {
+                    "type": "string"
+                  },
+                  "bankRatings": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rating": {
+                          "type": "string"
+                        },
+                        "ratingAgency": {
+                          "type": "string",
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "enum": [
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
+                    ]
+                  },
+                  "currentFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "previousFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "qualityIndicators": {
+                    "type": "object",
+                    "properties": {
+                      "downgradesOfBankRating": {
+                        "type": "boolean"
+                      },
+                      "isAdequateCoreCapitalRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateLiquidityRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateMaxCreditRisk": {
+                        "type": "boolean"
+                      },
+                      "lossesInThisYear": {
+                        "type": "boolean"
+                      },
+                      "negativeHistoryRelations": {
+                        "type": "boolean"
+                      },
+                      "negativeInfoShareHoldersOrManagement": {
+                        "type": "boolean"
+                      },
+                      "negativeMassMedia": {
+                        "type": "boolean"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "bankRatingGroup",
+              "description": "Bank Rating Group",
+              "value": "R2",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BankRatingTest",
+      "tableId": "4a8cf60f081bb2e49da09c88fc06c663",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Bank Rating Group",
+              "expectedValue": "R3",
+              "actualValue": "R3",
+              "status": "TR_OK"
+            },
+            {
+              "description": "Limit",
+              "expectedValue": 5000.0,
+              "actualValue": 5000.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bank",
+              "description": "bank ID",
+              "value": {
+                "bankID": "commerz",
+                "bankFullName": "Commerzbank",
+                "countryCode": "DE",
+                "bankRatings": [
+                  {
+                    "ratingAgency": "Moody's Investors Service",
+                    "rating": "A2"
+                  },
+                  {
+                    "ratingAgency": "Fitch",
+                    "rating": "A+"
+                  },
+                  {
+                    "ratingAgency": "Standard & Poor's",
+                    "rating": "A"
+                  }
+                ],
+                "currentFinancialData": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "totalAssets": 754299.0,
+                  "claimsOnDemand": 74502.0,
+                  "claimsUpTo3Months": 179938.0,
+                  "claimsSecuredByPropertyCharges": 134321.0,
+                  "claimsOnBanks": 110956.0,
+                  "claimsOnCustomers": 336872.0,
+                  "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+                  "otherAssets": 7349.0,
+                  "capital": 40857.0,
+                  "equity": 28658.0,
+                  "liabilities": 725641.0,
+                  "liabilitiesToBanks": 137626.0,
+                  "liabilitiesToCustomers": 262827.0,
+                  "liabilitiesOnDemand": 193986.0,
+                  "liabilitiesToCustomersOnDemand": 143807.0,
+                  "consolidatedProfit": 1489.0
+                },
+                "previousFinancialData": {
+                  "reportDate": "2009-01-01T00:00:00.000",
+                  "totalAssets": 0.0,
+                  "claimsOnDemand": 69940.0,
+                  "claimsUpTo3Months": 176674.0,
+                  "claimsSecuredByPropertyCharges": 0.0,
+                  "claimsOnBanks": 0.0,
+                  "claimsOnCustomers": 1.0E-4,
+                  "loanLossProvisionsForClaimsOnCustomers": 0.0,
+                  "otherAssets": 0.0,
+                  "capital": 41437.0,
+                  "equity": 0.0,
+                  "liabilities": 817527.0,
+                  "liabilitiesToBanks": 0.0,
+                  "liabilitiesToCustomers": 264618.0,
+                  "liabilitiesOnDemand": 179283.0,
+                  "liabilitiesToCustomersOnDemand": 0.0,
+                  "consolidatedProfit": -4633.0
+                },
+                "qualityIndicators": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "lossesInThisYear": false,
+                  "negativeHistoryRelations": false,
+                  "negativeMassMedia": false,
+                  "negativeInfoShareHoldersOrManagement": false,
+                  "downgradesOfBankRating": true,
+                  "isAdequateCoreCapitalRatio": true,
+                  "isAdequateLiquidityRatio": true,
+                  "isAdequateMaxCreditRisk": true
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$defs": {
+                  "FinancialData": {
+                    "type": "object",
+                    "properties": {
+                      "capital": {
+                        "type": "number"
+                      },
+                      "claimsOnBanks": {
+                        "type": "number"
+                      },
+                      "claimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "claimsOnDemand": {
+                        "type": "number"
+                      },
+                      "claimsSecuredByPropertyCharges": {
+                        "type": "number"
+                      },
+                      "claimsUpTo3Months": {
+                        "type": "number"
+                      },
+                      "consolidatedProfit": {
+                        "type": "number"
+                      },
+                      "equity": {
+                        "type": "number"
+                      },
+                      "liabilities": {
+                        "type": "number"
+                      },
+                      "liabilitiesOnDemand": {
+                        "type": "number"
+                      },
+                      "liabilitiesToBanks": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomers": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomersOnDemand": {
+                        "type": "number"
+                      },
+                      "loanLossProvisionsForClaimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "otherAssets": {
+                        "type": "number"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "totalAssets": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "type": "object",
+                "properties": {
+                  "bankFullName": {
+                    "type": "string"
+                  },
+                  "bankID": {
+                    "type": "string"
+                  },
+                  "bankRatings": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rating": {
+                          "type": "string"
+                        },
+                        "ratingAgency": {
+                          "type": "string",
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "enum": [
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
+                    ]
+                  },
+                  "currentFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "previousFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "qualityIndicators": {
+                    "type": "object",
+                    "properties": {
+                      "downgradesOfBankRating": {
+                        "type": "boolean"
+                      },
+                      "isAdequateCoreCapitalRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateLiquidityRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateMaxCreditRisk": {
+                        "type": "boolean"
+                      },
+                      "lossesInThisYear": {
+                        "type": "boolean"
+                      },
+                      "negativeHistoryRelations": {
+                        "type": "boolean"
+                      },
+                      "negativeInfoShareHoldersOrManagement": {
+                        "type": "boolean"
+                      },
+                      "negativeMassMedia": {
+                        "type": "boolean"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DynamicIndexTest",
+      "tableId": "4548092b1b5f499622dba47b88873ac7",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Balance Dynamic Index",
+              "expectedValue": 0.94,
+              "actualValue": 0.94,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "currentFinancialData",
+              "description": "rowID Financial Data of Report Period",
+              "value": {
+                "reportDate": "2010-01-01T00:00:00.000",
+                "totalAssets": 754299.0,
+                "claimsOnDemand": 74502.0,
+                "claimsUpTo3Months": 179938.0,
+                "claimsSecuredByPropertyCharges": 134321.0,
+                "claimsOnBanks": 110956.0,
+                "claimsOnCustomers": 336872.0,
+                "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+                "otherAssets": 7349.0,
+                "capital": 40857.0,
+                "equity": 28658.0,
+                "liabilities": 725641.0,
+                "liabilitiesToBanks": 137626.0,
+                "liabilitiesToCustomers": 262827.0,
+                "liabilitiesOnDemand": 193986.0,
+                "liabilitiesToCustomersOnDemand": 143807.0,
+                "consolidatedProfit": 1489.0
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "capital": {
+                    "type": "number"
+                  },
+                  "claimsOnBanks": {
+                    "type": "number"
+                  },
+                  "claimsOnCustomers": {
+                    "type": "number"
+                  },
+                  "claimsOnDemand": {
+                    "type": "number"
+                  },
+                  "claimsSecuredByPropertyCharges": {
+                    "type": "number"
+                  },
+                  "claimsUpTo3Months": {
+                    "type": "number"
+                  },
+                  "consolidatedProfit": {
+                    "type": "number"
+                  },
+                  "equity": {
+                    "type": "number"
+                  },
+                  "liabilities": {
+                    "type": "number"
+                  },
+                  "liabilitiesOnDemand": {
+                    "type": "number"
+                  },
+                  "liabilitiesToBanks": {
+                    "type": "number"
+                  },
+                  "liabilitiesToCustomers": {
+                    "type": "number"
+                  },
+                  "liabilitiesToCustomersOnDemand": {
+                    "type": "number"
+                  },
+                  "loanLossProvisionsForClaimsOnCustomers": {
+                    "type": "number"
+                  },
+                  "otherAssets": {
+                    "type": "number"
+                  },
+                  "reportDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "totalAssets": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            {
+              "name": "previousFinancialData",
+              "description": "rowID Financial Data of Previous Period",
+              "value": {
+                "reportDate": "2009-01-01T00:00:00.000",
+                "totalAssets": 0.0,
+                "claimsOnDemand": 69940.0,
+                "claimsUpTo3Months": 176674.0,
+                "claimsSecuredByPropertyCharges": 0.0,
+                "claimsOnBanks": 0.0,
+                "claimsOnCustomers": 1.0E-4,
+                "loanLossProvisionsForClaimsOnCustomers": 0.0,
+                "otherAssets": 0.0,
+                "capital": 41437.0,
+                "equity": 0.0,
+                "liabilities": 817527.0,
+                "liabilitiesToBanks": 0.0,
+                "liabilitiesToCustomers": 264618.0,
+                "liabilitiesOnDemand": 179283.0,
+                "liabilitiesToCustomersOnDemand": 0.0,
+                "consolidatedProfit": -4633.0
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "capital": {
+                    "type": "number"
+                  },
+                  "claimsOnBanks": {
+                    "type": "number"
+                  },
+                  "claimsOnCustomers": {
+                    "type": "number"
+                  },
+                  "claimsOnDemand": {
+                    "type": "number"
+                  },
+                  "claimsSecuredByPropertyCharges": {
+                    "type": "number"
+                  },
+                  "claimsUpTo3Months": {
+                    "type": "number"
+                  },
+                  "consolidatedProfit": {
+                    "type": "number"
+                  },
+                  "equity": {
+                    "type": "number"
+                  },
+                  "liabilities": {
+                    "type": "number"
+                  },
+                  "liabilitiesOnDemand": {
+                    "type": "number"
+                  },
+                  "liabilitiesToBanks": {
+                    "type": "number"
+                  },
+                  "liabilitiesToCustomers": {
+                    "type": "number"
+                  },
+                  "liabilitiesToCustomersOnDemand": {
+                    "type": "number"
+                  },
+                  "loanLossProvisionsForClaimsOnCustomers": {
+                    "type": "number"
+                  },
+                  "otherAssets": {
+                    "type": "number"
+                  },
+                  "reportDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "totalAssets": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EquityScoreTest",
+      "tableId": "d028b6994dd3841fadd941da6c998312",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Equity Score",
+              "expectedValue": 0.0,
+              "actualValue": 0.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "countryCode",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "equity",
+              "description": "Equity",
+              "value": 100.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Equity Score",
+              "expectedValue": 0.9,
+              "actualValue": 0.9,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "countryCode",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "equity",
+              "description": "Equity",
+              "value": 1000.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Equity Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "countryCode",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "equity",
+              "description": "Equity",
+              "value": 2000.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Equity Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "countryCode",
+              "value": "IT",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "equity",
+              "description": "Equity",
+              "value": 300.0,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "number"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "tableId": "15b2f6665966da7a7e1678b78333b64e",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 4,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "IsAdequate Max Credit Risk Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "CH",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "isAdequateMaxCreditRisk",
+              "description": "Adequate Max Credit Risk",
+              "value": true,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "IsAdequate Max Credit Risk Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "isAdequateMaxCreditRisk",
+              "description": "Adequate Max Credit Risk",
+              "value": true,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "IsAdequate Max Credit Risk Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "DE",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "isAdequateMaxCreditRisk",
+              "description": "Adequate Max Credit Risk",
+              "value": false,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "IsAdequate Max Credit Risk Score",
+              "expectedValue": 0.7,
+              "actualValue": 0.7,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "countryCode",
+              "description": "Country Code",
+              "value": "IT",
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string"
+              }
+            },
+            {
+              "name": "isAdequateMaxCreditRisk",
+              "description": "Adequate Max Credit Risk",
+              "value": false,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IsAdequateNormativeIndexTest",
+      "tableId": "daeddb1471de275a5f3527777c77a1e7",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "IsAdequate Normative Index Calculation",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bank",
+              "description": "bank ID",
+              "value": {
+                "bankID": "commerz",
+                "bankFullName": "Commerzbank",
+                "countryCode": "DE",
+                "bankRatings": [
+                  {
+                    "ratingAgency": "Moody's Investors Service",
+                    "rating": "A2"
+                  },
+                  {
+                    "ratingAgency": "Fitch",
+                    "rating": "A+"
+                  },
+                  {
+                    "ratingAgency": "Standard & Poor's",
+                    "rating": "A"
+                  }
+                ],
+                "currentFinancialData": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "totalAssets": 754299.0,
+                  "claimsOnDemand": 74502.0,
+                  "claimsUpTo3Months": 179938.0,
+                  "claimsSecuredByPropertyCharges": 134321.0,
+                  "claimsOnBanks": 110956.0,
+                  "claimsOnCustomers": 336872.0,
+                  "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+                  "otherAssets": 7349.0,
+                  "capital": 40857.0,
+                  "equity": 28658.0,
+                  "liabilities": 725641.0,
+                  "liabilitiesToBanks": 137626.0,
+                  "liabilitiesToCustomers": 262827.0,
+                  "liabilitiesOnDemand": 193986.0,
+                  "liabilitiesToCustomersOnDemand": 143807.0,
+                  "consolidatedProfit": 1489.0
+                },
+                "previousFinancialData": {
+                  "reportDate": "2009-01-01T00:00:00.000",
+                  "totalAssets": 0.0,
+                  "claimsOnDemand": 69940.0,
+                  "claimsUpTo3Months": 176674.0,
+                  "claimsSecuredByPropertyCharges": 0.0,
+                  "claimsOnBanks": 0.0,
+                  "claimsOnCustomers": 1.0E-4,
+                  "loanLossProvisionsForClaimsOnCustomers": 0.0,
+                  "otherAssets": 0.0,
+                  "capital": 41437.0,
+                  "equity": 0.0,
+                  "liabilities": 817527.0,
+                  "liabilitiesToBanks": 0.0,
+                  "liabilitiesToCustomers": 264618.0,
+                  "liabilitiesOnDemand": 179283.0,
+                  "liabilitiesToCustomersOnDemand": 0.0,
+                  "consolidatedProfit": -4633.0
+                },
+                "qualityIndicators": {
+                  "reportDate": "2010-01-01T00:00:00.000",
+                  "lossesInThisYear": false,
+                  "negativeHistoryRelations": false,
+                  "negativeMassMedia": false,
+                  "negativeInfoShareHoldersOrManagement": false,
+                  "downgradesOfBankRating": true,
+                  "isAdequateCoreCapitalRatio": true,
+                  "isAdequateLiquidityRatio": true,
+                  "isAdequateMaxCreditRisk": true
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$defs": {
+                  "FinancialData": {
+                    "type": "object",
+                    "properties": {
+                      "capital": {
+                        "type": "number"
+                      },
+                      "claimsOnBanks": {
+                        "type": "number"
+                      },
+                      "claimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "claimsOnDemand": {
+                        "type": "number"
+                      },
+                      "claimsSecuredByPropertyCharges": {
+                        "type": "number"
+                      },
+                      "claimsUpTo3Months": {
+                        "type": "number"
+                      },
+                      "consolidatedProfit": {
+                        "type": "number"
+                      },
+                      "equity": {
+                        "type": "number"
+                      },
+                      "liabilities": {
+                        "type": "number"
+                      },
+                      "liabilitiesOnDemand": {
+                        "type": "number"
+                      },
+                      "liabilitiesToBanks": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomers": {
+                        "type": "number"
+                      },
+                      "liabilitiesToCustomersOnDemand": {
+                        "type": "number"
+                      },
+                      "loanLossProvisionsForClaimsOnCustomers": {
+                        "type": "number"
+                      },
+                      "otherAssets": {
+                        "type": "number"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "totalAssets": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "type": "object",
+                "properties": {
+                  "bankFullName": {
+                    "type": "string"
+                  },
+                  "bankID": {
+                    "type": "string"
+                  },
+                  "bankRatings": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rating": {
+                          "type": "string"
+                        },
+                        "ratingAgency": {
+                          "type": "string",
+                          "enum": [
+                            "Moody's Investors Service",
+                            "Fitch",
+                            "Standard & Poor's"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "enum": [
+                      "DE",
+                      "BE",
+                      "NL",
+                      "AT",
+                      "CH",
+                      "DK",
+                      "US",
+                      "FR",
+                      "IT",
+                      "CZ",
+                      "SE",
+                      "FI",
+                      "UA",
+                      "KZ",
+                      "PL",
+                      "GB",
+                      "RU",
+                      "IE"
+                    ]
+                  },
+                  "currentFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "previousFinancialData": {
+                    "$ref": "#/$defs/FinancialData"
+                  },
+                  "qualityIndicators": {
+                    "type": "object",
+                    "properties": {
+                      "downgradesOfBankRating": {
+                        "type": "boolean"
+                      },
+                      "isAdequateCoreCapitalRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateLiquidityRatio": {
+                        "type": "boolean"
+                      },
+                      "isAdequateMaxCreditRisk": {
+                        "type": "boolean"
+                      },
+                      "lossesInThisYear": {
+                        "type": "boolean"
+                      },
+                      "negativeHistoryRelations": {
+                        "type": "boolean"
+                      },
+                      "negativeInfoShareHoldersOrManagement": {
+                        "type": "boolean"
+                      },
+                      "negativeMassMedia": {
+                        "type": "boolean"
+                      },
+                      "reportDate": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LossesInThisYearScoreTest",
+      "tableId": "0f1ecc0343403c96f4ea0a6dc5167a3d",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 2,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Losses Score",
+              "expectedValue": 0.4,
+              "actualValue": 0.4,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "lossesInThisYear",
+              "description": "Losses in This Year",
+              "value": true,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "Losses Score",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "lossesInThisYear",
+              "description": "Losses in This Year",
+              "value": false,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

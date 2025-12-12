@@ -5,6 +5,9 @@ Content-Type: application/json
   "executionTimeMs": "##.##",
   "numberOfTests": 5,
   "numberOfFailures": 0,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
   "testCases": [
     {
       "name": "BankRatingGroupTest",
@@ -36,7 +39,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -59,7 +63,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -82,7 +87,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -105,7 +111,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "5",
           "executionTimeMs": "##.##",
           "status": "TR_OK",

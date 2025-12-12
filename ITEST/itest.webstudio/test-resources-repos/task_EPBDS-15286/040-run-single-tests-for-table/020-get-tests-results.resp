@@ -5,6 +5,9 @@ Content-Type: application/json
   "executionTimeMs": "##.##",
   "numberOfTests": 4,
   "numberOfFailures": 0,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
   "testCases": [
     {
       "name": "TotalBalanceScoreTest",
@@ -34,7 +37,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "DE",
@@ -44,7 +48,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "2",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -65,7 +70,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "IT",
@@ -75,7 +81,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "3",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -96,7 +103,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "DE",
@@ -106,7 +114,8 @@ Content-Type: application/json
               }
             }
           ]
-        }, {
+        },
+        {
           "id": "4",
           "executionTimeMs": "##.##",
           "status": "TR_OK",
@@ -127,7 +136,8 @@ Content-Type: application/json
                 "$schema": "***",
                 "type": "number"
               }
-            }, {
+            },
+            {
               "name": "countryCode",
               "description": "Country Code",
               "value": "FR",

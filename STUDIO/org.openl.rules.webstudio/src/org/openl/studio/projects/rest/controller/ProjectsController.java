@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,6 +67,7 @@ import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableView;
+import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
@@ -302,7 +304,9 @@ public class ProjectsController {
         CompletableFuture<List<TestUnitsResults>> testTask;
         var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
         if (StringUtils.isBlank(tableId)) {
-            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user, projectId, mapper::mapToTestCaseResult);
+            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
+                    projectId,
+                    testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
             listener.onStatusChanged(TestExecutionStatus.PENDING);
             testTask = testsExecutorService.runAll(listener, projectModel, currentOpenedModule);
         } else {
@@ -310,7 +314,10 @@ public class ProjectsController {
             if (table == null) {
                 throw new NotFoundException("table.message");
             }
-            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user, projectId, tableId, mapper::mapToTestCaseResult);
+            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
+                    projectId,
+                    tableId,
+                    testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
             listener.onStatusChanged(TestExecutionStatus.PENDING);
             if (StringUtils.isBlank(testRanges) && !OpenLTableUtils.isTestTable(table)) {
                 testTask = testsExecutorService.runAllForTable(listener, projectModel, table, currentOpenedModule);
@@ -340,7 +347,17 @@ public class ProjectsController {
     @GetMapping(value = "/{projectId}/tests/summary", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> getTestsSummary(@ProjectId @PathVariable("projectId") RulesProject project,
-                                             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})) @RequestHeader(name = HttpHeaders.ACCEPT) String acceptMediaType) throws IOException {
+                                             @RequestParam(value = "failuresOnly", defaultValue = "false")
+                                             @Parameter(description = "Whether to include only failed test units in the summary")
+                                             boolean failuresOnly,
+                                             @RequestParam(value = "failures", defaultValue = "5")
+                                             @Parameter(description = "Number of failed test units to include in the summary")
+                                             @Min(1)
+                                             int failures,
+                                             @PaginationDefault Pageable page,
+                                             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
+                                             @RequestHeader(name = HttpHeaders.ACCEPT)
+                                             String acceptMediaType) throws IOException {
         var projectId = projectService.resolveProjectId(project);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
@@ -355,10 +372,14 @@ public class ProjectsController {
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
             var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
-            return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults));
+            var query = TestExecutionSummaryQuery.builder()
+                    .failedOnly(failuresOnly)
+                    .failures(failures)
+                    .build();
+            return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
-            new TestResultExport().export(output, -1, executionResults.toArray(new TestUnitsResults[0]));
+            new TestResultExport().export(output, page.getPageSize(), executionResults.toArray(new TestUnitsResults[0]));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)

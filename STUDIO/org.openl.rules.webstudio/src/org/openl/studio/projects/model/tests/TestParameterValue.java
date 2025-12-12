@@ -5,42 +5,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public class TestParameterValue {
+public record TestParameterValue(
+        @Parameter(description = "Name of the parameter")
+        String name,
 
-    @Parameter(description = "Name of the parameter")
-    private final String name;
+        @Parameter(description = "Description of the parameter")
+        String description,
 
-    @Parameter(description = "Description of the parameter")
-    private final String description;
+        @Schema(description = "JSON value of the parameter", implementation = Object.class)
+        JsonNode value,
 
-    @Schema(description = "JSON value of the parameter", implementation = Object.class)
-    private final JsonNode value;
-
-    @Schema(description = "JSON Schema of the parameter value", implementation = Object.class)
-    private final ObjectNode schema;
-
-    private TestParameterValue(Builder builder) {
-        this.name = builder.name;
-        this.description = builder.description;
-        this.value = builder.value;
-        this.schema = builder.schema;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public JsonNode getValue() {
-        return value;
-    }
-
-    public ObjectNode getSchema() {
-        return schema;
-    }
+        @Schema(description = "JSON Schema of the parameter value", implementation = Object.class)
+        ObjectNode schema
+) {
 
     public static Builder builder() {
         return new Builder();
@@ -76,7 +53,7 @@ public class TestParameterValue {
         }
 
         public TestParameterValue build() {
-            return new TestParameterValue(this);
+            return new TestParameterValue(name, description, value, schema);
         }
     }
 }
