@@ -90,7 +90,6 @@ import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -120,6 +119,7 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.FileTypeHelper;
@@ -327,12 +327,13 @@ public class RepositoryTreeController {
             setWasSaved(true);
         } catch (Exception e) {
             Throwable cause = e.getCause();
-            if (cause instanceof MergeConflictException) {
+            if (cause instanceof MergeConflictException mergeConflictEx) {
                 log.debug("Failed to save the project because of merge conflict.", cause);
-                if (project instanceof RulesProject) {
-                    MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause,
-                            (RulesProject) project);
-                    ConflictUtils.saveMergeConflict(info);
+                if (project instanceof RulesProject rulesProject) {
+                    ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                                    .details(mergeConflictEx.getDetails())
+                                    .project(rulesProject)
+                            .build());
                 }
             } else {
                 String msg = e.getMessage();

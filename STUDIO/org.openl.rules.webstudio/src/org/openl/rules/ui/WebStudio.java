@@ -73,7 +73,6 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
@@ -94,6 +93,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
@@ -265,9 +265,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     msg = "Failed to save the project because some resources are used";
                 }
                 log.debug(msg, e);
-            } else if (cause instanceof MergeConflictException) {
-                MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause, project);
-                ConflictUtils.saveMergeConflict(info);
+            } else if (cause instanceof MergeConflictException mergeConflictEx) {
+                ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                        .details(mergeConflictEx.getDetails())
+                        .project(project)
+                        .build());
                 msg = "Failed to save the project because of merge conflict.";
                 log.debug(msg, e);
                 return;

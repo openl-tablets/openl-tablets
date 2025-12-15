@@ -23,14 +23,15 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
+@Deprecated(forRemoval = true)
 public class BranchesBean {
     private static final Logger LOG = LoggerFactory.getLogger(BranchesBean.class);
 
@@ -145,12 +146,13 @@ public class BranchesBean {
             if (workspaceDependencyManager != null) {
                 workspaceDependencyManager.resume();
             }
-            MergeConflictInfo info = new MergeConflictInfo(e,
-                    getProject(currentProjectName),
-                    branchToMergeFrom,
-                    branchToMergeTo,
-                    currentBranch);
-            ConflictUtils.saveMergeConflict(info);
+            ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                    .details(e.getDetails())
+                    .project(getProject(currentProjectName))
+                    .mergeBranchFrom(branchToMergeFrom)
+                    .mergeBranchTo(branchToMergeTo)
+                    .currentBranch(currentBranch)
+                    .build());
             LOG.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
             if (workspaceDependencyManager != null) {
@@ -171,12 +173,11 @@ public class BranchesBean {
         if (currentProjectName == null && branchToMergeTo == null || currentRepositoryId == null) {
             return false;
         }
-        UserWorkspace userWorkspace;
         RulesProject project = getProject(currentProjectName);
         if (project == null) {
             return false;
         }
-        userWorkspace = getUserWorkspace();
+        var userWorkspace = getUserWorkspace();
         LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
         LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, project.getRealPath());
         return lockInfo.isLocked();

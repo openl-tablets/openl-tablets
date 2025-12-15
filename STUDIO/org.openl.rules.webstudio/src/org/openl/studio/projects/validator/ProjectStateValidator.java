@@ -1,5 +1,6 @@
 package org.openl.studio.projects.validator;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 
 /**
@@ -46,4 +47,11 @@ public interface ProjectStateValidator {
      * @return true or false
      */
     boolean canErase(UserWorkspaceProject project);
+
+    /**
+     * Check if project can be merged
+     * @param project project
+     * @return true or false
+     */
+    boolean canMerge(RulesProject project);
 }

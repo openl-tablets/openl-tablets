@@ -42,7 +42,6 @@ import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -54,6 +53,7 @@ import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -251,9 +251,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             getWebStudio().saveProject(project);
         } catch (ProjectException e) {
             var cause = e.getCause();
-            if (cause instanceof MergeConflictException) {
-                var info = new MergeConflictInfo((MergeConflictException) cause, project);
-                ConflictUtils.saveMergeConflict(info);
+            if (cause instanceof MergeConflictException mergeConflictEx) {
+                ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                        .details(mergeConflictEx.getDetails())
+                        .project(project)
+                        .build());
             }
             throw e;
         }

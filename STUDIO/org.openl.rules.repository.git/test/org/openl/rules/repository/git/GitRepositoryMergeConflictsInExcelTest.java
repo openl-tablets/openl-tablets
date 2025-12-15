@@ -144,14 +144,15 @@ public class GitRepositoryMergeConflictsInExcelTest {
             branchRepo.merge(Constants.MASTER, USER_INFO, null);
             fail("¯\\_(ツ)_/¯");
         } catch (MergeConflictException e) {
-            assertEquals(testCaseData.baseRevision, e.getBaseCommit());
-            assertEquals(testCaseData.ourRevision, e.getYourCommit());
-            assertEquals(testCaseData.theirRevision, e.getTheirCommit());
-            assertTrue(e.getDiffs().containsKey("04/Bank Rating.xlsx"));
-            assertEquals(1, e.getDiffs().size());
+            var conflictDetails = e.getDetails();
+            assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
+            assertEquals(testCaseData.ourRevision, conflictDetails.yourCommit());
+            assertEquals(testCaseData.theirRevision, conflictDetails.theirCommit());
+            assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
+            assertEquals(1, conflictDetails.diffs().size());
 
-            assertTrue(e.getToAutoResolve().containsKey("04/MyBook.xlsx"));
-            assertEquals(1, e.getToAutoResolve().size());
+            assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
+            assertEquals(1, conflictDetails.toAutoResolve().size());
         }
 
         // Test symmetry merge
@@ -160,14 +161,15 @@ public class GitRepositoryMergeConflictsInExcelTest {
             branchRepo.merge("04" + COPY_BRANCH_PREF, USER_INFO, null);
             fail("¯\\_(ツ)_/¯");
         } catch (MergeConflictException e) {
-            assertEquals(testCaseData.baseRevision, e.getBaseCommit());
-            assertEquals(testCaseData.ourRevision, e.getTheirCommit());
-            assertEquals(testCaseData.theirRevision, e.getYourCommit());
-            assertTrue(e.getDiffs().containsKey("04/Bank Rating.xlsx"));
-            assertEquals(1, e.getDiffs().size());
+            var conflictDetails = e.getDetails();
+            assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
+            assertEquals(testCaseData.ourRevision, conflictDetails.theirCommit());
+            assertEquals(testCaseData.theirRevision, conflictDetails.yourCommit());
+            assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
+            assertEquals(1, conflictDetails.diffs().size());
 
-            assertTrue(e.getToAutoResolve().containsKey("04/MyBook.xlsx"));
-            assertEquals(1, e.getToAutoResolve().size());
+            assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
+            assertEquals(1, conflictDetails.toAutoResolve().size());
         }
     }
 
@@ -191,48 +193,104 @@ public class GitRepositoryMergeConflictsInExcelTest {
     public void testCase_07() throws IOException, GitAPIException {
         executeTestCase("07",
                 Set.of("07/Case2.xls"),
-                "07/Case2.xls\n" + "\t\tB (07)\n" + "\t\tC (07)\n" + "\t\tG (07)\n" + "\t\tH (07)\n" + "\t\tK (07)\n" + "\t\tL (07)\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)",
-                "07/Case2.xls\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)\n" + "\t\tB (07_COPY)\n" + "\t\tC (07_COPY)\n" + "\t\tG (07_COPY)\n" + "\t\tH (07_COPY)\n" + "\t\tK (07_COPY)\n" + "\t\tL (07_COPY)");
+                """
+                        07/Case2.xls
+                        \t\tB (07)
+                        \t\tC (07)
+                        \t\tG (07)
+                        \t\tH (07)
+                        \t\tK (07)
+                        \t\tL (07)
+                        \t\tA (master)
+                        \t\tD (master)
+                        \t\tE (master)
+                        \t\tI (master)
+                        \t\tJ (master)""",
+                """
+                        07/Case2.xls
+                        \t\tA (master)
+                        \t\tD (master)
+                        \t\tE (master)
+                        \t\tI (master)
+                        \t\tJ (master)
+                        \t\tB (07_COPY)
+                        \t\tC (07_COPY)
+                        \t\tG (07_COPY)
+                        \t\tH (07_COPY)
+                        \t\tK (07_COPY)
+                        \t\tL (07_COPY)""");
     }
 
     @Test
     public void testCase_08() throws IOException, GitAPIException {
         executeTestCase("08",
                 Set.of("08/AutoPolicyCalculation.xlsx"),
-                "08/AutoPolicyCalculation.xlsx\n" + "\t\tDriver-Eligibility (08)\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)",
-                "08/AutoPolicyCalculation.xlsx\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)\n" + "\t\tDriver-Eligibility (08_COPY)");
+                """
+                        08/AutoPolicyCalculation.xlsx
+                        \t\tDriver-Eligibility (08)
+                        \t\tCalculation (master)
+                        \t\tUtilities (master)""",
+                """
+                        08/AutoPolicyCalculation.xlsx
+                        \t\tCalculation (master)
+                        \t\tUtilities (master)
+                        \t\tDriver-Eligibility (08_COPY)""");
     }
 
     @Test
     public void testCase_09() throws IOException, GitAPIException {
         executeTestCase("09",
                 Set.of("09/defect5.xls"),
-                "09/defect5.xls\n" + "\t\tCapping Calculation (09)\n" + "\t\tProgram Name (master)",
-                "09/defect5.xls\n" + "\t\tProgram Name (master)\n" + "\t\tCapping Calculation (09_COPY)");
+                """
+                        09/defect5.xls
+                        \t\tCapping Calculation (09)
+                        \t\tProgram Name (master)""",
+                """
+                        09/defect5.xls
+                        \t\tProgram Name (master)
+                        \t\tCapping Calculation (09_COPY)""");
     }
 
     @Test
     public void testCase_10() throws IOException, GitAPIException {
         executeTestCase("10",
                 Set.of("10/Main.xlsx"),
-                "10/Main.xlsx\n" + "\t\tRules (10)\n" + "\t\tSheet1 (master)",
-                "10/Main.xlsx\n" + "\t\tSheet1 (master)\n" + "\t\tRules (10_COPY)");
+                """
+                        10/Main.xlsx
+                        \t\tRules (10)
+                        \t\tSheet1 (master)""",
+                """
+                        10/Main.xlsx
+                        \t\tSheet1 (master)
+                        \t\tRules (10_COPY)""");
     }
 
     @Test
     public void testCase_11() throws IOException, GitAPIException {
         executeTestCase("11",
                 Set.of("11/bugMessageBug.xlsx"),
-                "11/bugMessageBug.xlsx\n" + "\t\tSheet1 (11)\n" + "\t\tSheet2 (master)",
-                "11/bugMessageBug.xlsx\n" + "\t\tSheet2 (master)\n" + "\t\tSheet1 (11_COPY)");
+                """
+                        11/bugMessageBug.xlsx
+                        \t\tSheet1 (11)
+                        \t\tSheet2 (master)""",
+                """
+                        11/bugMessageBug.xlsx
+                        \t\tSheet2 (master)
+                        \t\tSheet1 (11_COPY)""");
     }
 
     @Test
     public void testCase_12() throws IOException, GitAPIException {
         executeTestCase("12",
                 Set.of("12/Bank Rating.xlsx"),
-                "12/Bank Rating.xlsx\n" + "\t\tSetNonZero Test (12)\n" + "\t\tTest Data (master)",
-                "12/Bank Rating.xlsx\n" + "\t\tTest Data (master)\n" + "\t\tSetNonZero Test (12_COPY)");
+                """
+                        12/Bank Rating.xlsx
+                        \t\tSetNonZero Test (12)
+                        \t\tTest Data (master)""",
+                """
+                        12/Bank Rating.xlsx
+                        \t\tTest Data (master)
+                        \t\tSetNonZero Test (12_COPY)""");
     }
 
     private void executeTestCase(String testCase,

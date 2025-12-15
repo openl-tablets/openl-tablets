@@ -2,11 +2,6 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +65,7 @@ import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
+import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
@@ -397,14 +393,6 @@ public class ProjectsController {
         } catch (ClassNotFoundException e) {
             throw new ConflictException("object.mapper.configuration.failed.message");
         }
-    }
-
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @Parameter(description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
-    public @interface ProjectId {
-
     }
 
 }
