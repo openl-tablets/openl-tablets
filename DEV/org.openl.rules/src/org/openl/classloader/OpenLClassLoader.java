@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.util.IOUtils;
 
@@ -29,6 +31,8 @@ import org.openl.util.IOUtils;
  * if can`t tries to find it in his parent.
  */
 public class OpenLClassLoader extends GroovyClassLoader {
+
+    private static final Logger log = LoggerFactory.getLogger(OpenLClassLoader.class);
 
     private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
@@ -348,12 +352,55 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return getURLs(c);
     }
 
+    /**
+     * Clears all internal caches and references to allow garbage collection.
+     * This method performs a lightweight cleanup by clearing collection references only.
+     *
+     * <p><b>Important:</b> This method does NOT close groovyClassLoaders. If you need to close
+     * resources, use {@link #close()} instead, which properly closes all groovy classloaders
+     * before clearing references.</p>
+     *
+     * <p>Use this method only when:
+     * <ul>
+     *     <li>The groovyClassLoaders have already been closed externally, or</li>
+     *     <li>You need to clear references without closing resources (rare cases)</li>
+     * </ul>
+     * In most cases, prefer calling {@link #close()} which handles both closing and clearing.</p>
+     *
+     * @see #close()
+     */
+    public void clearReferences() {
+        if (log.isDebugEnabled()) {
+            log.debug("Clearing references for OpenLClassLoader. GeneratedClasses count: {}, BundleClassLoaders count: {}, GroovyClassLoaders count: {}",
+                    generatedClasses.size(), bundleClassLoaders.size(), groovyClassLoaders.size());
+        }
+        generatedClasses.clear();
+        bundleClassLoaders.clear();
+        // Note: groovyClassLoaders are NOT closed here - use close() if they need to be closed
+    }
+
     @Override
     public void close() throws IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("Closing OpenLClassLoader. GeneratedClasses count: {}, BundleClassLoaders count: {}, GroovyClassLoaders count: {}",
+                    generatedClasses.size(), bundleClassLoaders.size(), groovyClassLoaders.size());
+        }
         try {
             super.close();
         } finally {
-            groovyClassLoaders.forEach(IOUtils::closeQuietly);
+            try {
+                // Close all groovy class loaders
+                groovyClassLoaders.forEach(IOUtils::closeQuietly);
+            } finally {
+                // Clear all collections to allow garbage collection and prevent memory leaks
+                // The primary issue is circular references preventing ClassLoader GC, not the byte arrays themselves
+                groovyClassLoaders.clear();         // Remove references to child classloaders
+                bundleClassLoaders.clear();         // CRITICAL: Break circular references between OpenLClassLoaders
+                generatedClasses.clear();           // Free heap memory occupied by bytecode arrays
+                if (log.isDebugEnabled()) {
+                    log.debug("OpenLClassLoader closed and all references cleared");
+                }
+            }
         }
     }
 
