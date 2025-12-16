@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.27.15-jakarta</version>
+        <version>5.27.16-jakarta-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.BigServiceDeploy</artifactId>
