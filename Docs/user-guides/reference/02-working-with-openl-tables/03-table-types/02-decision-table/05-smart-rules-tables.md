@@ -6,7 +6,7 @@ The smart rules table header format is as follows:
 
 `SmartRules <Return type> RuleName(<Parameter type 1> parameterName1, (<Parameter type 2> parameterName 2…)`
 
-![](../../../../ref_guide_images/c7f4a486bcfff247a0d22da7f3171468.png)
+![](../../../../ref_guide_images/smartRulesTableSimpleReturnValue.png)
 
 *Smart rules table with simple return value*
 
@@ -17,7 +17,7 @@ OpenL Tablets identifies which condition сolumns correspond to which input para
 
 In case of a custom datatype input, OpenL verifies all fields of the input object to match them separately with appropriate conditions using field names, in addition to input names, and column titles.
 
-![](../../../../ref_guide_images/4f08cf74060a623db38210cff8541288.png)
+![](../../../../ref_guide_images/smartRulesTableObject-input.png)
 
 *Smart rules table with object-input*
 
@@ -31,19 +31,19 @@ In the example above, the **driverType** value is compared with values from the 
 
 If a string value of the condition contains a comma, the value must be delimited with the backslash (\\) separator followed by the comma. Otherwise, it is treated as an array of string elements as described in [Ranges and Arrays in Smart and Simple Decision Tables](12-ranges-and-arrays-in-smart-and-simple-decision-tables.md#ranges-and-arrays-in-smart-and-simple-decision-tables):
 
-![](../../../../ref_guide_images/1247497969dc26c9e5d136cdaab07644.png)
+![](../../../../ref_guide_images/commaWithinStringValueSmartTable.png)
 
 *Comma within a string value in a Smart table*
 
 To define a range of values, two columns of the condition can be merged. In this case, the whole condition is interpreted as` min <= input parameter && input parameter < max`.
 
-![](../../../../ref_guide_images/3b94246b45ee0f23c9bc6aeb8d95d03e.jpeg)
+![](../../../../ref_guide_images/usingMinMaxValuesRangeCondition.jpeg)
 
 *Using min and max values for a range in the condition column*
 
 Special conditions not matching any particular input fields can be used in smart rules tables, for example, for validation rules definition. Column header for such condition must contain the word ‘true’. If there are other condition headers containing the word ‘true’, the name must be explicitly declared as “Is True?”. All values in such column are expressions or Boolean values. Such condition can also be used in the smart lookup tables.
 
-![](../../../../ref_guide_images/518d68d7a234ad3057174d34ae6b4423.png)
+![](../../../../ref_guide_images/exampleConditionThatBooleanExpression.png)
 
 *Example of a condition that is a Boolean expression*
 

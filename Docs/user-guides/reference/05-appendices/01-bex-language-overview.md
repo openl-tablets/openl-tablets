@@ -115,7 +115,7 @@ When comparing elements of different types, such as an array and an element of t
 
 `Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true. banks.bankRatings[select all having rating == "A"]`
 
-![](../../ref_guide_images/EPBDS-12008.png)
+![](../../ref_guide_images/operatorsUsedOpenlTablets.png)
 
 Suppose you're working with a list of bank ratings stored in an array and you want to select banks ratings with a value of "A". If you mistakenly compare the whole array to the single string "A", this warning can appear, indicating a mismatch in the types being compared.
 
@@ -123,4 +123,4 @@ Suppose you're working with a list of bank ratings stored in an array and you wa
 
 To resolve this warning, use elements of the same type for comparison. To compare an array to an element of the array, use the `flatten` function.
 
-![](../../ref_guide_images/012d51205bc592c06da145c10ae6eb74e.png)
+![](../../ref_guide_images/operatorsUsedOpenlTablets_1.png)

@@ -30,7 +30,7 @@ The following topics are included in this section:
 
 An example of a decision table is as follows:
 
-![](../../../../ref_guide_images/7a9db66ab2f047e3c5eec2d6187b2438.png)
+![](../../../../ref_guide_images/decisionTable.png)
 
 *Decision table*
 
@@ -49,11 +49,11 @@ A user can merge cells of parameter values to substitute multiple single cells w
 
 The additional **Rule** column with merged cells is used as the first column when the return value must be a list of values written in multiple rows of the same column, that is, a vertically arranged array. The Rule column determines the height of the result value list.
 
-![](../../../../ref_guide_images/0853723eeeb4ffabc332f22b2c8121a9.png)
+![](../../../../ref_guide_images/tableRuleColumnFirstColumn.png)
 
 *A table with the Rule column as the first column*
 
-![](../../../../ref_guide_images/aa0f7c0c7727206311f570428063a2c8.jpeg)
+![](../../../../ref_guide_images/resultVerticallyArrangedArrayFormat.jpeg)
 
 *Result in the vertically arranged array format*
 

@@ -2,7 +2,7 @@
 
 Conditions, returns, and actions declarations can be separated and stored in specific tables and then used in Smart Decision Tables via column titles. It allows using the Smart Table type for Decision rule even in case of the complicated condition or return calculation logic. Another benefit is that condition and return declarations can be reused in several rules, for example, Conditions table as a template. An example is as follows.
 
-![](../../../../ref_guide_images/7db77e6166ea613d591968acde60c104.png)
+![](../../../../ref_guide_images/usingExternalConditionsSmartRulesTable.png)
 
 *Using external conditions in a smart rules table*
 

@@ -34,11 +34,11 @@ File name pattern definition can use wildcards. For example, the .\*`-%`startReq
 
 In the following example, the **Bank Rating** project is configured in the way so that a user can specify the **US State** and **Start Request Date** properties values using the module file name:
 
-![](../../../ref_guide_images/9c97ae9fab81cb2886dbcd8b0cbd6ddf.jpeg)
+![](../../../ref_guide_images/fileNamePatternConfiguredViaOpenl.jpeg)
 
 *File name pattern configured via OpenL Studio*
 
-![](../../../ref_guide_images/54e083c05fb89c951a71023586247217.png)
+![](../../../ref_guide_images/fileNamePatternRulesProjectDescriptor.png)
 
 *File name pattern in a rules project descriptor directly*
 
@@ -50,7 +50,7 @@ If a file name does not match the pattern, module properties are not defined.
 
 To view detailed information about the properties added to the file name pattern, click information icon next to the **Properties pattern for a file name** field.
 
-![](../../../ref_guide_images/f06a4edf46814323ba15e8406d968ef8.png)
+![](../../../ref_guide_images/propertiesFileNamePatternDescription.png)
 
 *Properties file name pattern description*
 
@@ -66,6 +66,6 @@ A template for this example is as follows: `.*-%lob%-.*-%effectiveDate:ddMMyyyy%
 
 **Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. When the **Custom file name processor** check box is selected, the **File name processor class** field is displayed.
 
-![](../../../ref_guide_images/de47823ff89fb7aec0104e6846f2c98a.png)
+![](../../../ref_guide_images/customFileNameProcessorClass.png)
 
 *Custom file name processor class*

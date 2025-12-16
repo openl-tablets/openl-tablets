@@ -18,7 +18,7 @@ If a datatype table field is a list or a map, use the following syntax:
 
 An example of the data table with a list of values used for zip codes is as follows:
 
-![](../../../../ref_guide_images/7458aefdfc4db9a8041a3ae134e6e3b4.png)
+![](../../../../ref_guide_images/dataTableUsingListFieldDefined.png)
 
 *Data table using a list field defined in the datatype table*
 
@@ -26,19 +26,19 @@ Values of the list type can also be defined as a comma-separated list.
 
 An example of the datatype table for this data table is as follows:
 
-![](../../../../ref_guide_images/09231cabcd3db615454ccae54448f258.png)
+![](../../../../ref_guide_images/datatypeTableListField.png)
 
 *Datatype table with a list field*
 
 An example of the data table with a map of values used for zip codes is as follows:
 
-![](../../../../ref_guide_images/df2fdf6ea29aceddcd420c67e2f392d5.png)
+![](../../../../ref_guide_images/dataTableMapDataTypeContaining.png)
 
 *Data table for the Map data type containing an aggregated object*
 
 An example of the datatype table for this table is as follows:
 
-![](../../../../ref_guide_images/cb2be397a3418304d66cdd351649fd52.png)
+![](../../../../ref_guide_images/datatypeTableAddressCustomDataType.png)
 
 *A datatype table for the address custom data type*
 

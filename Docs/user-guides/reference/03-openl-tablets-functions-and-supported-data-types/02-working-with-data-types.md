@@ -55,7 +55,7 @@ OpenL Tablets supports the following range data types:
 
 The following illustration provides a very simple example of how to use a range data type. The value of discount percentage depends on the number of orders and is the same for 4 to 5 orders and 7 to 8 orders. A number of cars per order is defined as IntRange data type. For a number of orders from, for example, 6 to 8, the rule for calculating the discount percentage is the same: the discount percentage is 10.00% for BMW, 4.00% for Porsche, and 6.00% for Audi.
 
-![](../../ref_guide_images/a6b9c6056d999bb3834cd708fd3a74b4.png)
+![](../../ref_guide_images/usageRangeDataType.png)
 
 *Usage of the range data type*
 

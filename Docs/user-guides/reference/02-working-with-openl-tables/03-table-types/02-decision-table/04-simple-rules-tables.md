@@ -10,7 +10,7 @@ The simple rules table header format is as follows:
 
 The following is an example of a simple rules table header:
 
-![](../../../../ref_guide_images/89dcde544208ecc9ea8c5470423b392c.png)
+![](../../../../ref_guide_images/simpleRulesTableExample.png)
 
 *Simple rules table example*
 

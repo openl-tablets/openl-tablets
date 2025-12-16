@@ -8,7 +8,7 @@ To simplify integration with OpenL rules, customize serialization output of Spre
 
 Consider the following spreadsheets.
 
-![](../../../../ref_guide_images/EPBDS-13257_1.png)
+![](../../../../ref_guide_images/spreadsheetsExample.png)
 
 *Spreadsheets example*
 
@@ -62,7 +62,7 @@ For these spreadsheets, output result is as follows.
 
 In the following example, some steps are marked with the asterisk to be included in the output.
 
-![](../../../../ref_guide_images/EPBDS-13257_2.png)
+![](../../../../ref_guide_images/exampleSpreadsheetsMandatorySteps.png)
 
 *Example of spreadsheets with mandatory steps*
 
@@ -101,7 +101,7 @@ An output for these tables is as follows:
 
 Within a project, different tables can contain ~ or * markings. Using one or another depends on whether a user needs more steps to include or exclude into the final result. An example is as follows.
 
-![](../../../../ref_guide_images/EPBDS-13257_3.png)
+![](../../../../ref_guide_images/exampleSpreadsheetsStepsMarkedIncludedExcluded.png)
 
 *An example of spreadsheets with steps marked to be included and excluded*
 
@@ -147,7 +147,7 @@ It is also possible to filter spreadsheet columns identifying the ones to be dis
 
 An example is as follows. 
   
-![](../../../../ref_guide_images/EPBDS-13257_4.png)
+![](../../../../ref_guide_images/spreadsheetTableThreeColumns.png)
 
 *A spreadsheet table with three columns*
 
@@ -177,7 +177,7 @@ Note that the step names are in the **ColumnName_RowName** format.
 
 An example of the same spreadsheet with one of the columns excluded using the tilda ~ sign is as follows.
   
-![](../../../../ref_guide_images/EPBDS-13257_5.png)
+![](../../../../ref_guide_images/spreadsheetTableExcludedColumn.png)
 
 *A spreadsheet table with excluded column*
 
@@ -200,7 +200,7 @@ Note that the step names are in the **RowName** format because there is only one
   
 Now consider the following example that illustrates simultaneous usage of asterix in columns and steps.
   
-![](../../../../ref_guide_images/EPBDS-13257_6.png)
+![](../../../../ref_guide_images/spreadsheetTableFilteredColumnsSteps.png)
 
 *A spreadsheet table with filtered columns and steps*
 

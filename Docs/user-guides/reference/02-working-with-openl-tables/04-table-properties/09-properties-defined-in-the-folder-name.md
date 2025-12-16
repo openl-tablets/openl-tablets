@@ -13,7 +13,7 @@ A naming pattern must be added to the `rules.xml` file, same as for the file nam
 
 
 
-![](../../../ref_guide_images/EPBDS10688.png)
+![](../../../ref_guide_images/definingModuleLevelPropertiesFolderName.png)
 
 *Defining module level properties in a folder name*
 

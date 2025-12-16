@@ -13,11 +13,11 @@ The second option, that is, using the asterisk symbol after the common part of n
 -   Any new version of dependency module is not omitted in future and requires no changes to the configuration table.
 -   The configuration table looks simpler.
 
-![](../../../../ref_guide_images/1f238cb8b773a234abf3557905773e52.png)
+![](../../../../ref_guide_images/configurationTableDependencyModulesAddedBy.png)
 
 *Configuration table with dependency modules added by their name*
 
-![](../../../../ref_guide_images/96afdcf447f6cb0280fcbf72751ddb35.png)
+![](../../../../ref_guide_images/configurationTableLinkAllDependencyModules.png)
 
 *Configuration table with link to all dependency modules*
 
@@ -33,7 +33,7 @@ The following example illustrates how displaying dependency modules in the confi
 
 The purpose of this project is to calculate the Vehicle premium. The main algorithm is located in the `Auto-Rating Algorithm.xlsx` Excel file.
 
-![](../../../../ref_guide_images/09b48ef53e032b906d4d0d07b493bdd9.png)
+![](../../../../ref_guide_images/ruleAlgorithmCalculateVehiclePremium.png)
 
 *Rule with the algorithm to calculate the Vehicle premium*
 
@@ -49,7 +49,7 @@ All these modules have a common part at the beginning of the name, `Auto-Rating-
 
 The configuration table can be defined with a link to all these modules as follows:
 
-![](../../../../ref_guide_images/b7d1eab657d0dd54df7ecd1b08c5aadf.png)
+![](../../../../ref_guide_images/configurationTableAuto-ratingAlgorithmxlsxFile.png)
 
 *Configuration table in the Auto-Rating Algorithm.xlsx file*
 

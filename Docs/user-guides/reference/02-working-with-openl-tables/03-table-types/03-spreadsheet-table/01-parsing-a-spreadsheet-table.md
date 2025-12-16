@@ -26,7 +26,7 @@ The following table describes the spreadsheet table header syntax:
 
 The first column and row of a spreadsheet table, after the header, make the table column and row names. Values in other cells are the table values. An example is as follows.
 
-![](../../../../ref_guide_images/a423fb3f19ae42aaa5e8c1178081bf7a.png)
+![](../../../../ref_guide_images/spreadsheetTableOrganization.png)
 
 *Spreadsheet table organization*
 
@@ -50,7 +50,7 @@ The following table describes how a cell value can be referenced in a spreadshee
 
 For more information on how to specify a range of cells, see [Using Ranges in Spreadsheet Table](03-using-ranges-in-spreadsheet-table.md#using-ranges-in-spreadsheet-table). Below is an example of a spreadsheet table with different calculations for an auto insurance policy. Table cells contain simple values, formulas, references to the value of another cell, and other information.
 
-![](../../../../ref_guide_images/365f4542b59a8be72e23f663f73605ba.png)
+![](../../../../ref_guide_images/spreadsheetTableCalculationsContent.png)
 
 *Spreadsheet table with calculations as content*
 
@@ -83,14 +83,14 @@ OpenL Tablets processes spreadsheet tables in two different ways depending on th
 
 In the first case, users get the value of SpreadsheetResult type that is an analog of result matrix. All calculated cells of the spreadsheet table are accessible through this result. The following example displays a spreadsheet table of this type.
 
-![](../../../../ref_guide_images/2765c4b8d64804f56dcaf31e79ec23f2.png)  
-![](../../../../ref_guide_images/f79f28a229ab3605622f61f001f99faa.png)
+![](../../../../ref_guide_images/parsingSpreadsheetTable.png)  
+![](../../../../ref_guide_images/spreadsheetTableReturnsSpreadsheetresultDatatype.png)
 
 *Spreadsheet table returns the SpreadsheetResult datatype*
 
 In the second case, the returned result type is a data type as in all other rule tables, so there is no need for **SpreadsheetResult** in the rule table header. The value of the last row, or the latest one if there are several columns, is returned. OpenL Tablets calculates line by line as follows:
 
-![](../../../../ref_guide_images/5f40b4d7152505581dc7f331b52a3aa2.png)
+![](../../../../ref_guide_images/spreadsheetTableReturningSingleValue.png)
 
 *Spreadsheet table returning a single value*
 

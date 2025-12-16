@@ -4,7 +4,7 @@ OpenL Tablets can perform mathematical calculations involving method input param
 
 The following decision table demonstrates calculations in table cells.
 
-![](../../../ref_guide_images/c737f1e497e23bf0142cc2fa1ede3351.png)
+![](../../../ref_guide_images/decisionTableCalculations.png)
 
 *Decision table with calculations*
 

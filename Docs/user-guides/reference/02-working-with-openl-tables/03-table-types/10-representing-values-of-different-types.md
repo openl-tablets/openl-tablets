@@ -17,7 +17,7 @@ For all tables that have properties of the `enum[]` type or fields of the array 
 
 The first option is to arrange array values horizontally using multiple subcolumns. The following is an example of this approach:
 
-![](../../../ref_guide_images/84746a0195e99f2a72247bd79dc0cda9.png)
+![](../../../ref_guide_images/arrangingArrayValuesHorizontally.png)
 
 *Arranging array values horizontally*
 
@@ -25,7 +25,7 @@ In this example, the contents of the `set` variable for the first rule are `[1,3
 
 The second option is to present parameter values vertically as follows:
 
-![](../../../ref_guide_images/5bbccb6558f48ff8587fdba4883cc8e6.png)
+![](../../../ref_guide_images/arrangingArrayValuesVertically.png)
 
 *Arranging array values vertically*
 
@@ -35,7 +35,7 @@ In both cases, empty cells are not added to the array.
 
 The third option is to define an array by separating values by a comma. If the value itself contains a comma, it must be escaped using back slash symbol “`\`”` `by putting it before the comma.
 
-![](../../../ref_guide_images/b3359c164b6d654dfa05ed882210e476.png)
+![](../../../ref_guide_images/arrayValuesSeparatedByComma.png)
 
 *Array values separated by comma*
 
@@ -45,7 +45,7 @@ In this example, the array consists of the following values:
 -   test 3, 4
 -   test 2
 
-![](../../../ref_guide_images/d804c51558951eb9cc637bf42237bdc1.png)
+![](../../../ref_guide_images/arrayValuesSeparatedByCommaSecond.png)
 
 *Array values separated by comma. The second example*
 
@@ -57,7 +57,7 @@ In this example, the array consists of the following values:
 
 Two-dimensional arrays can be used in rules tables, where mixing values and expressions in arrays is allowed. An example is as follows:
 
-![](../../../ref_guide_images/2ca6c0bc1a0c1c1d20d42502bbff6d89.png)
+![](../../../ref_guide_images/usingTwo-dimensionalArraysRulesTable.png)
 
 *Using two-dimensional arrays in a rules table*
 
@@ -94,7 +94,7 @@ In OpenL, the following data types are designed to work with ranges:
 
 For more information on these data types used for ranges, see [Range Data Types](../../../03-openl-tablets-functions-and-supported-data-types/02-working-with-data-types.md#range-data-types).
 
-![](../../../ref_guide_images/0dee4ba55b8b0e9e4f61f930cf47b33e.png)
+![](../../../ref_guide_images/decisionTableIntrange.png)
 
 *Decision table with IntRange*
 

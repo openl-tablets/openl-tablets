@@ -12,7 +12,7 @@ If the empty return value is calculated by the expression, the system starts pro
 
 The following example contains empty case interpretation. For **Senior Driver**, the marital status of the driver does not matter. Although there is no combination of **Senior Driver** and **Single** mode, the result value is 500 as for an empty marital status value.
 
-![](../../../../ref_guide_images/ede4c0cb2b63d3789b426c196e85d0f8.jpeg)
+![](../../../../ref_guide_images/emptyCaseInterpretationDecisionTable.jpeg)
 
 *Empty case interpretation in the Decision table*
 
