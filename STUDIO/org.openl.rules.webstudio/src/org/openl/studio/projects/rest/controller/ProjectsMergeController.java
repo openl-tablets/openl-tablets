@@ -1,26 +1,33 @@
 package org.openl.studio.projects.rest.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
+import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
@@ -64,6 +71,22 @@ public class ProjectsMergeController {
     public List<ConflictGroup> getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
         var conflictInfo = getMergeConflictInfo0(project);
         return mergeConflictsService.getMergeConflicts(conflictInfo);
+    }
+
+    @GetMapping("/conflicts/files")
+    public ResponseEntity<byte[]> getConflictedFile(@ProjectId @PathVariable("projectId") RulesProject project,
+                                  @RequestParam("file") String filePath,
+                                  @RequestParam("side") @NotNull ConflictBase side) throws IOException {
+        var conflictInfo = getMergeConflictInfo0(project);
+        var fileItem = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, side);
+        var output = new ByteArrayOutputStream();
+        try (var stream = fileItem.getStream()) {
+            stream.transferTo(output);
+        }
+        String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
+                .body(output.toByteArray());
     }
 
     private MergeConflictInfo getMergeConflictInfo0(RulesProject project) {

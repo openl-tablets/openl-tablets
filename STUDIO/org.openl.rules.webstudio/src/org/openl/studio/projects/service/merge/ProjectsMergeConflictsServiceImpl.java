@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.merge;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,13 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 
@@ -61,5 +68,47 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         }
 
         return new ArrayList<>(groups.values());
+    }
+
+    @Override
+    public FileItem getConflictFileItem(MergeConflictInfo mergeConflict, String path, ConflictBase side) throws IOException {
+        var conflictDetails = mergeConflict.details();
+        if (!conflictDetails.getConflictedFiles().contains(path)) {
+            throw new NotFoundException("project.merge.conflict.file.not.found", path);
+        }
+        var repository = getRepository(mergeConflict);
+        var realPath = getRealPath(repository, path);
+        var commitRev = switch (side) {
+            case BASE -> conflictDetails.baseCommit();
+            case OURS -> mergeConflict.isExportOperation()
+                    ? conflictDetails.theirCommit()
+                    : conflictDetails.yourCommit();
+            case THEIRS -> mergeConflict.isExportOperation()
+                    ? conflictDetails.yourCommit()
+                    : conflictDetails.theirCommit();
+        };
+        var fileItem = repository.readHistory(realPath, commitRev);
+        if (fileItem == null) {
+            throw new NotFoundException("project.merge.conflict.file.revision.not.found", path, commitRev);
+        }
+        return fileItem;
+    }
+
+    private String getRealPath(Repository repository, String path) throws IOException {
+        if (repository.supports().mappedFolders()) {
+            return ((FolderMapper) repository).getRealPath(path);
+        }
+        return path;
+    }
+
+    private Repository getRepository(MergeConflictInfo mergeConflict) throws IOException {
+        var project = mergeConflict.project();
+        if (!mergeConflict.isMerging()) {
+            return project.getDesignRepository();
+        } else {
+            String id = mergeConflict.getRepositoryId();
+            return ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(id))
+                    .forBranch(mergeConflict.mergeBranchTo());
+        }
     }
 }
