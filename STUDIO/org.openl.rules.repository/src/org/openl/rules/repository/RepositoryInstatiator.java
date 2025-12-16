@@ -49,7 +49,12 @@ public class RepositoryInstatiator {
                         int dot = prefix.lastIndexOf('.');
                         return prefix.substring(dot + 1);
                     }
-                    return props.apply(prefix + '.' + key);
+                    var value = props.apply(prefix + '.' + key);
+                    if (Objects.isNull(value)) {
+                        // If not found the property with the specific prefix, then use defaults for the factory.
+                        value = props.apply(factory.getRefID() + '.' + key);
+                    }
+                    return value;
                 }));
             }
         }
