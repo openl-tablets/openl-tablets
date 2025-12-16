@@ -122,7 +122,7 @@ jobs:
           cat report.html >> $GITHUB_STEP_SUMMARY
 
       - name: Archive report results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.image }}
           path: report.json
