@@ -53,6 +53,7 @@ import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.SheetDiffResult;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
+import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -60,6 +61,7 @@ import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
+@Deprecated(forRemoval = true)
 public class MergeConflictBean {
     private static final XmlProjectDescriptorSerializer PROJECT_DESCRIPTOR_SERIALIZER = new XmlProjectDescriptorSerializer();
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);

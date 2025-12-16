@@ -49,6 +49,7 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping("/conflict")
 @Tag(name = "Conflict")
+@Deprecated(forRemoval = true)
 public class ConflictController {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictController.class);
 

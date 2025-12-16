@@ -71,17 +71,17 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
 
     private void validateMerge(RulesProject project, String otherBranch) throws IOException {
         if (!projectStateValidator.canMerge(project)) {
-            throw new ConflictException("project.merge.invalid.state");
+            throw new ConflictException("project.merge.invalid.state.message");
         }
         if (!hasMergePermission(project)) {
             throw new ForbiddenException();
         }
         if (Objects.equals(project.getBranch(), otherBranch)) {
-            throw new ConflictException("project.merge.same.branches");
+            throw new ConflictException("project.merge.same.branches.message");
         }
         var repository = getBranchRepository(project);
         if (!repository.branchExists(otherBranch)) {
-            throw new ConflictException("project.merge.branch.not.found", otherBranch);
+            throw new ConflictException("project.merge.branch.not.found.message", otherBranch);
         }
     }
 
@@ -111,7 +111,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         if (repo.supports().branches()) {
             return (BranchRepository) repo;
         }
-        throw new ConflictException("project.merge.repository.unsupported");
+        throw new ConflictException("project.merge.repository.unsupported.message");
     }
 
     @Override

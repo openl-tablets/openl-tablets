@@ -3,9 +3,6 @@ package org.openl.rules.repository.git;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
@@ -17,6 +14,8 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
 import org.springframework.lang.NonNull;
+
+import org.openl.util.HashingUtils;
 
 class GitRootFactory {
     
@@ -114,14 +113,7 @@ class GitRootFactory {
         hashSource.append(cleanedUri);
         hashSource.append(delimiter);
         hashSource.append(salt);
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new InternalError(e);
-        }
-        byte[] digest = md.digest(hashSource.toString().getBytes());
-        return new File(localPath, HexFormat.of().formatHex(digest));
+        return new File(localPath, HashingUtils.sha256Hex(hashSource.toString()));
     }
 
     private URIish getUri(String uriOrPath) {

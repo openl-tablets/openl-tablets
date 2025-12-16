@@ -69,6 +69,7 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -96,17 +97,20 @@ public class ProjectsController {
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final Environment environment;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
 
     public ProjectsController(WorkspaceProjectService projectService,
                               TestsExecutorService testsExecutorService,
                               ExecutionTestsResultRegistry executionTestsResultRegistry,
                               SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory,
-                              Environment environment) {
+                              Environment environment,
+                              ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
         this.projectService = projectService;
         this.testsExecutorService = testsExecutorService;
         this.executionTestsResultRegistry = executionTestsResultRegistry;
         this.socketProjectAllTestsExecutionProgressListenerFactory = socketProjectAllTestsExecutionProgressListenerFactory;
         this.environment = environment;
+        this.conflictsSessionHolder = conflictsSessionHolder;
     }
 
     @Lookup
@@ -162,6 +166,10 @@ public class ProjectsController {
     @Operation(summary = "Update project status (BETA)")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @RequestBody ProjectStatusUpdateModel request) {
+        var projectId = projectService.resolveProjectId(project);
+        if (conflictsSessionHolder.hasConflictInfo(projectId)) {
+            throw new ConflictException("project.unresolved.merge.conflicts.message");
+        }
         try {
             projectService.updateProjectStatus(project, request);
             if (request.getStatus() != null

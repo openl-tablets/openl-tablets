@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository.merge;
+package org.openl.studio.projects.model.merge;
 
 import java.util.ArrayList;
 import java.util.Collections;

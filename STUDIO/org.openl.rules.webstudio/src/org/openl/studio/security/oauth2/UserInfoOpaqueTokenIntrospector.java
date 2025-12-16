@@ -1,8 +1,5 @@
 package org.openl.studio.security.oauth2;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +27,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.util.HashingUtils;
 
 /**
  * Extends {@link SpringOpaqueTokenIntrospector} to create a {@link SimpleUser} based on {@link OAuth2User}.
@@ -51,10 +49,10 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
                                            Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
                                            PropertyResolver propertyResolver,
                                            Cache cache) {
-
-        this.delegate = new SpringOpaqueTokenIntrospector(introspectionUri,
-                clientRegistration.getClientId(),
-                clientRegistration.getClientSecret());
+        this.delegate = SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+                .clientId(clientRegistration.getClientId())
+                .clientSecret(clientRegistration.getClientSecret())
+                .build();
         this.clientRegistration = clientRegistration;
         this.userInfoClaimsConverter = userInfoClaimsConverter;
         this.propertyResolver = propertyResolver;
@@ -65,7 +63,7 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         var authorized = this.delegate.introspect(token);
 
-        var tokenHash = getTokenHash(token);
+        var tokenHash = HashingUtils.sha256Hex(token);
         var userCacheValue = Optional.ofNullable(userInfoCache.get(tokenHash))
                 .map(Cache.ValueWrapper::get)
                 .map(UserCacheValue.class::cast)
@@ -88,28 +86,6 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
         Instant issuedAt = authorized.getAttribute(OAuth2TokenIntrospectionClaimNames.IAT);
         Instant expiresAt = authorized.getAttribute(OAuth2TokenIntrospectionClaimNames.EXP);
         return new OAuth2AccessToken(TokenType.BEARER, token, issuedAt, expiresAt);
-    }
-
-    private String getTokenHash(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Error hashing token", e);
-        }
-    }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 
     private static class UserCacheValue {

@@ -1,12 +1,14 @@
 package org.openl.studio.projects.rest.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,12 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
+import org.openl.studio.projects.model.merge.ConflictGroup;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
-import org.openl.studio.projects.model.merge.MergeResult;
+import org.openl.studio.projects.model.merge.MergeResultResponse;
+import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.ProjectsMergeService;
 
 @Validated
@@ -30,27 +38,49 @@ import org.openl.studio.projects.service.merge.ProjectsMergeService;
 @Tag(name = "Projects: Merge (BETA)", description = "Experimental projects merge API")
 public class ProjectsMergeController {
 
-    private final ProjectsMergeService projectsMergeService;
+    private final ProjectsMergeService mergeService;
     private final WorkspaceProjectService projectService;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+    private final ProjectsMergeConflictsService mergeConflictsService;
 
-    public ProjectsMergeController(ProjectsMergeService projectsMergeService,
-                                   WorkspaceProjectService projectService) {
-        this.projectsMergeService = projectsMergeService;
+    public ProjectsMergeController(ProjectsMergeService mergeService,
+                                   WorkspaceProjectService projectService,
+                                   ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
+                                   ProjectsMergeConflictsService mergeConflictsService) {
+        this.mergeService = mergeService;
         this.projectService = projectService;
+        this.conflictsSessionHolder = conflictsSessionHolder;
+        this.mergeConflictsService = mergeConflictsService;
     }
 
     @PostMapping("/check")
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
                                   @RequestBody @Valid MergeRequest request) throws IOException {
-        return projectsMergeService.checkMerge(project, request.otherBranch(), request.mode());
+        validateUnresolvedConflict(project);
+        return mergeService.checkMerge(project, request.otherBranch(), request.mode());
+    }
+
+    @GetMapping("/conflicts")
+    public List<ConflictGroup> getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
+        var conflictInfo = getMergeConflictInfo0(project);
+        return mergeConflictsService.getMergeConflicts(conflictInfo);
+    }
+
+    private MergeConflictInfo getMergeConflictInfo0(RulesProject project) {
+        var projectId = projectService.resolveProjectId(project);
+        if (!conflictsSessionHolder.hasConflictInfo(projectId)) {
+            throw new NotFoundException("project.merge.result.not.found.message");
+        }
+        return conflictsSessionHolder.getConflictInfo(projectId);
     }
 
     @PostMapping
-    public MergeResult merge(@ProjectId @PathVariable("projectId") RulesProject project,
-                             @RequestBody @Valid MergeRequest request) throws IOException, ProjectException {
-        var checkMergeResult = projectsMergeService.checkMerge(project, request.otherBranch(), request.mode());
+    public MergeResultResponse merge(@ProjectId @PathVariable("projectId") RulesProject project,
+                                     @RequestBody @Valid MergeRequest request) throws IOException, ProjectException {
+        validateUnresolvedConflict(project);
+        var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode());
         if (checkMergeResult.status() != CheckMergeStatus.MERGEABLE) {
-            throw new ConflictException("prject.branch.merge.not.mergeable");
+            throw new ConflictException("project.branch.merge.not.mergeable.message");
         }
         var model = projectService.getProjectModel(project);
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
@@ -67,8 +97,8 @@ public class ProjectsMergeController {
         boolean shouldResumeDependencies = false;
         try {
             studio.freezeProject(nameBeforeMerge);
-            var mergeRsult = projectsMergeService.merge(project, request.otherBranch(), request.mode());
-            if (mergeRsult.status() == MergeResult.Status.SUCCESS) {
+            var mergeRsult = mergeService.merge(project, request.otherBranch(), request.mode());
+            if (mergeRsult.status() == MergeResultStatus.SUCCESS) {
                 var workspace = projectService.getUserWorkspace();
                 if (wasOpened) {
                     if (project.isDeleted()) {
@@ -95,8 +125,13 @@ public class ProjectsMergeController {
                 }
             } else {
                 shouldResumeDependencies = true;
+                var projectId = projectService.resolveProjectId(project);
+                conflictsSessionHolder.store(projectId, mergeRsult.conflictInfo());
             }
-            return mergeRsult;
+            return new MergeResultResponse(
+                    mergeRsult.status(),
+                    mergeConflictsService.getMergeConflicts(mergeRsult.conflictInfo())
+            );
         } catch (ProjectException e) {
             shouldResumeDependencies = true;
             throw e;
@@ -105,6 +140,13 @@ public class ProjectsMergeController {
                 dependencyManager.resume();
             }
             studio.releaseProject(nameBeforeMerge);
+        }
+    }
+
+    private void validateUnresolvedConflict(RulesProject project) {
+        var projectId = projectService.resolveProjectId(project);
+        if (conflictsSessionHolder.hasConflictInfo(projectId)) {
+            throw new ConflictException("project.unresolved.merge.conflicts.message");
         }
     }
 

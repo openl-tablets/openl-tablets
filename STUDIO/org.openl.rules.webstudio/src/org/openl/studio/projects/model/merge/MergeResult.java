@@ -1,21 +1,12 @@
 package org.openl.studio.projects.model.merge;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public record MergeResult(
-        Status status,
+        MergeResultStatus status,
         MergeConflictInfo conflictInfo
 ) {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public enum Status {
-        @JsonProperty("success")
-        SUCCESS,
-        @JsonProperty("conflicts")
-        CONFLICTS
     }
 
     public static class Builder {
@@ -27,7 +18,7 @@ public record MergeResult(
         }
 
         public MergeResult build() {
-            var status = conflictInfo == null ? Status.SUCCESS : Status.CONFLICTS;
+            var status = conflictInfo == null ? MergeResultStatus.SUCCESS : MergeResultStatus.CONFLICTS;
             return new MergeResult(status, conflictInfo);
         }
     }
