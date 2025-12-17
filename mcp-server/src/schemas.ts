@@ -85,7 +85,7 @@ export const updateProjectStatusSchema = z.object({
 
 export const listTablesSchema = z.object({
   projectId: projectIdSchema,
-  kind: z.array(z.string()).optional().describe("Filter by table kinds (array of strings). Valid values: 'XLS_DT', 'XLS_SPREADSHEET', 'XLS_DATATYPE', 'XLS_VOCABULARY', 'XLS_METHOD', 'XLS_PROPERTIES', 'XLS_DATA', 'XLS_TEST', 'XLS_RUN'. Omit to show all kinds."),
+  kind: z.array(z.string()).optional().describe("Filter by table kinds (array of strings). Valid values: 'Rules', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'TBasic', 'Column Match', 'Method', 'Run', 'Constants', 'Conditions', 'Actions', 'Returns', 'Environment', 'Properties', 'Other'. Omit to show all kinds."),
   name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
   properties: z.record(z.string()).optional().describe("Filter by project properties. Properties must be prefixed with 'properties.' in the query string (e.g., properties.state='CA', properties.lob='Auto'). This is handled automatically by the API client."),
   response_format: ResponseFormat.optional(),
@@ -336,8 +336,24 @@ export const restoreProjectLocalChangeSchema = z.object({
 }).strict();
 
 // =============================================================================
-// Test Execution Schema
+// Test Execution Schemas
 // =============================================================================
+
+export const startProjectTestsSchema = z.object({
+  projectId: projectIdSchema,
+  tableId: z.string().optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
+  testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
+export const getProjectTestResultsSchema = z.object({
+  projectId: projectIdSchema,
+  failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
+  limit: z.number().int().positive().max(200).default(50).optional(),
+  offset: z.number().int().nonnegative().default(0).optional(),
+  waitForCompletion: z.boolean().optional().describe("Wait for test execution to complete before returning results. If false, returns current status immediately (default: true)"),
+  response_format: ResponseFormat.optional(),
+}).strict();
 
 export const runProjectTestsSchema = z.object({
   projectId: projectIdSchema,

@@ -3,15 +3,17 @@
  * Tests tool execution through the MCP server with real OpenL client
  */
 
-import { describe, it, expect, beforeAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterEach } from "@jest/globals";
 import MockAdapter from "axios-mock-adapter";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { OpenLClient } from "../../src/client.js";
-import { executeTool } from "../../src/tool-handlers.js";
+import { executeTool, registerAllTools } from "../../src/tool-handlers.js";
 import type { OpenLConfig, Project, Repository, Table } from "../../src/types.js";
 
 describe("Tool Handler Integration Tests", () => {
   let client: OpenLClient;
   let mockAxios: MockAdapter;
+  let server: Server;
 
   beforeAll(() => {
     const config: OpenLConfig = {
@@ -23,6 +25,20 @@ describe("Tool Handler Integration Tests", () => {
     client = new OpenLClient(config);
     // @ts-ignore - Access private axiosInstance for mocking
     mockAxios = new MockAdapter(client.axiosInstance);
+
+    // Create a mock server instance for tool registration
+    server = new Server(
+      {
+        name: "test-server",
+        version: "1.0.0",
+      },
+      {
+        capabilities: {},
+      }
+    );
+
+    // Register all tools before running tests
+    registerAllTools(server, client);
   });
 
   afterEach(() => {
@@ -70,7 +86,7 @@ describe("Tool Handler Integration Tests", () => {
         },
       ];
 
-      mockAxios.onGet("/design").reply(200, mockProjects);
+      mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, mockProjects);
 
       const result = await executeTool("openl_list_projects", {
         repository: "design",
@@ -88,7 +104,8 @@ describe("Tool Handler Integration Tests", () => {
         status: "OPENED",
       };
 
-      mockAxios.onGet("/design/project1").reply(200, mockProject);
+      // getProject uses buildProjectPath which converts to base64 and uses /projects/{base64Id}
+      mockAxios.onGet(/\/projects\/.*/).reply(200, mockProject);
 
       const result = await executeTool("openl_get_project", {
         projectId: "design-project1",
@@ -99,7 +116,8 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should execute openl_update_project_status", async () => {
-      mockAxios.onPut("/design/project1").reply(200, {
+      // update_project_status uses buildProjectPath which converts to base64
+      mockAxios.onPut(/\/projects\/.*/).reply(200, {
         projectId: "design-project1",
         status: "CLOSED",
       });
@@ -124,7 +142,8 @@ describe("Tool Handler Integration Tests", () => {
         },
       ];
 
-      mockAxios.onGet("/design/project1/tables").reply(200, mockTables);
+      // list_tables uses buildProjectPath
+      mockAxios.onGet(/\/projects\/.*\/tables/).reply(200, mockTables);
 
       const result = await executeTool("openl_list_tables", {
         projectId: "design-project1",
@@ -141,7 +160,8 @@ describe("Tool Handler Integration Tests", () => {
         tableType: "SimpleRules",
       };
 
-      mockAxios.onGet("/design/project1/tables/calculatePremium_1234").reply(200, mockTable);
+      // get_table uses buildProjectPath
+      mockAxios.onGet(/\/projects\/.*\/tables\/calculatePremium_1234/).reply(200, mockTable);
 
       const result = await executeTool("openl_get_table", {
         projectId: "design-project1",
@@ -153,7 +173,8 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should execute openl_create_rule", async () => {
-      mockAxios.onPost("/design/project1/tables").reply(201, {
+      // create_rule uses buildProjectPath
+      mockAxios.onPost(/\/projects\/.*\/tables/).reply(201, {
         id: "newRule_1234",
         name: "newRule",
         tableType: "SimpleRules",
@@ -173,7 +194,8 @@ describe("Tool Handler Integration Tests", () => {
 
   describe("File Tools", () => {
     it("should execute openl_upload_file", async () => {
-      mockAxios.onPost("/design/project1/files/Rules.xlsx").reply(200, {
+      // upload_file uses buildProjectPath
+      mockAxios.onPost(/\/projects\/.*\/files\/Rules\.xlsx/).reply(200, {
         success: true,
       });
 
@@ -191,7 +213,8 @@ describe("Tool Handler Integration Tests", () => {
 
     it("should execute openl_download_file", async () => {
       const fileBuffer = Buffer.from("test file content");
-      mockAxios.onGet("/design/project1/files/Rules.xlsx").reply(200, fileBuffer);
+      // download_file uses buildProjectPath
+      mockAxios.onGet(/\/projects\/.*\/files\/Rules\.xlsx/).reply(200, fileBuffer);
 
       const result = await executeTool("openl_download_file", {
         projectId: "design-project1",
@@ -222,7 +245,7 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should support markdown_concise response format", async () => {
-      mockAxios.onGet("/design").reply(200, [
+      mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, [
         { projectId: "design-p1", status: "OPENED" },
         { projectId: "design-p2", status: "CLOSED" },
       ]);
@@ -238,7 +261,7 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should support markdown_detailed response format", async () => {
-      mockAxios.onGet("/design").reply(200, [
+      mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, [
         { projectId: "design-p1", status: "OPENED" },
       ]);
 
@@ -265,9 +288,17 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should execute openl_revert_version with confirmation", async () => {
-      mockAxios.onPost("/design/project1/revert").reply(200, {
-        success: true,
-        commitHash: "new-commit",
+      // revert_version needs multiple API calls: get version, validate, revert
+      mockAxios.onGet(/\/projects\/.*\/versions\/abc123/).reply(200, {
+        version: "abc123",
+        content: {},
+      });
+      mockAxios.onGet(/\/projects\/.*\/validation/).reply(200, {
+        valid: true,
+        errors: [],
+      });
+      mockAxios.onPost(/\/projects\/.*\/revert/).reply(200, {
+        version: "new-commit",
       });
 
       const result = await executeTool("openl_revert_version", {
@@ -292,7 +323,8 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should execute openl_deploy_project with confirmation", async () => {
-      mockAxios.onPost("/design/project1/deploy").reply(200, {
+      // deploy_project uses /deployments endpoint
+      mockAxios.onPost("/deployments").reply(200, {
         success: true,
         deploymentName: "project1",
       });
@@ -309,6 +341,12 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     it("should require confirmation for discardChanges in openl_update_project_status", async () => {
+      // Mock the project fetch that happens before status update
+      mockAxios.onGet(/\/projects\/.*/).reply(200, {
+        projectId: "design-project1",
+        status: "EDITING", // Project has unsaved changes
+      });
+
       await expect(
         executeTool("openl_update_project_status", {
           projectId: "design-project1",
@@ -327,7 +365,7 @@ describe("Tool Handler Integration Tests", () => {
         status: "OPENED",
       }));
 
-      mockAxios.onGet("/design").reply(200, mockProjects);
+      mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, mockProjects);
 
       const result = await executeTool("openl_list_projects", {
         repository: "design",

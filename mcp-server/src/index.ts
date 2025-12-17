@@ -17,6 +17,7 @@
  * @see https://modelcontextprotocol.io/
  */
 
+import { createHash } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -181,7 +182,7 @@ class OpenLMCPServer {
           description: prompt.description,
           messages: [
             {
-              role: "assistant" as const,
+              role: "user" as const,
               content: {
                 type: "text" as const,
                 text: content,
@@ -430,8 +431,9 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
           if (!codeVerifierToUse) {
             codeVerifierToUse = generateCodeVerifier();
             codeChallenge = generateCodeChallengeSync(codeVerifierToUse);
-            console.error(`[OAuth2] 🔐 Generated code_verifier for PKCE: ${codeVerifierToUse.substring(0, 20)}...`);
-            console.error(`[OAuth2] 💾 Save this code_verifier: ${codeVerifierToUse}`);
+            // Log only a hash fingerprint for security (never log the actual code_verifier)
+            const verifierHash = createHash("sha256").update(codeVerifierToUse).digest("hex");
+            console.error(`[OAuth2] 🔐 Generated code_verifier for PKCE (fingerprint: ${verifierHash.substring(0, 16)}...)`);
           } else {
             codeChallenge = generateCodeChallengeSync(codeVerifierToUse);
           }
@@ -587,10 +589,10 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
       console.error(`[OAuth2]   - PKCE: code_verifier present (code_challenge: ${config.oauth2.codeChallenge ? 'generated' : 'not set'})`);
     }
     if (config.oauth2.refreshToken) {
-      console.error(`[OAuth2]   - Refresh Token: ***${config.oauth2.refreshToken.slice(-10)}`);
+      console.error(`[OAuth2]   - Refresh Token: present (length: ${config.oauth2.refreshToken.length})`);
     }
     if (config.oauth2.authorizationCode) {
-      console.error(`[OAuth2]   - Authorization Code: ***${config.oauth2.authorizationCode.slice(-10)}`);
+      console.error(`[OAuth2]   - Authorization Code: present (length: ${config.oauth2.authorizationCode.length})`);
     }
   }
 

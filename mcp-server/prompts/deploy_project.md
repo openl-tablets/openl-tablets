@@ -30,7 +30,7 @@ BEFORE any deployment (MANDATORY):
 1. Validate project manually → MUST pass (0 errors)
    Note: `openl_validate_project` is temporarily disabled - use OpenL WebStudio UI to validate
 2. Run all tests → ALL must pass
-   Note: `openl_test_project` is temporarily disabled - use OpenL WebStudio UI to run tests
+   Use `openl_start_project_tests()` + `openl_get_project_test_results()` to run tests, or use OpenL WebStudio UI
 3. Check for errors → MUST be 0
    Note: `openl_get_project_errors` is temporarily disabled - use OpenL WebStudio UI
 

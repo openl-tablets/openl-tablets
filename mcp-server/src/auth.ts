@@ -11,6 +11,38 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import * as Types from "./types.js";
 import { DEFAULTS, HEADERS } from "./constants.js";
 import { sanitizeError, openBrowser, generateAuthorizationUrl, generateCodeVerifier, generateCodeChallengeSync, performOAuthFlowWithBrowser, isLocalhostRedirect } from "./utils.js";
+import { createHash } from "node:crypto";
+
+/**
+ * Check if debug logging is enabled (via environment variable)
+ */
+const DEBUG_AUTH = process.env.DEBUG_AUTH === "true" || process.env.DEBUG === "true";
+
+/**
+ * Safely log auth header information without exposing tokens
+ * @param authHeader - Full auth header value
+ * @returns Safe representation of auth header (scheme only or redacted)
+ */
+function safeAuthHeaderLog(authHeader: string | undefined): string {
+  if (!authHeader || authHeader === "none") {
+    return "none";
+  }
+
+  // Extract scheme (Bearer, Basic, etc.)
+  const schemeMatch = authHeader.match(/^(\w+)\s+/);
+  if (schemeMatch) {
+    const scheme = schemeMatch[1];
+    if (DEBUG_AUTH) {
+      // In debug mode, log a hash fingerprint instead of actual token
+      const hash = createHash("sha256").update(authHeader).digest("hex").substring(0, 8);
+      return `${scheme} [${hash}...]`;
+    }
+    return `${scheme} [redacted]`;
+  }
+
+  // If no scheme found, it might be API key - just show it's present
+  return DEBUG_AUTH ? `[${createHash("sha256").update(authHeader).digest("hex").substring(0, 8)}...]` : "[redacted]";
+}
 
 /**
  * Authentication manager for OpenL Tablets API
@@ -40,11 +72,13 @@ export class AuthenticationManager {
     axiosInstance.interceptors.request.use(
       async (config) => {
         const authConfig = await this.addAuthHeaders(config);
-        // Log request details for debugging
+        // Log request details for debugging (safe - no token exposure)
         const fullUrl = `${authConfig.baseURL || ''}${authConfig.url || ''}`;
-        const authHeader = (authConfig.headers && authConfig.headers[HEADERS.AUTHORIZATION]) || (authConfig.headers && authConfig.headers[HEADERS.API_KEY]) || 'none';
+        const authHeader = (authConfig.headers && authConfig.headers[HEADERS.AUTHORIZATION]) || 
+                          (authConfig.headers && authConfig.headers[HEADERS.API_KEY]) || 
+                          undefined;
         console.error(`[Auth] Request: ${authConfig.method ? authConfig.method.toUpperCase() : ''} ${fullUrl}`);
-        console.error(`[Auth] Auth header: ${authHeader.substring(0, 30)}...`);
+        console.error(`[Auth] Auth header: ${safeAuthHeaderLog(authHeader)}`);
         return authConfig;
       },
       (error) => Promise.reject(error)
@@ -128,7 +162,8 @@ export class AuthenticationManager {
         `${this.config.username}:${this.config.password}`
       ).toString("base64");
       config.headers[HEADERS.AUTHORIZATION] = `Basic ${auth}`;
-      console.error(`[Auth] Basic Auth header set: Basic ${auth.substring(0, 20)}...`);
+      // Safe logging - never expose auth tokens
+      console.error(`[Auth] Basic Auth header set: ${safeAuthHeaderLog(`Basic ${auth}`)}`);
     } else {
       console.error(`[Auth] ⚠️  No authentication method configured!`);
       console.error(`[Auth]   oauth2: ${!!this.config.oauth2}`);
@@ -462,8 +497,16 @@ export class AuthenticationManager {
             // Generate new code_verifier for PKCE
             const codeVerifier = generateCodeVerifier();
             codeChallenge = generateCodeChallengeSync(codeVerifier);
-            console.error(`[OAuth2] 🔐 Generated new code_verifier for PKCE: ${codeVerifier.substring(0, 20)}...`);
-            console.error(`[OAuth2] 💾 Save this code_verifier: ${codeVerifier}`);
+            // Store code_verifier securely in memory only (never log)
+            oauth2Config.codeVerifier = codeVerifier;
+            // Safe logging - only log that generation occurred, never the actual value
+            if (DEBUG_AUTH) {
+              // In debug mode, log a hash fingerprint for traceability only
+              const verifierHash = createHash("sha256").update(codeVerifier).digest("hex");
+              console.error(`[OAuth2] 🔐 Generated PKCE code_verifier (fingerprint: ${verifierHash.substring(0, 16)}...)`);
+            } else {
+              console.error(`[OAuth2] 🔐 Generated PKCE code_verifier`);
+            }
           }
 
           const authUrl = generateAuthorizationUrl({

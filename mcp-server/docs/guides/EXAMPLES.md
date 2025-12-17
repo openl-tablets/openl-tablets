@@ -22,7 +22,7 @@ npm install
 npm run build
 ```
 
-2. Add to your Claude Desktop config (see `claude-desktop-config.example.json`)
+2. Add to your Claude Desktop config (see [Configuration Examples](../setup/examples/))
 
 3. Restart Claude Desktop
 
@@ -226,7 +226,7 @@ List all tables in the project 'design-insurance-rules'
   {
     "id": "Rules.xls_1234",
     "tableType": "simplerules",
-    "kind": "XLS_DT",
+    "kind": "Rules",
     "name": "CalculatePremium",
     "returnType": "Double",
     "signature": "Double CalculatePremium(String vehicleType, Integer age)",
@@ -235,7 +235,7 @@ List all tables in the project 'design-insurance-rules'
   {
     "id": "Rules.xls_5678",
     "tableType": "datatype",
-    "kind": "XLS_DATATYPE",
+    "kind": "Datatype",
     "name": "Policy",
     "file": "Datatypes.xlsx"
   }
@@ -535,6 +535,118 @@ Claude: Updated! Now the premium for young motorcycle riders is calculated as: b
 5. **Review Changes**: Ask Claude to show you the changes before committing
 6. **Branch for Safety**: Create branches for experimental changes
 7. **Test Before Deploy**: Verify changes in a test environment first
+
+## Testing
+
+### Run Project Tests
+
+**Prompt to Claude:**
+```text
+Run all tests for project 'design-insurance-rules' and show me the results
+```
+
+**What happens:**
+1. MCP server calls `openl_start_project_tests` to start test execution
+2. MCP server calls `openl_get_project_test_results` with `waitForCompletion: true` to wait for results
+
+**Example Workflow:**
+```text
+# Start test execution
+openl_start_project_tests(
+  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
+  tableId: "calculatePremium_1234"  # Optional: test specific table
+)
+
+# Get results (waits for completion)
+openl_get_project_test_results(
+  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
+  waitForCompletion: true,
+  failuresOnly: false  # Optional: show only failures
+)
+```
+
+**Example Response:**
+```json
+{
+  "testCases": [
+    {
+      "name": "Test_calculatePremium",
+      "tableId": "Test_calculatePremium_1234",
+      "executionTimeMs": 45,
+      "numberOfTests": 5,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "name": "Test 1",
+          "status": "PASSED",
+          "executionTimeMs": 8
+        }
+      ]
+    }
+  ],
+  "executionTimeMs": 45,
+  "numberOfTests": 5,
+  "numberOfFailures": 0
+}
+```
+
+### Run Tests for Specific Table
+
+**Prompt to Claude:**
+```text
+Run tests for the calculatePremium table in project 'design-insurance-rules'
+```
+
+**What happens:**
+- Uses `tableId` parameter to target specific table
+- Only tests related to that table are executed
+
+**Example:**
+```text
+openl_start_project_tests(
+  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
+  tableId: "calculatePremium_1234"
+)
+```
+
+### Check Test Status Without Waiting
+
+**Prompt to Claude:**
+```text
+Check current test status for project 'design-insurance-rules' without waiting
+```
+
+**What happens:**
+- Uses `waitForCompletion: false` to get current status immediately
+- Useful for checking progress of long-running tests
+
+**Example:**
+```text
+openl_get_project_test_results(
+  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
+  waitForCompletion: false  # Return immediately
+)
+```
+
+### Run Specific Test Ranges
+
+**Prompt to Claude:**
+```text
+Run tests 1-3 and 5 for the Test_calculatePremium table
+```
+
+**What happens:**
+- Uses `testRanges` parameter to run specific test cases
+- Format: "1-3,5" runs tests 1, 2, 3, and 5
+
+**Example:**
+```text
+openl_start_project_tests(
+  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
+  tableId: "Test_calculatePremium_1234",
+  testRanges: "1-3,5"
+)
+```
 
 ## Advanced Usage
 

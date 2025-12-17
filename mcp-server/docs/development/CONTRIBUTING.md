@@ -263,7 +263,7 @@ describe("openl_my_new_tool", () => {
 
 ### 7. Update Documentation
 
-Add examples to `EXAMPLES.md` and update `README.md` if needed.
+Add examples to [Usage Examples](../guides/EXAMPLES.md) and update [README](../../README.md) if needed.
 
 ## Response Formatting and Pagination
 
@@ -427,7 +427,7 @@ public getAuthMethod(): string {
 
 ### 4. Document the New Method
 
-Update `AUTHENTICATION.md` with configuration examples and usage instructions.
+Update [Authentication Guide](../guides/AUTHENTICATION.md) with configuration examples and usage instructions.
 
 ## Testing Guidelines
 
@@ -536,11 +536,11 @@ async getProject(projectId: string): Promise<Types.Project> {
 
 ### External Documentation
 
-- **README.md**: User-facing documentation
-- **AUTHENTICATION.md**: Authentication setup guide
-- **TESTING.md**: Testing documentation
-- **EXAMPLES.md**: Usage examples
-- **CONTRIBUTING.md**: This file
+- **[README.md](../../README.md)**: User-facing documentation
+- **[Authentication Guide](../guides/AUTHENTICATION.md)**: Authentication setup guide
+- **[Testing Guide](TESTING.md)**: Testing documentation
+- **[Usage Examples](../guides/EXAMPLES.md)**: Usage examples
+- **[Contributing Guide](CONTRIBUTING.md)**: This file
 
 ## Submitting Changes
 

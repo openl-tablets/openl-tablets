@@ -516,7 +516,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 - Truncation point chosen to preserve data integrity
 
 **Truncation Message Format**:
-```
+```plaintext
 ... [Response truncated due to size limit. Use pagination parameters (limit/offset) to access remaining data]
 ```
 
