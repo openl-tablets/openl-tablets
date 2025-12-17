@@ -38,11 +38,11 @@ The `unauthorized_client` error typically indicates one of the following issues:
 1. **Verify Client Configuration in Ping Identity:**
    ```
    - Login to Ping Identity admin console
-   - Navigate to: Applications → Your Client (OpenL_Studio)
+   - Navigate to: Applications → Your Client
    - Check:
      ✓ Client is enabled
      ✓ Grant Types includes "Client Credentials"
-     ✓ Client ID matches: OpenL_Studio
+     ✓ Client ID matches your configured value
      ✓ Client Secret matches your configuration
    ```
 
@@ -54,16 +54,23 @@ The `unauthorized_client` error typically indicates one of the following issues:
      - `resource`: May be required for resource-based access
 
 3. **Test with curl:**
+   
+   **Note**: Set `CLIENT_ID` and `CLIENT_SECRET` environment variables before running these commands, or substitute real values at runtime. Never commit credentials to version control.
+   
    ```bash
+   # Set your credentials (do not commit these values)
+   export CLIENT_ID="your-client-id"
+   export CLIENT_SECRET="your-client-secret"
+   
    # Test Basic Auth with client credentials
-   curl -X POST https://testping-sso.eisgroup.com/as/token.oauth2 \
-     -H "Authorization: Basic $(echo -n 'OpenL_Studio:Exigen/2024.02' | base64)" \
+   curl -X POST https://your-oauth-server.example.com/as/token.oauth2 \
+     -H "Authorization: Basic $(echo -n '${CLIENT_ID}:${CLIENT_SECRET}' | base64)" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=client_credentials"
    
    # If scope is required:
-   curl -X POST https://testping-sso.eisgroup.com/as/token.oauth2 \
-     -H "Authorization: Basic $(echo -n 'OpenL_Studio:Exigen/2024.02' | base64)" \
+   curl -X POST https://your-oauth-server.example.com/as/token.oauth2 \
+     -H "Authorization: Basic $(echo -n '${CLIENT_ID}:${CLIENT_SECRET}' | base64)" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=client_credentials&scope=openl:read"
    ```
@@ -103,13 +110,13 @@ Ping Identity typically requires:
 ### Next Steps
 
 1. **Check Ping Identity admin console for client configuration:**
-   - Login to Ping Identity admin console (https://testping-sso.eisgroup.com)
-   - Navigate to: Applications → OpenL_Studio
+   - Login to Ping Identity admin console (https://your-ping-identity-server.com)
+   - Navigate to: Applications → Your Client
    - Verify:
      - ✓ Client Status: **Enabled**
      - ✓ Grant Types: **Client Credentials** is checked/enabled
-     - ✓ Client ID matches: `OpenL_Studio`
-     - ✓ Client Secret matches: `Exigen/2024.02` (or verify it's correct)
+     - ✓ Client ID matches your configured value
+     - ✓ Client Secret matches your configured value
 
 2. **If client_credentials is not enabled:**
    - In Ping Identity admin console, edit the client
@@ -120,8 +127,9 @@ Ping Identity typically requires:
 3. **Try adding scope parameter** (some Ping Identity configurations require it):
    ```bash
    # Test with empty scope
-   curl -X POST https://testping-sso.eisgroup.com/as/token.oauth2 \
-     -H "Authorization: Basic $(echo -n 'OpenL_Studio:Exigen/2024.02' | base64)" \
+   # Note: Set CLIENT_ID and CLIENT_SECRET environment variables before running
+   curl -X POST https://your-oauth-server.example.com/as/token.oauth2 \
+     -H "Authorization: Basic $(echo -n '${CLIENT_ID}:${CLIENT_SECRET}' | base64)" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=client_credentials&scope="
    ```
@@ -140,8 +148,9 @@ Ping Identity typically requires:
 After fixing the client configuration in Ping Identity, test again:
 
 ```bash
-curl -X POST https://testping-sso.eisgroup.com/as/token.oauth2 \
-  -H "Authorization: Basic $(echo -n 'OpenL_Studio:Exigen/2024.02' | base64)" \
+# Note: Set CLIENT_ID and CLIENT_SECRET environment variables before running
+curl -X POST https://your-oauth-server.example.com/as/token.oauth2 \
+  -H "Authorization: Basic $(echo -n '${CLIENT_ID}:${CLIENT_SECRET}' | base64)" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=client_credentials"
 ```
