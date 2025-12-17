@@ -180,7 +180,9 @@ public class ProjectsMergeController {
             }
             return new MergeResultResponse(
                     mergeRsult.status(),
-                    mergeConflictsService.getMergeConflicts(mergeRsult.conflictInfo())
+                    Optional.ofNullable(mergeRsult.conflictInfo())
+                            .map(mergeConflictsService::getMergeConflicts)
+                            .orElseGet(List::of)
             );
         } catch (ProjectException | IOException e) {
             shouldResumeDependencies = true;
