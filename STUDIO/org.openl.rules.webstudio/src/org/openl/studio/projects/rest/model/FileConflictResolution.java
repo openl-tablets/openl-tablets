@@ -9,15 +9,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 
 public record FileConflictResolution(
-        @Schema(description = "Path of the conflicted file within the project", example = "rules/MyRules.xlsx", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Path of the conflicted file within the project", example = "rules/MyRules.xlsx")
         @NotBlank(message = "File path is required")
         String filePath,
 
-        @Schema(description = "Resolution strategy: 'base' (use common ancestor), 'ours' (use current branch), 'theirs' (use merging branch), or 'custom' (upload resolved file)", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Resolution strategy: 'base' (use common ancestor), 'ours' (use current branch), 'theirs' (use merging branch), or 'custom' (upload resolved file)")
         @NotNull(message = "Resolution strategy is required")
         ConflictResolutionStrategy strategy,
 
-        @Schema(description = "Uploaded file for 'custom' resolution strategy", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Schema(description = "Uploaded file for 'custom' resolution strategy")
         MultipartFile file
 ) {
 }
