@@ -292,12 +292,13 @@ export function toMarkdownDetailed<T>(
   // Add additional context based on data type
   if (Array.isArray(data) && data.length > 0) {
     switch (dataType) {
-      case "projects":
+      case "projects": {
         const opened = data.filter((p: any) => p.status === "OPENED").length;
         const closed = data.filter((p: any) => p.status === "CLOSED").length;
         parts.push(`\n---\n**Status Breakdown:** ${opened} opened, ${closed} closed`);
         break;
-      case "tables":
+      }
+      case "tables": {
         const typeCount: Record<string, number> = {};
         data.forEach((t: any) => {
           typeCount[t.tableType] = (typeCount[t.tableType] || 0) + 1;
@@ -305,6 +306,7 @@ export function toMarkdownDetailed<T>(
         const breakdown = Object.entries(typeCount).map(([type, count]) => `${type}: ${count}`).join(", ");
         parts.push(`\n---\n**Type Breakdown:** ${breakdown}`);
         break;
+      }
     }
   }
 
@@ -472,8 +474,18 @@ function formatPagination(pagination: PaginationMetadata): string {
   const lines = [
     "---",
     "**Pagination**",
-    `- Showing items ${pagination.offset + 1}-${Math.min(pagination.offset + pagination.limit, pagination.total_count || 0)}`,
   ];
+
+  // Handle empty results or undefined total_count
+  const totalCount = pagination.total_count ?? 0;
+  if (totalCount === 0) {
+    lines.push("- Showing items 0-0 (No items)");
+  } else {
+    // Calculate start and end positions
+    const start = pagination.offset + 1;
+    const end = Math.min(pagination.offset + pagination.limit, totalCount);
+    lines.push(`- Showing items ${start}-${end}`);
+  }
 
   if (pagination.total_count !== undefined) {
     lines.push(`- Total: ${pagination.total_count}`);
@@ -501,13 +513,13 @@ export function paginateResults<T>(
 ): {
   data: T[];
   has_more: boolean;
-  next_offset?: number;
+  next_offset?: number | null;
   total_count: number;
 } {
   const total_count = results.length;
   const data = results.slice(offset, offset + limit);
   const has_more = offset + limit < total_count;
-  const next_offset = has_more ? offset + limit : undefined;
+  const next_offset = has_more ? offset + limit : null;
 
   return { data, has_more, next_offset, total_count };
 }

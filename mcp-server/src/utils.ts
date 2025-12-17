@@ -189,10 +189,13 @@ export function parseProjectId(id: string | { repository: string; projectName: s
     } catch (error) {
       // If base64 decode fails, it might be a plain string already
       // Try parsing as "repository:projectName" or "repository:projectName:hashCode" format
-      const parts = id.split(":");
-      if (parts.length === 2 || parts.length === 3) {
-        const repository = parts[0];
-        const projectName = parts[1];
+      const colonIndex = id.indexOf(":");
+      if (colonIndex > 0 && colonIndex < id.length - 1) {
+        const repository = id.substring(0, colonIndex);
+        // Take everything after first colon as projectName
+        // This handles cases like "repository:projectName", "repository:projectName:hashCode", 
+        // or "repository:Project:With:Colons" (all colons after first are part of projectName)
+        const projectName = id.substring(colonIndex + 1);
 
         if (repository && projectName) {
           return { repository, projectName };

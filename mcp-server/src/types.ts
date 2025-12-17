@@ -103,15 +103,22 @@ export type TableType =
   | "Configuration";  // Environment settings
 
 export type TableKind =
-  | "XLS_DT"
-  | "XLS_SPREADSHEET"
-  | "XLS_DATATYPE"
-  | "XLS_VOCABULARY"
-  | "XLS_METHOD"
-  | "XLS_PROPERTIES"
-  | "XLS_DATA"
-  | "XLS_TEST"
-  | "XLS_RUN";
+  | "Rules"
+  | "Spreadsheet"
+  | "Datatype"
+  | "Data"
+  | "Test"
+  | "TBasic"
+  | "Column Match"
+  | "Method"
+  | "Run"
+  | "Constants"
+  | "Conditions"
+  | "Actions"
+  | "Returns"
+  | "Environment"
+  | "Properties"
+  | "Other";
 
 export interface SummaryTableView {
   id: string;
@@ -513,7 +520,7 @@ export interface ComprehensiveProject extends ProjectViewModel {
 
 /** Filters for listing tables */
 export interface TableFilters {
-  /** Filter by table kinds (array of strings like 'XLS_DT', 'XLS_SPREADSHEET', etc.) */
+  /** Filter by table kinds (array of strings). Valid values: 'Rules', 'Spreadsheet', 'Datatype', 'Data', 'Test', 'TBasic', 'Column Match', 'Method', 'Run', 'Constants', 'Conditions', 'Actions', 'Returns', 'Environment', 'Properties', 'Other' */
   kind?: string[];
   /** Filter by table name fragment */
   name?: string;

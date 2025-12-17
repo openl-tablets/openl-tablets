@@ -47,3 +47,10 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# User-specific configuration files (use .example.json files as templates)
+# Example files are in docs/setup/examples/
+claude-desktop-config.json
+cursor-docker-config.json
+cursor-docker-direct-config.json
+cursor-mcp-config.json
