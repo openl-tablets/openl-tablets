@@ -19,8 +19,8 @@ import jakarta.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -36,6 +36,8 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
+import org.openl.rules.xls.merge.diff.DiffStatus;
+import org.openl.rules.xls.merge.diff.SheetDiffResult;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -48,6 +50,7 @@ import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 @Service
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
@@ -146,10 +149,14 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     @Override
     public ResolveConflictsResponse resolveConflicts(MergeConflictInfo mergeConflictInfo,
                                                      List<FileConflictResolution> resolutions,
-                                                     Map<String, MultipartFile> customFiles,
+                                                     Map<String, InputStreamSource> customFiles,
                                                      String mergeMessage) throws IOException, ProjectException {
         // Validate input
         validateResolutions(mergeConflictInfo, resolutions, customFiles);
+
+        if (StringUtils.isBlank(mergeMessage)) {
+            mergeMessage = generateMergeMessage(mergeConflictInfo, resolutions);
+        }
 
         var project = mergeConflictInfo.project();
         boolean isMerging = mergeConflictInfo.isMerging();
@@ -208,7 +215,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                         break;
 
                     case CUSTOM:
-                        MultipartFile uploadedFile = customFiles.get(filePath);
+                        var uploadedFile = customFiles.get(filePath);
                         resolvedFiles.add(new FileItem(filePath, uploadedFile.getInputStream()));
                         break;
                 }
@@ -294,7 +301,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     private void validateResolutions(MergeConflictInfo mergeConflictInfo,
                                      List<FileConflictResolution> resolutions,
-                                     Map<String, MultipartFile> customFiles) {
+                                     Map<String, InputStreamSource> customFiles) {
         var conflictDetails = mergeConflictInfo.details();
         var conflictedFiles = conflictDetails.getConflictedFiles();
 
@@ -442,5 +449,80 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             }
         }
         return null;
+    }
+
+    private String generateMergeMessage(MergeConflictInfo mergeConflict, List<FileConflictResolution> resolutions) {
+        var conflictDetails = mergeConflict.details();
+
+        String rulesLocation = getUserWorkspace().getDesignTimeRepository().getRulesLocation();
+
+        StringBuilder messageBuilder = new StringBuilder("Merge with commit " + conflictDetails.theirCommit() + "\nConflicts:");
+        boolean merging = mergeConflict.isMerging();
+        String yourBranch = getYourBranch(mergeConflict);
+        String theirBranch = getTheirBranch(mergeConflict);
+        Repository designRepository = getUserWorkspace().getDesignTimeRepository()
+                .getRepository(mergeConflict.getRepositoryId());
+        for (var resolution : resolutions) {
+
+            var file = resolution.filePath();
+            // In non-flat repositories we should see full path. In flat repos only essential part.
+            if (!designRepository.supports().mappedFolders()) {
+                if (file.startsWith(rulesLocation)) {
+                    file = file.substring(rulesLocation.length());
+                }
+            }
+            messageBuilder.append("\n\t").append(file);
+
+            var strategy = resolution.strategy();
+            String chosen = strategy.name().toLowerCase();
+            if (merging) {
+                chosen = switch (strategy) {
+                    case OURS -> yourBranch;
+                    case THEIRS -> theirBranch;
+                    default -> chosen;
+                };
+            }
+            messageBuilder.append(" (").append(chosen).append(')');
+        }
+
+        if (!conflictDetails.toAutoResolve().isEmpty()) {
+            messageBuilder.append("\n\n Automatically resolved conflicts:");
+            for (Map.Entry<String, WorkbookDiffResult> entry : conflictDetails.toAutoResolve().entrySet()) {
+                String file = entry.getKey();
+                if (!designRepository.supports().mappedFolders()) {
+                    if (file.startsWith(rulesLocation)) {
+                        file = file.substring(rulesLocation.length());
+                    }
+                }
+                messageBuilder.append("\n\t").append(file);
+                WorkbookDiffResult diffResult = entry.getValue();
+                SheetDiffResult sheetDiffResult = diffResult.getSheetDiffResult();
+                for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
+                    messageBuilder.append("\n\t\t").append(sheetName);
+                    if (yourBranch != null) {
+                        messageBuilder.append(" (").append(yourBranch).append(')');
+                    }
+                }
+                for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
+                    messageBuilder.append("\n\t\t").append(sheetName);
+                    if (theirBranch != null) {
+                        messageBuilder.append(" (").append(theirBranch).append(')');
+                    }
+                }
+            }
+        }
+        return messageBuilder.toString();
+    }
+
+    private String getYourBranch(MergeConflictInfo mergeConflict) {
+        return mergeConflict.isExportOperation()
+                ? mergeConflict.mergeBranchFrom()
+                : mergeConflict.mergeBranchTo();
+    }
+
+    private String getTheirBranch(MergeConflictInfo mergeConflict) {
+        return mergeConflict.isExportOperation()
+                ? mergeConflict.mergeBranchTo()
+                : mergeConflict.mergeBranchFrom();
     }
 }

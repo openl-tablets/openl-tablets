@@ -2,6 +2,8 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,19 +22,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.util.WebTool;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
@@ -39,6 +42,7 @@ import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
+import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
@@ -46,6 +50,7 @@ import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
@@ -192,17 +197,24 @@ public class ProjectsMergeController {
     @Operation(summary = "projects.merge.resolve-conflicts.summary", description = "projects.merge.resolve-conflicts.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.resolve-conflicts.200.desc")
     public ResolveConflictsResponse resolveConflicts(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                     @Parameter(description = "projects.merge.param.resolutions.desc") @RequestPart("resolutions") @Valid List<FileConflictResolution> resolutions,
-                                                     @Parameter(description = "projects.merge.param.files.desc") @RequestPart(value = "files", required = false) Map<String, MultipartFile> customFiles,
-                                                     @Parameter(description = "projects.merge.param.message.desc") @RequestPart(value = "message", required = false) String mergeMessage) throws IOException, ProjectException {
+                                                     @Parameter(description = "projects.merge.param.files.desc")
+                                                     @ModelAttribute @NotNull @Valid ResolveConflictsRequest request) throws IOException, ProjectException {
 
         // Validate that the project has unresolved conflicts
         var mergeConflictInfo = getMergeConflictInfo0(project);
 
-        // Generate default message if not provided
-        if (mergeMessage == null || mergeMessage.isBlank()) {
-            mergeMessage = generateDefaultMergeMessage(mergeConflictInfo, resolutions);
-        }
+        List<FileConflictResolution> resolutions = new ArrayList<>();
+        Map<String, InputStreamSource> customFiles = new HashMap<>();
+        request.resolutions()
+                .forEach(resolution -> {
+                    resolutions.add(new FileConflictResolution(resolution.filePath(), resolution.strategy()));
+                    if (resolution.strategy() == ConflictResolutionStrategy.CUSTOM) {
+                        if (resolution.file() == null || resolution.file().isEmpty()) {
+                            throw new BadRequestException("project.merge.conflict.custom.file.missing.message", new Object[]{resolution.filePath()});
+                        }
+                        customFiles.put(resolution.filePath(), resolution.file());
+                    }
+                });
 
         var mergeOperation = mergeConflictInfo.isMerging();
         var model = projectService.getProjectModel(project);
@@ -218,7 +230,7 @@ public class ProjectsMergeController {
             if (!mergeOperation) {
                 studio.freezeProject(project.getName());
             }
-            var result = mergeConflictsService.resolveConflicts(mergeConflictInfo, resolutions, customFiles, mergeMessage);
+            var result = mergeConflictsService.resolveConflicts(mergeConflictInfo, resolutions, customFiles, request.message());
             if (result.status() == ConflictResolutionStatus.SUCCESS) {
                 // Clear conflict info from session if resolved successfully
                 var projectId = projectService.resolveProjectId(project);
@@ -263,17 +275,6 @@ public class ProjectsMergeController {
         }
 
         conflictsSessionHolder.remove(projectId);
-    }
-
-    private String generateDefaultMergeMessage(MergeConflictInfo mergeConflictInfo, List<FileConflictResolution> resolutions) {
-        var conflictDetails = mergeConflictInfo.details();
-        StringBuilder message = new StringBuilder("Merge with commit " + conflictDetails.theirCommit());
-        message.append("\nResolved conflicts:");
-        for (FileConflictResolution resolution : resolutions) {
-            message.append("\n\t").append(resolution.filePath());
-            message.append(" (").append(resolution.strategy().name().toLowerCase()).append(")");
-        }
-        return message.toString();
     }
 
     private void validateUnresolvedConflict(RulesProject project) {

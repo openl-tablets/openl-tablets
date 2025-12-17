@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.InputStreamSource;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileItem;
@@ -22,7 +22,7 @@ public interface ProjectsMergeConflictsService {
 
     ResolveConflictsResponse resolveConflicts(MergeConflictInfo mergeConflictInfo,
                                               List<FileConflictResolution> resolutions,
-                                              Map<String, MultipartFile> customFiles,
+                                              Map<String, InputStreamSource> customFiles,
                                               String mergeMessage) throws IOException, ProjectException;
 
 }
