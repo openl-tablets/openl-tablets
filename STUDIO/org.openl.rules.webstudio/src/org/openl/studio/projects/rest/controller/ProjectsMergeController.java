@@ -3,10 +3,12 @@ package org.openl.studio.projects.rest.controller;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -29,10 +33,13 @@ import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
+import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
+import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
 import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
+import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
@@ -75,8 +82,8 @@ public class ProjectsMergeController {
 
     @GetMapping("/conflicts/files")
     public ResponseEntity<byte[]> getConflictedFile(@ProjectId @PathVariable("projectId") RulesProject project,
-                                  @RequestParam("file") String filePath,
-                                  @RequestParam("side") @NotNull ConflictBase side) throws IOException {
+                                                    @RequestParam("file") String filePath,
+                                                    @RequestParam("side") @NotNull ConflictBase side) throws IOException {
         var conflictInfo = getMergeConflictInfo0(project);
         var fileItem = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, side);
         var output = new ByteArrayOutputStream();
@@ -155,7 +162,7 @@ public class ProjectsMergeController {
                     mergeRsult.status(),
                     mergeConflictsService.getMergeConflicts(mergeRsult.conflictInfo())
             );
-        } catch (ProjectException e) {
+        } catch (ProjectException | IOException e) {
             shouldResumeDependencies = true;
             throw e;
         } finally {
@@ -164,6 +171,81 @@ public class ProjectsMergeController {
             }
             studio.releaseProject(nameBeforeMerge);
         }
+    }
+
+    @PostMapping(value = "/conflicts/resolve", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Resolve merge conflicts",
+            description = "Resolve merge conflicts by specifying resolution strategies (base/ours/theirs) or uploading custom files")
+    public ResolveConflictsResponse resolveConflicts(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                     @RequestPart("resolutions") @Valid List<FileConflictResolution> resolutions,
+                                                     @RequestPart(value = "files", required = false) Map<String, MultipartFile> customFiles,
+                                                     @RequestPart(value = "message", required = false) String mergeMessage) throws IOException, ProjectException {
+
+        // Validate that the project has unresolved conflicts
+        var mergeConflictInfo = getMergeConflictInfo0(project);
+
+        // Generate default message if not provided
+        if (mergeMessage == null || mergeMessage.isBlank()) {
+            mergeMessage = generateDefaultMergeMessage(mergeConflictInfo, resolutions);
+        }
+
+        var mergeOperation = mergeConflictInfo.isMerging();
+        var model = projectService.getProjectModel(project);
+        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
+        boolean wasOpened = project.isOpened();
+        if (dependencyManager != null) {
+            dependencyManager.pause();
+        }
+        var studio = projectService.getWebStudio();
+        boolean shouldResumeDependencies = false;
+        // Delegate to service for resolution
+        try {
+            if (!mergeOperation) {
+                studio.freezeProject(project.getName());
+            }
+            var result = mergeConflictsService.resolveConflicts(mergeConflictInfo, resolutions, customFiles, mergeMessage);
+            if (result.status() == ConflictResolutionStatus.SUCCESS) {
+                // Clear conflict info from session if resolved successfully
+                var projectId = projectService.resolveProjectId(project);
+                conflictsSessionHolder.remove(projectId);
+                var workspace = projectService.getUserWorkspace();
+                project = workspace.getProject(project.getRepository().getId(), project.getName());
+                if (wasOpened) {
+                    if (project.isDeleted()) {
+                        project.close();
+                    } else {
+                        project.open();
+                    }
+                }
+                workspace.refresh();
+                studio.reset();
+                model.clearModuleInfo();
+            } else {
+                shouldResumeDependencies = true;
+            }
+            return result;
+        } catch (ProjectException | IOException e) {
+            shouldResumeDependencies = true;
+            throw e;
+        } finally {
+            if (shouldResumeDependencies && dependencyManager != null) {
+                dependencyManager.resume();
+            }
+            if (!mergeOperation) {
+                studio.releaseProject(project.getName());
+            }
+        }
+    }
+
+    private String generateDefaultMergeMessage(MergeConflictInfo mergeConflictInfo, List<FileConflictResolution> resolutions) {
+        var conflictDetails = mergeConflictInfo.details();
+        StringBuilder message = new StringBuilder("Merge with commit " + conflictDetails.theirCommit());
+        message.append("\nResolved conflicts:");
+        for (FileConflictResolution resolution : resolutions) {
+            message.append("\n\t").append(resolution.filePath());
+            message.append(" (").append(resolution.strategy().name().toLowerCase()).append(")");
+        }
+        return message.toString();
     }
 
     private void validateUnresolvedConflict(RulesProject project) {
