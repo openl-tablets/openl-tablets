@@ -5,11 +5,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.openl.util.FileTypeHelper;
 
+/**
+ * Represents a group of conflicted files within a single project.
+ * Files are automatically sorted with Excel files appearing first, as they have more meaning for business logic.
+ */
+@Schema(description = "Group of conflicted files within a single project")
 public class ConflictGroup {
+    @Schema(description = "Name of the project containing conflicted files")
     private final String projectName;
+
+    @Schema(description = "Path to the project in the repository")
     private final String projectPath;
+
+    @Schema(description = "Set of conflicted file paths, sorted with Excel files first")
     private final TreeSet<String> files;
 
     public ConflictGroup(String projectName, String projectPath) {

@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,23 +72,30 @@ public class ProjectsMergeController {
         this.mergeConflictsService = mergeConflictsService;
     }
 
+    @Operation(summary = "projects.merge.check.summary", description = "projects.merge.check.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.check.200.desc")
     @PostMapping("/check")
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
+                                  @Parameter(description = "projects.merge.check.request.desc")
                                   @RequestBody @Valid MergeRequest request) throws IOException {
         validateUnresolvedConflict(project);
         return mergeService.checkMerge(project, request.otherBranch(), request.mode());
     }
 
+    @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.get-conflicts.200.desc")
     @GetMapping("/conflicts")
     public List<ConflictGroup> getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
         var conflictInfo = getMergeConflictInfo0(project);
         return mergeConflictsService.getMergeConflicts(conflictInfo);
     }
 
+    @Operation(summary = "projects.merge.get-conflict-file.summary", description = "projects.merge.get-conflict-file.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.get-conflict-file.200.desc")
     @GetMapping("/conflicts/files")
     public ResponseEntity<byte[]> getConflictedFile(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                    @RequestParam("file") String filePath,
-                                                    @RequestParam("side") @NotNull ConflictBase side) throws IOException {
+                                                    @Parameter(description = "projects.merge.param.file.desc") @RequestParam("file") String filePath,
+                                                    @Parameter(description = "projects.merge.param.side.desc") @RequestParam("side") @NotNull ConflictBase side) throws IOException {
         var conflictInfo = getMergeConflictInfo0(project);
         var fileItem = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, side);
         var output = new ByteArrayOutputStream();
@@ -107,8 +116,11 @@ public class ProjectsMergeController {
         return conflictsSessionHolder.getConflictInfo(projectId);
     }
 
+    @Operation(summary = "projects.merge.merge.summary", description = "projects.merge.merge.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.merge.200.desc")
     @PostMapping
     public MergeResultResponse merge(@ProjectId @PathVariable("projectId") RulesProject project,
+                                     @Parameter(description = "projects.merge.merge.request.desc")
                                      @RequestBody @Valid MergeRequest request) throws IOException, ProjectException {
         validateUnresolvedConflict(project);
         var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode());
@@ -177,12 +189,12 @@ public class ProjectsMergeController {
     }
 
     @PostMapping(value = "/conflicts/resolve", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Resolve merge conflicts",
-            description = "Resolve merge conflicts by specifying resolution strategies (base/ours/theirs) or uploading custom files")
+    @Operation(summary = "projects.merge.resolve-conflicts.summary", description = "projects.merge.resolve-conflicts.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.resolve-conflicts.200.desc")
     public ResolveConflictsResponse resolveConflicts(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                     @RequestPart("resolutions") @Valid List<FileConflictResolution> resolutions,
-                                                     @RequestPart(value = "files", required = false) Map<String, MultipartFile> customFiles,
-                                                     @RequestPart(value = "message", required = false) String mergeMessage) throws IOException, ProjectException {
+                                                     @Parameter(description = "projects.merge.param.resolutions.desc") @RequestPart("resolutions") @Valid List<FileConflictResolution> resolutions,
+                                                     @Parameter(description = "projects.merge.param.files.desc") @RequestPart(value = "files", required = false) Map<String, MultipartFile> customFiles,
+                                                     @Parameter(description = "projects.merge.param.message.desc") @RequestPart(value = "message", required = false) String mergeMessage) throws IOException, ProjectException {
 
         // Validate that the project has unresolved conflicts
         var mergeConflictInfo = getMergeConflictInfo0(project);
@@ -241,8 +253,8 @@ public class ProjectsMergeController {
     }
 
     @DeleteMapping("/conflicts")
-    @Operation(summary = "Cancel pending merge conflicts",
-            description = "Cancels pending merge conflicts and clears the conflict state from the session")
+    @Operation(summary = "projects.merge.cancel-conflicts.summary", description = "projects.merge.cancel-conflicts.desc")
+    @ApiResponse(responseCode = "204", description = "projects.merge.cancel-conflicts.204.desc")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelMergeConflicts(@ProjectId @PathVariable("projectId") RulesProject project) {
         var projectId = projectService.resolveProjectId(project);
