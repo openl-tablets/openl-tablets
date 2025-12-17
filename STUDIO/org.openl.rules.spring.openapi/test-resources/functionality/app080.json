@@ -1,0 +1,213 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "tags": [
+    {
+      "description": "File upload operations with model attributes",
+      "name": "Uploads"
+    }
+  ],
+  "paths": {
+    "/uploads/create": {
+      "post": {
+        "description": "Creates a new upload using @ModelAttribute to bind multipart form data to a Java object. All fields from the UploadRequest model should be expanded as form parameters.",
+        "operationId": "createUpload",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the upload",
+                    "example": "my-upload"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the upload",
+                    "maxLength": 500,
+                    "minLength": 10
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Priority level",
+                    "example": 5,
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Email address for notifications",
+                    "example": "user@example.com",
+                    "pattern": "^[A-Za-z0-9+_.-]+@(.+)$"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "description": "List of tags associated with the upload",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minLength": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Uploaded file for processing"
+                  },
+                  "metadata": {
+                    "type": "array",
+                    "description": "Additional metadata as key-value pairs",
+                    "items": {
+                      "$ref": "#/components/schemas/MetadataEntry"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "tags"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            },
+            "description": "Upload created successfully"
+          }
+        },
+        "summary": "Create upload with model attribute",
+        "tags": [
+          "Uploads"
+        ]
+      }
+    },
+    "/uploads/batch": {
+      "post": {
+        "description": "Batch upload endpoint demonstrating @ModelAttribute with complex nested types",
+        "operationId": "batchUpload",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the upload",
+                    "example": "my-upload"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the upload",
+                    "maxLength": 500,
+                    "minLength": 10
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Priority level",
+                    "example": 5,
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Email address for notifications",
+                    "example": "user@example.com",
+                    "pattern": "^[A-Za-z0-9+_.-]+@(.+)$"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "description": "List of tags associated with the upload",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minLength": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Uploaded file for processing"
+                  },
+                  "metadata": {
+                    "type": "array",
+                    "description": "Additional metadata as key-value pairs",
+                    "items": {
+                      "$ref": "#/components/schemas/MetadataEntry"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "tags"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch upload completed"
+          }
+        },
+        "summary": "Batch upload with model attribute",
+        "tags": [
+          "Uploads"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UploadResponse": {
+        "type": "object",
+        "description": "Upload operation response",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the uploaded resource"
+          },
+          "uploadId": {
+            "type": "string",
+            "description": "Unique identifier for the upload"
+          }
+        }
+      },
+      "MetadataEntry": {
+        "type": "object",
+        "description": "Key-value metadata entry",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Metadata key"
+          },
+          "value": {
+            "type": "string",
+            "description": "Metadata value"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      }
+    }
+  }
+}

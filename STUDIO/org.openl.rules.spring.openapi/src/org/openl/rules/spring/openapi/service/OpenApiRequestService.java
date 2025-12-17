@@ -45,4 +45,12 @@ public interface OpenApiRequestService {
      */
     boolean isRequestBody(ParameterInfo paramInfo);
 
+    /**
+     * Check if current parameter is ModelAttribute
+     *
+     * @param paramInfo method parameter
+     * @return is model attribute or not
+     */
+    boolean isModelAttribute(ParameterInfo paramInfo);
+
 }
