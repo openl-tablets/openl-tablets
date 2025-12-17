@@ -293,6 +293,16 @@ export function loadPromptContent(
 }
 
 /**
+ * Escape regex metacharacters in a string to make it safe for use in RegExp
+ *
+ * @param str - String to escape
+ * @returns Escaped string safe for use in RegExp
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * Substitute arguments in prompt content
  *
  * Supports:
@@ -311,17 +321,22 @@ function substituteArguments(
 
   // Process each argument
   for (const [key, value] of Object.entries(args)) {
+    // Escape regex metacharacters in key to prevent ReDoS
+    const escapedKey = escapeRegex(key);
+    // Safely coerce value to string (handle null/undefined)
+    const safeValue = value != null ? String(value) : "";
+
     // Replace simple variables: {key}
-    const simplePattern = new RegExp(`\\{${key}\\}`, "g");
-    result = result.replace(simplePattern, value);
+    const simplePattern = new RegExp(`\\{${escapedKey}\\}`, "g");
+    result = result.replace(simplePattern, safeValue);
 
     // Process conditionals: {if key}...{end if}
     // If value is truthy, include the content; otherwise, remove it
     const conditionalPattern = new RegExp(
-      `\\{if ${key}\\}([\\s\\S]*?)\\{end if\\}`,
+      `\\{if ${escapedKey}\\}([\\s\\S]*?)\\{end if\\}`,
       "g"
     );
-    result = result.replace(conditionalPattern, value ? "$1" : "");
+    result = result.replace(conditionalPattern, safeValue ? "$1" : "");
   }
 
   // Remove any remaining unused conditionals

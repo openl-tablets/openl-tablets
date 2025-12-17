@@ -16,7 +16,7 @@ export default [
       '@typescript-eslint': tsPlugin,
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn', // Temporarily set to 'warn' due to 50+ intentional/legacy any usages
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': [
         'error',

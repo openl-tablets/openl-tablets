@@ -1,12 +1,20 @@
 # 🚀 Quick Start: Running Everything Together
 
-This guide will help you start OpenL Tablets and MCP server for working with Claude Desktop.
+This guide will help you start OpenL Tablets and MCP server for working with Claude Desktop or Cursor IDE.
+
+**Note**: This guide uses `$PROJECT_ROOT` to refer to the OpenL Tablets project directory. Set it before running commands:
+
+```bash
+export PROJECT_ROOT="/path/to/openl-tablets"
+```
+
+Or replace `$PROJECT_ROOT` with your actual project path in all commands below.
 
 ## 📋 What Needs to Be Started
 
 1. **OpenL Tablets** - Rules server (port 8080)
-2. **MCP Server** - Bridge between Claude Desktop and OpenL (runs automatically)
-3. **Claude Desktop** - AI assistant application
+2. **MCP Server** - Bridge between AI clients and OpenL (runs automatically)
+3. **AI Client** - Claude Desktop or Cursor IDE
 
 ---
 
@@ -17,7 +25,7 @@ The easiest way is to run everything through Docker.
 ### Step 1: Start OpenL Tablets
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 docker compose up
 ```
 
@@ -38,39 +46,22 @@ You should see a page with links to Studio and Services.
 - Username: `admin`
 - Password: `admin`
 
-### Step 3: Ensure MCP Server is Configured
+### Step 3: Configure MCP Server
 
-Configuration is already copied to Claude Desktop. Check:
+Follow the setup guide for your AI client:
+- **Claude Desktop**: See [Claude Desktop Setup](../setup/CLAUDE-DESKTOP.md)
+- **Cursor IDE**: See [Cursor Setup](../setup/CLAUDE-DESKTOP.md#cursor-ide-setup)
+- **Cursor with Docker**: See [Cursor Docker Setup](../setup/CURSOR-DOCKER.md)
 
-```bash
-cat ~/Library/Application\ Support/Claude/config.json | grep -A 10 "openl-mcp-server"
-```
+### Step 4: Test Connection
 
-Should be:
-```json
-"openl-mcp-server": {
-  "command": "node",
-  "args": ["/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"],
-  ...
-}
-```
-
-### Step 4: Restart Claude Desktop
-
-1. Completely close Claude Desktop (don't just minimize)
-2. Start it again
-3. Open settings → MCP Servers
-4. Ensure `openl-mcp-server` is connected
-
-### Step 5: Test in Claude
-
-In Claude chat, write:
+In your AI client chat, try:
 
 ```
 List repositories in OpenL Tablets
 ```
 
-Claude should use MCP tools and show the list of repositories.
+The AI should use MCP tools and show the list of repositories.
 
 ---
 
@@ -81,7 +72,7 @@ If you don't have Docker or want to run locally.
 ### Step 1: Build OpenL Tablets
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 mvn clean install -DskipTests
 ```
 
@@ -108,9 +99,9 @@ Open: http://localhost:8080/webstudio
 - Username: `admin`
 - Password: `admin`
 
-### Steps 4-5: Same as Method 1
+### Step 4: Configure MCP Server
 
-Follow steps 3-5 from Method 1.
+Follow the setup guide for your AI client (same as Step 3 in Method 1).
 
 ---
 
@@ -119,7 +110,7 @@ Follow steps 3-5 from Method 1.
 ### Automatic Check
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets/mcp-server
+cd $PROJECT_ROOT/mcp-server
 export OPENL_BASE_URL="http://localhost:8080/rest"
 export OPENL_USERNAME="admin"
 export OPENL_PASSWORD="admin"
@@ -135,13 +126,12 @@ export OPENL_PASSWORD="admin"
    Should return JSON or authentication error (not "connection refused")
 
 2. **Is MCP server configured?**
-   ```bash
-   cat ~/Library/Application\ Support/Claude/config.json | grep openl-mcp-server
-   ```
+   - Check configuration file for your AI client
+   - See [Setup Guides](../setup/) for details
 
-3. **Does Claude Desktop see the server?**
-   - Open Claude Desktop settings
-   - Find MCP Servers section
+3. **Does AI client see the server?**
+   - Open AI client settings
+   - Find "MCP Servers" section
    - Should see `openl-mcp-server` with "Connected" status
 
 ---
@@ -162,25 +152,22 @@ export OPENL_PASSWORD="admin"
    ```
 3. If local run - check that Jetty process is running
 
-### Issue: MCP Server doesn't appear in Claude Desktop
+### Issue: MCP Server doesn't appear in AI client
 
 **Solution:**
-1. Check path in configuration (must be absolute):
-   ```bash
-   cat ~/Library/Application\ Support/Claude/config.json
-   ```
+1. Check path in configuration (must be absolute)
 2. Ensure project is built:
    ```bash
    cd mcp-server
    npm run build
    ls -la dist/index.js  # Should exist
    ```
-3. Completely restart Claude Desktop
+3. Completely restart your AI client
 
-### Issue: "Authentication failed" in Claude
+### Issue: "Authentication failed"
 
 **Solution:**
-1. Check credentials in Claude Desktop configuration
+1. Check credentials in configuration
 2. Try logging into OpenL via browser with the same credentials
 3. Check URL - should end with `/rest`
 
@@ -201,13 +188,15 @@ export OPENL_PASSWORD="admin"
    docker compose logs
    ```
 
+For more detailed troubleshooting, see [Troubleshooting Guide](../guides/TROUBLESHOOTING.md).
+
 ---
 
 ## 📊 Startup Order (Brief Version)
 
 ```bash
 # Terminal 1: Start OpenL Tablets
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 docker compose up
 
 # Wait 1-2 minutes for everything to start
@@ -222,9 +211,10 @@ export OPENL_PASSWORD="admin"
 # Then:
 # 1. Open http://localhost:8080 in browser
 # 2. Login (admin/admin)
-# 3. Restart Claude Desktop
-# 4. Check MCP server in Claude settings
-# 5. Try in Claude: "List repositories in OpenL Tablets"
+# 3. Configure MCP server (see Setup Guides)
+# 4. Restart AI client
+# 5. Check MCP server in settings
+# 6. Try in AI client: "List repositories in OpenL Tablets"
 ```
 
 ---
@@ -233,18 +223,19 @@ export OPENL_PASSWORD="admin"
 
 - [ ] OpenL Tablets is running and accessible at http://localhost:8080
 - [ ] Can log into OpenL Studio via browser (admin/admin)
-- [ ] MCP server is configured in Claude Desktop configuration
-- [ ] Claude Desktop restarted after configuration
-- [ ] MCP server is visible in Claude Desktop settings
-- [ ] Claude can execute command "List repositories"
+- [ ] MCP server is configured in AI client configuration
+- [ ] AI client restarted after configuration
+- [ ] MCP server is visible in AI client settings
+- [ ] AI client can execute command "List repositories"
 
 ---
 
-## 📚 Additional Information
+## 📚 Next Steps
 
-- [README.md](./README.md) - Complete MCP server documentation
-- [README-TESTING.md](./README-TESTING.md) - Detailed testing guide
-- [AUTHENTICATION.md](./AUTHENTICATION.md) - Authentication setup
+- [Configuration Guide](CONFIGURATION.md) - Detailed configuration options
+- [Setup Guides](../setup/) - Client-specific setup instructions
+- [Usage Examples](../guides/EXAMPLES.md) - Learn how to use MCP tools
+- [Troubleshooting](../guides/TROUBLESHOOTING.md) - Common issues and solutions
 
 ---
 
@@ -265,3 +256,4 @@ npm run build
 cd mcp-server
 ./check-health.sh
 ```
+

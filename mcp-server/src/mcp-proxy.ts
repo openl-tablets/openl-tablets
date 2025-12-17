@@ -160,7 +160,8 @@ async function main(): Promise<void> {
     // Test connection to HTTP API
     try {
       const healthCheck = await apiClient.get("/health");
-      console.error(`✅ Connected to MCP HTTP API at ${MCP_API_URL}`);
+      const { status, version, service } = healthCheck.data;
+      console.error(`✅ Connected to MCP HTTP API at ${MCP_API_URL} (${service} v${version}, status: ${status})`);
     } catch (error: any) {
       console.error(`❌ Failed to connect to MCP HTTP API at ${MCP_API_URL}`);
       console.error(`   Error: ${error.message}`);

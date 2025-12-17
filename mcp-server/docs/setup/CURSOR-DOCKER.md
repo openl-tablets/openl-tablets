@@ -6,7 +6,7 @@ This document describes how to connect Cursor IDE to MCP Server running in a Doc
 
 ## Architecture
 
-```
+```text
 ┌─────────────┐
 │   Cursor    │  ← Cursor IDE
 └──────┬──────┘
@@ -33,8 +33,10 @@ This document describes how to connect Cursor IDE to MCP Server running in a Doc
 
 ### Step 1: Start Docker Containers
 
+**Note:** Replace `<project-root>` with the absolute path to your local OpenL Tablets project directory. You can find this by running `pwd` from the project root directory.
+
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd <project-root>
 docker compose up mcp-server
 ```
 
@@ -167,7 +169,7 @@ mcp-server:
     OPENL_OAUTH2_GRANT_TYPE: refresh_token
 ```
 
-See [AUTHENTICATION.md](./AUTHENTICATION.md) for detailed authentication setup.
+See [Authentication Guide](../guides/AUTHENTICATION.md) for detailed authentication setup.
 
 ### Changing URL
 
@@ -208,13 +210,13 @@ Or if using Nginx proxy:
 
 In Cursor chat, try:
 
-```
+```text
 List repositories in OpenL Tablets
 ```
 
 or
 
-```
+```text
 Show projects in the design repository
 ```
 
@@ -262,7 +264,7 @@ If something doesn't work, check proxy logs:
    Should return SSE stream headers
 
 3. Verify URL in Cursor configuration is correct:
-   ```
+   ```text
    http://localhost:3000/mcp/sse
    ```
 
@@ -305,14 +307,30 @@ If something doesn't work, check proxy logs:
 
 If you prefer to use a local proxy instead of direct HTTP connection:
 
-1. Use the proxy configuration from `cursor-docker-config.json`
-2. This requires Node.js on the client machine
-3. The proxy runs locally and connects to Docker via HTTP
+1. **Copy the example configuration:**
+   ```bash
+   cp docs/setup/examples/cursor-docker-config.example.json cursor-docker-config.json
+   ```
+
+2. **Replace the placeholder** in `cursor-docker-config.json`:
+   - Replace `<path-to-project>` with the absolute path to your OpenL Tablets project directory
+   - Example: `/Users/username/projects/openl-tablets` or `/path/to/openl-tablets`
+   - You can find your path by running `pwd` from the project root directory
+
+3. **Ensure the proxy is built:**
+   ```bash
+   cd <path-to-project>/mcp-server
+   npm run build
+   ```
+
+4. **Use the configuration** in Cursor IDE settings
+
+**Note:** This method requires Node.js on the client machine. The proxy runs locally and connects to Docker via HTTP.
 
 However, **direct HTTP connection is recommended** as it doesn't require any local setup.
 
 ## Additional Information
 
-- [CURSOR-SETUP.md](./CURSOR-SETUP.md) - General Cursor setup guide
-- [DOCKER.md](./DOCKER.md) - Docker deployment information
-- [README.md](./README.md) - Main MCP server documentation
+- [Claude Desktop & Cursor Setup](CLAUDE-DESKTOP.md) - General setup guide for Claude Desktop and Cursor
+- [Docker Setup](DOCKER.md) - Docker deployment information
+- [Main README](../../README.md) - Complete MCP server documentation

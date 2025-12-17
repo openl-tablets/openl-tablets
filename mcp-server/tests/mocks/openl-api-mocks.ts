@@ -91,7 +91,7 @@ export const mockTables: Types.SummaryTableView[] = [
   {
     id: 'Rules.xls_1234',
     tableType: 'simplerules',
-    kind: 'XLS_DT',
+    kind: 'Rules',
     name: 'CalculatePremium',
     returnType: 'Double',
     signature: 'Double CalculatePremium(String vehicleType, Integer age)',
@@ -104,7 +104,7 @@ export const mockTables: Types.SummaryTableView[] = [
   {
     id: 'Datatypes.xls_5678',
     tableType: 'datatype',
-    kind: 'XLS_DATATYPE',
+    kind: 'Datatype',
     name: 'Policy',
     file: 'Datatypes.xlsx',
     pos: '1',
@@ -114,7 +114,7 @@ export const mockTables: Types.SummaryTableView[] = [
 export const mockDecisionTable: Types.SimpleRulesView = {
   id: 'Rules.xls_1234',
   tableType: 'simplerules',
-  kind: 'XLS_DT',
+  kind: 'Rules',
   name: 'CalculatePremium',
   technicalName: 'CalculatePremium',
   properties: [
@@ -147,7 +147,7 @@ export const mockDecisionTable: Types.SimpleRulesView = {
 export const mockDatatype: Types.DatatypeView = {
   id: 'Datatypes.xls_5678',
   tableType: 'datatype',
-  kind: 'XLS_DATATYPE',
+  kind: 'Datatype',
   name: 'Policy',
   technicalName: 'Policy',
   editable: true,

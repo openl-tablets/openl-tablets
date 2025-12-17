@@ -1345,15 +1345,113 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   });
 
   // =============================================================================
-  // Test Execution Tool
+  // Test Execution Tools
   // =============================================================================
+
+  registerTool({
+    name: "openl_start_project_tests",
+    title: "openl Start Project Tests",
+    version: "1.0.0",
+    description:
+      "Start test execution for a project with options to target specific tables and test ranges. Returns confirmation that tests have been started. Use openl_get_project_test_results to retrieve test results after execution completes.",
+    inputSchema: zodToJsonSchema(schemas.startProjectTestsSchema) as Record<string, unknown>,
+    annotations: {
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const typedArgs = args as {
+        projectId: string;
+        tableId?: string;
+        testRanges?: string;
+        response_format?: "json" | "markdown";
+      };
+
+      if (!typedArgs || !typedArgs.projectId) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()"
+        );
+      }
+
+      const format = validateResponseFormat(typedArgs.response_format);
+
+      const result = await client.startProjectTests(typedArgs.projectId, {
+        tableId: typedArgs.tableId,
+        testRanges: typedArgs.testRanges,
+      });
+
+      const formattedResult = formatResponse(result, format);
+
+      return {
+        content: [{ type: "text", text: formattedResult }],
+      };
+    },
+  });
+
+  registerTool({
+    name: "openl_get_project_test_results",
+    title: "openl Get Project Test Results",
+    version: "1.0.0",
+    description:
+      "Get test execution results for a project. Returns a summary of test execution results including passed/failed tests. Can wait for completion or return current status immediately. Use this after openl_start_project_tests to retrieve test results.",
+    inputSchema: zodToJsonSchema(schemas.getProjectTestResultsSchema) as Record<string, unknown>,
+    annotations: {
+      readOnlyHint: true,
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const typedArgs = args as {
+        projectId: string;
+        failuresOnly?: boolean;
+        limit?: number;
+        offset?: number;
+        waitForCompletion?: boolean;
+        response_format?: "json" | "markdown";
+      };
+
+      if (!typedArgs || !typedArgs.projectId) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          "Missing required argument: projectId. To find valid project IDs, use: openl_list_projects()"
+        );
+      }
+
+      const format = validateResponseFormat(typedArgs.response_format);
+
+      const summary = await client.getProjectTestResults(typedArgs.projectId, {
+        query: typedArgs.failuresOnly ? { failuresOnly: true } : undefined,
+        pagination: typedArgs.limit || typedArgs.offset
+          ? {
+              limit: typedArgs.limit,
+              offset: typedArgs.offset,
+            }
+          : undefined,
+        waitForCompletion: typedArgs.waitForCompletion !== false, // Default to true
+      });
+
+      const formattedResult = formatResponse(summary, format, {
+        pagination: {
+          limit: summary.pageSize || typedArgs.limit || 50,
+          offset: (summary.pageNumber || 0) * (summary.pageSize || 50),
+          total: summary.totalElements || summary.numberOfTests,
+        },
+        dataType: "test_results",
+      });
+
+      return {
+        content: [{ type: "text", text: formattedResult }],
+      };
+    },
+  });
 
   registerTool({
     name: "openl_run_project_tests",
     title: "openl Run Project Tests",
     version: "1.0.0",
     description:
-      "Run tests for a project with options to target specific tables and test ranges. Returns a summary of test execution results including passed/failed tests. Use this to validate project functionality through automated tests.",
+      "Run tests for a project with options to target specific tables and test ranges. Returns a summary of test execution results including passed/failed tests. DEPRECATED: Use openl_start_project_tests followed by openl_get_project_test_results instead for better control over test execution.",
     inputSchema: zodToJsonSchema(schemas.runProjectTestsSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,

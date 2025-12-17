@@ -6,7 +6,8 @@
  */
 
 import { readFileSync } from "fs";
-import { join } from "path";
+import { join, resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
 /**
  * Response that may include a prompt for user guidance
@@ -32,7 +33,7 @@ export interface PromptResponse<T = unknown> {
  * Prompt template loader
  */
 export class PromptLoader {
-  private static promptsDir = join(__dirname, "..", "prompts");
+  private static promptsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "prompts");
 
   /**
    * Load a prompt template by name
@@ -43,11 +44,27 @@ export class PromptLoader {
    */
   static load(templateName: string, context: Record<string, unknown> = {}): string {
     try {
+      // Validate templateName to prevent path traversal attacks
+      // Allow only alphanumeric characters, dashes, and underscores
+      const safeNamePattern = /^[a-zA-Z0-9_-]+$/;
+      if (!safeNamePattern.test(templateName)) {
+        throw new Error(`Invalid template name: ${templateName}`);
+      }
+
+      // Construct and resolve the file path
       const filePath = join(this.promptsDir, `${templateName}.md`);
-      const template = readFileSync(filePath, "utf-8");
+      const resolvedPath = resolve(filePath);
+
+      // Ensure the resolved path is within promptsDir (prevent path traversal)
+      const resolvedPromptsDir = resolve(this.promptsDir);
+      if (!resolvedPath.startsWith(resolvedPromptsDir)) {
+        throw new Error(`Path traversal detected: ${templateName}`);
+      }
+
+      const template = readFileSync(resolvedPath, "utf-8");
       return this.substitute(template, context);
     } catch {
-      // If template doesn't exist, return a generic prompt
+      // If template doesn't exist or validation fails, return a generic prompt
       return `Processing ${templateName}...\n\nContext: ${JSON.stringify(context, null, 2)}`;
     }
   }

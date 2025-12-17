@@ -641,10 +641,10 @@ Failed to obtain OAuth 2.1 token: Request failed with status code 404
 **Example for Ping Identity:**
 ```bash
 # Instead of issuer-uri (which defaults to /token)
-OPENL_OAUTH2_ISSUER_URI=https://testping-sso.eisgroup.com
+OPENL_OAUTH2_ISSUER_URI=https://your-oauth-server.example.com
 
 # Use explicit token-url
-OPENL_OAUTH2_TOKEN_URL=https://testping-sso.eisgroup.com/as/token.oauth2
+OPENL_OAUTH2_TOKEN_URL=https://your-oauth-server.example.com/as/token.oauth2
 ```
 
 #### OAuth2 Token Endpoint 400 Error
@@ -692,9 +692,9 @@ Failed to obtain OAuth 2.1 token: Request failed with status code 400
 
 **Example for Ping Identity with Basic Auth:**
 ```bash
-OPENL_OAUTH2_CLIENT_ID=OpenL_Studio
-OPENL_OAUTH2_CLIENT_SECRET=your-secret
-OPENL_OAUTH2_TOKEN_URL=https://testping-sso.eisgroup.com/as/token.oauth2
+OPENL_OAUTH2_CLIENT_ID=your-client-id
+OPENL_OAUTH2_CLIENT_SECRET=your-client-secret
+OPENL_OAUTH2_TOKEN_URL=https://your-oauth-server.example.com/as/token.oauth2
 OPENL_OAUTH2_GRANT_TYPE=client_credentials
 OPENL_OAUTH2_USE_BASIC_AUTH=true
 # If required by your Ping Identity configuration:
@@ -792,5 +792,5 @@ docker run -d \
 
 - [OAuth 2.1 Specification](https://oauth.net/2.1/)
 - [OpenL Tablets Documentation](https://openl-tablets.org/)
-- [MCP Server README](./README.md)
-- [Testing Guide](./TESTING.md)
+- [MCP Server README](../../README.md)
+- [Testing Guide](../development/TESTING.md)
