@@ -22,7 +22,7 @@ npm install
 npm run build
 ```
 
-2. Add to your Claude Desktop config (see `claude-desktop-config.example.json`)
+2. Add to your Claude Desktop config (see [Configuration Examples](../setup/examples/))
 
 3. Restart Claude Desktop
 

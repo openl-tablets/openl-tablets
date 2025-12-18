@@ -792,5 +792,5 @@ docker run -d \
 
 - [OAuth 2.1 Specification](https://oauth.net/2.1/)
 - [OpenL Tablets Documentation](https://openl-tablets.org/)
-- [MCP Server README](./README.md)
-- [Testing Guide](./TESTING.md)
+- [MCP Server README](../../README.md)
+- [Testing Guide](../development/TESTING.md)

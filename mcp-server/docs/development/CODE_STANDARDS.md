@@ -170,33 +170,33 @@ npm run test:coverage # With coverage
 
 ### Complete Documentation Set ✓
 
-1. **README.md** (671 lines)
+1. **[README.md](../../README.md)** - Main documentation
    - Installation and setup
    - Configuration examples
    - Tool usage examples
    - Architecture overview
 
-2. **AUTHENTICATION.md** (524 lines)
+2. **[Authentication Guide](../guides/AUTHENTICATION.md)** - Authentication setup
    - All 3 authentication methods
    - Configuration examples
    - Security best practices
    - Troubleshooting guide
 
-3. **CONTRIBUTING.md** (475 lines)
+3. **[Contributing Guide](CONTRIBUTING.md)** - Development guide
    - Development setup
    - How to add tools
    - Code style guidelines
    - Testing guidelines
 
-4. **TESTING.md** (353 lines)
+4. **[Testing Guide](TESTING.md)** - Testing documentation
    - Test structure
    - Running tests
    - Writing new tests
    - Coverage reporting
 
-5. **EXAMPLES.md** (469 lines)
+5. **[Usage Examples](../guides/EXAMPLES.md)** - Usage examples
    - Real-world usage examples
-   - All 15 tools documented
+   - All tools documented
    - Request/response examples
 
 ### Code Documentation ✓
@@ -266,7 +266,7 @@ utils.ts         121     Low
 5. Add tests
 
 **Well-documented extension points**:
-- CONTRIBUTING.md has step-by-step guides
+- [Contributing Guide](CONTRIBUTING.md) has step-by-step guides
 - Clear examples for each type of change
 - Consistent patterns throughout
 

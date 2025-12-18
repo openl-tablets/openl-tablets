@@ -81,7 +81,7 @@ Contains MCP server settings (path, environment variables)
 ```
 mcp-server/dist/index.js          # Compiled server
 mcp-server/src/                   # Source code
-mcp-server/claude-desktop-config.example.json  # Configuration template
+mcp-server/docs/setup/examples/claude-desktop-config.example.json  # Configuration template
 ```
 
 ### OpenL Tablets

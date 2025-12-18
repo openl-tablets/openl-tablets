@@ -169,7 +169,7 @@ mcp-server:
     OPENL_OAUTH2_GRANT_TYPE: refresh_token
 ```
 
-See [AUTHENTICATION.md](./AUTHENTICATION.md) for detailed authentication setup.
+See [Authentication Guide](../guides/AUTHENTICATION.md) for detailed authentication setup.
 
 ### Changing URL
 
@@ -309,7 +309,7 @@ If you prefer to use a local proxy instead of direct HTTP connection:
 
 1. **Copy the example configuration:**
    ```bash
-   cp cursor-docker-config.example.json cursor-docker-config.json
+   cp docs/setup/examples/cursor-docker-config.example.json cursor-docker-config.json
    ```
 
 2. **Replace the placeholder** in `cursor-docker-config.json`:
@@ -331,6 +331,6 @@ However, **direct HTTP connection is recommended** as it doesn't require any loc
 
 ## Additional Information
 
-- [CURSOR-SETUP.md](./CURSOR-SETUP.md) - General Cursor setup guide
-- [DOCKER.md](./DOCKER.md) - Docker deployment information
-- [README.md](./README.md) - Main MCP server documentation
+- [Claude Desktop & Cursor Setup](CLAUDE-DESKTOP.md) - General setup guide for Claude Desktop and Cursor
+- [Docker Setup](DOCKER.md) - Docker deployment information
+- [Main README](../../README.md) - Complete MCP server documentation
