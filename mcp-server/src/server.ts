@@ -145,7 +145,7 @@ async function initializeMCPServer(): Promise<void> {
       description: prompt.description,
       messages: [
         {
-          role: "assistant" as const,
+          role: "user" as const,
           content: {
             type: "text" as const,
             text: content,

@@ -8,7 +8,7 @@
 import axios, { AxiosInstance } from "axios";
 import * as Types from "./types.js";
 import { AuthenticationManager } from "./auth.js";
-import { DEFAULTS, PROJECT_ID_PATTERN } from "./constants.js";
+import { DEFAULTS, PROJECT_ID_PATTERN, TEST_POLLING } from "./constants.js";
 import { validateTimeout, sanitizeError, parseProjectId as parseProjectIdUtil } from "./utils.js";
 
 /**
@@ -223,21 +223,52 @@ export class OpenLClient {
    *
    * @param projectId - Project ID in any format
    * @returns Base64-encoded project ID
+   * @throws Error if projectId format is invalid
    */
   private toBase64ProjectId(projectId: string): string {
-    // If already base64 (no dash/colon in first part), return as-is
-    // Base64 strings don't contain : or - in the encoded output typically
-    if (!projectId.includes('-') && !projectId.includes(':')) {
-      // Already base64 format
-      return projectId;
+    // If contains '-' or ':', definitely needs parsing and encoding
+    if (projectId.includes('-') || projectId.includes(':')) {
+      const [repository, projectName] = this.parseProjectId(projectId);
+      const colonFormat = `${repository}:${projectName}`;
+      return Buffer.from(colonFormat, 'utf-8').toString('base64');
     }
 
-    // Parse to get repository and projectName
-    const [repository, projectName] = this.parseProjectId(projectId);
+    // No dash or colon - might be already base64, but validate explicitly
+    // First check if it matches base64 pattern
+    const normalizedId = projectId.replace(/\s/g, "");
+    if (!PROJECT_ID_PATTERN.test(normalizedId)) {
+      throw new Error(
+        `Invalid project ID format: "${projectId}" does not match base64 pattern. ` +
+        `Expected formats: base64-encoded string, "repository-projectName", or "repository:projectName"`
+      );
+    }
 
-    // Encode as "repository:projectName" in base64
-    const colonFormat = `${repository}:${projectName}`;
-    return Buffer.from(colonFormat, 'utf-8').toString('base64');
+    // Validate by attempting decode/re-encode round-trip
+    try {
+      const decoded = Buffer.from(normalizedId, "base64").toString("utf-8");
+      
+      // Check if decoded string has expected format (repository:projectName or repository:projectName:hashCode)
+      const parts = decoded.split(":");
+      if (parts.length < 2 || !parts[0] || !parts[1]) {
+        throw new Error(`Decoded base64 does not have expected format: "${decoded}"`);
+      }
+
+      // Verify round-trip: re-encode and compare
+      const reEncoded = Buffer.from(decoded, "utf-8").toString("base64");
+      if (reEncoded !== normalizedId) {
+        throw new Error(`Base64 round-trip validation failed for: "${projectId}"`);
+      }
+
+      // Valid base64 - return as-is
+      return normalizedId;
+    } catch (error) {
+      // If decode fails or validation fails, throw descriptive error
+      throw new Error(
+        `Invalid base64 project ID: "${projectId}". ` +
+        `Validation failed: ${error instanceof Error ? error.message : String(error)}. ` +
+        `Expected formats: base64-encoded string, "repository-projectName", or "repository:projectName"`
+      );
+    }
   }
 
   /**
@@ -976,6 +1007,7 @@ export class OpenLClient {
    * @param projectId - Project ID
    * @param options - Test execution options (tableId, testRanges, query, pagination)
    * @returns Test execution summary
+   * @throws Error if test execution times out or fails
    */
   async runProjectTests(
     projectId: string,
@@ -1004,8 +1036,7 @@ export class OpenLClient {
       { params }
     );
 
-    // Get test summary (wait a bit for execution to complete)
-    // Note: In real implementation, you might want to poll until complete
+    // Build summary query parameters
     const summaryParams: Record<string, string | number | boolean> = {};
     if (options?.query?.failuresOnly) summaryParams.failuresOnly = true;
     if (options?.pagination?.offset !== undefined) {
@@ -1013,11 +1044,77 @@ export class OpenLClient {
     }
     if (options?.pagination?.limit !== undefined) summaryParams.size = options.pagination.limit;
 
-    const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
-      `${projectPath}/tests/summary`,
-      { params: summaryParams }
+    // Poll for test completion with exponential backoff
+    const startTime = Date.now();
+    let interval: number = TEST_POLLING.INITIAL_INTERVAL;
+    let lastExecutionTime = 0;
+    let attempts = 0;
+
+    while (attempts < TEST_POLLING.MAX_RETRIES) {
+      // Check timeout
+      if (Date.now() - startTime > TEST_POLLING.TIMEOUT) {
+        throw new Error(
+          `Test execution timed out after ${TEST_POLLING.TIMEOUT}ms. ` +
+          `Tests may still be running. Check status manually or increase timeout.`
+        );
+      }
+
+      // Wait before polling (except first attempt)
+      if (attempts > 0) {
+        await new Promise(resolve => setTimeout(resolve, interval));
+        // Exponential backoff: increase interval up to MAX_INTERVAL
+        interval = Math.min(interval * 1.5, TEST_POLLING.MAX_INTERVAL);
+      }
+
+      try {
+        const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
+          `${projectPath}/tests/summary`,
+          { params: summaryParams }
+        );
+        const summary = response.data;
+
+        // Check if execution is complete by comparing executionTimeMs
+        // If executionTimeMs has changed, tests are still running
+        // If it's stable (same as last check) and we have results, assume complete
+        if (summary.executionTimeMs > 0) {
+          if (summary.executionTimeMs === lastExecutionTime && summary.testCases.length > 0) {
+            // Execution time is stable and we have results - likely complete
+            return summary;
+          }
+
+          // Check if we have all expected test results
+          // If numberOfTests is set and matches testCases length, execution is complete
+          if (summary.numberOfTests !== undefined && summary.numberOfTests > 0) {
+            const completedTests = summary.testCases.length;
+            if (completedTests >= summary.numberOfTests) {
+              // All tests have completed
+              return summary;
+            }
+          }
+
+          lastExecutionTime = summary.executionTimeMs;
+        } else if (summary.testCases.length > 0) {
+          // We have results but no execution time - assume complete if we have test cases
+          return summary;
+        }
+
+        attempts++;
+      } catch (error) {
+        // If it's a 404 or other error, wait a bit and retry (tests might not be ready yet)
+        if (attempts < 3) {
+          attempts++;
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    // Max retries reached
+    throw new Error(
+      `Test execution did not complete within ${TEST_POLLING.MAX_RETRIES} polling attempts ` +
+      `(${Math.round((Date.now() - startTime) / 1000)}s). ` +
+      `Tests may still be running. Check status manually.`
     );
-    return response.data;
   }
 
   // =============================================================================
