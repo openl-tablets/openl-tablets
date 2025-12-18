@@ -105,8 +105,8 @@ public class ProjectsMergeController {
             content = @Content(mediaType = MediaType.ALL_VALUE, schema = @Schema(type = "string", format = "binary")))
     @GetMapping(value = "/conflicts/files", produces = MediaType.ALL_VALUE)
     public ResponseEntity<byte[]> getConflictedFile(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                    @Parameter(description = "projects.merge.param.file.desc") @RequestParam("file") String filePath,
-                                                    @Parameter(description = "projects.merge.param.side.desc") @RequestParam("side") @NotNull ConflictBase side) throws IOException {
+                                                    @Parameter(description = "projects.merge.param.file.desc", required = true) @RequestParam("file") String filePath,
+                                                    @Parameter(description = "projects.merge.param.side.desc", required = true) @RequestParam("side") @NotNull ConflictBase side) throws IOException {
         var conflictInfo = getMergeConflictInfo0(project);
         var fileItem = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, side);
         var output = new ByteArrayOutputStream();
@@ -206,7 +206,7 @@ public class ProjectsMergeController {
     @Operation(summary = "projects.merge.resolve-conflicts.summary", description = "projects.merge.resolve-conflicts.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.resolve-conflicts.200.desc")
     public ResolveConflictsResponse resolveConflicts(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                     @Parameter(description = "projects.merge.param.files.desc")
+                                                     @Parameter(description = "projects.merge.param.resolution-request.desc")
                                                      @ModelAttribute @NotNull @Valid ResolveConflictsRequest request) throws IOException, ProjectException {
 
         // Validate that the project has unresolved conflicts
