@@ -45,16 +45,7 @@ public final class OpenApiUtils {
         var requestAttrs = RequestContextHolder.getRequestAttributes();
         if (requestAttrs instanceof ServletRequestAttributes) {
             final var request = ((ServletRequestAttributes) requestAttrs).getRequest();
-            final var scheme = request.getScheme();
-            final var port = request.getServerPort();
-            final var url = new StringBuilder(scheme).append("://").append(request.getServerName());
-
-            if ("http".equals(scheme) && port != 80 || "https".equals(scheme) && port != 443) {
-                url.append(':').append(request.getServerPort());
-            }
-            Optional.of(request.getContextPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
-            Optional.of(request.getServletPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
-            return url.toString();
+            return RequestPathUtils.getFullRequestPath(request);
         }
         return null;
     }
