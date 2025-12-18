@@ -587,10 +587,10 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
       console.error(`[OAuth2]   - PKCE: code_verifier present (code_challenge: ${config.oauth2.codeChallenge ? 'generated' : 'not set'})`);
     }
     if (config.oauth2.refreshToken) {
-      console.error(`[OAuth2]   - Refresh Token: ***${config.oauth2.refreshToken.slice(-10)}`);
+      console.error(`[OAuth2]   - Refresh Token: present (length: ${config.oauth2.refreshToken.length})`);
     }
     if (config.oauth2.authorizationCode) {
-      console.error(`[OAuth2]   - Authorization Code: ***${config.oauth2.authorizationCode.slice(-10)}`);
+      console.error(`[OAuth2]   - Authorization Code: present (length: ${config.oauth2.authorizationCode.length})`);
     }
   }
 
