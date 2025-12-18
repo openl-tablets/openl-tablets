@@ -18,8 +18,6 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
-import org.openl.studio.common.utils.XSSFOptimizer;
-
 public class XSSFOptimizerTest {
 
     @Test

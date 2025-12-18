@@ -8,10 +8,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Encoding;
@@ -104,7 +113,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             // Check if this is a ModelAttribute - if so, expand its fields
             var modelAttribute = paramInfo.getParameterAnnotation(ModelAttribute.class);
             if (modelAttribute != null) {
-                expandModelAttributeFields(paramInfo, objectSchema, encodingMap, components);
+                expandModelAttributeFields(paramInfo, objectSchema, components);
                 continue;
             }
 
@@ -173,7 +182,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 }
             }
             apiParameterService.applyValidationAnnotations(paramInfo, schema);
-            objectSchema.addProperties(nameRef.name, schema);
+            objectSchema.addProperty(nameRef.name, schema);
         }
 
         RequestBody requestBody = null;
@@ -354,12 +363,10 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
      *
      * @param paramInfo    model attribute parameter info
      * @param objectSchema schema to add properties to
-     * @param encodingMap  encoding map for form data
      * @param components   OpenAPI components for schema resolution
      */
     private void expandModelAttributeFields(ParameterInfo paramInfo,
                                             ObjectSchema objectSchema,
-                                            Map<String, Encoding> encodingMap,
                                             Components components) {
         Type paramType = paramInfo.getType();
         Class<?> modelClass = paramType instanceof Class ? (Class<?>) paramType :
@@ -381,10 +388,10 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             Type fieldType = field.getGenericType();
 
             // Check for @Schema annotation on field
-            var schemaAnnotation = field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class);
+            var schemaAnnotation = field.getAnnotation(Schema.class);
 
             // Check for @Parameter annotation on field (for additional metadata)
-            var parameterAnnotation = field.getAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
+            var parameterAnnotation = field.getAnnotation(Parameter.class);
 
             // Resolve schema for the field
             var schema = apiParameterService.resolveSchema(fieldType, components, paramInfo.getJsonView());
@@ -420,7 +427,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 }
 
                 // Handle required mode
-                if (schemaAnnotation.requiredMode() == io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED) {
+                if (schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED) {
                     addRequiredItemIfAbsent(objectSchema, fieldName);
                 }
             }
@@ -429,7 +436,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             applyFieldValidationAnnotations(field, schema, objectSchema, fieldName);
 
             // Add the field as a property
-            objectSchema.addProperties(fieldName, schema);
+            objectSchema.addProperty(fieldName, schema);
         }
     }
 
@@ -453,14 +460,14 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                                                  ObjectSchema objectSchema,
                                                  String fieldName) {
         // Check for @NotNull, @NotBlank, @NotEmpty
-        if (field.isAnnotationPresent(jakarta.validation.constraints.NotNull.class) ||
-                field.isAnnotationPresent(jakarta.validation.constraints.NotBlank.class) ||
-                field.isAnnotationPresent(jakarta.validation.constraints.NotEmpty.class)) {
+        if (field.isAnnotationPresent(NotNull.class) ||
+                field.isAnnotationPresent(NotBlank.class) ||
+                field.isAnnotationPresent(NotEmpty.class)) {
             addRequiredItemIfAbsent(objectSchema, fieldName);
         }
 
         // Check for @Size
-        var sizeAnnotation = field.getAnnotation(jakarta.validation.constraints.Size.class);
+        var sizeAnnotation = field.getAnnotation(Size.class);
         if (sizeAnnotation != null) {
             if (sizeAnnotation.min() > 0) {
                 schema.setMinLength(sizeAnnotation.min());
@@ -471,18 +478,18 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         }
 
         // Check for @Min / @Max
-        var minAnnotation = field.getAnnotation(jakarta.validation.constraints.Min.class);
+        var minAnnotation = field.getAnnotation(Min.class);
         if (minAnnotation != null) {
             schema.setMinimum(java.math.BigDecimal.valueOf(minAnnotation.value()));
         }
 
-        var maxAnnotation = field.getAnnotation(jakarta.validation.constraints.Max.class);
+        var maxAnnotation = field.getAnnotation(Max.class);
         if (maxAnnotation != null) {
             schema.setMaximum(java.math.BigDecimal.valueOf(maxAnnotation.value()));
         }
 
         // Check for @Pattern
-        var patternAnnotation = field.getAnnotation(jakarta.validation.constraints.Pattern.class);
+        var patternAnnotation = field.getAnnotation(Pattern.class);
         if (patternAnnotation != null) {
             schema.setPattern(patternAnnotation.regexp());
         }

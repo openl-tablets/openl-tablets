@@ -26,7 +26,7 @@ public class UploadController {
                     "All fields from the UploadRequest model should be expanded as form parameters.")
     @ApiResponse(responseCode = "200", description = "Upload created successfully")
     public ResponseEntity<UploadResponse> createUpload(@ModelAttribute @Valid UploadRequest request) {
-        return ResponseEntity.ok(new UploadResponse("upload-id-123", request.getName()));
+        return ResponseEntity.ok(new UploadResponse("upload-id-123", request.name()));
     }
 
     @PostMapping(value = "/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

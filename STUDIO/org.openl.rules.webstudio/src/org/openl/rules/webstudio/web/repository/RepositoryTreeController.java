@@ -331,8 +331,8 @@ public class RepositoryTreeController {
                 log.debug("Failed to save the project because of merge conflict.", cause);
                 if (project instanceof RulesProject rulesProject) {
                     ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
-                                    .details(mergeConflictEx.getDetails())
-                                    .project(rulesProject)
+                            .details(mergeConflictEx.getDetails())
+                            .project(rulesProject)
                             .build());
                 }
             } else {
@@ -1724,7 +1724,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
-    
+
     public void loadTagsFromUploadedFile() throws IOException {
         boolean tagsAreReadFromProject = false;
         ProjectFile file = getLastUploadedFile();
@@ -1745,10 +1745,10 @@ public class RepositoryTreeController {
                 }
             }
         }
-        if (! tagsAreReadFromProject) {
+        if (!tagsAreReadFromProject) {
             projectTagsBean.clearTags();
         }
-        
+
     }
 
     /**
@@ -2729,6 +2729,7 @@ public class RepositoryTreeController {
             importFromRepo();
         }
     }
+
     private FolderMapper findAndValidateMappedRepository() throws IOException {
         Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
         if (!mappedRepo.supports().mappedFolders()) {
@@ -2752,13 +2753,13 @@ public class RepositoryTreeController {
                 return;
             }
             Repository repository = mappedRepo.getDelegate();
-            
+
             var tagsFileNameBuilder = new StringBuilder(projectFolder);
-            if (! projectFolder.endsWith("/")) {
+            if (!projectFolder.endsWith("/")) {
                 tagsFileNameBuilder.append("/");
             }
             tagsFileNameBuilder.append(RulesProjectTags.TAGS_FILE_NAME);
-            
+
             var tagsFile = repository.read(tagsFileNameBuilder.toString());
             if (tagsFile != null) {
                 Map<String, String> existingTags = new HashMap<>();
@@ -2775,7 +2776,7 @@ public class RepositoryTreeController {
             clearForm();
         }
     }
-    
+
     public void importFromRepo() {
         String msg = validateImportFromRepoParams();
         if (msg != null) {

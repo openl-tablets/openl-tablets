@@ -68,7 +68,7 @@ final class PassCoder {
         return new String(decripted, StandardCharsets.UTF_8);
     }
 
-    private static SecretKeySpec getKey(String privateKey) throws NoSuchAlgorithmException {
+    private static SecretKeySpec getKey(String privateKey) {
         var key = HashingUtils.sha1(privateKey);
         key = Arrays.copyOf(key, 16); // use only first 128 bit
 
