@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "success",
+  "resolvedFiles": [
+    "EPBDS-15439/Main.xlsx"
+  ]
+}

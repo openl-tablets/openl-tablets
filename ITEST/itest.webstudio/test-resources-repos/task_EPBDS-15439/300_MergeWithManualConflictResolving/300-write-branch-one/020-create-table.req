@@ -1,0 +1,21 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "BranchOneAssetsCompare",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "RET",
+        "value": "This table was created in branch one"
+      }
+    ]
+  }
+}
+

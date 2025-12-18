@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.util;
+package org.openl.studio.common.utils;
 
 import java.util.Map;
 import jakarta.servlet.ServletRequest;

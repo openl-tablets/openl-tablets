@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==",
+  "name": "EPBDS-15439",
+  "branch": "EPBDS-15439_MergeWithManualConflictResolvingUseBase_two",
+  "status": "OPENED",
+  "repository": "design-flat",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15439",
+  "comment": "Merge with commit *\nConflicts:\n\tEPBDS-15439/Main.xlsx (base)",
+  "selectedBranches": [
+    "EPBDS-15439_MergeWithAutoConflictResolving_one",
+    "EPBDS-15439_MergeWithAutoConflictResolving_two",
+    "EPBDS-15439_MergeWithManualConflictResolving_one",
+    "EPBDS-15439_MergeWithManualConflictResolving_two",
+    "EPBDS-15439_MergeWithManualConflictResolvingUseBase_two",
+    "EPBDS-15439_MergeWithoutConflicts_one",
+    "EPBDS-15439_MergeWithoutConflicts_two",
+    "master"
+  ]
+}

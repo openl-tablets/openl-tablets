@@ -12,12 +12,15 @@ import jakarta.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,10 +36,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
@@ -55,6 +58,7 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.ProjectsMergeService;
+import org.openl.util.FileUtils;
 
 @Validated
 @RestController
@@ -96,8 +100,10 @@ public class ProjectsMergeController {
     }
 
     @Operation(summary = "projects.merge.get-conflict-file.summary", description = "projects.merge.get-conflict-file.desc")
-    @ApiResponse(responseCode = "200", description = "projects.merge.get-conflict-file.200.desc")
-    @GetMapping("/conflicts/files")
+    @ApiResponse(responseCode = "200",
+            description = "projects.merge.get-conflict-file.200.desc",
+            content = @Content(mediaType = MediaType.ALL_VALUE, schema = @Schema(type = "string", format = "binary")))
+    @GetMapping(value = "/conflicts/files", produces = MediaType.ALL_VALUE)
     public ResponseEntity<byte[]> getConflictedFile(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(description = "projects.merge.param.file.desc") @RequestParam("file") String filePath,
                                                     @Parameter(description = "projects.merge.param.side.desc") @RequestParam("side") @NotNull ConflictBase side) throws IOException {
@@ -107,8 +113,9 @@ public class ProjectsMergeController {
         try (var stream = fileItem.getStream()) {
             stream.transferTo(output);
         }
-        String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+        String fileName = FileUtils.getName(filePath);
         return ResponseEntity.ok()
+                .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
                 .body(output.toByteArray());
     }

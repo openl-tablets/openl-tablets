@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.util;
+package org.openl.studio.common.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
+
+import org.openl.studio.common.utils.XSSFOptimizer;
 
 public class XSSFOptimizerTest {
 

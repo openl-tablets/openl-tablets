@@ -51,15 +51,17 @@ class HttpData {
     private final TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<String, String> settings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
+    private final String pathToResource;
     private String cookie;
 
-    private HttpData(String firstLine, Map<String, String> headers, byte[] body) {
+    private HttpData(String firstLine, Map<String, String> headers, byte[] body, String pathToResource) {
         this.firstLine = firstLine;
         this.headers.putAll(headers);
         var settings = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
         this.settings.putAll(settings);
         settings.clear();
         this.body = body;
+        this.pathToResource = pathToResource;
     }
 
     String getSetting(String key) {
@@ -91,7 +93,7 @@ class HttpData {
     }
 
     static HttpData ok() {
-        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
+        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null, null);
     }
 
     static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
@@ -186,8 +188,20 @@ class HttpData {
                     Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 default:
-                    if (!new String(expected.body, StandardCharsets.ISO_8859_1).trim().equals("***")) {
-                        assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
+                    var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
+                    if (!expectedBody.trim().equals("***")) {
+                        if (isFileRef(expectedBody)) {
+                            String fileRes = resolveFileRef(Paths.get(expected.pathToResource).getParent(), expectedBody);
+                            try (InputStream fileStream = getStream(fileRes)) {
+                                if (fileStream == null) {
+                                    throw new FileNotFoundException(fileRes);
+                                }
+                                byte[] expectedBytes = fileStream.readAllBytes();
+                                assertArrayEquals(decoder.apply(expectedBytes), decoder.apply(this.body), "Body: ");
+                            }
+                        } else {
+                            assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
+                        }
                     }
             }
         } catch (Exception | AssertionError ex) {
@@ -245,7 +259,7 @@ class HttpData {
             }
         }
 
-        HttpData httpData = new HttpData(firstLine, headers, connection.body());
+        HttpData httpData = new HttpData(firstLine, headers, connection.body(), null);
         httpData.setCookie(cookie);
         return httpData;
     }
@@ -320,7 +334,7 @@ class HttpData {
             body = input.readAllBytes();
         }
 
-        return new HttpData(firstLine, headers, body);
+        return new HttpData(firstLine, headers, body, resource);
     }
 
     private static InputStream getStream(String fileRes) {

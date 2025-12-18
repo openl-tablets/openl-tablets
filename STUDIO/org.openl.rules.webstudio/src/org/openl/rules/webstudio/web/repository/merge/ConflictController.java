@@ -38,11 +38,11 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.utils.WebTool;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 

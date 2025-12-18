@@ -141,9 +141,7 @@ Content-Type: application/json
             "type": "string",
             "description": "*",
             "enum": [
-              "success",
-              "partial",
-              "failed"
+              "success"
             ]
           }
         }
@@ -4512,10 +4510,10 @@ Content-Type: application/json
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
                   "type": "string",
-                  "format": "byte"
+                  "format" : "binary"
                 }
               }
             },
