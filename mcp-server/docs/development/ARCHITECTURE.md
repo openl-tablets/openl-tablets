@@ -2,7 +2,7 @@
 
 ## Interaction Diagram
 
-```
+```text
 ┌─────────────────┐
 │ Claude Desktop  │  ← You are here (AI assistant)
 │   (Application) │
@@ -45,7 +45,7 @@
 
 ## Data Flow
 
-```
+```text
 1. You write in Claude: "List repositories"
    │
 2. Claude → MCP Server: calls tool openl_list_repositories
@@ -72,20 +72,20 @@
 ## Configuration Files
 
 ### Claude Desktop
-```
+```text
 ~/Library/Application Support/Claude/config.json
 ```
 Contains MCP server settings (path, environment variables)
 
 ### MCP Server
-```
+```text
 mcp-server/dist/index.js          # Compiled server
 mcp-server/src/                   # Source code
 mcp-server/docs/setup/examples/claude-desktop-config.example.json  # Configuration template
 ```
 
 ### OpenL Tablets
-```
+```text
 compose.yaml                       # Docker Compose configuration
 DEMO/start                         # Local startup script
 ```
@@ -115,18 +115,18 @@ cd DEMO && ./start
 MCP Server uses one of three methods:
 
 1. **Basic Auth** (default)
-   ```
+   ```env
    OPENL_USERNAME=admin
    OPENL_PASSWORD=admin
    ```
 
 2. **API Key**
-   ```
+   ```env
    OPENL_API_KEY=your-key
    ```
 
 3. **OAuth 2.1**
-   ```
+   ```env
    OPENL_OAUTH2_CLIENT_ID=...
    OPENL_OAUTH2_CLIENT_SECRET=...
    ```
