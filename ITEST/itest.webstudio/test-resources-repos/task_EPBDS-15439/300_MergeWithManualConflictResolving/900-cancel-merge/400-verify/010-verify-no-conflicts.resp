@@ -1,0 +1,7 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.project.merge.result.not.found.message",
+  "message": "The merge result for the project is not found."
+}

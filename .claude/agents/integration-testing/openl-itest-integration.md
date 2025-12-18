@@ -25,10 +25,11 @@ triggers:
     - "X-OpenL-Test-Timeout"
   file_patterns:
     - "ITEST/**"
-    - "**/src/test/resources/**"
+    - "**/test-resources/**"
+    - "**/test-resources-*/**"
     - "**/*.req"
     - "**/*.resp"
-    - "target/responses/**"
+    - "**/target/responses/**"
   task_patterns:
     - "analyze failed itest"
     - "update itest"
@@ -60,7 +61,7 @@ constraints:
     - "ITEST/**"
     - "docs/**"
     - "*.md"
-    - "target/responses/**"
+    - "**/target/responses/**"
   forbidden_paths:
     - ".git/**"
     - "**/build/**"
