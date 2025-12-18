@@ -32,7 +32,7 @@
 
 ### 2. MCP Server (mcp-server/)
 - **What it is:** Bridge between Claude and OpenL
-- **Where:** `/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server`
+- **Where:** `<project-root>/mcp-server` (this directory, relative to the OpenL Tablets project root)
 - **Role:** 
   - Converts Claude commands to API requests to OpenL
   - Provides 18 tools for working with OpenL
@@ -81,7 +81,7 @@ Contains MCP server settings (path, environment variables)
 ```
 mcp-server/dist/index.js          # Compiled server
 mcp-server/src/                   # Source code
-mcp-server/claude-desktop-config.json  # Configuration example
+mcp-server/claude-desktop-config.example.json  # Configuration template
 ```
 
 ### OpenL Tablets

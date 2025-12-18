@@ -4,7 +4,7 @@
       "comment": "OpenL Tablets MCP Server via Docker (HTTP API Proxy)",
       "command": "node",
       "args": [
-        "/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/mcp-proxy.js"
+        "<path-to-project>/mcp-server/dist/mcp-proxy.js"
       ],
       "env": {
         "MCP_API_URL": "http://localhost:3000"
@@ -12,4 +12,14 @@
     }
   }
 }
+
+<!--
+USAGE INSTRUCTIONS:
+1. Copy this file to cursor-docker-config.json (or your preferred name)
+2. Replace <path-to-project> with the absolute path to your OpenL Tablets project directory
+   Example: /Users/username/projects/openl-tablets
+   Or use: /path/to/openl-tablets
+3. Ensure the mcp-server is built: cd mcp-server && npm run build
+4. Use this configuration in Cursor IDE settings
+-->
 

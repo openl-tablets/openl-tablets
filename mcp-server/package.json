@@ -34,7 +34,7 @@
   "license": "LGPL-3.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.21.1",
-    "axios": "^1.7.9",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "form-data": "^4.0.1",

@@ -530,7 +530,7 @@
 |--------|-------|-------|
 | ✅ Complete | 17 | All repository, project, table, deployment, branch, and test tools |
 | ⚠️ Partial | 2 | `openl_update_project_status`, `openl_list_deployments` |
-| 🔴 Disabled | 6 | `upload_file`, `download_file`, `create_rule`, `execute_rule`, `revert_version`, `get_file_history`, `get_project_history` |
+| 🔴 Disabled | 7 | `upload_file`, `download_file`, `create_rule`, `execute_rule`, `revert_version`, `get_file_history`, `get_project_history` |
 | ❌ Missing | 7 | `validate_project`, `get_project_errors`, `compare_versions`, `delete_project`, `save_project`, `health_check` |
 
 ### Critical Issues
@@ -553,6 +553,7 @@
    - `openl_compare_versions` - Client method exists, tool missing
    - `openl_delete_project` - Client method exists, tool missing
    - `openl_save_project` - Client method exists, tool missing
+   - `openl_open_project` / `openl_close_project` - Client methods exist, tools missing (functionality available via `update_project_status`)
    - `openl_health_check` - Client method exists, tool missing
 
 5. **API Endpoint Verification Needed**:
@@ -582,5 +583,4 @@
 
 ---
 
-**End of Review**
-
+## End of Review

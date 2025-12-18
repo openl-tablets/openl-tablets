@@ -84,25 +84,31 @@ Ensure there's a section:
 {
   "mcpServers": {
     "openl-mcp-server": {
-      "command": "node",
-      "args": ["/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"],
+      "command": "<path-to-node>",
+      "args": ["<path-to-project>/mcp-server/dist/index.js"],
       ...
     }
   }
 }
 ```
 
+**Note:** Replace `<path-to-node>` with your Node.js path (e.g., `node` or `/usr/bin/node`) and `<path-to-project>` with your OpenL Tablets project directory. See `claude-desktop-config.example.json` for complete examples.
+
 ### Check 2: File Exists
 
 ```bash
-ls -la /Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js
+ls -la <path-to-project>/mcp-server/dist/index.js
 ```
+
+**Note:** Replace `<path-to-project>` with your actual project path.
 
 If file doesn't exist, build the project:
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets/mcp-server
+cd <path-to-project>/mcp-server
 npm run build
 ```
+
+**Note:** Replace `<path-to-project>` with your actual project path.
 
 ### Check 3: Claude Desktop Logs
 

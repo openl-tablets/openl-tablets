@@ -1,10 +1,10 @@
 {
   "mcpServers": {
     "openl-mcp-server": {
-      "comment": "OpenL Tablets MCP Server with OAuth 2.1 (Ping Identity) - Automatic Browser Flow",
-      "command": "/Users/asamuseu/.nvm/versions/node/v18.20.4/bin/node",
+      "comment": "OpenL Tablets MCP Server with OAuth 2.1 (Ping Identity) - Automatic Browser Flow. Replace <path-to-node> with your Node.js path (e.g., 'node' or '/usr/bin/node') and <path-to-project> with your OpenL Tablets project directory.",
+      "command": "<path-to-node>",
       "args": [
-        "/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"
+        "<path-to-project>/mcp-server/dist/index.js"
       ],
       "env": {
         "OPENL_BASE_URL": "http://localhost:8080/rest",

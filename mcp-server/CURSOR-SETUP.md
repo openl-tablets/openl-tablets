@@ -43,6 +43,47 @@ If MCP Server is running in a Docker container, you can connect directly via HTT
 
 ---
 
+## Path Determination
+
+Before configuring the MCP server, you need to determine the absolute path to your OpenL Tablets project directory.
+
+### Finding Your Project Path
+
+**macOS/Linux:**
+```bash
+# Navigate to the mcp-server directory
+cd /path/to/openl-tablets/mcp-server
+# Get the absolute path
+pwd
+# Output example: /Users/username/projects/openl-tablets/mcp-server
+# Use: /Users/username/projects/openl-tablets/mcp-server/dist/index.js
+```
+
+**Windows:**
+```powershell
+# Navigate to the mcp-server directory
+cd C:\path\to\openl-tablets\mcp-server
+# Get the absolute path
+pwd
+# Output example: C:\Users\username\projects\openl-tablets\mcp-server
+# Use: C:\Users\username\projects\openl-tablets\mcp-server\dist\index.js
+```
+
+**VS Code/Cursor:**
+- Use `$(workspaceFolder)` variable if supported
+- Or right-click the `mcp-server` folder → "Copy Path" → append `/dist/index.js`
+
+**Quick Method:**
+```bash
+# From the project root
+cd openl-tablets/mcp-server
+echo "$(pwd)/dist/index.js"  # macOS/Linux
+# or
+echo "%cd%\dist\index.js"   # Windows CMD
+```
+
+---
+
 ## Method 1: Via Cursor UI (Recommended)
 
 ### Step 1: Open Cursor Settings
@@ -65,7 +106,7 @@ Paste the following configuration:
 {
   "command": "node",
   "args": [
-    "/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"
+    "<absolute-path-to-openl-tablets>/mcp-server/dist/index.js"
   ],
   "env": {
     "OPENL_BASE_URL": "http://localhost:8080/rest",
@@ -76,7 +117,7 @@ Paste the following configuration:
 }
 ```
 
-**Important:** Replace the path with the absolute path to your project if it differs.
+**Important:** Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section above for instructions.
 
 ### Step 4: Save and Activate
 
@@ -91,12 +132,12 @@ Paste the following configuration:
 Cursor may store MCP configuration in one of the following locations:
 
 1. **User settings:**
-   ```
+   ```text
    ~/Library/Application Support/Cursor/User/settings.json
    ```
 
 2. **Global storage:**
-   ```
+   ```text
    ~/Library/Application Support/Cursor/User/globalStorage/
    ```
 
@@ -110,7 +151,7 @@ If Cursor supports configuration via file, add to `settings.json`:
     "openl-mcp-server": {
       "command": "node",
       "args": [
-        "/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"
+        "<absolute-path-to-openl-tablets>/mcp-server/dist/index.js"
       ],
       "env": {
         "OPENL_BASE_URL": "http://localhost:8080/rest",
@@ -122,6 +163,8 @@ If Cursor supports configuration via file, add to `settings.json`:
   }
 }
 ```
+
+**Note:** Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section above for instructions.
 
 ## Connection Verification
 
@@ -135,13 +178,13 @@ If Cursor supports configuration via file, add to `settings.json`:
 
 In Cursor chat, try:
 
-```
+```text
 List repositories in OpenL Tablets
 ```
 
 or
 
-```
+```text
 Show projects in the design repository
 ```
 
@@ -167,9 +210,11 @@ Before setup, ensure:
 
 1. ✅ **MCP Server is built:**
    ```bash
-   cd /Users/asamuseu/IdeaProjects/openl-tablets/mcp-server
+   cd <absolute-path-to-openl-tablets>/mcp-server
    npm run build
    ```
+   
+   **Note:** Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section above for instructions.
 
 2. ✅ **OpenL Tablets is running:**
    ```bash

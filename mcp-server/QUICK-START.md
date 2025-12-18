@@ -2,6 +2,14 @@
 
 This guide will help you start OpenL Tablets and MCP server for working with Claude Desktop.
 
+**Note**: This guide uses `$PROJECT_ROOT` to refer to the OpenL Tablets project directory. Set it before running commands:
+
+```bash
+export PROJECT_ROOT="/path/to/openl-tablets"
+```
+
+Or replace `$PROJECT_ROOT` with your actual project path in all commands below.
+
 ## 📋 What Needs to Be Started
 
 1. **OpenL Tablets** - Rules server (port 8080)
@@ -17,7 +25,7 @@ The easiest way is to run everything through Docker.
 ### Step 1: Start OpenL Tablets
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 docker compose up
 ```
 
@@ -46,11 +54,11 @@ Configuration is already copied to Claude Desktop. Check:
 cat ~/Library/Application\ Support/Claude/config.json | grep -A 10 "openl-mcp-server"
 ```
 
-Should be:
+Should be (replace `/path/to/openl-tablets` with your actual project path):
 ```json
 "openl-mcp-server": {
   "command": "node",
-  "args": ["/Users/asamuseu/IdeaProjects/openl-tablets/mcp-server/dist/index.js"],
+  "args": ["/path/to/openl-tablets/mcp-server/dist/index.js"],
   ...
 }
 ```
@@ -81,7 +89,7 @@ If you don't have Docker or want to run locally.
 ### Step 1: Build OpenL Tablets
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 mvn clean install -DskipTests
 ```
 
@@ -119,7 +127,7 @@ Follow steps 3-5 from Method 1.
 ### Automatic Check
 
 ```bash
-cd /Users/asamuseu/IdeaProjects/openl-tablets/mcp-server
+cd $PROJECT_ROOT/mcp-server
 export OPENL_BASE_URL="http://localhost:8080/rest"
 export OPENL_USERNAME="admin"
 export OPENL_PASSWORD="admin"
@@ -207,7 +215,7 @@ export OPENL_PASSWORD="admin"
 
 ```bash
 # Terminal 1: Start OpenL Tablets
-cd /Users/asamuseu/IdeaProjects/openl-tablets
+cd $PROJECT_ROOT
 docker compose up
 
 # Wait 1-2 minutes for everything to start
