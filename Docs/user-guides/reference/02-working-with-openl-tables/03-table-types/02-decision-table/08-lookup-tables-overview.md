@@ -13,7 +13,7 @@ A **lookup table** is a special modification of the decision table which simulta
 
 That means condition values can appear either on the left of the lookup table or on the top of it. The values on the left are called **vertical** and values on the top are called **horizontal**. Any lookup table must have at least one vertical and at least one horizontal value.
 
-![](../../../../ref_guide_images/lookupTableExample_1.jpeg)
+![](../../../ref-guide-images/lookupTableExample_1.jpeg)
 
 *A lookup table example*
 

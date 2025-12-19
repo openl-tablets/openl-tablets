@@ -4,7 +4,7 @@ For all OpenL Tablets table types, except for [Properties Table](../03-table-typ
 
 Table properties are displayed in the section which goes immediately after the table **header** and before other table contents. The properties section is optional and can be omitted in the table. The first cell in the properties row contains the **properties** keyword and is merged across all cells in column if more than one property is defined. The number of rows in the properties section is equal to the number of properties defined for the table. Each row in the properties section contains a pair of a property name and a property value in consecutive cells, that is, second and third columns.
 
-![](../../../ref_guide_images/tablePropertiesExample.png)
+![](../../ref-guide-images/tablePropertiesExample.png)
 
 *Table properties example*
 

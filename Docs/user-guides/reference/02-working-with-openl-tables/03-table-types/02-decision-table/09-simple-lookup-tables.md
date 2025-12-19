@@ -8,7 +8,7 @@ The simple lookup table header format is as follows:
 
 The following is an example of a simple lookup table.
 
-![](../../../../ref_guide_images/simpleLookupTableExample.png)
+![](../../../ref-guide-images/simpleLookupTableExample.png)
 
 *Simple lookup table example*
 

@@ -31,19 +31,19 @@ A Datatype table has the following structure:
 
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person’s** data elements, such as name, social security number, date of birth, gender, and address.
 
-![](../../../../ref_guide_images/datatypeTablePerson.png)
+![](../../../ref-guide-images/datatypeTablePerson.png)
 
 *Datatype table Person*
 
 Note that data attribute, or element, address of **Person** has, by-turn, custom data type **Address** and consists of zip code, city, and street attributes.
 
-![](../../../../ref_guide_images/datatypeTableAddress.png)
+![](../../../ref-guide-images/datatypeTableAddress.png)
 
 *Datatype table Address*
 
 The following example extends the **Person** data type with default values for specific fields.
 
-![](../../../../ref_guide_images/datatypeTableDefaultValues.png)
+![](../../../ref-guide-images/datatypeTableDefaultValues.png)
 
 *Datatype table with default values*
 
@@ -55,19 +55,19 @@ One attribute type can be used for many attribute names if their data elements a
 
 Consider an example of a Datatype table defining a custom data type called Corporation. The following table represents a structure of the Corporation data object and combines Corporation data elements, such as ID, full name, industry, ownership, and number of employees. If necessary, default values can be defined in the Datatype table for the fields of complex type when combination of fields exists with default values.
 
-![](../../../../ref_guide_images/datatypeTableContainingValue_default_.png)
+![](../../../ref-guide-images/datatypeTableContainingValue_default_.png)
 
 *Datatype table containing value \_DEFAULT\_*
 
 FinancialData refers to the FinancialData data type for default values.
 
-![](../../../../ref_guide_images/datatypeTableDefinedDefaultValues.png)
+![](../../../ref-guide-images/datatypeTableDefinedDefaultValues.png)
 
 *Datatype table with defined default values*
 
 During execution, the system takes default values from FinancialData data type.
 
-![](../../../../ref_guide_images/datatypeTableDefaultValues_1.png)
+![](../../../ref-guide-images/datatypeTableDefaultValues_1.png)
 
 *Datatype table with default values*
 
@@ -75,7 +75,7 @@ During execution, the system takes default values from FinancialData data type.
 
 **Note:** It is strongly recommended to leave an empty column right after the third column with default values if such column is used. Otherwise, in case the data type has 3 or less attributes, errors occur due to transposed tables support in OpenL Tablets.
 
-![](../../../../ref_guide_images/datatypeTableCommentsNearby.png)
+![](../../../ref-guide-images/datatypeTableCommentsNearby.png)
 
 *Datatype table with comments nearby*
 
@@ -87,7 +87,7 @@ Datatype table output results can be customized the same way as spreadsheets as 
   
 If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-datatype-tables).
   
-![](../../../../ref_guide_images/filteringDataTypeAttributesOutputStructure.png)
+![](../../../ref-guide-images/filteringDataTypeAttributesOutputStructure.png)
 
 *Filtering data type attributes for the output structure*
 

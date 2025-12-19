@@ -6,7 +6,7 @@ An alternative keyword for the state business property is CW, which stands for *
 
 To use the feature, define the **Properties** pattern for a file name as described in [Properties Defined in the File Name](../../04-table-properties/08-properties-defined-in-the-file-name.md#properties-defined-in-the-file-name).
 
-![](../../../ref_guide_images/definingPropertyPatternStateLineBusiness.jpeg)
+![](../../ref-guide-images/definingPropertyPatternStateLineBusiness.jpeg)
 
 *Defining a property pattern for a state and line of business*
 
@@ -15,7 +15,7 @@ For instance, consider the **Corporate Bank Calculation** project configured as 
 -   US State is any state
 -   lob = test
 
-![](../../../ref_guide_images/decisionTableOverloadedAllStates.jpeg)
+![](../../ref-guide-images/decisionTableOverloadedAllStates.jpeg)
 
 *Decision table overloaded with all states*
 

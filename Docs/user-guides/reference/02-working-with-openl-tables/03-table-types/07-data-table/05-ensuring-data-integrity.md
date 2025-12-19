@@ -6,7 +6,7 @@ If a data table contains values defined in another data table, it is important t
 
 In the following example, the **cities** data table contains values from the **states** table. To ensure that correct values are entered, a reference to the **code** column in the **states** table is defined.
 
-![](../../../../ref_guide_images/definingReferenceAnotherDataTable.png)
+![](../../../ref-guide-images/definingReferenceAnotherDataTable.png)
 
 *Defining a reference to another data table*
 
@@ -26,7 +26,7 @@ If `<column name>` is omitted, the reference by default is constructed using the
 
 In the following diagram, the **claims** data table contains values defined in the **policies** table and related to the **vehicle** attribute. A reference to the **name** column of the **policies** table is omitted as this is the first column in the table.
 
-![](../../../../ref_guide_images/definingReferenceAnotherDataTable_1.png)
+![](../../../ref-guide-images/definingReferenceAnotherDataTable_1.png)
 
 *Defining a reference to another data table*
 
@@ -38,6 +38,6 @@ In the following diagram, the **claims** data table contains values defined in t
 
 If the array is stored in the field object of the data table, array elements can be referred. An example is as follows.
 
-![](../../../../ref_guide_images/referringArrayElementsTestTable.png)
+![](../../../ref-guide-images/referringArrayElementsTestTable.png)
 
 *Referring array elements in a test table*

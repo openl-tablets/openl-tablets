@@ -8,7 +8,7 @@ $FirstValue:$LastValue
 
 An example of using a range this way in the **TotalAmount** column is as follows.
 
-![](../../../../ref_guide_images/usingRangesSpreadsheetTableFunctions.png)
+![](../../../ref-guide-images/usingRangesSpreadsheetTableFunctions.png)
 
 *Using ranges of Spreadsheet table in functions*
 

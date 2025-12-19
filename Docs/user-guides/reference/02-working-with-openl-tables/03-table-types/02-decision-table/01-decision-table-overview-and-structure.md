@@ -2,7 +2,7 @@
 
 A **decision table** contains a set of rules describing decision situations where the state of a number of conditions determines execution of a set of actions and returned value. It is a basic table type used in OpenL Tablets decision making.
 
-![](../../../../ref_guide_images/decisionTableExample.png)
+![](../../../ref-guide-images/decisionTableExample.png)
 
 *Decision table example*
 
@@ -30,7 +30,7 @@ The following topics are included in this section:
 
 An example of a decision table is as follows:
 
-![](../../../../ref_guide_images/decisionTable.png)
+![](../../../ref-guide-images/decisionTable.png)
 
 *Decision table*
 
@@ -49,11 +49,11 @@ A user can merge cells of parameter values to substitute multiple single cells w
 
 The additional **Rule** column with merged cells is used as the first column when the return value must be a list of values written in multiple rows of the same column, that is, a vertically arranged array. The Rule column determines the height of the result value list.
 
-![](../../../../ref_guide_images/tableRuleColumnFirstColumn.png)
+![](../../../ref-guide-images/tableRuleColumnFirstColumn.png)
 
 *A table with the Rule column as the first column*
 
-![](../../../../ref_guide_images/resultVerticallyArrangedArrayFormat.jpeg)
+![](../../../ref-guide-images/resultVerticallyArrangedArrayFormat.jpeg)
 
 *Result in the vertically arranged array format*
 

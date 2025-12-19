@@ -6,11 +6,11 @@ This functionality is suitable for cases when a user is dealing with `.xls` file
 
 Splitting can be vertical or horizontal. In vertical case, the first N1 rows of an original rule table are placed in the first table part, the next N2 rows in the second table part, and so on. In horizontal case, the first N1 columns of the rule table are placed in the first table part, the next N2 columns in the second table part, and so on. The header of the original rule table and its properties definition must be copied to each table part in case of horizontal splitting. Merging of table parts into the rule table is processed as depicted in the following figures.
 
-![](../../../../ref_guide_images/verticalMergingTableParts.png)
+![](../../../ref-guide-images/verticalMergingTableParts.png)
 
 *Vertical merging of table parts*
 
-![](../../../../ref_guide_images/horizontalMergingTableParts.png)
+![](../../../ref-guide-images/horizontalMergingTableParts.png)
 
 *Horizontal merging of table parts*
 
@@ -36,19 +36,19 @@ The following table describes the TablePart header syntax:
 
 The following examples illustrate vertical and horizontal splitting of the **RiskOfWorkWithCorporate** decision rule.
 
-![](../../../../ref_guide_images/tablePartsExampleVerticalSplittingPart.png)
+![](../../../ref-guide-images/tablePartsExampleVerticalSplittingPart.png)
 
 *Table Parts example. Vertical splitting part 1*
 
-![](../../../../ref_guide_images/tablePartsExampleVerticalSplittingPart2.png)
+![](../../../ref-guide-images/tablePartsExampleVerticalSplittingPart2.png)
 
 *Table Parts example. Vertical splitting part2*
 
-![](../../../../ref_guide_images/tablePartExampleHorizontalSplittingPart.png)
+![](../../../ref-guide-images/tablePartExampleHorizontalSplittingPart.png)
 
 *Table Part example. Horizontal splitting part 1*
 
-![](../../../../ref_guide_images/tablePartsExampleHorizontalSplittingPart.png)
+![](../../../ref-guide-images/tablePartsExampleHorizontalSplittingPart.png)
 
 *Table Parts example. Horizontal splitting part 2*
 

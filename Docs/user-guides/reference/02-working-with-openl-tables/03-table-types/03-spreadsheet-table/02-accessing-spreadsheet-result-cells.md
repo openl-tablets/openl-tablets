@@ -12,7 +12,7 @@ or
 
 If a spreadsheet has one column only, besides the column holding step names, spreadsheet cells can be referenced by row names. If there is one row and multiple columns, a cell can be referenced by the column name.
 
-![](../../../../ref_guide_images/referencingCellByRowName.png)
+![](../../../ref-guide-images/referencingCellByRowName.png)
 
 *Referencing a cell by a row name*
 

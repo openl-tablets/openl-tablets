@@ -6,7 +6,7 @@ A **run table** calls a particular rule table multiple times and provides input 
 
 An example of a run method table is as follows.
 
-![](../../../../ref_guide_images/runTable.png)
+![](../../../ref-guide-images/runTable.png)
 
 *Run table*
 

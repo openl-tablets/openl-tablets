@@ -20,13 +20,13 @@ The following topics are included in this section:
 
 The following image represents a situation when users must provide an expression and simple equal operation for condition declaration.
 
-![](../../../../ref_guide_images/decisionTableRequiringExpressionSimpleEqual.png)
+![](../../../ref-guide-images/decisionTableRequiringExpressionSimpleEqual.png)
 
 *Decision table requiring an expression and simple equal operation for condition declaration*
 
 This code snippet can be simplified as displayed in the following example.
 
-![](../../../../ref_guide_images/simplifiedDecisionTable.png)
+![](../../../ref-guide-images/simplifiedDecisionTable.png)
 
 *Simplified decision table*
 
@@ -41,7 +41,7 @@ In the next step, OpenL Tablets will create an appropriate condition evaluator.
 
 **Note:** The parameter name can be omitted in the situation when the `contains(P1, expression value)` operation for condition declaration is to be applied. The type of the parameter must be an array of the expression value type.
 
-![](../../../../ref_guide_images/simplifiedConditionDeclaration.png)
+![](../../../ref-guide-images/simplifiedConditionDeclaration.png)
 
 *Simplified condition declaration*
 
@@ -50,13 +50,13 @@ In the next step, OpenL Tablets will create an appropriate condition evaluator.
 
 The following example illustrates the **Greeting** rule with the **min \<= value and value \< max** condition expression.
 
-![](../../../../ref_guide_images/greetingRule.png)
+![](../../../ref-guide-images/greetingRule.png)
 
 *The Greeting rule*
 
 Instead of the full expression **min \<= value and value \< max**, a user can simply use **value** and OpenL Tablets automatically recognizes the full condition.
 
-![](../../../../ref_guide_images/simplifiedGreetingRule.png)
+![](../../../ref-guide-images/simplifiedGreetingRule.png)
 
 *Simplified Greeting rule*
 
@@ -67,7 +67,7 @@ Time for executing the OpenL Tablets rules heavily depends on complexity of cond
 
 To speed up rules execution, put simple conditions before more complicated ones. In the following example, simple condition is located before a more complicated one.
 
-![](../../../../ref_guide_images/simpleConditionLocation.png)
+![](../../../ref-guide-images/simpleConditionLocation.png)
 
 *Simple condition location*
 

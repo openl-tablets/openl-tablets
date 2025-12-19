@@ -14,7 +14,7 @@ The vocabulary data type is created as follows:
 
 In the example described in [Introducing Datatype Tables](01-introducing-datatype-tables.md#introducing-datatype-tables), the data type **Person** has an attribute **gender** of the **Gender** data type which is the following vocabulary data type.
 
-![](../../../../ref_guide_images/exampleVocabularyDatatypeTableStringParameters.png)
+![](../../../ref-guide-images/exampleVocabularyDatatypeTableStringParameters.png)
 
 *Example of vocabulary datatype table with String parameters*
 

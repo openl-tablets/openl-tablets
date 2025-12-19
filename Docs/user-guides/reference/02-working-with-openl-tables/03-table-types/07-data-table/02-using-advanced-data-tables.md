@@ -15,7 +15,7 @@ Advanced data tables are used for storing information of a complex structure, su
 
 The following diagram displays a datatype table and a corresponding data table with concrete values below it.
 
-![](../../../../ref_guide_images/datatypeTableCorrespondingDataTable.png)
+![](../../../ref-guide-images/datatypeTableCorrespondingDataTable.png)
 
 *Datatype table and a corresponding data table*
 
@@ -23,13 +23,13 @@ The following diagram displays a datatype table and a corresponding data table w
 
 There might be a situation when a user needs a Data table column with unique values, while other columns contain values that are not unique. In this case, add a column with the predefined \_PK\_ attribute name, standing for the primary key. It is called an **explicit definition** of the primary key.
 
-![](../../../../ref_guide_images/dataTableUnique_pk_Column.png)
+![](../../../ref-guide-images/dataTableUnique_pk_Column.png)
 
 *A Data table with unique \_PK\_ column*
 
 If the \_PK\_ column is not defined, the first column of the table is used as a primary key. This is called an **implicit definition** of the primary key.
 
-![](../../../../ref_guide_images/referringFromOneDataTableAnother.png)
+![](../../../ref-guide-images/referringFromOneDataTableAnother.png)
 
 *Referring from one Data table to another using a primary key*
 

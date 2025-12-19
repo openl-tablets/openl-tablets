@@ -37,7 +37,7 @@ Project sources can be added from developer created artifacts, such as jars, Jav
 
 Saved classpath is automatically added to the `rules.xml` file. After that, classpath can be used in rules. Classpath can indicate both specific jar and folder with libraries. The asterisk \* symbol can be used for the varying part in the classpath.
 
-![](../../ref_guide_images/classpathDescriptionRulesxml.png)
+![](../ref-guide-images/classpathDescriptionRulesxml.png)
 
 *Classpath description in the rules.xml*
 

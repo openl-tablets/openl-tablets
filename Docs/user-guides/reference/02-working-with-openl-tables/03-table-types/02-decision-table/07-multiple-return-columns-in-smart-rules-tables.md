@@ -4,13 +4,13 @@ A smart rules table can contain up to three return columns. If the first return 
 
 The following example illustrates a table with multiple return columns.
 
-![](../../../../ref_guide_images/exampleSmartRulesTableMultipleReturn.jpeg)
+![](../../../ref-guide-images/exampleSmartRulesTableMultipleReturn.jpeg)
 
 *Example of a smart rules table with multiple return columns*
 
 In this example, the **QuoteVolume** rule has one condition, **Coverage Type,** and two return columns, **Volume 1** and **Volume 2.** An example of the test table for this rule table is as follows.
 
-![](../../../../ref_guide_images/exampleTestTableRuleTableMultiple.png)
+![](../../../ref-guide-images/exampleTestTableRuleTableMultiple.png)
 
 *Example of the test table for a rule table with multiple return columns*
 

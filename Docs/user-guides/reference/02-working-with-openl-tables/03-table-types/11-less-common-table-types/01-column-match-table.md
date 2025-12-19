@@ -46,7 +46,7 @@ The **MATCH** algorithm allows mapping a set of conditions to a single return va
 
 Besides the mandatory columns, such as names, operations, and values, the **MATCH** table expects that the first data row contains **Return Values**, one of which is returned as a result of the ColumnMatch table execution.
 
-![](../../../../ref_guide_images/exampleMatchAlgorithmTable.png)
+![](../../../ref-guide-images/exampleMatchAlgorithmTable.png)
 
 *An example of the MATCH algorithm table*
 
@@ -67,7 +67,7 @@ The **SCORE** algorithm calculates the sum of weighted ratings or scores for all
 
 The algorithm expects that the first row contains **Score**, which is a list of scores or ratings added to the result sum if an argument matches the check value in the corresponding sub column.
 
-![](../../../../ref_guide_images/exampleScoreAlgorithmTable.png)
+![](../../../ref-guide-images/exampleScoreAlgorithmTable.png)
 
 *An example of the SCORE algorithm table*
 
@@ -86,7 +86,7 @@ The **WEIGHTED** algorithm combines the SCORE and simple MATCH algorithms. The r
 
 The WEIGHTED algorithm requires the same columns as the SCORE algorithm. Yet it expects that first three rows are **Return Values**, **Total Score**, and **Score**. **Return Values** and **Total Score** represent the MATCH algorithm, and the **Score** row is the beginning of the SCORE part.
 
-![](../../../../ref_guide_images/exampleWeightedAlgorithmTable.png)
+![](../../../ref-guide-images/exampleWeightedAlgorithmTable.png)
 
 *An example of the WEIGHTED algorithm table*
 

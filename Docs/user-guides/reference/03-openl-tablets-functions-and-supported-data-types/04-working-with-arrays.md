@@ -99,13 +99,13 @@ Array index operators can be used with arrays which elements are of SpreadsheetR
 
 Consider an example with select operator. There is a rule which selects and returns spreadsheet result with value **2** in the \$Formula\$EmployeeClassId cell.
 
-![](../../ref_guide_images/indexOperatorAppliedArraySpreadsheetresults.png)
+![](../ref-guide-images/indexOperatorAppliedArraySpreadsheetresults.png)
 
 *Index operator applied on array of SpreadsheetResults*
 
 where the spreadsheet result element of allEmployeeClassPremiums array is calculated from the following spreadsheet table:
 
-![](../../ref_guide_images/spreadsheetAllemployeeclasspremiumsArrayResultCalculation.png)
+![](../ref-guide-images/spreadsheetAllemployeeclasspremiumsArrayResultCalculation.png)
 
 *Spreadsheet for allEmployeeClassPremiums array result calculation*
 
@@ -133,19 +133,19 @@ For more information on array functions, see [Array Functions](../../05-appendic
 
 The **Length** array function returns the number of elements in the array as a result value. An example is as follows.
 
-![](../../ref_guide_images/ruleTableLengthFunction.png)
+![](../ref-guide-images/ruleTableLengthFunction.png)
 
 *Rule table with the length function*
 
 In this example, the **Insurance** procedure depends on the number of vehicles. The policy includes vehicles field represented as array.
 
-![](../../ref_guide_images/testTableRuleTableLengthFunction.png)
+![](../ref-guide-images/testTableRuleTableLengthFunction.png)
 
 *Test table for rule table with length function*
 
 Policy2 contains two vehicles as illustrated in the following data table.
 
-![](../../ref_guide_images/dataTableTestTable.png)
+![](../ref-guide-images/dataTableTestTable.png)
 
 *Data table for a test table*
 
@@ -159,7 +159,7 @@ Policy2 contains two vehicles as illustrated in the following data table.
 
 OpenL Tablets allows applying a rule intended for work with one value to an array of values. The following example demonstrates this feature in a very simple way.
 
-![](../../ref_guide_images/applyingRuleArrayValues.png)
+![](../ref-guide-images/applyingRuleArrayValues.png)
 
 *Applying a rule to an array of values*
 

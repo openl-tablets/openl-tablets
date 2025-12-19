@@ -10,7 +10,7 @@ The input parameter attribute type is not specified when calling a nested rule.
 
 In the following example, a nested rule table **HeapedCommissionStrategy** is called from the **CommissionCalculation** smart rule table.
 
-![](../../../ref_guide_images/callingNestedRuleTableFromRule.png)
+![](../../ref-guide-images/callingNestedRuleTableFromRule.png)
 
 *Calling a nested rule table from a rule table*
 
@@ -25,9 +25,9 @@ Sometimes specific values must be sent to the nested table. In this case, input 
 
 For example, usually the detailed information about children is not included in the insurance policy and so default values are used to get the rates:
 
-![](../../../ref_guide_images/callingTableFromAnotherTable.png)
+![](../../ref-guide-images/callingTableFromAnotherTable.png)
 
-![](../../../ref_guide_images/declaringSpecificInputsWhenCallingNested.png)
+![](../../ref-guide-images/declaringSpecificInputsWhenCallingNested.png)
 
 *Declaring specific inputs when calling a nested rule table*
 

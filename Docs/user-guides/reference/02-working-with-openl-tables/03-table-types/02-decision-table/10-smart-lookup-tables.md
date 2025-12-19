@@ -6,7 +6,7 @@ The smart lookup table header format is as follows:
 
 `SmartLookup <Return type> RuleName(<Parameter type 1> parameterName1, (<Parameter type 2> parameterName2,….)`
 
-![](../../../../ref_guide_images/smartLookupTableExample.png)
+![](../../../ref-guide-images/smartLookupTableExample.png)
 
 *Smart lookup table example*
 
@@ -18,17 +18,17 @@ The number of horizontal conditions is determined by the height of the first col
 
 The following is an example of a smart lookup table with several horizontal conditions:
 
-![](../../../../ref_guide_images/smartLookupTableSeveralHorizontalConditions.png)
+![](../../../ref-guide-images/smartLookupTableSeveralHorizontalConditions.png)
 
 *Smart lookup table with several horizontal conditions*
 
 OpenL Tablets supports titles for horizontal conditions. A horizontal condition title is defined either together with the last vertical condition header, separated by a slash character, or as a separate column after all vertical conditions.
 
-![](../../../../ref_guide_images/slashCharacterRedCellIndicatingThat.jpeg)
+![](../../../ref-guide-images/slashCharacterRedCellIndicatingThat.jpeg)
 
 *Slash character in a red cell indicating that the cell contains condition titles for a vertical condition "Rating of Agency" and a horizontal condition "Total Assets*
 
-![](../../../../ref_guide_images/algorithmIdentifyingThirdColumnHorizontalCondition.jpeg)
+![](../../../ref-guide-images/algorithmIdentifyingThirdColumnHorizontalCondition.jpeg)
 
 *Algorithm identifying the third column as horizontal condition titles because the third column values are empty*
 

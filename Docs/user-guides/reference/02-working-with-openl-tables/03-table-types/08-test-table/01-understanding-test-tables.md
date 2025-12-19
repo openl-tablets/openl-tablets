@@ -12,7 +12,7 @@ A **test table** is used to perform unit and integration tests on executable rul
 
 For example, in the following diagram, the table on the left is a decision table but the table on the right is a unit test table that tests data of the decision table.
 
-![](../../../../ref_guide_images/decisionTableItsUnitTestTable.png)
+![](../../../ref-guide-images/decisionTableItsUnitTestTable.png)
 
 *Decision table and its unit test table*
 
@@ -40,7 +40,7 @@ If there are several rule tables with a different number of parameters but ident
 
 Application runtime context values are defined in the runtime environment. Test tables for a table, overloaded by business dimension properties, must provide values for the runtime context significant for the tested table. Runtime context values are accessed in the test table through the **\_context\_** prefix. An example of a test table with the context value Lob follows:
 
-![](../../../../ref_guide_images/exampleTestTableContextValue.png)
+![](../../../ref-guide-images/exampleTestTableContextValue.png)
 
 *An example of a test table with a context value*
 
@@ -52,7 +52,7 @@ The **\_description\_** column can be used for entering useful information.
 
 The **\_error\_** column of the test table can be used for a test algorithm where the **error** function is used. The OpenL Tablets Engine compares an error message to the value of the **\_error\_** column to decide if test is passed.
 
-![](../../../../ref_guide_images/exampleTestTableExpectedErrorColumn.png)
+![](../../../ref-guide-images/exampleTestTableExpectedErrorColumn.png)
 
 *An example of a test table with an expected error column*
 
