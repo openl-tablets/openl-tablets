@@ -102,6 +102,7 @@ All tools are versioned (v1.0.0) and prefixed with `openl_` for MCP compliance.
 **Rules** (5): openl_list_tables, openl_get_table, openl_update_table, openl_append_table, openl_create_rule  
 **Version Control** (2): openl_get_project_history, openl_revert_version  
 **Deployment** (2): openl_list_deployments, openl_deploy_project  
+**Testing** (3): openl_start_project_tests, openl_get_project_test_results, openl_run_project_tests (deprecated)  
 **Execution** (1): openl_execute_rule
 
 **Note**: Some tools are temporarily disabled pending full implementation. See [Enable Disabled Tools](docs/reference/ENABLE_DISABLED_TOOLS.md) for details.
@@ -209,13 +210,13 @@ See [Setup Guides](docs/setup/) for client-specific configuration instructions.
 - **Enhanced Errors**: Detailed context (endpoint, method, tool, suggested fix)
 - **Tool Metadata**: Version, category, operation flags
 - **Character Limit**: 25K response truncation with helpful guidance
-- **Comprehensive Tests**: 347 tests covering validators, formatters, auth, client, utils
+- **Comprehensive Tests**: 393 tests covering validators, formatters, auth, client, utils
 
 ## Development
 
 ```bash
 npm run build          # Build TypeScript
-npm test               # Run tests (347 total, 35% coverage)
+npm test               # Run tests (393 total, 35% coverage)
 npm run lint           # Check code quality
 npm run watch          # Dev mode with auto-rebuild
 ```

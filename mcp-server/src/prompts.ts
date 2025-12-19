@@ -6,7 +6,8 @@
  */
 
 import { readFileSync } from "fs";
-import { join, resolve } from "path";
+import { join, resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
 /**
  * Response that may include a prompt for user guidance
@@ -32,7 +33,7 @@ export interface PromptResponse<T = unknown> {
  * Prompt template loader
  */
 export class PromptLoader {
-  private static promptsDir = join(__dirname, "..", "prompts");
+  private static promptsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "prompts");
 
   /**
    * Load a prompt template by name

@@ -367,18 +367,52 @@
 
 ## Testing & Validation Tools
 
-### 25. `openl_run_project_tests`
+### 25. `openl_start_project_tests`
 
 **Status**: ✅ Complete  
-**OpenL API**: `POST /projects/{projectId}/tests/run?fromModule={tableId}&testRanges={ranges}` then `GET /projects/{projectId}/tests/summary?failuresOnly={bool}&page={page}&size={size}`
+**OpenL API**: `POST /projects/{projectId}/tests/run?fromModule={tableId}&testRanges={ranges}`
+
+**Extra/Missed Inputs**:
+- ✅ All API parameters covered: `projectId`, `tableId` (as `fromModule`), `testRanges`
+- ✅ Returns confirmation that tests have been started
+- ✅ Separated from result retrieval for better control
+
+**Recommendations**:
+- ✅ Tool correctly handles async test execution start
+- ✅ Use `openl_get_project_test_results` to retrieve results
+
+---
+
+### 26. `openl_get_project_test_results`
+
+**Status**: ✅ Complete  
+**OpenL API**: `GET /projects/{projectId}/tests/summary?failuresOnly={bool}&page={page}&size={size}`
+
+**Extra/Missed Inputs**:
+- ✅ All API parameters covered: `projectId`, `failuresOnly`, pagination
+- ✅ `waitForCompletion` parameter allows immediate status check or polling until completion
+- ✅ Tool correctly handles async test execution with polling mechanism
+
+**Recommendations**:
+- ✅ Polling mechanism implemented with exponential backoff
+- ✅ Timeout handling for long-running tests
+- ✅ Can return current status immediately if `waitForCompletion: false`
+
+---
+
+### 27. `openl_run_project_tests` (Deprecated)
+
+**Status**: ⚠️ Deprecated  
+**OpenL API**: `POST /projects/{projectId}/tests/run` then `GET /projects/{projectId}/tests/summary`
 
 **Extra/Missed Inputs**:
 - ✅ All API parameters covered: `projectId`, `tableId` (as `fromModule`), `testRanges`, `failuresOnly`, pagination
-- ✅ Tool correctly handles async test execution (POST then GET summary)
+- ✅ Tool correctly handles async test execution (POST then GET summary with polling)
 
 **Recommendations**:
-- Consider adding timeout parameter for long-running tests
-- Consider adding polling mechanism to wait for test completion (currently assumes immediate completion)
+- ⚠️ **DEPRECATED**: Use `openl_start_project_tests` followed by `openl_get_project_test_results` instead
+- ✅ Maintained for backward compatibility
+- ✅ Uses new methods internally
 
 ---
 
@@ -531,7 +565,7 @@
 | ✅ Complete | 17 | All repository, project, table, deployment, branch, and test tools |
 | ⚠️ Partial | 2 | `openl_update_project_status`, `openl_list_deployments` |
 | 🔴 Disabled | 7 | `upload_file`, `download_file`, `create_rule`, `execute_rule`, `revert_version`, `get_file_history`, `get_project_history` |
-| ❌ Missing | 7 | `validate_project`, `get_project_errors`, `compare_versions`, `delete_project`, `save_project`, `health_check` |
+| ❌ Missing | 8 | `validate_project`, `get_project_errors`, `compare_versions`, `delete_project`, `save_project`, `openl_open_project`, `openl_close_project`, `health_check` |
 
 ### Critical Issues
 
@@ -553,7 +587,8 @@
    - `openl_compare_versions` - Client method exists, tool missing
    - `openl_delete_project` - Client method exists, tool missing
    - `openl_save_project` - Client method exists, tool missing
-   - `openl_open_project` / `openl_close_project` - Client methods exist, tools missing (functionality available via `update_project_status`)
+   - `openl_open_project` - Client method exists, tool missing (functionality available via `update_project_status`)
+   - `openl_close_project` - Client method exists, tool missing (functionality available via `update_project_status`)
    - `openl_health_check` - Client method exists, tool missing
 
 5. **API Endpoint Verification Needed**:
@@ -577,9 +612,10 @@
 8. Verify and fix/remove `revert_version`, `get_file_history`, `get_project_history` tools
 
 **LOW PRIORITY**:
-9. Consider dedicated `openl_open_project` and `openl_close_project` tools
-10. Add timeout parameters to long-running operations
-11. Add polling mechanism for async test execution
+9. Add `openl_open_project` tool
+10. Add `openl_close_project` tool
+11. Add timeout parameters to long-running operations
+12. Add polling mechanism for async test execution
 
 ---
 

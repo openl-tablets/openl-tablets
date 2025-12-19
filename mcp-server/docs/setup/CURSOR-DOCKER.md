@@ -6,7 +6,7 @@ This document describes how to connect Cursor IDE to MCP Server running in a Doc
 
 ## Architecture
 
-```
+```text
 ┌─────────────┐
 │   Cursor    │  ← Cursor IDE
 └──────┬──────┘
@@ -210,13 +210,13 @@ Or if using Nginx proxy:
 
 In Cursor chat, try:
 
-```
+```text
 List repositories in OpenL Tablets
 ```
 
 or
 
-```
+```text
 Show projects in the design repository
 ```
 
@@ -264,7 +264,7 @@ If something doesn't work, check proxy logs:
    Should return SSE stream headers
 
 3. Verify URL in Cursor configuration is correct:
-   ```
+   ```text
    http://localhost:3000/mcp/sse
    ```
 

@@ -226,16 +226,27 @@ export class OpenLClient {
    * @throws Error if projectId format is invalid
    */
   private toBase64ProjectId(projectId: string): string {
+    // If projectId is URL-encoded (contains %), decode it first
+    let decodedId = projectId;
+    if (projectId.includes('%')) {
+      try {
+        decodedId = decodeURIComponent(projectId);
+      } catch (error) {
+        // If decoding fails, use original - might not be URL-encoded
+        decodedId = projectId;
+      }
+    }
+
     // If contains '-' or ':', definitely needs parsing and encoding
-    if (projectId.includes('-') || projectId.includes(':')) {
-      const [repository, projectName] = this.parseProjectId(projectId);
+    if (decodedId.includes('-') || decodedId.includes(':')) {
+      const [repository, projectName] = this.parseProjectId(decodedId);
       const colonFormat = `${repository}:${projectName}`;
       return Buffer.from(colonFormat, 'utf-8').toString('base64');
     }
 
     // No dash or colon - might be already base64, but validate explicitly
     // First check if it matches base64 pattern
-    const normalizedId = projectId.replace(/\s/g, "");
+    const normalizedId = decodedId.replace(/\s/g, "");
     if (!PROJECT_ID_PATTERN.test(normalizedId)) {
       throw new Error(
         `Invalid project ID format: "${projectId}" does not match base64 pattern. ` +
@@ -1002,27 +1013,20 @@ export class OpenLClient {
   }
 
   /**
-   * Run project tests
+   * Start project tests execution
    *
    * @param projectId - Project ID
-   * @param options - Test execution options (tableId, testRanges, query, pagination)
-   * @returns Test execution summary
-   * @throws Error if test execution times out or fails
+   * @param options - Test execution options (tableId, testRanges)
+   * @returns Confirmation that tests have been started
+   * @throws Error if test execution fails to start
    */
-  async runProjectTests(
+  async startProjectTests(
     projectId: string,
     options?: {
       tableId?: string;
       testRanges?: string;
-      query?: {
-        failuresOnly?: boolean;
-      };
-      pagination?: {
-        offset?: number;
-        limit?: number;
-      };
     }
-  ): Promise<Types.TestsExecutionSummary> {
+  ): Promise<{ success: boolean; message: string }> {
     const projectPath = this.buildProjectPath(projectId);
 
     // Start test execution (returns 202 Accepted)
@@ -1036,6 +1040,35 @@ export class OpenLClient {
       { params }
     );
 
+    return {
+      success: true,
+      message: "Test execution started successfully. Use openl_get_project_test_results to check results.",
+    };
+  }
+
+  /**
+   * Get project test results
+   *
+   * @param projectId - Project ID
+   * @param options - Result retrieval options (query, pagination, waitForCompletion)
+   * @returns Test execution summary
+   * @throws Error if test results cannot be retrieved
+   */
+  async getProjectTestResults(
+    projectId: string,
+    options?: {
+      query?: {
+        failuresOnly?: boolean;
+      };
+      pagination?: {
+        offset?: number;
+        limit?: number;
+      };
+      waitForCompletion?: boolean;
+    }
+  ): Promise<Types.TestsExecutionSummary> {
+    const projectPath = this.buildProjectPath(projectId);
+
     // Build summary query parameters
     const summaryParams: Record<string, string | number | boolean> = {};
     if (options?.query?.failuresOnly) summaryParams.failuresOnly = true;
@@ -1044,7 +1077,16 @@ export class OpenLClient {
     }
     if (options?.pagination?.limit !== undefined) summaryParams.size = options.pagination.limit;
 
-    // Poll for test completion with exponential backoff
+    // If waitForCompletion is false, just return current status
+    if (options?.waitForCompletion === false) {
+      const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
+        `${projectPath}/tests/summary`,
+        { params: summaryParams }
+      );
+      return response.data;
+    }
+
+    // Otherwise, poll for test completion with exponential backoff
     const startTime = Date.now();
     let interval: number = TEST_POLLING.INITIAL_INTERVAL;
     let lastExecutionTime = 0;
@@ -1115,6 +1157,43 @@ export class OpenLClient {
       `(${Math.round((Date.now() - startTime) / 1000)}s). ` +
       `Tests may still be running. Check status manually.`
     );
+  }
+
+  /**
+   * Run project tests (deprecated - use startProjectTests + getProjectTestResults instead)
+   *
+   * @deprecated Use startProjectTests() followed by getProjectTestResults() instead
+   * @param projectId - Project ID
+   * @param options - Test execution options (tableId, testRanges, query, pagination)
+   * @returns Test execution summary
+   * @throws Error if test execution times out or fails
+   */
+  async runProjectTests(
+    projectId: string,
+    options?: {
+      tableId?: string;
+      testRanges?: string;
+      query?: {
+        failuresOnly?: boolean;
+      };
+      pagination?: {
+        offset?: number;
+        limit?: number;
+      };
+    }
+  ): Promise<Types.TestsExecutionSummary> {
+    // Start tests
+    await this.startProjectTests(projectId, {
+      tableId: options?.tableId,
+      testRanges: options?.testRanges,
+    });
+
+    // Get results with polling
+    return this.getProjectTestResults(projectId, {
+      query: options?.query,
+      pagination: options?.pagination,
+      waitForCompletion: true,
+    });
   }
 
   // =============================================================================
