@@ -1,7 +1,10 @@
 package org.openl.rules.webstudio.web.servlet.wellknown;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,8 +12,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
 
 import org.openl.rules.spring.openapi.RequestPathUtils;
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
@@ -29,8 +32,13 @@ import org.openl.util.StringUtils;
 public class WellKnownServlet extends HttpServlet {
 
     private static final String PROTECTED_RESOURCE_METADATA_PATH = "/oauth-protected-resource";
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String PROTECTED_RESOURCE_METADATA_RESPONSE_TEMPLATE_JSON = """
+            '{'
+              "resource": "{0}",
+              "authorization_servers": [{1}],
+              "scopes_supported": [{2}]
+            '}'
+            """;
 
     private Environment environment;
 
@@ -54,22 +62,28 @@ public class WellKnownServlet extends HttpServlet {
 
     private void handleProtectedResourceMetadata(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        objectMapper.writeValue(resp.getOutputStream(), getResourceMetadata(req));
+        resp.getWriter().write(getResourceMetadata(req));
     }
 
     private void handleNotFound(HttpServletResponse resp) throws IOException {
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    private ResourceMetadataModel getResourceMetadata(HttpServletRequest request) {
-        ResourceMetadataModel resourceMetadata = new ResourceMetadataModel();
-        resourceMetadata.setAuthorizationServers(getAuthorizationServers());
-        resourceMetadata.setScopesSupported(getScopesSupported());
-        resourceMetadata.setResource(RequestPathUtils.getRequestBasePath(request));
-        return resourceMetadata;
+    private String getResourceMetadata(HttpServletRequest request) {
+        return MessageFormat.format(
+                PROTECTED_RESOURCE_METADATA_RESPONSE_TEMPLATE_JSON,
+                RequestPathUtils.getRequestBasePath(request),
+                getAuthorizationServers().stream()
+                        .map(s -> "\"" + s + "\"")
+                        .collect(Collectors.joining(", ")),
+                getScopesSupported().stream()
+                        .map(s -> "\"" + s + "\"")
+                        .collect(Collectors.joining(", "))
+
+        );
     }
 
     private List<String> getAuthorizationServers() {
