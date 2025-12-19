@@ -1,24 +1,28 @@
-/* Copyright © 2025 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.webstudio.web.servlet.wellknown;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import org.openl.rules.spring.openapi.RequestPathUtils;
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
@@ -55,7 +59,7 @@ class WellKnownServletTest {
         requestPathUtilsMock = mockStatic(RequestPathUtils.class);
         requestPathUtilsMock
                 .when(() -> RequestPathUtils.getRequestBasePath(any()))
-                        .thenReturn(APPLICATION_BASE_URI);
+                .thenReturn(APPLICATION_BASE_URI);
 
         servlet = new WellKnownServlet();
         servlet.init(servletConfig);

@@ -83,13 +83,13 @@ public class ResourceMetadataBearerEntryPoint implements AuthenticationEntryPoin
         wwwAuthenticate.append("Bearer");
         if (!parameters.isEmpty()) {
             wwwAuthenticate.append(" ");
-            int i = 0;
-            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            var iterator = parameters.entrySet().iterator();
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
                 wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
-                if (i != parameters.size() - 1) {
+                if (iterator.hasNext()) {
                     wwwAuthenticate.append(", ");
                 }
-                i++;
             }
         }
         return wwwAuthenticate.toString();

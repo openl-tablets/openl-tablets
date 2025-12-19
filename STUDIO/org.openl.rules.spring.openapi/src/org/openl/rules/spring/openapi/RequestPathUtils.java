@@ -1,6 +1,5 @@
 package org.openl.rules.spring.openapi;
 
-import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.openl.util.StringUtils;
@@ -14,8 +13,14 @@ public class RequestPathUtils {
 
     public static String getFullRequestPath(HttpServletRequest request) {
         StringBuilder url = new StringBuilder(getRequestBasePath(request));
-        Optional.of(request.getContextPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
-        Optional.of(request.getServletPath()).filter(StringUtils::isNotBlank).ifPresent(url::append);
+        String contextPath = request.getContextPath();
+        if (StringUtils.isNotBlank(contextPath)) {
+            url.append(contextPath);
+        }
+        String servletPath = request.getServletPath();
+        if (StringUtils.isNotBlank(servletPath)) {
+            url.append(servletPath);
+        }
         return url.toString();
     }
 
@@ -25,7 +30,7 @@ public class RequestPathUtils {
         final var url = new StringBuilder(scheme).append("://").append(request.getServerName());
 
         if ("http".equals(scheme) && port != 80 || "https".equals(scheme) && port != 443) {
-            url.append(':').append(request.getServerPort());
+            url.append(':').append(port);
         }
 
         return url.toString();

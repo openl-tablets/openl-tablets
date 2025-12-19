@@ -44,12 +44,13 @@ public class WellKnownServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
+        super.init();
         environment = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (oauth2ModeEnabled() && req.getPathInfo().equals(PROTECTED_RESOURCE_METADATA_PATH)) {
+        if (oauth2ModeEnabled() && PROTECTED_RESOURCE_METADATA_PATH.equals(req.getPathInfo())) {
             handleProtectedResourceMetadata(req, resp);
         } else {
             handleNotFound(resp);

@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json;charset=utf-8
+
+{
+    "resource": "http://example.com",
+    "authorization_servers": [
+        "${AUTH_SERVER_URL}realms/openlstudio"
+    ],
+    "scopes_supported": [
+        "openid",
+        "profile",
+        "email"
+    ]
+}
