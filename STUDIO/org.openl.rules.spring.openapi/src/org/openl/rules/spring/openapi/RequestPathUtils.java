@@ -11,6 +11,9 @@ import org.openl.util.StringUtils;
  */
 public class RequestPathUtils {
 
+    private RequestPathUtils() {
+    }
+
     public static String getFullRequestPath(HttpServletRequest request) {
         StringBuilder url = new StringBuilder(getRequestBasePath(request));
         String contextPath = request.getContextPath();

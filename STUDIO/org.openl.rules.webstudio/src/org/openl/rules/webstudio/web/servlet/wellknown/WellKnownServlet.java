@@ -44,7 +44,7 @@ public class WellKnownServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        super.init();
+        super.init(config);
         environment = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
     }
 

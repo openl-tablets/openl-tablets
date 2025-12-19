@@ -72,7 +72,7 @@ class WellKnownServletTest {
     }
 
     @Test
-    void shouldReturnProtectedResourceMetadata() throws Exception {
+    void testDoGet_oauth2EnabledAndCorrectPath_returnsProtectedResourceMetadata() throws Exception {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -100,7 +100,7 @@ class WellKnownServletTest {
     }
 
     @Test
-    void shouldReturnMetadataWithEmptyArrays() throws Exception {
+    void testDoGet_oauth2EnabledWithNullProperties_returnsMetadataWithEmptyArrays() throws Exception {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -128,7 +128,7 @@ class WellKnownServletTest {
     }
 
     @Test
-    void shouldReturn404IfOauth2Disabled() throws Exception {
+    void testDoGet_oauth2Disabled_returns404() throws Exception {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -141,7 +141,7 @@ class WellKnownServletTest {
     }
 
     @Test
-    void shouldReturn404ForUnknownPath() throws Exception {
+    void testDoGet_unknownPath_returns404() throws Exception {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);

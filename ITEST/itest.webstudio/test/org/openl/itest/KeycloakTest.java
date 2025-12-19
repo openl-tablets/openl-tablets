@@ -40,7 +40,6 @@ public class KeycloakTest {
                 httpClient.localEnv.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
                 httpClient.localEnv.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
                 httpClient.localEnv.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-                httpClient.localEnv.put("AUTH_SERVER_URL", authServerUrl);
 
                 var oauth2Config = (ObjectNode) httpClient.readTree("test-resources-oauth2/set-authentication-template.json");
                 oauth2Config.put("issuerUri", authServerUrl + "realms/openlstudio");
