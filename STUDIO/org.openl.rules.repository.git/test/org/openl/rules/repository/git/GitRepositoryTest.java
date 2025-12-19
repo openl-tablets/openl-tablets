@@ -184,7 +184,7 @@ class GitRepositoryTest {
         assertNotNull(folders);
         assertEquals(1, folders.size());
 
-        FileData folderData = folders.get(0);
+        FileData folderData = folders.getFirst();
         assertEquals("rules/project1", folderData.getName());
     }
 
@@ -393,7 +393,7 @@ class GitRepositoryTest {
         // Life after erase
         List<FileData> versionsAfterErase = repo.listHistory(projectPath);
         assertEquals(6, versionsAfterErase.size());
-        FileData erasedData = versionsAfterErase.get(versionsAfterErase.size() - 1);
+        FileData erasedData = versionsAfterErase.getLast();
         assertTrue(erasedData.isDeleted());
         assertEquals(0, repo.listFiles(projectPath, erasedData.getVersion()).size());
 
@@ -646,8 +646,8 @@ class GitRepositoryTest {
                     "5 files existed and 2 files must be added (must be 7 files in total).");
             assertEquals("Rules_6", saved1.getVersion());
             assertEquals("Rules_5", saved2.getVersion());
-            assertEquals(repository1.check(saved1.getName()).getVersion(), "Rules_6");
-            assertEquals("Rules_6", repository1.listHistory(saved1.getName()).get(0).getVersion());
+            assertEquals("Rules_6", repository1.check(saved1.getName()).getVersion());
+            assertEquals("Rules_6", repository1.listHistory(saved1.getName()).getFirst().getVersion());
 
             // Just ensure that last commit in the whole repository is merge commit
             assertEquals("Merge branch 'test' into test", repository1.check("rules").getComment());
@@ -680,21 +680,22 @@ class GitRepositoryTest {
 
                 fail("MergeConflictException is expected");
             } catch (MergeConflictException e) {
-                Collection<String> conflictedFiles = e.getConflictedFiles();
+                var conflictDetails = e.getDetails();
+                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
                 assertEquals(1, conflictedFiles.size());
                 assertEquals(filePath, conflictedFiles.iterator().next());
 
-                assertEquals(baseCommit, e.getBaseCommit());
-                assertEquals(theirCommit, e.getTheirCommit());
-                assertNotNull(e.getYourCommit());
+                assertEquals(baseCommit, conflictDetails.baseCommit());
+                assertEquals(theirCommit, conflictDetails.theirCommit());
+                assertNotNull(conflictDetails.yourCommit());
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
                         repository2.check(filePath).getVersion(),
                         "Their changes were reverted in local repository");
 
-                assertNotEquals(e.getYourCommit(),
+                assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(filePath).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
@@ -707,7 +708,7 @@ class GitRepositoryTest {
 
                 FileData fileData = createFileData(filePath, text2);
                 fileData.setVersion(baseCommit);
-                fileData.addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                fileData.addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
                 FileData localData = repository2.save(fileData, IOUtils.toInputStream(text2));
 
                 FileItem remoteItem = repository2.read(filePath);
@@ -769,17 +770,18 @@ class GitRepositoryTest {
 
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
-            Collection<String> conflictedFiles = e.getConflictedFiles();
+            var conflictDetails = e.getDetails();
+            Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
             assertEquals(1, conflictedFiles.size());
             assertEquals(filePath, conflictedFiles.iterator().next());
 
-            assertEquals(baseCommit, e.getBaseCommit());
-            assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getYourCommit());
+            assertEquals(baseCommit, conflictDetails.baseCommit());
+            assertEquals(theirCommit, conflictDetails.theirCommit());
+            assertNotNull(conflictDetails.yourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2, false)) {
-                assertNotEquals(e.getYourCommit(),
+                assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(filePath).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
             }
@@ -831,21 +833,22 @@ class GitRepositoryTest {
 
                 fail("MergeConflictException is expected");
             } catch (MergeConflictException e) {
-                Collection<String> conflictedFiles = e.getConflictedFiles();
+                var conflictDetails = e.getDetails();
+                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
                 assertEquals(1, conflictedFiles.size());
                 assertEquals(conflictedFile, conflictedFiles.iterator().next());
 
-                assertEquals(baseCommit, e.getBaseCommit());
-                assertEquals(theirCommit, e.getTheirCommit());
-                assertNotNull(e.getYourCommit());
+                assertEquals(baseCommit, conflictDetails.baseCommit());
+                assertEquals(theirCommit, conflictDetails.theirCommit());
+                assertNotNull(conflictDetails.yourCommit());
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
                         repository2.check(conflictedFile).getVersion(),
                         "Their changes were reverted in local repository");
 
-                assertNotEquals(e.getYourCommit(),
+                assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
@@ -866,7 +869,7 @@ class GitRepositoryTest {
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
-                        .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                        .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
                 FileData localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
                 FileItem remoteItem = repository2.read(conflictedFile);
@@ -949,21 +952,22 @@ class GitRepositoryTest {
 
                 fail("MergeConflictException is expected");
             } catch (MergeConflictException e) {
-                Collection<String> conflictedFiles = e.getConflictedFiles();
+                var conflictDetails = e.getDetails();
+                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
                 assertEquals(1, conflictedFiles.size());
                 assertEquals(conflictedFile, conflictedFiles.iterator().next());
 
-                assertEquals(baseCommit, e.getBaseCommit());
-                assertEquals(theirCommit, e.getTheirCommit());
-                assertNotNull(e.getYourCommit());
+                assertEquals(baseCommit, conflictDetails.baseCommit());
+                assertEquals(theirCommit, conflictDetails.theirCommit());
+                assertNotNull(conflictDetails.yourCommit());
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
                         repository2.check(conflictedFile).getVersion(),
                         "Their changes were reverted in local repository");
 
-                assertNotEquals(e.getYourCommit(),
+                assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
 
@@ -981,7 +985,7 @@ class GitRepositoryTest {
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
-                        .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                        .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
                 FileItem remoteItem = repository2.read(conflictedFile);
@@ -1034,17 +1038,18 @@ class GitRepositoryTest {
 
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
-            Collection<String> conflictedFiles = e.getConflictedFiles();
+            var conflictDetails = e.getDetails();
+            Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
             assertEquals(1, conflictedFiles.size());
             assertEquals(conflictedFile, conflictedFiles.iterator().next());
 
-            assertEquals(baseCommit, e.getBaseCommit());
-            assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getYourCommit());
+            assertEquals(baseCommit, conflictDetails.baseCommit());
+            assertEquals(theirCommit, conflictDetails.theirCommit());
+            assertNotNull(conflictDetails.yourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2, false)) {
-                assertNotEquals(e.getYourCommit(),
+                assertNotEquals(conflictDetails.yourCommit(),
                         repository2.check(conflictedFile).getVersion(),
                         "Our conflicted commit must be reverted but it exists.");
             }
@@ -1350,11 +1355,11 @@ class GitRepositoryTest {
 
     private static void assertTheSame(BranchesData branches) {
         assertEquals(1, branches.getDescriptions().size());
-        assertEquals("branch2", branches.getDescriptions().get(0).getName());
-        assertEquals("1deabde8a096756681a08c4552597ef8850963f7", branches.getDescriptions().get(0).getCommit());
+        assertEquals("branch2", branches.getDescriptions().getFirst().getName());
+        assertEquals("1deabde8a096756681a08c4552597ef8850963f7", branches.getDescriptions().getFirst().getCommit());
         assertEquals(1, branches.getProjectBranches().size());
         assertEquals(2, branches.getProjectBranches().get("rules/project_2").size());
-        assertEquals("master", branches.getProjectBranches().get("rules/project_2").get(0));
+        assertEquals("master", branches.getProjectBranches().get("rules/project_2").getFirst());
         assertEquals("branch2", branches.getProjectBranches().get("rules/project_2").get(1));
     }
 }

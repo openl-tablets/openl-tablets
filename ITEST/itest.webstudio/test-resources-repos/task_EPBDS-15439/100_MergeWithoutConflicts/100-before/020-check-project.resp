@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==",
+  "name": "EPBDS-15439",
+  "branch": "master",
+  "status": "OPENED",
+  "repository": "design-flat",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15439",
+  "comment": "Project EPBDS-15439 is created.",
+  "selectedBranches": [
+    "master"
+  ]
+}

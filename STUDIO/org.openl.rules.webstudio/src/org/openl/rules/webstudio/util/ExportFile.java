@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.common.utils.WebTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 

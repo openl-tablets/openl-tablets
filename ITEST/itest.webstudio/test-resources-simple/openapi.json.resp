@@ -4,6 +4,148 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "ConflictGroup": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "files": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          },
+          "projectName": {
+            "type": "string",
+            "description": "*"
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "*"
+          }
+        }
+      },
+      "MergeRequest": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "*",
+            "enum": [
+              "receive",
+              "send"
+            ]
+          },
+          "otherBranch": {
+            "type": "string",
+            "description": "*",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "mode",
+          "otherBranch"
+        ]
+      },
+      "CheckMergeResult": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "sourceBranch": {
+            "type": "string",
+            "description": "*"
+          },
+          "status": {
+            "type": "string",
+            "description": "*",
+            "enum": [
+              "mergeable",
+              "up-to-date"
+            ]
+          },
+          "targetBranch": {
+            "type": "string",
+            "description": "*"
+          }
+        },
+        "required": [
+          "sourceBranch",
+          "status",
+          "targetBranch"
+        ]
+      },
+      "MergeResultResponse": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "conflictGroups": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "$ref": "#/components/schemas/ConflictGroup"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "*",
+            "enum": [
+              "success",
+              "conflicts"
+            ]
+          }
+        }
+      },
+      "FileConflictResolution": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "*",
+            "example": "rules/MyRules.xlsx",
+            "minLength": 1
+          },
+          "strategy": {
+            "type": "string",
+            "description": "*",
+            "enum": [
+              "BASE",
+              "OURS",
+              "THEIRS",
+              "CUSTOM"
+            ]
+          }
+        },
+        "required": [
+          "filePath",
+          "strategy"
+        ]
+      },
+      "ResolveConflictsResponse": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "resolvedFiles": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "*",
+            "enum": [
+              "success"
+            ]
+          }
+        }
+      },
       "PageResponseProjectViewModel": {
         "type": "object",
         "properties": {
@@ -3873,6 +4015,631 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/projects/{projectId}/merge": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          },
+          "description": "*",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeResultResponse"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/merge/check": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          },
+          "description": "*",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckMergeResult"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/merge/conflicts": {
+      "delete": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      },
+      "get": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConflictGroup"
+                  }
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/merge/conflicts/files": {
+      "get": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "side",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "*",
+              "enum": [
+                "BASE",
+                "OURS",
+                "THEIRS"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format" : "binary"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/merge/conflicts/resolve": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "*"
+                  },
+                  "resolutions": {
+                    "type": "array",
+                    "description": "*",
+                    "items": {
+                      "$ref": "#/components/schemas/FileConflictResolution"
+                    },
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "resolutions"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolveConflictsResponse"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tests/summary": {
       "get": {
         "operationId": "***",
@@ -9239,6 +10006,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "description": "***",
@@ -9364,6 +10132,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "description": "***",
@@ -9481,6 +10250,7 @@ Content-Type: application/json
       "get": {
         "description": "***",
         "operationId": "***",
+        "deprecated": true,
         "parameters": [
           {
             "description": "***",
@@ -14843,63 +15613,94 @@ Content-Type: application/json
     {
       "description": "ACL Management API for Projects",
       "name": "ACL Management: Projects"
-    }, {
+    },
+    {
       "description": "ACL Management API for Repositories",
       "name": "ACL Management: Repositories"
-    }, {
+    },
+    {
       "description": "ACL Management API for Roles",
       "name": "ACL Management: Roles"
-    }, {
+    },
+    {
       "name": "Compare"
-    }, {
+    },
+    {
       "name": "Conflict"
-    }, {
-      "description": "***",
+    },
+    {
+      "description": "Deployment management APIs",
       "name": "Deployments"
-    }, {
+    },
+    {
       "name": "Design Repository"
-    }, {
+    },
+    {
       "name": "History"
-    }, {
+    },
+    {
       "name": "Info"
-    }, {
+    },
+    {
       "name": "Mail"
-    }, {
+    },
+    {
       "name": "Management"
-    }, {
+    },
+    {
       "name": "Message"
-    }, {
+    },
+    {
       "name": "Notification"
-    }, {
+    },
+    {
       "name": "Production Repository"
-    }, {
+    },
+    {
       "name": "Project Compilation"
-    }, {
+    },
+    {
       "name": "Project Tables"
-    }, {
-      "name": "Projects (BETA)",
-      "description": "Experimental projects API"
-    }, {
+    },
+    {
+      "description": "Experimental projects API",
+      "name": "Projects (BETA)"
+    },
+    {
+      "description": "Experimental projects merge API",
+      "name": "Projects: Merge (BETA)"
+    },
+    {
       "name": "Settings"
-    }, {
+    },
+    {
       "name": "Settings: Authentication"
-    }, {
+    },
+    {
       "name": "Settings: Design Repository"
-    }, {
+    },
+    {
       "name": "Settings: Mail Verification Server"
-    }, {
+    },
+    {
       "name": "Settings: Production Repository"
-    }, {
+    },
+    {
       "name": "Settings: Repositories"
-    }, {
+    },
+    {
       "name": "Settings: System"
-    }, {
+    },
+    {
       "name": "Tags"
-    }, {
+    },
+    {
       "name": "Test"
-    }, {
+    },
+    {
       "name": "Trace"
-    }, {
+    },
+    {
       "name": "Users"
     }
   ]

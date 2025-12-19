@@ -90,7 +90,6 @@ import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -120,6 +119,7 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.FileTypeHelper;
@@ -327,12 +327,13 @@ public class RepositoryTreeController {
             setWasSaved(true);
         } catch (Exception e) {
             Throwable cause = e.getCause();
-            if (cause instanceof MergeConflictException) {
+            if (cause instanceof MergeConflictException mergeConflictEx) {
                 log.debug("Failed to save the project because of merge conflict.", cause);
-                if (project instanceof RulesProject) {
-                    MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause,
-                            (RulesProject) project);
-                    ConflictUtils.saveMergeConflict(info);
+                if (project instanceof RulesProject rulesProject) {
+                    ConflictUtils.saveMergeConflict(MergeConflictInfo.builder()
+                            .details(mergeConflictEx.getDetails())
+                            .project(rulesProject)
+                            .build());
                 }
             } else {
                 String msg = e.getMessage();
@@ -1723,7 +1724,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
-    
+
     public void loadTagsFromUploadedFile() throws IOException {
         boolean tagsAreReadFromProject = false;
         ProjectFile file = getLastUploadedFile();
@@ -1744,10 +1745,10 @@ public class RepositoryTreeController {
                 }
             }
         }
-        if (! tagsAreReadFromProject) {
+        if (!tagsAreReadFromProject) {
             projectTagsBean.clearTags();
         }
-        
+
     }
 
     /**
@@ -2728,6 +2729,7 @@ public class RepositoryTreeController {
             importFromRepo();
         }
     }
+
     private FolderMapper findAndValidateMappedRepository() throws IOException {
         Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
         if (!mappedRepo.supports().mappedFolders()) {
@@ -2751,13 +2753,13 @@ public class RepositoryTreeController {
                 return;
             }
             Repository repository = mappedRepo.getDelegate();
-            
+
             var tagsFileNameBuilder = new StringBuilder(projectFolder);
-            if (! projectFolder.endsWith("/")) {
+            if (!projectFolder.endsWith("/")) {
                 tagsFileNameBuilder.append("/");
             }
             tagsFileNameBuilder.append(RulesProjectTags.TAGS_FILE_NAME);
-            
+
             var tagsFile = repository.read(tagsFileNameBuilder.toString());
             if (tagsFile != null) {
                 Map<String, String> existingTags = new HashMap<>();
@@ -2774,7 +2776,7 @@ public class RepositoryTreeController {
             clearForm();
         }
     }
-    
+
     public void importFromRepo() {
         String msg = validateImportFromRepoParams();
         if (msg != null) {

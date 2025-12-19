@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sourceBranch": "EPBDS-15439_MergeWithoutConflicts_one",
+  "targetBranch": "EPBDS-15439_MergeWithoutConflicts_two",
+  "status": "up-to-date"
+}

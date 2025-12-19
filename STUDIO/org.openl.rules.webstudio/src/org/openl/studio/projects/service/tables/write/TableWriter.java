@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
@@ -31,6 +33,7 @@ import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.studio.common.utils.XSSFOptimizer;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -199,7 +202,11 @@ public abstract class TableWriter<T extends TableView> {
     protected void save() {
         try {
             var xlsgrid = (XlsSheetGridModel) getGridTable().getGrid();
-            xlsgrid.getSheetSource().getWorkbookSource().save();
+            var workbook = xlsgrid.getSheetSource().getWorkbookSource();
+            if (workbook.getWorkbook() instanceof XSSFWorkbook xssfWorkbook) {
+                XSSFOptimizer.removeUnusedStyles(xssfWorkbook);
+            }
+            workbook.save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }

@@ -2,11 +2,6 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +48,10 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -70,9 +65,11 @@ import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
+import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -100,17 +97,20 @@ public class ProjectsController {
     private final ExecutionTestsResultRegistry executionTestsResultRegistry;
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final Environment environment;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
 
     public ProjectsController(WorkspaceProjectService projectService,
                               TestsExecutorService testsExecutorService,
                               ExecutionTestsResultRegistry executionTestsResultRegistry,
                               SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory,
-                              Environment environment) {
+                              Environment environment,
+                              ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
         this.projectService = projectService;
         this.testsExecutorService = testsExecutorService;
         this.executionTestsResultRegistry = executionTestsResultRegistry;
         this.socketProjectAllTestsExecutionProgressListenerFactory = socketProjectAllTestsExecutionProgressListenerFactory;
         this.environment = environment;
+        this.conflictsSessionHolder = conflictsSessionHolder;
     }
 
     @Lookup
@@ -166,6 +166,10 @@ public class ProjectsController {
     @Operation(summary = "Update project status (BETA)")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @RequestBody ProjectStatusUpdateModel request) {
+        var projectId = projectService.resolveProjectId(project);
+        if (conflictsSessionHolder.hasConflictInfo(projectId)) {
+            throw new ConflictException("project.unresolved.merge.conflicts.message");
+        }
         try {
             projectService.updateProjectStatus(project, request);
             if (request.getStatus() != null
@@ -397,14 +401,6 @@ public class ProjectsController {
         } catch (ClassNotFoundException e) {
             throw new ConflictException("object.mapper.configuration.failed.message");
         }
-    }
-
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @Parameter(description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
-    public @interface ProjectId {
-
     }
 
 }

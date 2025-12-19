@@ -197,6 +197,56 @@ GET /projects/MyProject/tables/LOOKUP_PrimaryBreedFactor
 
 ---
 
+### 5. **Projects Merge API (BETA)** ([projects-merge-api.md](projects-merge-api.md))
+
+The Projects Merge API provides comprehensive Git branch merge operations with conflict detection and resolution capabilities.
+
+**Key Features:**
+- Check merge feasibility between branches
+- Bidirectional merging (receive/send modes)
+- Automatic conflict detection
+- Multiple conflict resolution strategies (BASE, OURS, THEIRS, CUSTOM)
+- Session-based conflict state management
+- Excel file prioritization in conflict lists
+
+**Use Cases:**
+- Automated branch merging in CI/CD pipelines
+- Programmatic conflict resolution
+- Multi-branch development workflows
+- Release management and feature merging
+
+**Example:**
+```bash
+# Check if merge is possible
+POST /projects/MyProject/merge/check
+{
+  "mode": "receive",
+  "otherBranch": "feature-auth"
+}
+
+# Perform merge
+POST /projects/MyProject/merge
+{
+  "mode": "receive",
+  "otherBranch": "feature-auth"
+}
+
+# If conflicts detected, resolve them
+POST /projects/MyProject/merge/conflicts/resolve
+Content-Type: multipart/form-data
+
+resolutions=[
+  {"filePath": "rules/BusinessRules.xlsx", "strategy": "OURS"},
+  {"filePath": "config.xml", "strategy": "THEIRS"}
+]
+message="Merged feature-auth: kept our business rules"
+```
+
+**Architecture Documentation:**
+- [Projects Merge Architecture](projects-merge-architecture.md) - Detailed architecture design, component interactions, and implementation details
+
+---
+
 ## REST API Endpoints Summary
 
 All table APIs follow a consistent REST pattern:
@@ -388,6 +438,8 @@ Refer to the specific API documentation for detailed test cases and expected res
 
 ## Implementation Status
 
+### Table APIs
+
 | Feature | Data | Test | Raw | SmartLookup | SimpleLookup |
 |---------|------|------|-----|-------------|--------------|
 | GET | ✅ Complete | ✅ Complete | ✅ Complete | ✅ Complete | ✅ Complete |
@@ -397,6 +449,20 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Hierarchical | ❌ No | ❌ No | ✅ Merges | ✅ Complex | ✅ Simple |
 | Type Safety | ✅ Yes | ✅ Yes | ❌ Raw | ✅ Yes | ✅ Yes |
 | Testing | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated |
+
+### Projects Merge API (BETA)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Check Merge | ✅ Complete | Pre-merge validation |
+| Perform Merge | ✅ Complete | Bidirectional (receive/send) |
+| Get Conflicts | ✅ Complete | Session-based storage |
+| Download Files | ✅ Complete | BASE/OURS/THEIRS versions |
+| Resolve Conflicts | ✅ Complete | Multiple strategies |
+| Cancel Merge | ✅ Complete | Session cleanup |
+| Excel Priority | ✅ Yes | Business logic first |
+| Custom Resolution | ✅ Yes | File upload support |
+| Integration Tests | ✅ Complete | Full workflow coverage |
 
 ---
 
@@ -412,7 +478,7 @@ Refer to the specific API documentation for detailed test cases and expected res
 
 ---
 
-**Last Updated**: 2025-12-02
+**Last Updated**: 2025-12-18
 **Version**: 6.0.0-SNAPSHOT
 
 For API endpoint details, see individual table type documentation above.

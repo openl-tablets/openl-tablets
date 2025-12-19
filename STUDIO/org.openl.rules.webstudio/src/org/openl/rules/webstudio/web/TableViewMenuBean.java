@@ -7,8 +7,8 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.common.utils.WebTool;
 
 /**
  * Request scope managed bean for tableViewMenu page.

@@ -1,8 +1,12 @@
 package org.openl.studio.projects.validator;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.BranchRepository;
 
 /**
  * Project state validator implementation
@@ -50,5 +54,22 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
     @Override
     public boolean canErase(UserWorkspaceProject project) {
         return project != null && project.isDeleted();
+    }
+
+    @Override
+    public boolean canMerge(RulesProject project) {
+        if (project == null || !project.getDesignRepository().supports().branches() || project.isLocalOnly()) {
+            return false;
+        }
+
+        try {
+            if (project.isModified()) {
+                return false;
+            }
+            var branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
+            return branches.size() >= 2;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

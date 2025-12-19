@@ -18,7 +18,6 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.ui.Message;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;
@@ -26,6 +25,7 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -63,7 +63,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
             MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
             if (mergeConflict != null) {
-                MergeConflictException exception = mergeConflict.getException();
+                var conflictDetails = mergeConflict.details();
                 String userName = SecurityContextHolder.getContext().getAuthentication().getName();
                 WorkspaceUser user = new WorkspaceUserImpl(userName,
                         (username) -> Optional.ofNullable(userManagementService.getUser(username))
@@ -75,7 +75,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 String repositoryId = mergeConflict.getRepositoryId();
                 FileItem their = userWorkspace.getDesignTimeRepository()
                         .getRepository(repositoryId)
-                        .readHistory(conflictedFile, exception.getTheirCommit());
+                        .readHistory(conflictedFile, conflictDetails.theirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
                 File ourFile;
 
@@ -83,7 +83,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
                             .getRepository(repositoryId)
-                            .readHistory(conflictedFile, exception.getYourCommit());
+                            .readHistory(conflictedFile, conflictDetails.yourCommit());
                     ourFile = createTempFile(our, conflictedFile);
                     if (mergeConflict.isExportOperation()) {
                         File tmp = ourFile;
@@ -152,8 +152,8 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
         MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         if (mergeConflict != null) {
-            MergeConflictException exception = mergeConflict.getException();
-            return exception.getDiffs().get(conflictedFile);
+            var conflictDetails = mergeConflict.details();
+            return conflictDetails.diffs().get(conflictedFile);
         }
 
         return null;

@@ -5,6 +5,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.servlet.http.HttpSession;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.projects.model.merge.MergeConflictInfo;
 
 public final class ConflictUtils {
     private static final String SESSION_PARAM_MERGE_CONFLICT = "mergeConflict";

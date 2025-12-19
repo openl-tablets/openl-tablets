@@ -1,0 +1,58 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Merge commit with *\n\n Automatically resolved conflicts:\n\tEPBDS-15439/Main.xlsx\n\t\tRules (EPBDS-15439_MergeWithAutoConflictResolving_two)\n\t\tBranchOne (EPBDS-15439_MergeWithAutoConflictResolving_one)",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "EPBDS-15439 Save changes in branch two with auto conflict resolving",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "EPBDS-15439 Save changes in branch one with auto conflict resolving",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Project EPBDS-15439 is created.",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4
+}

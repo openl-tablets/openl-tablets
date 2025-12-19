@@ -1,0 +1,3 @@
+GET /rest/repos/design-flat/branches/EPBDS-15439_MergeWithoutConflicts_one/projects/EPBDS-15439%3A6370707b0bd636a2eef284fcd64fa4b1c2afb2adc4e17bce202957b680d04eb5/history HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

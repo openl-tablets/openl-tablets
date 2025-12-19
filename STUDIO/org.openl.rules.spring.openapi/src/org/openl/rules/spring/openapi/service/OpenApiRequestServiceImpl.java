@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi.service;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -7,10 +8,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Encoding;
@@ -20,6 +30,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 
@@ -99,6 +110,13 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         Map<String, Encoding> encodingMap = new LinkedHashMap<>();
 
         for (var paramInfo : formParamInfos) {
+            // Check if this is a ModelAttribute - if so, expand its fields
+            var modelAttribute = paramInfo.getParameterAnnotation(ModelAttribute.class);
+            if (modelAttribute != null) {
+                expandModelAttributeFields(paramInfo, objectSchema, components);
+                continue;
+            }
+
             var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
             var requestPart = paramInfo.getParameterAnnotation(RequestPart.class);
             var nameRef = new Object() {
@@ -127,7 +145,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 nameRef.name = "arg" + paramInfo.getIndex();
             }
             if (required) {
-                objectSchema.addRequiredItem(nameRef.name);
+                addRequiredItemIfAbsent(objectSchema, nameRef.name);
             }
 
             var parameterType = ParameterProcessor.getParameterType(paramInfo.getParameter(), true);
@@ -164,7 +182,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 }
             }
             apiParameterService.applyValidationAnnotations(paramInfo, schema);
-            objectSchema.addProperties(nameRef.name, schema);
+            objectSchema.addProperty(nameRef.name, schema);
         }
 
         RequestBody requestBody = null;
@@ -326,5 +344,165 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             return rawType == HttpEntity.class || rawType == RequestEntity.class;
         }
         return false;
+    }
+
+    /**
+     * Expands @ModelAttribute parameter fields into form parameters.
+     * <p>
+     * This method introspects the model attribute class and creates a form parameter for each field.
+     * It supports:
+     * <ul>
+     *   <li>Simple types (String, Integer, etc.)</li>
+     *   <li>Complex types and nested objects (resolved via schema resolution)</li>
+     *   <li>Collections (List, Set, etc.) including complex element types</li>
+     *   <li>File uploads (MultipartFile fields)</li>
+     *   <li>@Schema annotations on fields for documentation</li>
+     *   <li>@Parameter annotations on fields (takes precedence over @Schema)</li>
+     *   <li>Jakarta validation annotations (@NotNull, @Size, @Min, @Max, @Pattern, etc.)</li>
+     * </ul>
+     *
+     * @param paramInfo    model attribute parameter info
+     * @param objectSchema schema to add properties to
+     * @param components   OpenAPI components for schema resolution
+     */
+    private void expandModelAttributeFields(ParameterInfo paramInfo,
+                                            ObjectSchema objectSchema,
+                                            Components components) {
+        Type paramType = paramInfo.getType();
+        Class<?> modelClass = paramType instanceof Class ? (Class<?>) paramType :
+                paramType instanceof ParameterizedType ?
+                        (Class<?>) ((ParameterizedType) paramType).getRawType() : null;
+
+        if (modelClass == null) {
+            return;
+        }
+
+        // Get all fields including inherited ones
+        for (Field field : modelClass.getDeclaredFields()) {
+            // Skip synthetic fields
+            if (field.isSynthetic()) {
+                continue;
+            }
+
+            String fieldName = field.getName();
+            Type fieldType = field.getGenericType();
+
+            // Check for @Schema annotation on field
+            var schemaAnnotation = field.getAnnotation(Schema.class);
+
+            // Check for @Parameter annotation on field (for additional metadata)
+            var parameterAnnotation = field.getAnnotation(Parameter.class);
+
+            // Resolve schema for the field
+            var schema = apiParameterService.resolveSchema(fieldType, components, paramInfo.getJsonView());
+
+            // Apply @Parameter annotation if present (takes precedence)
+            if (parameterAnnotation != null) {
+                if (StringUtils.isNotBlank(parameterAnnotation.description())) {
+                    schema.setDescription(propertyResolver.resolve(parameterAnnotation.description()));
+                }
+                if (parameterAnnotation.required()) {
+                    addRequiredItemIfAbsent(objectSchema, fieldName);
+                }
+                // Apply parameter schema properties
+                if (parameterAnnotation.schema() != null) {
+                    if (StringUtils.isNotBlank(parameterAnnotation.schema().defaultValue())) {
+                        schema.setDefault(parameterAnnotation.schema().defaultValue());
+                    }
+                    if (StringUtils.isNotBlank(parameterAnnotation.schema().example())) {
+                        schema.setExample(parameterAnnotation.schema().example());
+                    }
+                }
+            }
+            // Apply @Schema annotation properties if present (if @Parameter wasn't used)
+            else if (schemaAnnotation != null) {
+                if (StringUtils.isNotBlank(schemaAnnotation.description())) {
+                    schema.setDescription(propertyResolver.resolve(schemaAnnotation.description()));
+                }
+                if (StringUtils.isNotBlank(schemaAnnotation.example())) {
+                    schema.setExample(schemaAnnotation.example());
+                }
+                if (StringUtils.isNotBlank(schemaAnnotation.defaultValue())) {
+                    schema.setDefault(schemaAnnotation.defaultValue());
+                }
+
+                // Handle required mode
+                if (schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED) {
+                    addRequiredItemIfAbsent(objectSchema, fieldName);
+                }
+            }
+
+            // Apply validation annotations from field
+            applyFieldValidationAnnotations(field, schema, objectSchema, fieldName);
+
+            // Add the field as a property
+            objectSchema.addProperty(fieldName, schema);
+        }
+    }
+
+    private void addRequiredItemIfAbsent(ObjectSchema objectSchema, String fieldName) {
+        List<String> required = objectSchema.getRequired();
+        if (required == null || !required.contains(fieldName)) {
+            objectSchema.addRequiredItem(fieldName);
+        }
+    }
+
+    /**
+     * Applies validation annotations from a field to the schema
+     *
+     * @param field        field to extract annotations from
+     * @param schema       schema to apply validations to
+     * @param objectSchema parent schema for required fields
+     * @param fieldName    name of the field
+     */
+    private void applyFieldValidationAnnotations(Field field,
+                                                 io.swagger.v3.oas.models.media.Schema<?> schema,
+                                                 ObjectSchema objectSchema,
+                                                 String fieldName) {
+        // Check for @NotNull, @NotBlank, @NotEmpty
+        if (field.isAnnotationPresent(NotNull.class) ||
+                field.isAnnotationPresent(NotBlank.class) ||
+                field.isAnnotationPresent(NotEmpty.class)) {
+            addRequiredItemIfAbsent(objectSchema, fieldName);
+        }
+
+        // Check for @Size
+        var sizeAnnotation = field.getAnnotation(Size.class);
+        if (sizeAnnotation != null) {
+            if (sizeAnnotation.min() > 0) {
+                schema.setMinLength(sizeAnnotation.min());
+            }
+            if (sizeAnnotation.max() < Integer.MAX_VALUE) {
+                schema.setMaxLength(sizeAnnotation.max());
+            }
+        }
+
+        // Check for @Min / @Max
+        var minAnnotation = field.getAnnotation(Min.class);
+        if (minAnnotation != null) {
+            schema.setMinimum(java.math.BigDecimal.valueOf(minAnnotation.value()));
+        }
+
+        var maxAnnotation = field.getAnnotation(Max.class);
+        if (maxAnnotation != null) {
+            schema.setMaximum(java.math.BigDecimal.valueOf(maxAnnotation.value()));
+        }
+
+        // Check for @Pattern
+        var patternAnnotation = field.getAnnotation(Pattern.class);
+        if (patternAnnotation != null) {
+            schema.setPattern(patternAnnotation.regexp());
+        }
+    }
+
+    /**
+     * Check if current parameter is ModelAttribute
+     *
+     * @param paramInfo method parameter
+     * @return is model attribute or not
+     */
+    @Override
+    public boolean isModelAttribute(ParameterInfo paramInfo) {
+        return paramInfo.hasAnnotation(ModelAttribute.class);
     }
 }

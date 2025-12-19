@@ -360,7 +360,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
         return false;
     }
-    
+
     private boolean deleteInternal(FileData data) throws IOException {
         String commitId = null;
 
@@ -688,7 +688,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
     public void initialize(GitRootFactory gitRootFactory) {
         this.gitRootFactory = gitRootFactory;
-        
+
         initializeGit(false);
 
         monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
@@ -724,7 +724,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             var gitRoot = gitRootFactory.create(id, uri, localRepositoriesFolder);
             this.localGitRoot = gitRoot.localGitRoot();
             this.remote = gitRoot.remote();
-            
+
             if (gitRoot.empty()) {
                 if (gitRoot.remote()) {
                     cloneRemoteRepository();
@@ -1316,7 +1316,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void pull(String commitToRevert, UserInfo mergeAuthor) throws GitAPIException, IOException {
-        if (! remote) {
+        if (!remote) {
             return;
         }
 
@@ -1505,7 +1505,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                         }
                     }
                 } catch (Exception e) {
-                    throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, Collections.emptyMap());
+                    throw new MergeConflictException(MergeConflictDetails.builder()
+                            .diffs(diffs)
+                            .baseCommit(baseCommit)
+                            .yourCommit(ourCommit)
+                            .theirCommit(theirCommit)
+                            .build());
                 } finally {
                     IOUtils.closeQuietly(baseConflictedFile);
                     IOUtils.closeQuietly(ourConflictedFile);
@@ -1514,7 +1519,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             }
 
             if (!allCanAutoResolve) {
-                throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, toAutoResolve);
+                throw new MergeConflictException(MergeConflictDetails.builder()
+                        .diffs(diffs)
+                        .baseCommit(baseCommit)
+                        .yourCommit(ourCommit)
+                        .theirCommit(theirCommit)
+                        .toAutoResolve(toAutoResolve)
+                        .build());
             } else if (!toAutoResolve.isEmpty()) {
                 String ourBranch;
                 String theirBranch;
@@ -1533,7 +1544,12 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             theirBranch);
                     resolveConflict(mergeResult, conflictResolveData, userInfo);
                 } catch (Exception e) {
-                    throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, Collections.emptyMap());
+                    throw new MergeConflictException(MergeConflictDetails.builder()
+                            .diffs(diffs)
+                            .baseCommit(baseCommit)
+                            .yourCommit(ourCommit)
+                            .theirCommit(theirCommit)
+                            .build());
                 }
             }
         }
@@ -1611,7 +1627,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void push() throws GitAPIException, IOException {
-        if (! remote) {
+        if (!remote) {
             return;
         }
 
@@ -2181,7 +2197,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     public void pull(UserInfo author) throws IOException {
         initializeGit(true);
 
-        if (! remote) {
+        if (!remote) {
             return;
         }
 
@@ -2355,7 +2371,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
             push();
 
-            if (! remote) {
+            if (!remote) {
                 // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
                 // autoGC() didn't solve the issue for local repository, so we use gc() instead.
                 try {
@@ -2828,7 +2844,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
-        if (! remote) {
+        if (!remote) {
             return;
         }
 
@@ -2991,7 +3007,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return new Git(git.getRepository());
         }
     }
-    
+
     private File getLocalGitRoot() throws IOException {
         if (localGitRoot != null) {
             return localGitRoot;

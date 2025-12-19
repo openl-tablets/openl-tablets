@@ -3,7 +3,6 @@ package org.openl.spring.env;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -14,6 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.openl.util.HashingUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -68,10 +68,8 @@ final class PassCoder {
         return new String(decripted, StandardCharsets.UTF_8);
     }
 
-    private static SecretKeySpec getKey(String privateKey) throws NoSuchAlgorithmException {
-        byte[] key = privateKey.getBytes(StandardCharsets.UTF_8);
-        MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        key = sha.digest(key);
+    private static SecretKeySpec getKey(String privateKey) {
+        var key = HashingUtils.sha1(privateKey);
         key = Arrays.copyOf(key, 16); // use only first 128 bit
 
         return new SecretKeySpec(key, "AES");

@@ -1,0 +1,7 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==/branches HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "branch": "EPBDS-15439_MergeWithManualConflictResolvingUseTheirs_two"
+}

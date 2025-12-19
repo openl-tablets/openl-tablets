@@ -3,9 +3,6 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -43,6 +40,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
+import org.openl.util.HashingUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -1058,26 +1056,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         if (StringUtils.isEmpty(s)) {
             return "";
         }
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return bytesToHex(digest.digest(s.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage(), e);
-            // Fallback
-            return String.valueOf(s.hashCode());
-        }
-    }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
+        return HashingUtils.sha256Hex(s);
     }
 
     @Override

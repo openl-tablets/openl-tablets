@@ -22,8 +22,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.studio.common.utils.WebTool;
 import org.openl.util.FileTypeHelper;
 
 @WebServlet("/action/launch")

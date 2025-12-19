@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design-flat/projects/EPBDS-15439:6370707b0bd636a2eef284fcd64fa4b1c2afb2adc4e17bce202957b680d04eb5/delete HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar

@@ -188,6 +188,7 @@ public class LocalGitRepositoryTest {
             repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
+            var conflictDetails = e.getDetails();
             final String resolveMessage = "Resolve conflict (use theirs)";
 
             // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
@@ -196,7 +197,7 @@ public class LocalGitRepositoryTest {
 
             repo.merge("branch1",
                     new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInBranch1, GitRepositoryTest.readText(repo.read(file)));
@@ -224,7 +225,8 @@ public class LocalGitRepositoryTest {
             repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
-            String diff = e.getDiffs().get(file);
+            var conflictDetails = e.getDetails();
+            String diff = conflictDetails.diffs().get(file);
             assertNotNull(diff);
             assertTrue(diff.contains("--- \"a/rules/project(1)/file1\""));
             assertTrue(diff.contains("+++ \"b/rules/project(1)/file1\""));
@@ -247,6 +249,7 @@ public class LocalGitRepositoryTest {
             repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
+            var conflictDetails = e.getDetails();
             final String resolveMessage = "Resolve conflict (use yours)";
 
             // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
@@ -255,7 +258,7 @@ public class LocalGitRepositoryTest {
 
             repo.merge("branch1",
                     new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInMaster, GitRepositoryTest.readText(repo.read(file)));
@@ -365,6 +368,7 @@ public class LocalGitRepositoryTest {
             repo.merge(branch2, new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
+            var conflictDetails = e.getDetails();
             final String resolveMessage = "Resolve conflict (use theirs)";
             Iterable<FileItem> resolvedFiles = Collections
                     .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
@@ -372,7 +376,7 @@ public class LocalGitRepositoryTest {
             // Resolve conflict with choosing "theirs".
             repo.merge(branch2,
                     new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
             assertTrue(repo.isMergedInto(branch2, mainBranch));
             // Because it was a conflict, project state in mainBranch differs from the state in branch2
             assertFalse(repo.isMergedInto(mainBranch, branch2));

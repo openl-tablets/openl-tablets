@@ -229,11 +229,13 @@ public class OpenApiSpringMvcReaderImpl {
             }
             var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
             var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
-            if (reqPart != null || (reqParam != null && (OpenApiUtils.isFile(parameterInfo
+            var modelAttribute = apiRequestService.isModelAttribute(parameterInfo);
+            if (modelAttribute || reqPart != null || (reqParam != null && (OpenApiUtils.isFile(parameterInfo
                     .getType()) || (formRequest && parameterInfo.getParameter() != null && parameterInfo.getParameter()
                     .in() == ParameterIn.DEFAULT)))) {
                 formParameters.add(parameterInfo);
-                if (parameterInfo.getParameter() == null) {
+                // Skip parameter name resolution for @ModelAttribute - it will be expanded into fields
+                if (!modelAttribute && parameterInfo.getParameter() == null) {
                     // Try to find Parameter annotation in other places
                     var paramName = Optional.ofNullable(reqPart)
                             .map(RequestPart::name)

@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.merge.conflict.file.not.in.conflicts",
+  "message": "The file 'EPBDS-15439/UNKNOWN.xlsx' is not in the list of conflicted files."
+}
