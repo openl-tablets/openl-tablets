@@ -6,19 +6,19 @@ By default, each row of the decision table is a separate rule. Even if some cell
 
 Vertical conditions are marked with the Cn and MC1 characters. The MC1 column plays the role of the Rule column in a table. It determines the height of the result value list. An example is as follows.
 
-![](../../../../ref_guide_images/b912a0b5ee38ce8aae0ffa6fc92a3234.png)
+![](../../../ref-guide-images/decisionTableMergedConditionValues.png)
 
 *A Decision table with merged condition values*
 
 Earthquake Coverage for Brand Y and Brand X has a different list of values, so they are not merged although their first condition is the same.
 
-![](../../../../ref_guide_images/3604db15dcf082ce97e22b46d6ef8aba.png)
+![](../../../ref-guide-images/listValuesResult.png)
 
 *A list of values as a result*
 
 The horizontal conditions are marked as HC1, HC2 and so on. Every lookup matrix must start from the HC or RET column. The first HC or RET column must go after all vertical conditions, such as C, Rule, and comment columns. There can be no comment column in the horizontal conditions part. The RET section can be placed in any place of the lookup headers row. HC columns do not have the Titles section.
 
-![](../../../../ref_guide_images/d54c0f1d4a07c4f68cbbe61232e41e21.jpeg)
+![](../../../ref-guide-images/lookupTableExample.jpeg)
 
 *A lookup table example*
 
@@ -26,7 +26,7 @@ The first cell of column titles must be merged on all rows that contain horizont
 
 To use multiple column parameters for a condition, return, or action, merge the column header and expression cells. Use this approach if a condition cannot be presented as a simple AND combination of one-parameter conditions.
 
-![](../../../../ref_guide_images/c6d8e690f09c76be8e0300fca19f9142.png)
+![](../../../ref-guide-images/exampleMergedColumnHeaderExpressionCells.png)
 
 *Example of the merged column header and expression cells*
 
@@ -34,7 +34,7 @@ Any type of decision tables described previously, that is, Simple Rules, Smart R
 
 Colors identify how values are related to conditions. The same table represented as a decision table is as follows:
 
-![](../../../../ref_guide_images/c60701563797328cbf8947e862699082.jpeg)
+![](../../../ref-guide-images/lookupTableRepresentationDecisionTable.jpeg)
 
 *Lookup table representation as a decision table*
 

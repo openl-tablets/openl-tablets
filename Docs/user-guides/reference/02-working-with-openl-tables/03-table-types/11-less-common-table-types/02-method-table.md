@@ -2,7 +2,7 @@
 
 A **method table** is a Java method described within a table. An example of a method table is as follows:
 
-![](../../../../ref_guide_images/36c37ea2296c8f5f2bab226b9154a5ff.png)
+![](../../../ref-guide-images/methodTable.png)
 
 *Method table*
 

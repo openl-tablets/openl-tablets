@@ -4,7 +4,7 @@ A **constants** table allows defining constants of different non-custom types. T
 
 An example of a constants table and constants usage is as follows.
 
-![](../../../../ref_guide_images/db8f76c43fa6c4df916bea0e04c0297f.png)
+![](../../../ref-guide-images/constantsTableUsageExample.png)
 
 *Constants table and usage example*
 

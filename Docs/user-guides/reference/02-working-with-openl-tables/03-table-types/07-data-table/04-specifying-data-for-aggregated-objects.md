@@ -6,13 +6,13 @@ Assume that the data, which values are to be specified and stored in a data tabl
 
 To illustrate this approach, assume there are two data types, `ZipCode` and `Address,` defined:
 
-![](../../../../ref_guide_images/0f1863e175418b98482bef1e273cbfa5.png)
+![](../../../ref-guide-images/complexDataTypesDefinedByDatatype.png)
 
 *Complex data types defined by Datatype tables*
 
 In the data type structure, the `Address` data type contains a reference to the `ZipCode` data type as its attribute `zip`. An example of a data table that specifies values for both data types at the same time is as follows.
 
-![](../../../../ref_guide_images/bb47c8f71e10d1df7d80317970e5bbec.png)
+![](../../../ref-guide-images/specifyingValuesAggregatedObjects.png)
 
 *Specifying values for aggregated objects*
 
@@ -30,7 +30,7 @@ where `i` – sequence number of an element, starts from 0.
 
 The following example illustrates this approach.
 
-![](../../../../ref_guide_images/f75dbd6ad82b931e08b9c4816fadb4bb.png)
+![](../../../ref-guide-images/specifyingValuesArrayAggregatedObjectsUsing.png)
 
 *Specifying values for an array of aggregated objects using the flatten structure*
 
@@ -41,7 +41,7 @@ The first policy, **Policy1**, contains two vehicles: **Honda Odyssey** and **Fo
 **The second option** is to leave the format as is, omitting the [] syntax in column definition  
 `<attribute name of aggregated object>.<attribute name of object>, `and define elements of an array in several rows, or in several columns in case of a transposed table.
 
-![](../../../../ref_guide_images/7476c0aab15fcae1d021395e40c0f641.png)
+![](../../../ref-guide-images/specifyingValuesArrayAggregatedObjectsUsing_1.png)
 
 *Specifying values for an array of aggregated objects using the matrix structure*
 

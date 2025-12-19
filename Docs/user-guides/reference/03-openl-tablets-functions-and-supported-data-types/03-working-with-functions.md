@@ -40,7 +40,7 @@ Math functions serve for performing math operations on numeric data. These funct
 
 The following example illustrates how to use functions in OpenL Tablets. The rule in the diagram defines a gamer level depending on the best result in three attempts.
 
-![](../../ref_guide_images/49cb33fb3ddb31735b8129122a27d8f1.png)
+![](../ref-guide-images/exampleUsingMaxFunction.png)
 
 *An example of using the 'max' function*
 
@@ -89,11 +89,11 @@ The following topics are included in this section:
 
 This syntax is used to round to a whole number. The following example demonstrates function usage:
 
-![](../../ref_guide_images/7868c764c99ca80104a11d043c87a2f9.png)
+![](../ref-guide-images/roundingInteger.png)
 
 *Rounding to integer*
 
-![](../../ref_guide_images/0b9e1dc6a68ea43b84f7e4e73ea288cb.png)
+![](../ref-guide-images/testTableRoundingInteger.png)
 
 *Test table for rounding to integer*
 
@@ -101,11 +101,11 @@ This syntax is used to round to a whole number. The following example demonstrat
 
 This function is used to round to a fractional number. The second parameter defines a number of digits after decimal point.
 
-![](../../ref_guide_images/302e9a2b2df89db6b6d563c885198bd4.png)
+![](../ref-guide-images/roundingFractionalNumber.png)
 
 *Rounding to a fractional number*
 
-![](../../ref_guide_images/49f459386d8de6baf548c699ccfa7766.png)
+![](../ref-guide-images/testTableRoundingFractionalNumber.png)
 
 *Test table for rounding to a fractional number*
 
@@ -132,7 +132,7 @@ round(32.285,DOWN)=32
 
 **Note:** In the code, both CEILING and RoundingMode.CEILING formats are acceptable.
 
-![](../../ref_guide_images/f8d60f83a9416b0f4061a370f43993c4.png)
+![](../ref-guide-images/usageRoundnumberstringFormatDownRoundingMode.png)
 
 *Usage of the round(number,String) format with the DOWN rounding mode*
 
@@ -163,7 +163,7 @@ For more information on the constants with examples, see <https://docs.oracle.co
 
 The following example demonstrates how the rounding works with the DOWN constant.
 
-![](../../ref_guide_images/5143bd39c918a379a1eb15eb20d23f9c.png)
+![](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode.png)
 
 *Usage of the round(number,int,int/String) format with the DOWN rounding mode*
 
@@ -182,7 +182,7 @@ An example is as follows:
 round(32.285, 2, DOWN)=32.28
 ```
 
-![](../../ref_guide_images/23b04bae1fdd81cbde573f9572c7bbd1.jpeg)
+![](../ref-guide-images/usageRoundnumberintintstringFormatDownRoundingMode_1.jpeg)
 
 *Usage of the round(number,int,int/String) format with the DOWN rounding mode*
 
@@ -215,13 +215,13 @@ The following date function returns a String data type:
 
 The following figure displays values returned by date functions for a particular input date specified in the **MyDate** field.
 
-![](../../ref_guide_images/5152d8a15ea4f3f7b2c9cacfd007aeaf.png)
+![](../ref-guide-images/dateFunctionsOpenlTablets.png)
 
 *Date functions in OpenL Tablets*
 
 The following decision table provides a very simple example of how the `dayOfWeek` function can be used when the returned value, **Risk Factor**, depends on the day of the week.
 
-![](../../ref_guide_images/1b3398bc0e259e6e9b37967e846234c8.png)
+![](../ref-guide-images/riskFactorDependingDayWeek.png)
 
 *A risk factor depending on a day of the week*
 
@@ -242,7 +242,7 @@ The **ERROR** function is used to handle exceptional cases in a rule when an app
 
 In the following example, if the value for a coverage limit of an insurance policy exceeds 1000\$, a rule notifies a user about wrong limit value and stops further processing.
 
-![](../../ref_guide_images/72edc89f2ac67d2b8aa741d1dd95084f.png)
+![](../ref-guide-images/usageErrorFunction.png)
 
 *Usage of the ERROR function*
 
@@ -266,7 +266,7 @@ Formula `(expression) ? (value1) : (value2) `returns value1 if condition express
 
 An example of a ternary operator is as follows:
 
-![](../../ref_guide_images/71b3c40f0f5d2c4d057b0e4334e569f0.png)
+![](../ref-guide-images/ternaryOperatorExample.png)
 
 *Ternary operator example*
 
@@ -294,7 +294,7 @@ or
 
 In the following example, the **Age** step calculates the age and stores the result in the **vehicleAge** field of the input object **vehicle**, the **Scoring** step calculates several scoring parameters, stores them in the **scoring** object, and returns the object with updated fields as a result of the step:
 
-![](../../ref_guide_images/7665ce4db92f4256e55d624bc438df3b.png)
+![](../ref-guide-images/examplePerformingOperationsViaFormula.png)
 
 *Example of performing operations via formula*
 
@@ -348,13 +348,13 @@ For multiplying and dividing, it is interpreted as `null`. That is, if `a=3` and
 
 The following diagrams demonstrate this rule.
 
-![](../../ref_guide_images/0f53e9c4acce713e60d6662a786030bb.png)
+![](../ref-guide-images/rulesNullElementsUsageCalculations.png)
 
 *Rules for null elements usage in calculations*
 
 The next test table provides examples of calculations with null values.
 
-![](../../ref_guide_images/9be22093cc43ec756550bd1f857d51af.png)
+![](../ref-guide-images/testTableNullElementsUsageCalculations.png)
 
 *Test table for null elements usage in calculations*
 

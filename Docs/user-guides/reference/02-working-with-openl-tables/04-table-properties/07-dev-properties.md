@@ -4,7 +4,7 @@ The **Dev** properties group impacts the OpenL Tablets features and enables syst
 
 For example, the **Scope** property defines whether properties are applicable to a particular category of rules or for the module. If **Scope** is defined as **Module**, the properties are applied for all tables in the current module. If **Scope** is defined as **Category**, use the **Category** property to specify the exact category to which the property is applicable.
 
-![](../../../ref_guide_images/b24ac9d5a97c58eba245be0ab9442279.png)
+![](../../ref-guide-images/propertiesDefinedPolice-scoringCategory.png)
 
 *The properties are defined for the ‘Police-Scoring’ category*
 
@@ -160,21 +160,21 @@ As the interest of the insurer is to get a new value of the **Key** factor for a
 
 On the contrary, the **Protection** factor is not interesting for the insurer, so the **ProtectionFactor** rule is not required to be recalculated. To optimize the recalculation process, recalculation type of the rule must be set up as **Never**. Moreover, other rules tables, such as the **BaseRate** rule, which are not required to be recalculated, must have the recalculation property set to **Never**.
 
-![](../../../ref_guide_images/57ce546e2e84c3b92680886d2cc5d2a2.png)
+![](../../ref-guide-images/spreadsheetTableWhichContainsRecalculateProperty.png)
 
 *Spreadsheet table which contains Recalculate Property*
 
-![](../../../ref_guide_images/2dd4dc220ac31caab45a6e4944bd9ce6.jpeg)
+![](../../ref-guide-images/decisionTableDefinedRecalculateProperty.jpeg)
 
 *Decision table with defined Recalculate Property*
 
-![](../../../ref_guide_images/9dea7feaae15aa1c4caf8919a8df8c79.jpeg)
+![](../../ref-guide-images/usageVariationRecalculateProperties.jpeg)
 
 *Usage of Variation Recalculate Properties*
 
 Consider that the **Coverage A** limit of the quote is 90 and **Protection Class** is 9. A modified value of **Coverage A** limit for a variation is going to be 110. The following spreadsheet results after the first calculation and the second recalculation are obtained:
 
-![](../../../ref_guide_images/8e39082210114f42b650798525819cb8.png)
+![](../../ref-guide-images/resultsDwellpremiumcalculationRecalculationAnalyze.png)
 
 *Results of DwellPremiumCalculation with recalculation = Analyze*
 
@@ -182,7 +182,7 @@ Note that the **Key** factor is recalculated, but the **Protection** factor rema
 
 If the recalculation type of DwellPremiumCalculation is defined as **Always**, OpenL Tablets ignores and does not analyze recalculation types of nested rules and recalculates all cells as displayed in the following figure.
 
-![](../../../ref_guide_images/bd4d376b50ac1e583b681ae5ab055f5d.png)
+![](../../ref-guide-images/resultsDwellpremiumcalculationRecalculationAlways.png)
 
 *Results of DwellPremiumCalculation with recalculation = Always*
 
@@ -200,17 +200,17 @@ It means that if the expected value is close enough to the returned value, the e
 
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 
-![](../../../ref_guide_images/c3569f254070e12d13fd634ef5026ebd.jpeg)
+![](../../ref-guide-images/exampleSimpleRule.jpeg)
 
 *An example of Simple Rule*
 
 The first test table has the **Precision** property defined with value 5:
 
-![](../../../ref_guide_images/795ee7b8320088c28b7f370357f6389b.png)
+![](../../ref-guide-images/exampleTestTablePrecisionDevProperty.png)
 
 *An Example of Test table with Precision Dev property*
 
-![](../../../ref_guide_images/fa84b55f7d3eeb4f625579c39ad0d159.png)
+![](../../ref-guide-images/exampleTestPrecisionDefined.png)
 
 *An example of Test with precision defined*
 
@@ -226,11 +226,11 @@ OpenL Tablets allows specifying precision for a particular column which contains
 
 An example of the table using shortcut definition is as follows.
 
-![](../../../ref_guide_images/443915bef83f2c62b2b2d78b399d2968.png)
+![](../../ref-guide-images/exampleUsingShortcutDefinitionPrecisionProperty.png)
 
 *Example of using shortcut definition of Precision Property*
 
-![](../../../ref_guide_images/7ed00ee691ae50e3f63f2a0cc99c9c45.png)
+![](../../ref-guide-images/exampleTestPrecisionColumnDefined.png)
 
 *An example of Test with precision for the column defined*
 

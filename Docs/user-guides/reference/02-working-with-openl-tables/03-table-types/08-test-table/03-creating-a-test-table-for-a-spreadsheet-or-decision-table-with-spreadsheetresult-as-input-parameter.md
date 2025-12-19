@@ -8,19 +8,19 @@ To create a test table for a spreadsheet or decision table that has another Spre
 
 Consider the following spreadsheet table.
 
-![](../../../../ref_guide_images/EPBDS-11369_1.png)
+![](../../../ref-guide-images/sampleSpreadsheetTable_1.png)
 
 *Sample spreadsheet table*
 
 There is also one more spreadsheet table that uses fields from the first spreadsheet table.
 
-![](../../../../ref_guide_images/EPBDS-11369_2.png)
+![](../../../ref-guide-images/anotherSpreadsheetTableReferencingFieldsFirst.png)
 
 *Another spreadsheet table referencing fields of the first spreadsheet table*
 
 The following syntax is used to define the bankRatings value from SpreadsheetResult BankRatingCalculation as input for the test table.
 
-![](../../../../ref_guide_images/EPBDS-11369_3.png)
+![](../../../ref-guide-images/testTableSpreadsheetTableSpreadsheetresultInput.png)
 
 *A test table for a spreadsheet table with SpreadsheetResult as input parameter*
 

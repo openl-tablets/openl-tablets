@@ -6,11 +6,11 @@ This functionality is suitable for cases when a user is dealing with `.xls` file
 
 Splitting can be vertical or horizontal. In vertical case, the first N1 rows of an original rule table are placed in the first table part, the next N2 rows in the second table part, and so on. In horizontal case, the first N1 columns of the rule table are placed in the first table part, the next N2 columns in the second table part, and so on. The header of the original rule table and its properties definition must be copied to each table part in case of horizontal splitting. Merging of table parts into the rule table is processed as depicted in the following figures.
 
-![](../../../../ref_guide_images/02c98c06e5ddf8ce244df0fb51c104fa.png)
+![](../../../ref-guide-images/verticalMergingTableParts.png)
 
 *Vertical merging of table parts*
 
-![](../../../../ref_guide_images/a801e9923f6b411768454e55bdcce992.png)
+![](../../../ref-guide-images/horizontalMergingTableParts.png)
 
 *Horizontal merging of table parts*
 
@@ -36,19 +36,19 @@ The following table describes the TablePart header syntax:
 
 The following examples illustrate vertical and horizontal splitting of the **RiskOfWorkWithCorporate** decision rule.
 
-![](../../../../ref_guide_images/1f2d320b59012e661191ea0c8e7a8331.png)
+![](../../../ref-guide-images/tablePartsExampleVerticalSplittingPart.png)
 
 *Table Parts example. Vertical splitting part 1*
 
-![](../../../../ref_guide_images/0bb40e7ead9dbfcd3c5f4fa9418ed67c.png)
+![](../../../ref-guide-images/tablePartsExampleVerticalSplittingPart2.png)
 
 *Table Parts example. Vertical splitting part2*
 
-![](../../../../ref_guide_images/f922180cf12f7575fdd36ccb51013f4e.png)
+![](../../../ref-guide-images/tablePartExampleHorizontalSplittingPart.png)
 
 *Table Part example. Horizontal splitting part 1*
 
-![](../../../../ref_guide_images/db63294e1a5812220acaa14b5400f815.png)
+![](../../../ref-guide-images/tablePartsExampleHorizontalSplittingPart.png)
 
 *Table Parts example. Horizontal splitting part 2*
 

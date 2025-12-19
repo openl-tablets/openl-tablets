@@ -99,7 +99,7 @@ The further examples display how these properties define which rule to apply for
 
 The following figure displays a business rule for calculating the quote for 2011.The effective date is 1/1/2011 and the expiration date is 12/31/2011.
 
-![](../../../ref_guide_images/1102018ab7d74983a579181a4e48317a.png)
+![](../../ref-guide-images/businessRuleCalculatingCarInsuranceQuote.png)
 
 *Business rule for calculating a car insurance quote for year 2011*
 
@@ -115,13 +115,13 @@ To create the rule for the year 2012, proceed as follows:
 
 The new table resembles the following:
 
-![](../../../ref_guide_images/f5e656415c09e8439509d73b2819ee2c.png)
+![](../../ref-guide-images/businessRuleCalculatingSameQuoteYear.png)
 
 *Business rule for calculating the same quote for the year 2012*
 
 To check how the rules work, test them for a certain car model and particular dates, for example, 5/10/2011 and 11/2/2012. The test result for BMW is as follows:
 
-![](../../../ref_guide_images/4d371fade06eec544ed9a6606daf4d0f.png)
+![](../../ref-guide-images/selectionFactorBasedEffectiveExpirationDates.png)
 
 *Selection of the Factor based on Effective / Expiration Dates*
 
@@ -146,13 +146,13 @@ Users can have multiple rules with different start and end request dates, where 
 
 1.  The system selects the rule with the latest **Start Request** date.
     
-    ![](../../../ref_guide_images/91f0467e1d986856804c10b87a872979.png)
+    ![](../../ref-guide-images/usingRequestDate.png)
     
     *Example of the priority rule applied to rules with intersected Start Request date*
     
 1.  If there are rules with the same **Start Request** date, OpenL Tablets selects the rule with the earliest **End Request** date.
     
-    ![](../../../ref_guide_images/3320df371350210821846fb0bd42fe9b.png)
+    ![](../../ref-guide-images/usingRequestDate_1.png)
     
     *Example of the priority rule applied to the rules with End Request date*
     
@@ -166,13 +166,13 @@ Consider the same rule for calculating a car insurance quote but add date proper
 
 For some reason, the rule for the year 2012 must be entered into the system in advance, for example, from 12/1/2011. For that purpose, add 12/1/2011 as **Start Request Date** to the rule as displayed in the following figure. Adding this property tells OpenL Tablets that the rule is applicable from the specified **Start Request** date.
 
-![](../../../ref_guide_images/d11b3154f10a7bba336fdf7f357abf21.png)
+![](../../ref-guide-images/ruleCalculatingQuoteIntroducedFrom1212011.png)
 
 *The rule for calculating the quote is introduced from 12/1/2011*
 
 Assume that a new rule with different factors from 2/3/2012 is introduced as displayed in the following figure.
 
-![](../../../ref_guide_images/ffd0e51365aca15a4b064c98b0f108c2.png)
+![](../../ref-guide-images/ruleCalculatingQuoteIntroducedFrom232011.png)
 
 *The rule for calculating the Quote is introduced from2.3.2011*
 
@@ -180,7 +180,7 @@ However, the US legal regulations require that the same rules for premium calcul
 
 The following figure displays results of testing the rules for BMW for particular request dates and effective dates.
 
-![](../../../ref_guide_images/6884de5830dbb0d3a4f6285efa253603.png)
+![](../../ref-guide-images/selectionFactorBasedStartEndRequest.png)
 
 *Selection of the Factor based on Start / End Request Dates*
 
@@ -194,7 +194,7 @@ Context variables can be used as input parameters. It is one more way to define 
 
 An example of using a context variable as an argument is as follows:
 
-![](../../../ref_guide_images/f944d31ac567fdcbe5bb6f9320df3e85.png)
+![](../../ref-guide-images/usingContextVariableInputParameter.png)
 
 *Using a context variable as an input parameter*
 
@@ -204,7 +204,7 @@ The **Origin** Business Dimension property indicates the origin of rules used to
 
 An example is as follows.
 
-![](../../../ref_guide_images/35fea1a38ca14c1847ed784a08f8359a.png)
+![](../../ref-guide-images/exampleRuleTableOriginProperty.png)
 
 *Example Rule table with origin property*
 
@@ -214,13 +214,13 @@ By using different sets of Business Dimension properties, a user can flexibly ap
 
 There are two types of overlaps by Business Dimension properties, “good” and “bad” overlaps. The following diagram illustrates overlap of properties, representing properties value sets of a versioned rule as circles. For simplicity, two sets are displayed.
 
-![](../../../ref_guide_images/fb0f118cdcb5782de7bf92cdabb1043e.png)
+![](../../ref-guide-images/exampleLogicGoodBadOverlaps.png)
 
 *Example of logic for “good” and “bad” overlaps*
 
 The **No overlap** case means that property value sets are totally different and the only one rule table can be selected according to the specified client request in runtime context. An example is as follows:
 
-![](../../../ref_guide_images/1ce92175fc36d3be0e00fc1501811716.png)
+![](../../ref-guide-images/exampleNoOverlapCase.png)
 
 *Example of No overlap case*
 
@@ -230,7 +230,7 @@ The **“Good” overlap** case describes the situation when several rule versio
 
 **Detailed properties values** mean that all these values are mentioned, or included, or implied in properties values of other tables. Consider the following example.
 
-![](../../../ref_guide_images/e73c44a776e3e1d4cd8764e2dd49cd7f.png)
+![](../../ref-guide-images/exampleRuleGoodOverlapping.png)
 
 *Example of a rule with “good” overlapping*
 
@@ -238,7 +238,7 @@ The first rule table is the most general rule: there are no specified states, so
 
 The following diagram illustrates example overlapping.
 
-![](../../../ref_guide_images/77f79b565fbe4436b66309bc3e0c7a9f.png)
+![](../../ref-guide-images/logicPropertiesSetInclusion.png)
 
 *Logic of properties set inclusion*
 
@@ -248,7 +248,7 @@ The **“Bad” overlap** is when there is no certain result variant. “Bad” 
 
 Consider the following example.
 
-![](../../../ref_guide_images/3771d3364d06cb17d7634c06a521c9ad.png)
+![](../../ref-guide-images/exampleRuleBadOverlapping.png)
 
 *Example of a rule with “bad” overlapping*
 
@@ -293,11 +293,11 @@ So a user has one common premium calculation rule and several different rules fo
 
 The following OpenL Tablets table snippets illustrate this sample in action.
 
-![](../../../ref_guide_images/cfb29bf85293cd94a07cf84d17ae1151.png)
+![](../../ref-guide-images/rulesRuntimeContext.png)
 
-![](../../../ref_guide_images/ab1b771211030885a796eee163f00eee.png)
+![](../../ref-guide-images/rulesRuntimeContext_1.png)
 
-![](../../../ref_guide_images/15c2951ea4dd299ecee173fe6f6f4415.png)
+![](../../ref-guide-images/groupDecisionTablesOverloadedByProperties.png)
 
 *The group of Decision Tables overloaded by properties*
 
@@ -325,21 +325,21 @@ Consider the following example.
 
 To vary rules by the date when insurance was applied for, create a dedicated runtime context property for it in the model or use the existed one if applicable.
 
-![](../../../ref_guide_images/1d4843c40d545010e204b8615c506581.jpeg)
+![](../../ref-guide-images/requestdateSetApplicationdateDatatypeTable.jpeg)
 
 *RequestDate set as applicationDate in a datatype table*
 
 There are two tables describing discount factors, for different request dates.
 
-![](../../../ref_guide_images/81f3abd56835cbc88521a1f7ef792b58.jpeg)
+![](../../ref-guide-images/runtimeContextPropertiesDatatypeTables.jpeg)
 
-![](../../../ref_guide_images/8b6f52f023f9059f6f8d1b4d631782a3.jpeg)
+![](../../ref-guide-images/smartrulesTablesDataDifferentRequestDates.jpeg)
 
 *SmartRules tables with data for different request dates*
 
 In the test table, use the attribute name specified in the Datatype table. To test the provided cases, use the applicationDate attribute name only.
 
-![](../../../ref_guide_images/1898ad7c4b9bd888fcf2b2fc8a652edf.jpeg)
+![](../../ref-guide-images/testTableExample.jpeg)
 
 *Test table example*
 
@@ -353,7 +353,7 @@ All rule versions must have the same identity, that is, exactly the same signatu
 
 An example of an inactive rule version is as follows.
 
-![](../../../ref_guide_images/6659108df318234ebaa7e8b49d1021f9.png)
+![](../../ref-guide-images/inactiveRuleVersion.png)
 
 *An inactive rule version*
 

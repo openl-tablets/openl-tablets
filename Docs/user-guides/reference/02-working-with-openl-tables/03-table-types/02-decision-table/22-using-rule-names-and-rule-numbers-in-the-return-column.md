@@ -4,7 +4,7 @@ Rule names and numbers can be used in the return expression to find out which ru
 
 In the following rule example, the second rule row is executed, and rule ID \#2 is stored in the **priority** field of the return:
 
-![](../../../../ref_guide_images/ef7b4bd9e08bec2fe48e1d986f234440.png)
+![](../../../ref-guide-images/usingRuleidRuleRulesTable.png)
 
 *Using $RuleId and $Rule in the rules table*
 
