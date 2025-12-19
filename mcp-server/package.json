@@ -33,7 +33,7 @@
   "author": "",
   "license": "LGPL-3.0",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.21.1",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",

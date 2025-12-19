@@ -416,7 +416,7 @@
 
 ---
 
-### 26. `openl_validate_project` (Missing Tool)
+### 28. `openl_validate_project` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `GET /projects/{projectId}/validation` (may return 404 - endpoint may not exist)
@@ -434,7 +434,7 @@
 
 ---
 
-### 27. `openl_get_project_errors` (Missing Tool)
+### 29. `openl_get_project_errors` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: Uses `GET /projects/{projectId}/validation` internally
@@ -453,7 +453,7 @@
 
 ## Execution Tools
 
-### 28. `openl_execute_rule`
+### 30. `openl_execute_rule`
 
 **Status**: 🔴 DISABLED (Temporarily)  
 **OpenL API**: `POST /projects/{projectId}/rules/{ruleName}/execute` with input data
@@ -471,7 +471,7 @@
 
 ## Comparison Tools
 
-### 29. `openl_compare_versions` (Missing Tool)
+### 31. `openl_compare_versions` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `GET /projects/{projectId}/versions/compare?base={commitHash}&target={commitHash}`
@@ -490,7 +490,7 @@
 
 ## Additional Client Methods Not Exposed as Tools
 
-### 30. `deleteProject` (Missing Tool)
+### 32. `deleteProject` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `DELETE /projects/{projectId}`
@@ -507,7 +507,7 @@
 
 ---
 
-### 31. `saveProject` (Missing Tool)
+### 33. `saveProject` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `POST /projects/{projectId}/save?comment={comment}`
@@ -524,7 +524,7 @@
 
 ---
 
-### 32. `openProject` / `closeProject` (Missing Tools)
+### 34. `openProject` / `closeProject` (Missing Tools)
 
 **Status**: ❌ MISSING TOOLS  
 **OpenL API**: `PATCH /projects/{projectId}` with `status: "OPENED"` or `status: "CLOSED"`
@@ -540,7 +540,7 @@
 
 ---
 
-### 33. `healthCheck` (Missing Tool)
+### 35. `healthCheck` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: Uses `GET /repos` as connectivity check

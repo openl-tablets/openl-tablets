@@ -513,13 +513,13 @@ export function paginateResults<T>(
 ): {
   data: T[];
   has_more: boolean;
-  next_offset?: number;
+  next_offset?: number | null;
   total_count: number;
 } {
   const total_count = results.length;
   const data = results.slice(offset, offset + limit);
   const has_more = offset + limit < total_count;
-  const next_offset = has_more ? offset + limit : undefined;
+  const next_offset = has_more ? offset + limit : null;
 
   return { data, has_more, next_offset, total_count };
 }

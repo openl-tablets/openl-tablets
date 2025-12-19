@@ -328,11 +328,10 @@ describe("utils", () => {
     });
 
     it("should sanitize sensitive data in Axios errors", () => {
-      const axiosError = {
-        isAxiosError: true,
-        message: "Failed with Bearer token123",
-        code: "ERR_UNAUTHORIZED",
-      } as any;
+      // Create a proper Error instance that will pass isAxiosError check
+      const axiosError = new Error("Failed with Bearer token123") as any;
+      axiosError.isAxiosError = true;
+      axiosError.code = "ERR_UNAUTHORIZED";
 
       const result = extractErrorDetails(axiosError);
 

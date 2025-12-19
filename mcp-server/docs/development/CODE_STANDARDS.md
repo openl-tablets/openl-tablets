@@ -281,7 +281,7 @@ utils.ts         121     Low
 ### Dependencies ✓
 
 **Production dependencies** (5):
-- `@modelcontextprotocol/sdk`: Latest stable (v1.21.1)
+- `@modelcontextprotocol/sdk`: Latest stable (v1.25.1)
 - `axios`: HTTP client
 - `form-data`: File uploads
 - `zod`: Schema validation
@@ -305,7 +305,7 @@ All dependencies actively maintained and secure:
 
 ### SDK Version ✓
 
-- **Latest stable**: v1.21.1
+- **Latest stable**: v1.25.1
 - **All features**: Using latest protocol features
 - **Type support**: Full TypeScript support
 
