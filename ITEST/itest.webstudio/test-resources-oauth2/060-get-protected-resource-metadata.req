@@ -1,0 +1,2 @@
+GET /.well-known/oauth-protected-resource HTTP/1.1
+
