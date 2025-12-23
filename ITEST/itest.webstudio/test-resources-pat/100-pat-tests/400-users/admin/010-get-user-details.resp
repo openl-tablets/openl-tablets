@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "email": "admin@openl.example",
+  "displayName": "OpenL Admin",
+  "firstName": "OpenL",
+  "lastName": "Admin",
+  "username": "admin",
+  "currentUser": true,
+  "superUser": true,
+  "unsafePassword": false,
+  "externalFlags": {
+    "lastNameExternal": true,
+    "firstNameExternal": true,
+    "displayNameExternal": true,
+    "emailExternal": true,
+    "emailVerified": true
+  },
+  "notMatchedExternalGroupsCount": 1,
+  "online": false,
+  "userGroups": [
+    {
+      "name": "Administrators",
+      "type": "ADMIN"
+    },
+    {
+      "name": "openl-admin",
+      "type": "ADMIN"
+    }
+  ]
+}

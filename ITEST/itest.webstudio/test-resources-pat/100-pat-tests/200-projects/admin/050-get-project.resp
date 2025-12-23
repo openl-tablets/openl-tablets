@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "Project",
+  "modifiedBy": "OpenL Admin",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "path": "Project",
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+  "status": "OPENED",
+  "comment": "Project Project is created.",
+  "repository": "design-flat",
+  "selectedBranches": [
+    "master"
+  ]
+}

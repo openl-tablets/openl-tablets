@@ -1,0 +1,13 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=/tables/39abced710a1a6bc6b4d31fc8a3cd1fd/lines HTTP/1.1
+Authorization: Token ${USER1_PAT}
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "rules": [
+    {
+      "Rule": "ERR",
+      "Greeting": "= error (\"Invalid input\")"
+    }
+  ]
+}

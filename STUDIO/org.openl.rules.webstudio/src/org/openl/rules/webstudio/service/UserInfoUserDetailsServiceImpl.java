@@ -43,7 +43,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
-        Collection<GrantedAuthority> privileges = privilegeMapper.apply(user.getLoginName(), Collections.emptyList());
+        Collection<GrantedAuthority> privileges = mapPrivileges(user, Collections.emptyList());
 
         SimpleUser simpleUser = SimpleUser.builder()
                 .setFirstName(user.getFirstName())
@@ -57,5 +57,10 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
                 .build();
 
         return simpleUser;
+    }
+
+    protected Collection<GrantedAuthority> mapPrivileges(org.openl.rules.security.standalone.persistence.User user,
+                                                         Collection<? extends GrantedAuthority> extraPrivileges) {
+        return privilegeMapper.apply(user.getLoginName(), extraPrivileges);
     }
 }

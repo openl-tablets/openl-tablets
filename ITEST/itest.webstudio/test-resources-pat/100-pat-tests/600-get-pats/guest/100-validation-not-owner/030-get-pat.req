@@ -1,0 +1,4 @@
+GET /rest/users/personal-access-tokens/{USER1_PAT_PUBLIC_ID_2} HTTP/1.1
+Authorization: Bearer ${GUEST_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+

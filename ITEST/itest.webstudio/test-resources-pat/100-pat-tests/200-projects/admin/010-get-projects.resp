@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 0
+}

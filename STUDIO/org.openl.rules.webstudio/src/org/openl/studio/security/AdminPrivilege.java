@@ -28,6 +28,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority())")
+@PreAuthorize("""
+        hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority())
+        and @authz.isNotPat(authentication)
+        """)
 public @interface AdminPrivilege {
 }

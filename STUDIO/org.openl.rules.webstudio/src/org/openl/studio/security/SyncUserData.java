@@ -1,6 +1,8 @@
-package org.openl.rules.webstudio.security;
+package org.openl.studio.security;
 
 import java.util.function.Consumer;
+
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.webstudio.service.AdminUsers;
@@ -10,6 +12,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 /**
  * Updates user details in the DB.
  */
+@Service("syncUserData")
 public class SyncUserData implements Consumer<SimpleUser> {
     private final UserManagementService userManagementService;
     private final AdminUsers adminUsersInitializer;

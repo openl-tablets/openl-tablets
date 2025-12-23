@@ -31,6 +31,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("#username == authentication.name or hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority())")
+@PreAuthorize("""
+        #username == authentication.name
+        or (
+            hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority())
+            and @authz.isNotPat(authentication)
+        )
+        """)
 public @interface OwnerOrAdminPrivilege {
 }

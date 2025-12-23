@@ -142,15 +142,19 @@ public class HttpClient implements AutoCloseable {
             var req = requestBuilder(url, headers)
                     .GET()
                     .build();
-            var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-            assertEquals(status, resp.statusCode(), "URL :" + url);
-            if (cl == String.class) {
-                return (T) resp.body();
-            }
-            return HttpData.OBJECT_MAPPER.readValue(resp.body(), cl);
+            return sendRequest(url, req, cl, status);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private <T> T sendRequest(String url, HttpRequest req, Class<T> cl, int status) throws IOException, InterruptedException {
+        var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+        assertEquals(status, resp.statusCode(), "URL :" + url);
+        if (cl == String.class) {
+            return (T) resp.body();
+        }
+        return HttpData.OBJECT_MAPPER.readValue(resp.body(), cl);
     }
 
     public void postForObject(String url, Object request, String... headers) {
@@ -162,6 +166,19 @@ public class HttpClient implements AutoCloseable {
 
             var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
             assertEquals(204, resp.statusCode(), "URL :" + url);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> T postForObject(String url, Object request, Class<T> cl, int status, String... headers) {
+        try {
+            var req = requestBuilder(url, headers)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(HttpData.OBJECT_MAPPER.writeValueAsString(request)))
+                    .build();
+
+            return sendRequest(url, req, cl, status);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

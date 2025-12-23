@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": "***",
+  "result": {
+    "protocolVersion": "***",
+    "capabilities": {
+      "prompts": {
+        "listChanged": true
+      },
+      "tools": {
+        "listChanged": true
+      }
+    },
+    "serverInfo": {
+      "name": "openl-studio-mcp-server",
+      "version": "***"
+    }
+  }
+}

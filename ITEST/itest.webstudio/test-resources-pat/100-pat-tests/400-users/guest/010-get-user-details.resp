@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "email": "guest@openl.example",
+  "displayName": "Guest Ghost",
+  "firstName": "Guest",
+  "lastName": "Ghost",
+  "username": "guest",
+  "currentUser": true,
+  "superUser": false,
+  "unsafePassword": false,
+  "externalFlags": {
+    "displayNameExternal": true,
+    "firstNameExternal": true,
+    "lastNameExternal": true,
+    "emailExternal": true,
+    "emailVerified": true
+  },
+  "notMatchedExternalGroupsCount": 1,
+  "online": false
+}
