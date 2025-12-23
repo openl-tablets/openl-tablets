@@ -231,7 +231,14 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
             return Optional.empty();
         }
         if (StringUtils.isBlank(parameter.getName())) {
-            parameter.setName("arg" + paramInfo.getIndex());
+            // Try to get actual parameter name from method signature (requires -parameters compiler flag)
+            var reflectParam = paramInfo.getMethodParameter().getParameter();
+            if (reflectParam.isNamePresent()) {
+                parameter.setName(reflectParam.getName());
+            } else {
+                // Fallback to arg0, arg1, etc. if parameter name is not available
+                parameter.setName("arg" + paramInfo.getIndex());
+            }
         }
 
         if (parameter.getRequired() == Boolean.FALSE) {

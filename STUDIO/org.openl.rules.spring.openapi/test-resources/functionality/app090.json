@@ -1,0 +1,219 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Studio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Token management operations",
+      "name": "Tokens"
+    }
+  ],
+  "paths": {
+    "/tokens/{tokenId}": {
+      "delete": {
+        "description": "Deletes a token by its ID. Parameter name should be auto-discovered as 'tokenId'.",
+        "operationId": "deleteToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tokenId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Token deleted"
+          },
+          "404": {
+            "description": "Token not found"
+          },
+          "200": {
+            "description": "default response"
+          }
+        },
+        "summary": "Delete token",
+        "tags": [
+          "Tokens"
+        ]
+      },
+      "get": {
+        "description": "Retrieves a token by its ID. Parameter name should be auto-discovered as 'tokenId'.",
+        "operationId": "getToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tokenId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Token found"
+          },
+          "404": {
+            "description": "Token not found"
+          }
+        },
+        "summary": "Get token by ID",
+        "tags": [
+          "Tokens"
+        ]
+      }
+    },
+    "/tokens/search": {
+      "get": {
+        "description": "Searches tokens by name. Parameter name should be auto-discovered as 'query'.",
+        "operationId": "searchTokens",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TokenResponse"
+                  }
+                }
+              }
+            },
+            "description": "Search results"
+          }
+        },
+        "summary": "Search tokens",
+        "tags": [
+          "Tokens"
+        ]
+      }
+    },
+    "/tokens": {
+      "post": {
+        "description": "Creates a new token",
+        "operationId": "createToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Token created"
+          }
+        },
+        "summary": "Create token",
+        "tags": [
+          "Tokens"
+        ]
+      }
+    },
+    "/tokens/user/{userId}/tokens/{tokenId}": {
+      "get": {
+        "description": "Gets a specific token for a user. Both parameter names should be auto-discovered.",
+        "operationId": "getUserToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "tokenId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Token found"
+          }
+        },
+        "summary": "Get user token",
+        "tags": [
+          "Tokens"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenResponse": {
+        "type": "object",
+        "description": "Token information",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Token ID",
+            "example": "token-123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Token name",
+            "example": "My API Token"
+          }
+        }
+      },
+      "TokenRequest": {
+        "type": "object",
+        "description": "Request to create a new token",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Token name",
+            "example": "My API Token",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  }
+}
