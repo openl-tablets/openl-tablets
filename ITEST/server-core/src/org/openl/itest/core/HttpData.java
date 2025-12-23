@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class HttpData {
     static final ObjectMapper OBJECT_MAPPER;
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.*?)}");
+    private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{(.*?)}");
 
     static {
         OBJECT_MAPPER = new ObjectMapper();
@@ -96,9 +97,10 @@ class HttpData {
         return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null, null);
     }
 
-    static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
+    static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) {
+        String url = resolvePathVariables(httpData.getUrl(), localEnv);
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(baseURL.toString() + httpData.getUrl()))
+                .uri(URI.create(baseURL.toString() + url))
                 .method(httpData.getHttpMethod(), HttpRequest.BodyPublishers.ofByteArray(httpData.body))
                 .timeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.read"))))
                 .header("Host", "example.com");
@@ -123,6 +125,34 @@ class HttpData {
             String placeholder = matcher.group(1);
             String replacement = env.get(placeholder);
             matcher.appendReplacement(result, replacement);
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    /**
+     * Resolves Spring-style path variables in the URL path.
+     * <p>
+     * Replaces path variable placeholders like {@code {variableName}} with values from localEnv.
+     * For example, {@code /users/{userId}/orders/{orderId}} with {@code localEnv.get("userId") = "123"}
+     * and {@code localEnv.get("orderId") = "456"} becomes {@code /users/123/orders/456}.
+     * </p>
+     *
+     * @param path the URL path containing path variable placeholders
+     * @param env  the environment map containing variable values
+     * @return the path with resolved variables
+     */
+    private static String resolvePathVariables(String path, Map<String, String> env) {
+        var matcher = PATH_VARIABLE_PATTERN.matcher(path);
+
+        var result = new StringBuilder();
+        while (matcher.find()) {
+            String variableName = matcher.group(1);
+            String replacement = env.get(variableName);
+            if (replacement != null) {
+                matcher.appendReplacement(result, replacement);
+            }
         }
         matcher.appendTail(result);
 

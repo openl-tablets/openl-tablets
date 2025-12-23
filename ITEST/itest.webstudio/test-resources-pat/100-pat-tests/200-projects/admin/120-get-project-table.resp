@@ -1,0 +1,49 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "id": "a9b205cbc833c511accabda0c39a87c8",
+  "kind": "Rules",
+  "name": "Hello",
+  "returnType": "String",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Rule"
+    },
+    {
+      "title": "Hour"
+    },
+    {
+      "title": "Greeting"
+    }
+  ],
+  "rules": [
+    {
+      "Rule": "R10",
+      "Hour": "[0..12)",
+      "Greeting": "Good Morning!"
+    },
+    {
+      "Rule": "R20",
+      "Hour": "[12..18)",
+      "Greeting": "Good Afternoon!"
+    },
+    {
+      "Rule": "R30",
+      "Hour": "[18..22)",
+      "Greeting": "Good Evening!"
+    },
+    {
+      "Rule": "R40",
+      "Hour": "[22..24)",
+      "Greeting": "Good Night!"
+    }
+  ]
+}

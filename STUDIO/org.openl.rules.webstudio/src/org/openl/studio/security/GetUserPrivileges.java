@@ -1,10 +1,12 @@
-package org.openl.rules.webstudio.security;
+package org.openl.studio.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.User;
@@ -12,28 +14,22 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
-import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
 /**
  * Get all privileges for the given user.
  */
+@Service("privilegeMapper")
 public class GetUserPrivileges implements BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
-    private final RepositoryAclServiceProvider aclServiceProvider;
-    private final GrantedAuthority relevantSystemWideGrantedAuthority;
 
     public GetUserPrivileges(UserManagementService userManagementService,
-                             GroupManagementService groupManagementService,
-                             GrantedAuthority relevantSystemWideGrantedAuthority,
-                             RepositoryAclServiceProvider aclServiceProvider) {
+                             GroupManagementService groupManagementService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.defaultGroup = Props.text(InheritedAuthenticationSettings.DEFAULT_GROUP);
-        this.aclServiceProvider = aclServiceProvider;
-        this.relevantSystemWideGrantedAuthority = relevantSystemWideGrantedAuthority;
     }
 
     public Collection<GrantedAuthority> apply(String user, Collection<? extends GrantedAuthority> authorities) {
@@ -62,12 +58,8 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         for (GrantedAuthority authority : authorities) {
             String authorityName = authority.getAuthority();
             Group group = groupManagementService.getGroupByName(authorityName);
-            if (group != null) {
-                // Expand priveleges from the DB
-                privileges.add(group);
-            } else {
-                privileges.add(authority);
-            }
+            // Expand priveleges from the DB
+            privileges.add(Objects.requireNonNullElse(group, authority));
         }
     }
 

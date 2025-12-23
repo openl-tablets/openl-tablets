@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi/tables/a9b205cbc833c511accabda0c39a87c8 HTTP/1.1
+Authorization: Token ${ADMIN_PAT}
+

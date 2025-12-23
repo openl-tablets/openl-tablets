@@ -247,6 +247,69 @@ message="Merged feature-auth: kept our business rules"
 
 ---
 
+### 6. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
+
+The Personal Access Token (PAT) API enables users to generate and manage authentication tokens for programmatic access to OpenL Tablets Studio. PATs provide an alternative to OAuth2/SAML authentication for service-to-service communication and API integrations.
+
+**Key Features:**
+- Create, list, retrieve, and delete personal access tokens
+- Cryptographically secure token generation (Base62 encoding, 285 bits entropy)
+- Optional token expiration for time-limited access
+- User isolation (users manage only their own tokens)
+- OAuth2/SAML authentication required for management operations
+- PAT authentication cannot be used to manage PATs
+
+**Use Cases:**
+- Service-to-service authentication
+- CI/CD pipeline integration
+- API client authentication
+- MCP server authentication
+- Automated testing and deployment
+
+**Token Format:**
+```
+openl_pat_<publicId>.<secret>
+           ^^^^^^^^   ^^^^^^
+           16 chars   32 chars
+```
+
+**Example:**
+```bash
+# Create a token (requires OAuth2/SAML authentication)
+POST /rest/users/personal-access-tokens
+Authorization: Bearer <oauth2-token>
+{
+  "name": "CI/CD Pipeline Token",
+  "expiresAt": "2026-12-31T23:59:59Z"
+}
+
+# Response (token shown only once!)
+{
+  "publicId": "x1Y2z3A4b5C6d7E8",
+  "name": "CI/CD Pipeline Token",
+  "loginName": "jenkins",
+  "token": "openl_pat_x1Y2z3A4b5C6d7E8.f9G0h1I2j3K4l5M6n7O8p9Q0r1S2t3U4v5W6",
+  "createdAt": "2025-12-23T10:30:00Z",
+  "expiresAt": "2026-12-31T23:59:59Z"
+}
+
+# Use token for API access
+GET /rest/design/list
+Authorization: Token openl_pat_x1Y2z3A4b5C6d7E8.f9G0h1I2j3K4l5M6n7O8p9Q0r1S2t3U4v5W6
+```
+
+**Security Features:**
+- BCrypt secret hashing with automatic salting
+- Timing attack prevention with constant-time validation
+- Public ID and secret separation for fast lookups
+- DoS prevention with token length limits
+- No information disclosure on validation failures
+
+**Architecture Documentation:**
+- [Personal Access Token Architecture](personal-access-token-architecture.md) - Detailed architecture design, security considerations, and implementation details
+
+---
+
 ## REST API Endpoints Summary
 
 All table APIs follow a consistent REST pattern:
@@ -464,6 +527,22 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Custom Resolution | ✅ Yes | File upload support |
 | Integration Tests | ✅ Complete | Full workflow coverage |
 
+### Personal Access Token API
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Create Token | ✅ Complete | OAuth2/SAML authentication required |
+| List Tokens | ✅ Complete | User's own tokens only |
+| Get Token | ✅ Complete | Ownership verification |
+| Delete Token | ✅ Complete | Immediate revocation |
+| Token Validation | ✅ Complete | Constant-time, secure |
+| PAT Authentication | ✅ Complete | Spring Security filter integration |
+| Expiration Support | ✅ Complete | Optional time-limited tokens |
+| Security Hardening | ✅ Complete | Timing attack prevention, BCrypt hashing |
+| @NotPatAuth | ✅ Complete | PATs cannot manage PATs |
+| Unit Tests | ✅ Complete | Comprehensive coverage |
+| Integration Tests | ✅ Complete | Full workflow with OAuth2 |
+
 ---
 
 ## Future Enhancements
@@ -478,7 +557,7 @@ Refer to the specific API documentation for detailed test cases and expected res
 
 ---
 
-**Last Updated**: 2025-12-18
+**Last Updated**: 2025-12-23
 **Version**: 6.0.0-SNAPSHOT
 
 For API endpoint details, see individual table type documentation above.

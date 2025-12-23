@@ -1,0 +1,4 @@
+GET /rest/users/personal-access-tokens HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+

@@ -1,0 +1,19 @@
+{
+  "userMode": "oauth2",
+  "administrators": ["admin"],
+  "defaultGroup": "Viewers",
+  "allowProjectCreateDelete": true,
+  "clientId": null,
+  "issuerUri": null,
+  "clientSecret": null,
+  "scope": "openid,profile,email",
+  "grantType": "authorization_code",
+  "attributes": {
+    "username": "preferred_username",
+    "firstName": "given_name",
+    "lastName": "family_name",
+    "displayName": "name",
+    "email": "email",
+    "groups": "groups"
+  }
+}

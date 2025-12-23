@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "email": "user1@openl.example",
+  "displayName": "User User1",
+  "firstName": "User",
+  "lastName": "User1",
+  "showHeader": true,
+  "showFormulas": false,
+  "testsPerPage": 5,
+  "testsFailuresOnly": false,
+  "testsFailuresPerTest": 5,
+  "showComplexResult": false,
+  "showRealNumbers": false,
+  "treeView": "excelSheet",
+  "username": "user1",
+  "administrator": false,
+  "externalFlags": {
+    "displayNameExternal": true,
+    "firstNameExternal": true,
+    "lastNameExternal": true,
+    "emailExternal": true,
+    "emailVerified": true
+  },
+  "profiles": [
+    {
+      "displayName": "By Type",
+      "name": "type",
+      "description": "Organize projects by component type"
+    },
+    {
+      "displayName": "By Excel Sheet",
+      "name": "excelSheet",
+      "description": "Organize projects by physical file structure"
+    },
+    {
+      "displayName": "By Category",
+      "name": "category",
+      "description": "Provides categorized view"
+    },
+    {
+      "displayName": "By Category Detailed",
+      "name": "categoryDetailed",
+      "description": "Provides more detailed categorized view"
+    },
+    {
+      "displayName": "By Category Inversed",
+      "name": "categoryInversed",
+      "description": "Provides inversed categorized view"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+GET /rest/users/guest HTTP/1.1
+Authorization: Token openl_pat_abc123.secret1e1f2f3g4h5i6j7k8l9m0n
+Cookie: NO_JSESSIONID=noAuth
+

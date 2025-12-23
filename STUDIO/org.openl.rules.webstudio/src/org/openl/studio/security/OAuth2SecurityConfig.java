@@ -36,9 +36,10 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 import org.openl.rules.security.SimpleUser;
 import org.openl.studio.security.oauth2.LazyClientRegistrationRepository;
+import org.openl.studio.security.oauth2.OAuth2AccessTokenConfiguration;
 import org.openl.studio.security.oauth2.Oauth2LogoutSuccessHandler;
 import org.openl.studio.security.oauth2.OpenLOAuth2UserService;
-import org.openl.studio.security.oauth2.OAuth2AccessTokenConfiguration;
+import org.openl.studio.security.pat.filter.PatAuthenticationFilter;
 
 @Configuration
 @ConditionalOnExpression("'${user.mode}' == 'oauth2'")
@@ -88,12 +89,14 @@ public class OAuth2SecurityConfig {
     @Order(4)
     public SecurityFilterChain restEndpointsFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
+            PatAuthenticationFilter patAuthenticationFilter,
             @Qualifier("bearerTokenAuthenticationFilter") Filter bearerTokenAuthenticationFilter,
             @Qualifier("bearerExceptionTranslationFilter") ExceptionTranslationFilter bearerExceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
 
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
                 securityContextPersistenceFilter,
+                patAuthenticationFilter,
                 bearerTokenAuthenticationFilter,
                 bearerExceptionTranslationFilter,
                 filterSecurityInterceptor);

@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "ProjectUser1",
+  "modifiedBy": "User User1",
+  "modifiedAt": "*",
+  "branch": "user1/feature-1",
+  "revision": "*",
+  "path": "ProjectUser1",
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+  "status": "OPENED",
+  "comment": "Project ProjectUser1 is created.",
+  "repository": "design-flat",
+  "selectedBranches": [
+    "master",
+    "user1/feature-1"
+  ]
+}

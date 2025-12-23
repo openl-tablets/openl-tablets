@@ -1,5 +1,6 @@
 package org.openl.studio.config;
 
+import java.time.Clock;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,5 +122,10 @@ public class ApiConfig implements WebMvcConfigurer {
         if (converters != null) {
             converters.forEach(registry::addConverter);
         }
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }

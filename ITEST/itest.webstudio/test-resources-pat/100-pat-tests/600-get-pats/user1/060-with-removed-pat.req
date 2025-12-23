@@ -1,0 +1,4 @@
+GET /rest/users/user1 HTTP/1.1
+Authorization: Token ${USER1_PAT}
+Cookie: NO_JSESSIONID=noAuth
+

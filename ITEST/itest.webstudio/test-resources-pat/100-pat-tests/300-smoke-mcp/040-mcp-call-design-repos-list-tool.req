@@ -1,0 +1,17 @@
+POST /rest/mcp HTTP/1.1
+Authorization: Token ${USER1_PAT}
+Accept: application/json, text/event-stream
+Content-Type: application/json
+
+{
+  "method": "tools/call",
+  "params": {
+    "name": "openl_list_design_repositories",
+    "arguments": {},
+    "_meta": {
+      "progressToken": 2
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

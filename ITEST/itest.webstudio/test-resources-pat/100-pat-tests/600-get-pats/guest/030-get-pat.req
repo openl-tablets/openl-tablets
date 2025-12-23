@@ -1,0 +1,3 @@
+GET /rest/users/personal-access-tokens/{GUEST_PAT_PUBLIC_ID} HTTP/1.1
+Authorization: Bearer ${GUEST_ACCESS_TOKEN}
+
