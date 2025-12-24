@@ -25,15 +25,18 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
     return fetch(`${CONFIG.CONTEXT}/web${url}`, responseParams)
         .then(async response => {
             const { status } = response
-            if (status === 200) {
+            if (status >= 200 && status < 300) {
                 const { headers } = response
                 const contentType = headers.get('Content-Type')
                 if (contentType && contentType.indexOf('application/json') !== -1) {
                     return response.json()
                 }
-                return response.text()
-            } else if (status > 200 && status < 300) {
-                return true
+                // For 204 No Content or responses without body
+                if (status === 204) {
+                    return true
+                }
+                const text = await response.text()
+                return text || true
             }
             else if (status === 401) {
                 appStore.setShowLogin(true)
