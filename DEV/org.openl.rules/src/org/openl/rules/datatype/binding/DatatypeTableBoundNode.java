@@ -184,18 +184,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 BindHelper.processError("Bad table structure: expected {header} / {type | name}.", tableSyntaxNode, bindingContext);
                 return;
             }
-            if (!columnTitlesOrder.containsKey(TYPE_COLUMN_TITLE)) {
-                BindHelper.processError(String.format("Column title '%s' is mandatory.", TYPE_COLUMN_TITLE),
-                        tableSyntaxNode,
-                        bindingContext);
-                return;
-            }
-            if (!columnTitlesOrder.containsKey(NAME_COLUMN_TITLE)) {
-                BindHelper.processError(String.format("Column title '%s' is mandatory.", NAME_COLUMN_TITLE),
-                        tableSyntaxNode,
-                        bindingContext);
-                return;
-            }
+            // columnTitlesOrder always contains TYPE_COLUMN_TITLE and NAME_COLUMN_TITLE:
+            // - New design: both headers are present (checked in getDatatypeColumnOrder)
+            // - Legacy design: DEFAULT_COLUMN_TITLES_ORDER is returned which has them at positions 0 and 1
             int firstRow = columnTitlesOrder == DEFAULT_COLUMN_TITLES_ORDER ? 0 : 1;
             for (int i = firstRow; i < tableHeight; i++) {
                 processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, i == 0, useTransientSuffix);
@@ -240,30 +231,51 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (tableHeight == 0) {
             return DEFAULT_COLUMN_TITLES_ORDER;
         }
-        if (dataTable.getWidth() <= 3) {
-            for (int i = 0; i < dataTable.getWidth(); i++) {
-                var cellSource = getCellSource(dataTable.getRow(0), cxt, i);
-                String title = cellSource.getCode();
-                if (!COLUMN_TITLES.contains(title)) {
-                    return DEFAULT_COLUMN_TITLES_ORDER;
-                }
-            }
-        }
-        var columnTitlesOrder = new HashMap<String, Integer>();
+
+        // Check if both Name and Type column titles are present in the first row
+        boolean hasNameTitle = false;
+        boolean hasTypeTitle = false;
         for (int i = 0; i < dataTable.getWidth(); i++) {
             var cellSource = getCellSource(dataTable.getRow(0), cxt, i);
-            var title = cellSource.getCode();
-            if (StringUtils.isNotBlank(title)) {
-                if (columnTitlesOrder.containsKey(title)) {
-                    BindHelper.processError("Column title '" + title + "' is duplicated.", cellSource, cxt);
-                } else if (!COLUMN_TITLES.contains(title)) {
-                    BindHelper.processError(String.format("Column title '%s' is not allowed. The title must be one of: %s", title, COMMA_SEPARATED_COLUMN_TITLES), cellSource, cxt);
-                } else {
-                    columnTitlesOrder.put(title, i);
-                }
+            String title = cellSource.getCode();
+            if (NAME_COLUMN_TITLE.equals(title)) {
+                hasNameTitle = true;
+            } else if (TYPE_COLUMN_TITLE.equals(title)) {
+                hasTypeTitle = true;
             }
         }
-        return columnTitlesOrder;
+
+        // If both Name and Type titles are present, use new design with column headers
+        if (hasNameTitle && hasTypeTitle) {
+            var columnTitlesOrder = new HashMap<String, Integer>();
+            for (int i = 0; i < dataTable.getWidth(); i++) {
+                var cellSource = getCellSource(dataTable.getRow(0), cxt, i);
+                var title = cellSource.getCode();
+                if (StringUtils.isNotBlank(title)) {
+                    if (columnTitlesOrder.containsKey(title)) {
+                        BindHelper.processError("Column title '%s' is duplicated.".formatted(title), cellSource, cxt);
+                    } else if (!COLUMN_TITLES.contains(title)) {
+                        BindHelper.processError("Column title '%s' is not allowed. The title must be one of: %s".formatted(title, COMMA_SEPARATED_COLUMN_TITLES), cellSource, cxt);
+                    } else {
+                        columnTitlesOrder.put(title, i);
+                    }
+                }
+            }
+            return columnTitlesOrder;
+        }
+
+        // Legacy design - use positional columns
+        // Show warning if more than 3 columns
+        if (dataTable.getWidth() > 3) {
+            BindHelper.processWarn(
+                    """
+                            Datatype %s uses legacy column layout without headers and has more than 3 columns. \
+                            For backward compatibility only the first three positional columns (Type, Name, Default) are used. \
+                            To enable additional column types, add explicit column headers: %s""".formatted(dataType.getName(), COMMA_SEPARATED_COLUMN_TITLES),
+                    tableSyntaxNode,
+                    cxt);
+        }
+        return DEFAULT_COLUMN_TITLES_ORDER;
     }
 
     private void validateContextPropertyFields(IBindingContext bindingContext) {
@@ -364,7 +376,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         Object instance = null;
         try {
             instance = datatypeClass.getDeclaredConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
+                 InvocationTargetException e) {
             LOG.debug("Error occurred: ", e);
             String errorMessage = String.format(
                     "Default constructor is not found in class '%s' or the class is not instantiatable. " + "Please, update the class to be compatible with the datatype.",
@@ -712,50 +725,50 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
         }
 
-            if (columnTitlesOrder.containsKey(DESCRIPTION_COLUMN_TITLE)) {
-                int descriptionColumnIndex = columnTitlesOrder.get(DESCRIPTION_COLUMN_TITLE);
-                GridCellSourceCodeModule descriptionValueCellSource = getCellSource(row, bindingContext, descriptionColumnIndex);
-                if (StringUtils.isNotBlank(descriptionValueCellSource.getCode())) {
-                    fieldDescriptionBuilder.setDescriptionValue(descriptionValueCellSource.getCode().trim());
-                }
+        if (columnTitlesOrder.containsKey(DESCRIPTION_COLUMN_TITLE)) {
+            int descriptionColumnIndex = columnTitlesOrder.get(DESCRIPTION_COLUMN_TITLE);
+            GridCellSourceCodeModule descriptionValueCellSource = getCellSource(row, bindingContext, descriptionColumnIndex);
+            if (StringUtils.isNotBlank(descriptionValueCellSource.getCode())) {
+                fieldDescriptionBuilder.setDescriptionValue(descriptionValueCellSource.getCode().trim());
             }
-            if (columnTitlesOrder.containsKey(EXAMPLE_COLUMN_TITLE)) {
-                int examplesColumnIndex = columnTitlesOrder.get(EXAMPLE_COLUMN_TITLE);
-                GridCellSourceCodeModule examplesValueCellSource = getCellSource(row, bindingContext, examplesColumnIndex);
-                String examplesValueCellSourceValue = examplesValueCellSource.getCode();
-                if (StringUtils.isNotBlank(examplesValueCellSourceValue)) {
-                    if (fieldType.getInstanceClass() != null) {
-                        try {
-                            Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
-                            try {
-                                RuleRowHelper.validateValue(exampleValue, fieldType);
-                                fieldDescriptionBuilder.setExampleValue(examplesValueCellSourceValue.trim());
-                            } catch (Exception e) {
-                                BindHelper.processError(e, defaultValueCellSource, bindingContext);
-                            }
-                        } catch (Exception e) {
-                            handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
-                        }
-                    } else {
-                        handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
-                    }
-                }
-            }
-            if (columnTitlesOrder.containsKey(MANDATORY_COLUMN_TITLE)) {
-                int mandatoryColumnIndex = columnTitlesOrder.get(MANDATORY_COLUMN_TITLE);
-                GridCellSourceCodeModule mandatoryValueCellSource = getCellSource(row, bindingContext, mandatoryColumnIndex);
-                if (StringUtils.isNotBlank(mandatoryValueCellSource.getCode())) {
+        }
+        if (columnTitlesOrder.containsKey(EXAMPLE_COLUMN_TITLE)) {
+            int examplesColumnIndex = columnTitlesOrder.get(EXAMPLE_COLUMN_TITLE);
+            GridCellSourceCodeModule examplesValueCellSource = getCellSource(row, bindingContext, examplesColumnIndex);
+            String examplesValueCellSourceValue = examplesValueCellSource.getCode();
+            if (StringUtils.isNotBlank(examplesValueCellSourceValue)) {
+                if (fieldType.getInstanceClass() != null) {
                     try {
-                        Boolean mandatoryValue = String2DataConvertorFactory.parse(Boolean.class, mandatoryValueCellSource.getCode(), bindingContext);
-                        if (mandatoryValue != null) {
-                            fieldDescriptionBuilder.setMandatoryValue(mandatoryValue);
+                        Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
+                        try {
+                            RuleRowHelper.validateValue(exampleValue, fieldType);
+                            fieldDescriptionBuilder.setExampleValue(examplesValueCellSourceValue.trim());
+                        } catch (Exception e) {
+                            BindHelper.processError(e, defaultValueCellSource, bindingContext);
                         }
                     } catch (Exception e) {
-                        String errorMessage = String.format("The provided value '%s' is not valid for the mandatory column. Please provide a valid value.", mandatoryValueCellSource.getCode().trim());
-                        BindHelper.processError(errorMessage, mandatoryValueCellSource, bindingContext);
+                        handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
                     }
+                } else {
+                    handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
                 }
             }
+        }
+        if (columnTitlesOrder.containsKey(MANDATORY_COLUMN_TITLE)) {
+            int mandatoryColumnIndex = columnTitlesOrder.get(MANDATORY_COLUMN_TITLE);
+            GridCellSourceCodeModule mandatoryValueCellSource = getCellSource(row, bindingContext, mandatoryColumnIndex);
+            if (StringUtils.isNotBlank(mandatoryValueCellSource.getCode())) {
+                try {
+                    Boolean mandatoryValue = String2DataConvertorFactory.parse(Boolean.class, mandatoryValueCellSource.getCode(), bindingContext);
+                    if (mandatoryValue != null) {
+                        fieldDescriptionBuilder.setMandatoryValue(mandatoryValue);
+                    }
+                } catch (Exception e) {
+                    String errorMessage = String.format("The provided value '%s' is not valid for the mandatory column. Please provide a valid value.", mandatoryValueCellSource.getCode().trim());
+                    BindHelper.processError(errorMessage, mandatoryValueCellSource, bindingContext);
+                }
+            }
+        }
 
 
         try {
