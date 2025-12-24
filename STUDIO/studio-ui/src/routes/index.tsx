@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
@@ -22,6 +22,8 @@ import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
 import Tesseract from '../components/Tesseract'
 import { RouteErrorFallback } from '../components/RouteErrorFallback'
+
+const PersonalAccessTokens = React.lazy(() => import('containers/PersonalAccessTokens').then(m => ({ default: m.PersonalAccessTokens })))
 
 const router = createBrowserRouter([
     {
@@ -99,6 +101,10 @@ const router = createBrowserRouter([
                             {
                                 path: 'settings',
                                 element: <UserSettings />,
+                            },
+                            {
+                                path: 'tokens',
+                                element: <Suspense fallback={null}><PersonalAccessTokens /></Suspense>,
                             },
                         ],
                     },

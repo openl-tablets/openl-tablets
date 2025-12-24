@@ -33,6 +33,7 @@ i18next.addResourceBundle('en', 'common', {
         repository: 'Repository',
         my_profile: 'My Profile',
         my_settings: 'My Settings',
+        personal_access_tokens: 'Personal Access Tokens',
         repositories: 'Repositories',
         system: 'System',
         security: 'Security',
