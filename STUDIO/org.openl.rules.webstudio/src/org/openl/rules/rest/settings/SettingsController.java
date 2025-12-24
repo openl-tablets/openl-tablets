@@ -1,6 +1,5 @@
 package org.openl.rules.rest.settings;
 
-import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
@@ -44,6 +43,7 @@ public class SettingsController {
                         .groupsManagement(userManagementMode == UserManagementMode.EXTERNAL)
                         .userManagement(userManagementMode != null)
                         .emailVerification(mailSenderFeature.getAsBoolean())
+                        .personalAccessToken(isPersonalAccessTokenEnabled())
                         .build())
                 .scripts(Stream.of(environment.getProperty("webstudio.javascript.url"))
                         .filter(StringUtils::isNotBlank)
@@ -57,6 +57,13 @@ public class SettingsController {
             case "single" -> null;
             case "multi" -> UserManagementMode.INTERNAL;
             default -> UserManagementMode.EXTERNAL;
+        };
+    }
+
+    private boolean isPersonalAccessTokenEnabled() {
+        return switch (environment.getProperty("user.mode")) {
+            case "oauth2", "saml" -> true;
+            case null, default -> false;
         };
     }
 

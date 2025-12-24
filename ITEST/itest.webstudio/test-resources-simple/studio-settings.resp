@@ -8,6 +8,7 @@ Content-Type: application/json
   "supportedFeatures": {
     "groupsManagement": false,
     "userManagement": false,
-    "emailVerification": false
+    "emailVerification": false,
+    "personalAccessToken": false
   }
 }

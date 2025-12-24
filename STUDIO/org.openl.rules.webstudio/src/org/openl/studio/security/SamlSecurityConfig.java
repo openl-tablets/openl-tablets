@@ -38,6 +38,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.studio.security.pat.filter.PatAuthenticationFilter;
 import org.openl.studio.security.saml.OpenLResponseAuthenticationConverter;
 import org.openl.studio.security.saml.OpenLSamlBuilder;
 import org.openl.studio.security.saml.SamlLogoutSuccessHandler;
@@ -96,6 +97,21 @@ public class SamlSecurityConfig {
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/saml2/authenticate/**"),
                 securityContextPersistenceFilter,
                 samlRequestFilter);
+    }
+
+    @Bean
+    @Order(5)
+    public SecurityFilterChain restEndpointsFilterChain(
+            @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
+            PatAuthenticationFilter patAuthenticationFilter,
+            @Qualifier("webExceptionTranslationFilter") ExceptionTranslationFilter webExceptionTranslationFilter,
+            @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
+
+        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
+                securityContextPersistenceFilter,
+                patAuthenticationFilter,
+                webExceptionTranslationFilter,
+                filterSecurityInterceptor);
     }
 
     @Bean

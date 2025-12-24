@@ -6,6 +6,7 @@ Content-Type: application/json
   "supportedFeatures": {
     "groupsManagement": false,
     "userManagement": true,
-    "emailVerification": true
+    "emailVerification": true,
+    "personalAccessToken": false
   }
 }

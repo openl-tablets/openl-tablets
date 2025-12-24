@@ -1317,6 +1317,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "personalAccessToken": {
+            "type": "boolean",
+            "description": "***"
+          },
           "userManagement": {
             "type": "boolean",
             "description": "***"
