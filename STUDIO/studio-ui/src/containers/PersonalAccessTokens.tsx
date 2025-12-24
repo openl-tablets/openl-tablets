@@ -105,6 +105,7 @@ export const PersonalAccessTokens: React.FC = () => {
             case 'custom':
                 return customDate ? customDate.endOf('day').toISOString() : null
             case 'no_expiration':
+            default:
                 return null
         }
     }
@@ -202,7 +203,7 @@ export const PersonalAccessTokens: React.FC = () => {
             title: t('pat:token_name'),
             dataIndex: 'name',
             key: 'name',
-            render: (name: string, record) => (
+            render: (name: string, record: PersonalAccessToken) => (
                 <Space>
                     <span>{name}</span>
                     {record.expiresAt && isTokenExpired(record.expiresAt) && (
