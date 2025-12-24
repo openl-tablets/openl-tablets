@@ -28,11 +28,11 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.validation.AbstractConstraintValidatorTest;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)

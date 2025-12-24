@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.web.admin.SettingPropertyName;
+import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 

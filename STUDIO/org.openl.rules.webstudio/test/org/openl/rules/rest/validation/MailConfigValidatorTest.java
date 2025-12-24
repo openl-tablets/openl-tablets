@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
+import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 
 @SpringJUnitConfig(classes = MockConfiguration.class)

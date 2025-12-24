@@ -8,7 +8,8 @@ import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.rest.settings.model.validation.DBConnectionConstraint;
+import org.openl.studio.settings.converter.SettingPropertyName;
+import org.openl.studio.settings.model.constraint.DBConnectionConstraint;
 
 @DBConnectionConstraint
 public class DBSettings implements SettingsHolder {

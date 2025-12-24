@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
+import org.openl.studio.settings.converter.SettingPropertyName;
 
 public class NOPUserSettings implements SettingsHolder {
 

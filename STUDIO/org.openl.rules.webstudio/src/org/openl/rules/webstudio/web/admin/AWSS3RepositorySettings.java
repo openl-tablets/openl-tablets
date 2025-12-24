@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.studio.settings.converter.SettingPropertyName;
 
 @Schema(allOf = RepositorySettings.class)
 public class AWSS3RepositorySettings extends RepositorySettings {

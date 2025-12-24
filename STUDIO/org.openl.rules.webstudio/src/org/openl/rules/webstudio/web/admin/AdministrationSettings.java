@@ -18,8 +18,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.rest.settings.model.validation.DatePatternConstraint;
-import org.openl.rules.rest.settings.model.validation.TimePatternConstraint;
+import org.openl.studio.settings.converter.SettingPropertyName;
+import org.openl.studio.settings.model.constraint.DatePatternConstraint;
+import org.openl.studio.settings.model.constraint.TimePatternConstraint;
 
 /**
  * The class contains system settings property names for settings edited in "Administration" page.

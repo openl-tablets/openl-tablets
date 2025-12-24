@@ -29,6 +29,7 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.util.StringUtils;
 
 public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {

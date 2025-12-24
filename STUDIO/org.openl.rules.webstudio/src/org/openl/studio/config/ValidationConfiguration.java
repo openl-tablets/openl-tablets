@@ -13,7 +13,7 @@ import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 
-import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.studio.common.validation.BeanValidationProvider;
 
 /**
  * OpenL Studio validation configuration
