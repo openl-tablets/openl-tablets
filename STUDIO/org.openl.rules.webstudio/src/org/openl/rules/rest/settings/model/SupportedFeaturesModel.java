@@ -13,10 +13,14 @@ public class SupportedFeaturesModel {
     @Parameter(description = "If email verification is enabled or not")
     private final boolean emailVerification;
 
+    @Parameter(description = "If personal access tokens are enabled or not")
+    private final boolean personalAccessToken;
+
     private SupportedFeaturesModel(Builder builder) {
         this.groupsManagement = builder.groupsManagement;
         this.userManagement = builder.userManagement;
         this.emailVerification = builder.emailVerification;
+        this.personalAccessToken = builder.personalAccessToken;
     }
 
     public boolean getGroupsManagement() {
@@ -31,6 +35,10 @@ public class SupportedFeaturesModel {
         return emailVerification;
     }
 
+    public boolean getPersonalAccessToken() {
+        return personalAccessToken;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -39,6 +47,7 @@ public class SupportedFeaturesModel {
         private boolean groupsManagement;
         private boolean userManagement;
         private boolean emailVerification;
+        private boolean personalAccessToken;
 
         private Builder() {
         }
@@ -55,6 +64,11 @@ public class SupportedFeaturesModel {
 
         public Builder emailVerification(boolean emailVerification) {
             this.emailVerification = emailVerification;
+            return this;
+        }
+
+        public Builder personalAccessToken(boolean personalAccessToken) {
+            this.personalAccessToken = personalAccessToken;
             return this;
         }
 
