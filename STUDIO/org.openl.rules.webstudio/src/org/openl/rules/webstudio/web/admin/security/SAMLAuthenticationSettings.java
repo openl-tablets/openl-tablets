@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.rest.settings.model.validation.CertificateConstraint;
-import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
+import org.openl.studio.settings.converter.SettingPropertyName;
+import org.openl.studio.settings.model.constraint.CertificateConstraint;
 
 @Schema(allOf = AuthenticationSettings.class)
 public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings {

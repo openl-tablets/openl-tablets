@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.web.admin.SettingPropertyName;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
+import org.openl.studio.settings.converter.SettingPropertyName;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "userMode", visible = true, include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({

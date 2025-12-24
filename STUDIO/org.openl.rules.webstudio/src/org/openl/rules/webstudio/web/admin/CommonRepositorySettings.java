@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.util.StringUtils;
 
 @Schema(allOf = RepositorySettings.class)

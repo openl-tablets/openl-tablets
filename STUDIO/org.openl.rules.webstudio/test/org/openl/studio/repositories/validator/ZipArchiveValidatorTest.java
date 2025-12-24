@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
-import org.openl.rules.rest.validation.AbstractConstraintValidatorTest;
+import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
 public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {

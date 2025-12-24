@@ -11,9 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.rest.settings.model.validation.CommentMessageTemplateConstraint;
-import org.openl.rules.rest.settings.model.validation.RegexpConstraint;
 import org.openl.rules.rest.validation.PathConstraint;
+import org.openl.studio.settings.converter.SettingPropertyName;
+import org.openl.studio.settings.model.constraint.CommentMessageTemplateConstraint;
+import org.openl.studio.settings.model.constraint.RegexpConstraint;
 import org.openl.util.StringUtils;
 
 @JsonSubTypes({

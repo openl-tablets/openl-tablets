@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.studio.settings.converter.SettingPropertyName;
 
 @Schema(allOf = RepositorySettings.class)
 public class AzureBlobRepositorySettings extends RepositorySettings {

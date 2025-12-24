@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.rest.validation.AbstractConstraintValidatorTest;
+import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 /**
  * @author Vladyslav Pikus

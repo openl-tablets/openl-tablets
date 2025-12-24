@@ -24,6 +24,7 @@ import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 import org.openl.studio.security.CurrentUserInfo;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)

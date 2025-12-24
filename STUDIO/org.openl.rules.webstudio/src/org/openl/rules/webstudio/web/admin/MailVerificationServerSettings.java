@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.validation.MailConfigConstraint;
+import org.openl.studio.settings.converter.SettingPropertyName;
 
 @MailConfigConstraint
 public class MailVerificationServerSettings implements SettingsHolder {
