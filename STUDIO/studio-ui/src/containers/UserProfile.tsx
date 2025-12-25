@@ -91,8 +91,8 @@ export const UserProfile: React.FC = () => {
 
     return (
         <Form
-            form={form}
             labelWrap
+            form={form}
             initialValues={initialValues}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
@@ -111,9 +111,9 @@ export const UserProfile: React.FC = () => {
             <Row justify="end">
                 <Button
                     key="submit"
+                    disabled={!isFormChanged}
                     htmlType="submit"
                     loading={saving}
-                    disabled={!isFormChanged}
                     style={{ marginTop: 20 }}
                     type="primary"
                 >
