@@ -16,6 +16,7 @@ import java.util.function.Function;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.collections4.BidiMap;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
@@ -57,6 +58,14 @@ public class SpreadsheetResult implements Serializable {
      */
     private transient CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
+    /**
+     * Transient offset mappings for display purposes only.
+     * Maps logical index to physical index (where physical includes description rows/columns).
+     * These are not serialized and are only used for UI rendering.
+     */
+    private transient BidiMap<Integer, Integer> rowOffsets;
+    private transient BidiMap<Integer, Integer> columnOffsets;
+
     public SpreadsheetResult() {
     }
 
@@ -92,6 +101,8 @@ public class SpreadsheetResult implements Serializable {
                 spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
+        this.rowOffsets = spr.rowOffsets;
+        this.columnOffsets = spr.columnOffsets;
     }
 
     static Map<String, Point> buildFieldsCoordinates2(String[] columnNames,
@@ -275,6 +286,48 @@ public class SpreadsheetResult implements Serializable {
 
     public void setLogicalTable(ILogicalTable logicalTable) {
         this.logicalTable = logicalTable;
+    }
+
+    /**
+     * Gets the row offset mapping for display purposes.
+     * Maps logical row index to physical row index in the original spreadsheet.
+     *
+     * @return the row offset mapping, or null if not set
+     */
+    @XmlTransient
+    public BidiMap<Integer, Integer> getRowOffsets() {
+        return rowOffsets;
+    }
+
+    /**
+     * Sets the row offset mapping for display purposes.
+     * This is transient and only used for UI rendering.
+     *
+     * @param rowOffsets the row offset mapping
+     */
+    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
+        this.rowOffsets = rowOffsets;
+    }
+
+    /**
+     * Gets the column offset mapping for display purposes.
+     * Maps logical column index to physical column index in the original spreadsheet.
+     *
+     * @return the column offset mapping, or null if not set
+     */
+    @XmlTransient
+    public BidiMap<Integer, Integer> getColumnOffsets() {
+        return columnOffsets;
+    }
+
+    /**
+     * Sets the column offset mapping for display purposes.
+     * This is transient and only used for UI rendering.
+     *
+     * @param columnOffsets the column offset mapping
+     */
+    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
+        this.columnOffsets = columnOffsets;
     }
 
     public Object getFieldValue(String name) {

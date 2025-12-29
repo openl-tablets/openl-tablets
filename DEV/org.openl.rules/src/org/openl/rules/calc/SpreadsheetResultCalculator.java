@@ -2,9 +2,6 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
-import org.apache.commons.collections4.BidiMap;
-
-import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.types.IDynamicObject;
@@ -96,7 +93,15 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return spreadsheet.getSpreadsheetType();
     }
 
+    /**
+     * Gets the value at the specified logical row and column indices.
+     *
+     * @param row    logical row index (0-based, excludes description rows)
+     * @param column logical column index (0-based, excludes description columns)
+     * @return the calculated value at the specified cell
+     */
     public Object getValue(int row, int column) {
+        // row and column are logical indices (from SpreadsheetCell which now stores logical indices)
         Object result = results[row][column];
         if (result == EMPTY_CELL) {
             return null;
@@ -105,10 +110,8 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             return null;
         }
 
-        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
-        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
-
-        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[rowOffsets.get(row)][columnOffsets.get(column)];
+        // cells[][] is also indexed with logical indices
+        var spreadsheetCell = spreadsheet.getCells()[row][column];
         if (result != METHOD_VALUE) {
             boolean resolved = false;
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
@@ -152,6 +155,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
         Object[][] resultArray = new Object[height][width];
 
+        // Iterate with logical indices since getValue() now expects logical indices
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 resultArray[row][col] = getValue(row, col);

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +13,6 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.TableMetaInfo;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
@@ -94,7 +92,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 .getFields()
                 .stream()
                 .filter(e -> !"this".equals(e.getName()))
-                .collect(Collectors.toList());
+                .toList();
 
         String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
 

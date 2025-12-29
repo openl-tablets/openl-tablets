@@ -134,6 +134,12 @@ public class SpreadsheetStructureBuilder {
     private final BidiMap<Integer, Integer> rowDescriptions;
     private final BidiMap<Integer, Integer> columnDescriptions;
 
+    // Mappings from physical to logical indices (built after headers are parsed)
+    private Map<Integer, Integer> physicalToLogicalRow;
+    private Map<Integer, Integer> physicalToLogicalColumn;
+    private Integer[] logicalToPhysicalRow;
+    private Integer[] logicalToPhysicalColumn;
+
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
 
@@ -169,54 +175,84 @@ public class SpreadsheetStructureBuilder {
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
 
-        // create cells according to the size of the spreadsheet
-        cells = new SpreadsheetCell[this.tableBody.getHeight() - 1][this.tableBody.getWidth() - 1];
+        // create cells according to the logical size (excluding description rows/columns)
+        int logicalHeight = this.rowHeaders.size();
+        int logicalWidth = this.columnHeaders.size();
+        cells = new SpreadsheetCell[logicalHeight][logicalWidth];
 
         // create the binding context for the spreadsheet level
         spreadsheetBindingContext = new SpreadsheetContext(bindingContext, spreadsheetType, xlsModuleOpenClass);
 
-        for (Integer rowIndex : this.rowHeaders.keySet()) {
-            for (Integer columnIndex : this.columnHeaders.keySet()) {
-                // build spreadsheet cell
-                SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex, autoType);
+        // Build mappings between physical and logical indices
+        logicalToPhysicalRow = this.rowHeaders.keySet().toArray(new Integer[0]);
+        logicalToPhysicalColumn = this.columnHeaders.keySet().toArray(new Integer[0]);
+        physicalToLogicalRow = new HashMap<>();
+        physicalToLogicalColumn = new HashMap<>();
+        for (int logical = 0; logical < logicalHeight; logical++) {
+            physicalToLogicalRow.put(logicalToPhysicalRow[logical], logical);
+        }
+        for (int logical = 0; logical < logicalWidth; logical++) {
+            physicalToLogicalColumn.put(logicalToPhysicalColumn[logical], logical);
+        }
 
-                // init cells array with appropriate cell
-                cells[rowIndex][columnIndex] = spreadsheetCell;
+        for (int logicalRow = 0; logicalRow < logicalHeight; logicalRow++) {
+            int physicalRow = logicalToPhysicalRow[logicalRow];
+            for (int logicalCol = 0; logicalCol < logicalWidth; logicalCol++) {
+                int physicalCol = logicalToPhysicalColumn[logicalCol];
+                // build spreadsheet cell using physical indices to read from table,
+                // but store logical indices in the cell
+                SpreadsheetCell spreadsheetCell = buildCell(physicalRow, physicalCol, logicalRow, logicalCol, autoType);
+
+                // init cells array with logical indices
+                cells[logicalRow][logicalCol] = spreadsheetCell;
 
                 // create and add field of the cell to the spreadsheetType
-                addSpreadsheetFields(spreadsheetType, rowIndex, columnIndex);
+                addSpreadsheetFields(spreadsheetType, physicalRow, physicalCol);
             }
         }
     }
 
     private void extractCellValues() {
-        for (Integer rowIndex : this.rowHeaders.keySet()) {
-            IBindingContext rowBindingContext = getRowContext(rowIndex);
+        // Guard against empty cells array (no valid headers)
+        if (cells.length == 0) {
+            return;
+        }
+        // Iterate over logical indices since cells[][] uses logical indexing
+        for (int logicalRow = 0; logicalRow < cells.length; logicalRow++) {
+            int physicalRow = logicalToPhysicalRow[logicalRow];
+            IBindingContext rowBindingContext = getRowContext(physicalRow);
 
-            for (Integer columnIndex : this.columnHeaders.keySet()) {
+            for (int logicalCol = 0; logicalCol < cells[0].length; logicalCol++) {
+                int physicalCol = logicalToPhysicalColumn[logicalCol];
                 boolean found = false;
                 for (SpreadsheetCell cell : extractedCellValues) {
-                    int row = cell.getRowIndex();
-                    int column = cell.getColumnIndex();
-                    if (row == rowIndex && columnIndex == column) {
+                    // SpreadsheetCell now stores logical indices
+                    if (cell.getRowIndex() == logicalRow && cell.getColumnIndex() == logicalCol) {
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    extractCellValue(rowBindingContext, rowIndex, columnIndex);
+                    extractCellValue(rowBindingContext, logicalRow, logicalCol, physicalRow, physicalCol);
                 }
             }
         }
     }
 
     private void extractCellDescriptions() {
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[0].length; j++) {
+        // Guard against empty cells array (no valid headers)
+        if (cells.length == 0) {
+            return;
+        }
+        // cells[][] now uses logical indexing, so this method works correctly
+        for (int logicalRow = 0; logicalRow < cells.length; logicalRow++) {
+            for (int logicalCol = 0; logicalCol < cells[0].length; logicalCol++) {
                 // cells[i][j] can be null if the cell is empty, meta info is not working in this case
-                if (cells[i][j] == null) {
-                    ICell sourceCell = tableBody.getCell(j + 1, i + 1);
-                    cells[i][j] = new SpreadsheetCell(i, j, sourceCell, SpreadsheetCellType.DESCRIPTION);
+                if (cells[logicalRow][logicalCol] == null) {
+                    int physicalRow = logicalToPhysicalRow[logicalRow];
+                    int physicalCol = logicalToPhysicalColumn[logicalCol];
+                    ICell sourceCell = tableBody.getCell(physicalCol + 1, physicalRow + 1);
+                    cells[logicalRow][logicalCol] = new SpreadsheetCell(logicalRow, logicalCol, sourceCell, SpreadsheetCellType.DESCRIPTION);
                 }
             }
         }
@@ -240,10 +276,14 @@ public class SpreadsheetStructureBuilder {
                 if (!cellInProgressSet.contains(cell)) {
                     try {
                         cellInProgressSet.add(cell);
-                        int rowIndex = cell.getRowIndex();
-                        int columnIndex = cell.getColumnIndex();
-                        IBindingContext rowContext = getRowContext(rowIndex);
-                        extractCellValue(rowContext, rowIndex, columnIndex);
+                        // SpreadsheetCell stores logical indices
+                        int logicalRow = cell.getRowIndex();
+                        int logicalCol = cell.getColumnIndex();
+                        // Convert to physical indices for table access
+                        int physicalRow = logicalToPhysicalRow[logicalRow];
+                        int physicalCol = logicalToPhysicalColumn[logicalCol];
+                        IBindingContext rowContext = getRowContext(physicalRow);
+                        extractCellValue(rowContext, logicalRow, logicalCol, physicalRow, physicalCol);
                         extractedCellValues.add(cell);
                     } finally {
                         cellInProgressSet.remove(cell);
@@ -260,20 +300,20 @@ public class SpreadsheetStructureBuilder {
         return cell.getType();
     }
 
-    private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
-        SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+    private void extractCellValue(IBindingContext rowBindingContext, int logicalRow, int logicalCol, int physicalRow, int physicalCol) {
+        SpreadsheetCell spreadsheetCell = cells[logicalRow][logicalCol];
 
-        if (!columnHeaders.containsKey(columnIndex) || !rowHeaders.containsKey(rowIndex)) {
+        if (!columnHeaders.containsKey(physicalCol) || !rowHeaders.containsKey(physicalRow)) {
             spreadsheetCell.setValue(null);
             return;
         }
 
-        ICell cell = tableBody.getCell(columnIndex + 1, rowIndex + 1);
+        ICell cell = tableBody.getCell(physicalCol + 1, physicalRow + 1);
         var source = new CellSourceCodeModule(cell, tableBody);
         var code = source.getCode();
 
-        String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getDefinitionName(),
-                rowHeaders.get(rowIndex).getDefinitionName());
+        String name = getSpreadsheetCellFieldName(columnHeaders.get(physicalCol).getDefinitionName(),
+                rowHeaders.get(physicalRow).getDefinitionName());
 
         IOpenClass type = spreadsheetCell.getType();
 
@@ -290,7 +330,7 @@ public class SpreadsheetStructureBuilder {
             IMethodSignature signature = spreadsheetHeader.getSignature();
             IOpenClass declaringClass = spreadsheetHeader.getDeclaringClass();
             IOpenMethodHeader header = new OpenMethodHeader(name, type, signature, declaringClass);
-            IBindingContext columnBindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
+            IBindingContext columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
             OpenL openl = columnBindingContext.getOpenL();
             // columnBindingContext - is never null
             try {
@@ -331,7 +371,7 @@ public class SpreadsheetStructureBuilder {
             }
 
             try {
-                IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
+                IBindingContext bindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
                 Object result = null;
                 if (String.class == instanceClass) {
                     result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
@@ -360,10 +400,13 @@ public class SpreadsheetStructureBuilder {
 
     /**
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
+     *
+     * @param physicalRow physical row index (in the source table)
+     * @param physicalCol physical column index (in the source table)
      */
-    private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, int rowIndex, int columnIndex) {
-        SpreadsheetHeaderDefinition columnHeader = this.columnHeaders.get(columnIndex);
-        SpreadsheetHeaderDefinition rowHeader = this.rowHeaders.get(rowIndex);
+    private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, int physicalRow, int physicalCol) {
+        SpreadsheetHeaderDefinition columnHeader = this.columnHeaders.get(physicalCol);
+        SpreadsheetHeaderDefinition rowHeader = this.rowHeaders.get(physicalRow);
 
         if (columnHeader == null || rowHeader == null) {
             return;
@@ -381,7 +424,10 @@ public class SpreadsheetStructureBuilder {
         // get row name from the row definition
         String rowName = rowDefinition.getName().getIdentifier();
 
-        SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+        // Convert physical indices to logical indices for accessing cells array
+        int logicalRow = physicalToLogicalRow.get(physicalRow);
+        int logicalCol = physicalToLogicalColumn.get(physicalCol);
+        SpreadsheetCell spreadsheetCell = cells[logicalRow][logicalCol];
         // create spreadsheet cell field
         createSpreadsheetCellField(spreadsheetType, spreadsheetCell, columnName, rowName);
 
@@ -406,15 +452,15 @@ public class SpreadsheetStructureBuilder {
         return (DOLLAR_SIGN + columnName + DOLLAR_SIGN + rowName).intern();
     }
 
-    private SpreadsheetCell buildCell(int rowIndex, int columnIndex, boolean autoType) {
-        ICell sourceCell = tableBody.getCell(columnIndex + 1, rowIndex + 1);
+    private SpreadsheetCell buildCell(int physicalRow, int physicalCol, int logicalRow, int logicalCol, boolean autoType) {
+        ICell sourceCell = tableBody.getCell(physicalCol + 1, physicalRow + 1);
 
         String cellCode = sourceCell.getStringValue();
 
         IOpenField openField = null;
 
-        SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
-        SpreadsheetHeaderDefinition rowHeader = rowHeaders.get(rowIndex);
+        SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(physicalCol);
+        SpreadsheetHeaderDefinition rowHeader = rowHeaders.get(physicalRow);
         SpreadsheetCellType spreadsheetCellType;
         if (cellCode == null || cellCode.isEmpty() || columnHeader == null || rowHeader == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
@@ -430,7 +476,8 @@ public class SpreadsheetStructureBuilder {
 
         SpreadsheetCell spreadsheetCell;
         ICell sourceCellForExecutionMode = spreadsheetBindingContext.isExecutionMode() ? null : sourceCell;
-        spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCellForExecutionMode, spreadsheetCellType);
+        // Store logical indices in SpreadsheetCell for consistent indexing with results array
+        spreadsheetCell = new SpreadsheetCell(logicalRow, logicalCol, sourceCellForExecutionMode, spreadsheetCellType);
 
         IOpenClass cellType;
         if (openField != null) {
@@ -501,38 +548,46 @@ public class SpreadsheetStructureBuilder {
         return new SpreadsheetContext(rowBindingContext, columnOpenClass, xlsModuleOpenClass);
     }
 
-    private SpreadsheetOpenClass makeColumnComponentOpenClass(int columnIndex) {
+    private SpreadsheetOpenClass makeColumnComponentOpenClass(int physicalColumnIndex) {
         // create name for the column open class
-        String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
+        String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), physicalColumnIndex);
 
         SpreadsheetOpenClass columnOpenClass = new SpreadsheetOpenClass(columnOpenClassName, bindingContext.getOpenL());
 
-        for (int rowIndex = 0; rowIndex < cells.length; rowIndex++) {
-
-            SpreadsheetHeaderDefinition headerDefinition = rowHeaders.get(rowIndex);
-
-            proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
+        // Iterate over logical row indices
+        for (int logicalRow = 0; logicalRow < cells.length; logicalRow++) {
+            // Convert logical to physical to get header from map
+            int physicalRow = logicalToPhysicalRow[logicalRow];
+            SpreadsheetHeaderDefinition headerDefinition = rowHeaders.get(physicalRow);
+            // Convert physical column to logical for cells access
+            int logicalCol = physicalToLogicalColumn.get(physicalColumnIndex);
+            proc(logicalRow, columnOpenClass, logicalCol, headerDefinition);
         }
         return columnOpenClass;
     }
 
-    private IBindingContext makeRowContext(int rowIndex) {
+    private IBindingContext makeRowContext(int physicalRowIndex) {
 
         /* create name for the row open class */
-        String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
+        String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), physicalRowIndex);
 
         // create row open class for current row
         SpreadsheetOpenClass rowOpenClass = new SpreadsheetOpenClass(rowOpenClassName, bindingContext.getOpenL());
 
-        // get the width of the whole spreadsheet
-        int width = cells[0].length;
+        // get the width of the whole spreadsheet (logical width)
+        // Guard against empty cells array (no valid headers)
+        int width = cells.length > 0 ? cells[0].length : 0;
+
+        // Convert physical row to logical for cells access
+        int logicalRow = physicalToLogicalRow.get(physicalRowIndex);
 
         // create for each column in row its field
-        for (int columnIndex = 0; columnIndex < width; columnIndex++) {
+        for (int logicalCol = 0; logicalCol < width; logicalCol++) {
+            // Convert logical to physical to get header from map
+            int physicalCol = logicalToPhysicalColumn[logicalCol];
+            SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(physicalCol);
 
-            SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
-
-            proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
+            proc(logicalRow, rowOpenClass, logicalCol, columnHeader);
         }
 
         /* create row binding context */
@@ -921,14 +976,18 @@ public class SpreadsheetStructureBuilder {
             boolean asArray = false;
 
             List<SpreadsheetCell> sprCells = new ArrayList<>();
-            int n = returnHeaderDefinition.getRow();
-            if (n < 0) {
-                n = returnHeaderDefinition.getColumn();
+            int physicalIndex = returnHeaderDefinition.getRow();
+            if (physicalIndex < 0) {
+                // Return header is a column, convert physical to logical
+                physicalIndex = returnHeaderDefinition.getColumn();
+                int logicalCol = physicalToLogicalColumn.get(physicalIndex);
                 for (int i = 0; i < spreadsheet.getCells().length; i++) {
-                    sprCells.add(spreadsheet.getCells()[i][n]);
+                    sprCells.add(spreadsheet.getCells()[i][logicalCol]);
                 }
             } else {
-                sprCells.addAll(Arrays.asList(spreadsheet.getCells()[n]));
+                // Return header is a row, convert physical to logical
+                int logicalRow = physicalToLogicalRow.get(physicalIndex);
+                sprCells.addAll(Arrays.asList(spreadsheet.getCells()[logicalRow]));
             }
 
             List<SpreadsheetCell> nonEmptySpreadsheetCells = new ArrayList<>();

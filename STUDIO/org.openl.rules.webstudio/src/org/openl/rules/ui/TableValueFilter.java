@@ -57,8 +57,16 @@ class TableValueFilter extends AGridFilter {
 
         int col = cell.getColumn() - startX - columnOffset;
         int row = cell.getRow() - startY - rowOffset;
-        if (row >= 0 && col >= 0 && res.getWidth() > col && res.getHeight() > row) {
-            Object v = res.getValue(row, col);
+
+        // Convert physical indices to logical indices (accounting for description cells)
+        var rowOffsets = res.getRowOffsets();
+        var columnOffsets = res.getColumnOffsets();
+        Integer logicalRow = rowOffsets != null ? rowOffsets.getKey(row) : null;
+        Integer logicalCol = columnOffsets != null ? columnOffsets.getKey(col) : null;
+
+        if (logicalRow != null && logicalCol != null && logicalRow >= 0 && logicalCol >= 0
+                && res.getWidth() > logicalCol && res.getHeight() > logicalRow) {
+            Object v = res.getValue(logicalRow, logicalCol);
             cell.setObjectValue(v);
             if (v != null) {
                 try {

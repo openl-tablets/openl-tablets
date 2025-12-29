@@ -28,6 +28,10 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
             spreadsheetResult.setLogicalTable(tsn.getTableBody());
         }
 
+        // Set transient offset mappings for display purposes (physical to logical index conversion)
+        spreadsheetResult.setRowOffsets(spreadsheet.getRowOffsets());
+        spreadsheetResult.setColumnOffsets(spreadsheet.getColumnOffsets());
+
         return spreadsheetResult;
     }
 
