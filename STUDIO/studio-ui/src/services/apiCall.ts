@@ -51,15 +51,13 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
                 appStore.setShowServerError(true)
                 throw new Error('Internal server error! Please try again later.')
             } else {
-                await response.json().then((data: any) => {
-                    if (data.fields) {
-                        const errors = data.fields.map(({ message }: { message: any }) => message)
-                        throw new Error(errors)
-                    } else {
-                        throw new Error(data.message)
-                    }
-                })
-                throw new Error('Something went wrong on API server!')
+                const data = await response.json()
+                if (data.fields) {
+                    const errors = data.fields.map(({ message }: { message: any }) => message)
+                    throw new Error(errors)
+                } else {
+                    throw new Error(data.message || 'Something went wrong on API server!')
+                }
             }
         })
         .catch(error => {

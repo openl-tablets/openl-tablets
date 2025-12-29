@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {
     Alert,
     Button,
@@ -12,6 +12,7 @@ import {
     Select,
     Space,
     Table,
+    type TableColumnsType,
     Tag,
     Tooltip,
     Typography,
@@ -57,6 +58,7 @@ export const PersonalAccessTokens: React.FC = () => {
     const [form] = Form.useForm<CreateTokenFormValues>()
     const [expirationOption, setExpirationOption] = useState<ExpirationOption>('7_days')
     const [copyTooltipOpen, setCopyTooltipOpen] = useState(false)
+    const copyTooltipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const showError = useCallback((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : t('common:error')
@@ -81,6 +83,14 @@ export const PersonalAccessTokens: React.FC = () => {
         void fetchTokens()
     }, [fetchTokens])
 
+    useEffect(() => {
+        return () => {
+            if (copyTooltipTimeoutRef.current) {
+                clearTimeout(copyTooltipTimeoutRef.current)
+            }
+        }
+    }, [])
+
     const calculateExpirationDate = (option: ExpirationOption, customDate?: Dayjs): string | null => {
         const now = dayjs()
         switch (option) {
@@ -95,7 +105,6 @@ export const PersonalAccessTokens: React.FC = () => {
             case 'custom':
                 return customDate ? customDate.endOf('day').toISOString() : null
             case 'no_expiration':
-            default:
                 return null
         }
     }
@@ -160,6 +169,7 @@ export const PersonalAccessTokens: React.FC = () => {
         Modal.confirm({
             title: t('pat:delete_confirm_title'),
             content: t('pat:delete_confirm_message', { name: record.name }),
+            okType: 'danger',
             onOk: () => handleDeleteToken(record.publicId),
         })
     }
@@ -167,8 +177,11 @@ export const PersonalAccessTokens: React.FC = () => {
     const copyToClipboard = async (text: string) => {
         try {
             await navigator.clipboard.writeText(text)
+            if (copyTooltipTimeoutRef.current) {
+                clearTimeout(copyTooltipTimeoutRef.current)
+            }
             setCopyTooltipOpen(true)
-            setTimeout(() => setCopyTooltipOpen(false), 2000)
+            copyTooltipTimeoutRef.current = setTimeout(() => setCopyTooltipOpen(false), 2000)
         } catch {
             notification.error({ message: t('pat:copy_failed') })
         }
@@ -184,12 +197,12 @@ export const PersonalAccessTokens: React.FC = () => {
         return dayjs(dateString).format('MMM D, YYYY')
     }
 
-    const columns = [
+    const columns: TableColumnsType<PersonalAccessToken> = [
         {
             title: t('pat:token_name'),
             dataIndex: 'name',
             key: 'name',
-            render: (name: string, record: PersonalAccessToken) => (
+            render: (name: string, record) => (
                 <Space>
                     <span>{name}</span>
                     {record.expiresAt && isTokenExpired(record.expiresAt) && (
@@ -208,14 +221,15 @@ export const PersonalAccessTokens: React.FC = () => {
             title: t('pat:expires_at'),
             dataIndex: 'expiresAt',
             key: 'expiresAt',
-            render: (date: string | null) => formatDate(date),
+            render: (date) => formatDate(date),
         },
         {
             title: t('pat:actions'),
             key: 'actions',
             width: 100,
-            render: (_: unknown, record: PersonalAccessToken) => (
+            render: (_, record) => (
                 <Button
+                    danger
                     aria-label={t('pat:delete')}
                     icon={<DeleteOutlined />}
                     onClick={() => confirmDeleteToken(record)}
@@ -323,7 +337,7 @@ export const PersonalAccessTokens: React.FC = () => {
             />
             {renderCodeBlock(
                 createdToken?.token ?? '',
-                () => createdToken?.token && copyToClipboard(createdToken.token),
+                () => { if (createdToken?.token) void copyToClipboard(createdToken.token) },
                 copyTooltipOpen
             )}
             <Typography.Text type="secondary">
