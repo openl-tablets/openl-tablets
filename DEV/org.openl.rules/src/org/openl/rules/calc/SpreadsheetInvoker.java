@@ -1,7 +1,5 @@
 package org.openl.rules.calc;
 
-import org.apache.commons.collections4.BidiMap;
-
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
@@ -38,7 +36,8 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
     }
 
     /**
-     * Creates a result with constant values that are populated
+     * Creates a result with constant values that are populated.
+     * The cells array is indexed with logical indices (excluding description rows/columns).
      */
     protected Object[][] preFetchResult(Spreadsheet spreadsheet) {
         SpreadsheetCell[][] cc = spreadsheet.getCells();
@@ -48,13 +47,11 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
         Object[][] res = cc.length == 0 ? EMPTY_RESULT : new Object[height][width];
 
-        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
-        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
-
+        // cells[][] is now indexed with logical indices, so we iterate directly
         for (int i = 0; i < height; i++) {
-            SpreadsheetCell[] row = cc[rowOffsets.get(i)];
+            SpreadsheetCell[] row = cc[i];
             for (int j = 0; j < width; j++) {
-                SpreadsheetCell cell = row[columnOffsets.get(j)];
+                SpreadsheetCell cell = row[j];
                 if (cell != null) {
                     switch (cell.getSpreadsheetCellType()) {
                         case EMPTY:
@@ -67,6 +64,9 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                             break;
                         case METHOD:
                             res[i][j] = SpreadsheetResultCalculator.METHOD_VALUE;
+                            break;
+                        case DESCRIPTION:
+                            res[i][j] = SpreadsheetResultCalculator.DESCRIPTION_CELL;
                             break;
                     }
                 } else {
