@@ -1,0 +1,3 @@
+DELETE /rest/users/EPBDS_15131_admin HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

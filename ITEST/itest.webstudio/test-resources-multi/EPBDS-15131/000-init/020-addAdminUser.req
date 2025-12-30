@@ -1,0 +1,15 @@
+PUT /rest/users HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "displayName": "Admin Test User",
+  "groups": ["Administrators"],
+  "username": "EPBDS_15131_admin",
+  "internalPassword": {
+    "password": "EPBDS_15131_admin"
+  },
+  "firstName": "Admin",
+  "lastName": "Test",
+  "email": "EPBDS_15131_admin@example.com"
+}
