@@ -61,6 +61,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.security.AdminPrivilege;
@@ -293,9 +294,19 @@ public class UsersController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
+        checkCanDeleteUser(username);
         userManagementService.deleteUser(username);
         if (aclService != null) {
             aclService.deleteSid(new PrincipalSid(username));
+        }
+    }
+
+    private void checkCanDeleteUser(String username) {
+        if (adminUsersInitializer.isSuperuser(username)) {
+            throw new ForbiddenException("users.cannot-delete-superuser.message");
+        }
+        if (currentUserInfo.getUserName().equals(username)) {
+            throw new ForbiddenException("users.cannot-delete-yourself.message");
         }
     }
 

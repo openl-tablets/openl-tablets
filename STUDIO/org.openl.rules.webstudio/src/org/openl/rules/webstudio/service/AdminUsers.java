@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.webstudio.web.admin.security.InheritedAuthenticationSettings;
 import org.openl.util.StringUtils;
 
 /**
@@ -40,7 +41,7 @@ public class AdminUsers {
     private static final String ADMIN_GROUP = "Administrators";
 
     public void init() {
-        String[] administrators = StringUtils.split(environment.getProperty("security.administrators"), ',');
+        String[] administrators = StringUtils.split(environment.getProperty(InheritedAuthenticationSettings.ADMINISTRATORS), ',');
         this.administrators = new HashSet<>(Arrays.asList(administrators));
     }
 

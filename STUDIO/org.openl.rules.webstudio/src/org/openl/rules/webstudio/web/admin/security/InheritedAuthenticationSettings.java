@@ -22,7 +22,7 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
 
     private static final String SEP = ",";
 
-    private static final String ADMINISTRATORS = "security.administrators";
+    public static final String ADMINISTRATORS = "security.administrators";
     public static final String DEFAULT_GROUP = "security.default-group";
 
     @Parameter(description = "List of users with administrator privileges")
