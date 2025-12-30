@@ -131,20 +131,31 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.actions'),
                 width: 150,
-                render: (_: string, record: any) => (
-                    <>
-                        <Button
-                            icon={<EditOutlined />}
-                            onClick={() => onEditUser(record)}
-                            type="text"
-                        />
-                        <Button
-                            icon={<DeleteOutlined />}
-                            onClick={() => removeUser(record.username)}
-                            type="text"
-                        />
-                    </>
-                ),
+                render: (_: string, record: any) => {
+                    const canDelete = !record.superUser && !record.currentUser
+                    const deleteTooltip = record.superUser
+                        ? t('users:cannot_delete_superuser')
+                        : record.currentUser
+                            ? t('users:cannot_delete_yourself')
+                            : ''
+                    return (
+                        <>
+                            <Button
+                                icon={<EditOutlined />}
+                                onClick={() => onEditUser(record)}
+                                type="text"
+                            />
+                            <Tooltip title={deleteTooltip}>
+                                <Button
+                                    disabled={!canDelete}
+                                    icon={<DeleteOutlined />}
+                                    onClick={canDelete ? () => removeUser(record.username) : undefined}
+                                    type="text"
+                                />
+                            </Tooltip>
+                        </>
+                    )
+                },
             },
         ]
 
