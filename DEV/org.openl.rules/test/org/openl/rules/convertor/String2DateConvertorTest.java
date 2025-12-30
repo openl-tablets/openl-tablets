@@ -159,6 +159,12 @@ public class String2DateConvertorTest {
             // Day saving time
             result = converter.parse("2021-06-01T01:01:01.000Z", null);
             assertEquals(createDate(2021, 6, 1, 4, 1, 1, 0), result);
+
+            result = converter.parse("2021-05-07T24:00:00.000", null);
+            assertEquals(createDate(2021, 5, 8, 0, 0, 0, 0), result);
+
+            result = converter.parse("2021-12-02T15:24:38.96", null);
+            assertEquals(createDate(2021, 12, 2, 15, 24, 38, 960), result);
         } finally {
             tearDownTimeZone();
         }
