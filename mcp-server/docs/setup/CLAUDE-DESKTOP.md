@@ -61,7 +61,7 @@ On first launch of Claude Desktop:
       "command": "node",
       "args": ["/absolute/path/to/mcp-server/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
         "OPENL_USERNAME": "admin",
         "OPENL_PASSWORD": "admin",
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
@@ -79,7 +79,7 @@ On first launch of Claude Desktop:
       "command": "node",
       "args": ["C:\\absolute\\path\\to\\mcp-server\\dist\\index.js"],
       "env": {
-        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
         "OPENL_USERNAME": "admin",
         "OPENL_PASSWORD": "admin",
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
@@ -135,7 +135,27 @@ Cursor IDE supports Model Context Protocol (MCP) for integration with external s
 
 #### Step 3: Configure
 
-Paste the following configuration:
+Choose your authentication method:
+
+**Option A: Personal Access Token (Recommended)**
+
+If you have a Personal Access Token from OpenL Tablets UI:
+
+```json
+{
+  "command": "node",
+  "args": [
+    "<absolute-path-to-openl-tablets>/mcp-server/dist/index.js"
+  ],
+  "env": {
+    "OPENL_BASE_URL": "http://localhost:8080/rest",
+    "OPENL_PERSONAL_ACCESS_TOKEN": "<your-pat-token>",
+    "OPENL_CLIENT_DOCUMENT_ID": "cursor-ide-1"
+  }
+}
+```
+
+**Option B: Basic Authentication**
 
 ```json
 {
@@ -152,7 +172,9 @@ Paste the following configuration:
 }
 ```
 
-**Important:** Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section below.
+**Important:** 
+- Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section below.
+- For PAT: Replace the token with your actual Personal Access Token from OpenL Tablets UI (User Settings → Personal Access Tokens).
 
 #### Step 4: Save and Activate
 
@@ -335,7 +357,7 @@ For more authentication options, see [Authentication Guide](../guides/AUTHENTICA
    curl http://localhost:8080/rest/projects
    ```
 2. Check `OPENL_BASE_URL` in configuration
-3. Ensure URL ends with `/rest` (not `/webstudio/rest`)
+3. Ensure URL ends with `/rest` (not `/rest`)
 
 ### Issue: "Authentication failed"
 

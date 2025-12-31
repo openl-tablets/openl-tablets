@@ -8,11 +8,13 @@ services:
     container_name: openl-mcp-server
     restart: unless-stopped
     environment:
-      # OpenL Tablets Configuration
-      OPENL_BASE_URL: ${OPENL_BASE_URL:-http://openl-webstudio:8080/webstudio/rest}
-      OPENL_USERNAME: ${OPENL_USERNAME:-admin}
-      OPENL_PASSWORD: ${OPENL_PASSWORD:-admin}
-      # OPENL_API_KEY: ${OPENL_API_KEY}
+      # Base URL only - authentication must be provided via MCP client configuration
+      # (query parameters or headers when connecting via HTTP, or env vars in MCP client config for stdio)
+      OPENL_BASE_URL: ${OPENL_BASE_URL:-http://openl-webstudio:8080/rest}
+      # Authentication credentials are NOT set here - they must be configured
+      # in the MCP client configuration (Cursor/Claude Desktop settings)
+      # For HTTP transport: use query parameters or X-OPENL-* headers
+      # For stdio transport: use env vars in MCP client config file
 
       # Node Configuration
       NODE_ENV: production

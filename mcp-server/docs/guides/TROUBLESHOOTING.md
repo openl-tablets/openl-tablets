@@ -226,7 +226,7 @@ Then open `debug.log` to view all errors.
    curl http://localhost:8080/rest/projects
    ```
 2. Check `OPENL_BASE_URL` in configuration
-3. Ensure URL ends with `/rest` (not `/webstudio/rest`)
+3. Ensure URL ends with `/rest` (not `/rest`)
 
 ### Issue: "Authentication failed"
 

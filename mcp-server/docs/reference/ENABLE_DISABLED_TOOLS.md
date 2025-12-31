@@ -8,31 +8,33 @@ Several MCP tools are currently disabled (commented out) in the codebase. They a
 
 The following tools are currently disabled:
 
-1. **`openl_upload_file`** (line ~386)
+> **Note:** Line numbers are approximate and may change across versions. Always search for the tool name to locate the code.
+
+1. **`openl_upload_file`**
    - Upload Excel files to a project
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-2. **`openl_download_file`** (line ~437)
+2. **`openl_download_file`**
    - Download Excel files from a project
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-3. **`openl_create_rule`** (line ~660)
+3. **`openl_create_rule`**
    - Create new tables/rules in a project
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-4. **`openl_execute_rule`** (line ~836)
+4. **`openl_execute_rule`**
    - Execute rules with input data for testing
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-5. **`openl_revert_version`** (line ~884)
+5. **`openl_revert_version`**
    - Revert project to a previous Git commit
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-6. **`openl_get_file_history`** (line ~939)
+6. **`openl_get_file_history`**
    - Get Git commit history for a specific file
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-7. **`openl_get_project_history`** (line ~987)
+7. **`openl_get_project_history`**
    - Get Git commit history for entire project
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
@@ -45,7 +47,7 @@ To enable any of these tools:
    mcp-server/src/tool-handlers.ts
    ```
 
-2. **Find the disabled tool** (search for `TEMPORARILY DISABLED - <tool_name>`)
+2. **Find the disabled tool** (search for the tool name, e.g., search for `openl_upload_file`)
 
 3. **Uncomment the code block:**
    - Remove the `/*` at the beginning
