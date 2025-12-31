@@ -17,7 +17,7 @@ import { validateTimeout, sanitizeError, parseProjectId as parseProjectIdUtil } 
  * Usage:
  * ```typescript
  * const client = new OpenLClient({
- *   baseUrl: "http://localhost:8080/webstudio/rest",
+ *   baseUrl: "http://localhost:8080/rest",
  *   username: "admin",
  *   password: "admin"
  * });
@@ -29,6 +29,7 @@ export class OpenLClient {
   private baseUrl: string;
   private axiosInstance: AxiosInstance;
   private authManager: AuthenticationManager;
+  private repositoriesCache: Types.Repository[] | null = null;
 
   /**
    * Create a new OpenL Tablets API client
@@ -76,13 +77,75 @@ export class OpenLClient {
   /**
    * List all design repositories
    *
+   * @param useCache - Whether to use cached repositories (default: true)
    * @returns Array of repository information
    */
-  async listRepositories(): Promise<Types.Repository[]> {
+  async listRepositories(useCache: boolean = true): Promise<Types.Repository[]> {
+    if (useCache && this.repositoriesCache !== null) {
+      return this.repositoriesCache;
+    }
+    
     const response = await this.axiosInstance.get<Types.Repository[]>(
       "/repos"
     );
+    this.repositoriesCache = response.data;
     return response.data;
+  }
+
+  /**
+   * Map repository name to repository ID
+   * 
+   * This function allows users to work with repository names (user-friendly)
+   * while the server uses repository IDs internally for API calls.
+   * 
+   * @param repositoryName - Repository name (e.g., "Design Repository")
+   * @returns Repository ID (e.g., "design-repo")
+   * @throws Error if repository name not found
+   */
+  async getRepositoryIdByName(repositoryName: string): Promise<string> {
+    const repositories = await this.listRepositories();
+    const repository = repositories.find(r => r.name === repositoryName);
+    
+    if (!repository) {
+      const availableNames = repositories.map(r => r.name).join(", ");
+      throw new Error(
+        `Repository with name "${repositoryName}" not found. ` +
+        `Available repositories: ${availableNames || "none"}. ` +
+        `Use openl_list_repositories() to see all available repositories.`
+      );
+    }
+    
+    return repository.id;
+  }
+
+  /**
+   * Map repository ID to repository name
+   * 
+   * @param repositoryId - Repository ID (e.g., "design-repo")
+   * @returns Repository name (e.g., "Design Repository")
+   * @throws Error if repository ID not found
+   */
+  async getRepositoryNameById(repositoryId: string): Promise<string> {
+    const repositories = await this.listRepositories();
+    const repository = repositories.find(r => r.id === repositoryId);
+    
+    if (!repository) {
+      const availableIds = repositories.map(r => r.id).join(", ");
+      throw new Error(
+        `Repository with ID "${repositoryId}" not found. ` +
+        `Available repository IDs: ${availableIds || "none"}. ` +
+        `Use openl_list_repositories() to see all available repositories.`
+      );
+    }
+    
+    return repository.name;
+  }
+
+  /**
+   * Clear repositories cache (useful after repository changes)
+   */
+  clearRepositoriesCache(): void {
+    this.repositoriesCache = null;
   }
 
   /**
@@ -114,13 +177,42 @@ export class OpenLClient {
   /**
    * List deployment repositories
    *
+   * @param useCache - Whether to use cached repositories (default: true)
    * @returns Array of deployment repository information
    */
-  async listDeployRepositories(): Promise<Types.Repository[]> {
+  async listDeployRepositories(useCache: boolean = true): Promise<Types.Repository[]> {
+    // Note: We could cache this separately, but for simplicity, we'll fetch each time
+    // since deployment repositories change less frequently
     const response = await this.axiosInstance.get<Types.Repository[]>(
       "/production-repos"
     );
     return response.data;
+  }
+
+  /**
+   * Map production repository name to repository ID
+   * 
+   * This function allows users to work with production repository names (user-friendly)
+   * while the server uses repository IDs internally for API calls.
+   * 
+   * @param repositoryName - Production repository name (e.g., "Production Deployment")
+   * @returns Repository ID (e.g., "production-deploy")
+   * @throws Error if repository name not found
+   */
+  async getProductionRepositoryIdByName(repositoryName: string): Promise<string> {
+    const repositories = await this.listDeployRepositories();
+    const repository = repositories.find(r => r.name === repositoryName);
+    
+    if (!repository) {
+      const availableNames = repositories.map(r => r.name).join(", ");
+      throw new Error(
+        `Production repository with name "${repositoryName}" not found. ` +
+        `Available production repositories: ${availableNames || "none"}. ` +
+        `Use openl_list_deploy_repositories() to see all available production repositories.`
+      );
+    }
+    
+    return repository.id;
   }
 
   /**

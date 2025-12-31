@@ -21,7 +21,7 @@ export const DEFAULTS = {
  */
 export const API_ENDPOINTS = {
   /** List all design repositories */
-  REPOSITORIES: "/design-repositories",
+  REPOSITORIES: "/repos",
 
   /** OAuth 2.1 token acquisition (placeholder - actual URL from config) */
   OAUTH2_TOKEN: "/oauth/token",
@@ -36,9 +36,6 @@ export const HEADERS = {
 
   /** Authorization header */
   AUTHORIZATION: "Authorization",
-
-  /** API Key header */
-  API_KEY: "X-API-Key",
 
   /** Client Document ID header for request tracking */
   CLIENT_DOCUMENT_ID: "X-Client-Document-Id",

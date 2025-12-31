@@ -16,7 +16,7 @@ import {
 } from './mocks/openl-api-mocks.js';
 
 const BASE_URL = 'http://localhost:8080';
-const API_PATH = '/webstudio/rest';
+const API_PATH = '/rest';
 
 describe('MCP Server Tools', () => {
   beforeEach(() => {

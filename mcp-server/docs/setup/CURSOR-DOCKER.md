@@ -107,6 +107,63 @@ Cursor connects directly to the Docker container via HTTP SSE transport:
 
 The MCP server in Docker supports multiple authentication methods. Configure authentication via environment variables in `compose.yaml`:
 
+#### Personal Access Token (PAT) - Recommended for Docker
+
+Personal Access Token is the recommended authentication method for Docker deployments. It's simple, secure, and doesn't require OAuth2 setup:
+
+```yaml
+mcp-server:
+  environment:
+    OPENL_BASE_URL: http://studio:8080/rest
+    OPENL_PERSONAL_ACCESS_TOKEN: <your-pat-token>
+    OPENL_CLIENT_DOCUMENT_ID: docker-compose-1
+```
+
+**To use PAT:**
+
+1. **Create a PAT in OpenL Tablets UI:**
+   - Log in to OpenL Tablets Studio
+   - Go to **User Settings** → **Personal Access Tokens**
+   - Click **Create Token**
+   - Copy the token (shown only once!)
+
+2. **Set environment variable:**
+   ```bash
+   export OPENL_PERSONAL_ACCESS_TOKEN=<your-pat-token>
+   ```
+
+3. **Update compose.yaml:**
+   ```yaml
+   mcp-server:
+     environment:
+       OPENL_PERSONAL_ACCESS_TOKEN: ${OPENL_PERSONAL_ACCESS_TOKEN}
+   ```
+
+4. **Restart container:**
+   ```bash
+   docker compose up -d mcp-server
+   ```
+
+**Benefits:**
+- ✅ No OAuth2 configuration needed
+- ✅ Simple to set up and rotate
+- ✅ User-scoped tokens
+- ✅ Optional expiration dates
+- ✅ Can be revoked from UI
+
+#### Basic Authentication
+
+For development or when PAT is not available:
+
+```yaml
+mcp-server:
+  environment:
+    OPENL_BASE_URL: http://studio:8080/rest
+    OPENL_USERNAME: admin
+    OPENL_PASSWORD: admin
+    OPENL_CLIENT_DOCUMENT_ID: docker-compose-1
+```
+
 #### OAuth 2.1 with PKCE (Recommended for Public Clients)
 
 For public clients without `client_secret`, use PKCE (Proof Key for Code Exchange):

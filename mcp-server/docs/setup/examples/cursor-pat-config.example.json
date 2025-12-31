@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "openl-mcp-server-pat": {
+      "comment": "OpenL Tablets MCP Server with Personal Access Token (PAT) Authentication for Cursor IDE. Replace <path-to-node> with your Node.js path (e.g., 'node' or '/usr/bin/node') and <path-to-project> with your OpenL Tablets project directory. Replace <your-pat-token> with your Personal Access Token created in OpenL Tablets UI (User Settings → Personal Access Tokens).",
+      "command": "<path-to-node>",
+      "args": [
+        "<path-to-project>/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
+        "OPENL_PERSONAL_ACCESS_TOKEN": "<your-pat-token>",
+        "OPENL_CLIENT_DOCUMENT_ID": "cursor-ide-1"
+      }
+    }
+  }
+}
+

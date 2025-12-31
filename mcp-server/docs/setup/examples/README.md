@@ -10,6 +10,11 @@ This directory contains example configuration files for setting up the MCP serve
   - OAuth 2.1 (token-url)
   - OAuth 2.1 (issuer-uri)
   - OAuth 2.1 PKCE (Ping Identity)
+  - Personal Access Token (PAT)
+
+- **`cursor-pat-config.example.json`** - Example for Cursor IDE with Personal Access Token (PAT) authentication (local MCP server)
+
+- **`cursor-docker-pat-config.example.json`** - Example for Cursor IDE connecting to Docker container via HTTP SSE with PAT authentication
 
 - **`cursor-docker-config.example.json`** - Example for Cursor IDE connecting to Docker container via HTTP proxy
 

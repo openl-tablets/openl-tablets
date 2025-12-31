@@ -120,9 +120,9 @@ MCP Server uses one of three methods:
    OPENL_PASSWORD=admin
    ```
 
-2. **API Key**
+2. **Personal Access Token**
    ```env
-   OPENL_API_KEY=your-key
+   OPENL_PERSONAL_ACCESS_TOKEN=your-pat-token
    ```
 
 3. **OAuth 2.1**

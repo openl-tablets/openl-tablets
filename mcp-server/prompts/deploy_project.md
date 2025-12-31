@@ -46,15 +46,21 @@ IF deployment fails:
 2. Fix errors and re-validate
 3. Redeploy
 
-IF need rollback:
-1. `openl_get_project_history()` → find stable Git commitHash
-2. `openl_revert_version(targetVersion=commitHash)` → Creates new commit with old state
-3. Redeploy to environment
+IF need rollback (manual process):
+1. Use `openl_get_project_history(projectId)` to retrieve Git commit history and identify a stable commit hash from before the problematic deployment
+2. Use `openl_revert_version(projectId, targetVersion=commitHash, confirm=true)` to create a new commit that restores the project state to the selected stable version
+3. Redeploy the reverted version to the environment using `openl_deploy_project()` or `openl_redeploy_project()`
+
+**When to use manual rollback:**
+- Deployment fails validation or testing in production
+- Critical bugs discovered after deployment
+- Need to restore to a known-good state quickly
+- Automatic deployment validation fails (requires manual intervention)
 
 ## OpenL Deployment Features
 
 - **Atomic deployment**: All or nothing (entire OpenL project deployed)
-- **Automatic rollback**: On failure, OpenL reverts automatically
-- **Version history preserved**: All Git commitHashes maintained
-- **Instant rollback**: Previous version available via openl_revert_version()
+- **Manual rollback**: Use `openl_get_project_history()` + `openl_revert_version()` + redeploy to restore previous version
+- **Version history preserved**: All Git commitHashes maintained for easy rollback
+- **Instant rollback**: Previous version available via `openl_revert_version()` - creates new commit with old state
 - **Audit trail**: Full deployment history in project commits

@@ -342,7 +342,7 @@ The OpenL Tablets MCP Server is a Model Context Protocol implementation that pro
 ```json
 {
   "status": "healthy",
-  "baseUrl": "http://localhost:8080/webstudio/rest",
+  "baseUrl": "http://localhost:8080/rest",
   "authMethod": "Basic Auth",
   "timestamp": "2025-11-13T17:00:00Z",
   "serverReachable": true

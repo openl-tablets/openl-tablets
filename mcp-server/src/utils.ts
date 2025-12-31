@@ -17,15 +17,20 @@ export function sanitizeError(error: unknown): string {
     // Remove potential sensitive patterns from error messages
     let message = error.message;
 
-    // Redact potential tokens (Bearer tokens, API keys)
+    // Redact potential tokens (Bearer tokens, API keys, PAT tokens)
     message = message.replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, "Bearer [REDACTED]");
+    message = message.replace(/Token\s+[A-Za-z0-9\-._~+/]+=*/gi, "Token [REDACTED]");
+    message = message.replace(/openl_pat_[A-Za-z0-9\-._~+/]+/gi, "openl_pat_[REDACTED]");
     message = message.replace(/api[_-]?key["\s:=]+[A-Za-z0-9\-._~+/]+/gi, "api_key=[REDACTED]");
 
     // Redact potential credentials in URLs
     message = message.replace(/(:\/\/)[^:@]+:[^@]+@/g, "$1[REDACTED]:[REDACTED]@");
 
-    // Redact potential client secrets
+    // Redact potential client secrets and authorization codes
     message = message.replace(/client[_-]?secret["\s:=]+[A-Za-z0-9\-._~+/]+/gi, "client_secret=[REDACTED]");
+    message = message.replace(/authorization[_-]?code["\s:=]+[A-Za-z0-9\-._~+/]+/gi, "authorization_code=[REDACTED]");
+    message = message.replace(/refresh[_-]?token["\s:=]+[A-Za-z0-9\-._~+/]+/gi, "refresh_token=[REDACTED]");
+    message = message.replace(/code[_-]?verifier["\s:=]+[A-Za-z0-9\-._~+/]+/gi, "code_verifier=[REDACTED]");
 
     return message;
   }

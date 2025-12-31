@@ -7,21 +7,9 @@
         "<path-to-project>/mcp-server/dist/index.js"
       ],
       "env": {
-        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
         "OPENL_USERNAME": "admin",
         "OPENL_PASSWORD": "admin",
-        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
-      }
-    },
-    "openl-mcp-server-api-key": {
-      "comment": "OpenL Tablets MCP Server with API Key Authentication. Replace <path-to-node> with your Node.js path (e.g., 'node' or '/usr/bin/node') and <path-to-project> with your OpenL Tablets project directory.",
-      "command": "<path-to-node>",
-      "args": [
-        "<path-to-project>/mcp-server/dist/index.js"
-      ],
-      "env": {
-        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
-        "OPENL_API_KEY": "your-api-key-here",
         "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
       }
     },
@@ -32,7 +20,7 @@
         "<path-to-project>/mcp-server/dist/index.js"
       ],
       "env": {
-        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_BASE_URL": "https://openl-production.example.com/rest",
         "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
         "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
         "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
@@ -49,7 +37,7 @@
         "<path-to-project>/mcp-server/dist/index.js"
       ],
       "env": {
-        "OPENL_BASE_URL": "https://openl-production.example.com/webstudio/rest",
+        "OPENL_BASE_URL": "https://openl-production.example.com/rest",
         "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
         "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
         "OPENL_OAUTH2_ISSUER_URI": "https://auth.example.com",
@@ -75,6 +63,18 @@
         "OPENL_OAUTH2_REDIRECT_URI": "http://localhost:3000/oauth2/callback",
         "OPENL_OAUTH2_GRANT_TYPE": "authorization_code",
         "OPENL_OAUTH2_SCOPE": "openid profile email"
+      }
+    },
+    "openl-mcp-server-pat": {
+      "comment": "OpenL Tablets MCP Server with Personal Access Token (PAT) Authentication. Replace <path-to-node> with your Node.js path (e.g., 'node' or '/usr/bin/node') and <path-to-project> with your OpenL Tablets project directory. Replace <your-pat-token> with your Personal Access Token created in OpenL Tablets UI.",
+      "command": "<path-to-node>",
+      "args": [
+        "<path-to-project>/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "OPENL_BASE_URL": "https://openl.example.com/rest",
+        "OPENL_PERSONAL_ACCESS_TOKEN": "<your-pat-token>",
+        "OPENL_CLIENT_DOCUMENT_ID": "claude-desktop-1"
       }
     }
   }

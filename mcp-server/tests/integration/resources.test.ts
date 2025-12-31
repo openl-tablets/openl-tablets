@@ -16,7 +16,7 @@ describe.skip("Resource URI Integration Tests", () => {
   beforeAll(() => {
     // Initialize with test configuration
     const config: OpenLConfig = {
-      baseUrl: process.env.OPENL_BASE_URL || "http://localhost:8080/webstudio/rest",
+      baseUrl: process.env.OPENL_BASE_URL || "http://localhost:8080/rest",
       username: process.env.OPENL_USERNAME || "admin",
       password: process.env.OPENL_PASSWORD || "admin",
     };

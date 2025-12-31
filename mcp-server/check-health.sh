@@ -64,16 +64,16 @@ else
     echo -e "   ${GREEN}✓${NC} OPENL_BASE_URL=$OPENL_BASE_URL"
 fi
 
-if [ -z "$OPENL_USERNAME" ] && [ -z "$OPENL_API_KEY" ] && [ -z "$OPENL_OAUTH2_CLIENT_ID" ]; then
+if [ -z "$OPENL_USERNAME" ] && [ -z "$OPENL_PERSONAL_ACCESS_TOKEN" ] && [ -z "$OPENL_OAUTH2_CLIENT_ID" ]; then
     echo -e "   ${RED}✗${NC} No authentication method configured"
-    echo -e "      Set one of: OPENL_USERNAME, OPENL_API_KEY, or OPENL_OAUTH2_CLIENT_ID"
+    echo -e "      Set one of: OPENL_USERNAME, OPENL_PERSONAL_ACCESS_TOKEN, or OPENL_OAUTH2_CLIENT_ID"
     MISSING_VARS=1
 else
     if [ -n "$OPENL_USERNAME" ]; then
         echo -e "   ${GREEN}✓${NC} OPENL_USERNAME set (Basic Auth)"
     fi
-    if [ -n "$OPENL_API_KEY" ]; then
-        echo -e "   ${GREEN}✓${NC} OPENL_API_KEY set (API Key Auth)"
+    if [ -n "$OPENL_PERSONAL_ACCESS_TOKEN" ]; then
+        echo -e "   ${GREEN}✓${NC} OPENL_PERSONAL_ACCESS_TOKEN set (Personal Access Token)"
     fi
     if [ -n "$OPENL_OAUTH2_CLIENT_ID" ]; then
         echo -e "   ${GREEN}✓${NC} OPENL_OAUTH2_CLIENT_ID set (OAuth 2.1)"

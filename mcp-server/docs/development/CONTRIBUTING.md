@@ -222,7 +222,7 @@ async myNewMethod(
 ): Promise<ReturnType> {
   const [repository, projectName] = this.parseProjectId(projectId);
   const response = await this.axiosInstance.post<ReturnType>(
-    `/design-repositories/${repository}/projects/${projectName}/endpoint`,
+    `/repos/${repository}/projects/${projectName}/endpoint`,
     { someParameter }
   );
   return response.data;
@@ -445,7 +445,7 @@ describe("Feature", () => {
 
   beforeEach(() => {
     client = new OpenLClient({
-      baseUrl: "http://localhost:8080/webstudio/rest",
+      baseUrl: "http://localhost:8080/rest",
       username: "test",
       password: "test",
     });

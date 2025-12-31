@@ -44,7 +44,7 @@ For detailed setup instructions, see [Quick Start Guide](docs/getting-started/QU
 
 ### Guides
 - [Usage Examples](docs/guides/EXAMPLES.md) - Practical examples of using MCP tools
-- [Authentication Guide](docs/guides/AUTHENTICATION.md) - All authentication methods (Basic Auth, API Key, OAuth 2.1)
+- [Authentication Guide](docs/guides/AUTHENTICATION.md) - All authentication methods (Basic Auth, Personal Access Token, OAuth 2.1)
 - [Troubleshooting Guide](docs/guides/TROUBLESHOOTING.md) - Common issues, debugging, and solutions
 
 ### Development
@@ -158,16 +158,13 @@ See [prompts/](./prompts/) directory for detailed prompt content.
 
 ```bash
 # Required
-OPENL_BASE_URL=http://localhost:8080/webstudio/rest
+OPENL_BASE_URL=http://localhost:8080/rest
 
 # Auth Method 1: Basic Auth
 OPENL_USERNAME=admin
 OPENL_PASSWORD=admin
 
-# Auth Method 2: API Key
-OPENL_API_KEY=your-api-key
-
-# Auth Method 3: OAuth 2.1
+# Auth Method 2: OAuth 2.1
 OPENL_OAUTH2_CLIENT_ID=client-id
 OPENL_OAUTH2_CLIENT_SECRET=client-secret
 OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
@@ -202,7 +199,7 @@ See [Setup Guides](docs/setup/) for client-specific configuration instructions.
 
 ### Authentication & Security
 - **OAuth 2.1**: Automatic token management, refresh, and retry on 401
-- **API Key**: Simple header-based authentication
+- **Personal Access Token**: User-generated tokens for programmatic access
 - **Basic Auth**: Username/password with Base64 encoding
 - **Sensitive Data Protection**: Automatic redaction of credentials in error messages
 

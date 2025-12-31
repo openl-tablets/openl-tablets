@@ -1,11 +1,11 @@
 # Authentication Guide
 
-This guide covers all authentication methods supported by the OpenL Tablets MCP Server, including OAuth 2.1, API Key, and Basic Authentication.
+This guide covers all authentication methods supported by the OpenL Tablets MCP Server, including OAuth 2.1, Personal Access Token (PAT), and Basic Authentication.
 
 ## Table of Contents
 - [Authentication Methods](#authentication-methods)
 - [Basic Authentication](#basic-authentication)
-- [API Key Authentication](#api-key-authentication)
+- [Personal Access Token Authentication](#personal-access-token-authentication)
 - [OAuth 2.1 Authentication](#oauth-21-authentication)
 - [Client Document ID](#client-document-id)
 - [Security Best Practices](#security-best-practices)
@@ -16,7 +16,7 @@ This guide covers all authentication methods supported by the OpenL Tablets MCP 
 The MCP server supports three authentication methods:
 
 1. **Basic Authentication** - Username and password
-2. **API Key Authentication** - Pre-shared API key
+2. **Personal Access Token (PAT)** - User-generated tokens for programmatic access
 3. **OAuth 2.1** - Modern OAuth 2.1 with token refresh
 
 Choose the method that best fits your security requirements and infrastructure.
@@ -29,7 +29,7 @@ Basic Authentication uses HTTP Basic Auth with username and password.
 
 **Environment Variables:**
 ```bash
-OPENL_BASE_URL=http://localhost:8080/webstudio/rest
+OPENL_BASE_URL=http://localhost:8080/rest
 OPENL_USERNAME=admin
 OPENL_PASSWORD=admin
 ```
@@ -42,7 +42,7 @@ OPENL_PASSWORD=admin
       "command": "node",
       "args": ["/path/to/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "http://localhost:8080/webstudio/rest",
+        "OPENL_BASE_URL": "http://localhost:8080/rest",
         "OPENL_USERNAME": "admin",
         "OPENL_PASSWORD": "admin"
       }
@@ -62,28 +62,56 @@ OPENL_PASSWORD=admin
 - ✅ Use HTTPS in production
 - ✅ Rotate passwords regularly
 
-## API Key Authentication
+## Personal Access Token Authentication
 
-API Key Authentication uses a pre-shared key sent in the `X-API-Key` header.
+Personal Access Token (PAT) authentication uses user-generated tokens created in the OpenL Tablets UI. PATs provide a secure way to authenticate API requests without using passwords or OAuth2 tokens.
+
+### Features
+
+- ✅ **User-Generated** - Created and managed in OpenL Tablets UI
+- ✅ **Token Format** - `openl_pat_<publicId>.<secret>`
+- ✅ **Expiration Support** - Optional expiration dates for enhanced security
+- ✅ **User Isolation** - Each user manages their own tokens
+- ✅ **OAuth2/SAML Only** - Available only when OpenL Tablets is configured for OAuth2 or SAML authentication
+
+### Prerequisites
+
+- OpenL Tablets must be configured with OAuth2 or SAML authentication mode
+- You must have a valid OAuth2/SAML session to create PATs
+- PATs cannot be used to manage other PATs (enforced by security)
+
+### Creating a Personal Access Token
+
+1. Log in to OpenL Tablets Studio with OAuth2/SAML
+2. Navigate to **User Settings** → **Personal Access Tokens**
+3. Click **Create Token**
+4. Provide a name and optional expiration date
+5. Copy the token immediately (it's shown only once)
+
+**Token Format:**
+```
+<your-pat-token>
+```
 
 ### Configuration
 
 **Environment Variables:**
 ```bash
-OPENL_BASE_URL=https://openl.example.com/webstudio/rest
-OPENL_API_KEY=your-api-key-here
+OPENL_BASE_URL=https://openl.example.com/rest
+OPENL_PERSONAL_ACCESS_TOKEN=<your-pat-token>
 ```
 
-**Claude Desktop Config:**
+**Claude Desktop / Cursor Config:**
 ```json
 {
   "mcpServers": {
     "openl-tablets": {
       "command": "node",
-      "args": ["/path/to/dist/index.js"],
+      "args": ["/path/to/mcp-server/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "https://openl.example.com/webstudio/rest",
-        "OPENL_API_KEY": "your-api-key-here"
+        "OPENL_BASE_URL": "https://openl.example.com/rest",
+        "OPENL_PERSONAL_ACCESS_TOKEN": "<your-pat-token>",
+        "OPENL_CLIENT_DOCUMENT_ID": "cursor-mcp-1"
       }
     }
   }
@@ -91,16 +119,31 @@ OPENL_API_KEY=your-api-key-here
 ```
 
 ### Use Cases
-- Service-to-service authentication
-- API access for trusted applications
-- Simpler than OAuth for single-tenant scenarios
+
+- **MCP Server Integration** - Perfect for Cursor/Claude Desktop MCP servers
+- **CI/CD Pipelines** - Automated deployments and testing
+- **API Scripts** - Command-line tools and automation
+- **Service-to-Service** - Microservice communication
+- **Development** - Local development without OAuth2 setup
 
 ### Security Considerations
-- ✅ More secure than basic auth
-- ✅ Can be rotated without password changes
-- ✅ Single key per service/application
-- ⚠️ Key must be kept secret
-- ✅ Use HTTPS always
+
+- ✅ **More Secure Than Passwords** - Tokens can be revoked without password changes
+- ✅ **Expiration Support** - Optional expiration dates
+- ✅ **User-Scoped** - Tokens are tied to the user who created them
+- ✅ **Revocable** - Can be deleted from UI at any time
+- ⚠️ **Token Storage** - Store tokens securely (environment variables, secret managers)
+- ⚠️ **Token Exposure** - Never commit tokens to version control
+- ✅ **Use HTTPS Always** - Required for production
+
+### Token Management
+
+- **View Tokens**: List all your PATs in the UI
+- **Delete Tokens**: Revoke access by deleting tokens
+- **Expiration**: Check token expiration dates
+- **Usage**: Use `Authorization: Token <token>` header format
+
+**Important**: The full token value is shown only once when created. Store it securely - it cannot be retrieved later.
 
 ## OAuth 2.1 Authentication
 
@@ -132,7 +175,7 @@ Used for service-to-service authentication without user interaction.
 **Configuration:**
 ```bash
 # Required
-OPENL_BASE_URL=https://openl.example.com/webstudio/rest
+OPENL_BASE_URL=https://openl.example.com/rest
 OPENL_OAUTH2_CLIENT_ID=your-client-id
 OPENL_OAUTH2_CLIENT_SECRET=your-client-secret
 
@@ -154,7 +197,7 @@ OPENL_OAUTH2_GRANT_TYPE=client_credentials
       "command": "node",
       "args": ["/path/to/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "https://openl.example.com/webstudio/rest",
+        "OPENL_BASE_URL": "https://openl.example.com/rest",
         "OPENL_OAUTH2_CLIENT_ID": "mcp-server-client",
         "OPENL_OAUTH2_CLIENT_SECRET": "client-secret-here",
         "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
@@ -174,7 +217,7 @@ OPENL_OAUTH2_GRANT_TYPE=client_credentials
       "command": "node",
       "args": ["/path/to/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "https://openl.example.com/webstudio/rest",
+        "OPENL_BASE_URL": "https://openl.example.com/rest",
         "OPENL_OAUTH2_CLIENT_ID": "OpenL_Studio",
         "OPENL_OAUTH2_CLIENT_SECRET": "your-client-secret",
         "OPENL_OAUTH2_ISSUER_URI": "https://auth.example.com",
@@ -224,7 +267,7 @@ Used for public clients (without client_secret) or when you need user authorizat
 **Configuration:**
 ```bash
 # Required
-OPENL_BASE_URL=https://openl.example.com/webstudio/rest
+OPENL_BASE_URL=https://openl.example.com/rest
 OPENL_OAUTH2_CLIENT_ID=your-client-id
 OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
 OPENL_OAUTH2_AUTHORIZATION_URL=https://auth.example.com/oauth/authorize
@@ -252,7 +295,7 @@ node -e "const crypto = require('crypto'); const charset = 'ABCDEFGHIJKLMNOPQRST
 **Docker Configuration:**
 ```yaml
 environment:
-  OPENL_BASE_URL: https://openl.example.com/webstudio/rest
+  OPENL_BASE_URL: https://openl.example.com/rest
   OPENL_OAUTH2_CLIENT_ID: your-public-client-id
   OPENL_OAUTH2_TOKEN_URL: https://auth.example.com/oauth/token
   OPENL_OAUTH2_AUTHORIZATION_URL: https://auth.example.com/oauth/authorize
@@ -272,7 +315,7 @@ The MCP server can automatically open a browser and intercept the authorization 
 **Configuration for Automatic Browser Flow:**
 ```bash
 # Required
-OPENL_BASE_URL=https://openl.example.com/webstudio/rest
+OPENL_BASE_URL=https://openl.example.com/rest
 OPENL_OAUTH2_CLIENT_ID=your-client-id
 OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
 OPENL_OAUTH2_AUTHORIZATION_URL=https://auth.example.com/oauth/authorize
@@ -307,7 +350,7 @@ OPENL_OAUTH2_SCOPE=openl:read openl:write
       "command": "node",
       "args": ["/path/to/dist/index.js"],
       "env": {
-        "OPENL_BASE_URL": "https://openl.example.com/webstudio/rest",
+        "OPENL_BASE_URL": "https://openl.example.com/rest",
         "OPENL_OAUTH2_CLIENT_ID": "your-client-id",
         "OPENL_OAUTH2_TOKEN_URL": "https://auth.example.com/oauth/token",
         "OPENL_OAUTH2_AUTHORIZATION_URL": "https://auth.example.com/oauth/authorize",
@@ -342,7 +385,7 @@ Used when you have a long-lived refresh token from a previous authorization.
 
 **Configuration:**
 ```bash
-OPENL_BASE_URL=https://openl.example.com/webstudio/rest
+OPENL_BASE_URL=https://openl.example.com/rest
 OPENL_OAUTH2_CLIENT_ID=your-client-id
 OPENL_OAUTH2_CLIENT_SECRET=your-client-secret
 OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
@@ -591,21 +634,6 @@ OpenL Tablets API error (401): Authentication required
 3. Ensure user has required permissions
 4. Verify OpenL Tablets is configured for basic auth
 
-### API Key Issues
-
-#### Invalid API Key
-
-**Symptoms:**
-```
-OpenL Tablets API error (403): Invalid API key
-```
-
-**Solutions:**
-1. Verify API key is correct
-2. Check API key hasn't been revoked
-3. Ensure API key has required permissions
-4. Verify API key authentication is enabled in OpenL Tablets
-
 ### General Issues
 
 #### Connection Timeout
@@ -730,9 +758,9 @@ OPENL_USERNAME          # Username for basic authentication
 OPENL_PASSWORD          # Password for basic authentication
 ```
 
-### API Key
+### Personal Access Token
 ```bash
-OPENL_API_KEY           # API key for authentication
+OPENL_PERSONAL_ACCESS_TOKEN  # Personal Access Token (format: openl_pat_<publicId>.<secret>)
 ```
 
 ### OAuth 2.1
@@ -760,7 +788,7 @@ OPENL_OAUTH2_REDIRECT_URI        # Redirect URI registered with OAuth provider
 
 ### Local Development with Basic Auth
 ```bash
-export OPENL_BASE_URL=http://localhost:8080/webstudio/rest
+export OPENL_BASE_URL=http://localhost:8080/rest
 export OPENL_USERNAME=admin
 export OPENL_PASSWORD=admin
 export OPENL_CLIENT_DOCUMENT_ID=dev-laptop
@@ -769,7 +797,7 @@ npm start
 
 ### Production with OAuth 2.1
 ```bash
-export OPENL_BASE_URL=https://openl-prod.example.com/webstudio/rest
+export OPENL_BASE_URL=https://openl-prod.example.com/rest
 export OPENL_OAUTH2_CLIENT_ID=mcp-server-prod
 export OPENL_OAUTH2_CLIENT_SECRET=$(vault read -field=secret secret/openl/prod/client-secret)
 export OPENL_OAUTH2_TOKEN_URL=https://auth.example.com/oauth/token
@@ -777,15 +805,6 @@ export OPENL_OAUTH2_SCOPE="openl:read openl:write"
 export OPENL_CLIENT_DOCUMENT_ID=mcp-prod-instance-1
 export OPENL_TIMEOUT=60000
 npm start
-```
-
-### Docker with API Key
-```bash
-docker run -d \
-  -e OPENL_BASE_URL=https://openl.example.com/webstudio/rest \
-  -e OPENL_API_KEY=your-api-key \
-  -e OPENL_CLIENT_DOCUMENT_ID=docker-container-1 \
-  openl-mcp-server:latest
 ```
 
 ## Resources

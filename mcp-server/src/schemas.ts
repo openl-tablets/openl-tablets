@@ -30,14 +30,14 @@ export const ResponseFormat = z
 
 // Pagination parameters
 export const PaginationParams = z.object({
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
-}).optional();
+  limit: z.number().int().positive().max(200).optional().default(50),
+  offset: z.number().int().nonnegative().optional().default(0),
+});
 
 // Project ID: base64-encoded format from openl_list_projects() response
 export const projectIdSchema = z.string().describe("Project ID - base64-encoded format (default). Use the exact 'projectId' value returned from openl_list_projects() API response. Do not modify or reformat this value. The API returns projectId in base64 format: base64('repository:projectName:hashCode').");
 
-export const repositoryNameSchema = z.string().describe("Repository name (e.g., 'design', 'production', 'test')");
+export const repositoryNameSchema = z.string().describe("Repository name (display name, not ID). Use the 'name' field from openl_list_repositories() response (e.g., if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use 'Design Repository' here, NOT 'design-repo').");
 
 export const projectNameSchema = z.string().describe("Project name within the repository (e.g., 'InsuranceRules', 'AutoPremium', 'ClaimProcessing')");
 
@@ -49,13 +49,11 @@ export const commentSchema = z.string().optional().describe("Commit comment desc
 
 // Tool input schemas
 export const listProjectsSchema = z.object({
-  repository: z.string().optional().describe("Filter by repository ID (NOT repository name). Use the 'id' field from openl_list_repositories() response (e.g., if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use 'design-repo' here, NOT 'Design Repository'). Omit to show projects from all repositories."),
+  repository: z.string().optional().describe("Filter by repository name (display name, not ID). Use the 'name' field from openl_list_repositories() response (e.g., if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use 'Design Repository' here, NOT 'design-repo'). Omit to show projects from all repositories."),
   status: z.enum(["LOCAL", "ARCHIVED", "OPENED", "VIEWING_VERSION", "EDITING", "CLOSED"]).optional().describe("Filter by project status. Valid values: 'LOCAL', 'ARCHIVED', 'OPENED', 'VIEWING_VERSION', 'EDITING', 'CLOSED'."),
   tags: z.record(z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
   response_format: ResponseFormat.optional(),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 export const getProjectSchema = z.object({
   projectId: projectIdSchema,
@@ -89,9 +87,7 @@ export const listTablesSchema = z.object({
   name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
   properties: z.record(z.string()).optional().describe("Filter by project properties. Properties must be prefixed with 'properties.' in the query string (e.g., properties.state='CA', properties.lob='Auto'). This is handled automatically by the API client."),
   response_format: ResponseFormat.optional(),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 export const getTableSchema = z.object({
   projectId: projectIdSchema,
@@ -149,9 +145,7 @@ export const appendTableSchema = z.object({
 export const listBranchesSchema = z.object({
   repository: repositoryNameSchema,
   response_format: ResponseFormat.optional(),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 export const createBranchSchema = z.object({
   projectId: projectIdSchema,
@@ -163,7 +157,7 @@ export const createBranchSchema = z.object({
 export const deployProjectSchema = z.object({
   projectId: projectIdSchema.describe("Project ID to deploy - base64-encoded format (default). Use the exact 'projectId' value from openl_list_projects() response (e.g., base64-encoded string)."),
   deploymentName: z.string().describe("Name for the deployment (e.g., 'InsuranceRules', 'AutoPremium'). This will be the deployment identifier."),
-  productionRepositoryId: z.string().describe("Target production repository ID where the project will be deployed (e.g., 'production-deploy', 'staging-deploy'). Must be configured in OpenL Tablets."),
+  productionRepositoryId: z.string().describe("Target production repository name (display name, not ID). Use the 'name' field from openl_list_deploy_repositories() response (e.g., if list_deploy_repositories returns {id: 'production-deploy', name: 'Production Deployment'}, use 'Production Deployment' here, NOT 'production-deploy'). Must be configured in OpenL Tablets."),
   comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
   response_format: ResponseFormat.optional(),
 }).strict();
@@ -281,18 +275,14 @@ export const revertVersionSchema = z.object({
 export const getFileHistorySchema = z.object({
   projectId: projectIdSchema,
   filePath: z.string().min(1).describe("File path within project (e.g., 'rules/Insurance.xlsx')"),
-  limit: z.number().int().positive().max(200).optional().describe("Maximum number of commits to return (default: 50, max: 200)"),
-  offset: z.number().int().nonnegative().optional().describe("Number of commits to skip for pagination (default: 0)"),
   response_format: ResponseFormat.optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 export const getProjectHistorySchema = z.object({
   projectId: projectIdSchema,
-  limit: z.number().int().positive().max(200).optional().describe("Maximum commits to return (default: 50, max: 200)"),
-  offset: z.number().int().nonnegative().optional().describe("Commits to skip for pagination (default: 0)"),
   branch: z.string().optional().describe("Git branch name (default: current branch)"),
   response_format: ResponseFormat.optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 // =============================================================================
 // Repository Features & Revisions Schemas
@@ -316,9 +306,7 @@ export const getProjectRevisionsSchema = z.object({
 
 export const listDeployRepositoriesSchema = z.object({
   response_format: ResponseFormat.optional(),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 // =============================================================================
 // Local Changes & Restore Schemas
@@ -349,21 +337,17 @@ export const startProjectTestsSchema = z.object({
 export const getProjectTestResultsSchema = z.object({
   projectId: projectIdSchema,
   failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
   waitForCompletion: z.boolean().optional().describe("Wait for test execution to complete before returning results. If false, returns current status immediately (default: true)"),
   response_format: ResponseFormat.optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 export const runProjectTestsSchema = z.object({
   projectId: projectIdSchema,
   tableId: z.string().optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
   testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
   failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
-  limit: z.number().int().positive().max(200).default(50).optional(),
-  offset: z.number().int().nonnegative().default(0).optional(),
   response_format: ResponseFormat.optional(),
-}).strict();
+}).merge(PaginationParams).strict();
 
 // =============================================================================
 // Redeploy Schema

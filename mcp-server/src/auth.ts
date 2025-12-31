@@ -3,7 +3,7 @@
  *
  * Supports multiple authentication methods:
  * - Basic Authentication (username/password)
- * - API Key authentication
+ * - Personal Access Token (PAT)
  * - OAuth 2.1 (with automatic token management)
  */
 
@@ -40,8 +40,8 @@ function safeAuthHeaderLog(authHeader: string | undefined): string {
     return `${scheme} [redacted]`;
   }
 
-  // If no scheme found, it might be API key - just show it's present
-  return DEBUG_AUTH ? `[${createHash("sha256").update(authHeader).digest("hex").substring(0, 8)}...]` : "[redacted]";
+  // If no scheme found, return redacted
+  return "[redacted]";
 }
 
 /**
@@ -75,10 +75,34 @@ export class AuthenticationManager {
         // Log request details for debugging (safe - no token exposure)
         const fullUrl = `${authConfig.baseURL || ''}${authConfig.url || ''}`;
         const authHeader = (authConfig.headers && authConfig.headers[HEADERS.AUTHORIZATION]) || 
-                          (authConfig.headers && authConfig.headers[HEADERS.API_KEY]) || 
                           undefined;
-        console.error(`[Auth] Request: ${authConfig.method ? authConfig.method.toUpperCase() : ''} ${fullUrl}`);
-        console.error(`[Auth] Auth header: ${safeAuthHeaderLog(authHeader)}`);
+        
+        console.error(`[Auth] ========================================`);
+        console.error(`[Auth] Request Interceptor:`);
+        console.error(`[Auth]   Method: ${authConfig.method ? authConfig.method.toUpperCase() : 'UNKNOWN'}`);
+        console.error(`[Auth]   URL: ${fullUrl}`);
+        console.error(`[Auth]   Headers present: ${!!authConfig.headers}`);
+        
+        // Log all relevant headers
+        if (authConfig.headers) {
+          const authHeaderValue = authConfig.headers[HEADERS.AUTHORIZATION];
+          const clientDocId = authConfig.headers[HEADERS.CLIENT_DOCUMENT_ID];
+          
+          console.error(`[Auth]   Authorization header: ${authHeaderValue ? safeAuthHeaderLog(authHeaderValue as string) : 'NOT SET'}`);
+          if (authHeaderValue && DEBUG_AUTH) {
+            const headerStr = authHeaderValue as string;
+            // Never log actual token content, even in debug mode - only log format validation
+            console.error(`[Auth]   Authorization header format: ${headerStr.startsWith('Token ') ? 'Token ✓' : headerStr.startsWith('Bearer ') ? 'Bearer ✓' : 'UNKNOWN'}`);
+            console.error(`[Auth]   Authorization header length: ${headerStr.length} characters`);
+          }
+          
+          if (clientDocId) {
+            console.error(`[Auth]   Client Document ID: ${clientDocId}`);
+          }
+        }
+        
+        console.error(`[Auth] ========================================`);
+        
         return authConfig;
       },
       (error) => Promise.reject(error)
@@ -86,7 +110,18 @@ export class AuthenticationManager {
 
     // Response interceptor: Handle 401 errors with token refresh
     axiosInstance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Log successful responses in debug mode
+        if (DEBUG_AUTH && response.config) {
+          const fullUrl = `${response.config.baseURL || ''}${response.config.url || ''}`;
+          const authHeader = response.config.headers?.[HEADERS.AUTHORIZATION];
+          console.error(`[Auth] ✅ Response: ${response.config.method?.toUpperCase()} ${fullUrl} - Status: ${response.status}`);
+          if (authHeader) {
+            console.error(`[Auth]   Auth header used: ${safeAuthHeaderLog(authHeader as string)}`);
+          }
+        }
+        return response;
+      },
       async (error) => {
         const originalRequest = error.config;
 
@@ -94,9 +129,23 @@ export class AuthenticationManager {
         if (error.response && error.response.status === 401) {
           const fullUrl = `${(error.config && error.config.baseURL) || ''}${(error.config && error.config.url) || ''}`;
           const authMethod = this.getAuthMethod();
-          console.error(`[Auth] ❌ 401 Unauthorized: ${error.config && error.config.method ? error.config.method.toUpperCase() : ''} ${fullUrl}`);
+          const authHeader = error.config?.headers?.[HEADERS.AUTHORIZATION];
+          
+          console.error(`[Auth] ========================================`);
+          console.error(`[Auth] ❌ 401 Unauthorized Error:`);
+          console.error(`[Auth]   Method: ${error.config && error.config.method ? error.config.method.toUpperCase() : 'UNKNOWN'}`);
+          console.error(`[Auth]   URL: ${fullUrl}`);
           console.error(`[Auth]   Auth method: ${authMethod}`);
-          console.error(`[Auth]   Response: ${JSON.stringify((error.response && error.response.data) || {}).substring(0, 200)}`);
+          console.error(`[Auth]   Authorization header sent: ${authHeader ? safeAuthHeaderLog(authHeader as string) : 'NOT SET'}`);
+          if (authHeader && DEBUG_AUTH) {
+            const headerStr = authHeader as string;
+            // Never log actual token content, even in debug mode - only log format validation
+            console.error(`[Auth]   Header format check: ${headerStr.startsWith('Token ') ? 'Token ✓' : headerStr.startsWith('Bearer ') ? 'Bearer ✓' : 'UNKNOWN FORMAT'}`);
+            console.error(`[Auth]   Header length: ${headerStr.length} characters`);
+          }
+          console.error(`[Auth]   Response status: ${error.response.status}`);
+          console.error(`[Auth]   Response data: ${JSON.stringify((error.response && error.response.data) || {}).substring(0, 300)}`);
+          console.error(`[Auth] ========================================`);
         }
 
         // If 401 and we have OAuth2, try refreshing token
@@ -145,7 +194,7 @@ export class AuthenticationManager {
 
     // Add authentication based on method priority:
     // 1. OAuth 2.1
-    // 2. API Key
+    // 2. Personal Access Token
     // 3. Basic Auth
     if (this.config.oauth2) {
       console.error(`[Auth] Using OAuth 2.1 authentication`);
@@ -153,10 +202,52 @@ export class AuthenticationManager {
       if (token) {
         config.headers[HEADERS.AUTHORIZATION] = `Bearer ${token.access_token}`;
       }
-    } else if (this.config.apiKey) {
-      console.error(`[Auth] Using API Key authentication`);
-      config.headers[HEADERS.API_KEY] = this.config.apiKey;
+    } else if (this.config.personalAccessToken) {
+      console.error(`[Auth] ========================================`);
+      console.error(`[Auth] 🔐 Personal Access Token Authentication`);
+      console.error(`[Auth] ========================================`);
+      
+      // Validate PAT format
+      const pat = this.config.personalAccessToken;
+      const isValidFormat = pat.startsWith('openl_pat_');
+      
+      console.error(`[Auth] PAT Configuration:`);
+      console.error(`[Auth]   - PAT present: ${!!pat}`);
+      console.error(`[Auth]   - PAT length: ${pat?.length || 0} characters`);
+      console.error(`[Auth]   - PAT format valid: ${isValidFormat ? '✓' : '✗'}`);
+      // Never log actual PAT content, only prefix for format validation
+      if (pat && pat.length >= 20) {
+        console.error(`[Auth]   - PAT prefix: ${pat.substring(0, 11)}... (format check)`);
+      }
+      
+      if (!isValidFormat) {
+        console.error(`[Auth]   ⚠️  WARNING: PAT should start with 'openl_pat_'`);
+      }
+      
+      // Build authorization header
+      const authHeaderValue = `Token ${pat}`;
+      config.headers[HEADERS.AUTHORIZATION] = authHeaderValue;
+      
+      console.error(`[Auth] Authorization Header:`);
+      console.error(`[Auth]   - Header name: ${HEADERS.AUTHORIZATION}`);
+      console.error(`[Auth]   - Header value format: Token <PAT>`);
+      console.error(`[Auth]   - Header value (safe): ${safeAuthHeaderLog(authHeaderValue)}`);
+      console.error(`[Auth]   - Header set in config: ${!!config.headers[HEADERS.AUTHORIZATION]}`);
+      
+      // Verify header was set correctly
+      const actualHeader = config.headers[HEADERS.AUTHORIZATION];
+      const headerStartsWithToken = typeof actualHeader === 'string' && actualHeader.startsWith('Token ');
+      console.error(`[Auth]   - Header verification: ${headerStartsWithToken ? '✓ Correct format' : '✗ Wrong format'}`);
+      
+      // Log header metadata in debug mode (never actual token content)
+      if (DEBUG_AUTH) {
+        console.error(`[Auth]   - Header length: ${authHeaderValue.length} characters`);
+        console.error(`[Auth]   - Header format: ${authHeaderValue.startsWith('Token ') ? 'Token ✓' : 'Unknown'}`);
+      }
+      
+      console.error(`[Auth] ========================================`);
     } else if (this.config.username && this.config.password) {
+      // Never log password, only username
       console.error(`[Auth] Using Basic Auth: username=${this.config.username}, password=${this.config.password ? '***' : 'missing'}`);
       const auth = Buffer.from(
         `${this.config.username}:${this.config.password}`
@@ -167,7 +258,7 @@ export class AuthenticationManager {
     } else {
       console.error(`[Auth] ⚠️  No authentication method configured!`);
       console.error(`[Auth]   oauth2: ${!!this.config.oauth2}`);
-      console.error(`[Auth]   apiKey: ${!!this.config.apiKey}`);
+      console.error(`[Auth]   personalAccessToken: ${!!this.config.personalAccessToken ? 'configured' : 'not configured'}`);
       console.error(`[Auth]   username: ${this.config.username || 'not set'}`);
       console.error(`[Auth]   password: ${this.config.password ? 'set' : 'not set'}`);
     }
@@ -546,8 +637,8 @@ export class AuthenticationManager {
   public getAuthMethod(): string {
     if (this.config.oauth2) {
       return "OAuth 2.1";
-    } else if (this.config.apiKey) {
-      return "API Key";
+    } else if (this.config.personalAccessToken) {
+      return "Personal Access Token";
     } else if (this.config.username) {
       return "Basic Auth";
     } else {

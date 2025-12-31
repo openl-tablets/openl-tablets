@@ -25,26 +25,6 @@ describe("utils", () => {
       expect(result).not.toContain("abc123");
     });
 
-    it("should sanitize API keys", () => {
-      const error = new Error("Failed with api_key=secret123");
-      const result = sanitizeError(error);
-
-      expect(result).toContain("api_key=[REDACTED]");
-      expect(result).not.toContain("secret123");
-    });
-
-    it("should sanitize API keys with different formats", () => {
-      const error1 = new Error('api-key: "secret123"');
-      const error2 = new Error("apiKey=secret456");
-
-      const result1 = sanitizeError(error1);
-      const result2 = sanitizeError(error2);
-
-      expect(result1).toContain("[REDACTED]");
-      expect(result2).toContain("[REDACTED]");
-      expect(result1).not.toContain("secret123");
-      expect(result2).not.toContain("secret456");
-    });
 
     it("should sanitize credentials in URLs", () => {
       const error = new Error("Failed to connect to http://user:password@example.com");
@@ -98,15 +78,13 @@ describe("utils", () => {
 
     it("should handle multiple sensitive patterns", () => {
       const error = new Error(
-        "Failed with Bearer token123 and api_key=secret456 at http://user:pass@host"
+        "Failed with Bearer token123 at http://user:pass@host"
       );
       const result = sanitizeError(error);
 
       expect(result).toContain("Bearer [REDACTED]");
-      expect(result).toContain("api_key=[REDACTED]");
       expect(result).toContain("[REDACTED]:[REDACTED]@");
       expect(result).not.toContain("token123");
-      expect(result).not.toContain("secret456");
       expect(result).not.toContain("user:");
       expect(result).not.toContain(":pass");
     });
@@ -509,7 +487,7 @@ describe("utils", () => {
 
     it("should handle complex error with multiple sensitive fields", () => {
       const error = new Error(
-        "OAuth failed: client_secret=abc123 Bearer token456 at http://user:pass@host api_key=secret789"
+        "OAuth failed: client_secret=abc123 Bearer token456 at http://user:pass@host"
       );
       const details = extractErrorDetails(error);
 
@@ -517,7 +495,6 @@ describe("utils", () => {
       expect(details.message).not.toContain("abc123");
       expect(details.message).not.toContain("token456");
       expect(details.message).not.toContain("user:");
-      expect(details.message).not.toContain("secret789");
     });
 
     it("should stringify object with circular reference after error extraction", () => {

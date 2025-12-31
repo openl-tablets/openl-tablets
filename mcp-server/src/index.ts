@@ -7,7 +7,7 @@
  * Provides tools and resources for managing rules projects, tables, and deployments.
  *
  * Features:
- * - Multiple authentication methods (Basic Auth, API Key, OAuth 2.1)
+ * - Multiple authentication methods (Basic Auth, Personal Access Token, OAuth 2.1)
  * - Type-safe input validation with Zod
  * - Automatic token management
  * - Request tracking with Client Document ID
@@ -346,13 +346,77 @@ class OpenLMCPServer {
 }
 
 /**
+ * Load configuration from query parameters (for HTTP SSE transport)
+ *
+ * @param query - Query parameters from HTTP request
+ * @returns OpenL Tablets configuration or null if not enough parameters
+ */
+export function loadConfigFromQuery(query: Record<string, string | undefined>): Types.OpenLConfig | null {
+  const baseUrl = query.OPENL_BASE_URL;
+  if (!baseUrl) {
+    return null; // Not enough parameters
+  }
+
+  // Validate base URL format
+  try {
+    new URL(baseUrl);
+  } catch {
+    throw new Error(`Invalid OPENL_BASE_URL format: ${baseUrl}`);
+  }
+
+  // Parse timeout if provided
+  let timeout: number | undefined;
+  if (query.OPENL_TIMEOUT) {
+    const parsedTimeout = parseInt(query.OPENL_TIMEOUT, 10);
+    if (!isNaN(parsedTimeout) && parsedTimeout > 0) {
+      timeout = parsedTimeout;
+    }
+  }
+
+  const config: Types.OpenLConfig = {
+    baseUrl,
+    username: query.OPENL_USERNAME,
+    password: query.OPENL_PASSWORD,
+    personalAccessToken: query.OPENL_PERSONAL_ACCESS_TOKEN,
+    clientDocumentId: query.OPENL_CLIENT_DOCUMENT_ID,
+    timeout,
+  };
+
+  // OAuth2 configuration from query (if provided)
+  if (query.OPENL_OAUTH2_CLIENT_ID) {
+    config.oauth2 = {
+      clientId: query.OPENL_OAUTH2_CLIENT_ID,
+      clientSecret: query.OPENL_OAUTH2_CLIENT_SECRET,
+      tokenUrl: query.OPENL_OAUTH2_TOKEN_URL || '',
+      authorizationUrl: query.OPENL_OAUTH2_AUTHORIZATION_URL,
+      scope: query.OPENL_OAUTH2_SCOPE,
+      grantType: (query.OPENL_OAUTH2_GRANT_TYPE as any) || 'client_credentials',
+      refreshToken: query.OPENL_OAUTH2_REFRESH_TOKEN,
+      useBasicAuth: query.OPENL_OAUTH2_USE_BASIC_AUTH === 'true',
+      audience: query.OPENL_OAUTH2_AUDIENCE,
+      resource: query.OPENL_OAUTH2_RESOURCE,
+      codeVerifier: query.OPENL_OAUTH2_CODE_VERIFIER,
+      authorizationCode: query.OPENL_OAUTH2_AUTHORIZATION_CODE,
+      redirectUri: query.OPENL_OAUTH2_REDIRECT_URI,
+    };
+  }
+
+  return config;
+}
+
+/**
  * Load configuration from environment variables
+ *
+ * NOTE: This function is used for stdio transport (when MCP client launches the server directly).
+ * Authentication credentials should be provided via environment variables set in the MCP client
+ * configuration file (Cursor/Claude Desktop settings), NOT in Docker/environment variables.
  *
  * @returns OpenL Tablets configuration
  * @throws Error if required configuration is missing or invalid
  */
 export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
   console.error(`[Config] Loading configuration from environment variables...`);
+  console.error(`[Config] NOTE: This is for stdio transport. Auth credentials should come from MCP client config.`);
   const baseUrl = process.env.OPENL_BASE_URL;
   if (!baseUrl) {
     throw new Error("OPENL_BASE_URL environment variable is required");
@@ -379,7 +443,7 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
     baseUrl,
     username: process.env.OPENL_USERNAME,
     password: process.env.OPENL_PASSWORD,
-    apiKey: process.env.OPENL_API_KEY,
+    personalAccessToken: process.env.OPENL_PERSONAL_ACCESS_TOKEN,
     clientDocumentId: process.env.OPENL_CLIENT_DOCUMENT_ID,
     timeout,
   };
@@ -387,8 +451,8 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
   // Log authentication configuration (without sensitive data)
   console.error(`[Config] Authentication methods:`);
   console.error(`[Config]   - OAuth2: ${!!process.env.OPENL_OAUTH2_CLIENT_ID ? 'configured' : 'not configured'}`);
-  console.error(`[Config]   - API Key: ${!!config.apiKey ? 'configured' : 'not configured'}`);
-  console.error(`[Config]   - Basic Auth: ${!!config.username && !!config.password ? `configured (username: ${config.username})` : 'not configured'}`);
+  console.error(`[Config]   - Personal Access Token: ${!!config.personalAccessToken ? 'configured (hidden)' : 'not configured'}`);
+  console.error(`[Config]   - Basic Auth: ${!!config.username && !!config.password ? `configured (username: ${config.username}, password: hidden)` : 'not configured'}`);
   if (!config.username) {
     console.error(`[Config]   ⚠️  OPENL_USERNAME is not set`);
   }
@@ -585,22 +649,26 @@ export async function loadConfigFromEnv(): Promise<Types.OpenLConfig> {
     console.error(`[OAuth2]   - Token URL: ${config.oauth2.tokenUrl}`);
     console.error(`[OAuth2]   - Issuer URI: ${issuerUri || 'not set'}`);
     console.error(`[OAuth2]   - Use Basic Auth: ${config.oauth2.useBasicAuth}`);
+    // Never log actual tokens/secrets - only presence and metadata
     if (config.oauth2.codeVerifier) {
-      console.error(`[OAuth2]   - PKCE: code_verifier present (code_challenge: ${config.oauth2.codeChallenge ? 'generated' : 'not set'})`);
+      console.error(`[OAuth2]   - PKCE: code_verifier present (hidden, code_challenge: ${config.oauth2.codeChallenge ? 'generated' : 'not set'})`);
     }
     if (config.oauth2.refreshToken) {
-      console.error(`[OAuth2]   - Refresh Token: present (length: ${config.oauth2.refreshToken.length})`);
+      console.error(`[OAuth2]   - Refresh Token: present (hidden, length: ${config.oauth2.refreshToken.length})`);
     }
     if (config.oauth2.authorizationCode) {
-      console.error(`[OAuth2]   - Authorization Code: present (length: ${config.oauth2.authorizationCode.length})`);
+      console.error(`[OAuth2]   - Authorization Code: present (hidden, length: ${config.oauth2.authorizationCode.length})`);
+    }
+    if (config.oauth2.clientSecret) {
+      console.error(`[OAuth2]   - Client Secret: present (hidden)`);
     }
   }
 
   // Validate at least one authentication method is configured
-  if (!config.username && !config.apiKey && !config.oauth2) {
+  if (!config.username && !config.oauth2 && !config.personalAccessToken) {
     throw new Error(
       "At least one authentication method must be configured " +
-        "(username/password, API key, or OAuth 2.1)"
+        "(username/password, Personal Access Token, or OAuth 2.1)"
     );
   }
 
@@ -622,5 +690,8 @@ async function main(): Promise<void> {
   }
 }
 
-// Start the server
-main();
+// Start the server only if this file is run directly (not imported)
+// Check if this is the main module using import.meta.url
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('index.js')) {
+  main();
+}

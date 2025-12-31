@@ -62,7 +62,7 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "openl_list_repositories",
-    description: "List all design repositories in OpenL Tablets. Returns repository information including 'id' (use this for filtering projects) and 'name' (display name). IMPORTANT: When filtering projects by repository, use the 'id' field from this response, NOT the 'name' field. Example: if response contains {id: 'design-repo', name: 'Design Repository'}, use 'design-repo' in list_projects(repository: 'design-repo').",
+    description: "List all design repositories in OpenL Tablets. Returns repository information including 'id' (internal identifier) and 'name' (display name). Use the 'name' field when working with repositories in other tools. Example: if response contains {id: 'design-repo', name: 'Design Repository'}, use 'Design Repository' (the name) in other tools like list_projects(repository: 'Design Repository').",
     inputSchema: zodToJsonSchema(schemas.z.object({
       response_format: schemas.ResponseFormat.optional(),
       limit: schemas.z.number().int().positive().max(200).default(50).optional(),
@@ -76,7 +76,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_list_branches",
-    description: "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
+    description: "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -86,7 +86,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_list_repository_features",
-    description: "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features.",
+    description: "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.getRepositoryFeaturesSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -96,7 +96,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_repository_project_revisions",
-    description: "Get revision history (commit history) of a project in a design repository. Returns list of revisions with commit hashes, authors, timestamps, and commit types. Supports pagination and filtering by branch and search term.",
+    description: "Get revision history (commit history) of a project in a design repository. Returns list of revisions with commit hashes, authors, timestamps, and commit types. Supports pagination and filtering by branch and search term. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.getProjectRevisionsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
@@ -121,7 +121,7 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "openl_list_projects",
     description:
-      "List all projects with optional filters (repository, status, tags). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (base64-encoded format from API) to use with other tools. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. The 'repository' parameter must be the repository 'id' from openl_list_repositories() response, NOT the repository 'name'. Example: if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use repository: 'design-repo' (not 'Design Repository'). Use this to discover and filter projects before opening them for editing.",
+      "List all projects with optional filters (repository, status, tags). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (base64-encoded format from API) to use with other tools. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'. Example: if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use repository: 'Design Repository' (the name). Use this to discover and filter projects before opening them for editing.",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     _meta: {
       version: "1.1.0",
@@ -284,7 +284,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_deploy_project",
-    description: "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Returns deployment status and confirmation. Requires validated project with no errors.",
+    description: "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Returns deployment status and confirmation. Requires validated project with no errors. Use production repository name (not ID) - e.g., 'Production Deployment' instead of 'production-deploy'.",
     inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",

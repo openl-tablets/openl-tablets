@@ -130,7 +130,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl List Repositories",
     version: "1.0.0",
     description:
-      "List all design repositories in OpenL Tablets. Returns repository information including 'id' (use this for filtering projects) and 'name' (display name). IMPORTANT: When filtering projects by repository, use the 'id' field from this response, NOT the 'name' field. Example: if response contains {id: 'design-repo', name: 'Design Repository'}, use 'design-repo' in list_projects(repository: 'design-repo').",
+      "List all design repositories in OpenL Tablets. Returns repository information including 'id' (internal identifier) and 'name' (display name). Use the 'name' field when working with repositories in other tools. Example: if response contains {id: 'design-repo', name: 'Design Repository'}, use 'Design Repository' (the name) in other tools like list_projects(repository: 'Design Repository').",
     inputSchema: zodToJsonSchema(
       schemas.z
         .object({
@@ -180,7 +180,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl List Branches",
     version: "1.0.0",
     description:
-      "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions.",
+      "List all Git branches in a repository. Returns branch names and metadata (current branch, commit info). Use this to see available branches before switching or comparing versions. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.listBranchesSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,
@@ -205,7 +205,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       const format = validateResponseFormat(typedArgs.response_format);
       const { limit, offset } = validatePagination(typedArgs.limit, typedArgs.offset);
 
-      const branches = await client.listBranches(typedArgs.repository);
+      // Convert repository name to ID for API call
+      const repositoryId = await client.getRepositoryIdByName(typedArgs.repository);
+      const branches = await client.listBranches(repositoryId);
 
       // Apply pagination
       const paginated = paginateResults(branches, limit, offset);
@@ -233,7 +235,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl List Projects",
     version: "1.0.0",
     description:
-      "List all projects with optional filters (repository, status, tags). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (base64-encoded format from API) to use with other tools. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. The 'repository' parameter must be the repository 'id' from openl_list_repositories() response, NOT the repository 'name'. Example: if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use repository: 'design-repo' (not 'Design Repository').",
+      "List all projects with optional filters (repository, status, tags). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (base64-encoded format from API) to use with other tools. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'. Example: if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use repository: 'Design Repository' (the name).",
     inputSchema: zodToJsonSchema(schemas.listProjectsSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,
@@ -255,7 +257,10 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
       // Extract filters (only those supported by ProjectFilters type)
       const filters: Types.ProjectFilters = {};
-      if (typedArgs.repository) filters.repository = typedArgs.repository;
+      // Convert repository name to ID for API call
+      if (typedArgs.repository) {
+        filters.repository = await client.getRepositoryIdByName(typedArgs.repository);
+      }
       if (typedArgs.status) filters.status = typedArgs.status;
       if (typedArgs.tags) filters.tags = typedArgs.tags;
 
@@ -817,7 +822,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl Deploy Project",
     version: "1.0.0",
     description:
-      "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution.",
+      "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Use production repository name (not ID) - e.g., 'Production Deployment' instead of 'production-deploy'.",
     inputSchema: zodToJsonSchema(schemas.deployProjectSchema) as Record<string, unknown>,
     annotations: {
       idempotentHint: true,
@@ -841,10 +846,13 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
       const format = validateResponseFormat(typedArgs.response_format);
 
+      // Convert production repository name to ID for API call
+      const productionRepositoryId = await client.getProductionRepositoryIdByName(typedArgs.productionRepositoryId);
+
       await client.deployProject({
         projectId: typedArgs.projectId,
         deploymentName: typedArgs.deploymentName,
-        productionRepositoryId: typedArgs.productionRepositoryId,
+        productionRepositoryId: productionRepositoryId,
         comment: typedArgs.comment,
       });
 
@@ -1077,7 +1085,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl List Design Repository Features",
     version: "1.0.0",
     description:
-      "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features.",
+      "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.getRepositoryFeaturesSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,
@@ -1099,7 +1107,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
       const format = validateResponseFormat(typedArgs.response_format);
 
-      const features = await client.getRepositoryFeatures(typedArgs.repository);
+      // Convert repository name to ID for API call
+      const repositoryId = await client.getRepositoryIdByName(typedArgs.repository);
+      const features = await client.getRepositoryFeatures(repositoryId);
 
       const formattedResult = formatResponse(features, format);
 
@@ -1114,7 +1124,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "Openl List Design Repository Project Revisions",
     version: "1.0.0",
     description:
-      "Get revision history (commit history) of a project in a design repository. Returns list of revisions with commit hashes, authors, timestamps, and commit types. Supports pagination and filtering by branch and search term.",
+      "Get revision history (commit history) of a project in a design repository. Returns list of revisions with commit hashes, authors, timestamps, and commit types. Supports pagination and filtering by branch and search term. Use repository name (not ID) - e.g., 'Design Repository' instead of 'design-repo'.",
     inputSchema: zodToJsonSchema(schemas.getProjectRevisionsSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,
@@ -1142,7 +1152,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
 
       const format = validateResponseFormat(typedArgs.response_format);
 
-      const revisions = await client.getProjectRevisions(typedArgs.repository, typedArgs.projectName, {
+      // Convert repository name to ID for API call
+      const repositoryId = await client.getRepositoryIdByName(typedArgs.repository);
+      const revisions = await client.getProjectRevisions(repositoryId, typedArgs.projectName, {
         branch: typedArgs.branch,
         search: typedArgs.search,
         techRevs: typedArgs.techRevs,
