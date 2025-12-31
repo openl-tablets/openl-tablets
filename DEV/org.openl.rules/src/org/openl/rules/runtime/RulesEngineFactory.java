@@ -151,7 +151,7 @@ public class RulesEngineFactory<T> {
                     setInterfaceClass(interfaceClass);
                     return interfaceClass;
                 }
-            } catch (Exception e) {
+            } catch (Exception | LinkageError e) {
                 throw new OpenlNotCheckedException("Failed to generate the interface '" + className + "'", e);
             }
         } else {
