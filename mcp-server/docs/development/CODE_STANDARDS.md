@@ -19,14 +19,14 @@ This document outlines all the best practices implemented in the OpenL Tablets M
 ### Modular Architecture ✓
 
 **8 Well-Defined Modules**:
-- `index.ts` (424 lines) - Server orchestration
-- `client.ts` (370 lines) - API client
-- `auth.ts` (232 lines) - Authentication
-- `tools.ts` (248 lines) - Tool definitions
-- `schemas.ts` (96 lines) - Input validation
-- `types.ts` (270 lines) - Type definitions
-- `constants.ts` (69 lines) - Configuration
-- `utils.ts` (121 lines) - Security utilities
+- `index.ts` (697 lines) - Server orchestration
+- `client.ts` (1642 lines) - API client
+- `auth.ts` (648 lines) - Authentication
+- `tools.ts` (472 lines) - Tool definitions
+- `schemas.ts` (379 lines) - Input validation
+- `types.ts` (774 lines) - Type definitions
+- `constants.ts` (98 lines) - Configuration
+- `utils.ts` (625 lines) - Security utilities
 
 **Benefits**:
 - Clear separation of concerns
@@ -221,14 +221,14 @@ npm run test:coverage # With coverage
 ```text
 Module           Lines   Complexity
 --------------------------------
-index.ts         424     Moderate
-client.ts        370     Low
-auth.ts          232     Moderate
-tools.ts         248     Low
-schemas.ts       96      Low
-types.ts         270     Low
-constants.ts     69      Low
-utils.ts         121     Low
+index.ts         697     Moderate
+client.ts        1642    Low
+auth.ts          648     Moderate
+tools.ts         472     Low
+schemas.ts       379     Low
+types.ts         774     Low
+constants.ts     98      Low
+utils.ts         625     Low
 ```
 
 ### Naming Conventions ✓
@@ -308,35 +308,52 @@ All dependencies actively maintained and secure:
 - **Latest stable**: v1.25.1
 - **All features**: Using latest protocol features
 - **Type support**: Full TypeScript support
+- **Protocol compliance**: MCP 2025 specification
 
 ### Schema Validation ✓
 
-- **Zod schemas**: All tools validated
-- **JSON Schema**: Auto-converted for MCP
-- **Type inference**: Automatic from schemas
+- **Zod schemas**: All tools validated with runtime type checking
+- **JSON Schema conversion**: Automatic conversion via `zod-to-json-schema` for MCP protocol compatibility
+- **Type inference**: Automatic TypeScript types generated from Zod schemas
+- **Runtime validation**: Input validation performed before tool execution
 
 ### Tool Metadata ✓
 
-All tools include `_meta`:
-- **version**: Semantic versioning
-- **category**: Logical grouping
-- **requiresAuth**: Auth requirement flag
-- **modifiesState**: State modification flag
+**MCP SDK Annotations** (v1.25.1 supported):
+- **annotations**: Standard MCP annotations including:
+  - `readOnlyHint`: Indicates read-only operations
+  - `destructiveHint`: Marks potentially destructive operations
+  - `idempotentHint`: Identifies idempotent operations
+  - `openWorldHint`: Indicates operations that may access external data
+
+**Implementation-Specific Metadata** (`_meta` fields):
+- **version**: Semantic versioning for tool versioning
+- **category**: Logical grouping for organization (internal use)
+- **requiresAuth**: Auth requirement flag (internal use)
+- **modifiesState**: State modification flag (internal use)
+
+*Note: `_meta` fields are implementation-specific and used internally for tool management. The MCP SDK uses `annotations` for protocol-level metadata.*
 
 ### Health Check ✓
 
-- Connectivity verification
-- Authentication detection
-- Status reporting
-- Troubleshooting support
+**Implementation Feature**:
+- Connectivity verification to OpenL Tablets API
+- Authentication detection and validation
+- Status reporting for troubleshooting
+- Error diagnostics with sanitized messages
+
+*Note: Health check functionality is implemented at the application level, not provided by the MCP SDK.*
 
 ### Enhanced Errors ✓
 
-- HTTP status codes
-- API endpoints
-- HTTP methods
-- Tool names
-- Sanitized messages
+**Implementation Feature**:
+- HTTP status codes from API responses
+- API endpoints for error context
+- HTTP methods (GET, POST, PATCH, etc.)
+- Tool names for error tracing
+- Sanitized messages (credentials redacted)
+
+*Note: Enhanced error handling is implemented at the application level. The MCP SDK provides `McpError` with standard error codes, which we extend with additional context.*
 
 ## Compliance Checklist
 
@@ -359,7 +376,7 @@ All tools include `_meta`:
 
 ### Testing ✓
 
-- [x] 47 tests passing
+- [x] 393 tests passing
 - [x] Unit tests
 - [x] Integration tests
 - [x] Mock data
@@ -395,7 +412,7 @@ This project implements **industry best practices** across all dimensions:
 
 - ✅ **Code Quality**: TypeScript strict, ESLint clean, well-structured
 - ✅ **Security**: Credential protection, input validation, sanitized errors
-- ✅ **Testing**: 47 tests, comprehensive coverage, clear structure
+- ✅ **Testing**: 393 tests, comprehensive coverage, clear structure
 - ✅ **Documentation**: 2,492 lines across 5 guides
 - ✅ **Type Safety**: Zod validation, proper types throughout
 - ✅ **Error Handling**: Consistent, sanitized, contextual

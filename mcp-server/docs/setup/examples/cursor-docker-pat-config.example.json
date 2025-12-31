@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "openl-mcp-server-docker-pat": {
+      "comment": "OpenL Tablets MCP Server via Docker with Personal Access Token (PAT) passed through HTTP headers. Cursor connects directly to Docker container via HTTP SSE. Base URL is configured on the server side (OPENL_BASE_URL environment variable in Docker). Replace <docker-host> with your Docker host (localhost for local Docker, or IP/domain for remote Docker). Replace <port> with the port where MCP server is exposed (default: 3333 in compose.yaml, or 3000 if using mcp-server/docker-compose.yml). Replace <your-pat-token> with your Personal Access Token from OpenL Tablets UI.",
+      "url": "http://localhost:3333/mcp/sse",
+      "transport": "sse",
+      "headers": {
+        "Authorization": "Token <your-pat-token>"
+      }
+    },
+    "openl-mcp-server-docker-query": {
+      "comment": "Alternative: PAT passed through URL query parameters (works but less clean). Note: Using query parameters is less secure. Prefer Authorization header method above. Base URL must be configured on the server side (OPENL_BASE_URL environment variable in Docker).",
+      "url": "http://localhost:3333/mcp/sse?OPENL_PERSONAL_ACCESS_TOKEN=<your-pat-token>",
+      "transport": "sse"
+    },
+    "openl-mcp-server-docker-env": {
+      "comment": "Alternative: OpenL Tablets MCP Server via Docker using environment variables (no PAT in config). Requires OPENL_PERSONAL_ACCESS_TOKEN to be set in Docker container environment.",
+      "url": "http://localhost:3333/mcp/sse",
+      "transport": "sse"
+    }
+  }
+}
+

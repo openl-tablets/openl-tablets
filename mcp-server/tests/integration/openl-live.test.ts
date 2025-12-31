@@ -5,7 +5,7 @@
  * Skip in CI by setting SKIP_LIVE_TESTS=true
  *
  * Configuration via environment variables:
- * - OPENL_BASE_URL: OpenL WebStudio REST API base URL (default: http://localhost:8080/webstudio/rest)
+ * - OPENL_BASE_URL: OpenL WebStudio REST API base URL (default: http://localhost:8080/rest)
  * - OPENL_USERNAME: Username (default: admin)
  * - OPENL_PASSWORD: Password (default: admin)
  * - SKIP_LIVE_TESTS: Set to 'true' to skip these tests (default in CI)
@@ -26,7 +26,7 @@ describeIntegration('OpenL Tablets 6.0.0 Live Integration Tests', () => {
 
   beforeAll(() => {
     const config: Types.OpenLConfig = {
-      baseUrl: process.env.OPENL_BASE_URL || 'http://localhost:8080/webstudio/rest',
+      baseUrl: process.env.OPENL_BASE_URL || 'http://localhost:8080/rest',
       username: process.env.OPENL_USERNAME || 'admin',
       password: process.env.OPENL_PASSWORD || 'admin',
       timeout: 30000,

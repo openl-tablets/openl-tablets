@@ -2,7 +2,7 @@
  * TypeScript types for OpenL Tablets REST API
  */
 
-export type AuthMethod = "basic" | "apiKey" | "oauth2";
+export type AuthMethod = "basic" | "oauth2" | "pat";
 
 export interface OAuth2Config {
   clientId: string;
@@ -37,8 +37,8 @@ export interface OpenLConfig {
   // Basic Authentication
   username?: string;
   password?: string;
-  // API Key Authentication
-  apiKey?: string;
+  // Personal Access Token Authentication
+  personalAccessToken?: string;
   // OAuth 2.1 Authentication
   oauth2?: OAuth2Config;
   // Client Document ID (for request tracking)

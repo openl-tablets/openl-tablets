@@ -128,7 +128,7 @@ export class PromptLoader {
         const itemVars = {
           ...vars,
           index: index + 1,
-          ...(typeof item === "object" ? item : { item }),
+          ...(item !== null && typeof item === "object" ? item : { item }),
         };
         return this.substituteVariables(content, itemVars);
       }).join("\n");

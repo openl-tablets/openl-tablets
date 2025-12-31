@@ -10,7 +10,7 @@ Create `.env.test` file in `mcp-server/` directory:
 
 ```bash
 # OpenL Tablets Connection
-OPENL_BASE_URL=http://localhost:8080/webstudio/rest
+OPENL_BASE_URL=http://localhost:8080/rest
 OPENL_USERNAME=admin
 OPENL_PASSWORD=admin
 
@@ -23,7 +23,7 @@ SKIP_LIVE_TESTS=false
 Make sure your OpenL Tablets 6.0.0 instance is running and accessible:
 
 ```bash
-curl http://localhost:8080/webstudio/rest/repos \
+curl http://localhost:8080/rest/repos \
   -u admin:admin
 ```
 
@@ -66,12 +66,12 @@ Tests are organized by priority and functionality:
 Successful test run:
 ```
 OpenL Tablets 6.0.0 Live Integration Tests
-  🔌 Connecting to OpenL Tablets at: http://localhost:8080/webstudio/rest
+  🔌 Connecting to OpenL Tablets at: http://localhost:8080/rest
 
   0. Health Check
     ✓ should connect to OpenL instance (250ms)
       ✅ Connected to OpenL Tablets
-         Base URL: http://localhost:8080/webstudio/rest
+         Base URL: http://localhost:8080/rest
          Auth: basic
 
   1. Repository Management (P1)

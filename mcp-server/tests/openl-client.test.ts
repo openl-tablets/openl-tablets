@@ -19,7 +19,7 @@ import {
 // For now, we'll test the API endpoints directly
 
 const BASE_URL = 'http://localhost:8080';
-const API_PATH = '/webstudio/rest';
+const API_PATH = '/rest';
 
 describe('OpenL Tablets API Client', () => {
   beforeEach(() => {
@@ -435,25 +435,6 @@ describe('OpenL Tablets API Client', () => {
       scope.done();
     });
 
-    it('should handle API key auth', async () => {
-      const scope = nock(BASE_URL, {
-        reqheaders: {
-          'x-api-key': 'test-api-key',
-        },
-      })
-        .get(`${API_PATH}/repos`)
-        .reply(200, mockRepositories);
-
-      const axios = (await import('axios')).default;
-      const response = await axios.get(`${BASE_URL}${API_PATH}/repos`, {
-        headers: {
-          'X-API-Key': 'test-api-key',
-        },
-      });
-
-      expect(response.status).toBe(200);
-      scope.done();
-    });
 
     it('should handle 401 unauthorized', async () => {
       const scope = nock(BASE_URL)
