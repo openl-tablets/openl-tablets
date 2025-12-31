@@ -180,7 +180,15 @@ public class OpenApiProjectValidator {
 
         rulesInstantiationStrategy = enhanceRulesInstantiationStrategy(rulesInstantiationStrategy, provideRuntimeContext);
 
-        context.setTargetService(rulesInstantiationStrategy.instantiate(true));
+        try {
+            var targetService = rulesInstantiationStrategy.instantiate(true);
+            context.setTargetService(targetService);
+        } catch (Exception e) {
+            validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
+                    OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to instantiate the project.%s",
+                            StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
+            return validatedCompiledOpenClass;
+        }
 
         ObjectMapper objectMapper = createObjectMapper(context);
         context.setObjectMapper(objectMapper);

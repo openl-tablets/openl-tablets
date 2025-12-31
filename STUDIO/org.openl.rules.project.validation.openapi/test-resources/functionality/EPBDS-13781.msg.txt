@@ -1,0 +1,3 @@
+ERROR: Type 'Policy' has already been defined.
+ERROR: Type 'Policy' has already been defined.
+ERROR: OpenAPI Reconciliation: Failed to instantiate the project. Failed to generate the interface 'VirtualModule'

@@ -1,0 +1,23 @@
+<project>
+    <name>Sample Project</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+    <dependencies>
+        <dependency>
+            <name>Pr1</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+        <dependency>
+            <name>Pr2</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
