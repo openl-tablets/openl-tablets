@@ -57,6 +57,7 @@ export class AuthenticationManager {
   private config: Types.OpenLConfig;
   private oauth2Token: Types.OAuth2Token | null = null;
   private tokenRefreshPromise: Promise<Types.OAuth2Token | null> | undefined;
+  private configuredInstances: WeakSet<AxiosInstance> = new WeakSet();
 
   constructor(config: Types.OpenLConfig) {
     this.config = config;
@@ -68,40 +69,44 @@ export class AuthenticationManager {
    * @param axiosInstance - The Axios instance to configure
    */
   public setupInterceptors(axiosInstance: AxiosInstance): void {
+    // Prevent duplicate interceptor registration for the same instance
+    if (this.configuredInstances.has(axiosInstance)) {
+      return;
+    }
+    this.configuredInstances.add(axiosInstance);
+    
+    // Clear any existing interceptors to prevent duplication
+    // Note: We check configuredInstances first to avoid clearing interceptors from other managers
+    axiosInstance.interceptors.request.clear();
+    axiosInstance.interceptors.response.clear();
+    
     // Request interceptor: Add authentication headers
     axiosInstance.interceptors.request.use(
       async (config) => {
-        const authConfig = await this.addAuthHeaders(config);
-        // Log request details for debugging (safe - no token exposure)
-        const fullUrl = `${authConfig.baseURL || ''}${authConfig.url || ''}`;
-        const authHeader = (authConfig.headers && authConfig.headers[HEADERS.AUTHORIZATION]) || 
-                          undefined;
-        
-        console.error(`[Auth] ========================================`);
-        console.error(`[Auth] Request Interceptor:`);
-        console.error(`[Auth]   Method: ${authConfig.method ? authConfig.method.toUpperCase() : 'UNKNOWN'}`);
-        console.error(`[Auth]   URL: ${fullUrl}`);
-        console.error(`[Auth]   Headers present: ${!!authConfig.headers}`);
-        
-        // Log all relevant headers
-        if (authConfig.headers) {
-          const authHeaderValue = authConfig.headers[HEADERS.AUTHORIZATION];
-          const clientDocId = authConfig.headers[HEADERS.CLIENT_DOCUMENT_ID];
-          
-          console.error(`[Auth]   Authorization header: ${authHeaderValue ? safeAuthHeaderLog(authHeaderValue as string) : 'NOT SET'}`);
-          if (authHeaderValue && DEBUG_AUTH) {
-            const headerStr = authHeaderValue as string;
-            // Never log actual token content, even in debug mode - only log format validation
-            console.error(`[Auth]   Authorization header format: ${headerStr.startsWith('Token ') ? 'Token ✓' : headerStr.startsWith('Bearer ') ? 'Bearer ✓' : 'UNKNOWN'}`);
-            console.error(`[Auth]   Authorization header length: ${headerStr.length} characters`);
-          }
-          
-          if (clientDocId) {
-            console.error(`[Auth]   Client Document ID: ${clientDocId}`);
-          }
+        // Early return if this config has already been processed
+        // This prevents duplicate processing if interceptor is called multiple times
+        if ((config as any)._authHeadersAdded) {
+          return config;
         }
         
-        console.error(`[Auth] ========================================`);
+        const authConfig = await this.addAuthHeaders(config);
+        
+        // Log request to OpenL API (compact format) - only once per request
+        // Use a flag to prevent duplicate logging if interceptor is called multiple times
+        if (!(authConfig as any)._logged) {
+          const fullUrl = `${authConfig.baseURL || ''}${authConfig.url || ''}`;
+          const method = authConfig.method?.toUpperCase() || 'UNKNOWN';
+          console.error(`[OpenL API] ${method} ${fullUrl}`);
+          
+          // Mark as logged to prevent duplicate logging
+          (authConfig as any)._logged = true;
+          
+          // Additional details only in debug mode
+          if (DEBUG_AUTH) {
+            const authHeader = (authConfig.headers && authConfig.headers[HEADERS.AUTHORIZATION]) || undefined;
+            console.error(`[Auth] Auth: ${authHeader ? safeAuthHeaderLog(authHeader as string) : 'none'}`);
+          }
+        }
         
         return authConfig;
       },
@@ -111,14 +116,14 @@ export class AuthenticationManager {
     // Response interceptor: Handle 401 errors with token refresh
     axiosInstance.interceptors.response.use(
       (response) => {
-        // Log successful responses in debug mode
-        if (DEBUG_AUTH && response.config) {
+        // Log successful responses (compact format) - only once per response
+        // Use a flag to prevent duplicate logging if interceptor is called multiple times
+        if (response.config && !(response.config as any)._responseLogged) {
           const fullUrl = `${response.config.baseURL || ''}${response.config.url || ''}`;
-          const authHeader = response.config.headers?.[HEADERS.AUTHORIZATION];
-          console.error(`[Auth] ✅ Response: ${response.config.method?.toUpperCase()} ${fullUrl} - Status: ${response.status}`);
-          if (authHeader) {
-            console.error(`[Auth]   Auth header used: ${safeAuthHeaderLog(authHeader as string)}`);
-          }
+          const method = response.config.method?.toUpperCase() || 'UNKNOWN';
+          console.error(`[OpenL API] ${method} ${fullUrl} - ${response.status} OK`);
+          // Mark as logged to prevent duplicate logging
+          (response.config as any)._responseLogged = true;
         }
         return response;
       },
@@ -182,6 +187,12 @@ export class AuthenticationManager {
   private async addAuthHeaders(
     config: InternalAxiosRequestConfig
   ): Promise<InternalAxiosRequestConfig> {
+    // Check if this config has already been processed (to avoid duplicate logging)
+    // Use a flag in the config object itself to track processing
+    if ((config as any)._authHeadersAdded) {
+      return config;
+    }
+    
     if (!config.headers) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       config.headers = {} as any;
@@ -192,76 +203,91 @@ export class AuthenticationManager {
       config.headers[HEADERS.CLIENT_DOCUMENT_ID] = this.config.clientDocumentId;
     }
 
+    // Check if auth headers are already set (to avoid duplicate logging)
+    const authHeaderAlreadySet = config.headers[HEADERS.AUTHORIZATION];
+
     // Add authentication based on method priority:
     // 1. OAuth 2.1
     // 2. Personal Access Token
     // 3. Basic Auth
     if (this.config.oauth2) {
-      console.error(`[Auth] Using OAuth 2.1 authentication`);
+      if (!authHeaderAlreadySet) {
+        console.error(`[Auth] Using OAuth 2.1 authentication`);
+      }
       const token = await this.getValidToken();
       if (token) {
         config.headers[HEADERS.AUTHORIZATION] = `Bearer ${token.access_token}`;
       }
     } else if (this.config.personalAccessToken) {
-      console.error(`[Auth] ========================================`);
-      console.error(`[Auth] 🔐 Personal Access Token Authentication`);
-      console.error(`[Auth] ========================================`);
-      
-      // Validate PAT format
-      const pat = this.config.personalAccessToken;
-      const isValidFormat = pat.startsWith('openl_pat_');
-      
-      console.error(`[Auth] PAT Configuration:`);
-      console.error(`[Auth]   - PAT present: ${!!pat}`);
-      console.error(`[Auth]   - PAT length: ${pat?.length || 0} characters`);
-      console.error(`[Auth]   - PAT format valid: ${isValidFormat ? '✓' : '✗'}`);
-      // Never log actual PAT content, only prefix for format validation
-      if (pat && pat.length >= 20) {
-        console.error(`[Auth]   - PAT prefix: ${pat.substring(0, 11)}... (format check)`);
-      }
-      
-      if (!isValidFormat) {
-        console.error(`[Auth]   ⚠️  WARNING: PAT should start with 'openl_pat_'`);
-      }
-      
       // Build authorization header
+      const pat = this.config.personalAccessToken;
       const authHeaderValue = `Token ${pat}`;
       config.headers[HEADERS.AUTHORIZATION] = authHeaderValue;
       
-      console.error(`[Auth] Authorization Header:`);
-      console.error(`[Auth]   - Header name: ${HEADERS.AUTHORIZATION}`);
-      console.error(`[Auth]   - Header value format: Token <PAT>`);
-      console.error(`[Auth]   - Header value (safe): ${safeAuthHeaderLog(authHeaderValue)}`);
-      console.error(`[Auth]   - Header set in config: ${!!config.headers[HEADERS.AUTHORIZATION]}`);
-      
-      // Verify header was set correctly
-      const actualHeader = config.headers[HEADERS.AUTHORIZATION];
-      const headerStartsWithToken = typeof actualHeader === 'string' && actualHeader.startsWith('Token ');
-      console.error(`[Auth]   - Header verification: ${headerStartsWithToken ? '✓ Correct format' : '✗ Wrong format'}`);
-      
-      // Log header metadata in debug mode (never actual token content)
-      if (DEBUG_AUTH) {
-        console.error(`[Auth]   - Header length: ${authHeaderValue.length} characters`);
-        console.error(`[Auth]   - Header format: ${authHeaderValue.startsWith('Token ') ? 'Token ✓' : 'Unknown'}`);
+      // Log only if auth header was not already set (to avoid duplicate logging)
+      if (!authHeaderAlreadySet) {
+        console.error(`[Auth] ========================================`);
+        console.error(`[Auth] 🔐 Personal Access Token Authentication`);
+        console.error(`[Auth] ========================================`);
+        
+        // Validate PAT format
+        const isValidFormat = pat.startsWith('openl_pat_');
+        
+        console.error(`[Auth] PAT Configuration:`);
+        console.error(`[Auth]   - PAT present: ${!!pat}`);
+        console.error(`[Auth]   - PAT length: ${pat?.length || 0} characters`);
+        console.error(`[Auth]   - PAT format valid: ${isValidFormat ? '✓' : '✗'}`);
+        // Never log actual PAT content, only prefix for format validation
+        if (pat && pat.length >= 20) {
+          console.error(`[Auth]   - PAT prefix: ${pat.substring(0, 11)}... (format check)`);
+        }
+        
+        if (!isValidFormat) {
+          console.error(`[Auth]   ⚠️  WARNING: PAT should start with 'openl_pat_'`);
+        }
+        
+        console.error(`[Auth] Authorization Header:`);
+        console.error(`[Auth]   - Header name: ${HEADERS.AUTHORIZATION}`);
+        console.error(`[Auth]   - Header value format: Token <PAT>`);
+        console.error(`[Auth]   - Header value (safe): ${safeAuthHeaderLog(authHeaderValue)}`);
+        console.error(`[Auth]   - Header set in config: ${!!config.headers[HEADERS.AUTHORIZATION]}`);
+        
+        // Verify header was set correctly
+        const actualHeader = config.headers[HEADERS.AUTHORIZATION];
+        const headerStartsWithToken = typeof actualHeader === 'string' && actualHeader.startsWith('Token ');
+        console.error(`[Auth]   - Header verification: ${headerStartsWithToken ? '✓ Correct format' : '✗ Wrong format'}`);
+        
+        // Log header metadata in debug mode (never actual token content)
+        if (DEBUG_AUTH) {
+          console.error(`[Auth]   - Header length: ${authHeaderValue.length} characters`);
+          console.error(`[Auth]   - Header format: ${authHeaderValue.startsWith('Token ') ? 'Token ✓' : 'Unknown'}`);
+        }
+        
+        console.error(`[Auth] ========================================`);
       }
-      
-      console.error(`[Auth] ========================================`);
     } else if (this.config.username && this.config.password) {
       // Never log password, only username
-      console.error(`[Auth] Using Basic Auth: username=${this.config.username}, password=${this.config.password ? '***' : 'missing'}`);
       const auth = Buffer.from(
         `${this.config.username}:${this.config.password}`
       ).toString("base64");
       config.headers[HEADERS.AUTHORIZATION] = `Basic ${auth}`;
-      // Safe logging - never expose auth tokens
-      console.error(`[Auth] Basic Auth header set: ${safeAuthHeaderLog(`Basic ${auth}`)}`);
+      // Single log message with all auth info (only if not already set)
+      if (!authHeaderAlreadySet) {
+        console.error(`[Auth] Using Basic Auth: username=${this.config.username}, password=${this.config.password ? '***' : 'missing'}, header=${safeAuthHeaderLog(`Basic ${auth}`)}`);
+      }
     } else {
-      console.error(`[Auth] ⚠️  No authentication method configured!`);
-      console.error(`[Auth]   oauth2: ${!!this.config.oauth2}`);
-      console.error(`[Auth]   personalAccessToken: ${!!this.config.personalAccessToken ? 'configured' : 'not configured'}`);
-      console.error(`[Auth]   username: ${this.config.username || 'not set'}`);
-      console.error(`[Auth]   password: ${this.config.password ? 'set' : 'not set'}`);
+      // Log only if auth header was not already set (to avoid duplicate logging)
+      if (!authHeaderAlreadySet) {
+        console.error(`[Auth] ⚠️  No authentication method configured!`);
+        console.error(`[Auth]   oauth2: ${!!this.config.oauth2}`);
+        console.error(`[Auth]   personalAccessToken: ${!!this.config.personalAccessToken ? 'configured' : 'not configured'}`);
+        console.error(`[Auth]   username: ${this.config.username || 'not set'}`);
+        console.error(`[Auth]   password: ${this.config.password ? 'set' : 'not set'}`);
+      }
     }
+
+    // Mark this config as processed to prevent duplicate processing
+    (config as any)._authHeadersAdded = true;
 
     return config;
   }

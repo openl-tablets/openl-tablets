@@ -294,8 +294,7 @@ openl_update_table(
 
 6. Run tests to verify:
 ```text
-openl_start_project_tests(projectId, { tableId: ruleTableId })
-openl_get_project_test_results(projectId, { waitForCompletion: true })
+openl_run_project_tests(projectId, { tableId: ruleTableId, waitForCompletion: true })
 → Should show all tests passing
 ```
 

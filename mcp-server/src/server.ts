@@ -41,7 +41,9 @@ app.use(express.json());
 
 // Request logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  // Log all requests (including MCP endpoints)
+  const timestamp = new Date().toISOString();
+  console.log(`[MCP Server] ${timestamp} ${req.method} ${req.path}`);
   next();
 });
 
