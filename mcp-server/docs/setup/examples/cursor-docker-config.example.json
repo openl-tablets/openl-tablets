@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "openl-mcp-server-docker": {
+      "comment": "OpenL Tablets MCP Server via Docker (HTTP API Proxy) - Replace <path-to-project> with your actual project path",
+      "command": "node",
+      "args": [
+        "<path-to-project>/mcp-server/dist/mcp-proxy.js"
+      ],
+      "env": {
+        "MCP_API_URL": "http://localhost:3000"
+      }
+    }
+  }
+}
+

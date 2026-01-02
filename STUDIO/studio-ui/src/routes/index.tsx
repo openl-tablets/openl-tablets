@@ -22,6 +22,7 @@ import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
 import Tesseract from '../components/Tesseract'
 import { RouteErrorFallback } from '../components/RouteErrorFallback'
+import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
 
 const router = createBrowserRouter([
     {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
                             {
                                 path: 'settings',
                                 element: <UserSettings />,
+                            },
+                            {
+                                path: 'tokens',
+                                element: <PersonalAccessTokens />,
                             },
                         ],
                     },

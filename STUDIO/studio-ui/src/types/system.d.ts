@@ -5,6 +5,7 @@ export interface SystemSettings {
         emailVerification: boolean
         groupsManagement: boolean
         userManagement: boolean
+        personalAccessToken: boolean
     },
     userMode?: SystemUserMode,
     scripts?: string | string[]

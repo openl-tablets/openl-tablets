@@ -8,10 +8,12 @@ type SystemContextType = {
     isExternalAuthSystem: boolean
     isUserManagementEnabled: boolean
     isGroupsManagementEnabled: boolean
+    isPersonalAccessTokenEnabled: boolean
 }
 
 export const SystemContext = createContext<SystemContextType>({
     isExternalAuthSystem: false,
     isUserManagementEnabled: false,
     isGroupsManagementEnabled: false,
+    isPersonalAccessTokenEnabled: false,
 })
