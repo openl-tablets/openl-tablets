@@ -15,8 +15,9 @@ arguments:
 **When tables modified, run targeted tests first** (1-5 tables → specific tableIds, 6+ → runAll). Before save/deploy, ALWAYS run all tests (no exceptions).
 
 **Test Execution Workflow:**
-1. Use `openl_start_project_tests()` to start test execution
-2. Use `openl_get_project_test_results()` to retrieve results (with `waitForCompletion: true` to wait for completion)
+1. Use `openl_run_project_tests()` to start test execution and retrieve results in one call
+   - Automatically uses all headers from test start response when fetching results
+   - Supports `waitForCompletion: true` (default) to wait for completion
 
 # Test Selection Logic
 
@@ -40,8 +41,7 @@ WHEN rules are modified, SELECT test scope:
 - Omit `tableId` to run all tests in the project
 
 **Test Execution Steps:**
-1. Start tests: `openl_start_project_tests(projectId, { tableId?, testRanges? })`
-2. Get results: `openl_get_project_test_results(projectId, { waitForCompletion: true, failuresOnly?: boolean })`
+1. Run tests: `openl_run_project_tests(projectId, { tableId?, testRanges?, waitForCompletion: true, failuresOnly?: boolean })`
 
 AFTER modification:
 1. Execute targeted tests first (with specific `tableId`)
@@ -49,7 +49,7 @@ AFTER modification:
 3. IF saving → run all tests (omit `tableId`, no exceptions)
 
 BEFORE openl_update_project_status():
-- `openl_start_project_tests()` + `openl_get_project_test_results(waitForCompletion: true)` MUST pass
+- `openl_run_project_tests(projectId, { waitForCompletion: true })` MUST pass
 - `Validate in OpenL WebStudio UI (openl_validate_project temporarily disabled)` MUST pass
 
 BEFORE openl_deploy_project():

@@ -327,25 +327,12 @@ export const restoreProjectLocalChangeSchema = z.object({
 // Test Execution Schemas
 // =============================================================================
 
-export const startProjectTestsSchema = z.object({
-  projectId: projectIdSchema,
-  tableId: z.string().optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
-  testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
-  response_format: ResponseFormat.optional(),
-}).strict();
-
-export const getProjectTestResultsSchema = z.object({
-  projectId: projectIdSchema,
-  failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
-  waitForCompletion: z.boolean().optional().describe("Wait for test execution to complete before returning results. If false, returns current status immediately (default: true)"),
-  response_format: ResponseFormat.optional(),
-}).merge(PaginationParams).strict();
-
 export const runProjectTestsSchema = z.object({
   projectId: projectIdSchema,
   tableId: z.string().optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
   testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
   failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
+  waitForCompletion: z.boolean().optional().describe("Wait for test execution to complete before returning results. If false, returns current status immediately (default: true)"),
   response_format: ResponseFormat.optional(),
 }).merge(PaginationParams).strict();
 

@@ -367,56 +367,30 @@
 
 ## Testing & Validation Tools
 
-### 25. `openl_start_project_tests`
+### 25. `openl_run_project_tests`
 
 **Status**: ✅ Complete  
-**OpenL API**: `POST /projects/{projectId}/tests/run?fromModule={tableId}&testRanges={ranges}`
+**OpenL API**: `POST /projects/{projectId}/tests/run` + `GET /projects/{projectId}/tests/summary`
+
+**Description**: Unified tool that starts test execution and retrieves results in a single call. Automatically uses all headers from the test start response when fetching results.
 
 **Extra/Missed Inputs**:
-- ✅ All API parameters covered: `projectId`, `tableId` (as `fromModule`), `testRanges`
-- ✅ Returns confirmation that tests have been started
-- ✅ Separated from result retrieval for better control
-
-**Recommendations**:
-- ✅ Tool correctly handles async test execution start
-- ✅ Use `openl_get_project_test_results` to retrieve results
-
----
-
-### 26. `openl_get_project_test_results`
-
-**Status**: ✅ Complete  
-**OpenL API**: `GET /projects/{projectId}/tests/summary?failuresOnly={bool}&page={page}&size={size}`
-
-**Extra/Missed Inputs**:
-- ✅ All API parameters covered: `projectId`, `failuresOnly`, pagination
+- ✅ All API parameters covered: `projectId`, `tableId` (as `fromModule`), `testRanges`, `failuresOnly`, pagination
 - ✅ `waitForCompletion` parameter allows immediate status check or polling until completion
+- ✅ Automatically captures and reuses all HTTP headers from test start response
 - ✅ Tool correctly handles async test execution with polling mechanism
 
 **Recommendations**:
+- ✅ Preferred tool for running tests - combines start and results retrieval
+- ✅ Headers from start response are automatically used in all result requests
+- ✅ Supports all options: table filtering, test ranges, failure filtering, pagination
 - ✅ Polling mechanism implemented with exponential backoff
 - ✅ Timeout handling for long-running tests
 - ✅ Can return current status immediately if `waitForCompletion: false`
 
 ---
 
-### 27. `openl_run_project_tests` (Deprecated)
-
-**Status**: ⚠️ Deprecated  
-**OpenL API**: `POST /projects/{projectId}/tests/run` then `GET /projects/{projectId}/tests/summary`
-
-**Extra/Missed Inputs**:
-- ✅ All API parameters covered: `projectId`, `tableId` (as `fromModule`), `testRanges`, `failuresOnly`, pagination
-- ✅ Tool correctly handles async test execution (POST then GET summary with polling)
-
-**Recommendations**:
-- ⚠️ **DEPRECATED**: Use `openl_start_project_tests` followed by `openl_get_project_test_results` instead
-- ✅ Maintained for backward compatibility
-- ✅ Uses new methods internally
-
----
-
-### 28. `openl_validate_project` (Missing Tool)
+### 26. `openl_validate_project` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `GET /projects/{projectId}/validation` (may return 404 - endpoint may not exist)
@@ -434,7 +408,7 @@
 
 ---
 
-### 29. `openl_get_project_errors` (Missing Tool)
+### 27. `openl_get_project_errors` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: Uses `GET /projects/{projectId}/validation` internally
@@ -453,7 +427,7 @@
 
 ## Execution Tools
 
-### 30. `openl_execute_rule`
+### 28. `openl_execute_rule`
 
 **Status**: 🔴 DISABLED (Temporarily)  
 **OpenL API**: `POST /projects/{projectId}/rules/{ruleName}/execute` with input data
@@ -471,7 +445,7 @@
 
 ## Comparison Tools
 
-### 31. `openl_compare_versions` (Missing Tool)
+### 29. `openl_compare_versions` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `GET /projects/{projectId}/versions/compare?base={commitHash}&target={commitHash}`
@@ -490,7 +464,7 @@
 
 ## Additional Client Methods Not Exposed as Tools
 
-### 32. `deleteProject` (Missing Tool)
+### 30. `deleteProject` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `DELETE /projects/{projectId}`
@@ -507,7 +481,7 @@
 
 ---
 
-### 33. `saveProject` (Missing Tool)
+### 31. `saveProject` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: `POST /projects/{projectId}/save?comment={comment}`
@@ -524,7 +498,7 @@
 
 ---
 
-### 34. `openProject` / `closeProject` (Missing Tools)
+### 32. `openProject` / `closeProject` (Missing Tools)
 
 **Status**: ❌ MISSING TOOLS  
 **OpenL API**: `PATCH /projects/{projectId}` with `status: "OPENED"` or `status: "CLOSED"`
@@ -540,7 +514,7 @@
 
 ---
 
-### 35. `healthCheck` (Missing Tool)
+### 33. `healthCheck` (Missing Tool)
 
 **Status**: ❌ MISSING TOOL  
 **OpenL API**: Uses `GET /repos` as connectivity check

@@ -12,6 +12,11 @@ import { DEFAULTS, PROJECT_ID_PATTERN, TEST_POLLING } from "./constants.js";
 import { validateTimeout, sanitizeError, parseProjectId as parseProjectIdUtil } from "./utils.js";
 
 /**
+ * Check if test execution logging is enabled (via environment variable)
+ */
+const DEBUG_TESTS = process.env.DEBUG_TESTS === "true" || process.env.DEBUG === "true";
+
+/**
  * Client for OpenL Tablets WebStudio REST API
  *
  * Usage:
@@ -356,13 +361,16 @@ export class OpenLClient {
         throw new Error(`Decoded base64 does not have expected format: "${decoded}"`);
       }
 
-      // Verify round-trip: re-encode and compare
+      // Verify round-trip: re-encode and compare (but normalize padding)
       const reEncoded = Buffer.from(decoded, "utf-8").toString("base64");
-      if (reEncoded !== normalizedId) {
+      // Base64 padding can vary, so compare decoded values instead of encoded strings
+      const reDecoded = Buffer.from(reEncoded, "base64").toString("utf-8");
+      if (reDecoded !== decoded) {
         throw new Error(`Base64 round-trip validation failed for: "${projectId}"`);
       }
 
-      // Valid base64 - return as-is
+      // Valid base64 - return normalized version (preserve original padding if it was valid)
+      // Use the original normalizedId to preserve any padding characters
       return normalizedId;
     } catch (error) {
       // If decode fails or validation fails, throw descriptive error
@@ -385,8 +393,39 @@ export class OpenLClient {
    * @returns URL-encoded project path
    */
   private buildProjectPath(projectId: string): string {
-    const base64Id = this.toBase64ProjectId(projectId);
-    return `/projects/${encodeURIComponent(base64Id)}`;
+    // If projectId is already URL-encoded (contains %), decode it first to get clean base64
+    // Then re-encode it properly for URL
+    let cleanBase64Id: string;
+    if (projectId.includes('%')) {
+      // URL-encoded: decode first, then normalize
+      try {
+        const decoded = decodeURIComponent(projectId);
+        cleanBase64Id = this.toBase64ProjectId(decoded);
+      } catch (error) {
+        // If decoding fails, try treating as non-encoded
+        cleanBase64Id = this.toBase64ProjectId(projectId);
+      }
+    } else {
+      // Not URL-encoded: convert to base64 if needed
+      cleanBase64Id = this.toBase64ProjectId(projectId);
+    }
+    
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] buildProjectPath:`);
+      console.error(`[Tests]   Input projectId: ${projectId.substring(0, 50)}...`);
+      console.error(`[Tests]   Clean base64Id: ${cleanBase64Id.substring(0, 50)}...`);
+      console.error(`[Tests]   Base64Id ends with: ${cleanBase64Id.slice(-5)}`);
+    }
+    
+    // Always URL-encode the final base64 string for URL safety
+    // This ensures padding characters (=) are properly encoded as %3D
+    const encodedPath = `/projects/${encodeURIComponent(cleanBase64Id)}`;
+    
+    if (DEBUG_TESTS) {
+      console.error(`[Tests]   Final path: ${encodedPath.substring(0, 80)}...`);
+    }
+    
+    return encodedPath;
   }
 
   /**
@@ -1105,160 +1144,12 @@ export class OpenLClient {
   }
 
   /**
-   * Start project tests execution
+   * Run project tests - unified method that starts tests and retrieves results
    *
    * @param projectId - Project ID
-   * @param options - Test execution options (tableId, testRanges)
-   * @returns Confirmation that tests have been started
-   * @throws Error if test execution fails to start
-   */
-  async startProjectTests(
-    projectId: string,
-    options?: {
-      tableId?: string;
-      testRanges?: string;
-    }
-  ): Promise<{ success: boolean; message: string }> {
-    const projectPath = this.buildProjectPath(projectId);
-
-    // Start test execution (returns 202 Accepted)
-    const params: Record<string, string | number | boolean> = {};
-    if (options?.tableId) params.fromModule = options.tableId;
-    if (options?.testRanges) params.testRanges = options.testRanges;
-
-    await this.axiosInstance.post(
-      `${projectPath}/tests/run`,
-      undefined,
-      { params }
-    );
-
-    return {
-      success: true,
-      message: "Test execution started successfully. Use openl_get_project_test_results to check results.",
-    };
-  }
-
-  /**
-   * Get project test results
-   *
-   * @param projectId - Project ID
-   * @param options - Result retrieval options (query, pagination, waitForCompletion)
+   * @param options - Test execution options (tableId, testRanges, query, pagination, waitForCompletion)
    * @returns Test execution summary
-   * @throws Error if test results cannot be retrieved
-   */
-  async getProjectTestResults(
-    projectId: string,
-    options?: {
-      query?: {
-        failuresOnly?: boolean;
-      };
-      pagination?: {
-        offset?: number;
-        limit?: number;
-      };
-      waitForCompletion?: boolean;
-    }
-  ): Promise<Types.TestsExecutionSummary> {
-    const projectPath = this.buildProjectPath(projectId);
-
-    // Build summary query parameters
-    const summaryParams: Record<string, string | number | boolean> = {};
-    if (options?.query?.failuresOnly) summaryParams.failuresOnly = true;
-    if (options?.pagination?.offset !== undefined) {
-      summaryParams.page = Math.floor((options.pagination.offset || 0) / (options.pagination.limit || 50));
-    }
-    if (options?.pagination?.limit !== undefined) summaryParams.size = options.pagination.limit;
-
-    // If waitForCompletion is false, just return current status
-    if (options?.waitForCompletion === false) {
-      const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
-        `${projectPath}/tests/summary`,
-        { params: summaryParams }
-      );
-      return response.data;
-    }
-
-    // Otherwise, poll for test completion with exponential backoff
-    const startTime = Date.now();
-    let interval: number = TEST_POLLING.INITIAL_INTERVAL;
-    let lastExecutionTime = 0;
-    let attempts = 0;
-
-    while (attempts < TEST_POLLING.MAX_RETRIES) {
-      // Check timeout
-      if (Date.now() - startTime > TEST_POLLING.TIMEOUT) {
-        throw new Error(
-          `Test execution timed out after ${TEST_POLLING.TIMEOUT}ms. ` +
-          `Tests may still be running. Check status manually or increase timeout.`
-        );
-      }
-
-      // Wait before polling (except first attempt)
-      if (attempts > 0) {
-        await new Promise(resolve => setTimeout(resolve, interval));
-        // Exponential backoff: increase interval up to MAX_INTERVAL
-        interval = Math.min(interval * 1.5, TEST_POLLING.MAX_INTERVAL);
-      }
-
-      try {
-        const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
-          `${projectPath}/tests/summary`,
-          { params: summaryParams }
-        );
-        const summary = response.data;
-
-        // Check if execution is complete by comparing executionTimeMs
-        // If executionTimeMs has changed, tests are still running
-        // If it's stable (same as last check) and we have results, assume complete
-        if (summary.executionTimeMs > 0) {
-          if (summary.executionTimeMs === lastExecutionTime && summary.testCases.length > 0) {
-            // Execution time is stable and we have results - likely complete
-            return summary;
-          }
-
-          // Check if we have all expected test results
-          // If numberOfTests is set and matches testCases length, execution is complete
-          if (summary.numberOfTests !== undefined && summary.numberOfTests > 0) {
-            const completedTests = summary.testCases.length;
-            if (completedTests >= summary.numberOfTests) {
-              // All tests have completed
-              return summary;
-            }
-          }
-
-          lastExecutionTime = summary.executionTimeMs;
-        } else if (summary.testCases.length > 0) {
-          // We have results but no execution time - assume complete if we have test cases
-          return summary;
-        }
-
-        attempts++;
-      } catch (error) {
-        // If it's a 404 or other error, wait a bit and retry (tests might not be ready yet)
-        if (attempts < 3) {
-          attempts++;
-          continue;
-        }
-        throw error;
-      }
-    }
-
-    // Max retries reached
-    throw new Error(
-      `Test execution did not complete within ${TEST_POLLING.MAX_RETRIES} polling attempts ` +
-      `(${Math.round((Date.now() - startTime) / 1000)}s). ` +
-      `Tests may still be running. Check status manually.`
-    );
-  }
-
-  /**
-   * Run project tests (deprecated - use startProjectTests + getProjectTestResults instead)
-   *
-   * @deprecated Use startProjectTests() followed by getProjectTestResults() instead
-   * @param projectId - Project ID
-   * @param options - Test execution options (tableId, testRanges, query, pagination)
-   * @returns Test execution summary
-   * @throws Error if test execution times out or fails
+   * @throws Error if test execution fails
    */
   async runProjectTests(
     projectId: string,
@@ -1272,20 +1163,252 @@ export class OpenLClient {
         offset?: number;
         limit?: number;
       };
+      waitForCompletion?: boolean;
     }
   ): Promise<Types.TestsExecutionSummary> {
-    // Start tests
-    await this.startProjectTests(projectId, {
-      tableId: options?.tableId,
-      testRanges: options?.testRanges,
-    });
+    const projectPath = this.buildProjectPath(projectId);
 
-    // Get results with polling
-    return this.getProjectTestResults(projectId, {
-      query: options?.query,
-      pagination: options?.pagination,
-      waitForCompletion: true,
-    });
+    // Start test execution (returns 202 Accepted)
+    const params: Record<string, string | number | boolean> = {};
+    if (options?.tableId) params.fromModule = options.tableId;
+    if (options?.testRanges) params.testRanges = options.testRanges;
+
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] ========================================`);
+      console.error(`[Tests] Starting test execution:`);
+      console.error(`[Tests]   Project: ${projectId}`);
+      console.error(`[Tests]   Endpoint: POST ${projectPath}/tests/run`);
+      if (options?.tableId) console.error(`[Tests]   TableId: ${options.tableId}`);
+      if (options?.testRanges) console.error(`[Tests]   TestRanges: ${options.testRanges}`);
+      console.error(`[Tests]   Params:`, params);
+    }
+
+    // Start tests and capture all response headers
+    const startResponse = await this.axiosInstance.post(
+      `${projectPath}/tests/run`,
+      undefined,
+      { params }
+    );
+
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] Test execution started:`);
+      console.error(`[Tests]   Status: ${startResponse.status} ${startResponse.statusText}`);
+      console.error(`[Tests]   Response headers:`, Object.keys(startResponse.headers || {}));
+    }
+
+    // Extract all headers from the start response
+    // Exclude standard response headers that shouldn't be forwarded to requests
+    const responseHeaders: Record<string, string> = {};
+    if (startResponse.headers) {
+      // Headers that should NOT be forwarded (standard HTTP response headers)
+      const excludeHeaders = [
+        'content-type',
+        'content-length',
+        'content-encoding',
+        'transfer-encoding',
+        'connection',
+        'server',
+        'date',
+        'etag',
+        'last-modified',
+        'cache-control',
+        'expires',
+        'vary',
+        'access-control-allow-origin',
+        'access-control-allow-methods',
+        'access-control-allow-headers',
+        'access-control-expose-headers',
+      ];
+      
+      Object.keys(startResponse.headers).forEach((key) => {
+        const lowerKey = key.toLowerCase();
+        // Forward all headers except standard response headers
+        // This includes custom headers (x-*), set-cookie, and any other headers
+        // that the server might return for tracking test execution
+        if (!excludeHeaders.includes(lowerKey)) {
+          const value = startResponse.headers[key];
+          if (value !== undefined && value !== null) {
+            responseHeaders[key] = Array.isArray(value) ? value.join(", ") : String(value);
+          }
+        }
+      });
+    }
+
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] Extracted headers to forward:`, Object.keys(responseHeaders));
+    }
+
+    // Build summary query parameters
+    const summaryParams: Record<string, string | number | boolean> = {};
+    if (options?.query?.failuresOnly) summaryParams.failuresOnly = true;
+    if (options?.pagination?.offset !== undefined) {
+      summaryParams.page = Math.floor((options.pagination.offset || 0) / (options.pagination.limit || 50));
+    }
+    if (options?.pagination?.limit !== undefined) summaryParams.size = options.pagination.limit;
+
+    // If waitForCompletion is false, just return current status
+    if (options?.waitForCompletion === false) {
+      if (DEBUG_TESTS) {
+        console.error(`[Tests] Getting test results (no wait):`);
+        console.error(`[Tests]   Endpoint: GET ${projectPath}/tests/summary`);
+        console.error(`[Tests]   Params:`, summaryParams);
+        console.error(`[Tests]   Headers:`, Object.keys(responseHeaders));
+      }
+
+      const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
+        `${projectPath}/tests/summary`,
+        {
+          params: summaryParams,
+          headers: responseHeaders, // Use all headers from start response
+        }
+      );
+
+      if (DEBUG_TESTS) {
+        console.error(`[Tests] Test results received:`);
+        console.error(`[Tests]   Status: ${response.status}`);
+        console.error(`[Tests]   Tests: ${response.data.numberOfTests || 0}, Failures: ${response.data.numberOfFailures || 0}`);
+        console.error(`[Tests] ========================================`);
+      }
+
+      return response.data;
+    }
+
+    // Otherwise, poll for test completion with exponential backoff
+    const startTime = Date.now();
+    let interval: number = TEST_POLLING.INITIAL_INTERVAL;
+    let lastExecutionTime = 0;
+    let attempts = 0;
+
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] Starting polling for test completion:`);
+      console.error(`[Tests]   Max retries: ${TEST_POLLING.MAX_RETRIES}`);
+      console.error(`[Tests]   Timeout: ${TEST_POLLING.TIMEOUT}ms`);
+      console.error(`[Tests]   Initial interval: ${TEST_POLLING.INITIAL_INTERVAL}ms`);
+    }
+
+    while (attempts < TEST_POLLING.MAX_RETRIES) {
+      // Check timeout
+      if (Date.now() - startTime > TEST_POLLING.TIMEOUT) {
+        if (DEBUG_TESTS) {
+          console.error(`[Tests] ❌ Timeout after ${TEST_POLLING.TIMEOUT}ms`);
+        }
+        throw new Error(
+          `Test execution timed out after ${TEST_POLLING.TIMEOUT}ms. ` +
+          `Tests may still be running. Check status manually or increase timeout.`
+        );
+      }
+
+      // Wait before polling (except first attempt)
+      if (attempts > 0) {
+        if (DEBUG_TESTS) {
+          console.error(`[Tests] Waiting ${interval}ms before next poll attempt...`);
+        }
+        await new Promise(resolve => setTimeout(resolve, interval));
+        // Exponential backoff: increase interval up to MAX_INTERVAL
+        interval = Math.min(interval * 1.5, TEST_POLLING.MAX_INTERVAL);
+      }
+
+      try {
+        if (DEBUG_TESTS) {
+          console.error(`[Tests] Poll attempt ${attempts + 1}/${TEST_POLLING.MAX_RETRIES}:`);
+          console.error(`[Tests]   Endpoint: GET ${projectPath}/tests/summary`);
+          console.error(`[Tests]   Params:`, summaryParams);
+        }
+
+        const response = await this.axiosInstance.get<Types.TestsExecutionSummary>(
+          `${projectPath}/tests/summary`,
+          {
+            params: summaryParams,
+            headers: responseHeaders, // Use all headers from start response
+          }
+        );
+        const summary = response.data;
+
+        if (DEBUG_TESTS) {
+          console.error(`[Tests]   Status: ${response.status}`);
+          console.error(`[Tests]   ExecutionTimeMs: ${summary.executionTimeMs || 0}`);
+          console.error(`[Tests]   Tests: ${summary.numberOfTests || 0}, Failures: ${summary.numberOfFailures || 0}`);
+          console.error(`[Tests]   TestCases: ${summary.testCases?.length || 0}`);
+        }
+
+        // Check if execution is complete by comparing executionTimeMs
+        // If executionTimeMs has changed, tests are still running
+        // If it's stable (same as last check) and we have results, assume complete
+        if (summary.executionTimeMs > 0) {
+          if (summary.executionTimeMs === lastExecutionTime && summary.testCases.length > 0) {
+            // Execution time is stable and we have results - likely complete
+            if (DEBUG_TESTS) {
+              console.error(`[Tests] ✅ Tests completed (stable execution time)`);
+              console.error(`[Tests] ========================================`);
+            }
+            return summary;
+          }
+
+          // Check if we have all expected test results
+          // If numberOfTests is set and matches testCases length, execution is complete
+          if (summary.numberOfTests !== undefined && summary.numberOfTests > 0) {
+            const completedTests = summary.testCases.length;
+            if (completedTests >= summary.numberOfTests) {
+              // All tests have completed
+              if (DEBUG_TESTS) {
+                console.error(`[Tests] ✅ Tests completed (all ${completedTests}/${summary.numberOfTests} tests finished)`);
+                console.error(`[Tests] ========================================`);
+              }
+              return summary;
+            }
+          }
+
+          lastExecutionTime = summary.executionTimeMs;
+          if (DEBUG_TESTS) {
+            console.error(`[Tests]   Tests still running (execution time changed or incomplete)`);
+          }
+        } else if (summary.testCases.length > 0) {
+          // We have results but no execution time - assume complete if we have test cases
+          if (DEBUG_TESTS) {
+            console.error(`[Tests] ✅ Tests completed (results available)`);
+            console.error(`[Tests] ========================================`);
+          }
+          return summary;
+        } else {
+          if (DEBUG_TESTS) {
+            console.error(`[Tests]   No results yet, continuing to poll...`);
+          }
+        }
+
+        attempts++;
+      } catch (error) {
+        // If it's a 404 or other error, wait a bit and retry (tests might not be ready yet)
+        if (DEBUG_TESTS) {
+          const errorStatus = (error as any)?.response?.status;
+          const errorMessage = (error as any)?.message;
+          console.error(`[Tests]   ⚠️  Error: ${errorStatus || 'unknown'} - ${errorMessage || 'unknown error'}`);
+        }
+        if (attempts < 3) {
+          if (DEBUG_TESTS) {
+            console.error(`[Tests]   Retrying (attempt ${attempts + 1}/3)...`);
+          }
+          attempts++;
+          continue;
+        }
+        if (DEBUG_TESTS) {
+          console.error(`[Tests] ❌ Max retries reached, throwing error`);
+          console.error(`[Tests] ========================================`);
+        }
+        throw error;
+      }
+    }
+
+    // Max retries reached
+    if (DEBUG_TESTS) {
+      console.error(`[Tests] ❌ Max polling attempts (${TEST_POLLING.MAX_RETRIES}) reached`);
+      console.error(`[Tests]   Elapsed time: ${Math.round((Date.now() - startTime) / 1000)}s`);
+      console.error(`[Tests] ========================================`);
+    }
+    throw new Error(
+      `Test execution did not complete within ${TEST_POLLING.MAX_RETRIES} polling attempts ` +
+      `(${Math.round((Date.now() - startTime) / 1000)}s). ` +
+      `Tests may still be running. Check status manually.`
+    );
   }
 
   // =============================================================================
