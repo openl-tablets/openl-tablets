@@ -216,8 +216,7 @@ Use existing `update_table` tool:
 AFTER updating test table:
 
 ```text
-1. openl_start_project_tests(projectId, { tableId: testedRuleId }) → Start tests for the rule
-2. openl_get_project_test_results(projectId, { waitForCompletion: true }) → Get test results
+1. openl_run_project_tests(projectId, { tableId: testedRuleId, waitForCompletion: true }) → Run tests for the rule
 2. IF all pass → Proceed
 3. IF fail → Review test data (type mismatch, wrong expected value)
 4. openl_update_project_status() → Persist changes (only after tests pass)
@@ -314,5 +313,5 @@ Row: { "policy.vehicle": "> UpdatedPolicies.vehicles", "_res_": 1100 }
 | Fix expected value | Update `_res_` or `_error_` in row |
 | Add context | Add column `_context_.property` |
 | Add description | Add column `_description_` |
-| Verify changes | `openl_start_project_tests(projectId, { tableId: ruleId })` then `openl_get_project_test_results(projectId, { waitForCompletion: true })` |
+| Verify changes | `openl_run_project_tests(projectId, { tableId: ruleId, waitForCompletion: true })` |
 | Persist | `openl_update_project_status()` (after tests pass) |

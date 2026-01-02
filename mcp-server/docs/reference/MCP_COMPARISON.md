@@ -199,9 +199,7 @@ OpenL Tablets provides two implementations of the MCP (Model Context Protocol) s
 
 | Tool | TypeScript | Java | Notes |
 |------------|------------|------|------------|
-| `openl_start_project_tests` | ✅ | ✅ | ✅ Synchronized - Start test execution |
-| `openl_get_project_test_results` | ✅ | ✅ | ✅ Synchronized - Get test results with optional polling |
-| `openl_run_project_tests` | ⚠️ (deprecated) | ✅ | Deprecated - use start + get results instead |
+| `openl_run_project_tests` | ✅ | ✅ | ✅ Synchronized - Unified tool that starts tests and retrieves results, uses all headers from start response |
 | `openl_validate_project` | ❌ (disabled) | ❌ | Not implemented in both versions |
 | `openl_get_project_errors` | ❌ (disabled) | ❌ | Not implemented in both versions |
 | `openl_execute_rule` | ❌ (disabled) | ❌ | Not implemented in both versions |

@@ -66,4 +66,4 @@ IF >50 errors → Fix root cause first (may cascade fix others)
 - Validate in OpenL WebStudio UI → MUST be 0 errors
   (openl_validate_project temporarily disabled)
 - Run all tests in WebStudio UI → MUST pass
-  Use `openl_start_project_tests()` + `openl_get_project_test_results()` to run tests
+  Use `openl_run_project_tests()` to run tests (unified tool)

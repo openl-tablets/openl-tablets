@@ -309,31 +309,11 @@ export const TOOLS: ToolDefinition[] = [
   // Testing & Validation Tools
   // =============================================================================
   {
-    name: "openl_start_project_tests",
-    description: "Start test execution for a project with options to target specific tables and test ranges. Returns confirmation that tests have been started. Use openl_get_project_test_results to retrieve test results after execution completes.",
-    inputSchema: zodToJsonSchema(schemas.startProjectTestsSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
-    name: "openl_get_project_test_results",
-    description: "Get test execution results for a project. Returns a summary of test execution results including passed/failed tests. Can wait for completion or return current status immediately. Use this after openl_start_project_tests to retrieve test results.",
-    inputSchema: zodToJsonSchema(schemas.getProjectTestResultsSchema) as Record<string, unknown>,
-    _meta: {
-      version: "1.0.0",
-      category: TOOL_CATEGORIES.PROJECT,
-      requiresAuth: true,
-    },
-  },
-  {
     name: "openl_run_project_tests",
-    description: "Run tests for a project with options to target specific tables and test ranges. Returns a summary of test execution results including passed/failed tests. DEPRECATED: Use openl_start_project_tests followed by openl_get_project_test_results instead for better control over test execution.",
+    description: "Run project tests - unified tool that starts test execution and retrieves results. Automatically uses all headers from the test start response when fetching results. Supports options to target specific tables, test ranges, filtering failures, pagination, and waiting for completion.",
     inputSchema: zodToJsonSchema(schemas.runProjectTestsSchema) as Record<string, unknown>,
     _meta: {
-      version: "1.0.0",
+      version: "2.0.0",
       category: TOOL_CATEGORIES.PROJECT,
       requiresAuth: true,
     },

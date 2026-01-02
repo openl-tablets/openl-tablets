@@ -546,21 +546,16 @@ Run all tests for project 'design-insurance-rules' and show me the results
 ```
 
 **What happens:**
-1. MCP server calls `openl_start_project_tests` to start test execution
-2. MCP server calls `openl_get_project_test_results` with `waitForCompletion: true` to wait for results
+1. MCP server calls `openl_run_project_tests` to start test execution and retrieve results
+2. Tool automatically uses all headers from test start response when fetching results
 
 **Example Workflow:**
 ```text
-# Start test execution
-openl_start_project_tests(
+# Unified tool - starts tests and gets results in one call
+openl_run_project_tests(
   projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
-  tableId: "calculatePremium_1234"  # Optional: test specific table
-)
-
-# Get results (waits for completion)
-openl_get_project_test_results(
-  projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
-  waitForCompletion: true,
+  tableId: "calculatePremium_1234",  # Optional: test specific table
+  waitForCompletion: true,  # Wait for completion (default)
   failuresOnly: false  # Optional: show only failures
 )
 ```
@@ -603,7 +598,7 @@ Run tests for the calculatePremium table in project 'design-insurance-rules'
 
 **Example:**
 ```text
-openl_start_project_tests(
+openl_run_project_tests(
   projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
   tableId: "calculatePremium_1234"
 )
@@ -622,7 +617,7 @@ Check current test status for project 'design-insurance-rules' without waiting
 
 **Example:**
 ```text
-openl_get_project_test_results(
+openl_run_project_tests(
   projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
   waitForCompletion: false  # Return immediately
 )
@@ -641,7 +636,7 @@ Run tests 1-3 and 5 for the Test_calculatePremium table
 
 **Example:**
 ```text
-openl_start_project_tests(
+openl_run_project_tests(
   projectId: "ZGVzaWduOTpJbnN1cmFuY2UgUnVsZXM6...",
   tableId: "Test_calculatePremium_1234",
   testRanges: "1-3,5"

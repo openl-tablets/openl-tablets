@@ -102,7 +102,7 @@ All tools are versioned (v1.0.0) and prefixed with `openl_` for MCP compliance.
 **Rules** (5): openl_list_tables, openl_get_table, openl_update_table, openl_append_table, openl_create_rule  
 **Version Control** (2): openl_get_project_history, openl_revert_version  
 **Deployment** (2): openl_list_deployments, openl_deploy_project  
-**Testing** (3): openl_start_project_tests, openl_get_project_test_results, openl_run_project_tests (deprecated)  
+**Testing** (1): openl_run_project_tests  
 **Execution** (1): openl_execute_rule
 
 **Note**: Some tools are temporarily disabled pending full implementation. See [Enable Disabled Tools](docs/reference/ENABLE_DISABLED_TOOLS.md) for details.
