@@ -69,12 +69,11 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         }
         validationProvider.validate(query, queryValidator);
 
-        var baseFolder = resolveBaseFolder(project, query);
         var filter = buildFilterCriteria(query);
         if (viewMode == ResourceViewMode.NESTED) {
-            return buildNestedStructure(baseFolder, filter, recursive);
+            return buildNestedStructure(project, filter, recursive);
         } else {
-            return buildFlatList(baseFolder, filter, recursive);
+            return buildFlatList(project, filter, recursive);
         }
     }
 
@@ -100,6 +99,15 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
      */
     private Predicate<AProjectArtefact> buildFilterCriteria(ResourceCriteriaQuery query) {
         Predicate<AProjectArtefact> filter = artefact -> true;
+
+        if (!StringUtils.isBlank(query.basePath())) {
+            var basePath = query.basePath();
+            if (!basePath.endsWith("/")) {
+                basePath += "/";
+            }
+            final String finalBasePath = basePath;
+            filter = filter.and(artefact -> artefact.getInternalPath().startsWith(finalBasePath));
+        }
 
         // Folders only filter
         if (query.foldersOnly()) {
