@@ -18,6 +18,7 @@ import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.util.HashingUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectArtefact implements IProjectArtefact {
@@ -70,6 +71,11 @@ public class AProjectArtefact implements IProjectArtefact {
     public String getInternalPath() {
         String projectPath = getProject().getFileData().getName();
         return getFileData().getName().substring(projectPath.length() + 1);
+    }
+
+    public String getId() {
+        var path = getInternalPath();
+        return HashingUtils.sha256Hex(path);
     }
 
     public String getName() {

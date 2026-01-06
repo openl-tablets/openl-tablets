@@ -535,6 +535,11 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     @Override
+    public String getId() {
+        throw new UnsupportedOperationException("Project ID is not supported.");
+    }
+
+    @Override
     public boolean hasArtefacts() {
         return isFolder() ? super.hasArtefacts() : (getFileData().getSize() != 0);
     }
