@@ -74,6 +74,10 @@ public class ProjectResourcesController {
             @Parameter(description = "Filter by name pattern (case-insensitive contains match)")
             String namePattern,
 
+            @RequestParam(value = "foldersOnly", defaultValue = "false")
+            @Parameter(description = "If true, only folders are returned. Default is false (include all).")
+            boolean foldersOnly,
+
             @RequestParam(value = "recursive", defaultValue = "false")
             @Parameter(description = "Whether to include nested resources recursively")
             boolean recursive,
@@ -82,10 +86,12 @@ public class ProjectResourcesController {
             @Parameter(description = "View mode: FLAT returns a flat list, NESTED returns a tree structure")
             ResourceViewMode viewMode
     ) {
+
         var query = ResourceCriteriaQuery.builder()
                 .basePath(basePath)
                 .extensions(extensions)
                 .namePattern(namePattern)
+                .foldersOnly(foldersOnly)
                 .build();
 
         return resourcesService.getResources(project, query, recursive, viewMode);
