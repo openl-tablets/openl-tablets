@@ -22,14 +22,18 @@ public record ResourceCriteriaQuery(
         Set<String> extensions,
 
         @Schema(description = "Filter by name pattern (case-insensitive contains match)")
-        String namePattern
+        String namePattern,
+
+        @Schema(description = "If true, only folders are returned. Default is false (include all).")
+        boolean foldersOnly
 
 ) {
 
     private ResourceCriteriaQuery(Builder builder) {
         this(builder.basePath,
-                builder.extensions.isEmpty() ? null : Set.copyOf(builder.extensions),
-                builder.namePattern);
+                Set.copyOf(builder.extensions),
+                builder.namePattern,
+                builder.foldersOnly);
     }
 
     @JsonCreator
@@ -43,6 +47,7 @@ public record ResourceCriteriaQuery(
         private String basePath;
         private final Set<String> extensions = new HashSet<>();
         private String namePattern;
+        private boolean foldersOnly;
 
         private Builder() {
         }
@@ -68,6 +73,11 @@ public record ResourceCriteriaQuery(
 
         public Builder namePattern(String namePattern) {
             this.namePattern = namePattern;
+            return this;
+        }
+
+        public Builder foldersOnly(boolean foldersOnly) {
+            this.foldersOnly = foldersOnly;
             return this;
         }
 
