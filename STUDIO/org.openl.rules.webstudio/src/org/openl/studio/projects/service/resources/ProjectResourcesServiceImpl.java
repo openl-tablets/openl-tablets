@@ -8,8 +8,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import jakarta.validation.constraints.NotNull;
 
@@ -71,12 +71,80 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         AProjectFolder baseFolder = resolveBaseFolder(projectFolder, query);
 
         var filter = buildFilterCriteria(query);
-        if (viewMode == ResourceViewMode.NESTED) {
-            return buildNestedStructure(baseFolder, filter, recursive);
+
+        if (viewMode == ResourceViewMode.NESTED && recursive) {
+            return buildNested(baseFolder, filter);
         } else {
             return buildFlatList(baseFolder, filter, recursive);
         }
     }
+
+    private List<Resource> buildNested(AProjectFolder rootFolder,
+                                       Predicate<AProjectArtefact> filter) {
+
+        // folder -> built children list
+        var builtChildren = new IdentityHashMap<AProjectFolder, List<Resource>>();
+        // stack frames for post-order traversal
+        record Frame(AProjectFolder folder, boolean expanded) {}
+
+        Deque<Frame> stack = new ArrayDeque<>();
+        stack.push(new Frame(rootFolder, false));
+
+        while (!stack.isEmpty()) {
+            var frame = stack.pop();
+            var folder = frame.folder();
+
+            if (!frame.expanded()) {
+                // 1) push marker to process after children
+                stack.push(new Frame(folder, true));
+
+                // 2) push child folders to process first
+                for (var artefact : folder.getArtefacts()) {
+                    if (artefact.isFolder()) {
+                        stack.push(new Frame((AProjectFolder) artefact, false));
+                    }
+                }
+                continue;
+            }
+
+            // Children are already processed -> build this folder children list
+            List<Resource> out = new ArrayList<>();
+
+            for (var artefact : folder.getArtefacts()) {
+                if (!artefact.isFolder()) {
+                    if (filter.test(artefact)) {
+                        out.add(mapArtefact(artefact));
+                    }
+                    continue;
+                }
+
+                var childFolder = (AProjectFolder) artefact;
+                var childChildren = builtChildren.getOrDefault(childFolder, List.of());
+
+                boolean includeFolder = filter.test(artefact) || !childChildren.isEmpty();
+                if (!includeFolder) {
+                    continue;
+                }
+
+                Resource mapped = mapArtefact(artefact);
+
+                if (mapped instanceof FolderResource fr && !childChildren.isEmpty()) {
+                    var sortedChildren = childChildren.stream()
+                            .sorted(RESOURCE_COMPARATOR)
+                            .toList();
+                    mapped = fr.withChildren(sortedChildren);
+                }
+
+                out.add(mapped);
+            }
+
+            out.sort(RESOURCE_COMPARATOR);
+            builtChildren.put(folder, out);
+        }
+
+        return builtChildren.getOrDefault(rootFolder, List.of());
+    }
+
 
     private AProjectFolder convertToFolder(RulesProject project) {
         AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
@@ -174,73 +242,6 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     }
 
     /**
-     * Builds a nested tree structure using iterative two-pass approach.
-     * First pass: collect all resources in a flat map keyed by path.
-     * Second pass: build the tree by linking children to parents using O(n) algorithm.
-     */
-    private List<Resource> buildNestedStructure(AProjectFolder rootFolder,
-                                                Predicate<AProjectArtefact> filter,
-                                                boolean recursive) {
-        if (!recursive) {
-            return rootFolder.getArtefacts().stream()
-                    .filter(filter)
-                    .map(this::mapArtefact)
-                    .sorted(RESOURCE_COMPARATOR)
-                    .toList();
-        }
-
-        // First pass: collect all resources
-        Map<String, ResourceNode> nodesByPath = new HashMap<>();
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
-        String rootPath = rootFolder.getInternalPath();
-        queue.add(rootFolder);
-
-        while (!queue.isEmpty()) {
-            AProjectFolder folder = queue.poll();
-
-            for (AProjectArtefact artefact : folder.getArtefacts()) {
-                if (filter.test(artefact)) {
-                    String path = artefact.getInternalPath();
-                    nodesByPath.put(path, new ResourceNode(mapArtefact(artefact), artefact.isFolder()));
-
-                    if (artefact.isFolder()) {
-                        queue.add((AProjectFolder) artefact);
-                    }
-                }
-            }
-        }
-
-        // Build parent-to-children mapping - O(n)
-        Map<String, List<Resource>> childrenByParent = new HashMap<>();
-        for (var entry : nodesByPath.entrySet()) {
-            String parentPath = getParentPath(entry.getKey());
-            childrenByParent.computeIfAbsent(parentPath, k -> new ArrayList<>())
-                    .add(entry.getValue().resource);
-        }
-
-        // Second pass: build tree from leaves up using sorted paths (longest first) - O(n log n)
-        nodesByPath.keySet().stream()
-                .sorted((a, b) -> Integer.compare(b.length(), a.length()))
-                .forEach(path -> {
-                    ResourceNode node = nodesByPath.get(path);
-                    if (node.isFolder) {
-                        List<Resource> children = childrenByParent.getOrDefault(path, List.of());
-                        if (!children.isEmpty()) {
-                            var sortedChildren = children.stream()
-                                    .sorted(RESOURCE_COMPARATOR)
-                                    .toList();
-                            node.resource = ((FolderResource) node.resource).withChildren(sortedChildren);
-                        }
-                    }
-                });
-
-        // Collect root-level children
-        return childrenByParent.getOrDefault(rootPath, List.of()).stream()
-                .sorted(RESOURCE_COMPARATOR)
-                .toList();
-    }
-
-    /**
      * Extracts parent path from a full path.
      * Returns empty string for root-level items (no slash in path).
      * Returns null only for null or empty input.
@@ -297,16 +298,4 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         return date.toInstant().atZone(ZoneId.systemDefault());
     }
 
-    /**
-     * Node for building the tree structure.
-     */
-    private static class ResourceNode {
-        Resource resource;
-        final boolean isFolder;
-
-        ResourceNode(Resource resource, boolean isFolder) {
-            this.resource = resource;
-            this.isFolder = isFolder;
-        }
-    }
 }
