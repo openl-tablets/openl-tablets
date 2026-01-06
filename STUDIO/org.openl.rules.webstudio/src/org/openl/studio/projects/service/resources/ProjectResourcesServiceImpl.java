@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -68,22 +67,40 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             throw new ForbiddenException("default.message");
         }
         validationProvider.validate(query, queryValidator);
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectFolder baseFolder = resolveBaseFolder(projectFolder, query);
 
         var filter = buildFilterCriteria(query);
         if (viewMode == ResourceViewMode.NESTED) {
-            return buildNestedStructure(project, filter, recursive);
+            return buildNestedStructure(baseFolder, filter, recursive);
         } else {
-            return buildFlatList(project, filter, recursive);
+            return buildFlatList(baseFolder, filter, recursive);
         }
     }
 
-    private AProjectFolder resolveBaseFolder(RulesProject project, ResourceCriteriaQuery query) {
+    private AProjectFolder convertToFolder(RulesProject project) {
+        AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
+                project.getProject(),
+                project.getRepository(),
+                project.getFolderPath());
+        project.getArtefacts().forEach(filteredFolder::addArtefact);
+        return filteredFolder;
+    }
+
+    private AProjectFolder resolveBaseFolder(AProjectFolder folder, ResourceCriteriaQuery query) {
         if (StringUtils.isBlank(query.basePath())) {
-            return project;
+            return folder;
         }
-        AProjectArtefact artefact;
+        AProjectArtefact artefact = null;
         try {
-            artefact = project.getArtefactByPath(new ArtefactPathImpl(query.basePath()));
+            for (var segment : query.basePath().split("/")) {
+                artefact = folder.getArtefact(segment);
+                if (artefact == null || !artefact.isFolder()) {
+                    artefact = null;
+                    break;
+                }
+                folder = (AProjectFolder) artefact;
+            }
         } catch (ProjectException ignored) {
             artefact = null;
         }
@@ -99,15 +116,6 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
      */
     private Predicate<AProjectArtefact> buildFilterCriteria(ResourceCriteriaQuery query) {
         Predicate<AProjectArtefact> filter = artefact -> true;
-
-        if (!StringUtils.isBlank(query.basePath())) {
-            var basePath = query.basePath();
-            if (!basePath.endsWith("/")) {
-                basePath += "/";
-            }
-            final String finalBasePath = basePath;
-            filter = filter.and(artefact -> artefact.getInternalPath().startsWith(finalBasePath));
-        }
 
         // Folders only filter
         if (query.foldersOnly()) {
