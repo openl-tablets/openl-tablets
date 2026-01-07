@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     Alert,
     Button,
@@ -65,12 +65,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     // Resolution state for each file
     const [resolutions, setResolutions] = useState<Record<string, ConflictFileState>>({})
 
-    // Load conflict details on mount
-    useEffect(() => {
-        loadConflictDetails()
-    }, [])
-
-    const loadConflictDetails = async () => {
+    const loadConflictDetails = useCallback(async () => {
         setIsLoading(true)
         setError(null)
 
@@ -102,7 +97,12 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [projectId, t])
+
+    // Load conflict details on mount or when projectId changes
+    useEffect(() => {
+        loadConflictDetails()
+    }, [loadConflictDetails])
 
     // Flatten all files for table
     const allFiles = useMemo(() => {
@@ -368,7 +368,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                         )}
                         {isResolved && !res?.customFile && res?.resolution !== 'CUSTOM' && (
                             <Typography.Text type="success">
-                                <CheckCircleOutlined /> Resolved
+                                <CheckCircleOutlined /> {t('merge:resolution.resolved')}
                             </Typography.Text>
                         )}
                     </Space>

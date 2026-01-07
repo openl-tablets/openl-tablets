@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Form, Space, Spin, Tooltip, Typography } from 'antd'
 import { BranchesOutlined, DownloadOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -55,17 +55,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         return branches.find(b => b.name === selectedBranch)
     }, [branches, selectedBranch])
 
-    // Check merge status when branch is selected
-    useEffect(() => {
-        if (selectedBranch) {
-            checkMergeStatus()
-        } else {
-            setCheckResultReceive(null)
-            setCheckResultSend(null)
-        }
-    }, [selectedBranch])
-
-    const checkMergeStatus = async () => {
+    const checkMergeStatus = useCallback(async () => {
         if (!selectedBranch) return
 
         setIsChecking(true)
@@ -106,7 +96,17 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         } finally {
             setIsChecking(false)
         }
-    }
+    }, [projectId, selectedBranch, t])
+
+    // Check merge status when branch is selected
+    useEffect(() => {
+        if (selectedBranch) {
+            checkMergeStatus()
+        } else {
+            setCheckResultReceive(null)
+            setCheckResultSend(null)
+        }
+    }, [selectedBranch, checkMergeStatus])
 
     const handleMerge = async (mode: MergeMode) => {
         if (!selectedBranch) return

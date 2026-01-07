@@ -4,19 +4,7 @@ import { MailOutlined, UserOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
-
-interface CommitInfoModalProps {
-    visible: boolean
-    username: string
-    onSave: () => void
-    onCancel: () => void
-}
-
-interface UserInfo {
-    username: string
-    displayName?: string
-    email?: string
-}
+import { CommitInfoModalProps, UserCommitInfo } from './types'
 
 export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
     visible,
@@ -35,7 +23,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
         setError(null)
 
         try {
-            const userInfo: UserInfo = await apiCall(
+            const userInfo: UserCommitInfo = await apiCall(
                 `/users/${encodeURIComponent(username)}`,
                 { method: 'GET' },
                 true
@@ -83,8 +71,8 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
             )
 
             notification.success({
-                message: 'Commit info saved',
-                description: 'Your Git commit information has been saved.',
+                message: t('merge:notifications.commit_info_saved'),
+                description: t('merge:notifications.commit_info_saved_description'),
             })
 
             onSave()
@@ -134,7 +122,7 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                         <Form.Item
                             label={t('merge:commit_info.display_name')}
                             name="displayName"
-                            rules={[{ required: true, message: 'Display name is required' }]}
+                            rules={[{ required: true, message: t('merge:commit_info.display_name_required') }]}
                         >
                             <Input
                                 placeholder={t('merge:commit_info.display_name_placeholder')}
@@ -145,8 +133,8 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                             label={t('merge:commit_info.email')}
                             name="email"
                             rules={[
-                                { required: true, message: 'Email is required' },
-                                { type: 'email', message: 'Please enter a valid email' },
+                                { required: true, message: t('merge:commit_info.email_required') },
+                                { type: 'email', message: t('merge:commit_info.email_invalid') },
                             ]}
                         >
                             <Input

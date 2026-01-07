@@ -52,6 +52,7 @@ i18next.addResourceBundle('en', 'merge', {
         upload_custom: 'Upload merged file',
         delete_yours: 'Delete it',
         delete_theirs: 'Delete it',
+        resolved: 'Resolved',
     },
 
     compare: {
@@ -78,8 +79,11 @@ i18next.addResourceBundle('en', 'merge', {
         description: 'Git requires author information for commits. Please configure your name and email.',
         display_name: 'Display Name',
         display_name_placeholder: 'Enter your display name',
+        display_name_required: 'Display name is required',
         email: 'Email',
         email_placeholder: 'Enter your email address',
+        email_required: 'Email is required',
+        email_invalid: 'Please enter a valid email',
     },
 
     buttons: {
@@ -114,5 +118,7 @@ i18next.addResourceBundle('en', 'merge', {
         resolve_success_description: 'All conflicts have been resolved and the merge is complete.',
         merge_cancelled: 'Merge Cancelled',
         merge_cancelled_description: 'The merge operation has been cancelled.',
+        commit_info_saved: 'Commit Info Saved',
+        commit_info_saved_description: 'Your Git commit information has been saved.',
     },
 })
