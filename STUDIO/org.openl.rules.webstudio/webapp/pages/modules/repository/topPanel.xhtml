@@ -24,6 +24,12 @@
                              oncomplete="initFilter();"
                              style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px"
                              styleClass="imageButton"/>
+            <!-- JS function to refresh repository tree after React merge modal success -->
+            <a4j:jsFunction name="designRepoRefresh"
+                            action="#{repositoryTreeController.refreshTree}"
+                            render="projectTree nodeView"
+                            process="@this"
+                            oncomplete="initFilter();"/>
             <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshInitTree}"
                  render="prodTree" process="@this" style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px; display: none;"
                  oncomplete="initProdFilter();"

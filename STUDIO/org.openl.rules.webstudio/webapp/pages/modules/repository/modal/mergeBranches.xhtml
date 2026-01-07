@@ -5,8 +5,39 @@
         //<![CDATA[
 
         function openMergeBranchesDialog(repositoryId, repositoryType, projectName) {
-            renderMergeBranchesForm(repositoryId, projectName, #{menu == 'rules'});
-            mergeBranchesRepositoryType = repositoryType;
+            // Dispatch to React MergeModal
+            const projectId = btoa(repositoryId + ":" + projectName);
+            $j.get("#{contextPath}/web/projects/" + projectId).then(function(project) {
+                // Convert selectedBranches to BranchInfo objects
+                const branches = (project.selectedBranches || []).map(function(name) {
+                    return { name: name, protected: false };
+                });
+                window.dispatchEvent(new CustomEvent('openMergeModal', {
+                    detail: {
+                        projectId: project.id,
+                        projectName: projectName,
+                        repositoryId: repositoryId,
+                        repositoryType: repositoryType,
+                        currentBranch: project.branch,
+                        branches: branches,
+                        onSuccess: #{menu == 'rules' ? 'forceReload' : 'designRepoRefresh'},
+                        onCompare: function(filePath) { openMergeCompareDialog(project.id, filePath); }
+                    }
+                }));
+            }).catch(function() {
+                alert("Failed to load project information.");
+            });
+        }
+
+        // Compare dialog wrapper for React MergeModal
+        function openMergeCompareDialog(projectId, filePath) {
+            // Check if file is Excel by extension
+            const isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
+            if (isExcel) {
+                openCompareRevisionsDialog(projectId, filePath);
+            } else {
+                openCompareTextFilesDialog(projectId, filePath);
+            }
         }
         //]]>
     </script>
