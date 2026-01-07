@@ -4,6 +4,50 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "ConflictDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "baseRevision": {
+            "$ref": "#/components/schemas/RevisionDetails"
+          },
+          "conflictGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConflictGroup"
+            }
+          },
+          "defaultMessage": {
+            "type": "string"
+          },
+          "oursRevision": {
+            "$ref": "#/components/schemas/RevisionDetails"
+          },
+          "theirsRevision": {
+            "$ref": "#/components/schemas/RevisionDetails"
+          }
+        }
+      },
+      "RevisionDetails": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "commit": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ConflictGroup": {
         "type": "object",
         "description": "*",
@@ -4396,10 +4440,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ConflictGroup"
-                  }
+                  "$ref": "#/components/schemas/ConflictDetailsResponse"
                 }
               }
             },

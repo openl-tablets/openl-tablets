@@ -43,6 +43,7 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
@@ -94,9 +95,9 @@ public class ProjectsMergeController {
     @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.get-conflicts.200.desc")
     @GetMapping("/conflicts")
-    public List<ConflictGroup> getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public ConflictDetailsResponse getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
         var conflictInfo = getMergeConflictInfo0(project);
-        return mergeConflictsService.getMergeConflicts(conflictInfo);
+        return mergeConflictsService.getConflictDetails(conflictInfo);
     }
 
     @Operation(summary = "projects.merge.get-conflict-file.summary", description = "projects.merge.get-conflict-file.desc")

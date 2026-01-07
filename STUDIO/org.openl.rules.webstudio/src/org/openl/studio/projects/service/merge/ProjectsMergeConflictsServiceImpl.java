@@ -33,6 +33,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
@@ -42,6 +43,8 @@ import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
+import org.openl.studio.projects.model.merge.ConflictDetailsResponse.RevisionDetails;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
@@ -61,6 +64,77 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     @Lookup
     public UserWorkspace getUserWorkspace() {
         return null;
+    }
+
+    @Override
+    public ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo) {
+        var builder = ConflictDetailsResponse.builder()
+                .conflictGroups(getMergeConflicts(mergeConflictInfo));
+        var conflictDetails = mergeConflictInfo.details();
+
+        // Get repository
+        String repositoryId = mergeConflictInfo.getRepositoryId();
+        var workspace = getUserWorkspace();
+        Repository designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+
+        // Unwrap FolderMapper if needed
+        Repository rawRepository = designRepository;
+        if (designRepository.supports().mappedFolders()) {
+            rawRepository = ((FolderMapper) designRepository).getDelegate();
+        }
+
+        // Get commit details for each side
+        String oursCommit = mergeConflictInfo.isExportOperation()
+                ? conflictDetails.theirCommit()
+                : conflictDetails.yourCommit();
+        String theirsCommit = mergeConflictInfo.isExportOperation()
+                ? conflictDetails.yourCommit()
+                : conflictDetails.theirCommit();
+        String baseCommit = conflictDetails.baseCommit();
+
+        // Get branch names
+        String oursBranch = getYourBranch(mergeConflictInfo);
+        String theirsBranch = getTheirBranch(mergeConflictInfo);
+
+        // Find first conflicted file to get revision details
+        String firstFile = conflictDetails.getConflictedFiles().isEmpty()
+                ? null
+                : conflictDetails.getConflictedFiles().iterator().next();
+
+        builder.oursRevision(getRevisionDetails(rawRepository, firstFile, oursCommit, oursBranch))
+                .theirsRevision(getRevisionDetails(rawRepository, firstFile, theirsCommit, theirsBranch))
+                .baseRevision(getRevisionDetails(rawRepository, firstFile, baseCommit, null));
+
+        // Generate default merge message
+        var unresolvedFiles = mergeConflictInfo.details().getConflictedFiles().stream()
+                .map(file -> new FileConflictResolution(file, null))
+                .toList();
+        builder.defaultMessage(generateMergeMessage(mergeConflictInfo, unresolvedFiles));
+
+        return builder.build();
+    }
+
+    private RevisionDetails getRevisionDetails(Repository repository, String file, String commit, String branch) {
+        if (commit == null || file == null) {
+            return RevisionDetails.notExists(commit, branch);
+        }
+
+        try {
+            FileData fileData = repository.checkHistory(file, commit);
+            if (fileData != null) {
+                String author = Optional.ofNullable(fileData.getAuthor())
+                        .map(UserInfo::getName)
+                        .orElse(null);
+                var modifiedAt = Optional.ofNullable(fileData.getModifiedAt())
+                        .map(java.util.Date::toInstant)
+                        .orElse(null);
+                return RevisionDetails.of(commit, branch, author, modifiedAt);
+            }
+        } catch (IOException e) {
+            log.debug("Failed to get revision details for file {} at commit {}", file, commit, e);
+        }
+
+        return RevisionDetails.notExists(commit, branch);
     }
 
     @Override
@@ -128,7 +202,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         return fileItem;
     }
 
-    private String getRealPath(Repository repository, String path) throws IOException {
+    private String getRealPath(Repository repository, String path) {
         if (repository.supports().mappedFolders()) {
             return ((FolderMapper) repository).getRealPath(path);
         }
@@ -474,15 +548,17 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             messageBuilder.append("\n\t").append(file);
 
             var strategy = resolution.strategy();
-            String chosen = strategy.name().toLowerCase();
-            if (merging) {
-                chosen = switch (strategy) {
-                    case OURS -> yourBranch;
-                    case THEIRS -> theirBranch;
-                    default -> chosen;
-                };
+            if (strategy != null) {
+                String chosen = strategy.name().toLowerCase();
+                if (merging) {
+                    chosen = switch (strategy) {
+                        case OURS -> yourBranch;
+                        case THEIRS -> theirBranch;
+                        default -> chosen;
+                    };
+                }
+                messageBuilder.append(" (").append(chosen).append(')');
             }
-            messageBuilder.append(" (").append(chosen).append(')');
         }
 
         if (!conflictDetails.toAutoResolve().isEmpty()) {
