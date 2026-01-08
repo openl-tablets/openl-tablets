@@ -2,7 +2,7 @@
 
 **Module**: OpenL Tablets ITEST (Integration Tests)
 **Version**: 6.0.0-SNAPSHOT
-**Last Updated**: 2025-12-02
+**Last Updated**: 2026-01-08
 
 This file provides specific guidance for integration testing in the OpenL Tablets project. For general project conventions, see the root `/AGENTS.md`.
 
@@ -10,14 +10,14 @@ This file provides specific guidance for integration testing in the OpenL Tablet
 
 ## Module Overview
 
-ITEST contains comprehensive integration tests for OpenL Tablets. It tests end-to-end workflows across multiple modules (DEV, STUDIO, WSFrontend) using real services, databases, and Docker containers.
+ITEST contains comprehensive integration tests for OpenL Tablets.
+It tests end-to-end workflows for Web applications (STUDIO, WSFrontend) using real services, databases, and Docker containers.
 
 **Key Characteristics**:
 - **Multiple test suites**: Smoke tests, security, WebStudio E2E, Kafka, MinIO, etc.
 - **Docker-based**: Uses TestContainers for PostgreSQL, Keycloak, MinIO, Kafka
 - **Slow but thorough**: Full system testing, not unit tests
 - **CI/CD integration**: Runs on schedule and in pull requests
-- **Windows/macOS limitation**: Docker tests skipped on non-Linux
 
 ---
 
@@ -25,33 +25,38 @@ ITEST contains comprehensive integration tests for OpenL Tablets. It tests end-t
 
 ```
 ITEST/
-├── server-core/                       # Shared test utilities
-│   ├── src/test/java/org/openl/
-│   │   └── itest/
-│   │       ├── utils/                # Test utilities
-│   │       ├── config/               # Test configuration
-│   │       ├── matchers/             # Custom matchers
-│   │       └── fixtures/             # Test data
+├── server-core/                         # Shared test utilities, a base framework
+│   ├── src/org/openl/itest/core/        # Core test classes
+│   │   ├── HttpClient.java              # HTTP request/response test framework
+│   │   └──JettyServer.java              # Embedded Jetty server for tests
 │   └── pom.xml
 │
-├── itest.smoke/                       # Quick smoke tests (main)
-│   ├── src/test/java/org/openl/itest/smoke/
+├── itest.WebService/                  # OpenL RuleServices tests (main)
+│   ├── openl-repository/              # Location of test config and deployments
+│   │   ├── application.properties     # A test config
+│   │   ├── application-X.properties   # A test config for 'X' profile
+│   │   └── deployments/               # Typical folder for deployed OpenL projects defined in the given test config
+│   │       ├── deployment1/
+│   │       │   ├── project1/          # OpenL project files
+│   │       │   └── project2/          # OpenL project files
+│   │       └── deployment2/
+│   │           └── ...
+│   ├── test/                          # Java JUnit test classes
 │   │   ├── RuleExecutionTest.java
-│   │   ├── RuleParsingTest.java
-│   │   ├── DataTypeTest.java
 │   │   └── ...
-│   ├── src/test/resources/
-│   │   ├── excel-files/               # Test Excel files
-│   │   └── rules.xml                  # Test rule definitions
+│   ├── test-resources/                # HTTP request/response files for tests
+│   ├── test-resources-X/              # Additional test resources for profile 'X'
+│   ├── target/responses/              # Generated actual responses for failed tests
 │   └── pom.xml
 │
+├── itest.smoke/                       # Base minimal set of OpenL RuleServices tests
 ├── itest.security/                    # Authentication/authorization tests
 ├── itest.webstudio/                   # WebStudio E2E tests
 ├── itest.kafka.smoke/                 # Kafka integration tests
 ├── itest.minio/                       # S3 storage tests
 ├── itest.tracing/                     # OpenTelemetry tests
 ├── itest.datasources/                 # Database integration tests
-├── ... (11 more test modules)
+├── ... (more test modules)
 │
 └── pom.xml                            # Root ITEST POM
 ```
@@ -64,7 +69,9 @@ OpenL Tablets ITEST uses a unique declarative testing approach: HTTP request/res
 
 ### Overview
 
-Instead of writing Java test code, you create `.req` (request) and `.resp` (response) files that define HTTP exchanges. The test framework automatically:
+Instead of writing Java test code, you create `.req` (request) and `.resp` (response) files that define HTTP exchanges.
+The format of `.req` and `.resp` files is simple and human-readable, similar to raw HTTP messages and strictly follows to the RFC 7231 with some enhancements.
+The test framework automatically:
 - Discovers all `*.req` files in `test-resources/` directories
 - Executes them in lexicographic order
 - Matches each request with corresponding `*.resp` file
@@ -98,11 +105,12 @@ test-resources/
 
 **Naming convention**:
 - File pairs must have same name, different extensions: `name.req` and `name.resp`
-- Prefix with test ID: `EPBDS-13489.req`
+- Prefix with ticket ID or meaningful tested functionality: `EPBDS-13489.req`
 - Group related tests in subdirectories
 - Use numeric prefixes for test ordering: `00.req`, `01.req`, `02.req`, etc.
+- Use descriptive names for clarity: `00-login.req`, `01-get-data.req`, etc.
 
-**⚠️ CRITICAL - Line Endings (CRLF Required)**:
+**⚠️ CRITICAL - Line Endings (CRLF Required) **:
 
 Files **MUST use CRLF (`\r\n`) line endings**, not LF (`\n`):
 - HTTP protocol requires CRLF between headers and between header/body
@@ -253,10 +261,7 @@ GET /api/users/${USER_ID} HTTP/1.1
 
 ```
 
-Will replace `${USER_ID}` with environment variable value. Variables are set in:
-- Java system properties: `-DuserName=john`
-- Environment variables: `export MY_VAR=value`
-- Test configuration files
+Will replace `${USER_ID}` with variable value from the HttpClient.localEnv Map.
 
 ### Cookie Handling (Sessions)
 
@@ -420,6 +425,7 @@ The framework compares:
 - ✅ Include comments in complex requests (// allowed)
 - ✅ Use retry for flaky services (`X-OpenL-Test-Retry: yes`)
 - ✅ Keep request/response files small and focused
+- ✅ Restore state in the end of the suite test (999 subdirectory for reverting changes)
 
 **DON'T**:
 - ❌ Use LF-only line endings (will silently fail to parse)
@@ -452,6 +458,7 @@ mvn test -Dtest=RunWebservicesITest -X
 
 # Check actual vs expected
 # Look in console output for assertion details
+# Compare target/responses/EPBDS-XXXXX/*.resp with test-resources/EPBDS-XXXXX/*.resp
 ```
 
 **Common issues**:
@@ -485,526 +492,6 @@ mvn test -Dtest=RuleExecutionTest
 mvn test -Dtest=RuleExecutionTest#testSimpleRule_validInput_executesSuccessfully
 ```
 
-### Quick Testing (Development)
-
-```bash
-# Smoke tests only (fastest)
-cd ITEST/itest.smoke && mvn verify -Dquick
-
-# Without Docker (on Windows/macOS)
-mvn verify -DnoDocker
-
-# Skip heavy tests
-mvn verify -Dquick -DnoPerf
-```
-
-### CI/CD Testing
-
-```bash
-# Full matrix (Java 21/25, Ubuntu/Windows/macOS)
-# Triggered on schedule or manual dispatch
-# See .github/workflows/build.yml
-```
-
----
-
-## Writing Integration Tests
-
-### Test Structure
-
-**Location**: `itest.smoke/src/test/java/org/openl/itest/smoke/`
-
-```java
-package org.openl.itest.smoke;
-
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.openl.itest.utils.*;
-
-@DisplayName("Rule Execution Tests")
-class RuleExecutionTest {
-
-  @Test
-  @DisplayName("Simple rule with valid input executes successfully")
-  void testSimpleRule_validInput_executesSuccessfully() {
-    // Arrange
-    RulesEngineFactory<MyRules> factory = new RulesEngineFactory<>(
-      "rules/simple.xlsx",
-      MyRules.class);
-
-    // Act
-    MyRules rules = factory.newInstance();
-    int result = rules.calculateScore(10, 20);
-
-    // Assert
-    assertEquals(30, result);
-  }
-
-  @Test
-  void testComplexRule_multipleScenarios_allPass() {
-    // Test multiple scenarios for complex rules
-  }
-
-  @Test
-  void testRuleWithTypeConversion_validTypes_convertsAndExecutes() {
-    // Test type conversion during rule execution
-  }
-}
-```
-
-### Naming Convention
-
-```java
-// Format: test<RuleOrFeature>_<Scenario>_<ExpectedResult>
-@Test
-void testDecisionTable_multipleConditions_returnsCorrectBranch() { }
-
-@Test
-void testSpreadsheet_complexCalculations_producesAccurateResults() { }
-
-@Test
-void testDataType_nestedStructure_parsesAndBindsCorrectly() { }
-```
-
-### Test Lifecycle
-
-```java
-@BeforeEach
-void setUp() {
-  // Initialize common test resources
-  // Load shared Excel files
-  // Configure test-specific settings
-}
-
-@AfterEach
-void tearDown() {
-  // Clean up resources
-  // Close factories
-  // Clear caches (if needed)
-}
-
-@BeforeAll
-static void setupClass() {
-  // One-time setup (expensive operations)
-  // Docker containers start here
-}
-
-@AfterAll
-static void tearDownClass() {
-  // One-time cleanup
-  // Docker containers stop here
-}
-```
-
----
-
-## TestContainers Setup
-
-### Database Testing
-
-**PostgreSQL Container**:
-
-```java
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-@Testcontainers
-class RuleServiceDatabaseTest {
-
-  @Container
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-    .withDatabaseName("testdb")
-    .withUsername("test")
-    .withPassword("test");
-
-  @Test
-  void testRuleServiceWithDatabase() {
-    String jdbcUrl = postgres.getJdbcUrl();
-    // Use jdbcUrl in tests
-  }
-}
-```
-
-### Keycloak (OAuth2/OpenID Connect)
-
-```java
-import org.testcontainers.containers.GenericContainer;
-
-@Testcontainers
-class AuthenticationTest {
-
-  @Container
-  static GenericContainer<?> keycloak = new GenericContainer<>("keycloak/keycloak:latest")
-    .withExposedPorts(8080)
-    .withEnv("KEYCLOAK_ADMIN", "admin")
-    .withEnv("KEYCLOAK_ADMIN_PASSWORD", "admin");
-
-  @Test
-  void testOAuth2Flow() {
-    String keycloakUrl = "http://localhost:" + keycloak.getFirstMappedPort();
-    // Test OAuth2 authentication
-  }
-}
-```
-
-### MinIO (S3-compatible Storage)
-
-```java
-import org.testcontainers.containers.MinIOContainer;
-
-@Testcontainers
-class StorageTest {
-
-  @Container
-  static MinIOContainer minio = new MinIOContainer("minio/minio:latest")
-    .withUserName("minioadmin")
-    .withPassword("minioadmin");
-
-  @Test
-  void testFileUpload() {
-    String s3Url = minio.getS3URL();
-    // Test S3/MinIO operations
-  }
-}
-```
-
-### Kafka
-
-```java
-import org.testcontainers.kafka.KafkaContainer;
-
-@Testcontainers
-class KafkaIntegrationTest {
-
-  @Container
-  static KafkaContainer kafka = new KafkaContainer("confluentinc/cp-kafka:7.5.0")
-    .withExposedPorts(9092);
-
-  @Test
-  void testKafkaPublishing() {
-    String bootstrapServers = kafka.getBootstrapServers();
-    // Test Kafka producer/consumer
-  }
-}
-```
-
----
-
-## Testing Patterns
-
-### End-to-End Rule Execution
-
-```java
-@Test
-void testCompleteRuleExecution() {
-  // 1. Compile rules
-  RulesEngineFactory<MyRules> factory = new RulesEngineFactory<>("rules.xlsx", MyRules.class);
-
-  // 2. Create instance
-  MyRules rules = factory.newInstance();
-
-  // 3. Execute method
-  Result result = rules.executeComplexLogic(input1, input2);
-
-  // 4. Verify result
-  assertNotNull(result);
-  assertEquals(expectedValue, result.getValue());
-  assertTrue(result.isValid());
-}
-```
-
-### Testing Decision Tables
-
-```java
-@Test
-void testDecisionTable_allRows_correctResults() {
-  // Decision tables often have many rows
-  // Test representative scenarios
-
-  testRow(input1, expected1);  // First row
-  testRow(input2, expected2);  // Middle row
-  testRow(input3, expected3);  // Last row
-  testEdgeCases();              // Boundary conditions
-}
-
-private void testRow(Input input, Output expected) {
-  // Isolated test for single row
-}
-```
-
-### Testing Type System
-
-```java
-@Test
-void testDataTypeResolution() {
-  IOpenClass ruleType = engine.compile(sourceFile).getCompiledClass();
-
-  // Test type metadata
-  assertNotNull(ruleType);
-  assertEquals("MyRule", ruleType.getName());
-
-  // Test methods
-  IOpenMethod[] methods = ruleType.getMethods();
-  assertTrue(methods.length > 0);
-
-  // Test method signature
-  IOpenMethod method = findMethod(methods, "myMethod");
-  assertNotNull(method);
-  assertEquals(Integer.class, method.getReturnType());
-}
-```
-
-### Testing Error Handling
-
-```java
-@Test
-void testInvalidRuleHandling() {
-  // Invalid Excel structure
-  assertThrows(RulesCompilationException.class, () -> {
-    new RulesEngineFactory<>(INVALID_EXCEL, MyRules.class);
-  });
-}
-
-@Test
-void testRuntimeError() {
-  MyRules rules = factory.newInstance();
-
-  // Method call with invalid input should handle gracefully
-  assertThrows(RulesExecutionException.class, () -> {
-    rules.divide(10, 0);  // Division by zero
-  });
-}
-```
-
----
-
-## Performance & Load Testing
-
-### Basic Performance Test
-
-```java
-@Test
-void testRuleExecutionPerformance() {
-  MyRules rules = factory.newInstance();
-
-  // Warm-up
-  for (int i = 0; i < 100; i++) {
-    rules.calculate(i);
-  }
-
-  // Measure
-  long start = System.nanoTime();
-  for (int i = 0; i < 10_000; i++) {
-    rules.calculate(i);
-  }
-  long duration = System.nanoTime() - start;
-
-  // Assert: Should complete in reasonable time
-  long avgNanos = duration / 10_000;
-  assertTrue(avgNanos < 100_000, "Avg execution > 100µs");
-}
-```
-
-### Load Testing with RestAssured
-
-```java
-@Test
-void testRuleServiceUnderLoad() {
-  // Requires running service
-  int requests = 100;
-  int concurrency = 10;
-
-  // Test with concurrent requests
-  ExecutorService executor = Executors.newFixedThreadPool(concurrency);
-
-  for (int i = 0; i < requests; i++) {
-    executor.submit(() -> {
-      given()
-        .body(createRequest())
-        .when()
-        .post("/api/services/MyService/methods/calculate")
-        .then()
-        .statusCode(200);
-    });
-  }
-
-  executor.shutdown();
-  assertTrue(executor.awaitTermination(30, TimeUnit.SECONDS));
-}
-```
-
----
-
-## Async Testing
-
-### Using Awaitility
-
-```java
-import org.awaitility.Awaitility;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-@Test
-void testAsyncRuleExecution() {
-  asyncRuleService.executeAsync(input);
-
-  // Wait for result with timeout
-  Awaitility
-    .await()
-    .atMost(5, SECONDS)
-    .pollInterval(100, TimeUnit.MILLISECONDS)
-    .until(() -> resultIsReady());
-
-  verifyResult();
-}
-```
-
----
-
-## XML & JSON Testing
-
-### XML Comparison
-
-```java
-import org.xmlunit.XMLUnit;
-import org.xmlunit.matchers.CompareMatcher;
-
-@Test
-void testXMLOutput() {
-  String actual = rules.getXMLOutput();
-  String expected = loadXMLFile("expected.xml");
-
-  XMLUnit.setNormalizeWhitespace(true);
-  assertThat(actual, CompareMatcher.isSimilarTo(expected));
-}
-```
-
-### JSON Assertion
-
-```java
-import io.rest-assured.RestAssured;
-
-@Test
-void testJSONResponse() {
-  given()
-    .when()
-    .get("/api/rules/info")
-    .then()
-    .statusCode(200)
-    .body("name", equalTo("MyRule"))
-    .body("methods.size()", greaterThan(0))
-    .body("methods[0].name", notNullValue());
-}
-```
-
----
-
-## Test Data Management
-
-### Fixture Files
-
-**Location**: `itest.smoke/src/test/resources/`
-
-```
-resources/
-├── excel-files/
-│   ├── simple-rules.xlsx
-│   ├── complex-rules.xlsx
-│   ├── invalid-rules.xlsx
-│   └── ...
-├── data/
-│   ├── test-data.json
-│   └── test-data.xml
-└── config/
-    └── test-app.properties
-```
-
-### Test Data Builder
-
-```java
-public class RuleTestDataBuilder {
-
-  public static RulesEngineFactory<MyRules> createSimpleFactory() {
-    return new RulesEngineFactory<>("excel-files/simple-rules.xlsx", MyRules.class);
-  }
-
-  public static MyRules createSimpleRules() {
-    return createSimpleFactory().newInstance();
-  }
-
-  public static ExecutionRequest createRequest(String methodName, Object... args) {
-    ExecutionRequest request = new ExecutionRequest();
-    request.setMethodName(methodName);
-    request.setArguments(args);
-    return request;
-  }
-}
-
-// Usage
-@Test
-void test() {
-  MyRules rules = RuleTestDataBuilder.createSimpleRules();
-  ExecutionRequest request = RuleTestDataBuilder.createRequest("calculate", 10, 20);
-}
-```
-
----
-
-## Common Test Issues & Solutions
-
-### Issue: Test Hangs
-
-**Causes**: Infinite loop in binding, deadlock, missing timeout
-
-**Solution**:
-```java
-@Test(timeout = 5000)  // 5 second timeout
-void testWithTimeout() {
-  // Test code
-}
-
-// Or with Junit 5
-@Timeout(value = 5, unit = TimeUnit.SECONDS)
-void testWithJunit5Timeout() {
-  // Test code
-}
-```
-
-### Issue: Test Passes Locally, Fails in CI
-
-**Causes**: Environment differences, timing issues, missing Docker
-
-**Solution**:
-```bash
-# Run full test suite locally
-mvn verify
-
-# Skip Docker tests (if on Windows/macOS)
-mvn verify -DnoDocker
-
-# Check CI logs for environment details
-```
-
-### Issue: Flaky Tests
-
-**Causes**: Timing assumptions, resource exhaustion, race conditions
-
-**Solution**:
-```java
-// Use Awaitility for async operations
-Awaitility.await().atMost(5, SECONDS).until(() -> condition());
-
-// Use Thread.sleep sparingly, prefer polling
-waitFor(() -> resource.isReady(), 5000);
-
-// Isolate tests (no shared state)
-@BeforeEach
-void setUp() {
-  // Fresh setup for each test
-}
-```
-
 ---
 
 ## Performance Considerations
@@ -1021,47 +508,6 @@ mvn verify
 mvn verify -DnoPerf
 ```
 
-### Test Isolation
-
-**Good**:
-```java
-@Test
-void testIndependently() {
-  // Complete setup in @BeforeEach
-  // No shared state
-  // No dependencies on other tests
-}
-```
-
-**Bad**:
-```java
-static class SharedResource { }  // Don't share across tests
-
-@Test
-void test1() { SharedResource.init(); }
-@Test
-void test2() { SharedResource.use(); }  // Depends on test1
-```
-
----
-
-## Code Review Checklist for ITEST
-
-Before committing integration tests:
-
-- [ ] Test class has clear `@DisplayName`
-- [ ] Test methods follow naming: `test<Feature>_<Scenario>_<Expected>`
-- [ ] Comprehensive: Happy path + error cases
-- [ ] Setup/teardown proper (@BeforeEach, @AfterEach)
-- [ ] No test interdependencies
-- [ ] Uses TestContainers for external services
-- [ ] Timeout configured (prevents hangs)
-- [ ] Clear assertions with meaningful messages
-- [ ] Test data properly organized
-- [ ] Async tests use Awaitility
-- [ ] Performance tests documented
-- [ ] Passes on CI (Linux, Windows, macOS)
-
 ---
 
 ## For More Information
@@ -1072,9 +518,3 @@ Before committing integration tests:
 - **Awaitility**: https://github.com/awaitility/awaitility
 - **JUnit 5**: https://junit.org/junit5/
 - **Mockito**: https://site.mockito.org/
-- **RestAssured**: https://rest-assured.io/
-
----
-
-**Last Updated**: 2025-12-02
-**Version**: 6.0.0-SNAPSHOT
