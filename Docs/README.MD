@@ -328,12 +328,6 @@ OpenL Tablets is organized into 5 major module groups:
 - **⚙️ Operations** - operations/ - Deployment and DevOps
 - **🔌 API** - api/ - Public APIs and integration
 
----
-
-## 📄 License
-
-OpenL Tablets is licensed under the Apache License 2.0.
-See [LICENSE](../LICENSE) for details.
 
 ---
 
