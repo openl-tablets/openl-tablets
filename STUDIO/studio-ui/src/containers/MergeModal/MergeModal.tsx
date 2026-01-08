@@ -3,7 +3,7 @@ import { Modal, notification } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from '../../hooks'
-import { apiCall, CONFIG } from '../../services'
+import { apiCall, NotFoundError } from '../../services'
 import { useUserStore } from 'store'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
@@ -32,27 +32,26 @@ export const MergeModal: React.FC = () => {
     const [pendingMergeCallback, setPendingMergeCallback] = useState<(() => void) | null>(null)
 
     // Check for existing conflicts when modal opens
-    // Using fetch directly to handle 404 (no conflicts) gracefully without showing error page
+    // 404 means no conflicts - this is expected, so we suppress error pages
     const checkExistingConflicts = useCallback(async (projectId: string) => {
         try {
-            const response = await fetch(`${CONFIG.CONTEXT}/web/projects/${projectId}/merge/conflicts`, {
-                method: 'GET',
-            })
-            // 404 means no conflicts - this is expected
-            if (response.status === 404) {
+            const conflictDetails: ConflictDetails = await apiCall(
+                `/projects/${projectId}/merge/conflicts`,
+                { method: 'GET' },
+                { throwError: true, suppressErrorPages: true }
+            )
+            // If there are existing conflicts, go directly to conflict resolution
+            if (conflictDetails?.conflictGroups && conflictDetails.conflictGroups.length > 0) {
+                setConflictGroups(conflictDetails.conflictGroups)
+                setCurrentStep('conflicts')
+                return true
+            }
+        } catch (err) {
+            // 404 (NotFoundError) means no conflicts - this is expected
+            if (err instanceof NotFoundError) {
                 return false
             }
-            if (response.ok) {
-                const conflictDetails: ConflictDetails = await response.json()
-                // If there are existing conflicts, go directly to conflict resolution
-                if (conflictDetails?.conflictGroups && conflictDetails.conflictGroups.length > 0) {
-                    setConflictGroups(conflictDetails.conflictGroups)
-                    setCurrentStep('conflicts')
-                    return true
-                }
-            }
-        } catch (_err) {
-            // Error checking conflicts - stay on branches step
+            // Other errors - stay on branches step
         }
         return false
     }, [])
