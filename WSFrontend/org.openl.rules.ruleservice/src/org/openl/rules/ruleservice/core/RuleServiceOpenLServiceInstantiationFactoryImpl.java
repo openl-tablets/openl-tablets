@@ -64,8 +64,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Objects.requireNonNull((IDependencyManager) dependencyManager, "dependencyManager cannot be null");
         Collection<Module> modules = serviceDescription.getModules();
 
-        RulesInstantiationStrategy baseInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
-        RulesInstantiationStrategy instantiationStrategy = baseInstantiationStrategy;
+        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                 .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);

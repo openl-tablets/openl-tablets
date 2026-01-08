@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,16 +19,16 @@ import org.openl.util.FileUtils;
 
 public class ProjectDeleteTest {
     @TempDir
-    public File tempFolder;
+    public Path tempFolder;
 
     private ProjectModel pm;
-    private File projectFolder;
+    private Path projectFolder;
 
     @BeforeEach
     public void init() throws Exception {
         // Prepare the project: copy it to the working folder
         projectFolder = tempFolder;
-        FileUtils.copy(new File("test/rules/locking/"), projectFolder);
+        FileUtils.copy(new File("test/rules/locking/"), projectFolder.toFile());
 
         WebStudio ws = mock(WebStudio.class);
         pm = new ProjectModel(ws);
@@ -39,7 +40,7 @@ public class ProjectDeleteTest {
         pm.clearModuleInfo();
 
         try {
-            FileUtils.delete(projectFolder.toPath());
+            FileUtils.delete(projectFolder);
         } catch (IOException e) {
             fail("Project is locked and cannot be deleted");
         }

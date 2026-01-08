@@ -115,7 +115,7 @@ public class LocalUploadController {
                 localProjects.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
                 for (AProject project : localProjects) {
                     try {
-                        File projectFolder = new File(localWorkspace.getLocation(), project.getFolderPath());
+                        var projectFolder = new File(localWorkspace.getLocation(), project.getFolderPath()).toPath();
 
                         ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
                         if (strategy != null && !hasCorrespondingDesignProject(dtr, project)) {

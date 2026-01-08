@@ -1,42 +1,30 @@
 package org.openl.rules.project.instantiation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 
 public class MultiModuleInstantiationTest {
 
     @Test
     public void test1() throws Exception {
 
-        File root = new File("test-resources/multi-module-support/test1");
-        ProjectResolver projectResolver = ProjectResolver.getInstance();
-        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
-
-        List<Module> modules = new ArrayList<>();
-        for (ProjectDescriptor project : projects) {
-            modules.addAll(project.getModules());
-        }
-
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
-
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                dependencyManager,
-                true);
+        var strategy = getInstantiationStrategy("test-resources/multi-module-support/test1");
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
                 strategy);
@@ -52,30 +40,10 @@ public class MultiModuleInstantiationTest {
         assertEquals(400.0, result);
     }
 
-    private List<ProjectDescriptor> listProjectsInFolder(File root) {
-        ProjectResolver projectResolver = ProjectResolver.getInstance();
-        return projectResolver.resolve(root.listFiles());
-    }
-
-    private List<Module> listModules(List<ProjectDescriptor> projects) {
-        List<Module> modules = new ArrayList<>();
-        for (ProjectDescriptor project : projects) {
-            modules.addAll(project.getModules());
-        }
-        return modules;
-    }
-
     @Test
     public void test2() throws Exception {
 
-        File root = new File("test-resources/multi-module-support/test2");
-        List<ProjectDescriptor> projects = listProjectsInFolder(root);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
-
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModules(projects),
-                dependencyManager,
-                true);
+        var strategy = getInstantiationStrategy("test-resources/multi-module-support/test2");
 
         Class<?> serviceClass = strategy.getInstanceClass();
         Object instance = strategy.instantiate();
@@ -105,32 +73,17 @@ public class MultiModuleInstantiationTest {
 
     @Test
     public void testServiceClass() throws Exception {
-        File root = new File("test-resources/multi-module-support/test2");
-        List<ProjectDescriptor> projects = listProjectsInFolder(root);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModules(projects),
-                dependencyManager,
-                true);
+        var strategy = getInstantiationStrategy("test-resources/multi-module-support/test2");
         strategy.setServiceClass(MultiModuleInterface.class);
         Object instantiate = strategy.instantiate();
         assertNotNull(instantiate);
-        assertTrue(instantiate instanceof MultiModuleInterface);
+        assertInstanceOf(MultiModuleInterface.class, instantiate);
     }
 
     @Test
     public void test3() throws Exception {
 
-        File root = new File("test-resources/multi-module-support/test3");
-        ProjectResolver projectResolver = ProjectResolver.getInstance();
-        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
-
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
-
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModules(projects),
-                dependencyManager,
-                true);
+        var strategy = getInstantiationStrategy("test-resources/multi-module-support/test3");
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
                 strategy);
@@ -182,4 +135,26 @@ public class MultiModuleInstantiationTest {
         assertEquals(3, ((Object[]) result).length);
     }
 
+    private static SimpleMultiModuleInstantiationStrategy getInstantiationStrategy(String path) throws Exception {
+        var modules = new ArrayList<Module>();
+        var projects = new ArrayList<ProjectDescriptor>();
+        try (var dirs = Files.list(Path.of(path))) {
+            dirs.forEach(dir -> {
+                        try {
+                            var project = ProjectResolver.getInstance().resolve(dir);
+                            if (project != null) {
+                                projects.add(project);
+                                modules.addAll(project.getModules());
+                            }
+                        } catch (ProjectResolvingException e) {
+                            fail("Failed to resolve project in " + dir, e);
+                        }
+                    }
+            );
+
+            var dependencyManager = new SimpleDependencyManager(projects, null, true, null);
+            return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
+        }
+
+    }
 }

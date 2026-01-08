@@ -1,8 +1,9 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,8 +30,8 @@ public class SimpleProjectEngineFactory<T> {
     protected final Map<String, Object> externalParameters;
     protected final boolean executionMode;
     protected final ClassLoader classLoader;
-    protected final File[] projectDependencies;
-    protected final File project;
+    protected final List<Path> projectDependencies;
+    protected final Path project;
     protected final Class<?> interfaceClass;
     // lazy initialization.
     protected Class<?> generatedInterfaceClass;
@@ -94,36 +95,50 @@ public class SimpleProjectEngineFactory<T> {
             return this;
         }
 
-        protected File[] getProjectDependencies() {
-            List<File> dependencies = new ArrayList<>();
+        protected List<Path> getProjectDependencies() {
+            var dependencies = new ArrayList<Path>();
+
+            // 1. Handle Workspace
             if (workspace != null) {
-                File workspaceFile = new File(workspace);
-                if (!workspaceFile.isDirectory()) {
+                var workspacePath = Path.of(workspace);
+
+                if (!Files.isDirectory(workspacePath)) {
                     throw new IllegalArgumentException("Workspace is not a directory with projects");
                 }
-                File[] dirs = workspaceFile.listFiles(File::isDirectory);
-                if (dirs != null) {
-                    dependencies.addAll(Arrays.asList(dirs));
+
+                // Files.list throws IOException, so we must catch it.
+                // Try-with-resources ensures the stream is closed.
+                try (var stream = Files.list(workspacePath)) {
+                    stream.filter(Files::isDirectory)
+                            .forEach(dependencies::add);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to list workspace directories", e);
                 }
             }
+
+            // 2. Handle Explicit Dependencies
             if (projectDependencies != null) {
                 for (String dependency : projectDependencies) {
-                    File dependencyFile = new File(dependency);
-                    if (!dependencyFile.isDirectory()) {
-                        throw new IllegalArgumentException("Dependency is not a project directory");
+                    var dependencyPath = Path.of(dependency);
+
+                    if (!Files.isDirectory(dependencyPath)) {
+                        throw new IllegalArgumentException("Dependency is not a project directory: " + dependency);
                     }
-                    dependencies.add(dependencyFile);
+
+                    dependencies.add(dependencyPath);
                 }
             }
-            return dependencies.isEmpty() ? null : dependencies.toArray(new File[0]);
+
+            // 3. Return List (Best practice: return empty list rather than null)
+            return dependencies;
         }
 
         public SimpleProjectEngineFactory<T> build() {
             if (project == null || project.isEmpty()) {
                 throw new IllegalArgumentException("project cannot be null or empty");
             }
-            File projectFile = new File(project);
-            File[] dependencies = getProjectDependencies();
+            var projectFile = Path.of(project);
+            var dependencies = getProjectDependencies();
 
             return new SimpleProjectEngineFactory<>(projectFile,
                     dependencies,
@@ -134,8 +149,8 @@ public class SimpleProjectEngineFactory<T> {
         }
     }
 
-    protected SimpleProjectEngineFactory(File project,
-                                         File[] projectDependencies,
+    protected SimpleProjectEngineFactory(Path project,
+                                         List<Path> projectDependencies,
                                          ClassLoader classLoader,
                                          Class<T> interfaceClass,
                                          Map<String, Object> externalParameters,
@@ -195,13 +210,22 @@ public class SimpleProjectEngineFactory<T> {
         ProjectResolver projectResolver = ProjectResolver.getInstance();
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (projectDependencies != null) {
-            List<ProjectDescriptor> projects;
+            var projects = new ArrayList<ProjectDescriptor>();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 if (classLoader != null) {
                     Thread.currentThread().setContextClassLoader(classLoader);
                 }
-                projects = projectResolver.resolve(projectDependencies);
+                for (var file : projectDependencies) {
+                    try {
+                        var project = projectResolver.resolve(file);
+                        if (project != null) {
+                            projects.add(project);
+                        }
+                    } catch (Exception ex) {
+                        log.warn("Failed to resolve project in {}", file, ex);
+                    }
+                }
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
@@ -258,7 +282,7 @@ public class SimpleProjectEngineFactory<T> {
             if (pd == null) {
                 throw new ProjectResolvingException(
                         String.format("Failed to resolve the project. Folder '%s' is not a OpenL project.",
-                                project.getAbsolutePath()));
+                                project.toAbsolutePath()));
             }
             this.projectDescriptor = pd;
         }

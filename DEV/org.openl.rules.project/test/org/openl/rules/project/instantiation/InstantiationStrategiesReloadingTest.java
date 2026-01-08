@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +52,8 @@ public class InstantiationStrategiesReloadingTest {
     private ApiBasedInstantiationStrategy apiStrategy;
     private ApiBasedInstantiationStrategy dynamicStrategy;
 
-    private static ApiBasedInstantiationStrategy resolve(File folder) throws Exception {
-        ProjectDescriptor project = resolver.resolve(folder);
+    private static ApiBasedInstantiationStrategy resolve(String folder) throws Exception {
+        var project = resolver.resolve(Path.of(folder));
         if (project != null) {
             List<PathEntry> classpath = project.getClasspath();
             if (classpath == null) {
@@ -67,9 +68,8 @@ public class InstantiationStrategiesReloadingTest {
 
     @BeforeEach
     public void init() throws Exception {
-        apiStrategy = resolve(
-                new File("./test-resources/reloading-test/SimpleProject"));
-        dynamicStrategy = resolve(new File("./test-resources/reloading-test/EngineProject"));
+        apiStrategy = resolve("./test-resources/reloading-test/SimpleProject");
+        dynamicStrategy = resolve("./test-resources/reloading-test/EngineProject");
     }
 
     public void checkOriginal(Object instance) throws Exception {

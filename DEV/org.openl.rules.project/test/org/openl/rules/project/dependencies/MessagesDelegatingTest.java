@@ -3,7 +3,7 @@ package org.openl.rules.project.dependencies;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +37,7 @@ public class MessagesDelegatingTest {
 
     @BeforeEach
     public void init() throws Exception {
-        File rulesFolder = new File("test-resources/modules_with_errors/");
+        var rulesFolder = Path.of("test-resources/modules_with_errors/");
         project = ProjectResolver.getInstance().resolve(rulesFolder);
         dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
                 Thread.currentThread().getContextClassLoader(),

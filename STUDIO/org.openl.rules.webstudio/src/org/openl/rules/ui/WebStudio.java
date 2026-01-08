@@ -489,8 +489,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         String repoId = project.getRepository().getId();
                         List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
                                 k -> new ArrayList<>());
-                        File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
-                        File folder = new File(repoRoot, project.getFolderPath());
+                        var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+                        var folder = repoRoot.resolve(project.getFolderPath());
                         ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
                         if (resolvedDescriptor != null) {
                             resolvedDescriptor.getModules().sort(MODULES_COMPARATOR);
@@ -858,7 +858,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
-        File projectFolder = oldProjectDescriptor.getProjectFolder().toFile();
+        var projectFolder = oldProjectDescriptor.getProjectFolder();
         model.resetSourceModified(); // Because we rewrite a file in the
         // workspace
 

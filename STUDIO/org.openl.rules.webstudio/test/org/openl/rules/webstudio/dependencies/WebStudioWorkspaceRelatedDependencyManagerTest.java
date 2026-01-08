@@ -2,8 +2,9 @@ package org.openl.rules.webstudio.dependencies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -31,8 +32,8 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
             if (project == null || project.isEmpty()) {
                 throw new IllegalArgumentException("project cannot be null or empty");
             }
-            File projectFile = new File(project);
-            File[] dependencies = getProjectDependencies();
+            var projectFile = Path.of(project);
+            var dependencies = getProjectDependencies();
             return new WebStudioWorkspaceRelatedSimpleProjectEngineFactory<>(projectFile,
                     dependencies,
                     classLoader,
@@ -43,8 +44,8 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
     }
 
     public static class WebStudioWorkspaceRelatedSimpleProjectEngineFactory<T> extends SimpleProjectEngineFactory<T> {
-        public WebStudioWorkspaceRelatedSimpleProjectEngineFactory(File project,
-                                                                   File[] projectDependencies,
+        public WebStudioWorkspaceRelatedSimpleProjectEngineFactory(Path project,
+                                                                   List<Path> projectDependencies,
                                                                    ClassLoader classLoader,
                                                                    Class<T> interfaceClass,
                                                                    Map<String, Object> externalParameters,

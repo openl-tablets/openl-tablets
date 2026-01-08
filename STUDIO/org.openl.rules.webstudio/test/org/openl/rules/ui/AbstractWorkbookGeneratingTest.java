@@ -1,10 +1,10 @@
 package org.openl.rules.ui;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,10 +20,10 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 
 public abstract class AbstractWorkbookGeneratingTest {
     @TempDir
-    public File tempFolder;
+    public Path tempFolder;
 
     protected List<Module> getModules() throws ProjectResolvingException {
-        File rulesFolder = tempFolder;
+        var rulesFolder = tempFolder;
         ProjectDescriptor projectDescriptor = ProjectResolver.getInstance().resolve(rulesFolder);
         return projectDescriptor.getModules();
     }
@@ -41,7 +41,7 @@ public abstract class AbstractWorkbookGeneratingTest {
     }
 
     protected void writeBook(Workbook wb, String file) throws IOException {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(tempFolder, file)))) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(tempFolder.resolve(file)))) {
             wb.write(os);
         }
     }

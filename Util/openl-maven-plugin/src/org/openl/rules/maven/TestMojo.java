@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayDeque;
@@ -176,7 +177,7 @@ public final class TestMojo extends BaseOpenLMojo {
         String mainSourcePath = null;
 
         File testDir = testSourceDirectory.getCanonicalFile();
-        if (testDir.isDirectory() && ProjectResolver.getInstance().isRulesProject(testDir) != null) {
+        if (testDir.isDirectory() && ProjectResolver.getInstance().isRulesProject(testDir.toPath()) != null) {
             mainSourcePath = sourcePath;
 
             try {
@@ -225,7 +226,7 @@ public final class TestMojo extends BaseOpenLMojo {
     private Summary executeModuleByModule(String testSourcePath,
                                           String mainSourcePath,
                                           boolean hasDependencies) throws MalformedURLException, ProjectResolvingException {
-        ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
+        var pd = ProjectResolver.getInstance().resolve(Path.of(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
         }

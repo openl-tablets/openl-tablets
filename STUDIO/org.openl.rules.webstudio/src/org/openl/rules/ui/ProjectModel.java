@@ -1219,7 +1219,7 @@ public class ProjectModel {
             return;
         }
 
-        File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
+        var projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
             ProjectResolver projectResolver = studio.getProjectResolver();
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
@@ -1305,7 +1305,7 @@ public class ProjectModel {
     private ProjectDescriptor getProjectDescriptor() {
         try {
             ProjectResolver projectResolver = studio.getProjectResolver();
-            File localFile = new File(getProject().getLocalRepository().getRoot().toFile(), getProject().getName());
+            var localFile = getProject().getLocalRepository().getRoot().resolve(getProject().getName());
             return projectResolver.resolve(localFile);
         } catch (Exception e) {
             // Fail-safe behavior for mock tests where studio.getProjectResolver() is not set.
