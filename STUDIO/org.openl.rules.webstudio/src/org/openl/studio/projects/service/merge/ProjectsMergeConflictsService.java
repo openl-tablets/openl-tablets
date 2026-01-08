@@ -9,6 +9,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
@@ -47,6 +48,24 @@ import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
  * @see org.openl.studio.projects.model.merge.ConflictResolutionStrategy
  */
 public interface ProjectsMergeConflictsService {
+
+    /**
+     * Gets detailed conflict information including commit details for all sides.
+     *
+     * <p>This method provides comprehensive information about the merge conflict,
+     * including:
+     * <ul>
+     *   <li>Conflicted files grouped by project</li>
+     *   <li>Commit details for OURS side (author, date, branch)</li>
+     *   <li>Commit details for THEIRS side (author, date, branch)</li>
+     *   <li>Commit details for BASE side (common ancestor)</li>
+     *   <li>Default merge commit message</li>
+     * </ul>
+     *
+     * @param mergeConflictInfo conflict information from merge operation
+     * @return detailed conflict response with all revision information
+     */
+    ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo);
 
     /**
      * Groups conflicted files by project with automatic sorting.

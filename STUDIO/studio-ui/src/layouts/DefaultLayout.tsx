@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { Layout } from 'antd'
 import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
+import { MergeModal } from 'containers/MergeModal'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
 import Forbidden from 'pages/403'
@@ -47,6 +48,7 @@ export const DefaultLayout = () => {
                 {content}
             </AntContent>
             <DeployModal />
+            <MergeModal />
         </Layout>
     )
 }

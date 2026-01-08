@@ -2,7 +2,7 @@
 
 **Version**: 6.0.0-SNAPSHOT
 **Status**: BETA
-**Last Updated**: 2025-12-18
+**Last Updated**: 2026-01-07
 
 ---
 
@@ -556,7 +556,31 @@ sessionAttributes = {
       {projectPath: "projects/ProjectA", files: ["rules.xlsx", "config.xml"]}
     ],
     isMerging: true,
-    timestamp: "2025-12-18T10:30:00Z"
+    timestamp: "2025-12-18T10:30:00Z",
+
+    // Revision metadata for conflict resolution UI
+    oursRevision: {
+      branch: "main",
+      commit: "abc1234567890def",
+      author: "John Doe",
+      modifiedAt: "2025-12-18T10:30:00Z",
+      exists: true
+    },
+    theirsRevision: {
+      branch: "feature-123",
+      commit: "def0987654321abc",
+      author: "Jane Smith",
+      modifiedAt: "2025-12-17T14:22:00Z",
+      exists: true
+    },
+    baseRevision: {
+      branch: "main",
+      commit: "base123456789abc",
+      author: "John Doe",
+      modifiedAt: "2025-12-10T09:00:00Z",
+      exists: true
+    },
+    defaultMessage: "Merge branch 'feature-123' into main"
   },
 
   "merge.conflicts:repo1:ProjectB": MergeConflictInfo {
@@ -564,7 +588,11 @@ sessionAttributes = {
     targetBranch: "release-2.0",
     conflicts: [...],
     isMerging: false,
-    timestamp: "2025-12-18T09:15:00Z"
+    timestamp: "2025-12-18T09:15:00Z",
+    oursRevision: {...},
+    theirsRevision: {...},
+    baseRevision: {...},
+    defaultMessage: "Merge branch 'main' into release-2.0"
   }
 }
 ```
@@ -1953,6 +1981,6 @@ The API is currently in BETA status and will evolve based on user feedback and r
 
 ---
 
-**Last Updated**: 2025-12-18
+**Last Updated**: 2026-01-07
 **Version**: 6.0.0-SNAPSHOT
 **Status**: BETA

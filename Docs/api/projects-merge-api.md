@@ -3,7 +3,7 @@
 **Version**: 6.0.0-SNAPSHOT
 **Status**: BETA
 **Base Path**: `/projects/{projectId}/merge`
-**Last Updated**: 2025-12-18
+**Last Updated**: 2026-01-07
 
 ---
 
@@ -255,7 +255,7 @@ stateDiagram-v2
 
 **Endpoint**: `GET /projects/{projectId}/merge/conflicts`
 
-**Description**: Retrieves detailed information about merge conflicts for a project. Requires a previous merge operation that detected conflicts.
+**Description**: Retrieves detailed information about merge conflicts for a project, including revision metadata for all three sides (OURS, THEIRS, BASE) and a default merge message. Requires a previous merge operation that detected conflicts.
 
 **HTTP Method**: GET
 
@@ -264,18 +264,55 @@ stateDiagram-v2
 
 **Response**: `200 OK`
 ```json
-[
-  {
-    "projectName": "MyProject",
-    "projectPath": "projects/MyProject",
-    "files": [
-      "rules/BusinessRules.xlsx",
-      "rules/ValidationRules.xlsx",
-      "rules.xml"
-    ]
-  }
-]
+{
+  "conflictGroups": [
+    {
+      "projectName": "MyProject",
+      "projectPath": "projects/MyProject",
+      "files": [
+        "rules/BusinessRules.xlsx",
+        "rules/ValidationRules.xlsx",
+        "rules.xml"
+      ]
+    }
+  ],
+  "oursRevision": {
+    "branch": "main",
+    "commit": "abc1234567890def",
+    "author": "John Doe",
+    "modifiedAt": "2025-12-18T10:30:00Z",
+    "exists": true
+  },
+  "theirsRevision": {
+    "branch": "feature-pricing",
+    "commit": "def0987654321abc",
+    "author": "Jane Smith",
+    "modifiedAt": "2025-12-17T14:22:00Z",
+    "exists": true
+  },
+  "baseRevision": {
+    "branch": "main",
+    "commit": "base123456789abc",
+    "author": "John Doe",
+    "modifiedAt": "2025-12-10T09:00:00Z",
+    "exists": true
+  },
+  "defaultMessage": "Merge branch 'feature-pricing' into main"
+}
 ```
+
+**Revision Information**:
+- `oursRevision`: Metadata about the current branch version
+- `theirsRevision`: Metadata about the merging branch version
+- `baseRevision`: Metadata about the common ancestor version
+- `defaultMessage`: Auto-generated merge commit message (can be overridden during resolution)
+
+**RevisionInfo Fields**:
+- `branch`: Branch name
+- `commit`: Full commit hash
+- `author`: Commit author name
+- `modifiedAt`: ISO 8601 timestamp of the commit
+- `exists`: Boolean indicating if the file exists in this revision (for detecting added/deleted files)
 
 **File Ordering**:
 - Excel files (`.xls`, `.xlsx`) appear first (prioritized for business logic importance)
@@ -467,6 +504,44 @@ interface MergeResultResponse {
 
 ---
 
+### ConflictDetailsResponse
+
+```typescript
+interface ConflictDetailsResponse {
+  conflictGroups: ConflictGroup[];  // Array of conflict groups
+  oursRevision?: RevisionInfo;       // Metadata for current branch version
+  theirsRevision?: RevisionInfo;     // Metadata for merging branch version
+  baseRevision?: RevisionInfo;       // Metadata for common ancestor version
+  defaultMessage?: string;           // Auto-generated merge commit message
+}
+```
+
+**Notes**:
+- Revision info fields may be `null` if metadata cannot be determined
+- `defaultMessage` is auto-generated based on branch names and merge direction
+- Client can override `defaultMessage` when calling resolve endpoint
+
+---
+
+### RevisionInfo
+
+```typescript
+interface RevisionInfo {
+  branch: string;             // Branch name
+  commit: string;             // Full commit hash
+  author?: string;            // Commit author name (may be null)
+  modifiedAt?: string;        // ISO 8601 timestamp (may be null)
+  exists: boolean;            // Whether file exists in this revision
+}
+```
+
+**Use Cases**:
+- Display revision metadata in conflict resolution UI
+- Show who made changes and when
+- Detect added/deleted files (when `exists` is false)
+
+---
+
 ### ConflictGroup
 
 ```typescript
@@ -586,7 +661,13 @@ interface ResolveConflictsResponse {
 2. Get detailed conflicts
    GET /projects/MyProject/merge/conflicts
 
-   Response: [{ "files": ["rules/BusinessRules.xlsx", "rules.xml"] }]
+   Response: {
+     "conflictGroups": [{ "files": ["rules/BusinessRules.xlsx", "rules.xml"] }],
+     "oursRevision": { "branch": "main", "author": "John", ... },
+     "theirsRevision": { "branch": "feature-123", "author": "Jane", ... },
+     "baseRevision": { "branch": "main", "commit": "base123...", ... },
+     "defaultMessage": "Merge branch 'feature-123' into main"
+   }
 
 3. Download conflict versions for review
    GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side=OURS
@@ -1102,6 +1183,8 @@ Comparator<String> excelFirstComparator = (f1, f2) -> {
 - Session-based conflict management
 - Excel file prioritization
 - Automatic project state management
+- **Enhanced conflict details response**: Added revision metadata (author, date, commit hash) for OURS, THEIRS, and BASE versions
+- **Default merge message**: API now returns auto-generated merge commit message that can be overridden during resolution
 
 ---
 

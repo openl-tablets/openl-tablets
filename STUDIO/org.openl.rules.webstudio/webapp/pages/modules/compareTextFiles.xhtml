@@ -20,7 +20,7 @@
   <link rel="stylesheet" type="text/css" href="#{contextPath}/css/diff2html.css"/>
   <script type="text/javascript" src="#{contextPath}/javascript/diff2html.js"></script>
 
-  <rich:popupPanel id="modalCompareTextFiles" resizeable="true">
+  <rich:popupPanel id="modalCompareTextFiles" resizeable="true" zindex="2000">
     <f:facet name="header">
       <h:outputText value="Compare text files" />
     </f:facet>
@@ -37,6 +37,7 @@
         </div>
 
         <a4j:jsFunction name="refreshCompareTextFilesDialog" render="@form" oncomplete="showCompareTextFilesDialog();">
+          <a4j:param name="projectId" assignTo="#{conflictedFileDiffController.projectId}"/>
           <a4j:param name="conflict" assignTo="#{conflictedFileDiffController.conflictedFile}"/>
         </a4j:jsFunction>
         <a4j:jsFunction name="closeCompareTextFilesDialog" action="#{conflictedFileDiffController.close}"
@@ -48,8 +49,8 @@
 
   <script>
       //<![CDATA[
-      function openCompareTextFilesDialog(conflict) {
-        refreshCompareTextFilesDialog(conflict);
+      function openCompareTextFilesDialog(projectId, conflict) {
+        refreshCompareTextFilesDialog(projectId, conflict);
       }
 
       function showCompareTextFilesDialog() {

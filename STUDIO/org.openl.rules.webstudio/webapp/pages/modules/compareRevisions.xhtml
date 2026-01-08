@@ -28,7 +28,7 @@
 
   </style>
 
-  <rich:popupPanel id="modalCompareRevisions" resizeable="true">
+  <rich:popupPanel id="modalCompareRevisions" resizeable="true" zindex="2000">
     <f:facet name="header">
       <h:outputText value="Compare files" />
     </f:facet>
@@ -88,6 +88,7 @@
         </p>
 
         <a4j:jsFunction name="refreshCompareRevisionsDialog" render="@form" oncomplete="showCompareRevisionsDialog();">
+          <a4j:param name="projectId" assignTo="#{conflictedFileDiffController.projectId}"/>
           <a4j:param name="conflict" assignTo="#{conflictedFileDiffController.conflictedFile}"/>
         </a4j:jsFunction>
         <a4j:jsFunction name="closeCompareDialog" action="#{conflictedFileDiffController.close}"
@@ -99,8 +100,8 @@
 
   <script>
       //<![CDATA[
-      function openCompareRevisionsDialog(conflict) {
-        refreshCompareRevisionsDialog(conflict);
+      function openCompareRevisionsDialog(projectId, conflict) {
+        refreshCompareRevisionsDialog(projectId, conflict);
       }
 
       function showCompareRevisionsDialog() {

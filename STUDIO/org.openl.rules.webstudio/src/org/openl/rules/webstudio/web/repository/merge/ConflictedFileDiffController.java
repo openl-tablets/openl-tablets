@@ -25,7 +25,9 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -38,11 +40,18 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
     private final UserManagementService userManagementService;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+    private ProjectIdModel projectId;
 
     public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager,
-                                        UserManagementService userManagementService) {
+                                        UserManagementService userManagementService, ProjectsMergeConflictsSessionHolder conflictsSessionHolder) {
         this.workspaceManager = workspaceManager;
         this.userManagementService = userManagementService;
+        this.conflictsSessionHolder = conflictsSessionHolder;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = ProjectIdModel.decode(projectId);
     }
 
     public void setConflictedFile(String conflictedFile) {
@@ -61,7 +70,10 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 return;
             }
 
-            MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+            // Try new projectId-based storage first, fall back to legacy ConflictUtils for backward compatibility
+            MergeConflictInfo mergeConflict = projectId != null
+                    ? conflictsSessionHolder.getConflictInfo(projectId)
+                    : ConflictUtils.getMergeConflict();
             if (mergeConflict != null) {
                 var conflictDetails = mergeConflict.details();
                 String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -150,7 +162,10 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             return null;
         }
 
-        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
+        // Try new projectId-based storage first, fall back to legacy ConflictUtils for backward compatibility
+        MergeConflictInfo mergeConflict = projectId != null
+                ? conflictsSessionHolder.getConflictInfo(projectId)
+                : ConflictUtils.getMergeConflict();
         if (mergeConflict != null) {
             var conflictDetails = mergeConflict.details();
             return conflictDetails.diffs().get(conflictedFile);

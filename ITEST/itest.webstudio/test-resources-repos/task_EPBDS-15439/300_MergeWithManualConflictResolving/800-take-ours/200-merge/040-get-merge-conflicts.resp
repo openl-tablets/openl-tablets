@@ -1,12 +1,35 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "projectName": "EPBDS-15439",
-    "projectPath": "EPBDS-15439",
-    "files": [
-      "EPBDS-15439/Main.xlsx"
-    ]
-  }
-]
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-15439",
+      "projectPath": "EPBDS-15439",
+      "files": [
+        "EPBDS-15439/Main.xlsx"
+      ]
+    }
+  ],
+  "oursRevision": {
+    "commit": "*",
+    "branch": "*",
+    "author": "Admin",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "branch": "*",
+    "author": "Admin",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "Admin",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}
