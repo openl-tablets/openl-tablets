@@ -59,8 +59,12 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         return systemSettings?.supportedFeatures?.groupsManagement || false
     }, [systemSettings])
 
+    const isPersonalAccessTokenEnabled = useMemo(() => {
+        return systemSettings?.supportedFeatures?.personalAccessToken || false
+    }, [systemSettings])
+
     return (
-        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, openlInfo, appVersion }}>
+        <SystemContext.Provider value={{ systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled, isPersonalAccessTokenEnabled, openlInfo, appVersion }}>
             <PermissionContext.Provider value={{ hasAdminPermission }}>
                 {children}
             </PermissionContext.Provider>

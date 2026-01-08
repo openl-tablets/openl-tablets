@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
     DatabaseOutlined,
+    KeyOutlined,
     MailOutlined,
     NotificationOutlined,
     NumberOutlined,
@@ -19,6 +20,7 @@ import { PermissionContext, SystemContext } from '../contexts'
 const MenuItems = {
     userProfile: '/administration/user/profile',
     userSettings: '/administration/user/settings',
+    userTokens: '/administration/user/tokens',
     repositories: '/administration/repositories/design',
     system: '/administration/system',
     security: '/administration/security',
@@ -32,7 +34,7 @@ const MenuItems = {
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const { hasAdminPermission } = useContext(PermissionContext)
-    const { isUserManagementEnabled, isGroupsManagementEnabled } = useContext(SystemContext)
+    const { isUserManagementEnabled, isGroupsManagementEnabled, isPersonalAccessTokenEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -57,6 +59,9 @@ const MainMenu: React.FC = () => {
             >
                 <Menu.Item key={MenuItems.userProfile} icon={<UserOutlined />} id="menuitem-profile">{t('common:menu.my_profile')}</Menu.Item>
                 <Menu.Item key={MenuItems.userSettings} icon={<SettingOutlined />} id="menuitem-settings">{t('common:menu.my_settings')}</Menu.Item>
+                {isPersonalAccessTokenEnabled && (
+                    <Menu.Item key={MenuItems.userTokens} icon={<KeyOutlined />} id="menuitem-tokens">{t('common:menu.personal_access_tokens')}</Menu.Item>
+                )}
                 <Menu.Divider />
                 {hasAdminPermission() && (
                     <>

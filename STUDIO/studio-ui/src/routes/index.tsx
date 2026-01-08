@@ -15,6 +15,7 @@ import { Users } from '../containers/Users'
 import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
+import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
 import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
                             {
                                 path: 'settings',
                                 element: <UserSettings />,
+                            },
+                            {
+                                path: 'tokens',
+                                element: <PersonalAccessTokens />,
                             },
                         ],
                     },
