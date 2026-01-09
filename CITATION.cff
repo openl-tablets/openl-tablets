@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+title: OpenL Tablets
+message: >-
+  If you use OpenL Tablets in your research or project, please cite it using
+  the metadata from this file.
+type: software
+authors:
+  - given-names: Sergey
+    family-names: Zyrianov
+    affiliation: EIS Group
+  - given-names: Stanislav
+    family-names: Shor
+  - given-names: Yury
+    family-names: Molchan
+    email: ymolchan@eisgroup.com
+    affiliation: EIS Group
+  - given-names: Marat
+    family-names: Kamalov
+  - given-names: Nail
+    family-names: Samatov
+  - given-names: Vlad
+    family-names: Pikus
+    email: vpikus@eisgroup.com
+    affiliation: EIS Group
+repository-code: 'https://github.com/openl-tablets/openl-tablets'
+url: 'https://openl-tablets.org'
+abstract: >-
+  OpenL Tablets is an open-source business rules management system (BRMS)
+  and decision engine that bridges the gap between business requirements
+  and software implementation. It provides Excel-based rule authoring,
+  a web-based IDE, and seamless integration with Java applications.
+  The system enables business users to create and manage rules using
+  familiar spreadsheet-like interfaces while offering developers powerful
+  APIs for rule execution and deployment.
+keywords:
+  - business rules
+  - decision engine
+  - BRMS
+  - rules engine
+  - decision tables
+  - business logic
+  - rules management
+  - Excel-based rules
+  - Java
+  - enterprise software
+license: LGPL-3.0-or-later
+license-url: 'https://www.gnu.org/licenses/lgpl-3.0.html'
+version: 6.0.0
+date-released: '2025-11-05'
