@@ -90,7 +90,7 @@
 
         <!-- Bytecode manipulation -->
         <asm.version>9.9.1</asm.version>
-        <byte-buddy.version>1.18.2</byte-buddy.version>
+        <byte-buddy.version>1.18.3</byte-buddy.version>
 
         <!-- Kafka -->
         <kafka.version>4.1.1</kafka.version>
@@ -134,7 +134,7 @@
         <!-- DB -->
         <h2.version>2.4.240</h2.version>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <hibernate.orm.version>6.6.31.Final</hibernate.orm.version>
+        <hibernate.orm.version>6.6.40.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.3.Final</hibernate.validator.version>
 
         <!-- Testing -->
@@ -144,7 +144,7 @@
         <mockito.version>5.21.0</mockito.version>
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.11.0</xmlunit.version>
-        <testcontainers.version>2.0.2</testcontainers.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.6.0</minio.version>
         <ojdbc11.version>23.26.0.0.0</ojdbc11.version>
@@ -166,7 +166,7 @@
 
         <!-- Mail -->
         <angus-mail.version>2.0.5</angus-mail.version>
-        <greenmail.version>2.1.7</greenmail.version>
+        <greenmail.version>2.1.8</greenmail.version>
 
         <!-- XML -->
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
