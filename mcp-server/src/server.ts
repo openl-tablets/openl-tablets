@@ -498,17 +498,9 @@ async function handleResourceRead(
 }
 
 /**
- * SSE endpoint for MCP protocol (for Cursor direct connection)
- * GET /mcp/sse - Establishes SSE connection
- * 
- * Base URL is configured on the server side (environment variable OPENL_BASE_URL or Docker config).
- * Only authentication token can be passed via Authorization header or query parameter.
- * 
- * Supports configuration via:
- *   1. HTTP Authorization header: "Authorization: Token <PAT>"
- *   2. Query parameter: ?OPENL_PERSONAL_ACCESS_TOKEN=<PAT>
+ * SSE endpoint handler (shared for /mcp/sse and /sse)
  */
-app.get('/mcp/sse', async (req: Request, res: Response) => {
+const handleSSE = async (req: Request, res: Response) => {
   try {
     // Extract configuration from headers and query params (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
@@ -541,7 +533,10 @@ app.get('/mcp/sse', async (req: Request, res: Response) => {
     // Create a new MCP server instance for this session with the specific client
     const sessionServer = createSessionServer(client);
 
-    const transport = new SSEServerTransport('/mcp/messages', res);
+    // Determine messages endpoint path based on request path
+    // If request came via /sse (nginx proxy), use /messages, otherwise use /mcp/messages
+    const messagesPath = req.path === '/sse' ? '/messages' : '/mcp/messages';
+    const transport = new SSEServerTransport(messagesPath, res);
     const transportSessionId = transport.sessionId;
     sseTransports[transportSessionId] = transport;
 
@@ -559,20 +554,27 @@ app.get('/mcp/sse', async (req: Request, res: Response) => {
     console.error('❌ Failed to establish SSE connection:', sanitizeError(error));
     res.status(500).json({ error: 'Failed to establish SSE connection', message: sanitizeError(error) });
   }
-});
+};
 
 /**
- * StreamableHttp endpoint for MCP protocol (for Cursor direct connection)
- * POST /mcp/sse - Establishes streamableHttp connection
- * This allows Cursor to connect immediately without fallback to SSE
+ * SSE endpoint for MCP protocol (for Cursor direct connection)
+ * GET /mcp/sse - Establishes SSE connection
+ * GET /sse - Alias for nginx proxy compatibility (when /mcp prefix is stripped)
  * 
  * Base URL is configured on the server side (environment variable OPENL_BASE_URL or Docker config).
- * Only authentication token can be passed via Authorization header.
+ * Only authentication token can be passed via Authorization header or query parameter.
  * 
  * Supports configuration via:
  *   1. HTTP Authorization header: "Authorization: Token <PAT>"
+ *   2. Query parameter: ?OPENL_PERSONAL_ACCESS_TOKEN=<PAT>
  */
-app.post('/mcp/sse', async (req: Request, res: Response) => {
+app.get('/mcp/sse', handleSSE);
+app.get('/sse', handleSSE); // Alias for nginx proxy compatibility
+
+/**
+ * StreamableHttp endpoint handler (shared for /mcp/sse and /sse)
+ */
+const handleStreamableHttp = async (req: Request, res: Response) => {
   try {
     // Extract configuration from headers (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
@@ -644,13 +646,27 @@ app.post('/mcp/sse', async (req: Request, res: Response) => {
     console.error('❌ Failed to handle StreamableHttp request:', sanitizeError(error));
     res.status(500).json({ error: 'Failed to handle StreamableHttp request' });
   }
-});
+};
 
 /**
- * Message endpoint for SSE transport
- * POST /mcp/messages?sessionId=xxx - Sends messages to MCP server
+ * StreamableHttp endpoint for MCP protocol (for Cursor direct connection)
+ * POST /mcp/sse - Establishes streamableHttp connection
+ * POST /sse - Alias for nginx proxy compatibility (when /mcp prefix is stripped)
+ * This allows Cursor to connect immediately without fallback to SSE
+ * 
+ * Base URL is configured on the server side (environment variable OPENL_BASE_URL or Docker config).
+ * Only authentication token can be passed via Authorization header.
+ * 
+ * Supports configuration via:
+ *   1. HTTP Authorization header: "Authorization: Token <PAT>"
  */
-app.post('/mcp/messages', async (req: Request, res: Response) => {
+app.post('/mcp/sse', handleStreamableHttp);
+app.post('/sse', handleStreamableHttp); // Alias for nginx proxy compatibility
+
+/**
+ * Message endpoint handler for SSE transport (shared for /mcp/messages and /messages)
+ */
+const handleSSEMessages = async (req: Request, res: Response) => {
   try {
     const sessionId = req.query.sessionId as string;
     const transport = sseTransports[sessionId];
@@ -664,7 +680,15 @@ app.post('/mcp/messages', async (req: Request, res: Response) => {
     console.error('❌ Failed to handle message:', sanitizeError(error));
     res.status(500).json({ error: 'Failed to handle message' });
   }
-});
+};
+
+/**
+ * Message endpoint for SSE transport
+ * POST /mcp/messages?sessionId=xxx - Sends messages to MCP server
+ * POST /messages?sessionId=xxx - Alias for nginx proxy compatibility
+ */
+app.post('/mcp/messages', handleSSEMessages);
+app.post('/messages', handleSSEMessages); // Alias for nginx proxy compatibility
 
 /**
  * Health check endpoint
