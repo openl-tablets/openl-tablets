@@ -158,7 +158,7 @@
         <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
-        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
 
         <!-- Cache -->
         <javax.cache-api.version>1.1.1</javax.cache-api.version>
