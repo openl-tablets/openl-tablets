@@ -78,7 +78,7 @@
         <!-- Managing dependencies versions -->
         <!-- Spring -->
         <spring.framework.version>6.2.15</spring.framework.version>
-        <spring.boot.version>3.5.8</spring.boot.version>
+        <spring.boot.version>3.5.9</spring.boot.version>
         <spring.integration.version>6.5.5</spring.integration.version>
 
         <!-- Security -->
@@ -107,7 +107,7 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.41</swagger.core.version>
-        <swagger.parser.version>2.1.36</swagger.parser.version>
+        <swagger.parser.version>2.1.37</swagger.parser.version>
 
         <!-- AI -->
         <spring.ai.version>1.1.2</spring.ai.version>
@@ -184,7 +184,7 @@
         <bouncycastle.version>1.83</bouncycastle.version>
         <groovy.version>4.0.29</groovy.version>
         <poi.version>5.5.1</poi.version>
-        <aspectj.version>1.9.25</aspectj.version>
+        <aspectj.version>1.9.25.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
         <guava.version>33.5.0-jre</guava.version>
         <xmlsec.version>4.0.4</xmlsec.version>
@@ -263,7 +263,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
