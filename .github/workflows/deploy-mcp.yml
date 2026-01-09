@@ -1,0 +1,102 @@
+# This workflow will build MCP server every day (aka Nightly Build)
+# and deploys the built docker image to the GitHub Packages.
+
+name: Build GitHub MCP package
+
+on:
+  schedule:
+    # Every day at 23:00 UTC+3
+    - cron: '0 20 * * *'
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: false
+        default: 'main'
+
+jobs:
+  deploy:
+
+    name: Deploy MCP Server
+
+    permissions:
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - name: Checkout ${{ github.event.inputs.branch || 'main' }}
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.branch || 'main' }}
+
+      - name: Setup Node.js and cache
+        uses: actions/setup-node@v6
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: mcp-server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mcp-server
+        run: npm ci
+
+      - name: Build TypeScript
+        working-directory: mcp-server
+        run: npm run build
+
+      - name: Get version tag
+        id: version
+        run: |
+          VERSION=$(node -p "require('./mcp-server/package.json').version")
+          COMMIT_HASH=${GITHUB_SHA:0:7}
+          TAG_VERSION="${VERSION}-${COMMIT_HASH}"
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "TAG_VERSION=${TAG_VERSION}" >> $GITHUB_ENV
+      - name: Prepare for multi-platform docker build
+        run: |
+          echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker buildx create --use
+
+      - name: Build docker image ${{ env.TAG_VERSION }}
+        run: |
+          echo Platforms: ${BUILD_PLATFORMS}
+          repo=ghcr.io/${{ github.repository_owner }}
+          created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          version="org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}"
+          revision="org.opencontainers.image.revision=${GITHUB_SHA}"
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          docker buildx build -t $repo/mcp-server:${{ env.TAG_VERSION }} -t $repo/mcp-server:latest mcp-server \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL MCP Server" \
+            --label "org.opencontainers.image.description=Model Context Protocol server for OpenL Tablets Business Rules Management System"
+
+      - name: Summary
+        run: |
+          echo '## MCP Server Docker Image' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo 'Built and pushed to GitHub Packages:' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'docker run -p 3000:3000 ghcr.io/${{ github.repository_owner }}/mcp-server:${{ env.TAG_VERSION }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '**Version**: `${{ steps.version.outputs.VERSION }}`' >> $GITHUB_STEP_SUMMARY
+          echo '**Commit**: `${GITHUB_SHA}`' >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean up old versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'mcp-server'
+          package-type: 'container'
+          min-versions-to-keep: 25 # 5 versions * 5 manifests
