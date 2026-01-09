@@ -103,7 +103,7 @@
         <cxf.version>4.1.4</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.77.0</grpc.version>
+        <grpc.version>1.78.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.41</swagger.core.version>
