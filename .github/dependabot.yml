@@ -7,18 +7,15 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    cooldown:
-      default-days: 10
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "STUDIO/studio-ui/"
     schedule:
       interval: "weekly"
-    cooldown:
-      default-days: 10
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -27,5 +24,3 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    cooldown:
-      default-days: 10
