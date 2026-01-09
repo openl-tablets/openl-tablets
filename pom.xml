@@ -126,7 +126,7 @@
         <jetty.version>12.1.5</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.40.8</amazonaws.version>
+        <amazonaws.version>2.41.4</amazonaws.version>
         <azure.version>12.32.0</azure.version>
         <netty.version>4.2.9.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
@@ -1198,30 +1198,22 @@
             </dependency>
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
-                <artifactId>s3</artifactId>
+                <artifactId>bom</artifactId>
                 <version>${amazonaws.version}</version>
-                <exclusions>
-                    <!-- Classes from the following dependency are duplicated by spring-jcl
-                    @see https://github.com/spring-projects/spring-framework/issues/20611
-                    -->
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>software.amazon.awssdk</groupId>
-                        <artifactId>netty-nio-client</artifactId>
-                    </exclusion>
-                </exclusions>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>sts</artifactId>
-                <version>${amazonaws.version}</version>
+                <!-- this dependency is used through AWS S3Client -->
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
                 <exclusions>
                     <exclusion>
-                        <groupId>software.amazon.awssdk</groupId>
-                        <artifactId>netty-nio-client</artifactId>
+                        <!-- Classes from the commons-logging are duplicated by spring-jcl
+                             @see https://github.com/spring-projects/spring-framework/issues/20611
+                        -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1253,17 +1245,6 @@
                     <exclusion>
                         <groupId>com.fasterxml.woodstox</groupId>
                         <artifactId>woodstox-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-core</artifactId>
-                <version>${amazonaws.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
