@@ -107,7 +107,7 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.41</swagger.core.version>
-        <swagger.parser.version>2.1.36</swagger.parser.version>
+        <swagger.parser.version>2.1.37</swagger.parser.version>
 
         <!-- AI -->
         <spring.ai.version>1.1.2</spring.ai.version>
