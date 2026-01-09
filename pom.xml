@@ -85,7 +85,7 @@
         <spring.security.version>6.5.7</spring.security.version>
         <opensaml.version>5.1.6</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
 
         <!-- Bytecode manipulation -->
