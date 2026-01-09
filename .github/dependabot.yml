@@ -16,9 +16,10 @@ updates:
       - "STUDIO/studio-ui/"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    groups:
+      all-npm-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
