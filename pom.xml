@@ -111,7 +111,7 @@
 
         <!-- AI -->
         <spring.ai.version>1.1.2</spring.ai.version>
-        <mcp.version>0.17.0</mcp.version>
+        <mcp.version>0.17.1</mcp.version>
 
         <!-- Logging -->
         <log4j.version>2.25.3</log4j.version>
