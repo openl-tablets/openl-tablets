@@ -406,7 +406,7 @@
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.25.0</version>
+                    <version>6.26.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
