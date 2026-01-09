@@ -501,6 +501,7 @@ async function handleResourceRead(
  * SSE endpoint handler (shared for /mcp/sse and /sse)
  */
 const handleSSE = async (req: Request, res: Response) => {
+  console.log(`[SSE Handler] Processing SSE connection request: ${req.method} ${req.path}`);
   try {
     // Extract configuration from headers and query params (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
@@ -575,6 +576,7 @@ app.get('/sse', handleSSE); // Alias for nginx proxy compatibility
  * StreamableHttp endpoint handler (shared for /mcp/sse and /sse)
  */
 const handleStreamableHttp = async (req: Request, res: Response) => {
+  console.log(`[StreamableHTTP Handler] Processing StreamableHTTP connection request: ${req.method} ${req.path}`);
   try {
     // Extract configuration from headers (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
