@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  openl-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openl-mcp-server
+    restart: unless-stopped
+    environment:
+      # Base URL only - authentication must be provided via MCP client configuration
+      # (query parameters or headers when connecting via HTTP, or env vars in MCP client config for stdio)
+      OPENL_BASE_URL: ${OPENL_BASE_URL:-http://openl-webstudio:8080/rest}
+      # Authentication credentials are NOT set here - they must be configured
+      # in the MCP client configuration (Cursor/Claude Desktop settings)
+      # For HTTP transport: use query parameters or X-OPENL-* headers
+      # For stdio transport: use env vars in MCP client config file
+
+      # Node Configuration
+      NODE_ENV: production
+
+    # Stdin is required for MCP stdio transport
+    stdin_open: true
+    tty: true
+
+    networks:
+      - openl-network
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  openl-network:
+    driver: bridge

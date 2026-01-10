@@ -60,7 +60,9 @@ jobs:
           COMMIT_HASH=${GITHUB_SHA:0:7}
           TAG_VERSION="${VERSION}-${COMMIT_HASH}"
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "TAG_VERSION=${TAG_VERSION}" >> $GITHUB_OUTPUT
           echo "TAG_VERSION=${TAG_VERSION}" >> $GITHUB_ENV
+
       - name: Prepare for multi-platform docker build
         run: |
           echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
