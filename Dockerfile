@@ -22,12 +22,14 @@ gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
 apk del wget gnupg
 EOT
 
-FROM eclipse-temurin:25-jre-alpine AS openl
+FROM eclipse-temurin:25-jre-alpine-3.23 AS openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"
 
 ENV LC_ALL C.UTF-8
+
+RUN apk upgrade --no-cache
 
 ARG APP=STUDIO/org.openl.rules.webstudio/target/webapp
 
