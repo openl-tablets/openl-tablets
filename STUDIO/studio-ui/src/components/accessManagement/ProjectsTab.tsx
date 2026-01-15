@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useCallback } from 'react'
 import { apiCall } from '../../services'
-import { Button, Form, Select, Space } from 'antd'
+import { Button, Form, Select, Space, notification } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { Project } from '../../types/projects'
@@ -17,30 +17,54 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
     const { t } = useTranslation()
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 
-    const fetchProjects = async () => {
-        const response: Project[] = await apiCall('/projects')
-        const projectsWithDesignRepositoriesOptions = response.reduce((acc, project) => {
-            let indexOfOption = acc.findIndex(option => option.title === project.repository)
-            if (indexOfOption === -1) {
-                const designRepository = designRepositories.find(option => option.id === project.repository)
-                if (designRepository) {
+    const fetchProjects = useCallback(async () => {
+        try {
+            // Request up to 500 projects to load all available projects at once
+            // Use throwError: true to handle errors manually
+            const response = await apiCall('/projects?size=500', undefined, { throwError: true })
+            
+            // Handle paginated response structure - projects list is under 'content' attribute
+            const projectsList: Project[] = Array.isArray(response) ? response : (response?.content || [])
+            
+            const projectsWithDesignRepositoriesOptions = projectsList.reduce((acc, project) => {
+                let indexOfOption = acc.findIndex(option => option.title === project.repository)
+                if (indexOfOption === -1) {
+                    const designRepository = designRepositories.find(option => option.id === project.repository)
+                    // If repository not found, use repository ID as label (e.g., "local" becomes "Local")
+                    const repositoryId = (project.repository || '').trim()
+                    const repositoryLabel = designRepository
+                        ? designRepository.name
+                        : repositoryId
+                            ? repositoryId.charAt(0).toUpperCase() + repositoryId.slice(1)
+                            : 'Unknown Repository'
+                    
                     indexOfOption = acc.push({
-                        label: designRepository.name,
-                        title: designRepository.id,
+                        label: repositoryLabel,
+                        title: project.repository,
                         value: null,
                         options: [] as SelectOption[] }) - 1
                 }
-            }
-            if (indexOfOption !== -1) {
-                acc[indexOfOption].options.push({ label: project.name, value: project.id })
-            }
-            return acc
-        }, [] as SelectOption[])
-        setProjects(projectsWithDesignRepositoriesOptions)
-    }
+                if (indexOfOption !== -1) {
+                    acc[indexOfOption].options.push({ label: project.name, value: project.id })
+                }
+                return acc
+            }, [] as SelectOption[])
+            
+            setProjects(projectsWithDesignRepositoriesOptions)
+        } catch (error) {
+            console.error('Failed to fetch projects:', error)
+            const errorMessage = error instanceof Error ? error.message : t('users:failed_to_load_projects')
+            notification.error({ 
+                message: t('common:error') || 'Error',
+                description: errorMessage
+            })
+        }
+    }, [designRepositories, t])
+    
     useEffect(() => {
+        // Fetch projects - they will be displayed even if repository is not found in designRepositories
         fetchProjects()
-    }, [])
+    }, [fetchProjects])
 
     const projectsOptions = useMemo(() => {
         return projects.map(project => {
@@ -58,9 +82,9 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
 
     return (
         <Form.List name="projects">
-            {(fields, { add, remove }) => (
-                <>
-                    {fields.map(({ key, name, ...restField }) => (
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, ...restField }) => (
                         <Space key={key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
                             <Form.Item
                                 {...restField}
