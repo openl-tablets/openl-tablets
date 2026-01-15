@@ -178,7 +178,7 @@ OpenL Tablets provides two implementations of the MCP (Model Context Protocol) s
 | `openl_get_table` | ✅ | ✅ `openl_get_project_table` | Different names |
 | `openl_update_table` | ✅ | ✅ `openl_update_project_table` | Different names |
 | `openl_append_table` | ✅ | ✅ `openl_append_project_table` | Different names |
-| `openl_create_rule` | ✅ (disabled) | ✅ `openl_create_project_table` | TypeScript: temporarily disabled |
+| `openl_create_project_table` | ✅ | ✅ `openl_create_project_table` | TypeScript: uses BETA API, replaces removed openl_create_rule |
 
 #### 4. File Management
 
@@ -225,14 +225,16 @@ OpenL Tablets provides two implementations of the MCP (Model Context Protocol) s
    - openl_update_table ↔ openl_update_project_table
    - openl_append_table ↔ openl_append_project_table
 ❌ Missing in one version:                0 tools
-🔧 Temporarily disabled in TypeScript:   7 tools
+🔧 Temporarily disabled in TypeScript:   6 tools
    - openl_upload_file
    - openl_download_file
-   - openl_create_rule
    - openl_execute_rule
    - openl_get_file_history
    - openl_get_project_history
    - openl_revert_version
+   
+📝 Removed tools (replaced by better alternatives):
+   - openl_create_rule → replaced by openl_create_project_table (BETA API)
 ```
 
 ---

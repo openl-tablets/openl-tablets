@@ -383,15 +383,16 @@ function formatTables(tables: any[]): string {
   const lines = [
     "# Tables",
     "",
-    "| Name | Type | File |",
-    "|------|------|------|",
+    "| Name | Type | Table ID | File |",
+    "|------|------|----------|------|",
   ];
 
   for (const table of tables) {
     const name = table.name || "N/A";
     const type = table.tableType || table.type || "N/A";
+    const tableId = table.id || table.tableId || "N/A";
     const file = table.file || "N/A";
-    lines.push(`| ${name} | ${type} | ${file} |`);
+    lines.push(`| ${name} | ${type} | ${tableId} | ${file} |`);
   }
 
   return lines.join("\n");

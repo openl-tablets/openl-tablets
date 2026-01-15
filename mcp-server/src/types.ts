@@ -581,6 +581,26 @@ export interface CreateRuleResult {
   message?: string;
 }
 
+/** Create new project table request (BETA API) */
+export interface CreateNewTableRequest {
+  /** Name of the module where the table will be created (required) */
+  moduleName: string;
+  /** Name of the sheet where the table will be created (optional, uses table name if not provided) */
+  sheetName?: string;
+  /** Complete table structure (EditableTableView) */
+  table: EditableTableView;
+}
+
+/** Create new project table result */
+export interface CreateProjectTableResult {
+  success: boolean;
+  tableId?: string;
+  tableName?: string;
+  tableType?: TableType;
+  file?: string;
+  message?: string;
+}
+
 // =============================================================================
 // Phase 2: Testing & Validation Types
 // =============================================================================

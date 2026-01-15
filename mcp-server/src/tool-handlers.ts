@@ -267,24 +267,42 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       const projectsResponse = await client.listProjects(filters);
 
       // Handle case when API returns object instead of array
-      // Some API versions return { data: [...], pagination: {...} } or similar structures
+      // Some API versions return { content: [...], pageNumber, pageSize, numberOfElements } (paginated)
+      // or { data: [...] } (wrapped) or direct array
       let projects: Types.ProjectSummary[];
+      let totalCount: number | undefined;
+      let apiPageNumber: number | undefined;
+      let apiPageSize: number | undefined;
+      
       if (Array.isArray(projectsResponse)) {
+        // Direct array response (no pagination metadata)
         projects = projectsResponse;
-      } else if (projectsResponse && typeof projectsResponse === 'object' && 'data' in projectsResponse && Array.isArray((projectsResponse as any).data)) {
-        // API returned object with 'data' field containing array
-        projects = (projectsResponse as any).data;
-      } else if (projectsResponse && typeof projectsResponse === 'object' && 'content' in projectsResponse && Array.isArray((projectsResponse as any).content)) {
-        // API returned object with 'content' field containing array
-        projects = (projectsResponse as any).content;
+        totalCount = projects.length;
+      } else if (projectsResponse && typeof projectsResponse === 'object') {
+        if ('content' in projectsResponse && Array.isArray((projectsResponse as any).content)) {
+          // Paginated response: { content: [...], pageNumber, pageSize, numberOfElements }
+          projects = (projectsResponse as any).content;
+          apiPageNumber = (projectsResponse as any).pageNumber;
+          apiPageSize = (projectsResponse as any).pageSize;
+          // Use numberOfElements for current page, or totalElements if available
+          totalCount = (projectsResponse as any).totalElements ?? (projectsResponse as any).numberOfElements;
+        } else if ('data' in projectsResponse && Array.isArray((projectsResponse as any).data)) {
+          // Wrapped response: { data: [...] }
+          projects = (projectsResponse as any).data;
+          totalCount = projects.length;
+        } else {
+          // Fallback: try to convert to array or use empty array
+          logger.warn('Unexpected projects response format, expected array but got object', {
+            responseType: typeof projectsResponse,
+            hasData: 'data' in projectsResponse,
+            hasContent: 'content' in projectsResponse,
+          });
+          projects = [];
+          totalCount = 0;
+        }
       } else {
-        // Fallback: try to convert to array or use empty array
-        logger.warn('Unexpected projects response format, expected array but got object', {
-          responseType: typeof projectsResponse,
-          hasData: 'data' in projectsResponse,
-          hasContent: 'content' in projectsResponse,
-        });
         projects = [];
+        totalCount = 0;
       }
 
       // Transform projects to include a flat projectId field for easier use
@@ -308,13 +326,34 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         };
       });
 
-      // Apply pagination
-      const paginated = paginateResults(transformedProjects, limit, offset);
+      // If API already paginated, use its pagination metadata
+      // Otherwise apply client-side pagination
+      let paginated;
+      if (apiPageNumber !== undefined && apiPageSize !== undefined && totalCount !== undefined) {
+        // API already paginated - use its metadata
+        paginated = {
+          data: transformedProjects,
+          has_more: (apiPageNumber + 1) * apiPageSize < totalCount,
+          next_offset: (apiPageNumber + 1) * apiPageSize < totalCount ? (apiPageNumber + 1) * apiPageSize : null,
+          total_count: totalCount,
+        };
+      } else {
+        // Apply client-side pagination
+        paginated = paginateResults(transformedProjects, limit, offset);
+      }
+
+      // Use API pagination metadata if available, otherwise use client-side pagination values
+      const paginationOffset = apiPageNumber !== undefined && apiPageSize !== undefined 
+        ? apiPageNumber * apiPageSize 
+        : offset;
+      const paginationLimit = apiPageSize !== undefined 
+        ? apiPageSize 
+        : limit;
 
       const formattedResult = formatResponse(paginated.data, format, {
         pagination: {
-          limit,
-          offset,
+          limit: paginationLimit,
+          offset: paginationOffset,
           total: paginated.total_count,
         },
         dataType: "projects",
@@ -516,8 +555,8 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_list_tables",
     title: "openl List Tables",
-    version: "1.0.0",
-    description: "List all tables/rules in a project with optional filters for type, name, and file",
+    version: "2.1.0",
+    description: "List all tables/rules in a project with optional filters for type, name, and file. Returns table metadata including 'tableId' (the 'id' field) which is required for calling get_table(), update_table(), append_table(), or run_project_tests(). Use the 'tableId' field from the response to reference specific tables in other API calls.",
     inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
     annotations: {
       readOnlyHint: true,
@@ -607,9 +646,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_update_table",
     title: "openl Update Table",
-    version: "1.0.0",
+    version: "1.2.0",
     description:
-      "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields).",
+      "Replace the ENTIRE table structure with a modified version. CRITICAL: Must send the FULL table structure (not just modified fields). Use this for modifying existing rows, changing table structure, or complete table redesign. DO NOT use for simple row additions - use append_table instead.",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     annotations: {
       idempotentHint: true,
@@ -648,9 +687,9 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
   registerTool({
     name: "openl_append_table",
     title: "openl Append Table",
-    version: "1.0.0",
+    version: "1.1.0",
     description:
-      "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure.",
+      "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use this for adding one or more rows to Rules/Spreadsheet tables, or adding fields to Datatype tables. More efficient than update_table for simple additions. Only requires the new data to append, not the full table structure.",
     inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
     annotations: {
       idempotentHint: true,
@@ -712,47 +751,48 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     },
   });
 
-  // TEMPORARILY DISABLED - openl_create_rule
-  // Tool is not working correctly and needs implementation fixes
-  /*
   registerTool({
-    name: "openl_create_rule",
-    title: "openl Create Rule",
+    name: "openl_create_project_table",
+    title: "openl Create Project Table",
     version: "1.0.0",
     description:
-      "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types.",
-    inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
+      "Create a new table/rule in OpenL project using BETA API. Use this to create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure.",
+    inputSchema: zodToJsonSchema(schemas.createProjectTableSchema) as Record<string, unknown>,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const typedArgs = args as {
         projectId: string;
-        name: string;
-        tableType: Types.TableType;
-        returnType?: string;
-        parameters?: Array<{ type: string; name: string }>;
-        file?: string;
-        properties?: Record<string, unknown>;
-        comment?: string;
+        moduleName: string;
+        sheetName?: string;
+        table: Types.EditableTableView;
         response_format?: "json" | "markdown";
       };
 
-      if (!typedArgs || !typedArgs.projectId || !typedArgs.name || !typedArgs.tableType) {
-        throw new McpError(ErrorCode.InvalidParams, "Missing required arguments: projectId, name, tableType");
+      if (!typedArgs || !typedArgs.projectId || !typedArgs.moduleName || !typedArgs.table) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          "Missing required arguments: projectId, moduleName, table"
+        );
       }
 
       const format = validateResponseFormat(typedArgs.response_format);
 
-      const result = await client.createRule(typedArgs.projectId, {
-        name: typedArgs.name,
-        tableType: typedArgs.tableType,
-        returnType: typedArgs.returnType,
-        parameters: typedArgs.parameters,
-        file: typedArgs.file,
-        properties: typedArgs.properties,
-        comment: typedArgs.comment,
+      const createdTable = await client.createProjectTable(typedArgs.projectId, {
+        moduleName: typedArgs.moduleName,
+        sheetName: typedArgs.sheetName,
+        table: typedArgs.table,
       });
+
+      const result = {
+        success: true,
+        tableId: createdTable.id,
+        tableName: createdTable.name,
+        tableType: createdTable.tableType,
+        file: createdTable.file,
+        message: `Successfully created ${createdTable.tableType} table '${createdTable.name}' in module '${typedArgs.moduleName}'`,
+      };
 
       const formattedResult = formatResponse(result, format);
 
@@ -761,7 +801,6 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       };
     },
   });
-  */
 
   // =============================================================================
   // Deployment Tools

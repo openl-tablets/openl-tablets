@@ -201,19 +201,24 @@
 
 ---
 
-### 14. `openl_create_rule`
+### 14. `openl_create_project_table` (NEW - BETA API)
 
-**Status**: 🔴 DISABLED (Temporarily)  
-**OpenL API**: `POST /projects/{projectId}/tables` (returns 405 Method Not Allowed in OpenL 6.0.0)
+**Status**: ✅ ACTIVE  
+**OpenL API**: `POST /projects/{projectId}/tables` (BETA API with `CreateNewTableRequest`)
 
 **Extra/Missed Inputs**:
-- ✅ Covered: `projectId`, `name`, `tableType`, `returnType`, `parameters`, `file`, `properties`, `comment`
+- ✅ Covered: `projectId`, `moduleName`, `sheetName`, `table` (EditableTableView)
 
 **Recommendations**:
-- **CRITICAL**: Tool is disabled because API returns 405 - table creation via REST is not supported
-- Document that tables must be created via Excel file upload (`openl_upload_file`)
-- Consider keeping tool disabled permanently with clear documentation, OR
-- Implement a workaround: create empty Excel file with table structure and upload it
+- ✅ Tool uses BETA API format which works correctly in OpenL 6.0.0+
+- ✅ Replaces removed `openl_create_rule` which returned 405 Method Not Allowed
+- ✅ Requires complete table structure (EditableTableView) - use `get_table()` as reference
+- ✅ Supports all table types: Rules, Spreadsheet, Datatype, Test, etc.
+
+**Migration from openl_create_rule**:
+- Old tool used simplified format (name, tableType, parameters) - not supported
+- New tool requires full table structure but works correctly
+- Use `get_table()` on existing table to understand structure format
 
 ---
 

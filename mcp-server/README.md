@@ -99,7 +99,7 @@ All tools are versioned (v1.0.0) and prefixed with `openl_` for MCP compliance.
 **Repository** (2): openl_list_repositories, openl_list_branches  
 **Project** (3): openl_list_projects, openl_get_project, openl_update_project_status  
 **Files** (3): openl_upload_file, openl_download_file, openl_get_file_history  
-**Rules** (5): openl_list_tables, openl_get_table, openl_update_table, openl_append_table, openl_create_rule  
+**Rules** (5): openl_list_tables, openl_get_table, openl_update_table, openl_append_table, openl_create_project_table  
 **Version Control** (2): openl_get_project_history, openl_revert_version  
 **Deployment** (2): openl_list_deployments, openl_deploy_project  
 **Testing** (1): openl_run_project_tests  

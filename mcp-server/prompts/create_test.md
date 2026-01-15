@@ -270,11 +270,17 @@ testParameters = [
 
 4. Create test table:
 ```text
-openl_create_rule(
-  projectId,
-  name: ruleName + "Test",
-  tableType: "Test",
-  parameters: testParameters
+openl_create_project_table(
+  projectId: projectId,
+  moduleName: "Tests",  // or appropriate module name
+  table: {
+    id: ruleName + "Test",  // can be generated
+    tableType: "Test",
+    kind: "Test",
+    name: ruleName + "Test",
+    // Add test-specific structure based on table type
+    // Use get_table() on existing test table as reference
+  }
 )
 ```
 

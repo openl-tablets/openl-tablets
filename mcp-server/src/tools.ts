@@ -213,10 +213,10 @@ export const TOOLS: ToolDefinition[] = [
   // =============================================================================
   {
     name: "openl_list_tables",
-    description: "List all tables/rules in a project with optional filters for type, name, and file",
+    description: "List all tables/rules in a project with optional filters for type, name, and file. Returns table metadata including 'tableId' (the 'id' field) which is required for calling get_table(), update_table(), append_table(), or run_project_tests(). Use the 'tableId' field from the response to reference specific tables in other API calls.",
     inputSchema: zodToJsonSchema(schemas.listTablesSchema) as Record<string, unknown>,
     _meta: {
-      version: "2.0.0",
+      version: "2.1.0",
       category: TOOL_CATEGORIES.RULES,
       requiresAuth: true,
     },
@@ -233,8 +233,19 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_update_table",
-    description: "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
+    description: "Replace the ENTIRE table structure with a modified version. CRITICAL: Must send the FULL table structure (not just modified fields). Use this for modifying existing rows, changing table structure, or complete table redesign. DO NOT use for simple row additions - use append_table instead. Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, change fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
+    _meta: {
+      version: "1.2.0",
+      category: TOOL_CATEGORIES.RULES,
+      requiresAuth: true,
+      modifiesState: true,
+    },
+  },
+  {
+    name: "openl_append_table",
+    description: "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use this for adding one or more rows to Rules/Spreadsheet tables, or adding fields to Datatype tables. More efficient than update_table for simple additions. Only requires the new data to append, not the full table structure. Workflow: 1) Call get_table() to understand current structure, 2) Prepare only the new data to add, 3) Call append_table() with appendData. Modifies table in memory (requires save_project to persist changes).",
+    inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.1.0",
       category: TOOL_CATEGORIES.RULES,
@@ -243,9 +254,9 @@ export const TOOLS: ToolDefinition[] = [
     },
   },
   {
-    name: "openl_append_table",
-    description: "Append new rows/fields to an existing table. Used to add data to Datatype or Data tables without replacing the entire structure. Specify the table type and array of field definitions with names, types, and optional required/defaultValue properties. More efficient than update_table for simple additions. Modifies table in memory (requires save_project to persist changes).",
-    inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
+    name: "openl_create_project_table",
+    description: "Create a new table/rule in OpenL project using BETA API (Create New Project Table). Use this to create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure. This is the recommended way to create tables and rules programmatically.",
+    inputSchema: zodToJsonSchema(schemas.createProjectTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",
       category: TOOL_CATEGORIES.RULES,
@@ -253,17 +264,8 @@ export const TOOLS: ToolDefinition[] = [
       modifiesState: true,
     },
   },
-  {
-    name: "openl_create_rule",
-    description: "Create a new table/rule in OpenL project. Supports Decision Tables (Rules/SimpleRules/SmartRules/SimpleLookup/SmartLookup), Spreadsheet tables, and other types. Specify table type, return type, parameters, and optional dimension properties. NOTE: This endpoint may not be supported in all OpenL versions (returns 405 in OpenL 6.0.0). Alternative: Use upload_file to upload Excel files with table definitions, or use OpenL WebStudio UI.",
-    inputSchema: zodToJsonSchema(schemas.createRuleSchema) as Record<string, unknown>,
-    _meta: {
-      version: "2.0.0",
-      category: TOOL_CATEGORIES.RULES,
-      requiresAuth: true,
-      modifiesState: true,
-    },
-  },
+  // NOTE: openl_create_rule was removed - it returned 405 Method Not Allowed in OpenL 6.0.0.
+  // Use openl_create_project_table instead, which uses the BETA API and works correctly.
 
   // =============================================================================
   // Deployment Tools

@@ -227,6 +227,14 @@ export const createRuleSchema = z.object({
   response_format: ResponseFormat.optional(),
 }).strict();
 
+export const createProjectTableSchema = z.object({
+  projectId: projectIdSchema,
+  moduleName: z.string().min(1).describe("Name of the module where the table will be created (e.g., 'Rules', 'Data', 'Insurance'). This is typically the Excel file name without extension or a folder name."),
+  sheetName: z.string().optional().describe("Name of the sheet where the table will be created within the Excel file. If not provided, the table name will be used as the sheet name."),
+  table: z.record(z.any()).describe("Complete table structure (EditableTableView). Must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure."),
+  response_format: ResponseFormat.optional(),
+}).strict();
+
 // =============================================================================
 // Phase 2: Testing & Validation Schemas
 // =============================================================================

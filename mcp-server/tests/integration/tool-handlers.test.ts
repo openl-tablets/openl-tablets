@@ -67,7 +67,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       // Mock branches API call (uses repository ID)
       mockAxios.onGet("/repos/design/branches").reply(200, ["main", "development"]);
 
@@ -89,7 +89,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       const mockProjects: Partial<ProjectViewModel>[] = [
         {
           id: "design:Project 1:hash123",
@@ -142,7 +142,7 @@ describe("Tool Handler Integration Tests", () => {
       // projectId "design-project1" converts to "design:project1" -> base64
       const base64ProjectId = Buffer.from("design:project1").toString("base64");
       const encodedBase64Id = encodeURIComponent(base64ProjectId);
-      
+
       mockAxios.onGet(`/projects/${encodedBase64Id}`).reply(200, {
         id: "design:project1:hash123",
         name: "project1",
@@ -152,7 +152,7 @@ describe("Tool Handler Integration Tests", () => {
         modifiedBy: "admin",
         modifiedAt: "2024-01-01T00:00:00Z",
       });
-      
+
       // updateProjectStatus uses PATCH, not PUT
       mockAxios.onPatch(`/projects/${encodedBase64Id}`).reply(200, {
         id: "design:project1:hash123",
@@ -223,20 +223,28 @@ describe("Tool Handler Integration Tests", () => {
       expect(result.content[0].text).toContain("calculatePremium");
     });
 
-    it.skip("should execute openl_create_rule", async () => {
-      // TEMPORARILY DISABLED - openl_create_rule is disabled
-      // create_rule uses buildProjectPath
+    // REMOVED: openl_create_rule was removed (returned 405 in OpenL 6.0.0)
+    // Use openl_create_project_table instead - see test below
+    it.skip("should execute openl_create_project_table", async () => {
+      // TODO: Add test for openl_create_project_table (BETA API)
+      // This test should verify the new BETA API format with moduleName and full table structure
       mockAxios.onPost(/\/projects\/.*\/tables/).reply(201, {
         id: "newRule_1234",
         name: "newRule",
         tableType: "SimpleRules",
       });
 
-      const result = await executeTool("openl_create_rule", {
+      // Example test structure (not implemented yet):
+      const result = await executeTool("openl_create_project_table", {
         projectId: "design-project1",
-        name: "newRule",
-        tableType: "SimpleRules",
-        returnType: "double",
+        moduleName: "Rules",
+        table: {
+          id: "newRule",
+          tableType: "SimpleRules",
+          kind: "Rules",
+          name: "newRule",
+          returnType: "double",
+        }
       }, client);
 
       expect(result.content[0].type).toBe("text");
@@ -304,7 +312,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, [
         {
           id: "design:p1:hash1",
@@ -342,7 +350,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       mockAxios.onGet("/projects", { params: { repository: "design" } }).reply(200, [
         {
           id: "design:p1:hash1",
@@ -409,7 +417,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "production", name: "Production Repository", aclId: "acl-production" },
       ];
       mockAxios.onGet("/production-repos").reply(200, mockProdRepos);
-      
+
       // deploy_project uses /deployments endpoint
       mockAxios.onPost("/deployments").reply(200, {
         success: true,
@@ -432,7 +440,7 @@ describe("Tool Handler Integration Tests", () => {
       // projectId "design-project1" converts to "design:project1" -> base64
       const base64ProjectId = Buffer.from("design:project1").toString("base64");
       const encodedBase64Id = encodeURIComponent(base64ProjectId);
-      
+
       mockAxios.onGet(`/projects/${encodedBase64Id}`).reply(200, {
         id: "design:project1:hash123",
         name: "project1",
@@ -461,7 +469,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       const mockProjects = Array.from({ length: 100 }, (_, i) => ({
         id: `design:p${i}:hash${i}`,
         name: `p${i}`,
@@ -495,7 +503,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       await expect(
         executeTool("openl_list_projects", {
           repository: "Design Repository", // Use repository name, not ID
@@ -510,7 +518,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       await expect(
         executeTool("openl_list_projects", {
           repository: "Design Repository", // Use repository name, not ID
@@ -538,7 +546,7 @@ describe("Tool Handler Integration Tests", () => {
         { id: "design", name: "Design Repository", aclId: "acl-design" },
       ];
       mockAxios.onGet("/repos").reply(200, mockRepos);
-      
+
       await expect(
         executeTool("openl_list_projects", {
           repository: "Design Repository", // Use repository name, not ID

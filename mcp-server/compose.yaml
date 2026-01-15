@@ -1,0 +1,20 @@
+services:
+  mcp-server:
+    image: ghcr.io/openl-tablets/mcp-server:x
+    pull_policy: always
+    container_name: mcp-server
+    ports:
+      - "127.0.0.1:5500:3000"
+    extra_hosts:
+      - "openl.exigengroup.com:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
+    environment:
+      PORT: 3000
+      OPENL_BASE_URL: https://openl.exigengroup.com/studio/rest
+      NODE_ENV: production

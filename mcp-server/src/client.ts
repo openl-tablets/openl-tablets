@@ -964,6 +964,31 @@ export class OpenLClient {
   }
 
   /**
+   * Create a new table in a project using BETA API
+   *
+   * @param projectId - Project ID in base64-encoded format (default). Supports backward compatibility with "repository-projectName" and "repository:projectName" formats.
+   * @param request - Table creation request with moduleName, sheetName, and complete table structure
+   * @returns Created table summary with table ID
+   */
+  async createProjectTable(
+    projectId: string,
+    request: Types.CreateNewTableRequest
+  ): Promise<Types.TableMetadata> {
+    const projectPath = this.buildProjectPath(projectId);
+
+    const response = await this.axiosInstance.post<Types.TableMetadata>(
+      `${projectPath}/tables`,
+      {
+        moduleName: request.moduleName,
+        sheetName: request.sheetName,
+        table: request.table,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
    * Get detailed table data and structure
    *
    * @param projectId - Project ID in base64-encoded format (default). Supports backward compatibility with "repository-projectName" and "repository:projectName" formats.

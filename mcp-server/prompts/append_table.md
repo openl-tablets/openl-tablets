@@ -399,8 +399,8 @@ Fix: Use openl_append_table only for Datatype and Data tables
 - `openl_update_project_status()` → Save changes
 
 ### Alternatives
-- `openl_update_table()` → For complex modifications
-- `openl_create_rule()` → For creating new tables
+- `openl_update_table()` → For complex modifications or replacing entire structure
+- `openl_create_project_table()` → For creating new tables/rules (BETA API)
 - `openl_upload_file()` → For bulk Excel updates
 
 ## Quick Reference

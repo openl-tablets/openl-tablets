@@ -405,9 +405,10 @@ CA
 ### Creating Datatype/Vocabulary
 
 ```text
-1. openl_create_rule(tableType="Datatype", name=..., parameters=...)
-2. openl_validate_project() → Check for compilation errors
-3. openl_update_project_status() → Persist changes
+1. openl_get_table(tableId=existingTable) → Get reference structure
+2. openl_create_project_table(moduleName=..., table={...}) → Create with full structure
+3. openl_validate_project() → Check for compilation errors
+4. openl_update_project_status() → Persist changes
 ```
 
 ### Updating Datatype/Vocabulary
@@ -475,10 +476,10 @@ OpenL validates:
 
 | Operation | Tool | Key Points |
 |-----------|------|------------|
-| Create Datatype | `openl_create_rule(tableType="Datatype")` | Use parameters for fields |
-| Create Vocabulary | `openl_create_rule(tableType="Datatype", returnType=baseType)` | Use angle brackets `<Type>` |
-| Add Field | `openl_update_table(view={rows: [...existing, newField]})` | Just add row! |
-| Add Value | `openl_update_table(view={rows: [...existing, newValue]})` | Just add row! |
-| Inherit | `openl_create_rule(returnType=parentType)` | Parent in returnType |
+| Create Datatype | `openl_create_project_table(moduleName=..., table={tableType:"Datatype", fields:[...]})` | Use full EditableTableView structure |
+| Create Vocabulary | `openl_create_project_table(moduleName=..., table={tableType:"Datatype", returnType:"<BaseType>"})` | Use angle brackets `<Type>` in returnType |
+| Add Field | `openl_append_table(tableId=..., appendData={tableType:"Datatype", fields:[newField]})` | Use append for simple additions |
+| Add Value | `openl_append_table(tableId=..., appendData={tableType:"Vocabulary", values:[newValue]})` | Use append for simple additions |
+| Inherit | `openl_create_project_table(moduleName=..., table={tableType:"Datatype", returnType:parentType})` | Parent in returnType |
 | Validate | `openl_validate_project()` | After any change |
 | Save | `openl_update_project_status()` | Persist changes |

@@ -18,9 +18,10 @@ The following tools are currently disabled:
    - Download Excel files from a project
    - Reason: "Tool is not working correctly and needs implementation fixes"
 
-3. **`openl_create_rule`**
-   - Create new tables/rules in a project
-   - Reason: "Tool is not working correctly and needs implementation fixes"
+3. ~~**`openl_create_rule`**~~ **REMOVED**
+   - ~~Create new tables/rules in a project~~
+   - **Status**: Permanently removed (returned 405 Method Not Allowed in OpenL 6.0.0)
+   - **Replacement**: Use `openl_create_project_table` instead, which uses BETA API and works correctly
 
 4. **`openl_execute_rule`**
    - Execute rules with input data for testing

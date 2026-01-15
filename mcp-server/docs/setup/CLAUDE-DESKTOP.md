@@ -53,6 +53,53 @@ On first launch of Claude Desktop:
 
 ### Configuration
 
+**Remote MCP Server via SSE (Recommended for Remote Access)**
+
+This is the simplest way to connect to a remote OpenL instance. You need to pass your Personal Access Token (PAT) via Authorization header.
+
+**macOS/Linux:**
+
+```json
+{
+  "mcpServers": {
+    "openl-remote": {
+      "command": "/path/to/node",
+      "args": [
+        "/path/to/mcp-remote",
+        "https://openl.exigengroup.com/mcp/sse",
+        "--header",
+        "Authorization: Token your-pat-token-here"
+      ]
+    }
+  }
+}
+```
+
+**Example with nvm:**
+
+```json
+{
+  "mcpServers": {
+    "openl-remote": {
+      "command": "/Users/username/.nvm/versions/node/v22.16.0/bin/node",
+      "args": [
+        "/Users/username/.nvm/versions/node/v22.16.0/bin/mcp-remote",
+        "https://openl.exigengroup.com/mcp/sse",
+        "--header",
+        "Authorization: Token your-pat-token-here"
+      ]
+    }
+  }
+}
+```
+
+**Important:**
+- Replace `/path/to/node` with your Node.js executable path (use `which node` to find it)
+- Replace `/path/to/mcp-remote` with your `mcp-remote` executable path (usually in the same directory as node, or use `which mcp-remote`)
+- Replace `your-pat-token-here` with your actual Personal Access Token from OpenL Tablets UI (User Settings → Personal Access Tokens)
+
+**Option 2: Local MCP Server via stdio (Recommended for Local Development)**
+
 **macOS:**
 ```json
 {
@@ -172,7 +219,7 @@ If you have a Personal Access Token from OpenL Tablets UI:
 }
 ```
 
-**Important:** 
+**Important:**
 - Replace `<absolute-path-to-openl-tablets>` with your actual project path. See [Path Determination](#path-determination) section below.
 - For PAT: Replace the token with your actual Personal Access Token from OpenL Tablets UI (User Settings → Personal Access Tokens).
 
@@ -372,6 +419,36 @@ For more authentication options, see [Authentication Guide](../guides/AUTHENTICA
 1. Check MCP server status in settings (should be "Connected")
 2. Try explicitly asking the AI to use the tool
 3. Check logs for errors
+
+### Issue: DNS/Network Error (ENOTFOUND)
+
+**Problem**: `npm ERR! code ENOTFOUND` or `getaddrinfo ENOTFOUND openl.exigengroup.com`
+
+This error occurs when using remote MCP server via `mcp-remote`. It indicates DNS resolution failure.
+
+**Solutions**:
+
+1. **Check DNS Resolution**:
+   ```bash
+   nslookup openl.exigengroup.com
+   ping openl.exigengroup.com
+   ```
+
+2. **Check Network Connectivity**:
+   ```bash
+   curl -v https://openl.exigengroup.com/mcp/sse
+   ```
+
+3. **VPN/Proxy Configuration**:
+   - Ensure VPN is connected (if required)
+   - Configure npm proxy if behind corporate firewall:
+     ```bash
+     npm config set proxy http://proxy.company.com:8080
+     npm config set https-proxy http://proxy.company.com:8080
+     ```
+
+4. **Use Local MCP Server Instead**:
+   If remote server is not accessible, switch to local stdio method (see Configuration Option 2 above)
 
 ### Issue: File doesn't exist
 
