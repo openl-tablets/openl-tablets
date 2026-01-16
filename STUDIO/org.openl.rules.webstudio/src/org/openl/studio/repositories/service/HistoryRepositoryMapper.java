@@ -47,6 +47,7 @@ public class HistoryRepositoryMapper {
         List<FileData> history;
         if (repository.supports().searchable()) {
             history = ((SearchableRepository) repository).listHistory(name, globalFilter, techRevs, pageable);
+            // For searchable repos, we don't have total count
         } else {
             pageable = Page.unpaged();
             history = repository.listHistory(name);

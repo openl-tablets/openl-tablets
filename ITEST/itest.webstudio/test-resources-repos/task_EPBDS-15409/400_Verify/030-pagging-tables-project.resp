@@ -1,0 +1,99 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "26102dbb3042a4ec644718f9bd106a86",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "IncomeForecastTest",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B57:E62"
+    },
+    {
+      "id": "486ad8912c803f93bf850cfcd8ae4ba0",
+      "tableType": "SimpleLookup",
+      "kind": "Rules",
+      "name": "IsAdequateMaxCreditRiskScore",
+      "returnType": "Double",
+      "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B22:D25"
+    },
+    {
+      "id": "66cdd9f08f318f91a401060b4787acdb",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B27:D33"
+    },
+    {
+      "id": "eda14d27d0827e7968b560997f93f16a",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Loss",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B19:D22"
+    },
+    {
+      "id": "8716a4aa80fff7cb555df3aec9088fe2",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "lossData",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B9:E17"
+    },
+    {
+      "id": "ea764e4435c57a632077752108809778",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "LossFreeDiscount",
+      "returnType": "Double",
+      "signature": "LossFreeDiscount(Double liabLosses)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B2:C7"
+    },
+    {
+      "id": "3ad15db32319f316bfa347eb3ad36cd7",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "LossFreeDiscountCalc",
+      "returnType": "Double",
+      "signature": "LossFreeDiscountCalc(Loss[] losses, Date currentDate)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B50:C55"
+    },
+    {
+      "id": "c6b479d0645a4fea79b818f569295462",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "LossFreeDiscountCalcTest",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B64:D70"
+    },
+    {
+      "id": "be271364faadb34a625a7711c8900b6f",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "states",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B25:C86"
+    },
+    {
+      "id": "fc832505fba8bba61221f9eb03ffeb5c",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "TotalAssets",
+      "returnType": "SpreadsheetResult",
+      "signature": "TotalAssets()",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B41:E48"
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "numberOfElements": 10,
+  "total": 22
+}

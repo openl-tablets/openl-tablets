@@ -36,5 +36,6 @@ Content-Type: application/json
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 3
+  "numberOfElements": 3,
+  "total": 3
 }

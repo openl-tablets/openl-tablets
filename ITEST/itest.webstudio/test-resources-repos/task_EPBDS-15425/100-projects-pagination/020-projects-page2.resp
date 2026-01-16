@@ -85,5 +85,6 @@ Content-Type: application/json
   ],
   "pageNumber": 1,
   "pageSize": 5,
-  "numberOfElements": 5
+  "numberOfElements": 5,
+  "total": 15
 }

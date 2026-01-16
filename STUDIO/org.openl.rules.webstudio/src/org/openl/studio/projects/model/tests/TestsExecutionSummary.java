@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
 
+@JsonIgnoreProperties("total")
 public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult> {
 
     @Parameter(description = "Total execution time of all tests in milliseconds")

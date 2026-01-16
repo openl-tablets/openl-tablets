@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nonnull;
@@ -52,18 +51,25 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var criteriaFilter = buildFilterCriteria(query)
                 .and(proj -> designRepositoryAclService.isGranted(proj, List.of(BasePermission.READ)))
                 .and(buildTagsFilterCriteria(query));
-        var content = getProjects0(query).filter(criteriaFilter)
+
+        var filteredProjects = getProjects0(query)
+                .filter(criteriaFilter)
                 .sorted(PROJECT_BUSINESS_NAME_ORDER)
+                .toList();
+
+        long total = filteredProjects.size();
+
+        var content = filteredProjects.stream()
                 .skip(page.getOffset())
                 .limit(page.getPageSize())
                 .map(this::mapProjectResponse)
                 .map(ProjectViewModel.Builder::build)
-                .collect(Collectors.toList());
+                .toList();
 
         if (page.isUnpaged()) {
-            return new PageResponse<>(content, -1, content.size());
+            return new PageResponse<>(content, -1, content.size(), total);
         } else {
-            return new PageResponse<>(content, page.getPageNumber(), page.getPageSize());
+            return new PageResponse<>(content, page.getPageNumber(), page.getPageSize(), total);
         }
     }
 

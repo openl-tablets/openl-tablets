@@ -1,0 +1,103 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "270fe7e78878ac558337939c621b3a6c",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Address",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B99:D105"
+    },
+    {
+      "id": "cb1d8299356a8beb83335365afc54211",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "addresses",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B88:G93"
+    },
+    {
+      "id": "db956ceeb6b34b8a871c16062f9eebe3",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "AmPmTo24",
+      "returnType": "Integer",
+      "signature": "AmPmTo24(Integer ampmHr, String ampm)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B2:D7"
+    },
+    {
+      "id": "47d020cdaf10119d4bd11c190f87856e",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "AssetsCompare",
+      "returnType": "SpreadsheetResult",
+      "signature": "AssetsCompare()",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B24:C29"
+    },
+    {
+      "id": "b2369915f4ec978641d2c2666e24daa7",
+      "tableType": "Vocabulary",
+      "kind": "Datatype",
+      "name": "CountryCode",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B2:B20"
+    },
+    {
+      "id": "87e731887e64f1f5749ee11b07248857",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "CoverageForm",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B111:D113"
+    },
+    {
+      "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+      "tableType": "SmartLookup",
+      "kind": "Rules",
+      "name": "CoverageRate",
+      "returnType": "Double",
+      "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B16:G23"
+    },
+    {
+      "id": "5415cda46d85fc7bba0120e399c8f50e",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Greeting1",
+      "returnType": "String",
+      "signature": "Greeting1 (Integer hour)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B2:D10"
+    },
+    {
+      "id": "ba41a332a59792fbbf6ffcaca80e8312",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "Greeting4",
+      "returnType": "String",
+      "signature": "Greeting4(Integer hour)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B9:D14"
+    },
+    {
+      "id": "2cb49342ab6cab90eb74eaafd474b902",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "IncomeForecast",
+      "returnType": "SpreadsheetResult",
+      "signature": "IncomeForecast(Double bonusRate, Double sharePrice)",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B31:F39"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 10,
+  "numberOfElements": 10,
+  "total": 22
+}
