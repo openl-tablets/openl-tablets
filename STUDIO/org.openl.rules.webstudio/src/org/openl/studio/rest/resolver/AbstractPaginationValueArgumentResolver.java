@@ -24,6 +24,7 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
     static final String PAGE_QUERY_PARAM = "page";
     static final String OFFSET_QUERY_PARAM = "offset";
     static final String PAGE_SIZE_QUERY_PARAM = "size";
+    static final String UNPAGED_QUERY_PARAM = "unpaged";
     static final int DEFAULT_PAGE_SIZE = 20;
 
     @Override
@@ -31,8 +32,26 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
+        // Check unpaged first - if true, return unpaged regardless of defaults
+        if (isUnpagedRequest(webRequest)) {
+            validateUnpagedNotCombinedWithOtherParams(webRequest);
+            return Pageable.unpaged();
+        }
         validateQueryParameters(webRequest);
         return handleValue(parameter, webRequest);
+    }
+
+    private boolean isUnpagedRequest(NativeWebRequest webRequest) {
+        String unpaged = webRequest.getParameter(UNPAGED_QUERY_PARAM);
+        return "true".equalsIgnoreCase(unpaged);
+    }
+
+    private void validateUnpagedNotCombinedWithOtherParams(NativeWebRequest webRequest) {
+        if (hasQueryParam(webRequest, PAGE_QUERY_PARAM) ||
+                hasQueryParam(webRequest, OFFSET_QUERY_PARAM) ||
+                hasQueryParam(webRequest, PAGE_SIZE_QUERY_PARAM)) {
+            throw new BadRequestException("unpaged.combined.message");
+        }
     }
 
     protected abstract Pageable handleValue(MethodParameter parameter, NativeWebRequest webRequest);

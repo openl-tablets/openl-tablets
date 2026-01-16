@@ -221,6 +221,77 @@ public class PageValueArgumentResolverTest {
         assertEquals(100, pageable.getPageSize());
     }
 
+    // ------ unpaged tests ------
+
+    @Test
+    public void testUnpagedQuery() throws Exception {
+        performRequest(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true"));
+        verify(pageableConsumer).accept(pageableCaptor.capture());
+        Pageable pageable = pageableCaptor.getValue();
+        assertTrue(pageable.isUnpaged());
+    }
+
+    @Test
+    public void testUnpagedQueryWithDefault() throws Exception {
+        // unpaged=true should override @PaginationDefault
+        performRequest(get("/pagination-test/pageableWithDefault").queryParam("unpaged", "true"));
+        verify(pageableConsumer).accept(pageableCaptor.capture());
+        Pageable pageable = pageableCaptor.getValue();
+        assertTrue(pageable.isUnpaged());
+    }
+
+    @Test
+    public void testPageableWithDefaultWithoutUnpaged() throws Exception {
+        // verify the new endpoint's defaults are applied when unpaged is not set
+        performRequest(get("/pagination-test/pageableWithDefault"));
+        verify(pageableConsumer).accept(pageableCaptor.capture());
+        Pageable pageable = pageableCaptor.getValue();
+        assertFalse(pageable.isUnpaged());
+        assertEquals(2, pageable.getPageNumber());
+        assertEquals(30, pageable.getPageSize());
+    }
+
+    @Test
+    public void testUnpagedCombinedWithPage() throws Exception {
+        var mockMvcResult = mockMvc
+                .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("page", "1"))
+                .andReturn();
+        BadRequestException error = (BadRequestException) mockMvcResult.getResolvedException();
+        assertNotNull(error);
+        assertEquals("openl.error.400.unpaged.combined.message", error.getErrorCode());
+    }
+
+    @Test
+    public void testUnpagedCombinedWithOffset() throws Exception {
+        var mockMvcResult = mockMvc
+                .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("offset", "10"))
+                .andReturn();
+        BadRequestException error = (BadRequestException) mockMvcResult.getResolvedException();
+        assertNotNull(error);
+        assertEquals("openl.error.400.unpaged.combined.message", error.getErrorCode());
+    }
+
+    @Test
+    public void testUnpagedCombinedWithSize() throws Exception {
+        var mockMvcResult = mockMvc
+                .perform(get("/pagination-test/pageOrOffset").queryParam("unpaged", "true").queryParam("size", "50"))
+                .andReturn();
+        BadRequestException error = (BadRequestException) mockMvcResult.getResolvedException();
+        assertNotNull(error);
+        assertEquals("openl.error.400.unpaged.combined.message", error.getErrorCode());
+    }
+
+    @Test
+    public void testUnpagedFalse() throws Exception {
+        // unpaged=false should behave as if not present
+        performRequest(get("/pagination-test/pageWithDefault").queryParam("unpaged", "false"));
+        verify(pageableConsumer).accept(pageableCaptor.capture());
+        Pageable pageable = pageableCaptor.getValue();
+        assertFalse(pageable.isUnpaged());
+        assertEquals(1, pageable.getPageNumber());
+        assertEquals(50, pageable.getPageSize());
+    }
+
     private void performRequest(RequestBuilder request) throws Exception {
         var mockMvcResult = mockMvc.perform(request).andReturn();
         if (mockMvcResult.getResolvedException() != null) {

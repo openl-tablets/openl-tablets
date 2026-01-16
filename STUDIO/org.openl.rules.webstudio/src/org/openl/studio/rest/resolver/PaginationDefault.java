@@ -29,6 +29,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
         description = "pagination.param.size.desc",
         in = ParameterIn.QUERY,
         schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))
+@Parameter(name = "unpaged",
+        description = "pagination.param.unpaged.desc",
+        in = ParameterIn.QUERY,
+        schema = @Schema(type = "boolean", defaultValue = "false"))
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

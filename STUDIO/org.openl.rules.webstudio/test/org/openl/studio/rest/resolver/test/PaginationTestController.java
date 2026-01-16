@@ -36,4 +36,9 @@ public class PaginationTestController {
         pageableConsumer.accept(page);
     }
 
+    @GetMapping("/pageableWithDefault")
+    public void getPageableWithDefaults(@PaginationDefault(page = 2, size = 30) Pageable page) {
+        pageableConsumer.accept(page);
+    }
+
 }
