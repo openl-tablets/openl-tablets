@@ -1,0 +1,27 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "USState",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B95:D97"
+    },
+    {
+      "id": "843b84e0f05307a211ad426793632bb2",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "ZipCode",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B107:D109"
+    }
+  ],
+  "pageNumber": 2,
+  "pageSize": 10,
+  "numberOfElements": 2,
+  "total": 22
+}

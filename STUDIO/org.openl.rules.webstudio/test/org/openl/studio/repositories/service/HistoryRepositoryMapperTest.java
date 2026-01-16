@@ -1,6 +1,7 @@
 package org.openl.studio.repositories.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,7 @@ public class HistoryRepositoryMapperTest {
 
         PageResponse<ProjectRevision> revisionHistory = historyRepositoryMapper.getProjectHistory("name", "filter", false, Pageable.unpaged());
         assertEquals(history.size(), revisionHistory.getContent().size());
+        assertNull(revisionHistory.getTotal());
     }
 
 }

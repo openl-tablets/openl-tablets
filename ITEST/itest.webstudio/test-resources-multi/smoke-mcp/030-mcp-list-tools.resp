@@ -1690,6 +1690,26 @@ Content-Type: application/json
             "name": {
               "type": "string",
               "description": "***"
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "***"
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "***"
+                }
+              },
+              "required": [
+                "limit",
+                "offset"
+              ],
+              "description": "***"
             }
           },
           "required": [
@@ -1734,6 +1754,10 @@ Content-Type: application/json
                 "projectName",
                 "repository"
               ],
+              "description": "***"
+            },
+            "name": {
+              "type": "string",
               "description": "***"
             },
             "pagination": {

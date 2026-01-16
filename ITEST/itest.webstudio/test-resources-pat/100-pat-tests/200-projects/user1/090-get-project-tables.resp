@@ -1,15 +1,21 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "id": "39abced710a1a6bc6b4d31fc8a3cd1fd",
-    "tableType": "SmartRules",
-    "kind": "Rules",
-    "name": "Hello",
-    "returnType": "String",
-    "signature": "Hello (Integer hour)",
-    "file": "ProjectUser1/Main.xlsx",
-    "pos": "B3:D8"
-  }
-]
+{
+  "content": [
+    {
+      "id": "39abced710a1a6bc6b4d31fc8a3cd1fd",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "ProjectUser1/Main.xlsx",
+      "pos": "B3:D8"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

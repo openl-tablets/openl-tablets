@@ -47,10 +47,10 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
@@ -470,18 +470,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var moduleModel = getProjectModel(project);
 
         var selectors = buildTableSelector(query);
-        var content = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+        var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
                 .stream()
                 .map(summaryTableReader::read)
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        long total = allTables.size();
+
+        var content = allTables.stream()
                 .skip(page.getOffset())
                 .limit(page.getPageSize())
-                .collect(Collectors.toList());
+                .toList();
 
         if (page.isUnpaged()) {
-            return new PageResponse<>(content, -1, content.size());
+            return new PageResponse<>(content, -1, content.size(), total);
         }
-        return new PageResponse<>(content, page.getPageNumber(), page.getPageSize());
+        return new PageResponse<>(content, page.getPageNumber(), page.getPageSize(), total);
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {

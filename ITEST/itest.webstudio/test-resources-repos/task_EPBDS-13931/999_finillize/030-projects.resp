@@ -22,5 +22,6 @@ Content-Type: application/json
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 1
+  "numberOfElements": 1,
+  "total": 1
 }

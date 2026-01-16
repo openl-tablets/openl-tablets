@@ -214,6 +214,48 @@ Content-Type: application/json
             "type": "integer",
             "format": "int32",
             "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
+      },
+      "PageResponseSummaryTableView": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/SummaryTableView"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           }
         },
         "required": [
@@ -1816,6 +1858,11 @@ Content-Type: application/json
           "pageSize": {
             "description": "***",
             "format": "int32",
+            "type": "integer"
+          },
+          "total": {
+            "description": "***",
+            "format": "int64",
             "type": "integer"
           }
         },
@@ -4814,6 +4861,14 @@ Content-Type: application/json
               "format": "int32",
               "default": 50,
               "minimum": 1
+            }
+          }, {
+            "description": "When set to `true`, returns all results without pagination. Mutually exclusive with `page`, `offset`, and `size` parameters.",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -12812,6 +12867,14 @@ Content-Type: application/json
               "default": 50,
               "minimum": 1
             }
+          }, {
+            "description": "When set to `true`, returns all results without pagination. Mutually exclusive with `page`, `offset`, and `size` parameters.",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -13379,6 +13442,14 @@ Content-Type: application/json
               "format": "int32",
               "default": 50,
               "minimum": 1
+            }
+          }, {
+            "description": "When set to `true`, returns all results without pagination. Mutually exclusive with `page`, `offset`, and `size` parameters.",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -15134,6 +15205,14 @@ Content-Type: application/json
           },
           {
             "description": "***",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
             "explode": true,
             "in": "query",
             "name": "tags",
@@ -15173,6 +15252,15 @@ Content-Type: application/json
               "format": "int32",
               "default": 50,
               "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -15315,6 +15403,48 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "***",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "***",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "***",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "unpaged",
+            "in": "query",
+            "description": "***",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -15323,10 +15453,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SummaryTableView"
-                  }
+                  "$ref": "#/components/schemas/PageResponseSummaryTableView"
                 }
               }
             }

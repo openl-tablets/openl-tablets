@@ -217,7 +217,7 @@ Content-Type: application/json
                   "claimsUpTo3Months": 176674.0,
                   "claimsSecuredByPropertyCharges": 0.0,
                   "claimsOnBanks": 0.0,
-                  "claimsOnCustomers": 1.0E-4,
+                  "claimsOnCustomers": 0.0001,
                   "loanLossProvisionsForClaimsOnCustomers": 0.0,
                   "otherAssets": 0.0,
                   "capital": 41437.0,
@@ -517,8 +517,8 @@ Content-Type: application/json
           "testAssertions": [
             {
               "description": "*",
-              "expectedValue": 1.0E-4,
-              "actualValue": 1.0E-4,
+              "expectedValue": 0.0001,
+              "actualValue": 0.0001,
               "status": "TR_OK"
             }
           ],
@@ -533,7 +533,7 @@ Content-Type: application/json
                 "claimsUpTo3Months": 176674.0,
                 "claimsSecuredByPropertyCharges": 0.0,
                 "claimsOnBanks": 0.0,
-                "claimsOnCustomers": 1.0E-4,
+                "claimsOnCustomers": 0.0001,
                 "loanLossProvisionsForClaimsOnCustomers": 0.0,
                 "otherAssets": 0.0,
                 "capital": 41437.0,

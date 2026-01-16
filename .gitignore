@@ -23,6 +23,9 @@ syntax: glob
 *.springWebflow
 maven-eclipse.xml
 
+# Ignore VS Code files
+.vscode
+
 #common tools files
 target
 .toDelete

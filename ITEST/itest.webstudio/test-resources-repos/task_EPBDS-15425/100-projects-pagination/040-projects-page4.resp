@@ -5,5 +5,6 @@ Content-Type: application/json
   "content": [],
   "pageNumber": 3,
   "pageSize": 5,
-  "numberOfElements": 0
+  "numberOfElements": 0,
+  "total": 15
 }
