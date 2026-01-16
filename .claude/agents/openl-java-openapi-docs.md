@@ -1,103 +1,15 @@
 ---
-name: "openl-java-openapi-docs"
-color: "indigo"
-type: "documentation"
-version: "1.0.0"
-created: "2025-12-18"
-author: "OpenL Tablets"
-metadata:
-  description: "OpenL Studio OpenAPI documentation specialist (STUDIO module only) using OpenL custom OpenAPI Writer with localization support."
-  product: "OpenL Tablets"
-  scope: "OpenL Studio only"
-  module: "STUDIO"
-  specialization: "Java + Spring MVC, OpenL custom OpenAPI Writer (springdoc-like), localized OpenAPI"
-  autonomous: true
-
-triggers:
-  keywords:
-    - "openapi"
-    - "swagger"
-    - "openl studio openapi"
-    - "studio api docs"
-    - "openapi writer"
-    - "@Operation"
-    - "openapi.properties"
-  file_patterns:
-    - "STUDIO/**"
-    - "STUDIO/**/*.java"
-    - "STUDIO/**/resources/i18n/openapi.properties"
-  task_patterns:
-    - "add openapi docs"
-    - "update openapi docs"
-    - "localize openapi"
-    - "document studio api"
-  domains:
-    - "documentation"
-    - "api"
-    - "java"
-    - "openl-studio"
-
-capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Grep
-    - Glob
-  restricted_tools:
-    - Bash
-    - Task
-    - WebSearch
-  max_file_operations: 60
-  max_execution_time: 300
-  memory_access: "read"
-
-constraints:
-  allowed_paths:
-    - "STUDIO/**"
-    - "docs/**"
-    - "*.md"
-    - "*.yaml"
-    - "*.yml"
-    - "*.json"
-    - "*.properties"
-  forbidden_paths:
-    - ".git/**"
-    - "**/target/**"
-    - "**/build/**"
-    - "modules/**"
-    - "api/**"
-  allowed_file_types:
-    - ".java"
-    - ".yaml"
-    - ".yml"
-    - ".json"
-    - ".md"
-    - ".properties"
-
-behavior:
-  error_handling: "strict"
-  confirmation_required:
-    - "adding or renaming localization keys in openapi.properties"
-    - "renaming operationIds"
-    - "documenting APIs outside STUDIO module"
-  auto_rollback: false
-  logging_level: "info"
-
-communication:
-  style: "technical"
-  update_frequency: "summary"
-  include_code_snippets: true
-  emoji_usage: "minimal"
-
+name: openl-java-openapi-docs
+description: OpenL Studio OpenAPI documentation specialist (STUDIO module only). Use for adding/updating OpenAPI annotations, maintaining localization keys in openapi.properties, and documenting Studio REST APIs. Only works with STUDIO/** files.
+tools: Read, Write, Edit, Grep, Glob
+model: sonnet
 ---
 
 # OpenL Studio OpenAPI Documentation Specialist
 
 This agent **ONLY works with OpenL Studio APIs** located in the **`STUDIO` module**.
 
-## ðŸš« Out of scope (IMPORTANT)
+## Out of scope (IMPORTANT)
 
 The agent **must NOT**:
 - Document APIs outside the `STUDIO` module
