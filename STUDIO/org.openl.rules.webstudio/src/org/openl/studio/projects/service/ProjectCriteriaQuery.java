@@ -28,14 +28,18 @@ public record ProjectCriteriaQuery(
         ProjectIdModel dependsOn,
 
         @Schema(description = "Set of tags to filter projects by.")
-        Map<String, String> tags
+        Map<String, String> tags,
+
+        @Schema(description = "Project name to filter by (partial match, case-insensitive).")
+        String name
 ) {
 
     private ProjectCriteriaQuery(Builder builder) {
         this(builder.repositoryId,
                 builder.status,
                 builder.dependsOn,
-                Map.copyOf(builder.tags));
+                Map.copyOf(builder.tags),
+                builder.name);
     }
 
     @JsonCreator
@@ -50,6 +54,7 @@ public record ProjectCriteriaQuery(
         private ProjectStatus status;
         private ProjectIdModel dependsOn;
         private final Map<String, String> tags = new HashMap<>();
+        private String name;
 
         private Builder() {
         }
@@ -71,6 +76,11 @@ public record ProjectCriteriaQuery(
 
         public Builder tag(String type, String name) {
             tags.put(type, name);
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
             return this;
         }
 

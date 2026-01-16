@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "id": "6e3e97fd6994ad50150bd2f3d86ec198",
-    "tableType": "SimpleSpreadsheet",
-    "kind": "Spreadsheet",
-    "name": "doSomething_SimpleSpr",
-    "returnType": "SpreadsheetResult",
-    "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
-    "file": "EPBDS-13931/Main.xlsx",
-    "pos": "B4:C8"
-  }
-]
+{
+  "content": [
+    {
+      "id": "6e3e97fd6994ad50150bd2f3d86ec198",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "doSomething_SimpleSpr",
+      "returnType": "SpreadsheetResult",
+      "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
+      "file": "EPBDS-13931/Main.xlsx",
+      "pos": "B4:C8"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

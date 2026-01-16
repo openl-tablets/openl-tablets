@@ -2,6 +2,7 @@ package org.openl.studio.projects.service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
@@ -45,6 +47,7 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -458,16 +461,27 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @param project project
      * @param query   filter query
+     * @param page    pagination parameters
      * @return project tables
      */
-    public Collection<SummaryTableView> getTables(RulesProject project, ProjectTableCriteriaQuery query) {
+    public PageResponse<SummaryTableView> getTables(RulesProject project,
+                                                     ProjectTableCriteriaQuery query,
+                                                     Pageable page) {
         var moduleModel = getProjectModel(project);
 
         var selectors = buildTableSelector(query);
-        return moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+        var content = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
                 .stream()
                 .map(summaryTableReader::read)
+                .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
+                .skip(page.getOffset())
+                .limit(page.getPageSize())
                 .collect(Collectors.toList());
+
+        if (page.isUnpaged()) {
+            return new PageResponse<>(content, -1, content.size());
+        }
+        return new PageResponse<>(content, page.getPageNumber(), page.getPageSize());
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {

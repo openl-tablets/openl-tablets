@@ -130,16 +130,19 @@ public class ProjectsController {
                     "CLOSED"})),
             @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
             @Parameter(name = "dependsOn", description = "Identifier of the project that the returned projects depend on.", in = ParameterIn.QUERY),
+            @Parameter(name = "name", description = "Project name to filter by (partial match, case-insensitive)", in = ParameterIn.QUERY),
             @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                       @RequestParam(value = "status", required = false) ProjectStatus status,
                                                       @RequestParam(value = "repository", required = false) String repository,
                                                       @RequestParam(value = "dependsOn", required = false) String dependsOn,
+                                                      @RequestParam(value = "name", required = false) String name,
                                                       @PaginationDefault Pageable page) {
         var queryBuilder = ProjectCriteriaQuery.builder()
                 .repositoryId(repository)
-                .status(status);
+                .status(status)
+                .name(name);
 
         if (StringUtils.isNotEmpty(dependsOn)) {
             queryBuilder.dependsOn(ProjectIdModel.decode(dependsOn));
@@ -221,10 +224,11 @@ public class ProjectsController {
             @Parameter(name = "name", description = "Table name fragment", in = ParameterIn.QUERY),
             @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
-    public Collection<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                  @Parameter(hidden = true) @RequestParam Map<String, String> params,
-                                                  @RequestParam(value = "kind", required = false) Set<String> kinds,
-                                                  @RequestParam(value = "name", required = false) String name) {
+    public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                    @Parameter(hidden = true) @RequestParam Map<String, String> params,
+                                                    @RequestParam(value = "kind", required = false) Set<String> kinds,
+                                                    @RequestParam(value = "name", required = false) String name,
+                                                    @PaginationDefault Pageable page) {
 
         var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
         params.entrySet()
@@ -236,7 +240,7 @@ public class ProjectsController {
                     queryBuilder.property(tag, entry.getValue());
                 });
 
-        return projectService.getTables(project, queryBuilder.build());
+        return projectService.getTables(project, queryBuilder.build(), page);
     }
 
     @Operation(summary = "Create new project table (BETA)")
@@ -252,7 +256,11 @@ public class ProjectsController {
         }
         var table = (TableView) request.table();
         var query = ProjectTableCriteriaQuery.builder().name(table.name).build();
-        return projectService.getTables(project, query).stream().findFirst().orElse(null);
+        return projectService.getTables(project, query, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

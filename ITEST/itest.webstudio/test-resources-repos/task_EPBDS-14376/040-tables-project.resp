@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "id": "5cff64b989fa6f416c2ba143cc959320",
-    "tableType": "SmartRules",
-    "kind": "Rules",
-    "name": "FicaDetails",
-    "returnType": "Double",
-    "signature": "FicaDetails (String  fica, Date startDate)",
-    "file": "EPBDS-14376/DateBug.xlsx",
-    "pos": "C5:E9"
-  }
-]
+{
+  "content": [
+    {
+      "id": "5cff64b989fa6f416c2ba143cc959320",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "FicaDetails",
+      "returnType": "Double",
+      "signature": "FicaDetails (String  fica, Date startDate)",
+      "file": "EPBDS-14376/DateBug.xlsx",
+      "pos": "C5:E9"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

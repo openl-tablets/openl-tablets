@@ -69,7 +69,12 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     @Nonnull
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
-        return ALL_PROJECTS;
+        Predicate<AProject> filter = ALL_PROJECTS;
+        if (query.name() != null && !query.name().isBlank()) {
+            var nameLower = query.name().toLowerCase();
+            filter = filter.and(project -> project.getBusinessName().toLowerCase().contains(nameLower));
+        }
+        return filter;
     }
 
     @Nonnull

@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "id": "6b2b37a36a3f2af77e1cc1e463102bd7",
-    "tableType": "SmartRules",
-    "kind": "Rules",
-    "name": "Hello",
-    "returnType": "String",
-    "signature": "Hello (Integer hour)",
-    "file": "EPBDS_14670_Project/Main.xlsx",
-    "pos": "B3:D8"
-  }
-]
+{
+  "content": [
+    {
+      "id": "6b2b37a36a3f2af77e1cc1e463102bd7",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "EPBDS_14670_Project/Main.xlsx",
+      "pos": "B3:D8"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}

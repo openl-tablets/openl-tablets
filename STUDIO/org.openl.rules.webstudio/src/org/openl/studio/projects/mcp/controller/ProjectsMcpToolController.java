@@ -70,13 +70,15 @@ public class ProjectsMcpToolController {
         this.testsExecutorService = testsExecutorService;
     }
 
-    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_projects", description = "List all projects with optional filters (repository, status, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.")
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_projects", description = "List all projects with optional filters (repository, status, name, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.")
     public PageResponse<ProjectViewModel> listProjects(@ToolParam(description = "Project status to filter by", required = false)
                                                        ProjectStatus status,
                                                        @ToolParam(description = "Design repository identifier")
                                                        String repository,
                                                        @ToolParam(description = "Identifier of the project that the returned projects depend on.", required = false)
                                                        ProjectIdModel dependsOn,
+                                                       @ToolParam(description = "Project name to filter by (partial match, case-insensitive)", required = false)
+                                                       String name,
                                                        @ToolParam(description = "Pagination parameters", required = false)
                                                        PageRequest pagination,
                                                        @ToolParam(description = "Project tags to filter by", required = false)
@@ -84,7 +86,8 @@ public class ProjectsMcpToolController {
         var queryBuilder = ProjectCriteriaQuery.builder()
                 .repositoryId(repository)
                 .status(status)
-                .dependsOn(dependsOn);
+                .dependsOn(dependsOn)
+                .name(name);
         if (tags != null) {
             tags.forEach(tag -> queryBuilder.tag(tag.name(), tag.value()));
         }
@@ -156,16 +159,24 @@ public class ProjectsMcpToolController {
         }
     }
 
-    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_project_tables", description = "Lists all tables within a specified project, with optional filtering by table name.\nReturns table summaries including names and types.\nUse this to explore project contents before accessing specific tables.")
-    public Collection<SummaryTableView> getProjectTables(@ToolParam(description = "Project identifier")
-                                                         String projectId,
-                                                         @ToolParam(description = "Table name to filter by", required = false)
-                                                         String name) {
+    @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_project_tables", description = "Lists all tables within a specified project, with optional filtering by table name and pagination.\nReturns table summaries including names and types.\nUse this to explore project contents before accessing specific tables.")
+    public PageResponse<SummaryTableView> getProjectTables(@ToolParam(description = "Project identifier")
+                                                           String projectId,
+                                                           @ToolParam(description = "Table name to filter by", required = false)
+                                                           String name,
+                                                           @ToolParam(description = "Pagination parameters", required = false)
+                                                           PageRequest pagination) {
         var query = ProjectTableCriteriaQuery.builder()
                 .name(name)
                 .build();
         var project = base64ProjectConverter.convert(projectId);
-        return projectService.getTables(project, query);
+        Pageable pageable;
+        if (pagination != null) {
+            pageable = Offset.of(pagination.offset(), pagination.limit());
+        } else {
+            pageable = Pageable.unpaged();
+        }
+        return projectService.getTables(project, query, pageable);
     }
 
     @Tool(name = McpToolNameConstants.GET_TOOL_PREFIX + "_project_table", description = "Get detailed information about a specific table/rule. Returns table structure, signature, conditions, actions, dimension properties, and all row data. Use this to understand existing rules before modifying them.")
@@ -197,7 +208,11 @@ public class ProjectsMcpToolController {
             projectService.getWebStudio().reset();
         }
         var query = ProjectTableCriteriaQuery.builder().name(((TableView) table).name).build();
-        return projectService.getTables(project, query).stream().findFirst().orElse(null);
+        return projectService.getTables(project, query, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Tool(name = McpToolNameConstants.UPDATE_TOOL_PREFIX + "_project_table", description = "Update table content including conditions, actions, and data rows. CRITICAL: Must send the FULL table structure (not just modified fields). Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, add fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).")
