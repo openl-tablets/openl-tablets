@@ -1,15 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[
-  {
-    "id": "a9b205cbc833c511accabda0c39a87c8",
-    "tableType": "Rules",
-    "kind": "Rules",
-    "name": "Hello",
-    "returnType": "String",
-    "signature": "Hello (Integer hour)",
-    "file": "Project/Main.xlsx",
-    "pos": "B3:E11"
-  }
-]
+{
+  "content": [
+    {
+      "id": "a9b205cbc833c511accabda0c39a87c8",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "Project/Main.xlsx",
+      "pos": "B3:E11"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}
