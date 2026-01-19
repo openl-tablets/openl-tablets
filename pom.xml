@@ -99,7 +99,7 @@
         <opentelemetry.version>2.23.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- REST -->
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
         <cxf.version>4.1.4</cxf.version>
 
         <!-- gRPC -->
