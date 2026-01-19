@@ -96,7 +96,7 @@
         <kafka.version>4.1.1</kafka.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.23.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.24.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- REST -->
         <jackson.version>2.21.0</jackson.version>
