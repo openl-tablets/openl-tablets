@@ -1024,7 +1024,7 @@
             <dependency>
                 <groupId>org.jboss.weld.servlet</groupId>
                 <artifactId>weld-servlet-core</artifactId>
-                <version>5.1.6.Final</version>
+                <version>5.1.7.Final</version>
             </dependency>
             <!-- RichFaces -->
             <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
