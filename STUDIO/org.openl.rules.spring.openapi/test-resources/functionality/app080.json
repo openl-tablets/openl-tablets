@@ -196,10 +196,12 @@
         "properties": {
           "key": {
             "type": "string",
+            "minLength": 1,
             "description": "Metadata key"
           },
           "value": {
             "type": "string",
+            "minLength": 1,
             "description": "Metadata value"
           }
         },
