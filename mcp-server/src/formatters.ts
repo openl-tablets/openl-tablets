@@ -373,6 +373,36 @@ function formatProjects(projects: any[]): string {
 }
 
 /**
+ * Escape markdown table cell content to prevent breaking table structure
+ */
+function escapeTableCell(value: string): string {
+  if (!value) return "N/A";
+  // Replace pipe characters and newlines that would break markdown tables
+  return String(value).replace(/\|/g, "\\|").replace(/\n/g, " ").trim();
+}
+
+/**
+ * Truncate long strings with ellipsis
+ */
+function truncate(value: string, maxLength: number): string {
+  if (!value || value.length <= maxLength) return value || "N/A";
+  return value.substring(0, maxLength - 3) + "...";
+}
+
+/**
+ * Format properties object as a readable string
+ */
+function formatProperties(properties: any): string {
+  if (!properties || typeof properties !== "object") return "N/A";
+  const keys = Object.keys(properties);
+  if (keys.length === 0) return "N/A";
+  // Show property keys, limit to 3 for readability
+  const displayKeys = keys.slice(0, 3);
+  const result = displayKeys.join(", ");
+  return keys.length > 3 ? `${result} (+${keys.length - 3} more)` : result;
+}
+
+/**
  * Format tables as markdown table
  */
 function formatTables(tables: any[]): string {
@@ -383,16 +413,21 @@ function formatTables(tables: any[]): string {
   const lines = [
     "# Tables",
     "",
-    "| Name | Type | Table ID | File |",
-    "|------|------|----------|------|",
+    "| Name | Type | Kind | Table ID | Signature | Return Type | File | Properties |",
+    "|------|------|------|----------|-----------|-------------|------|------------|",
   ];
 
   for (const table of tables) {
-    const name = table.name || "N/A";
-    const type = table.tableType || table.type || "N/A";
-    const tableId = table.id || table.tableId || "N/A";
-    const file = table.file || "N/A";
-    lines.push(`| ${name} | ${type} | ${tableId} | ${file} |`);
+    const name = escapeTableCell(table.name || "N/A");
+    const type = escapeTableCell(table.tableType || table.type || "N/A");
+    const kind = escapeTableCell(table.kind || "N/A");
+    const tableId = escapeTableCell(table.id || table.tableId || "N/A");
+    // Truncate signature to 50 chars to prevent table breaking
+    const signature = escapeTableCell(truncate(table.signature || "N/A", 50));
+    const returnType = escapeTableCell(table.returnType || "N/A");
+    const file = escapeTableCell(table.file || "N/A");
+    const properties = escapeTableCell(formatProperties(table.properties));
+    lines.push(`| ${name} | ${type} | ${kind} | ${tableId} | ${signature} | ${returnType} | ${file} | ${properties} |`);
   }
 
   return lines.join("\n");

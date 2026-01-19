@@ -36,7 +36,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                         ? designRepository.name
                         : repositoryId
                             ? repositoryId.charAt(0).toUpperCase() + repositoryId.slice(1)
-                            : 'Unknown Repository'
+                            : t('common:unknown_repository')
                     
                     indexOfOption = acc.push({
                         label: repositoryLabel,

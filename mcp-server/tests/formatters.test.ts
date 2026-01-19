@@ -281,6 +281,105 @@ describe("formatters", () => {
     });
   });
 
+  describe("table formatting", () => {
+    it("should format tables with all metadata fields", () => {
+      const tables = [
+        {
+          id: "test_1234",
+          name: "testRule",
+          tableType: "SimpleRules",
+          kind: "Rules",
+          signature: "double testRule(int x)",
+          returnType: "double",
+          file: "Rules.xlsx",
+          properties: {
+            category: "Test",
+            version: "1.0",
+          },
+        },
+      ];
+
+      const result = formatResponse(tables, "markdown", { dataType: "tables" });
+
+      expect(result).toContain("testRule");
+      expect(result).toContain("Kind");
+      expect(result).toContain("Signature");
+      expect(result).toContain("Return Type");
+      expect(result).toContain("Properties");
+      expect(result).toContain("Rules");
+      expect(result).toContain("double testRule");
+      expect(result).toContain("category");
+    });
+
+    it("should handle tables with pipe characters in values", () => {
+      const tables = [
+        {
+          id: "test_1234",
+          name: "test|rule",
+          tableType: "SimpleRules",
+          kind: "Rules",
+          signature: "double test(int x)",
+          returnType: "double",
+          file: "Rules.xlsx",
+        },
+      ];
+
+      const result = formatResponse(tables, "markdown", { dataType: "tables" });
+
+      // Should escape pipe characters
+      expect(result).toContain("test\\|rule");
+    });
+
+    it("should truncate long signatures", () => {
+      const longSignature = "double veryLongMethodNameWithManyParameters(int param1, int param2, int param3, int param4, int param5)";
+      const tables = [
+        {
+          id: "test_1234",
+          name: "testRule",
+          tableType: "SimpleRules",
+          kind: "Rules",
+          signature: longSignature,
+          returnType: "double",
+          file: "Rules.xlsx",
+        },
+      ];
+
+      const result = formatResponse(tables, "markdown", { dataType: "tables" });
+
+      // Signature should be truncated
+      expect(result).toContain("...");
+      expect(result.length).toBeLessThan(longSignature.length * 2);
+    });
+
+    it("should format properties correctly", () => {
+      const tables = [
+        {
+          id: "test_1234",
+          name: "testRule",
+          tableType: "SimpleRules",
+          kind: "Rules",
+          signature: "double test()",
+          returnType: "double",
+          file: "Rules.xlsx",
+          properties: {
+            prop1: { value: 1 },
+            prop2: { value: 2 },
+            prop3: { value: 3 },
+            prop4: { value: 4 },
+          },
+        },
+      ];
+
+      const result = formatResponse(tables, "markdown", { dataType: "tables" });
+
+      // Should show first 3 properties and count
+      expect(result).toContain("prop1");
+      expect(result).toContain("prop2");
+      expect(result).toContain("prop3");
+      expect(result).toContain("+1 more");
+    });
+  });
+
   describe("edge cases", () => {
     it("should handle circular references in JSON", () => {
       const circular: any = { a: 1 };

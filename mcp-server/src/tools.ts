@@ -233,7 +233,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_update_table",
-    description: "Replace the ENTIRE table structure with a modified version. CRITICAL: Must send the FULL table structure (not just modified fields). Use this for modifying existing rows, changing table structure, or complete table redesign. DO NOT use for simple row additions - use append_table instead. Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, change fields), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
+    description: "Replace the ENTIRE table structure with a modified version. Use for MODIFYING existing rows, DELETING rows, REORDERING rows, or STRUCTURAL changes. CRITICAL: Must send the FULL table structure (not just modified fields). DO NOT use for simple additions - use append_table instead. Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object (e.g., update rules array, change fields, delete rows), 3) Pass the ENTIRE modified object to update_table(). Required fields: id, tableType, kind, name, plus type-specific fields (rules for SimpleRules, rows for Spreadsheet, fields for Datatype). Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.2.0",
@@ -244,7 +244,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_append_table",
-    description: "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use this for adding one or more rows to Rules/Spreadsheet tables, or adding fields to Datatype tables. More efficient than update_table for simple additions. Only requires the new data to append, not the full table structure. Workflow: 1) Call get_table() to understand current structure, 2) Prepare only the new data to add, 3) Call append_table() with appendData. Modifies table in memory (requires save_project to persist changes).",
+    description: "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use for ADDING rows/fields ONLY - does not modify existing data. Examples: Adding 1 row → use append_table. Adding multiple rows → use append_table. Adding fields to Datatype → use append_table. More efficient than update_table for simple additions. Only requires the NEW data to append, not the full table structure. For modifications, deletions, or reordering → use update_table instead. Workflow: 1) Call get_table() to understand current structure, 2) Prepare only the new data to add, 3) Call append_table() with appendData. Modifies table in memory (requires save_project to persist changes).",
     inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.1.0",
@@ -255,7 +255,7 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     name: "openl_create_project_table",
-    description: "Create a new table/rule in OpenL project using BETA API (Create New Project Table). Use this to create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure. This is the recommended way to create tables and rules programmatically.",
+    description: "Create a new table/rule in OpenL project using BETA API (Create New Project Table). This is the recommended tool for creating new OpenL tables programmatically. Use cases: Create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure. This tool uses the Create New Project Table (BETA) API endpoint.",
     inputSchema: zodToJsonSchema(schemas.createProjectTableSchema) as Record<string, unknown>,
     _meta: {
       version: "1.0.0",

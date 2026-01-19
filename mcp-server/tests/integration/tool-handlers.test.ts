@@ -185,8 +185,14 @@ describe("Tool Handler Integration Tests", () => {
           name: "calculatePremium",
           tableType: "SimpleRules",
           kind: "Rules",
+          signature: "double calculatePremium(int age, double amount)",
+          returnType: "double",
           file: "Rules.xlsx",
           pos: "A1",
+          properties: {
+            category: "Premium Calculation",
+            version: "1.0",
+          },
         },
       ];
 
@@ -198,7 +204,17 @@ describe("Tool Handler Integration Tests", () => {
       }, client);
 
       expect(result.content[0].type).toBe("text");
-      expect(result.content[0].text).toContain("calculatePremium");
+      const text = result.content[0].text;
+      expect(text).toContain("calculatePremium");
+      // Verify new columns are included in markdown output
+      expect(text).toContain("Kind");
+      expect(text).toContain("Signature");
+      expect(text).toContain("Return Type");
+      expect(text).toContain("Properties");
+      expect(text).toContain("Rules"); // kind value
+      expect(text).toContain("double calculatePremium"); // signature value
+      expect(text).toContain("double"); // returnType value
+      expect(text).toContain("category"); // properties keys
     });
 
     it("should execute openl_get_table", async () => {

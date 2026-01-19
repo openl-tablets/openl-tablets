@@ -273,7 +273,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       let totalCount: number | undefined;
       let apiPageNumber: number | undefined;
       let apiPageSize: number | undefined;
-      
+
       if (Array.isArray(projectsResponse)) {
         // Direct array response (no pagination metadata)
         projects = projectsResponse;
@@ -343,11 +343,11 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       }
 
       // Use API pagination metadata if available, otherwise use client-side pagination values
-      const paginationOffset = apiPageNumber !== undefined && apiPageSize !== undefined 
-        ? apiPageNumber * apiPageSize 
+      const paginationOffset = apiPageNumber !== undefined && apiPageSize !== undefined
+        ? apiPageNumber * apiPageSize
         : offset;
-      const paginationLimit = apiPageSize !== undefined 
-        ? apiPageSize 
+      const paginationLimit = apiPageSize !== undefined
+        ? apiPageSize
         : limit;
 
       const formattedResult = formatResponse(paginated.data, format, {
@@ -648,7 +648,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl Update Table",
     version: "1.2.0",
     description:
-      "Replace the ENTIRE table structure with a modified version. CRITICAL: Must send the FULL table structure (not just modified fields). Use this for modifying existing rows, changing table structure, or complete table redesign. DO NOT use for simple row additions - use append_table instead.",
+      "Replace the ENTIRE table structure with a modified version. Use for MODIFYING existing rows, DELETING rows, REORDERING rows, or STRUCTURAL changes. CRITICAL: Must send the FULL table structure (not just modified fields). DO NOT use for simple additions - use append_table instead. Required workflow: 1) Call get_table() to retrieve complete structure, 2) Modify the returned object, 3) Pass the ENTIRE modified object to update_table().",
     inputSchema: zodToJsonSchema(schemas.updateTableSchema) as Record<string, unknown>,
     annotations: {
       idempotentHint: true,
@@ -689,7 +689,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl Append Table",
     version: "1.1.0",
     description:
-      "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use this for adding one or more rows to Rules/Spreadsheet tables, or adding fields to Datatype tables. More efficient than update_table for simple additions. Only requires the new data to append, not the full table structure.",
+      "Append new rows/fields to an existing table WITHOUT replacing the entire structure. Use for ADDING rows/fields ONLY - does not modify existing data. Examples: Adding 1 row → use append_table. Adding multiple rows → use append_table. More efficient than update_table for simple additions. Only requires the NEW data to append, not the full table structure. For modifications, deletions, or reordering → use update_table instead.",
     inputSchema: zodToJsonSchema(schemas.appendTableSchema) as Record<string, unknown>,
     annotations: {
       idempotentHint: true,
@@ -756,7 +756,7 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
     title: "openl Create Project Table",
     version: "1.0.0",
     description:
-      "Create a new table/rule in OpenL project using BETA API. Use this to create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure.",
+      "Create a new table/rule in OpenL project using BETA API (Create New Project Table). This is the recommended tool for creating new OpenL tables programmatically. Use cases: Create Rules (decision tables), Spreadsheet tables, Datatype definitions, Test tables, or other table types. Requires moduleName (Excel file/folder name) and complete table structure (EditableTableView). The table structure must include: id (can be generated), tableType, kind, name, plus type-specific data (rules for Rules/SimpleRules/SmartRules, rows for Spreadsheet, fields for Datatype). Use get_table() on an existing table as a reference for the structure. This tool uses the Create New Project Table (BETA) API endpoint.",
     inputSchema: zodToJsonSchema(schemas.createProjectTableSchema) as Record<string, unknown>,
     annotations: {
       openWorldHint: true,
