@@ -16,223 +16,166 @@ Content-Type: application/json
     "allAllowedRegions": [
       {
         "id": "me-central-1",
-        "description": "Middle East (UAE)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-cn-global",
-        "description": "aws-cn global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-isof-south-1",
-        "description": "US ISOF SOUTH"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-east-2",
-        "description": "Asia Pacific (Taipei)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-west-1",
-        "description": "US West (N. California)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-west-2",
-        "description": "US West (Oregon)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "af-south-1",
-        "description": "Africa (Cape Town)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-northeast-3",
-        "description": "Asia Pacific (Osaka)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-northeast-2",
-        "description": "Asia Pacific (Seoul)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-northeast-1",
-        "description": "Asia Pacific (Tokyo)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "me-south-1",
-        "description": "Middle East (Bahrain)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "sa-east-1",
-        "description": "South America (Sao Paulo)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "cn-north-1",
-        "description": "China (Beijing)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-1",
-        "description": "Asia Pacific (Singapore)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-2",
-        "description": "Asia Pacific (Sydney)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-3",
-        "description": "Asia Pacific (Jakarta)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-4",
-        "description": "Asia Pacific (Melbourne)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-5",
-        "description": "Asia Pacific (Malaysia)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-east-1",
-        "description": "US East (N. Virginia)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-6",
-        "description": "Asia Pacific (New Zealand)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-east-2",
-        "description": "US East (Ohio)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-southeast-7",
-        "description": "Asia Pacific (Thailand)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "cn-northwest-1",
-        "description": "China (Ningxia)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-iso-e-global",
-        "description": "aws-iso-e global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-south-2",
-        "description": "Asia Pacific (Hyderabad)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-south-1",
-        "description": "Asia Pacific (Mumbai)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-south-1",
-        "description": "Europe (Milan)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-south-2",
-        "description": "Europe (Spain)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-gov-east-1",
-        "description": "AWS GovCloud (US-East)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "il-central-1",
-        "description": "Israel (Tel Aviv)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ca-central-1",
-        "description": "Canada (Central)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "mx-central-1",
-        "description": "Mexico (Central)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-central-1",
-        "description": "Europe (Frankfurt)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eusc-de-east-1",
-        "description": "AWS European Sovereign Cloud (Germany)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-iso-west-1",
-        "description": "US ISO WEST"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-central-2",
-        "description": "Europe (Zurich)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-isoe-west-1",
-        "description": "EU ISOE West"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-global",
-        "description": "aws global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-isob-west-1",
-        "description": "US ISOB West"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-north-1",
-        "description": "Europe (Stockholm)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-west-3",
-        "description": "Europe (Paris)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-west-2",
-        "description": "Europe (London)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "eu-west-1",
-        "description": "Europe (Ireland)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-iso-global",
-        "description": "aws-iso global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ap-east-1",
-        "description": "Asia Pacific (Hong Kong)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "ca-west-1",
-        "description": "Canada West (Calgary)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-gov-west-1",
-        "description": "AWS GovCloud (US-West)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-iso-east-1",
-        "description": "US ISO East"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-iso-b-global",
-        "description": "aws-iso-b global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-iso-f-global",
-        "description": "aws-iso-f global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-isob-east-1",
-        "description": "US ISOB East (Ohio)"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "aws-us-gov-global",
-        "description": "aws-us-gov global region"
-      },
-      {
+        "description": "***"
+      }, {
         "id": "us-isof-east-1",
-        "description": "US ISOF EAST"
+        "description": "***"
       }
     ],
-    "allSseAlgorithms": [
-      "AES256",
-      "AWS_FSX",
-      "AWS_KMS",
-      "AWS_KMS_DSSE"
-    ]
+    "allSseAlgorithms": ["AES256", "AWS_FSX", "AWS_KMS", "AWS_KMS_DSSE"]
   },
   "type": "repo-aws-s3",
   "id": "production1"
