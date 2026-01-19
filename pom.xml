@@ -127,7 +127,7 @@
 
         <!-- Repositories -->
         <amazonaws.version>2.41.9</amazonaws.version>
-        <azure.version>12.32.0</azure.version>
+        <azure.version>12.33.0</azure.version>
         <netty.version>4.2.9.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
 
