@@ -148,7 +148,7 @@
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.6.0</minio.version>
         <ojdbc11.version>23.26.0.0.0</ojdbc11.version>
-        <postgresql.version>42.7.8</postgresql.version>
+        <postgresql.version>42.7.9</postgresql.version>
         <mariadb.version>2.7.13</mariadb.version>
         <mssql.version>13.2.1.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
