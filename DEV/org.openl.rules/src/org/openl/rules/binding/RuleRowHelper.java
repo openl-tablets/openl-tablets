@@ -53,6 +53,7 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringPool;
 
 public final class RuleRowHelper {
@@ -215,7 +216,12 @@ public final class RuleRowHelper {
                 }
 
                 if (res != null) {
-                    validateValue(res, paramType);
+                    var validationMessage = OpenClassUtils.isValidValue(res, paramType);
+                    if (validationMessage != null) {
+                        BindHelper.processError(validationMessage,
+                                new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()),
+                                openlAdapter.getBindingContext());
+                    }
                     return res;
                 }
             } catch (Exception | LinkageError t) {
@@ -439,7 +445,12 @@ public final class RuleRowHelper {
             }
 
             try {
-                validateValue(result, paramType);
+                var validationMessage = OpenClassUtils.isValidValue(result, paramType);
+                if (validationMessage != null) {
+                    IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                            bindingContext);
+                    BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
+                }
             } catch (Exception e) {
                 String message = String.format("Invalid cell value '%s'", source);
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
