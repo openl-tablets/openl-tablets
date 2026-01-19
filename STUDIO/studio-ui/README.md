@@ -33,6 +33,7 @@ For a deeper architectural overview, see `AGENTS.md`.
 ## Prerequisites
 
 - Node.js 24.x (used for local builds only; the backend ships bundles produced by npm).
+- npm 11.x (required for compatibility with `lockfileVersion@3` in `package-lock.json`).
 - Java 21 and Maven (matching the root `maven-compiler-plugin` release). The Maven build installs Node/npm automatically and runs the npm scripts.
 
 ---
