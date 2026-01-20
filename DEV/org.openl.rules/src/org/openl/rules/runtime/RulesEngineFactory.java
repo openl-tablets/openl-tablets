@@ -47,11 +47,9 @@ import org.openl.xls.RulesCompileContext;
 public class RulesEngineFactory<T> {
 
 
-    public static final String DEFAULT_USER_HOME = ".";
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
     private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private final IOpenSourceCodeModule sourceCode;
-    private final String userHome;
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
     private Class<T> interfaceClass;
@@ -68,56 +66,28 @@ public class RulesEngineFactory<T> {
     }
 
     public RulesEngineFactory(String sourceFile) {
-        userHome = DEFAULT_USER_HOME;
         sourceCode = new URLSourceCodeModule(sourceFile);
     }
 
     public RulesEngineFactory(String sourceFile, Class<T> interfaceClass) {
-        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(sourceFile);
         this.interfaceClass = interfaceClass;
     }
 
-    public RulesEngineFactory(String sourceFile, String userHome) {
-        this.userHome = userHome;
-        sourceCode = new URLSourceCodeModule(sourceFile);
-    }
-
-    public RulesEngineFactory(String sourceFile, String userHome, Class<T> interfaceClass) {
-        this.userHome = userHome;
-        this.interfaceClass = interfaceClass;
-        sourceCode = new URLSourceCodeModule(sourceFile);
-    }
-
     public RulesEngineFactory(IOpenSourceCodeModule sourceCodeModule) {
-        userHome = DEFAULT_USER_HOME;
         this.sourceCode = sourceCodeModule;
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule sourceCodeModule, Class<T> interfaceClass) {
-        userHome = DEFAULT_USER_HOME;
         this.sourceCode = sourceCodeModule;
         this.interfaceClass = interfaceClass;
     }
 
-    public RulesEngineFactory(IOpenSourceCodeModule source, String userHome) {
-        this.userHome = userHome;
-        this.sourceCode = source;
-    }
-
-    public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, Class<T> interfaceClass) {
-        this.userHome = userHome;
-        this.sourceCode = source;
-        this.interfaceClass = interfaceClass;
-    }
-
     public RulesEngineFactory(URL source) {
-        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(source);
     }
 
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
-        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(source);
         this.interfaceClass = interfaceClass;
     }
@@ -265,10 +235,10 @@ public class RulesEngineFactory<T> {
         if (openl == null) {
             synchronized (this) {
                 if (openl == null) {
-                    var userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()), userHome);
+                    var userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()));
 
                     openl = new OpenL();
-                    openl.setParser(new Parser(userContext));
+                    openl.setParser(new Parser());
                     openl.setBinder(new XlsBinder(new RulesCompileContext(), userContext));
                     openl.setVm(new SimpleRulesVM());
                 }

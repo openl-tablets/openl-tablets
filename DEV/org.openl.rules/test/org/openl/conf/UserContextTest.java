@@ -14,13 +14,13 @@ public class UserContextTest {
         ClassLoader classLoader = UserContextTest.class.getClassLoader();
         ClassLoader cl1 = new OpenLClassLoader(classLoader);
 
-        UserContext uc1 = new UserContext(cl1, ".");
-        UserContext uc2 = new UserContext(cl1, ".");
+        UserContext uc1 = new UserContext(cl1);
+        UserContext uc2 = new UserContext(cl1);
         assertEquals(uc1, uc2);
         assertEquals(uc1.hashCode(), uc2.hashCode());
 
         ClassLoader cl2 = new OpenLClassLoader(classLoader);
-        uc2 = new UserContext(cl2, ".");
+        uc2 = new UserContext(cl2);
         assertNotEquals(uc1, uc2);
         assertNotEquals(uc1.hashCode(), uc2.hashCode());
     }

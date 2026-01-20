@@ -8,8 +8,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.IncludeSearcher;
 import org.openl.rules.lang.xls.TablePart;
 import org.openl.rules.lang.xls.TablePartProcessor;
 import org.openl.rules.lang.xls.XlsHelper;
@@ -55,16 +52,11 @@ import org.openl.util.text.LocationUtils;
 public class SequentialXlsLoader {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
     private final Collection<String> imports = new HashSet<>();
-    private final IncludeSearcher includeSeeker;
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
     private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
     private final Set<IDependency> dependencies = new LinkedHashSet<>();
-
-    public SequentialXlsLoader(IncludeSearcher includeSeeker) {
-        this.includeSeeker = includeSeeker;
-    }
 
     private WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
                                                        XlsWorkbookSourceCodeModule workbookSourceModule) {
@@ -251,34 +243,10 @@ public class SequentialXlsLoader {
             String include = table.getCell(1, i).getStringValue();
 
             if (StringUtils.isNotBlank(include)) {
-                include = include.trim();
-                IOpenSourceCodeModule src = null;
-
-                if (include.startsWith("<")) {
-                    try {
-                        Matcher matcher = Pattern.compile("<([^<>]+)>").matcher(include);
-                        matcher.find();
-                        src = includeSeeker.findInclude(matcher.group(1));
-                    } catch (Exception e) {
-                        messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
-
-                    }
-                    if (src == null) {
-                        registerIncludeError(tableSyntaxNode, table, i, include, null);
-                        continue;
-                    }
-                } else {
-                    try {
-                        String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
-                                StringTool.encodeURL(include));
-                        src = new URLSourceCodeModule(new URI(newURL).toURL());
-                    } catch (Exception t) {
-                        registerIncludeError(tableSyntaxNode, table, i, include, t);
-                        continue;
-                    }
-                }
-
                 try {
+                    var newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
+                            StringTool.encodeURL(include));
+                    var src = new URLSourceCodeModule(new URI(newURL).toURL());
                     preprocessWorkbook(src);
                 } catch (Exception t) {
                     registerIncludeError(tableSyntaxNode, table, i, include, t);

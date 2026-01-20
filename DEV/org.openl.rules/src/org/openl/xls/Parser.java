@@ -1,9 +1,7 @@
 package org.openl.xls;
 
 import org.openl.IOpenParser;
-import org.openl.conf.IUserContext;
 import org.openl.excel.grid.SequentialXlsLoader;
-import org.openl.rules.lang.xls.IncludeSearcher;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
@@ -11,11 +9,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public class Parser implements IOpenParser {
-    private final IUserContext userContext;
-
-    public Parser(IUserContext userContext) {
-        this.userContext = userContext;
-    }
 
     @Override
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
@@ -51,8 +44,6 @@ public class Parser implements IOpenParser {
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-        IncludeSearcher includeSeeker = new IncludeSearcher(userContext.getUserHome(), userContext.getUserClassLoader());
-
-        return new SequentialXlsLoader(includeSeeker).parse(source);
+        return new SequentialXlsLoader().parse(source);
     }
 }
