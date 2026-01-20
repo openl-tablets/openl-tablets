@@ -34,7 +34,6 @@ import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.module.ModuleNode;
-import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.TypeResolver;
@@ -131,7 +130,6 @@ public class XlsBinder implements IOpenBinder {
         return BinderFactoryHolder.INSTANCE;
     }
 
-    private final IUserContext userContext;
     private final ICompileContext compileContext;
     private final Map<String, OpenL> openls = new HashMap<>();
 
@@ -147,8 +145,7 @@ public class XlsBinder implements IOpenBinder {
         openls.put(name, opl);
     }
 
-    public XlsBinder(ICompileContext compileContext, IUserContext userContext) {
-        this.userContext = userContext;
+    public XlsBinder(ICompileContext compileContext) {
         this.compileContext = compileContext;
     }
 
@@ -198,7 +195,7 @@ public class XlsBinder implements IOpenBinder {
 
         if (openl == null) {
             try {
-                openl = makeOpenL(category, moduleNode, exceptions, userContext);
+                openl = makeOpenL(moduleNode, exceptions);
                 registerOpenL(category, openl);
             } catch (OpenLConfigurationException ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, moduleNode);
@@ -449,8 +446,8 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private static OpenL makeOpenL(String category, XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions, IUserContext userContext) {
-        ClassLoader userClassLoader = userContext.getUserClassLoader();
+    private static OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
+        var userClassLoader = Thread.currentThread().getContextClassLoader();
 
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<Class<?>> classNames = new LinkedHashSet<>();

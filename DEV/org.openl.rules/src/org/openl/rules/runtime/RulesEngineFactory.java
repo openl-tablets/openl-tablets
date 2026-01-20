@@ -13,7 +13,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenlNotCheckedException;
@@ -235,11 +234,9 @@ public class RulesEngineFactory<T> {
         if (openl == null) {
             synchronized (this) {
                 if (openl == null) {
-                    var userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()));
-
                     openl = new OpenL();
                     openl.setParser(new Parser());
-                    openl.setBinder(new XlsBinder(new RulesCompileContext(), userContext));
+                    openl.setBinder(new XlsBinder(new RulesCompileContext()));
                     openl.setVm(new SimpleRulesVM());
                 }
             }
