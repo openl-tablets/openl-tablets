@@ -2,11 +2,7 @@ package org.openl.conf;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-
-import org.openl.OpenL;
 
 /**
  * The class is designed as immutable, but not immutable because contains ClassLoader.
@@ -46,22 +42,6 @@ public final class UserContext implements IUserContext {
     @Override
     public String toString() {
         return "cl=" + printClassloader(userClassLoader);
-    }
-
-    private final Map<String, OpenL> openls = new HashMap<>();
-
-    @Override
-    public OpenL getOpenL(String name) {
-        return openls.get(name);
-    }
-
-    @Override
-    public void registerOpenL(String name, OpenL opl) {
-        OpenL openl = openls.get(name);
-        if (openl != null) {
-            throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null);
-        }
-        openls.put(name, opl);
     }
 
     // Classloader is important part of user context, commonly each executable
