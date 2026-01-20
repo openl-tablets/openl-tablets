@@ -17,8 +17,6 @@ public interface IUserContext {
 
     ClassLoader getUserClassLoader();
 
-    String getUserHome();
-
     OpenL getOpenL(String name);
 
     void registerOpenL(String name, OpenL opl);

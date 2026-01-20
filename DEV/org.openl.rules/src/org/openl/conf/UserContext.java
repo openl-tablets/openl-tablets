@@ -1,12 +1,5 @@
-/*
- * Created on Jul 24, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.conf;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
@@ -24,21 +17,13 @@ public final class UserContext implements IUserContext {
 
     private final ClassLoader userClassLoader;
 
-    private final String userHome;
-
-    public UserContext(ClassLoader userClassLoader, String userHome) {
+    public UserContext(ClassLoader userClassLoader) {
         this.userClassLoader = userClassLoader;
-        this.userHome = new File(userHome).getAbsolutePath();
     }
 
     @Override
     public ClassLoader getUserClassLoader() {
         return userClassLoader;
-    }
-
-    @Override
-    public String getUserHome() {
-        return userHome;
     }
 
     private String printClassloader(ClassLoader ucl) {
@@ -60,7 +45,7 @@ public final class UserContext implements IUserContext {
 
     @Override
     public String toString() {
-        return "home=" + userHome + "cl=" + printClassloader(userClassLoader);
+        return "cl=" + printClassloader(userClassLoader);
     }
 
     private final Map<String, OpenL> openls = new HashMap<>();
@@ -97,12 +82,11 @@ public final class UserContext implements IUserContext {
         }
         IUserContext c = (IUserContext) obj;
 
-        return Objects.equals(getUserClassLoader(), c.getUserClassLoader()) && Objects.equals(getUserHome(),
-                c.getUserHome());
+        return Objects.equals(getUserClassLoader(), c.getUserClassLoader());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUserClassLoader(), getUserHome());
+        return Objects.hash(getUserClassLoader());
     }
 }

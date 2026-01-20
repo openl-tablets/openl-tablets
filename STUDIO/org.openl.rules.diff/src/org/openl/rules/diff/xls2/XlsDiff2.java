@@ -65,9 +65,9 @@ public class XlsDiff2 {
         try {
             classLoader = new OpenLClassLoader(oldCl);
             Thread.currentThread().setContextClassLoader(classLoader);
-            UserContext ucxt = new UserContext(classLoader, ".");
+            UserContext ucxt = new UserContext(classLoader);
 
-            IParsedCode pc = new Parser(ucxt).parseAsModule(src);
+            IParsedCode pc = new Parser().parseAsModule(src);
             IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
             IOpenClass ioc = bc.getTopNode().getType();
 
