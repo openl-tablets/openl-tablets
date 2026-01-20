@@ -133,6 +133,19 @@ public class XlsBinder implements IOpenBinder {
 
     private final IUserContext userContext;
     private final ICompileContext compileContext;
+    private final Map<String, OpenL> openls = new HashMap<>();
+
+    private OpenL getOpenL(String name) {
+        return openls.get(name);
+    }
+
+    private void registerOpenL(String name, OpenL opl) {
+        OpenL openl = openls.get(name);
+        if (openl != null) {
+            throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null);
+        }
+        openls.put(name, opl);
+    }
 
     public XlsBinder(ICompileContext compileContext, IUserContext userContext) {
         this.userContext = userContext;
@@ -180,13 +193,13 @@ public class XlsBinder implements IOpenBinder {
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
         String category = "XLSX::" + moduleNode.getModule().getUri();
-        var openl = userContext.getOpenL(category);
+        var openl = getOpenL(category);
         List<SyntaxNodeException> exceptions = new ArrayList<>();
 
         if (openl == null) {
             try {
                 openl = makeOpenL(category, moduleNode, exceptions, userContext);
-                userContext.registerOpenL(category, openl);
+                registerOpenL(category, openl);
             } catch (OpenLConfigurationException ex) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, moduleNode);
 
