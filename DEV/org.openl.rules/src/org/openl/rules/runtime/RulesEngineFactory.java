@@ -75,7 +75,7 @@ public class RulesEngineFactory<T> {
     public RulesEngineFactory(String sourceFile, Class<T> interfaceClass) {
         userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(sourceFile);
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
     }
 
     public RulesEngineFactory(String sourceFile, String userHome) {
@@ -85,7 +85,7 @@ public class RulesEngineFactory<T> {
 
     public RulesEngineFactory(String sourceFile, String userHome, Class<T> interfaceClass) {
         this.userHome = userHome;
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
         sourceCode = new URLSourceCodeModule(sourceFile);
     }
 
@@ -97,7 +97,7 @@ public class RulesEngineFactory<T> {
     public RulesEngineFactory(IOpenSourceCodeModule sourceCodeModule, Class<T> interfaceClass) {
         userHome = DEFAULT_USER_HOME;
         this.sourceCode = sourceCodeModule;
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome) {
@@ -108,7 +108,7 @@ public class RulesEngineFactory<T> {
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, Class<T> interfaceClass) {
         this.userHome = userHome;
         this.sourceCode = source;
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
     }
 
     public RulesEngineFactory(URL source) {
@@ -119,8 +119,7 @@ public class RulesEngineFactory<T> {
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
         userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(source);
-        Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
     }
 
     public void reset() {
@@ -139,24 +138,16 @@ public class RulesEngineFactory<T> {
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
                 try {
-                    @SuppressWarnings("unchecked")
-                    Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);
+                    interfaceClass = (Class<T>) classLoader.loadClass(className);
                     log.warn("Previously generated interface '{}' has been used as a service class.", className);
-                    setInterfaceClass(interfaceClass);
-                    return interfaceClass;
                 } catch (ClassNotFoundException e) {
-                    @SuppressWarnings("unchecked")
-                    Class<T> interfaceClass = (Class<T>) interfaceClassGenerator
-                            .generateInterface(className, openClass, classLoader);
-                    setInterfaceClass(interfaceClass);
-                    return interfaceClass;
+                    interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className, openClass, classLoader);
                 }
             } catch (Exception | LinkageError e) {
                 throw new OpenlNotCheckedException("Failed to generate the interface '" + className + "'", e);
             }
-        } else {
-            return interfaceClass;
         }
+        return interfaceClass;
     }
 
     private IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
