@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.conf.UserContext;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
@@ -65,10 +64,9 @@ public class XlsDiff2 {
         try {
             classLoader = new OpenLClassLoader(oldCl);
             Thread.currentThread().setContextClassLoader(classLoader);
-            UserContext ucxt = new UserContext(classLoader);
 
             IParsedCode pc = new Parser().parseAsModule(src);
-            IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
+            IBoundCode bc = new XlsBinder(new DefaultCompileContext()).bind(pc);
             IOpenClass ioc = bc.getTopNode().getType();
 
             XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
