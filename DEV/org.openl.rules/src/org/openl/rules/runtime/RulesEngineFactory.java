@@ -26,10 +26,8 @@ import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.OpenClassHelper;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.openl.validation.ValidationManager;
@@ -234,54 +232,38 @@ public class RulesEngineFactory<T> {
      * Creates methods map that contains interface's methods as key and appropriate open class's members as value.
      *
      * @param engineInterface interface that provides method for engine
-     * @param moduleOpenClass open class that used by engine to invoke appropriate rules
+     * @param openClass open class that used by engine to invoke appropriate rules
      * @return methods map
      */
-    private Map<Method, IOpenMember> prepareMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
+    private static Map<Method, IOpenMember> prepareMethodMap(Class<?> engineInterface, IOpenClass openClass) {
 
-        // Methods map.
-        //
-        Map<Method, IOpenMember> methodMap = new HashMap<>();
-        // Get declared by engine interface methods.
-        //
-        Method[] interfaceMethods = engineInterface.getDeclaredMethods();
+        var methodMap = new HashMap<Method, IOpenMember>();
 
-        for (Method interfaceMethod : interfaceMethods) {
-            // Get name of method.
-            //
-            String interfaceMethodName = interfaceMethod.getName();
+        for (Method interfaceMethod : engineInterface.getDeclaredMethods()) {
+            var methodName = interfaceMethod.getName();
+            var parameterTypes = interfaceMethod.getParameterTypes();
+
             // Try to find openClass's method with appropriate name and
             // parameter types.
             //
-            IOpenMethod rulesMethod = OpenClassHelper.findRulesMethod(moduleOpenClass, interfaceMethod);
+            var args = new IOpenClass[parameterTypes.length];
+            for (int i = 0; i < parameterTypes.length; i++) {
+                args[i] = JavaOpenClass.getOpenClass(parameterTypes[i]);
+            }
+            IOpenMember rulesMethod = openClass.getMethod(methodName, args);
 
-            if (rulesMethod != null) {
-                validateReturnType(rulesMethod, interfaceMethod);
-                // If openClass has appropriate method then add new entry to
-                // methods map.
-                //
-                methodMap.put(interfaceMethod, rulesMethod);
-            } else {
+            if (rulesMethod == null && methodName.startsWith("get") && parameterTypes.length == 0) {
                 // Try to find appropriate method candidate in openClass's
                 // fields.
                 //
-                IOpenField ruleField = OpenClassHelper.findRulesField(moduleOpenClass, interfaceMethod);
-                if (ruleField != null) {
-                    methodMap.put(interfaceMethod, ruleField);
-                    continue;
-                } else {
-                    if (interfaceMethod.getParameterCount() == 0) {
-                        IOpenField openField = OpenClassHelper.findRulesField(moduleOpenClass,
-                                interfaceMethod.getName());
-                        if (openField != null) {
-                            String message = String.format(INCORRECT_RET_TYPE_MSG,
-                                    openField.getType(),
-                                    interfaceMethodName,
-                                    interfaceMethod.getName());
-                            throw new RuntimeException(message);
-                        }
-                    }
+                var fieldName = methodName.substring(3);
+                rulesMethod = openClass.getField(fieldName);
+                if (rulesMethod == null) {
+                    rulesMethod = openClass.getField(ClassUtils.decapitalize(fieldName));
                 }
+            }
+
+            if (rulesMethod == null) {
                 // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //
@@ -290,12 +272,18 @@ public class RulesEngineFactory<T> {
 
                 throw new OpenlNotCheckedException(message);
             }
+
+            validateReturnType(rulesMethod, interfaceMethod);
+            // If openClass has appropriate method then add new entry to
+            // methods map.
+            //
+            methodMap.put(interfaceMethod, rulesMethod);
         }
 
         return methodMap;
     }
 
-    private void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
+    private static void validateReturnType(IOpenMember openMethod, Method interfaceMethod) {
         Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
         if (openClassReturnType == Void.class || openClassReturnType == void.class) {
             return;
