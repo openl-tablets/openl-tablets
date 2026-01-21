@@ -120,12 +120,12 @@ export const appendTableSchema = z.object({
     // SimpleRulesAppend
     z.object({
       tableType: z.literal("SimpleRules"),
-      rules: z.array(z.record(z.any())).describe("Array of rule objects to append. Each rule is a map with condition and action columns."),
+      rules: z.array(z.record(z.unknown())).describe("Array of rule objects to append. Each rule is a map with condition and action columns."),
     }),
     // SimpleSpreadsheetAppend
     z.object({
       tableType: z.literal("SimpleSpreadsheet"),
-      steps: z.array(z.any()).describe("Array of spreadsheet step objects to append"),
+      steps: z.array(z.unknown()).describe("Array of spreadsheet step objects to append"),
     }),
     // SmartRulesAppend
     z.object({
@@ -135,7 +135,7 @@ export const appendTableSchema = z.object({
     // VocabularyAppend
     z.object({
       tableType: z.literal("Vocabulary"),
-      values: z.array(z.any()).describe("Array of vocabulary value objects to append"),
+      values: z.array(z.unknown()).describe("Array of vocabulary value objects to append"),
     }),
   ]).describe("Data structure to append to the table. Structure depends on tableType: Datatype uses 'fields', SimpleRules/SmartRules use 'rules', SimpleSpreadsheet uses 'steps', Vocabulary uses 'values'"),
   comment: commentSchema,

@@ -263,6 +263,12 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       }
       if (typedArgs.status) filters.status = typedArgs.status;
       if (typedArgs.tags) filters.tags = typedArgs.tags;
+      
+      // Add pagination parameters (convert offset/limit to page/size for API)
+      if (offset !== undefined && limit !== undefined) {
+        filters.offset = offset;
+        filters.limit = limit;
+      }
 
       const projectsResponse = await client.listProjects(filters);
 
@@ -280,12 +286,12 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
         totalCount = projects.length;
       } else if (projectsResponse && typeof projectsResponse === 'object') {
         if ('content' in projectsResponse && Array.isArray((projectsResponse as any).content)) {
-          // Paginated response: { content: [...], pageNumber, pageSize, numberOfElements }
+          // Paginated response: { content: [...], pageNumber, pageSize, numberOfElements, total }
           projects = (projectsResponse as any).content;
           apiPageNumber = (projectsResponse as any).pageNumber;
           apiPageSize = (projectsResponse as any).pageSize;
-          // Use numberOfElements for current page, or totalElements if available
-          totalCount = (projectsResponse as any).totalElements ?? (projectsResponse as any).numberOfElements;
+          // Use total if available (OpenL API), otherwise totalElements or numberOfElements
+          totalCount = (projectsResponse as any).total ?? (projectsResponse as any).totalElements ?? (projectsResponse as any).numberOfElements;
         } else if ('data' in projectsResponse && Array.isArray((projectsResponse as any).data)) {
           // Wrapped response: { data: [...] }
           projects = (projectsResponse as any).data;
@@ -587,16 +593,67 @@ export function registerAllTools(server: Server, client: OpenLClient): void {
       }
       if (typedArgs.name) filters.name = typedArgs.name;
       if (typedArgs.properties) filters.properties = typedArgs.properties;
+      
+      // Add pagination parameters (convert offset/limit to page/size for API)
+      if (offset !== undefined && limit !== undefined) {
+        filters.offset = offset;
+        filters.limit = limit;
+      }
 
-      const tables = await client.listTables(typedArgs.projectId, filters);
+      const tablesResponse = await client.listTables(typedArgs.projectId, filters);
 
-      // Apply pagination
-      const paginated = paginateResults(tables, limit, offset);
+      // Handle case when API returns PageResponse instead of array
+      // API now returns { content: [...], pageNumber, pageSize, numberOfElements, total }
+      let tables: Types.TableMetadata[];
+      let totalCount: number | undefined;
+      let apiPageNumber: number | undefined;
+      let apiPageSize: number | undefined;
+
+      if (Array.isArray(tablesResponse)) {
+        // Direct array response (backward compatibility, no pagination metadata)
+        tables = tablesResponse;
+        totalCount = tables.length;
+      } else if (tablesResponse && typeof tablesResponse === 'object' && 'content' in tablesResponse && Array.isArray((tablesResponse as any).content)) {
+        // PageResponse format: { content: [...], pageNumber, pageSize, numberOfElements, total }
+        tables = (tablesResponse as any).content;
+        apiPageNumber = (tablesResponse as any).pageNumber;
+        apiPageSize = (tablesResponse as any).pageSize;
+        // Use total if available, otherwise numberOfElements for current page
+        totalCount = (tablesResponse as any).total ?? (tablesResponse as any).totalElements ?? (tablesResponse as any).numberOfElements;
+      } else {
+        // Fallback: empty array
+        tables = [];
+        totalCount = 0;
+      }
+
+      // If API already paginated, use its pagination metadata
+      // Otherwise apply client-side pagination
+      let paginated;
+      if (apiPageNumber !== undefined && apiPageSize !== undefined && totalCount !== undefined) {
+        // API already paginated - use its metadata
+        paginated = {
+          data: tables,
+          has_more: (apiPageNumber + 1) * apiPageSize < totalCount,
+          next_offset: (apiPageNumber + 1) * apiPageSize < totalCount ? (apiPageNumber + 1) * apiPageSize : null,
+          total_count: totalCount,
+        };
+      } else {
+        // Apply client-side pagination
+        paginated = paginateResults(tables, limit, offset);
+      }
+
+      // Use API pagination metadata if available, otherwise use client-side pagination values
+      const paginationOffset = apiPageNumber !== undefined && apiPageSize !== undefined
+        ? apiPageNumber * apiPageSize
+        : offset;
+      const paginationLimit = apiPageSize !== undefined
+        ? apiPageSize
+        : limit;
 
       const formattedResult = formatResponse(paginated.data, format, {
         pagination: {
-          limit,
-          offset,
+          limit: paginationLimit,
+          offset: paginationOffset,
           total: paginated.total_count,
         },
         dataType: "tables",

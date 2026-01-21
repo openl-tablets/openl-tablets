@@ -2,7 +2,7 @@
 
 /**
  * Express HTTP Server for OpenL Tablets MCP Server
- * 
+ *
  * Provides HTTP REST API for accessing MCP tools as a standalone service.
  * This allows the MCP server to be used as a microservice in Docker Compose.
  */
@@ -114,7 +114,7 @@ function getClientForSession(sessionId: string, query?: Record<string, string | 
     try {
       // Get base URL from default client (server configuration)
       const baseUrl = defaultClient.getBaseUrl();
-      
+
       // Build config with server's base URL and client's authentication
       const config: Types.OpenLConfig = {
         baseUrl,
@@ -273,7 +273,7 @@ const streamableHttpTransports: Record<string, StreamableHTTPServerTransport> = 
 
 /**
  * Setup MCP server handlers for a session
- * 
+ *
  * @param server - MCP server instance
  * @param client - OpenL client for this session
  */
@@ -353,7 +353,7 @@ function setupSessionHandlers(server: Server, client: OpenLClient): void {
 
 /**
  * Create a new MCP server instance for a session
- * 
+ *
  * @param client - OpenL client for this session
  * @returns Configured MCP server instance
  */
@@ -505,7 +505,7 @@ const handleSSE = async (req: Request, res: Response) => {
   try {
     // Extract configuration from headers and query params (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
-    
+
     // Extract token from standard Authorization header: "Authorization: Token <PAT>"
     // This is the standard way to pass authentication tokens
     const authHeader = req.headers.authorization;
@@ -526,11 +526,11 @@ const handleSSE = async (req: Request, res: Response) => {
     // Never log actual token values - only presence
     console.log(`[Config] Config params: OPENL_PERSONAL_ACCESS_TOKEN=${configParams.OPENL_PERSONAL_ACCESS_TOKEN ? 'set (hidden)' : 'not set'}`);
     console.log(`[Config] Base URL: using server configuration (OPENL_BASE_URL env var or Docker config)`);
-    
+
     // Try to create client from configuration (base URL from server, auth from client)
     const sessionId = randomUUID();
     const client = getClientForSession(sessionId, configParams);
-    
+
     // Create a new MCP server instance for this session with the specific client
     const sessionServer = createSessionServer(client);
 
@@ -548,7 +548,7 @@ const handleSSE = async (req: Request, res: Response) => {
     });
 
     await sessionServer.connect(transport);
-    const configSource = configFromHeaders.OPENL_PERSONAL_ACCESS_TOKEN ? 'Authorization header' : 
+    const configSource = configFromHeaders.OPENL_PERSONAL_ACCESS_TOKEN ? 'Authorization header' :
                          req.query.OPENL_PERSONAL_ACCESS_TOKEN ? 'query params' : 'default config';
     console.log(`✅ SSE connection established: session ${transportSessionId} (client from ${configSource})`);
   } catch (error) {
@@ -561,10 +561,10 @@ const handleSSE = async (req: Request, res: Response) => {
  * SSE endpoint for MCP protocol (for Cursor direct connection)
  * GET /mcp/sse - Establishes SSE connection
  * GET /sse - Alias for nginx proxy compatibility (when /mcp prefix is stripped)
- * 
+ *
  * Base URL is configured on the server side (environment variable OPENL_BASE_URL or Docker config).
  * Only authentication token can be passed via Authorization header or query parameter.
- * 
+ *
  * Supports configuration via:
  *   1. HTTP Authorization header: "Authorization: Token <PAT>"
  *   2. Query parameter: ?OPENL_PERSONAL_ACCESS_TOKEN=<PAT>
@@ -578,9 +578,9 @@ app.get('/sse', handleSSE); // Alias for nginx proxy compatibility
 const handleStreamableHttp = async (req: Request, res: Response) => {
   console.log(`[StreamableHTTP Handler] Processing StreamableHTTP connection request: ${req.method} ${req.path}`);
   try {
-    // Extract configuration from headers (only authentication, not base URL)
+    // Extract configuration from headers and query params (only authentication, not base URL)
     const configFromHeaders: Record<string, string | undefined> = {};
-    
+
     // Extract token from standard Authorization header: "Authorization: Token <PAT>"
     const authHeader = req.headers.authorization;
     // Log only presence, not the actual value for security
@@ -594,18 +594,20 @@ const handleStreamableHttp = async (req: Request, res: Response) => {
     } else if (authHeader) {
       console.log(`[Config] Authorization header doesn't start with 'Token ': ${typeof authHeader === 'string' ? 'wrong format' : 'not a string'}`);
     }
-    
+
+    // Merge headers and query params (only for authentication, base URL comes from server config)
+    const configParams = { ...req.query, ...configFromHeaders } as Record<string, string | undefined>;
     // Never log actual token values - only presence
-    console.log(`[Config] Config params: OPENL_PERSONAL_ACCESS_TOKEN=${configFromHeaders.OPENL_PERSONAL_ACCESS_TOKEN ? 'set (hidden)' : 'not set'}`);
+    console.log(`[Config] Config params: OPENL_PERSONAL_ACCESS_TOKEN=${configParams.OPENL_PERSONAL_ACCESS_TOKEN ? 'set (hidden)' : 'not set'}`);
     console.log(`[Config] Base URL: using server configuration (OPENL_BASE_URL env var or Docker config)`);
 
     // Check for existing session ID in headers
     const sessionId = req.headers['mcp-session-id'] as string | undefined;
     let transport: StreamableHTTPServerTransport;
-    
+
     // Get or create client for this session
     const sessionClientId = sessionId || randomUUID();
-    const client = getClientForSession(sessionClientId, configFromHeaders);
+    const client = getClientForSession(sessionClientId, configParams);
     console.log(`[Config] Using client for session ${sessionClientId}: auth=${client.getAuthMethod()}`);
 
     if (sessionId && streamableHttpTransports[sessionId]) {
@@ -635,7 +637,9 @@ const handleStreamableHttp = async (req: Request, res: Response) => {
 
       // Connect session server to transport
       await sessionServer.connect(transport);
-      console.log(`✅ StreamableHttp connection established: session ${transport.sessionId || 'new'} (client auth: ${client.getAuthMethod()})`);
+      const configSource = configFromHeaders.OPENL_PERSONAL_ACCESS_TOKEN ? 'Authorization header' :
+                           req.query.OPENL_PERSONAL_ACCESS_TOKEN ? 'query params' : 'default config';
+      console.log(`✅ StreamableHttp connection established: session ${transport.sessionId || 'new'} (client from ${configSource}, auth: ${client.getAuthMethod()})`);
     } else {
       // Invalid request
       return res.status(400).json({ error: 'Invalid request' });
@@ -655,10 +659,10 @@ const handleStreamableHttp = async (req: Request, res: Response) => {
  * POST /mcp/sse - Establishes streamableHttp connection
  * POST /sse - Alias for nginx proxy compatibility (when /mcp prefix is stripped)
  * This allows Cursor to connect immediately without fallback to SSE
- * 
+ *
  * Base URL is configured on the server side (environment variable OPENL_BASE_URL or Docker config).
  * Only authentication token can be passed via Authorization header.
- * 
+ *
  * Supports configuration via:
  *   1. HTTP Authorization header: "Authorization: Token <PAT>"
  */
@@ -672,7 +676,7 @@ const handleSSEMessages = async (req: Request, res: Response) => {
   try {
     const sessionId = req.query.sessionId as string;
     const transport = sseTransports[sessionId];
-    
+
     if (!transport) {
       return res.status(404).json({ error: 'Session not found' });
     }
@@ -730,14 +734,14 @@ app.get('/tools/:toolName', (req: Request, res: Response) => {
     const { toolName } = req.params;
     const tools = getAllTools();
     const tool = tools.find(t => t.name === toolName);
-    
+
     if (!tool) {
       return res.status(404).json({
         error: 'Tool not found',
         toolName
       });
     }
-    
+
     res.json(tool);
   } catch (error) {
     res.status(500).json({
@@ -754,19 +758,19 @@ app.post('/tools/:toolName/execute', async (req: Request, res: Response) => {
   try {
     const { toolName } = req.params;
     const args = req.body;
-    
+
     // Never log actual arguments - they may contain sensitive data
     console.log(`Executing tool: ${toolName}`);
-    
+
     if (!defaultClient) {
       return res.status(500).json({
         error: 'OpenL client not initialized',
         tool: toolName
       });
     }
-    
+
     const result = await executeTool(toolName, args, defaultClient);
-    
+
     res.json({
       tool: toolName,
       result
@@ -774,7 +778,7 @@ app.post('/tools/:toolName/execute', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     const errorMessage = sanitizeError(error);
     console.error(`Error executing tool ${req.params.toolName}:`, errorMessage);
-    
+
     res.status(500).json({
       error: 'Tool execution failed',
       tool: req.params.toolName,
@@ -789,25 +793,25 @@ app.post('/tools/:toolName/execute', async (req: Request, res: Response) => {
 app.post('/execute', async (req: Request, res: Response) => {
   try {
     const { tool, arguments: args } = req.body;
-    
+
     if (!tool) {
       return res.status(400).json({
         error: 'Missing required field: tool'
       });
     }
-    
+
     // Never log actual arguments - they may contain sensitive data
     console.log(`Executing tool: ${tool}`);
-    
+
     if (!defaultClient) {
       return res.status(500).json({
         error: 'OpenL client not initialized',
         tool
       });
     }
-    
+
     const result = await executeTool(tool, args || {}, defaultClient);
-    
+
     res.json({
       tool,
       result
@@ -815,7 +819,7 @@ app.post('/execute', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     const errorMessage = sanitizeError(error);
     console.error(`Error executing tool:`, errorMessage);
-    
+
     res.status(500).json({
       error: 'Tool execution failed',
       message: errorMessage
@@ -851,10 +855,10 @@ app.use((req: Request, res: Response) => {
 async function startServer(): Promise<void> {
   // Initialize default client before starting server (optional - can use query params)
   await initializeDefaultClient();
-  
+
   // Initialize MCP server (uses default client as fallback)
   await initializeMCPServer();
-  
+
   app.listen(PORT, () => {
     console.log(`🚀 OpenL MCP Server HTTP API listening on port ${PORT}`);
     console.log(`📋 Health check: http://localhost:${PORT}/health`);

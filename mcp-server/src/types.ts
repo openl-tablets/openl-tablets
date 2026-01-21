@@ -402,6 +402,14 @@ export interface ProjectFilters {
   status?: string;
   /** Project tags - must start with `tags.` prefix, e.g., { "tags.insurance.home": "value" } */
   tags?: Record<string, string>;
+  /** Pagination: page number (0-based, default: 0) */
+  page?: number;
+  /** Pagination: page size (default: 50) */
+  size?: number;
+  /** Pagination: offset (alternative to page, for backward compatibility) */
+  offset?: number;
+  /** Pagination: limit (alternative to size, for backward compatibility) */
+  limit?: number;
 }
 
 // =============================================================================
@@ -526,6 +534,14 @@ export interface TableFilters {
   name?: string;
   /** Filter by project properties (will be prefixed with 'properties.' in query string) */
   properties?: Record<string, string>;
+  /** Pagination: page number (0-based, default: 0) */
+  page?: number;
+  /** Pagination: page size (default: 50) */
+  size?: number;
+  /** Pagination: offset (alternative to page, for backward compatibility) */
+  offset?: number;
+  /** Pagination: limit (alternative to size, for backward compatibility) */
+  limit?: number;
 }
 
 /** Save project result */
@@ -758,8 +774,9 @@ export interface PageResponse<T> {
   numberOfElements: number;
   pageNumber: number;
   pageSize: number;
-  totalElements?: number;
-  totalPages?: number;
+  total?: number; // Total number of items (can be null if unknown)
+  totalElements?: number; // Alias for total (for consistency with Spring)
+  totalPages?: number; // Calculated as Math.ceil(total / pageSize)
 }
 
 /** Paginated response for project history (OpenAPI 3.0.1) */

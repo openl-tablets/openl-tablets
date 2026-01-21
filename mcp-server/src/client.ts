@@ -429,16 +429,16 @@ export class OpenLClient {
   }
 
   /**
-   * List all projects with optional filters
+   * List all projects with optional filters and pagination
    *
-   * @param filters - Optional filters for repository, status, and tag
-   * @returns Array of project summaries
+   * @param filters - Optional filters for repository, status, tags, and pagination
+   * @returns Array of project summaries (for backward compatibility, extracts content from PageResponse)
    */
   async listProjects(
     filters?: Types.ProjectFilters
   ): Promise<Types.ProjectSummary[]> {
-    // Build query parameters, handling tags with 'tags.' prefix
-    const params: Record<string, string> = {};
+    // Build query parameters, handling tags with 'tags.' prefix and pagination
+    const params: Record<string, string | number> = {};
     if (filters?.repository) params.repository = filters.repository;
     if (filters?.status) params.status = filters.status;
     if (filters?.tags) {
@@ -448,22 +448,40 @@ export class OpenLClient {
       });
     }
     
-    const response = await this.axiosInstance.get<Types.ProjectSummary[] | { content?: Types.ProjectSummary[]; data?: Types.ProjectSummary[] }>(
+    // Handle pagination parameters
+    // Support both page/size (OpenL API format) and offset/limit (alternative format)
+    if (filters?.page !== undefined) {
+      params.page = filters.page;
+    } else if (filters?.offset !== undefined && filters?.limit !== undefined) {
+      // Convert offset/limit to page/size
+      params.page = Math.floor(filters.offset / filters.limit);
+    }
+    
+    if (filters?.size !== undefined) {
+      params.size = filters.size;
+    } else if (filters?.limit !== undefined) {
+      params.size = filters.limit;
+    }
+    
+    const response = await this.axiosInstance.get<Types.PageResponse<Types.ProjectSummary> | Types.ProjectSummary[] | { content?: Types.ProjectSummary[]; data?: Types.ProjectSummary[] }>(
       "/projects",
       { params }
     );
     
     // Handle different response formats:
-    // 1. Direct array: [...]
-    // 2. Paginated response: { content: [...], pageable: {...} }
-    // 3. Wrapped response: { data: [...] }
+    // 1. PageResponse: { content: [...], pageNumber: 0, pageSize: 50, total: 100 }
+    // 2. Direct array: [...] (backward compatibility)
+    // 3. Wrapped response: { data: [...] } (legacy format)
     const responseData = response.data;
     if (Array.isArray(responseData)) {
+      // Direct array format (backward compatibility)
       return responseData;
     } else if (responseData && typeof responseData === 'object') {
       if ('content' in responseData && Array.isArray(responseData.content)) {
+        // PageResponse format: extract content array
         return responseData.content;
       } else if ('data' in responseData && Array.isArray(responseData.data)) {
+        // Legacy wrapped format
         return responseData.data;
       }
     }
@@ -866,11 +884,11 @@ export class OpenLClient {
   // =============================================================================
 
   /**
-   * List all tables/rules in a project with optional filters
+   * List all tables/rules in a project with optional filters and pagination
    *
    * @param projectId - Project ID in base64-encoded format (default). Supports backward compatibility with "repository-projectName" and "repository:projectName" formats.
-   * @param filters - Optional filters for table type, name, and file
-   * @returns Array of table metadata
+   * @param filters - Optional filters for table type, name, properties, and pagination
+   * @returns Array of table metadata (for backward compatibility, extracts content from PageResponse)
    */
   async listTables(
     projectId: string,
@@ -878,8 +896,8 @@ export class OpenLClient {
   ): Promise<Types.TableMetadata[]> {
     const projectPath = this.buildProjectPath(projectId);
     
-    // Build query parameters, handling kind (array) and properties with 'properties.' prefix
-    const params: Record<string, string | string[]> = {};
+    // Build query parameters, handling kind (array), properties with 'properties.' prefix, and pagination
+    const params: Record<string, string | string[] | number> = {};
     if (filters?.kind && filters.kind.length > 0) {
       // API expects 'kind' as array parameter
       params.kind = filters.kind;
@@ -892,11 +910,40 @@ export class OpenLClient {
       });
     }
     
-    const response = await this.axiosInstance.get<Types.TableMetadata[]>(
+    // Handle pagination parameters
+    // Support both page/size (OpenL API format) and offset/limit (alternative format)
+    if (filters?.page !== undefined) {
+      params.page = filters.page;
+    } else if (filters?.offset !== undefined && filters?.limit !== undefined) {
+      // Convert offset/limit to page/size
+      params.page = Math.floor(filters.offset / filters.limit);
+    }
+    
+    if (filters?.size !== undefined) {
+      params.size = filters.size;
+    } else if (filters?.limit !== undefined) {
+      params.size = filters.limit;
+    }
+    
+    const response = await this.axiosInstance.get<Types.PageResponse<Types.TableMetadata> | Types.TableMetadata[]>(
       `${projectPath}/tables`,
       { params }
     );
-    return response.data;
+    
+    // Handle different response formats:
+    // 1. PageResponse: { content: [...], pageNumber: 0, pageSize: 50, total: 100 }
+    // 2. Direct array: [...] (backward compatibility)
+    const responseData = response.data;
+    if (Array.isArray(responseData)) {
+      // Direct array format (backward compatibility)
+      return responseData;
+    } else if (responseData && typeof responseData === 'object' && 'content' in responseData && Array.isArray(responseData.content)) {
+      // PageResponse format: extract content array
+      return responseData.content;
+    }
+    
+    // Fallback: return empty array if format is unexpected
+    return [];
   }
 
   /**
