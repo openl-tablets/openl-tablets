@@ -503,12 +503,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         if (query.getName().isPresent()) {
-            var name = query.getName().get();
+            var nameFilter = query.getName().get().toLowerCase();
             selectors = selectors.and(tsn -> {
                 var type = XlsNodeTypes.getEnumByValue(tsn.getType());
                 var header = tsn.getHeader();
                 var displayName = TableSyntaxNodeUtils.str2name(header.getSourceString(), type);
-                return displayName.equals(name);
+                return displayName.toLowerCase().contains(nameFilter);
             });
         }
 
