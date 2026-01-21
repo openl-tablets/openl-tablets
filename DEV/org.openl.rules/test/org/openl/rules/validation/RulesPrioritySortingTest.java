@@ -9,24 +9,24 @@ import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
 
 public class RulesPrioritySortingTest {
-    public interface ITestI extends IRulesRuntimeContextProvider {
-        Double driverRiskScoreOverloadTest(String driverRisk);
+    public interface ITestI {
+        Double driverRiskScoreOverloadTest(IRulesRuntimeContext context, String driverRisk);
 
-        Double driverRiskScoreOverloadTest2(String driverRisk);
+        Double driverRiskScoreOverloadTest2(IRulesRuntimeContext context, String driverRisk);
 
-        Double driverRiskScoreOverloadTest3(String driverRisk);
+        Double driverRiskScoreOverloadTest3(IRulesRuntimeContext context, String driverRisk);
 
-        Double driverRiskScoreNoOverloadTest(String driverRisk);
+        Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext context, String driverRisk);
     }
 
     @Test
     public void testStartRequestDate() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        IRulesRuntimeContext context = instance.getRuntimeContext();
+        var context = new DefaultRulesRuntimeContext();
 
         Object[][] testData = {{"2011-01-15", "2011-02-15", 120.0},
                 {"2011-02-15", "2011-01-15", 120.0},
@@ -50,7 +50,7 @@ public class RulesPrioritySortingTest {
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest("High Risk Driver");
+            Double res = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
             assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
@@ -58,7 +58,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testEndRequestDate() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        IRulesRuntimeContext context = instance.getRuntimeContext();
+        var context = new DefaultRulesRuntimeContext();
 
         Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
@@ -70,7 +70,7 @@ public class RulesPrioritySortingTest {
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
+            Double res = instance.driverRiskScoreOverloadTest2(context, "High Risk Driver");
             assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
@@ -78,7 +78,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testFilledPropertiesSorting() throws Exception {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        IRulesRuntimeContext context = instance.getRuntimeContext();
+        var context = new DefaultRulesRuntimeContext();
 
         Object[][] testData = {{"2011-08-15", "lobb", 4.0}, {"2013-08-15", "lobb2", 6.0}};
 
@@ -90,7 +90,7 @@ public class RulesPrioritySortingTest {
             String lob = (String) data[1];
             context.setCurrentDate(currentDate);
             context.setLob(lob);
-            Double res = instance.driverRiskScoreOverloadTest3("High Risk Driver");
+            Double res = instance.driverRiskScoreOverloadTest3(context, "High Risk Driver");
             assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }

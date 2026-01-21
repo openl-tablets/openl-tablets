@@ -1,17 +1,14 @@
 package org.openl.rules.project.openapi;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
+import java.nio.file.Files;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +20,8 @@ import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.resolving.ProjectResource;
-import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
@@ -47,27 +41,20 @@ public class OpenApiGenerator {
 
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Reader reader = new Reader();
-
-    private final ProjectDescriptor projectDescriptor;
     private final RulesInstantiationStrategy instantiationStrategy;
     private final CompiledOpenClass compiledOpenClass;
     private final IOpenClass openClass;
-    private final boolean provideRuntimeContext;
+    private final RulesDeploy rulesDeploy;
 
-    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private static final IRulesDeploySerializer RULES_DEPLOY_XML_SERIALIZER = new XmlRulesDeploySerializer();
 
-    private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
 
-    private OpenApiGenerator(ProjectDescriptor projectDescriptor,
-                             RulesInstantiationStrategy instantiationStrategy,
-                             boolean provideRuntimeContext) throws RulesInstantiationException {
-        this.projectDescriptor = projectDescriptor;
+    private OpenApiGenerator(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+        this.rulesDeploy = loadRulesDeploy(projectDescriptor);
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
         this.openClass = compiledOpenClass.getOpenClass();
-        this.provideRuntimeContext = provideRuntimeContext;
     }
 
     /**
@@ -81,13 +68,10 @@ public class OpenApiGenerator {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            RulesInstantiationStrategy enhancedInstantiationStrategy = enhanceRulesInstantiationStrategy(
-                    instantiationStrategy,
-                    isProvidedRuntimeContext());
-            Class<?> serviceClass = resolveInterface(enhancedInstantiationStrategy);
+            Class<?> serviceClass = resolveInterface(instantiationStrategy);
             ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
             Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
-                    enhancedInstantiationStrategy.instantiate(),
+                    instantiationStrategy.instantiate(),
                     serviceClassLoader
             );
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
@@ -101,33 +85,16 @@ public class OpenApiGenerator {
         }
     }
 
-    private ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader, String name) {
-        ProjectResource[] projectResources = projectResourceLoader.loadResource(name, false);
-        return Arrays.stream(projectResources)
-                .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private RulesDeploy loadRulesDeploy() {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
-        ProjectResource projectResource = loadProjectResource(projectResourceLoader, RULES_DEPLOY_XML);
-        if (projectResource != null) {
-            try {
-                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
-            } catch (FileNotFoundException | JAXBException e) {
+    private static RulesDeploy loadRulesDeploy(ProjectDescriptor descriptor) {
+        var deployXmlPath = descriptor.getProjectFolder().resolve(RULES_DEPLOY_XML);
+        if (Files.exists(deployXmlPath)) {
+            try (var stream = Files.newInputStream(deployXmlPath)){
+                return RULES_DEPLOY_XML_SERIALIZER.deserialize(stream);
+            } catch (IOException | JAXBException e) {
                 LOG.debug("Ignored error: ", e);
-                return null;
             }
         }
         return null;
-    }
-
-    private RulesDeploy getRulesDeploy() {
-        if (rulesDeploy == null) {
-            rulesDeploy = loadRulesDeploy();
-        }
-        return rulesDeploy;
     }
 
     private ClassLoader resolveServiceClassLoader(
@@ -143,19 +110,9 @@ public class OpenApiGenerator {
         return classLoader;
     }
 
-    protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
-            RulesInstantiationStrategy rulesInstantiationStrategy,
-            boolean provideRuntimeContext) {
-        if (provideRuntimeContext) {
-            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
-        return rulesInstantiationStrategy;
-    }
-
     private Class<?> resolveInterface(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException, OpenApiGenerationException {
-        final RulesDeploy rulesDeployValue = getRulesDeploy();
-        final Optional<String> serviceClassName = Optional.ofNullable(rulesDeployValue)
+        final Optional<String> serviceClassName = Optional.ofNullable(rulesDeploy)
                 .map(RulesDeploy::getServiceClass)
                 .map(StringUtils::trimToNull);
 
@@ -176,10 +133,10 @@ public class OpenApiGenerator {
             }
         }
 
-        final String templateClassName = Optional.ofNullable(rulesDeployValue)
+        final String templateClassName = Optional.ofNullable(rulesDeploy)
                 .map(RulesDeploy::getAnnotationTemplateClassName)
                 .map(StringUtils::trimToNull)
-                .orElseGet(() -> Optional.ofNullable(rulesDeployValue)
+                .orElseGet(() -> Optional.ofNullable(rulesDeploy)
                         .map(RulesDeploy::getInterceptingTemplateClassName)
                         .map(StringUtils::trimToNull)
                         .orElse(null));
@@ -217,9 +174,9 @@ public class OpenApiGenerator {
     }
 
     private boolean isProvidedRuntimeContext() {
-        return Optional.ofNullable(getRulesDeploy())
+        return Optional.ofNullable(rulesDeploy)
                 .map(RulesDeploy::isProvideRuntimeContext)
-                .orElse(provideRuntimeContext);
+                .orElse(false);
     }
 
     private ObjectMapper createObjectMapper(ClassLoader serviceClassLoader) {
@@ -227,7 +184,7 @@ public class OpenApiGenerator {
 
         var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactoryBean.setClassLoader(classLoader);
-        objectMapperFactoryBean.setRulesDeploy(getRulesDeploy());
+        objectMapperFactoryBean.setRulesDeploy(rulesDeploy);
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) openClass);
         objectMapperFactoryBean.setClassLoader(serviceClassLoader);
         try {
@@ -267,23 +224,9 @@ public class OpenApiGenerator {
         private final ProjectDescriptor projectDescriptor;
         private final RulesInstantiationStrategy instantiationStrategy;
 
-        private boolean provideRuntimeContext = true;
-
         private Builder(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) {
             this.projectDescriptor = projectDescriptor;
             this.instantiationStrategy = instantiationStrategy;
-        }
-
-        /**
-         * If runtime context must be included to OpenAPI schema or not by default. Takes effect only if
-         * {@code  isProvideRuntimeContext} is not provided in rules-deploy.xml
-         *
-         * @param provideRuntimeContext include runtime context to OpenAPI or not
-         * @return current builder instance
-         */
-        public Builder withDefaultProvideRuntimeContext(boolean provideRuntimeContext) {
-            this.provideRuntimeContext = provideRuntimeContext;
-            return this;
         }
 
         /**
@@ -294,8 +237,7 @@ public class OpenApiGenerator {
          */
         public OpenApiGenerator generator() throws RulesInstantiationException {
             return new OpenApiGenerator(projectDescriptor,
-                    instantiationStrategy,
-                    provideRuntimeContext);
+                    instantiationStrategy);
         }
     }
 

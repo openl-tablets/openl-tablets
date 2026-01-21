@@ -1,25 +1,22 @@
 package org.openl.rules.runtime;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.runtime.OpenLMethodHandler;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 
-public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRulesRuntimeContextProvider {
+public class OpenLRulesMethodHandler extends OpenLMethodHandler {
 
+    private static final Object[] NO_PARAMS = new Object[0];
     private final ValidationHandler validationHandler = new ValidationHandler();
-
-    @Override
-    public IRulesRuntimeContext getRuntimeContext() {
-        return (IRulesRuntimeContext) getRuntimeEnv().getContext();
-    }
 
     public OpenLRulesMethodHandler(Object openlInstance,
                                    Map<Method, IOpenMember> methodMap,
@@ -29,11 +26,22 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
-        if (IRulesRuntimeContextProvider.class == method.getDeclaringClass()) {
-            return method.invoke(this, args);
+        var targetMethod = getMethodMap().get(method);
+        if (targetMethod == null) {
+            return super.invoke(method, args);
+        }
+        if (args.length > 0) {
+            var v = args[0];
+            if (v instanceof IRulesRuntimeContext || v == null &&
+                    (targetMethod instanceof IOpenMethod m && m.getSignature().getParameterTypes().length < args.length
+                            || targetMethod instanceof IOpenField && args.length == 1
+                    )
+            ) {
+                getRuntimeEnv().setContext((IRulesRuntimeContext) args[0]);
+                args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : NO_PARAMS;
+            }
         }
         if (IEngineWrapper.class != method.getDeclaringClass()) {
-            IOpenMember targetMethod = getMethodMap().get(method);
             StringBuilder output = null;
             if (LoggingHandler.isEnabled()) {
                 output = new StringBuilder();
@@ -43,7 +51,7 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
                             .append('\n');
                 }
                 output.append("\tMethod: ").append(targetMethod.getDisplayName(0));
-                output.append("\n\tRuntime Context: ").append(LoggingHandler.convert(getRuntimeContext()));
+                output.append("\n\tRuntime Context: ").append(LoggingHandler.convert(getRuntimeEnv().getContext()));
                 if (args.length == 1) {
                     output.append("\nArgs: ").append(LoggingHandler.convert(args[0]));
                 } else if (args.length > 1) {

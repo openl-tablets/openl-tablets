@@ -12,8 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.constraints.UniqueInModuleConstraint;
@@ -24,27 +24,27 @@ public class IdentifiedMethodTest {
     @Test
     public void testCallById() {
         ITestI instance = TestUtils.create("test/rules/overload/Overload.xls", ITestI.class);
-        IRulesRuntimeContext context = instance.getRuntimeContext();
+        var context = new DefaultRulesRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
 
-        Double res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        Double res1 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(120.0, res1, 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        Double res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        Double res2 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(100.0, res2, 1e-8);
 
         // direct call to particular method avoiding method dispatcher
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
-        Double res2_2 = instance.driverRiskEarlier("High Risk Driver");
+        Double res2_2 = instance.driverRiskEarlier(context, "High Risk Driver");
         assertEquals(120.0, res2_2, 1e-8);
     }
 
@@ -80,11 +80,11 @@ public class IdentifiedMethodTest {
         assertFalse("name&9".matches(regex));
     }
 
-    public interface ITestI extends IRulesRuntimeContextProvider {
-        Double driverRiskScoreOverloadTest(String driverRisk);
+    public interface ITestI {
+        Double driverRiskScoreOverloadTest(IRulesRuntimeContext context, String driverRisk);
 
-        Double driverRiskScoreNoOverloadTest(String driverRisk);
+        Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext context, String driverRisk);
 
-        Double driverRiskEarlier(String driverRisk);
+        Double driverRiskEarlier(IRulesRuntimeContext context, String driverRisk);
     }
 }

@@ -2,6 +2,7 @@ package org.openl.rules.runtime;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -218,7 +219,7 @@ public class RulesEngineFactory<T> {
             var clz = getInterfaceClass();
             var methodMap = prepareMethodMap(clz, openClass);
             var openClassInstance = openClass.newInstance(runtimeEnvBuilder.buildRuntimeEnv());
-            var proxyInterfaces = new Class[]{clz, IEngineWrapper.class, IRulesRuntimeContextProvider.class};
+            var proxyInterfaces = new Class[]{clz, IEngineWrapper.class};
             var handler = new OpenLRulesMethodHandler(openClassInstance, methodMap, runtimeEnvBuilder);
             return (T) ASMProxyFactory.newProxyInstance(clz.getClassLoader(), handler, proxyInterfaces);
         } catch (OpenlNotCheckedException ex) {
@@ -242,6 +243,11 @@ public class RulesEngineFactory<T> {
         for (Method interfaceMethod : engineInterface.getDeclaredMethods()) {
             var methodName = interfaceMethod.getName();
             var parameterTypes = interfaceMethod.getParameterTypes();
+            if (parameterTypes.length > 0 && parameterTypes[0] == IRulesRuntimeContext.class) {
+                // Skip first parameter if it is of IRulesRuntimeContext type.
+                //
+                parameterTypes = Arrays.copyOfRange(parameterTypes, 1, parameterTypes.length);
+            }
 
             // Try to find openClass's method with appropriate name and
             // parameter types.

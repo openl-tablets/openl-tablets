@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import jakarta.annotation.PostConstruct;
@@ -209,11 +208,11 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     public static abstract class AOverload {
         @ServiceCallAfterInterceptor(value = ResultConverter1.class)
-        public abstract Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
+        public abstract Double driverRiskScoreOverloadTest(String driverRisk);
 
         @ServiceCallAfterInterceptor(ResultConverter.class)
         @ServiceCallAroundInterceptor(AroundInterceptor.class)
-        abstract Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
+        abstract Double driverRiskScoreNoOverloadTest(String driverRisk);
 
         @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
         public abstract Double nonExistedMethod(String driverRisk);
@@ -297,7 +296,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         return new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class.getName())
                 .setName("service")
                 .setUrl("/")
-                .setProvideRuntimeContext(true)
                 .setDeployment(deploymentDescription)
                 .setModules(modules)
                 .setServicePath("service")
@@ -379,13 +377,9 @@ public class ServiceInterfaceMethodInterceptingTest {
                         .setServiceClassName(null)
                         .build());
         Object serviceBean = service.getServiceBean();
-        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, Calendar.JUNE, 15);
-        runtimeContext.setCurrentDate(calendar.getTime());
         Method method = serviceBean.getClass()
-                .getDeclaredMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class);
-        assertEquals(100, (Double) method.invoke(serviceBean, runtimeContext, "High Risk Driver"), 0.1);
+                .getDeclaredMethod("driverRiskScoreOverloadTest", String.class);
+        assertEquals(100, (Double) method.invoke(serviceBean, "High Risk Driver"), 0.1);
     }
 
     @Test
