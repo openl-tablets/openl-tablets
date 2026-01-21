@@ -2,7 +2,6 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
