@@ -26,11 +26,8 @@ public class MultiModuleInstantiationTest {
 
         var strategy = getInstantiationStrategy("test-resources/multi-module-support/test1");
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-                strategy);
-
-        Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
+        Object instance = strategy.instantiate();
+        Class<?> serviceClass = instance.getClass();
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob3");
@@ -85,11 +82,8 @@ public class MultiModuleInstantiationTest {
 
         var strategy = getInstantiationStrategy("test-resources/multi-module-support/test3");
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-                strategy);
-
-        Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
+        Object instance = strategy.instantiate();
+        Class<?> serviceClass = instance.getClass();
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob2");

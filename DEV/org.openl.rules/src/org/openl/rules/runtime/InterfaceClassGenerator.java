@@ -14,6 +14,7 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.InterfaceByteCodeBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.TypeDescription;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -31,13 +32,15 @@ public class InterfaceClassGenerator {
 
     private String[] includes;
     private String[] excludes;
+    private boolean provideRuntimeContext;
 
     public InterfaceClassGenerator() {
     }
 
-    public InterfaceClassGenerator(String[] includes, String[] excludes) {
+    public InterfaceClassGenerator(String[] includes, String[] excludes, boolean provideRuntimeContext) {
         this.includes = Objects.requireNonNull(includes, "includes cannot be null");
         this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");
+        this.provideRuntimeContext = provideRuntimeContext;
     }
 
     public Class<?> generateInterface(String className,
@@ -65,6 +68,10 @@ public class InterfaceClassGenerator {
                 boolean isMember = isMember(name, returnType, signature.getParameterTypes());
                 if (isMember) {
                     var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+                    if (provideRuntimeContext) {
+                        methodBuilder.addParameterName("runtimeContext");
+                        methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
+                    }
                     var pNum = signature.getNumberOfParameters();
                     for (int i = 0; i < pNum; i++) {
                         var paramName = signature.getParameterName(i);
@@ -88,6 +95,10 @@ public class InterfaceClassGenerator {
                     // Skip getter for field if method is defined with the same signature.
                     if (!methodsInClass.contains(key)) {
                         var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+                        if (provideRuntimeContext) {
+                            methodBuilder.addParameterName("runtimeContext");
+                            methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
+                        }
                         classBuilder.addAbstractMethod(methodBuilder.build());
                         methodsInClass.add(key);
                     }

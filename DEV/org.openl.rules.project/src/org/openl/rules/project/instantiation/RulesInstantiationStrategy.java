@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;

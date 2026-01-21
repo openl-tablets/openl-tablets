@@ -70,7 +70,6 @@ import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
@@ -104,7 +103,6 @@ public class OpenApiProjectValidator {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-    private boolean provideRuntimeContext = true;
     private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
 
@@ -174,11 +172,8 @@ public class OpenApiProjectValidator {
         RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
         context.setRulesDeploy(rulesDeploy);
 
-        final boolean provideRuntimeContext = (rulesDeploy == null && isProvideRuntimeContext()) || (rulesDeploy != null && Boolean.TRUE
-                .equals(rulesDeploy.isProvideRuntimeContext()));
+        final boolean provideRuntimeContext = rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
         context.setProvideRuntimeContext(provideRuntimeContext);
-
-        rulesInstantiationStrategy = enhanceRulesInstantiationStrategy(rulesInstantiationStrategy, provideRuntimeContext);
 
         try {
             var targetService = rulesInstantiationStrategy.instantiate(true);
@@ -1253,15 +1248,6 @@ public class OpenApiProjectValidator {
         return classLoader;
     }
 
-    protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
-            RulesInstantiationStrategy rulesInstantiationStrategy,
-            boolean provideRuntimeContext) {
-        if (provideRuntimeContext) {
-            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
-        return rulesInstantiationStrategy;
-    }
-
     protected Class<?> resolveInterface(RulesDeploy rulesDeploy,
                                         RulesInstantiationStrategy rulesInstantiationStrategy,
                                         ValidatedCompiledOpenClass validatedCompiledOpenClass,
@@ -1329,14 +1315,6 @@ public class OpenApiProjectValidator {
                 resolveServiceClassLoader,
                 rulesInstantiationStrategy.instantiate(true),
                 provideRuntimeContext);
-    }
-
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
-    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
-        this.provideRuntimeContext = provideRuntimeContext;
     }
 
     private static class KeyBySchemasRef {

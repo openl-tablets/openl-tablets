@@ -1,5 +1,7 @@
 package org.openl.rules.project.instantiation;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,6 +11,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
@@ -172,12 +175,26 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
             }
 
             engineFactory = new RulesEngineFactory<>(createSource(), getServiceClass());
-            engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes));
+            engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes, isProvideRuntimeContext()));
             engineFactory.setExecutionMode(executionMode);
             engineFactory.setDependencyManager(getDependencyManager());
         }
 
         return engineFactory;
+    }
+
+    private boolean isProvideRuntimeContext() {
+        var modules = getModules();
+        if (!modules.isEmpty()) {
+            Path deployXmlPath = modules.iterator().next().getProject().getProjectFolder().resolve("rules-deploy.xml");
+            if (Files.exists(deployXmlPath)) {
+                try (var stream = Files.newInputStream(deployXmlPath)) {
+                    return Boolean.TRUE.equals(new XmlRulesDeploySerializer().deserialize(stream).isProvideRuntimeContext());
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return false;
     }
 
     abstract protected IOpenSourceCodeModule createSource();

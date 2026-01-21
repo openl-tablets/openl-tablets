@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.overload.OverloadTest.ITestI;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.Algorithm;
@@ -145,25 +145,25 @@ public class ExecutionModeTest {
                 ITestI.class);
         engineFactory.setExecutionMode(true);
 
-        ITestI instance = (ITestI) engineFactory.newEngineInstance();
+        var instance = engineFactory.newEngineInstance();
 
-        IRulesRuntimeContext context = instance.getRuntimeContext();
+        var context = new DefaultRulesRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
 
-        Double res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        Double res1 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(120.0, res1, 0);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        Double res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        Double res2 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(100.0, res2, 0);
 
-        Double res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
+        Double res3 = instance.driverRiskScoreNoOverloadTest(context, "High Risk Driver");
         assertEquals(200.0, res3, 0);
     }
 

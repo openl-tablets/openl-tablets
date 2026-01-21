@@ -12,19 +12,10 @@
   ],
   "paths": {
     "/Hello": {
-      "post": {
-        "summary": "String Hello(IRulesRuntimeContext)",
+      "get": {
+        "summary": "String Hello()",
         "description": "Rules method: java.lang.String Hello()",
         "operationId": "Hello",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Successful operation",

@@ -1,0 +1,3 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+</rules-deploy>

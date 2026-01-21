@@ -24,7 +24,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
@@ -68,9 +67,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                 .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
-        if (service.isProvideRuntimeContext()) {
-            instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
-        }
         compileOpenClass(service, instantiationStrategy);
         ClassLoader serviceClassLoader = resolveServiceClassLoader(service, instantiationStrategy);
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
