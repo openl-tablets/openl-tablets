@@ -22,7 +22,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.IEngineWrapper;
-import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -34,7 +33,6 @@ import org.openl.types.java.OpenClassHelper;
 import org.openl.util.ClassUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.openl.validation.ValidationManager;
-import org.openl.vm.IRuntimeEnv;
 import org.openl.xls.Parser;
 import org.openl.xls.RulesCompileContext;
 
@@ -119,18 +117,6 @@ public class RulesEngineFactory<T> {
         return interfaceClass;
     }
 
-    private IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-                                                       Map<Method, IOpenMember> methodMap,
-                                                       IRuntimeEnv runtimeEnv) {
-        OpenLRulesMethodHandler openLRulesMethodHandler = new OpenLRulesMethodHandler(openClassInstance,
-                methodMap,
-                runtimeEnvBuilder);
-        if (runtimeEnv != null) {
-            openLRulesMethodHandler.setRuntimeEnv(runtimeEnv);
-        }
-        return openLRulesMethodHandler;
-    }
-
     public void setInterfaceClass(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
     }
@@ -188,29 +174,6 @@ public class RulesEngineFactory<T> {
         }
     }
 
-    private Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
-        try {
-            compiledOpenClass = getCompiledOpenClass();
-            IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
-                    : compiledOpenClass.getOpenClass();
-            Class<T> interfaceClass = getInterfaceClass();
-            Map<Method, IOpenMember> methodMap = prepareMethodMap(interfaceClass, openClass);
-            Object openClassInstance = openClass
-                    .newInstance(runtimeEnv == null ? runtimeEnvBuilder.buildRuntimeEnv() : runtimeEnv);
-            ClassLoader classLoader = interfaceClass.getClassLoader();
-
-            Class<?>[] proxyInterfaces = new Class[]{interfaceClass, IEngineWrapper.class, IRulesRuntimeContextProvider.class};
-
-            return ASMProxyFactory.newProxyInstance(classLoader,
-                    prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
-                    proxyInterfaces);
-        } catch (OpenlNotCheckedException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new OpenlNotCheckedException("Failed to instantiate engine instance.", ex);
-        }
-    }
-
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
             compiledOpenClass = initializeOpenClass();
@@ -250,7 +213,21 @@ public class RulesEngineFactory<T> {
 
     @SuppressWarnings("unchecked")
     public T newEngineInstance(boolean ignoreCompilationErrors) {
-        return (T) prepareInstance(null, ignoreCompilationErrors);
+        try {
+            compiledOpenClass = getCompiledOpenClass();
+            var openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
+                    : compiledOpenClass.getOpenClass();
+            var clz = getInterfaceClass();
+            var methodMap = prepareMethodMap(clz, openClass);
+            var openClassInstance = openClass.newInstance(runtimeEnvBuilder.buildRuntimeEnv());
+            var proxyInterfaces = new Class[]{clz, IEngineWrapper.class, IRulesRuntimeContextProvider.class};
+            var handler = new OpenLRulesMethodHandler(openClassInstance, methodMap, runtimeEnvBuilder);
+            return (T) ASMProxyFactory.newProxyInstance(clz.getClassLoader(), handler, proxyInterfaces);
+        } catch (OpenlNotCheckedException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new OpenlNotCheckedException("Failed to instantiate engine instance.", ex);
+        }
     }
 
     /**
