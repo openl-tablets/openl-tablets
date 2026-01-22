@@ -18,10 +18,10 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
-import org.openl.runtime.OpenLMethodHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -216,11 +216,9 @@ public final class WrapperLogic {
                     typeClass = dynamicObject.getType();
                 } else if (ASMProxyFactory.isProxy(target)) {
                     ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
-                    if (invocationHandler instanceof OpenLMethodHandler) {
-                        OpenLMethodHandler openLMethodHandler = (OpenLMethodHandler) invocationHandler;
-                        Object openlInstance = openLMethodHandler.getInstance();
-                        if (openlInstance instanceof IDynamicObject) {
-                            IDynamicObject dynamicObject = (IDynamicObject) openlInstance;
+                    if (invocationHandler instanceof IOpenLMethodHandler<?,?> openLMethodHandler) {
+                        Object openlInstance = openLMethodHandler.getTarget();
+                        if (openlInstance instanceof IDynamicObject dynamicObject) {
                             typeClass = dynamicObject.getType();
                         } else {
                             throw new IllegalStateException("Cannot define OpenL class from target object.");
