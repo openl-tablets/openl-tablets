@@ -87,10 +87,6 @@ public class RulesEngineFactory<T> {
         this.interfaceClass = interfaceClass;
     }
 
-    public void reset() {
-        compiledOpenClass = null;
-    }
-
     /**
      * Creates java interface for rules project.
      *

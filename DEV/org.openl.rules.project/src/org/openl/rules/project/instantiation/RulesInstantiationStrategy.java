@@ -77,16 +77,6 @@ public interface RulesInstantiationStrategy {
     Class<?> getInstanceClass() throws RulesInstantiationException;
 
     /**
-     * Resets instantiation strategy in order to check out all changes in modules.
-     */
-    void reset();
-
-    /**
-     * Forced reset that is improved version of {@link #reset()} with reloading of classloaders.
-     */
-    void forcedReset();
-
-    /**
      * Some additional options for compilation defined externally(e.g. external dependencies, overridden system
      * properties)
      */
