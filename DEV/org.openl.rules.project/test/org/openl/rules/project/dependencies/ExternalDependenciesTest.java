@@ -8,9 +8,9 @@ import java.util.Calendar;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
-import org.openl.runtime.IEngineWrapper;
 
 public class ExternalDependenciesTest {
 
@@ -70,17 +70,16 @@ public class ExternalDependenciesTest {
         Object instance = factory.newInstance();
 
         var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
         context.setLob("dependency2");
 
         // Get policy profile.
         //
-        Method method = interfaceClass.getMethod("getPolicyProfile4");
-        Object res = method.invoke(instance);
+        Method method = interfaceClass.getMethod("getPolicyProfile4", IRulesRuntimeContext.class);
+        Object res = method.invoke(instance, context);
         Object policy = ((Object[]) res)[0];
 
-        method = interfaceClass.getMethod("processPolicy", policy.getClass());
-        res = method.invoke(instance, policy);
+        method = interfaceClass.getMethod("processPolicy", IRulesRuntimeContext.class, policy.getClass());
+        res = method.invoke(instance, context, policy);
 
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -89,7 +88,7 @@ public class ExternalDependenciesTest {
 
         context.setLob("main");
 
-        res = method.invoke(instance, policy);
+        res = method.invoke(instance, context, policy);
 
         spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -109,15 +108,14 @@ public class ExternalDependenciesTest {
         Object instance = factory.newInstance();
 
         var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
         // Get policy profile.
         //
-        Method method = interfaceClass.getMethod("getPolicyProfile4");
-        Object res = method.invoke(instance);
+        Method method = interfaceClass.getMethod("getPolicyProfile4" , IRulesRuntimeContext.class);
+        Object res = method.invoke(instance, context);
         Object policy = ((Object[]) res)[0];
 
-        method = interfaceClass.getMethod("processPolicy", policy.getClass());
-        res = method.invoke(instance, policy);
+        method = interfaceClass.getMethod("processPolicy", IRulesRuntimeContext.class, policy.getClass());
+        res = method.invoke(instance, context, policy);
 
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
@@ -131,21 +129,22 @@ public class ExternalDependenciesTest {
         // Setting current date in context, which will be used in dispatch
         context.setCurrentDate(calendar.getTime());
 
-        method = interfaceClass.getMethod("getTestCars");
-        res = method.invoke(instance);
+        method = interfaceClass.getMethod("getTestCars", IRulesRuntimeContext.class);
+        res = method.invoke(instance, context);
 
         Object car = ((Object[]) res)[1];
 
-        method = interfaceClass.getMethod("getTestAddresses");
-        res = method.invoke(instance);
+        method = interfaceClass.getMethod("getTestAddresses", IRulesRuntimeContext.class);
+        res = method.invoke(instance, context);
 
         Object address = ((Object[]) res)[4];
 
         method = interfaceClass.getMethod("getPriceForOrder",
+                IRulesRuntimeContext.class,
                 car.getClass(),
                 int.class,
                 address.getClass());
-        res = method.invoke(instance, car, 4, address);
+        res = method.invoke(instance, context, car, 4, address);
 
         assertEquals(189050.0, res);
     }

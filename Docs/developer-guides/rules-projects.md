@@ -40,19 +40,19 @@ The following code fragment is an example of the rules project descriptor:
 
 		<module>
 			<name>MyModule1</name>
-						
-<!-- 
-				Rules document which is usually an excel file in the project. 
+
+<!--
+				Rules document which is usually an excel file in the project.
 			-->
 			<rules-root path="MyModule1.xls"/>
 
-		</module>	
-		
+		</module>
+
 		<module>
 			<name>MyModule2</name>
-			
-<!-- 
-				Rules document which is usually an excel file in the project. 
+
+<!--
+				Rules document which is usually an excel file in the project.
 			-->
 			<rules-root path="MyModule2.xls"/>
 			<method-filter>
@@ -60,7 +60,7 @@ The following code fragment is an example of the rules project descriptor:
 					<value> * </value>
 				</includes>
 			</method-filter>
-		</module>	
+		</module>
 	</modules>
 
 <dependencies>
@@ -76,7 +76,7 @@ The following code fragment is an example of the rules project descriptor:
 		<entry path="path1"/>
 		<entry path="path2"/>
 	</classpath>
-	
+
 </project>
 ```
 
@@ -178,9 +178,9 @@ To create a project using the Maven archetype, proceed as follows:
 	`mvn archetype:generate`
 	Maven runs the archetype console wizard.
 1.  Select the **openl-simple-project-archetype** menu item.
-	As an alternative way is using the following command:  
-	`mvn archetype:generate 
-	–DarchetypeGroupId=org.openl.rules 
+	As an alternative way is using the following command:
+	`mvn archetype:generate
+	–DarchetypeGroupId=org.openl.rules
 	–DarchetypeArtifactId=openl-simple-project-archetype
 	\-DarchetypeVersion=5.X.X`
 1.  Follow with the Maven creation wizard.
@@ -243,18 +243,18 @@ Proceed as follows:
 	```
 	import static java.lang.System.out;
 	import org.openl.rules.runtime.RulesEngineFactory;
-	
+
 	public class Example {
-	
+
 			public static void main(String[] args) {
 				//define the interface
-				RulesEngineFactory<Simple > rulesFactory = 
-					new RulesEngineFactory<Simple>("TemplateRules.xls", 
+				RulesEngineFactory<Simple > rulesFactory =
+					new RulesEngineFactory<Simple>("TemplateRules.xls",
 										Simple.class);
-	
+
 				Simple rules = (Simple) rulesFactory.newInstance();
 				rules.hello1(12);
-			
+
 			}
 	}
 	```
@@ -266,11 +266,11 @@ The following example illustrates using a wrapper with a generated interface in 
 ```
 public static void callRulesWithGeneratedInterface(){
 	// Creates new instance of OpenL Rules Factory
-	RulesEngineFactory<?> rulesFactory = 
+	RulesEngineFactory<?> rulesFactory =
 new RulesEngineFactory<Object>("TemplateRules.xls");
 				//Creates new instance of dynamic Java Wrapper for our lesson
 Object rules = rulesFactory.newInstance();
-		
+
 	   //Get current hour
 	Calendar = Calendar.getInstance();
 	int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -311,41 +311,34 @@ The second rule, covering a Home line of business, is as follows:
 
 *The Home rule*
 
-A wrapper enables the user to define which of these rules must be executed:
-```
-// Getting runtime environment which contains context
-IRuntimeEnv env = ((IEngineWrapper) rules).getRuntimeEnv();
-
-// Creating context
-IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
-env.setContext(context);
-// define context
-context.setLob("Home”);
+The first `IRulesRuntimeContext` argument in the `Simple` interface enables the user to define
+which of these rules must be executed.
+```java
+public interface Simple {
+    void hello1(IRulesRuntimeContext context, int i);
+}
 ```
 
 As a result, the code of the wrapper with the run-time context resembles the following:
-```
-import static java.lang.System.out;
-
-import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContext;
+```java
 import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.runtime.IEngineWrapper;
-import org.openl.vm.IRuntimeEnv;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+
 public class ExampleOfUsingRuntimeContext {
 
-		public static void main(String[] args) {
-			//define the interface
-			RulesEngineFactory<simple> rulesFactory = new RulesEngineFactory<Simple>("TemplateRules.xls", Simple.class);
-			Simple rules = (Simple) rulesFactory.newInstance();
-			// Getting runtime environment which contains context 
-				IRuntimeEnv env = ((IEngineWrapper) rules).getRuntimeEnv();
-				// Creating context (most probably in future, the code will be different)
-			IRulesRuntimeContext context = RulesRuntimeContextFactory. buildRulesRuntimeContext();			env.setContext(context);
-			context.setLob("Home");
-			rules.hello1(12);
-		
-	}
+    public static void main(String[] args) {
+        //define the interface
+        var rulesFactory = new RulesEngineFactory<Simple>("TemplateRules.xls", Simple.class);
+        var rules = rulesFactory.newInstance();
+
+        // Create runtime context
+        var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        context.setLob("Home");
+
+        // Call rule with runtime context
+        rules.hello1(context, 12);
+
+    }
 }
 ```
 
@@ -356,43 +349,50 @@ OpenL Tablets projects can be instantiated via SimpleProjectEngineFactory. This 
 
 The following example instantiates the OpenL Tablets project:
 
-```
-ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>().setProject(<project location>) .build();
-Object instance = projectEngineFactory.newInstance();
+```java
+var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+            .setProject("project/location")
+            .build();
+var instance = projectEngineFactory.newInstance();
 ```
 The above example instantiates the OpenL Tablets project generated in runtime interface. A method from instantiated project can be invoked via reflection mechanism. `ProjectEngineFactory` returns generated interface via the getInterfaceClass() method.
 
 If a static interface must be used, the interface must be specified in SimpleProjectEngineFactoryBuilder. The following example illustrates how to instantiate a project with a static interface.
 
-```
-SimpleProjectEngineFactory<SayHello> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHello>().setProject<project location>)
-				.setInterfaceClass(SayHello.class)
-				.build();
-SayHello instance = simpleProjectEngineFactory.newInstance();
+```java
+var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<SayHello>()
+            .setProject("project/location")
+            .setInterfaceClass(SayHello.class)
+            .build();
+SayHello instance = projectEngineFactory.newInstance();
 ```
 
 SimpleProjectEngineFactoryBuilder has additional methods to configure an engine factory. Examples are as follows:
 
--   The setWorkspace()method defines a project workspace for dependent projects resolving.
--   The execution mode can be changed via the setExecutionMode() method.
-
-By default, runtime execution mode is enabled.
-
--   The `setProvideRuntimeContext(true) `method is used to provide runtime context for an instance class.
--   The `setProvideVariations(true)` method is used to enable variation support for an instance class, which is disabled by default.
--   The `setModule(String moduleName)` method is used to compile a single module from a project.
+-   The `setWorkspace(String workspacePath)` method defines a project workspace for dependent projects resolving.
 -   The `setClassLoader(ClassLoader classLoader)` method is used to set up a custom class loader to be used as a primary one in the OpenL Tablets engine.
+-   The execution mode can be changed via the `setExecutionMode(boolean executionMode)` method.
+
+By default, execution mode is set to `true` - it skips gathering meta information and compilation test tables.
+
 
 ##### Accessing a Test Table from Java Code
 Test results can be accessed through the test table API. For example, the following code fragment executes all test runs in a test table called **insuranceTest** and displays the number of failed test runs:
 
-```
-RulesEngineFactory<?> rulesFactory = new RulesEngineFactory<?>("Tutorial_1.xls");
-IOpenClass openClass = rulesFactory.getCompiledOpenClass();
-IRuntimeEnv env = SimpleVMFactory.buildSimpleVM().getRuntimeEnv();
-Object target = openClass.newInstance(env);
-IOpenMethod method = openClass.getMatchingMethod("testMethodName", testMethodParams);
-TestUnitsResults res = (TestUnitsResults) testMethod.invoke(engine, new Object[0], env);
+```java
+import org.openl.openclass.IOpenClass;
+import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.vm.SimpleRulesVM;
+
+var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+    .setProject("project/location")
+    .setExecutionMode(false)
+    .build();
+var openClass = projectEngineFactory.getCompiledOpenClass().getOpenClass();
+var testMethod = openClass.getMethod("insuranceTest", IOpenClass.EMPTY);
+var instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+TestUnitsResults result = (TestUnitsResults) testMethod.invoke(instance, new Object[0], new SimpleRulesVM().getRuntimeEnv());
 ```
 
 ##### Generating Java Classes from Datatype Tables
@@ -470,7 +470,7 @@ An example of the build file is as follows:
 <target name="generate">
 <echo message="Generating wrapper classes..."/>
 
-<openlgen openlName="org.openl.xls" userHome="." 
+<openlgen openlName="org.openl.xls" userHome="."
 srcFile="rules/Rules.xls"
 targetClass="com.exigen.claims.RulesWrapper"
 displayName="Rule datatypes"
@@ -478,13 +478,13 @@ targetSrcDir="gen"
 >
 </openlgen>
 
-<openlgen openlName="org.openl.xls" userHome="." 
+<openlgen openlName="org.openl.xls" userHome="."
 srcFile="rules/Data.xls"
 targetClass=" com.exigen.claims.DataWrapper"
 displayName="Data datatypes"
 targetSrcDir="gen"
 >
-</openlgen>	
+</openlgen>
 
 </target>
 </project>
@@ -611,7 +611,7 @@ To specify the Java comparator of tables, the `javaclass:<java class name>` expr
 ### Tables Validation
 The validation phase follows the binding phase and allows checking all tables for errors and accumulating all errors.
 
-All possible validators are stored in `ICompileContext` of the OpenL class. The default compile context is `org.openl.xls.RulesCompileContext` that is generated automatically.  
+All possible validators are stored in `ICompileContext` of the OpenL class. The default compile context is `org.openl.xls.RulesCompileContext` that is generated automatically.
 Validators get the OpenL Tablets and array of `TableSyntaxNodes` that represent tables for check and must return `ValidationResult`. Validation results are as follows:
 
 -   status, which can be fail or success

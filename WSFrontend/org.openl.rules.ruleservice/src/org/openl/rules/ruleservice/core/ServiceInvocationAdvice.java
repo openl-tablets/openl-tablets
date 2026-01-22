@@ -53,7 +53,6 @@ import org.openl.rules.runtime.LoggingCapability;
 import org.openl.rules.runtime.LoggingHandler;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.runtime.AbstractOpenLMethodHandler;
-import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.util.ArrayUtils;
@@ -481,14 +480,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 log.error(error.getMessage(), t);
             }
             throw error;
-        } finally {
-            // Memory leaks fix.
-            if (serviceTarget instanceof IEngineWrapper engine) {
-                engine.release();
-            } else {
-                log.warn(
-                        "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
-            }
         }
         return result;
     }

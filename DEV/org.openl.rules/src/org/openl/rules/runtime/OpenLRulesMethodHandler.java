@@ -7,16 +7,14 @@ import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
-public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpenMember>, IEngineWrapper {
+public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpenMember> {
 
     private static final Object[] NO_PARAMS = new Object[0];
     private final ValidationHandler validationHandler = new ValidationHandler();
@@ -34,15 +32,12 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
-        if (IEngineWrapper.class == method.getDeclaringClass()) {
-            return method.invoke(this, args);
-        }
         if (Object.class == method.getDeclaringClass()) {
             return method.invoke(openlInstance, args);
         }
 
         var member = methodMap.get(method);
-        var env = getRuntimeEnv();
+        var env = runtimeEnvBuilder.buildRuntimeEnv();
         if (args.length > 0) {
             var v = args[0];
             if (v instanceof IRulesRuntimeContext || v == null &&
@@ -128,29 +123,5 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
     @Override
     public Object getTarget() {
         return openlInstance;
-    }
-
-    private final ThreadLocal<IRuntimeEnv> env = new ThreadLocal<>();
-
-
-    @Override
-    public Object getInstance() {
-        return openlInstance;
-    }
-
-    @Override
-    public IRuntimeEnv getRuntimeEnv() {
-        IRuntimeEnv runtimeEnv = env.get();
-        if (runtimeEnv == null) {
-            IRuntimeEnv x = runtimeEnvBuilder.buildRuntimeEnv();
-            env.set(x);
-            return x;
-        }
-        return runtimeEnv;
-    }
-
-    @Override
-    public void release() {
-        env.remove();
     }
 }
