@@ -25,7 +25,10 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     private Queue<RecursiveAction> actionStack = null;
 
     public SimpleRuntimeEnv() {
-        this(SimpleRunner.SIMPLE_RUNNER, 0, NO_PARAMS);
+        this.runner = SimpleRunner.SIMPLE_RUNNER;
+        this.contextStack = new ArrayDeque<>();
+        pushLocalFrame(NO_PARAMS);
+        pushContext(buildDefaultRuntimeContext());
     }
 
     SimpleRuntimeEnv(IOpenRunner runner, int frameSize, Object[] params) {
