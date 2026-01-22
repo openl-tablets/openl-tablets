@@ -39,8 +39,6 @@ public class ApiInstantiationTest {
                 false,
                 null);
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
-
-        assertNull(strategy.getServiceClass());
         try {
             assertNotNull(strategy.compile());
         } catch (Exception e) {

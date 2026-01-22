@@ -52,15 +52,6 @@ public interface RulesInstantiationStrategy {
     ClassLoader getClassLoader() throws RulesInstantiationException;
 
     /**
-     * Service class of rules can be defined or predefined for some specific instantiations strategies(e.g. for static
-     * wrapper case).
-     *
-     * @return service class that it is used for {@link InstantiationError} or <code>null</code>.
-     * @throws RulesInstantiationException
-     */
-    Class<?> getServiceClass() throws RulesInstantiationException;
-
-    /**
      * Service that will be used for instantiation.
      *
      * @param serviceClass service class.

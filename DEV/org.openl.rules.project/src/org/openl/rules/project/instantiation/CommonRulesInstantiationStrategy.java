@@ -85,11 +85,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     protected abstract ClassLoader initClassLoader() throws RulesInstantiationException;
 
     @Override
-    public Class<?> getServiceClass() {
-        return serviceClass;
-    }
-
-    @Override
     public Class<?> getInstanceClass() throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -161,7 +156,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
                 excludes = allExcludes.toArray(excludes);
             }
 
-            engineFactory = new RulesEngineFactory<>(createSource(), getServiceClass());
+            engineFactory = new RulesEngineFactory<>(createSource(), serviceClass);
             engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes, isProvideRuntimeContext()));
             engineFactory.setExecutionMode(executionMode);
             engineFactory.setDependencyManager(getDependencyManager());
