@@ -223,11 +223,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     public IDependencyLoader findDependencyLoader(ResolvedDependency dependency) {
         return getDependencyLoaders().stream()
-                .filter(
-                        e -> DependencyType.ANY.equals(dependency.getType())
-                                ? Objects.equals(dependency.getNode(),
-                                e.getDependency().getNode())
-                                : Objects.equals(dependency, e.getDependency()))
+                .filter(e -> Objects.equals(dependency, e.getDependency()))
                 .findFirst()
                 .orElse(null);
     }
