@@ -4,7 +4,7 @@
     <!-- OpenL project includes one or more modules.  -->
     <modules>
         <module>
-            <rules-root path="*.xls"/>
+            <rules-root path="*.xls*"/>
         </module>
     </modules>
 
