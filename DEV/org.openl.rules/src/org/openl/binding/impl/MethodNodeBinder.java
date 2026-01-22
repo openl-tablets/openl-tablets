@@ -31,6 +31,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.DomainUtils;
 import org.openl.util.StringUtils;
 
@@ -188,7 +189,7 @@ public class MethodNodeBinder extends ANodeBinder {
                                   IOpenClass parameterType,
                                   ISyntaxNode methodInvocationNode,
                                   IBindingContext bindingContext) {
-        if (canBeValidated(methodArgumentNode)) {
+        if (parameterType instanceof DomainOpenClass && canBeValidated(methodArgumentNode)) {
             if (containsLiteralValue(methodArgumentNode)) {
                 if (parameterType.isArray()) {
                     validateArgumentForArrayParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
@@ -237,6 +238,9 @@ public class MethodNodeBinder extends ANodeBinder {
                                                    IOpenClass parameterType,
                                                    ISyntaxNode methodInvocationNode,
                                                    IBindingContext bindingContext) {
+        // TODO: 1. count dim for parameter type
+        //  2. get argument on the same dim
+        //  convert
         if (methodArgumentNode instanceof LiteralBoundNode literalBoundNode) {
             tryCastLiteralArgument(literalBoundNode, parameterType, methodInvocationNode, bindingContext);
         } else if (methodArgumentNode.getChildren().length > 0) {
