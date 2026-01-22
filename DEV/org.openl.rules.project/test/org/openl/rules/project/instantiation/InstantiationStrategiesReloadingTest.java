@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.util.FileUtils;
 
@@ -172,7 +171,6 @@ public class InstantiationStrategiesReloadingTest {
                 new MethodDescription[]{GET_INT_FIELD, GET_STRING_FIELD},
                 new MethodDescription[0]);
         makeChanges();
-        apiStrategy.reset();
         checkModified(apiStrategy.instantiate());
         checkClass(apiStrategy.getInstanceClass(),
                 new MethodDescription[]{INVOKE, getGetIntMethod(apiStrategy)},
@@ -181,7 +179,6 @@ public class InstantiationStrategiesReloadingTest {
                 apiStrategy,
                 new MethodDescription[]{GET_INT_FIELD, GET_STRING_FIELD},
                 new MethodDescription[0]);
-        dynamicStrategy.reset();
         checkModified(dynamicStrategy.instantiate());
         checkClass(dynamicStrategy.getInstanceClass(),
                 new MethodDescription[]{INVOKE, getGetIntMethod(dynamicStrategy)},
@@ -211,7 +208,6 @@ public class InstantiationStrategiesReloadingTest {
                 new MethodDescription[]{GET_INT_FIELD, GET_STRING_FIELD},
                 new MethodDescription[0]);
         makeChanges();
-        apiStrategy.forcedReset();
         checkModified(apiStrategy.instantiate());
         checkClass(apiStrategy.getInstanceClass(),
                 new MethodDescription[]{INVOKE, getGetIntMethod(apiStrategy)},
@@ -220,7 +216,6 @@ public class InstantiationStrategiesReloadingTest {
                 apiStrategy,
                 new MethodDescription[]{GET_INT_FIELD},
                 new MethodDescription[]{GET_STRING_FIELD});
-        dynamicStrategy.forcedReset();
         checkModified(dynamicStrategy.instantiate());
         checkClass(dynamicStrategy.getInstanceClass(),
                 new MethodDescription[]{INVOKE},

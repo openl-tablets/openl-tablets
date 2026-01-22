@@ -116,19 +116,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         }
     }
 
-    @Override
-    public void reset() {
-        if (engineFactory != null) {
-            engineFactory.reset();
-        }
-    }
-
-    @Override
-    public void forcedReset() {
-        engineFactory = null;
-        classLoader = null;
-    }
-
     protected Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
