@@ -10,6 +10,6 @@ public abstract class AbstractOpenLMethodHandler<K, V> implements IOpenLMethodHa
         if (proxyHandler instanceof IOpenLMethodHandler) {
             return ((IOpenLMethodHandler<V, ?>) proxyHandler).getOpenMember(getTargetMember(key));
         }
-        throw new IllegalStateException("proxyHandler is not an instance of class OpenLMethodHandler");
+        throw new IllegalStateException("proxyHandler is not an instance of class IOpenLMethodHandler");
     }
 }
