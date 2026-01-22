@@ -1,9 +1,9 @@
 package org.openl.rules.project.instantiation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -19,7 +19,6 @@ import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.runtime.IEngineWrapper;
 
 public class ApiInstantiationTest {
 
@@ -69,14 +68,13 @@ public class ApiInstantiationTest {
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();
         assertNotNull(instance);
-        assertTrue(instance instanceof ServiceClass);
+        assertInstanceOf(ServiceClass.class, instance);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
-        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
-        assertEquals("Good Evening, World!", ((ServiceClass) instance).hello1(19));
+        assertEquals("Good Evening, World!", ((ServiceClass) instance).hello1(context, 19));
     }
 
     public interface ServiceClass {
-        String hello1(int hour);
+        String hello1(IRulesRuntimeContext context, int hour);
     }
 }

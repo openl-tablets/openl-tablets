@@ -22,7 +22,6 @@ import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.ASMProxyFactory;
-import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -219,9 +218,8 @@ public class RulesEngineFactory<T> {
             var clz = getInterfaceClass();
             var methodMap = prepareMethodMap(clz, openClass);
             var openClassInstance = openClass.newInstance(runtimeEnvBuilder.buildRuntimeEnv());
-            var proxyInterfaces = new Class[]{clz, IEngineWrapper.class};
             var handler = new OpenLRulesMethodHandler(openClassInstance, methodMap, runtimeEnvBuilder);
-            return (T) ASMProxyFactory.newProxyInstance(clz.getClassLoader(), handler, proxyInterfaces);
+            return (T) ASMProxyFactory.newProxyInstance(clz.getClassLoader(), handler, clz);
         } catch (OpenlNotCheckedException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -233,7 +231,7 @@ public class RulesEngineFactory<T> {
      * Creates methods map that contains interface's methods as key and appropriate open class's members as value.
      *
      * @param engineInterface interface that provides method for engine
-     * @param openClass open class that used by engine to invoke appropriate rules
+     * @param openClass       open class that used by engine to invoke appropriate rules
      * @return methods map
      */
     private static Map<Method, IOpenMember> prepareMethodMap(Class<?> engineInterface, IOpenClass openClass) {

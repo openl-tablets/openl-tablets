@@ -8,11 +8,6 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.runtime.IEngineWrapper;
-import org.openl.vm.IRuntimeEnv;
-
 public class DataLoadingTest {
 
     private static final String SRC = "test/rules/DataLoading.xls";
@@ -20,10 +15,6 @@ public class DataLoadingTest {
     @Test
     public void testMethodOverload1() {
         ITestI instance = TestUtils.create(SRC, ITestI.class);
-        IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
-
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        env.setContext(context);
 
         Date[] res = instance.getDateSet();
         Date[] expected = {new Date("12/31/2010"), new Date("1/1/2012")};

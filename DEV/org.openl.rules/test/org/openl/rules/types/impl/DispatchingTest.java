@@ -24,8 +24,6 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
-import org.openl.runtime.IEngineWrapper;
-import org.openl.vm.IRuntimeEnv;
 
 public class DispatchingTest {
     private static final String RULES_SOURCE_FILE = "test/rules/dispatching/Dispatching.xls";
@@ -41,53 +39,53 @@ public class DispatchingTest {
 
     @Test
     public void testSimpleDispatching() {
-        IRulesRuntimeContext context = initContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
-        assertEquals(1, instance.getSimplePriority());
+        assertEquals(1, instance.getSimplePriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.RUS);
-        assertEquals(2, instance.getSimplePriority());
+        assertEquals(2, instance.getSimplePriority(context));
     }
 
     @Test
     public void testDispatching() {
-        IRulesRuntimeContext context = initContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
         context.setCurrency(CurrenciesEnum.USD);
-        assertEquals("US.ENG.USD", instance.getPriority());
+        assertEquals("US.ENG.USD", instance.getPriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.GER);
         context.setCurrency(CurrenciesEnum.USD);
-        assertEquals("US.USD", instance.getPriority());
+        assertEquals("US.USD", instance.getPriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.GB);
         context.setLang(LanguagesEnum.ENG);
         context.setCurrency(CurrenciesEnum.EUR);
-        assertEquals("GB.EUR", instance.getPriority());
+        assertEquals("GB.EUR", instance.getPriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLang(LanguagesEnum.ITA);
         context.setCurrency(CurrenciesEnum.EUR);
-        assertEquals("ITA.EUR", instance.getPriority());
+        assertEquals("ITA.EUR", instance.getPriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.GB);
         context.setLang(LanguagesEnum.ENG);
         context.setCurrency(CurrenciesEnum.GBP);
-        assertEquals("GB.EUR,GBP", instance.getPriority());
+        assertEquals("GB.EUR,GBP", instance.getPriority(context));
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.GB);
         context.setLang(LanguagesEnum.ENG);
         context.setCurrency(CurrenciesEnum.AED);
-        assertEquals("none", instance.getPriority());
+        assertEquals("none", instance.getPriority(context));
     }
 
     @Test
@@ -97,104 +95,69 @@ public class DispatchingTest {
         Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
         for (int i = 0; i < testData.length; i++) {
-            IRulesRuntimeContext context = initContext();
+            IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
             Object[] data = testData[i];
             Date currentDate = df.parse((String) data[0]);
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
+            Double res = instance.driverRiskScoreOverloadTest2(context, "High Risk Driver");
             assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
     @Test
     public void testAmbiguousDispatching1() throws Exception {
-        Method method = Rules.class.getMethod("getAmbiguousPriority");
+        Method method = Rules.class.getMethod("getAmbiguousPriority", IRulesRuntimeContext.class);
 
-        IRulesRuntimeContext context = initContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
-        invokeAndCheckForAmbiguous(method);
+        invokeAndCheckForAmbiguous(method, instance, new Object[1]);
     }
 
     @Test
     public void testAmbiguousDispatching2() throws Exception {
-        Method method = Rules.class.getMethod("getAmbiguousPriority1");
+        Method method = Rules.class.getMethod("getAmbiguousPriority1", IRulesRuntimeContext.class);
 
-        IRulesRuntimeContext context = initContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.RU);
         context.setLang(LanguagesEnum.ENG);
-        invokeAndCheckForAmbiguous(method);
+        invokeAndCheckForAmbiguous(method, instance, new Object[1]);
     }
 
     @Test
     public void testAmbiguousDispatching3() throws Exception {
-        Method method = Rules.class.getMethod("getPriority");
+        Method method = Rules.class.getMethod("getPriority", IRulesRuntimeContext.class);
 
-        IRulesRuntimeContext context = initContext();
-        invokeAndCheckForAmbiguous(method);
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        invokeAndCheckForAmbiguous(method, instance, context);
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
         context.setCurrency(CurrenciesEnum.USD);
-        invokeAndCheckForAmbiguous(method);
+        invokeAndCheckForAmbiguous(method, instance, context);
     }
 
     @Test
     public void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
-        IRulesRuntimeContext context = initContext();
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         assertEquals(myRule.myRule(13), (Double) 7.0);
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar cal = new GregorianCalendar();
         cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal.getTime());
         assertEquals(myRule.myRule(13), (Double) 7.0);
 
-        context = initContext();
+        context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar cal2 = new GregorianCalendar();
         cal2.set(2019, Calendar.OCTOBER, 4, 0, 0, 0);
         cal2.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal2.getTime());
         assertEquals(myRule.myRule(13), (Double) 7.0);
-    }
-
-    public void calcBenchmark() {
-        IRuntimeEnv runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
-
-        IRulesRuntimeContext context1 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        context1.setCountry(CountriesEnum.US);
-        context1.setLang(LanguagesEnum.ENG);
-        context1.setCurrency(CurrenciesEnum.USD);
-
-        IRulesRuntimeContext context2 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        context2.setLang(LanguagesEnum.ITA);
-        context2.setCurrency(CurrenciesEnum.EUR);
-
-        IRulesRuntimeContext context3 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        context3.setCountry(CountriesEnum.US);
-        context3.setLang(LanguagesEnum.GER);
-        context3.setCurrency(CurrenciesEnum.USD);
-
-        System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
-            runtimeEnv.setContext(context1);
-            instance.getPriority();
-
-            runtimeEnv.setContext(context2);
-            instance.getPriority();
-
-            runtimeEnv.setContext(context3);
-            instance.getPriority();
-        }
-        System.currentTimeMillis();
-    }
-
-    private void invokeAndCheckForAmbiguous(Method method) throws IllegalAccessException {
-        invokeAndCheckForAmbiguous(method, instance);
     }
 
     private void invokeAndCheckForAmbiguous(Method method, Object target, Object... args) throws IllegalAccessException {
@@ -213,22 +176,16 @@ public class DispatchingTest {
         }
     }
 
-    private IRulesRuntimeContext initContext() {
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
-        return context;
-    }
-
     public interface Rules {
-        int getSimplePriority();
+        int getSimplePriority(IRulesRuntimeContext context);
 
-        String getPriority();
+        String getPriority(IRulesRuntimeContext context);
 
-        int getAmbiguousPriority();
+        int getAmbiguousPriority(IRulesRuntimeContext context);
 
-        int getAmbiguousPriority1();
+        int getAmbiguousPriority1(IRulesRuntimeContext context);
 
-        Double driverRiskScoreOverloadTest2(String driverRisk);
+        Double driverRiskScoreOverloadTest2(IRulesRuntimeContext context, String driverRisk);
     }
 
     public interface MyRule {
