@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
@@ -92,6 +93,7 @@ public class MessagesDelegatingTest {
                 null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
                 dependencyManager,
+                new OpenLClassLoader(Thread.currentThread().getContextClassLoader()),
                 true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
@@ -116,6 +118,7 @@ public class MessagesDelegatingTest {
                 null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
                 dependencyManager,
+                new OpenLClassLoader(Thread.currentThread().getContextClassLoader()),
                 true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
