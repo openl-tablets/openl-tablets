@@ -182,7 +182,7 @@
         <gson.version>2.13.2</gson.version>
 
         <bouncycastle.version>1.83</bouncycastle.version>
-        <groovy.version>4.0.29</groovy.version>
+        <groovy.version>4.0.30</groovy.version>
         <poi.version>5.5.1</poi.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
