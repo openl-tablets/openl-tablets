@@ -1,13 +1,10 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
@@ -17,34 +14,23 @@ import org.openl.source.IOpenSourceCodeModule;
  */
 public class ApiBasedInstantiationStrategy extends CommonRulesInstantiationStrategy {
 
-    /**
-     * Rules engine factory for module that contains only Excel file.
-     */
-
-    private final Module module;
-
     public ApiBasedInstantiationStrategy(Module module,
                                          IDependencyManager dependencyManager,
                                          ClassLoader classLoader,
                                          boolean executionMode) {
-        super(executionMode, dependencyManager, classLoader);
-        this.module = module;
+        super(Collections.singleton(module), executionMode, dependencyManager, classLoader);
     }
 
     @Override
     protected ClassLoader initClassLoader() {
-        ProjectDescriptor project = module.getProject();
-        return new OpenLClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
-    }
-
-    @Override
-    protected Collection<Module> getModules() {
-        return Collections.singleton(module);
+        return null;
     }
 
     @Override
     protected IOpenSourceCodeModule createSource() {
         var externalProperties = new HashMap<String, Object>();
+
+        var module = modules.iterator().next();
 
         if (module.getProperties() != null) {
             externalProperties.putAll(module.getProperties());

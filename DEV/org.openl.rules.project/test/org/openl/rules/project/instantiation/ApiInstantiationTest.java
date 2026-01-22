@@ -3,7 +3,6 @@ package org.openl.rules.project.instantiation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -12,6 +11,7 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -38,7 +38,7 @@ public class ApiInstantiationTest {
                 null,
                 false,
                 null);
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, new OpenLClassLoader(Thread.currentThread().getContextClassLoader()), false);
         try {
             assertNotNull(strategy.compile());
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class ApiInstantiationTest {
                 null,
                 false,
                 null);
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, ServiceClass.class.getClassLoader(), false);
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();
         assertNotNull(instance);

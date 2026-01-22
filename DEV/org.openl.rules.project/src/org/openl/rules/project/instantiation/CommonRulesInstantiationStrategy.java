@@ -23,6 +23,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      */
     private Class<?> serviceClass;
 
+    protected final Collection<Module> modules;
     /**
      * Flag indicating is it execution mode or not. In execution mode all meta info that is not used in rules running is
      * being cleaned.
@@ -50,9 +51,11 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * @param dependencyManager {@link #dependencyManager}
      * @param classLoader       {@link #classLoader}
      */
-    public CommonRulesInstantiationStrategy(boolean executionMode,
+    public CommonRulesInstantiationStrategy(Collection<Module> modules,
+                                            boolean executionMode,
                                             IDependencyManager dependencyManager,
                                             ClassLoader classLoader) {
+        this.modules = modules;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.executionMode = executionMode;
         this.classLoader = classLoader;
@@ -138,7 +141,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<>();
             Collection<String> allExcludes = new HashSet<>();
-            for (Module m : getModules()) {
+            for (Module m : modules) {
                 MethodFilter methodFilter = m.getMethodFilter();
                 if (methodFilter != null) {
                     if (methodFilter.getIncludes() != null) {
@@ -166,7 +169,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     private boolean isProvideRuntimeContext() {
-        var modules = getModules();
         if (!modules.isEmpty()) {
             Path deployXmlPath = modules.iterator().next().getProject().getProjectFolder().resolve("rules-deploy.xml");
             if (Files.exists(deployXmlPath)) {
@@ -180,7 +182,5 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     abstract protected IOpenSourceCodeModule createSource();
-
-    abstract protected Collection<Module> getModules();
 
 }

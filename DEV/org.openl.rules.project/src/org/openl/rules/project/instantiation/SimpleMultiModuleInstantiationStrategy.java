@@ -25,25 +25,19 @@ import org.openl.util.IOUtils;
  */
 public class SimpleMultiModuleInstantiationStrategy extends CommonRulesInstantiationStrategy {
 
-    private final Collection<Module> modules;
+
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
                                                   IDependencyManager dependencyManager,
                                                   ClassLoader classLoader,
                                                   boolean executionMode) {
-        super(executionMode, dependencyManager, classLoader);
-        this.modules = modules;
+        super(modules, executionMode, dependencyManager, classLoader);
     }
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
                                                   IDependencyManager dependencyManager,
                                                   boolean executionMode) {
         this(modules, dependencyManager, null, executionMode);
-    }
-
-    @Override
-    protected Collection<Module> getModules() {
-        return modules;
     }
 
     @Override
@@ -77,7 +71,7 @@ public class SimpleMultiModuleInstantiationStrategy extends CommonRulesInstantia
      */
     @Override
     protected IOpenSourceCodeModule createSource() {
-        List<IDependency> dependencies = getModules().stream()
+        List<IDependency> dependencies = modules.stream()
                 .map(AbstractDependencyManager::buildResolvedDependency)
                 .distinct()
                 .collect(Collectors.toList());
