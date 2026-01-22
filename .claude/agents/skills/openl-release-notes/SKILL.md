@@ -18,13 +18,19 @@ Automatically activate when the user:
 
 ## Step-by-Step Workflow
 
-### Step 1: Gather Requirements
+### Step 1: Verify Environment & Gather Requirements
 
-Ask the user for:
+**First, verify the environment:**
+- Check that you're in the OpenL Tablets repository root (look for `Docs/` directory)
+- If not in the repository, inform the user and stop
+- Verify `Docs/release-notes/` directory exists, create it if needed
+
+**Then, ask the user for:**
 
 1. **Version Number**: The OpenL Tablets version for the release notes (e.g., "5.27.8", "6.0.0")
    - Note: The version format in JIRA may be "OpenL X.X.X" not just "X.X.X"
-2. **Output Directory**: Where to save the generated files (e.g., "Downloads", "/Users/username/Documents")
+
+**Output Location**: Files will be automatically generated in `Docs/release-notes/` within the OpenL Tablets repository.
 
 ### Step 2: Collect Tickets from JIRA
 
@@ -270,15 +276,17 @@ from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from datetime import datetime
 
-def create_release_notes(version, tickets_data, output_dir):
+def create_release_notes(version, tickets_data):
     """
     Generate Word and Markdown release notes files.
 
     Args:
         version: OpenL version (e.g., "6.0.0")
         tickets_data: Dict with categorized tickets
-        output_dir: Output directory path
     """
+
+    # Output directory is always Docs/release-notes
+    output_dir = "Docs/release-notes"
 
     # Create Word document
     doc = Document()
@@ -408,14 +416,14 @@ After generating files:
 - Use `jira_get_project_versions` to check available versions
 - Confirm the version exists in JIRA
 
-**If output directory doesn't exist:**
-- Offer to create the directory
-- Ask user for alternative location
+**If Docs/release-notes directory doesn't exist:**
+- Automatically create the directory
+- Inform user that the directory was created
 
 **If file writing fails:**
 - Check directory permissions
-- Suggest alternative locations
 - Verify python-docx is installed
+- Ensure you're in the OpenL Tablets repository root
 
 **If pagination issues:**
 - JIRA returns max 50 results per query
@@ -426,10 +434,11 @@ After generating files:
 
 ## Prerequisites
 
-1. **Jira MCP Server**: Configured with EPBDS project access
-2. **Python 3**: Installed (`python3 --version`)
-3. **python-docx**: Installed (`pip install python-docx`)
-4. **Internet Connection**: Required for JIRA API
+1. **OpenL Tablets Repository**: Must be run from within the openl-tablets repository root
+2. **Jira MCP Server**: Configured with EPBDS project access
+3. **Python 3**: Installed (`python3 --version`)
+4. **python-docx**: Installed (`pip install python-docx`)
+5. **Internet Connection**: Required for JIRA API
 
 ---
 
@@ -461,18 +470,18 @@ Generate release notes for OpenL Tablets version 6.0.0
 ```
 
 Claude will:
-1. Ask where to save files
+1. Ask for version number
 2. Connect to JIRA and collect tickets
 3. Categorize and analyze them
 4. Generate comprehensive release notes
-5. Create Word and Markdown files
+5. Create Word and Markdown files in Docs/release-notes/
 6. Complete in 2-5 minutes
 
 ### Example Output
 
 For version 6.0.0 with 156 tickets:
-- **Word**: `OpenL_Tablets_6.0.0_Release_Notes_Detailed.docx` (44 KB, ~30 pages)
-- **Markdown**: `OpenL_Tablets_6.0.0_Release_Notes_Detailed.md` (20 KB)
+- **Word**: `Docs/release-notes/OpenL_Tablets_6.0.0_Release_Notes_Detailed.docx` (44 KB, ~30 pages)
+- **Markdown**: `Docs/release-notes/OpenL_Tablets_6.0.0_Release_Notes_Detailed.md` (20 KB)
 
 ---
 
@@ -511,12 +520,12 @@ For version 6.0.0 with 156 tickets:
 
 **Typical Workflow:**
 1. User: "Generate release notes for OpenL Tablets version 6.0.0"
-2. Claude asks for output directory
+2. Claude asks for version number (if not provided)
 3. Claude queries JIRA and collects tickets
 4. Claude categorizes by type and component
 5. Claude writes detailed descriptions for major features
-6. Claude generates Word and Markdown files
-7. Claude confirms completion
+6. Claude generates Word and Markdown files in Docs/release-notes/
+7. Claude confirms completion with full file paths
 
 **Time:** 2-5 minutes (50-200 tickets)
 
