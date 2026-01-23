@@ -1,8 +1,7 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -11,12 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
-import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.rules.source.impl.VirtualSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.code.IDependency;
 import org.openl.validation.ValidationManager;
 
 public class SimpleDependencyLoader implements IDependencyLoader {
@@ -30,18 +33,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     private final ProjectDescriptor project;
     private final Module module;
 
-    protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
-        return ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), project);
-    }
-
     @Override
     public CompiledDependency getRefToCompiledDependency() {
         return compiledDependency;
-    }
-
-    private Collection<Module> getModules() {
-        return module != null ? Collections.singleton(module) : project.getModules();
     }
 
     @Override
@@ -70,7 +64,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         this.dependency = buildDependency(project, module);
     }
 
-    public static ResolvedDependency buildDependency(ProjectDescriptor project, Module module) {
+    private static ResolvedDependency buildDependency(ProjectDescriptor project, Module module) {
         if (module != null) {
             return AbstractDependencyManager.buildResolvedDependency(module);
         }
@@ -99,37 +93,42 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         }
     }
 
-    protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        return dependencyManager.getExternalJarsClassLoader(getProject());
-    }
-
     protected boolean isActualDependency() {
         return true;
     }
 
     protected CompiledDependency compileDependency() throws OpenLCompilationException {
-        RulesInstantiationStrategy rulesInstantiationStrategy;
-        ClassLoader classLoader = buildClassLoader(dependencyManager);
-        if (!isProjectLoader()) {
-            rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
-                    dependencyManager,
-                    classLoader,
-                    executionMode);
+        var classLoader = dependencyManager.getExternalJarsClassLoader(getProject());
+
+        var parameters = ProjectExternalDependenciesHelper
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), project);
+
+        IOpenSourceCodeModule source;
+        if (isProjectLoader()) {
+            source = new VirtualSourceCodeModule();
+            var dependencies = new ArrayList<IDependency>();
+            getProject().getModules().stream()
+                    .map(AbstractDependencyManager::buildResolvedDependency)
+                    .distinct()
+                    .forEach(dependencies::add);
+            if (parameters.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
+                @SuppressWarnings("unchecked")
+                var externalDependencies = (Collection<? extends IDependency>) parameters.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY);
+                dependencies.addAll(externalDependencies);
+            }
+            parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
         } else {
-            rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(getModules(),
-                    dependencyManager,
-                    classLoader,
-                    executionMode);
+            source = new ModulePathSourceCodeModule(module);
+            if (module.getProperties() != null) {
+                parameters.putAll(module.getProperties());
+            }
         }
+        source.setParams(parameters);
 
-        Map<String, Object> parameters = configureExternalParameters(dependencyManager);
-
-        rulesInstantiationStrategy.setExternalParameters(parameters);
-        rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent interface generation
         boolean oldValidationState = ValidationManager.isValidationEnabled();
         try {
             ValidationManager.turnOffValidation();
-            CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+            CompiledOpenClass compiledOpenClass = compile(source, classLoader);
             CompiledDependency compiledDependency = new CompiledDependency(dependency,
                     compiledOpenClass,
                     isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
@@ -146,6 +145,19 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             if (oldValidationState) {
                 ValidationManager.turnOnValidation();
             }
+        }
+    }
+
+    private CompiledOpenClass compile(IOpenSourceCodeModule source, ClassLoader classLoader) {
+        var engineFactory = new RulesEngineFactory<>(source);
+        engineFactory.setExecutionMode(executionMode);
+        engineFactory.setDependencyManager(dependencyManager);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            return engineFactory.getCompiledOpenClass();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
@@ -171,9 +183,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-    }
-
-    public interface EmptyInterface {
     }
 
     @Override
