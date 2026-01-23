@@ -389,7 +389,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         return getExternalJarsClassLoaderRec(project, breadcrumbs);
     }
 
-    public synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
+    private synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
                                                                   Set<ProjectDescriptor> breadcrumbs) {
         getDependencyLoaders(); // Init dependency loaders
         if (externalJarsClassloaders.get(project) != null) {
