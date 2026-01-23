@@ -296,8 +296,7 @@ public class SimpleProjectEngineFactory<T> {
                     getDependencyManager());
 
             Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                    .buildExternalParamsWithProjectDependencies(externalParameters,
-                            getProjectDescriptor().getModules());
+                    .buildExternalParamsWithProjectDependencies(externalParameters, getProjectDescriptor());
 
             instantiationStrategy.setExternalParameters(parameters);
             try {

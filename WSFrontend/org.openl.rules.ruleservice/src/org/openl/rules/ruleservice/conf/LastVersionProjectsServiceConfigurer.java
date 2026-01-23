@@ -28,7 +28,6 @@ import org.openl.rules.project.abstraction.IProjectArtefact;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
@@ -91,6 +90,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                             .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
+                    serviceDescriptionBuilder.setProjectDescriptor(pd);
                     ResourceLoader resourceLoader = new ResourceLoaderImpl(project);
                     serviceDescriptionBuilder.setResourceLoader(resourceLoader);
                     RulesDeploy rulesDeploy = null;
@@ -136,17 +136,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                         }
                     } catch (ProjectException ignored) {
                     }
-
-                    try {
-                        var artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                        if (artefact instanceof IProjectResource resource) {
-                            try (InputStream content = resource.getContent()) {
-                                serviceDescriptionBuilder.setProjectDescriptor(getProjectDescriptorSerializer().deserialize(content));
-                            }
-                        }
-                    } catch (ProjectException ignored) {
-                    }
-
                     serviceDescriptionBuilder.setManifest(readManifestFile(project));
                     serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                     serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));

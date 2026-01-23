@@ -65,7 +65,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
         RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
+                .buildExternalParamsWithProjectDependencies(externalParameters, serviceDescription.getProjectDescriptor());
         instantiationStrategy.setExternalParameters(parameters);
         compileOpenClass(service, instantiationStrategy);
         ClassLoader serviceClassLoader = resolveServiceClassLoader(service, instantiationStrategy);

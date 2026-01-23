@@ -32,7 +32,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
         return ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), project);
     }
 
     @Override

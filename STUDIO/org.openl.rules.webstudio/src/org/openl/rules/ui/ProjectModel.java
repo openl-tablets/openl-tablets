@@ -1345,7 +1345,7 @@ public class ProjectModel {
                 webStudioWorkspaceDependencyManager,
                 false);
         Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), projectDescriptor);
         instantiationStrategy.setExternalParameters(externalParameters);
         return instantiationStrategy;
     }
