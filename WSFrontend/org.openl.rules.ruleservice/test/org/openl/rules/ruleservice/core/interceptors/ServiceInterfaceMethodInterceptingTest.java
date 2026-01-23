@@ -298,6 +298,7 @@ public class ServiceInterfaceMethodInterceptingTest {
                 .setUrl("/")
                 .setDeployment(deploymentDescription)
                 .setModules(modules)
+                .setProjectDescriptor(new ProjectDescriptor())
                 .setServicePath("service")
                 .setResourceLoader(location -> null);
     }
