@@ -17,7 +17,6 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
-import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -115,20 +114,13 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
                                        TestSuite testSuite,
                                        boolean currentOpenedModule,
                                        TraceHelper traceHelper) {
-        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        ITracerObject root = null;
+        ITracerObject root;
         try {
-            CompiledOpenClass compiledOpenClass = currentOpenedModule
-                    ? projectModel.getOpenedModuleCompiledOpenClass()
-                    : projectModel.getCompiledOpenClass();
-
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-            CachingArgumentsCloner.initInstance();
-
+            // Initialize tracer before calling traceElement (same pattern as RunTestHelper)
             root = TreeBuildTracer.initialize(true); // Use lazy nodes
 
-            // Run test which populates the trace tree
-            projectModel.runTest(testSuite, currentOpenedModule);
+            // traceElement handles classloader context, CachingArgumentsCloner, and sequential execution
+            projectModel.traceElement(testSuite, currentOpenedModule);
 
             // Cache trace tree for later retrieval
             traceHelper.cacheTraceTree(root);
@@ -136,8 +128,6 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
             return root;
         } finally {
             TreeBuildTracer.destroy();
-            CachingArgumentsCloner.removeInstance();
-            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
         }
     }
 
