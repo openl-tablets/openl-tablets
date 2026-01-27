@@ -182,7 +182,7 @@ To create a project using the Maven archetype, proceed as follows:
 	`mvn archetype:generate
 	–DarchetypeGroupId=org.openl.rules
 	–DarchetypeArtifactId=openl-simple-project-archetype
-	\-DarchetypeVersion=5.X.X`
+	-DarchetypeVersion=5.X.X`
 1.  Follow with the Maven creation wizard.
 	After all steps are completed, a new Maven based project appears in the file system. It is an OpenL Rules project which has one module with simple rules in it.
 1.  Execute the following command in the command line from the root of the project folder to compile the project:
