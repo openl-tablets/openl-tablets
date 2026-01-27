@@ -2,7 +2,10 @@ package org.openl.studio.projects.model.trace;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.openl.studio.common.model.GenericView;
 
 /**
  * Representation of a trace node for JSON response.
@@ -10,30 +13,39 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Trace node view")
 public record TraceNodeView(
         @Schema(description = "Unique key for this node, used for lazy loading children")
+        @JsonView(GenericView.Short.class)
         int key,
 
         @Schema(description = "Display title of the node")
+        @JsonView(GenericView.Short.class)
         String title,
 
         @Schema(description = "Tooltip text for the node")
+        @JsonView(GenericView.Short.class)
         String tooltip,
 
         @Schema(description = "Type of the node (e.g., 'rule', 'condition', 'spreadsheet')")
+        @JsonView(GenericView.Short.class)
         String type,
 
         @Schema(description = "If true, this node has children that can be loaded lazily")
+        @JsonView(GenericView.Short.class)
         boolean lazy,
 
         @Schema(description = "CSS classes for styling (e.g., 'rule', 'condition result', 'condition fail')")
+        @JsonView(GenericView.Short.class)
         String extraClasses,
 
         @Schema(description = "Input parameters for this trace node")
+        @JsonView(GenericView.Full.class)
         List<TraceParameterValue> parameters,
 
         @Schema(description = "Runtime context")
+        @JsonView(GenericView.Full.class)
         TraceParameterValue context,
 
         @Schema(description = "Return result of the traced method")
+        @JsonView(GenericView.Full.class)
         TraceParameterValue result
 ) {
 

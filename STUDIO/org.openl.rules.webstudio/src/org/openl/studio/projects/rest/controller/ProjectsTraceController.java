@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,6 +50,7 @@ import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.GenericView;
 import org.openl.studio.projects.messaging.SocketTraceExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.trace.TraceInputRequest;
 import org.openl.studio.projects.model.trace.TraceNodeView;
@@ -151,6 +153,7 @@ public class ProjectsTraceController {
     @Operation(summary = "Get trace result (BETA)", description = "Retrieves the completed trace result")
     @ApiResponse(responseCode = "200", description = "Trace result retrieved successfully")
     @GetMapping
+    @JsonView(GenericView.Short.class)
     public TraceResultResponse getTraceResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam(value = "showRealNumbers", defaultValue = "false") @Parameter(description = "Show exact numbers instead of formatted") boolean showRealNumbers) {
@@ -170,7 +173,7 @@ public class ProjectsTraceController {
         }
 
         var rootElement = traceHelper.getTableTracer(0);
-        var rootNodes = createNodes(rootElement.getChildren(), traceHelper, showRealNumbers);
+        var rootNodes = createSimpleNodes(rootElement.getChildren(), traceHelper, showRealNumbers);
         var totalNodes = countTotalNodes(rootElement);
 
         return new TraceResultResponse(rootNodes, totalNodes);
@@ -179,6 +182,7 @@ public class ProjectsTraceController {
     @Operation(summary = "Get trace node children (BETA)", description = "Retrieves child nodes for lazy loading")
     @ApiResponse(responseCode = "200", description = "Children retrieved successfully")
     @GetMapping("/nodes")
+    @JsonView(GenericView.Short.class)
     public List<TraceNodeView> getNodes(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam(value = "id", required = false) @Parameter(description = "Node ID (0 for root)") Integer id,
@@ -196,7 +200,38 @@ public class ProjectsTraceController {
         }
 
         var element = traceHelper.getTableTracer(id == null ? 0 : id);
-        return createNodes(element.getChildren(), traceHelper, showRealNumbers);
+        return createSimpleNodes(element.getChildren(), traceHelper, showRealNumbers);
+    }
+
+    @Operation(summary = "Get trace node details (BETA)", description = "Retrieves detailed info for a single trace node including parameters, context, and result")
+    @ApiResponse(responseCode = "200", description = "Node details retrieved successfully")
+    @GetMapping("/nodes/{nodeId}")
+    @JsonView(GenericView.Full.class)
+    public TraceNodeView getNodeDetails(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("nodeId") @Parameter(description = "Node ID") int nodeId,
+            @RequestParam(value = "showRealNumbers", defaultValue = "false") @Parameter(description = "Show exact numbers") boolean showRealNumbers) {
+
+        var projectId = projectService.resolveProjectId(project);
+
+        if (!traceResultRegistry.isDone(projectId)) {
+            throw new ConflictException("trace.execution.not.completed.message");
+        }
+
+        var traceHelper = traceResultRegistry.getTraceHelperIfDone(projectId);
+        if (traceHelper == null) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
+
+        var element = traceHelper.getTableTracer(nodeId);
+        if (element == null) {
+            throw new NotFoundException("trace.node.not.found.message");
+        }
+
+        ObjectMapper objectMapper = configureObjectMapper();
+        SchemaGenerator schemaGenerator = initSchemaGenerator(objectMapper);
+
+        return createDetailedNode(element, traceHelper, showRealNumbers, objectMapper, schemaGenerator);
     }
 
     @Operation(summary = "Cancel trace execution (BETA)", description = "Cancels the current trace execution if running")
@@ -231,24 +266,50 @@ public class ProjectsTraceController {
         return buildParameterValue(param, objectMapper, schemaGenerator, null, false);
     }
 
-    private List<TraceNodeView> createNodes(Iterable<ITracerObject> children,
-                                            TraceHelper traceHelper,
-                                            boolean showRealNumbers) {
-        ObjectMapper objectMapper = configureObjectMapper();
-        SchemaGenerator schemaGenerator = initSchemaGenerator(objectMapper);
-
+    private List<TraceNodeView> createSimpleNodes(Iterable<ITracerObject> children,
+                                                   TraceHelper traceHelper,
+                                                   boolean showRealNumbers) {
         List<TraceNodeView> nodes = new ArrayList<>();
         for (ITracerObject child : children) {
-            nodes.add(createNode(child, traceHelper, showRealNumbers, objectMapper, schemaGenerator));
+            nodes.add(createSimpleNode(child, traceHelper, showRealNumbers));
         }
         return nodes;
     }
 
-    private TraceNodeView createNode(ITracerObject element,
-                                     TraceHelper traceHelper,
-                                     boolean showRealNumbers,
-                                     ObjectMapper objectMapper,
-                                     SchemaGenerator schemaGenerator) {
+    private TraceNodeView createSimpleNode(ITracerObject element,
+                                           TraceHelper traceHelper,
+                                           boolean showRealNumbers) {
+        if (element == null) {
+            return TraceNodeView.builder()
+                    .key(-1)
+                    .title("null")
+                    .tooltip("null")
+                    .type("value")
+                    .lazy(false)
+                    .extraClasses("value")
+                    .build();
+        }
+
+        String name = TraceFormatter.getDisplayName(element, !showRealNumbers);
+        int key = traceHelper.getNodeKey(element);
+        String type = getType(element);
+        boolean lazy = !element.isLeaf();
+
+        return TraceNodeView.builder()
+                .key(key)
+                .title(name)
+                .tooltip(name)
+                .type(type)
+                .lazy(lazy)
+                .extraClasses(type)
+                .build();
+    }
+
+    private TraceNodeView createDetailedNode(ITracerObject element,
+                                              TraceHelper traceHelper,
+                                              boolean showRealNumbers,
+                                              ObjectMapper objectMapper,
+                                              SchemaGenerator schemaGenerator) {
         if (element == null) {
             return TraceNodeView.builder()
                     .key(-1)
