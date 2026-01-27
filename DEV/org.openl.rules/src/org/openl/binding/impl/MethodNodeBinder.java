@@ -191,20 +191,19 @@ public class MethodNodeBinder extends ANodeBinder {
                                   ISyntaxNode methodInvocationNode,
                                   IBindingContext bindingContext) {
         if (parameterType instanceof DomainOpenClass && canBeValidated(methodArgumentNode)) {
-            if (containsLiteralValue(methodArgumentNode)) {
-                if (parameterType.isArray()) {
-                    validateArgumentForArrayParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
-                } else {
-                    validateArgumentForLiteralParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
-                }
+            if (parameterType.isArray()) {
+                validateArgumentForArrayParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
+            } else {
+                validateArgumentForLiteralParameter(methodArgumentNode, parameterType, methodInvocationNode, bindingContext);
             }
         }
     }
 
     private boolean canBeValidated(IBoundNode methodArgumentNode) {
-        return methodArgumentNode instanceof LiteralBoundNode
+        return (methodArgumentNode instanceof LiteralBoundNode
                 || methodArgumentNode instanceof ArrayInitializerNode
-                || methodArgumentNode instanceof ConstructorNamedParamsNode;
+                || methodArgumentNode instanceof ConstructorNamedParamsNode)
+                && containsLiteralValue(methodArgumentNode);
     }
 
     private boolean containsLiteralValue(IBoundNode methodArgumentNode) {
