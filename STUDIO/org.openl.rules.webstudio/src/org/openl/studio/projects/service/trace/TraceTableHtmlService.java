@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.trace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,6 +15,8 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.tableeditor.model.ui.CellModel;
+import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.ui.ProjectModel;
@@ -83,8 +86,67 @@ public class TraceTableHtmlService {
             throw new NotFoundException("trace.node.not.found.message");
         }
 
-        // 5. Render HTML
-        return new HTMLRenderer.TableRenderer(tableModel).render(showFormulas);
+        // 5. Render HTML (standalone version without JSF dependencies)
+        return renderTableHtml(tableModel, showFormulas);
+    }
+
+    /**
+     * Renders table model to HTML without JSF dependencies.
+     * Produces clean HTML compatible with React/TypeScript UI:
+     * - No script tags (comments are stored in data-comment attribute)
+     * - Clean cell IDs (row_col format instead of row:col)
+     * - Inline styles for portability
+     */
+    private String renderTableHtml(TableModel tableModel, boolean showFormulas) {
+        StringBuilder html = new StringBuilder();
+        html.append("<table class=\"te_table\">\n");
+
+        ICellModel[][] cells = tableModel.getCells();
+        for (int row = 0; row < cells.length; row++) {
+            html.append("<tr>\n");
+            for (int col = 0; col < cells[row].length; col++) {
+                ICellModel cell = cells[row][col];
+                if (cell == null || !cell.isReal()) {
+                    continue;
+                }
+
+                html.append("<td");
+
+                // Add cell styling
+                if (cell instanceof CellModel cellModel) {
+                    cellModel.attributesToHtml(html, false);
+                }
+
+                // Clean cell ID (no colons)
+                html.append(" id=\"cell_").append(row + 1).append("_").append(col + 1).append("\"");
+
+                // Store comment in data attribute (React can handle this)
+                if (cell.getComment() != null) {
+                    html.append(" class=\"te_comment\"");
+                    html.append(" data-comment=\"")
+                            .append(StringEscapeUtils.escapeHtml4(cell.getComment()))
+                            .append("\"");
+                }
+
+                html.append(">");
+                html.append(cell.getContent(showFormulas));
+                html.append("</td>\n");
+            }
+            html.append("</tr>\n");
+        }
+        html.append("</table>");
+
+        // Large table warning
+        if (tableModel.getNumRowsToDisplay() > -1) {
+            html.append("<div class=\"te_bigtable_mes\">")
+                    .append("<div class=\"te_bigtable_mes_header\">The table is displayed partially (the first ")
+                    .append(tableModel.getNumRowsToDisplay())
+                    .append(" rows).</div>")
+                    .append("<div>To view the full table, use 'Open In Excel'.</div>")
+                    .append("</div>");
+        }
+
+        return html.toString();
     }
 
     /**
