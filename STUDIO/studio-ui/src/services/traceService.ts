@@ -1,4 +1,5 @@
 import apiCall from './apiCall'
+import CONFIG from './config'
 import type {
     TraceNodeView,
     TraceParameterValue,
@@ -70,7 +71,7 @@ export const traceService = {
         showFormulas = false
     ): Promise<string> => {
         const response = await fetch(
-            `${window.location.pathname.replace(/\/[^/]*$/, '')}/web/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}/table?showFormulas=${showFormulas}`,
+            `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}/table?showFormulas=${showFormulas}`,
             {
                 headers: { Accept: 'text/html' },
             }
