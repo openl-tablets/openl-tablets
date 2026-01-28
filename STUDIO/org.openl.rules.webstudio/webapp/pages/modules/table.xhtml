@@ -570,6 +570,7 @@
                                     </div>
                                 </div>
                                 <a4j:jsFunction name="fetchParamsForTrace"
+                                    execute="@form"
                                     data="#{inputArgsBean.paramsAsJson}"
                                     oncomplete="onParamsFetched(event.data)" />
                             </c:if>
@@ -933,7 +934,8 @@
 
         /**
          * Prepare and initiate trace for executable tables.
-         * First fetches params via a4j:jsFunction, then calls trace API.
+         * Checks input mode and either fetches formatted params (Tree Form)
+         * or passes raw JSON directly (JSON mode).
          */
         function prepareAndTraceExecutableTable(repositoryId, projectName, tableId, moduleName, showRealNumbers) {
             // Store context for the callback
@@ -944,15 +946,33 @@
                 moduleName: moduleName,
                 showRealNumbers: showRealNumbers
             };
-            // Trigger a4j:jsFunction to fetch params from bean
-            fetchParamsForTrace();
+
+            // Check input mode - find the selected radio button
+            var inputTypeRadios = document.querySelectorAll('input[name$="inputTestCaseType"]');
+            var isJsonMode = false;
+            for (var i = 0; i < inputTypeRadios.length; i++) {
+                if (inputTypeRadios[i].checked && inputTypeRadios[i].value === 'TEXT') {
+                    isJsonMode = true;
+                    break;
+                }
+            }
+
+            if (isJsonMode) {
+                // JSON mode - get raw JSON from textarea and call API directly
+                var jsonTextarea = document.querySelector('textarea[id$="jsonInput"]');
+                var rawJson = jsonTextarea ? jsonTextarea.value : '{}';
+                onParamsFetched(rawJson);
+            } else {
+                // Tree Form mode - fetch formatted params from bean
+                fetchParamsForTrace();
+            }
         }
 
         /**
-         * Callback invoked by a4j:jsFunction oncomplete.
-         * Receives params JSON and calls trace REST API.
+         * Callback invoked by a4j:jsFunction oncomplete or directly with raw JSON.
+         * Receives JSON string and calls trace REST API.
          */
-        function onParamsFetched(paramsJson) {
+        function onParamsFetched(inputJson) {
             if (!_executableTraceContext) {
                 ws.ui.error('Trace context not initialized');
                 return;
@@ -962,15 +982,6 @@
             _executableTraceContext = null;
 
             var projectId = btoa(ctx.repositoryId + ':' + ctx.projectName);
-
-            // Parse the JSON string returned from bean
-            var inputArgs;
-            try {
-                inputArgs = JSON.parse(paramsJson);
-            } catch (e) {
-                ws.ui.error('Failed to parse parameters: ' + e.message);
-                return;
-            }
 
             // Build trace API URL
             var apiUrl = '#{request.contextPath}/web/projects/' +
@@ -985,11 +996,11 @@
                 params.set('fromModule', ctx.moduleName);
             }
 
-            // Call trace API with input parameters
+            // Call trace API with JSON input (API auto-detects format)
             fetch(apiUrl + '?' + params.toString(), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(inputArgs)
+                body: inputJson
             })
             .then(function(response) {
                 if (response.ok || response.status === 202) {

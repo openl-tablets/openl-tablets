@@ -1,7 +1,6 @@
 package org.openl.studio.projects.rest.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -24,10 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
@@ -35,19 +31,17 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.projects.messaging.SocketTraceExecutionProgressListenerFactory;
-import org.openl.studio.projects.model.trace.TraceInputRequest;
 import org.openl.studio.projects.model.trace.TraceNodeView;
 import org.openl.studio.projects.model.trace.TraceNodeViewMapper;
 import org.openl.studio.projects.model.trace.TraceParameterValue;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
+import org.openl.studio.projects.service.trace.TableInputParserService;
 import org.openl.studio.projects.service.trace.TraceExecutionStatus;
 import org.openl.studio.projects.service.trace.TraceExecutorService;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.studio.projects.service.trace.TraceTableHtmlService;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -65,6 +59,7 @@ public class ProjectsTraceController {
     private final SocketTraceExecutionProgressListenerFactory listenerFactory;
     private final TraceParameterRegistry parameterRegistry;
     private final TraceTableHtmlService traceTableHtmlService;
+    private final TableInputParserService inputParserService;
     private final Environment environment;
 
     public ProjectsTraceController(WorkspaceProjectService projectService,
@@ -73,6 +68,7 @@ public class ProjectsTraceController {
                                    SocketTraceExecutionProgressListenerFactory listenerFactory,
                                    TraceParameterRegistry parameterRegistry,
                                    TraceTableHtmlService traceTableHtmlService,
+                                   TableInputParserService inputParserService,
                                    Environment environment) {
         this.projectService = projectService;
         this.traceExecutorService = traceExecutorService;
@@ -80,6 +76,7 @@ public class ProjectsTraceController {
         this.listenerFactory = listenerFactory;
         this.parameterRegistry = parameterRegistry;
         this.traceTableHtmlService = traceTableHtmlService;
+        this.inputParserService = inputParserService;
         this.environment = environment;
     }
 
@@ -92,7 +89,7 @@ public class ProjectsTraceController {
             @RequestParam("tableId") @Parameter(description = "Table ID to trace") String tableId,
             @RequestParam(value = "testRanges", required = false) @Parameter(description = "Test ranges (e.g., '1-3,5') for TestSuiteMethod") String testRanges,
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "Module name to run trace from") String fromModule,
-            @RequestBody(required = false) TraceInputRequest inputRequest) {
+            @RequestBody(required = false) @Parameter(description = "Input JSON (raw user format or structured {params, runtimeContext})") String inputJson) {
 
         traceResultRegistry.cancelIfAny();
         parameterRegistry.clear();
@@ -125,12 +122,12 @@ public class ProjectsTraceController {
             traceTask = traceExecutorService.traceTestSuite(
                     listener, projectModel, table, testRanges, currentOpenedModule, traceHelper);
         } else {
-            // Regular method - parse JSON input
-            var params = parseInputParams(inputRequest, method);
-            var runtimeContext = parseRuntimeContext(inputRequest);
+            // Regular method - parse JSON input using service (auto-detects format)
+            var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
 
             traceTask = traceExecutorService.traceMethod(
-                    listener, projectModel, table, params, runtimeContext, currentOpenedModule, traceHelper);
+                    listener, projectModel, table, parseResult.params(), parseResult.runtimeContext(),
+                    currentOpenedModule, traceHelper);
         }
 
         traceResultRegistry.setTask(projectId, tableId, traceTask, traceHelper);
@@ -256,56 +253,6 @@ public class ProjectsTraceController {
 
     private TraceNodeViewMapper createMapper() {
         return new TraceNodeViewMapper(configureObjectMapper(), parameterRegistry);
-    }
-
-    private Object[] parseInputParams(TraceInputRequest request, IOpenMethod method) {
-        IMethodSignature signature = method.getSignature();
-        Object[] params = new Object[signature.getNumberOfParameters()];
-
-        if (request == null || request.params() == null || request.params().isEmpty()) {
-            return params;
-        }
-
-        ObjectMapper mapper = configureObjectMapper();
-        Map<String, Object> inputParams = request.params();
-
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            String paramName = signature.getParameterName(i);
-            IOpenClass paramType = signature.getParameterType(i);
-
-            if (inputParams.containsKey(paramName)) {
-                Object rawValue = inputParams.get(paramName);
-                params[i] = convertValue(rawValue, paramType.getInstanceClass(), mapper);
-            }
-        }
-
-        return params;
-    }
-
-    private IRulesRuntimeContext parseRuntimeContext(TraceInputRequest request) {
-        if (request == null || request.runtimeContext() == null || request.runtimeContext().isEmpty()) {
-            return null;
-        }
-
-        ObjectMapper mapper = configureObjectMapper();
-        try {
-            String json = mapper.writeValueAsString(request.runtimeContext());
-            return JsonUtils.fromJSON(json, IRulesRuntimeContext.class, mapper);
-        } catch (Exception e) {
-            return new DefaultRulesRuntimeContext();
-        }
-    }
-
-    private Object convertValue(Object rawValue, Class<?> targetType, ObjectMapper mapper) {
-        if (rawValue == null) {
-            return null;
-        }
-        try {
-            String json = mapper.writeValueAsString(rawValue);
-            return JsonUtils.fromJSON(json, targetType, mapper);
-        } catch (Exception e) {
-            return rawValue;
-        }
     }
 
     private ObjectMapper configureObjectMapper() {
