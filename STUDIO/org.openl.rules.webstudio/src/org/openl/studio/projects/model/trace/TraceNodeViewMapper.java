@@ -17,6 +17,7 @@ import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -136,7 +137,7 @@ public class TraceNodeViewMapper {
                 .name(param.getName())
                 .description(type != null ? type.getDisplayName(INamedThing.SHORT) : null)
                 .lazy(false)
-                .value(serializeValue(rawValue))
+                .value(serializeValue(rawValue, type))
                 .schema(generateSchema(type))
                 .build();
     }
@@ -171,11 +172,18 @@ public class TraceNodeViewMapper {
     }
 
     private TraceParameterValue buildResult(ITracerObject tto) {
+        var tracerNode = getTableTracerNode(tto);
+        if (tracerNode == null || tracerNode.getTraceObject() == null) {
+            return null;
+        }
         var resultValue = tto.getResult();
         if (resultValue == null) {
             return null;
         }
-        return buildParameterValue(new ParameterWithValueDeclaration("return", resultValue), true);
+        var result = new ParameterWithValueDeclaration("return",
+                resultValue,
+                tracerNode.getTraceObject().getType());
+        return buildParameterValue(result, true);
     }
 
     private List<MessageDescription> buildErrors(ITracerObject tto) {
@@ -214,11 +222,12 @@ public class TraceNodeViewMapper {
         }
     }
 
-    private JsonNode serializeValue(Object value) {
+    private JsonNode serializeValue(Object value, IOpenClass type) {
         if (value == null) {
             return null;
         }
         try {
+            value = SpreadsheetResult.convertSpreadsheetResult(value, null, type, null);
             return objectMapper.valueToTree(value);
         } catch (Exception ignored) {
             return null;
