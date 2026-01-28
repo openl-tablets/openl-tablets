@@ -28,6 +28,7 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
@@ -180,9 +181,13 @@ public class TraceNodeViewMapper {
         if (resultValue == null) {
             return null;
         }
+        IOpenClass type = tracerNode.getTraceObject().getType();
+        if (tracerNode instanceof SpreadsheetTracerLeaf spreadsheetTracerLeaf) {
+            type = spreadsheetTracerLeaf.getSpreadsheetCell().getType();
+        }
         var result = new ParameterWithValueDeclaration("return",
                 resultValue,
-                tracerNode.getTraceObject().getType());
+                type);
         return buildParameterValue(result, true);
     }
 
