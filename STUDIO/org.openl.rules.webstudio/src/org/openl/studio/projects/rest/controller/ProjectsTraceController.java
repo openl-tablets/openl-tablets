@@ -46,6 +46,7 @@ import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
 import org.openl.studio.projects.service.trace.TraceExecutionStatus;
 import org.openl.studio.projects.service.trace.TraceExecutorService;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
+import org.openl.studio.projects.service.trace.TraceTableHtmlService;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -64,6 +65,7 @@ public class ProjectsTraceController {
     private final ExecutionTraceResultRegistry traceResultRegistry;
     private final SocketTraceExecutionProgressListenerFactory listenerFactory;
     private final TraceParameterRegistry parameterRegistry;
+    private final TraceTableHtmlService traceTableHtmlService;
     private final Environment environment;
 
     public ProjectsTraceController(WorkspaceProjectService projectService,
@@ -71,12 +73,14 @@ public class ProjectsTraceController {
                                    ExecutionTraceResultRegistry traceResultRegistry,
                                    SocketTraceExecutionProgressListenerFactory listenerFactory,
                                    TraceParameterRegistry parameterRegistry,
+                                   TraceTableHtmlService traceTableHtmlService,
                                    Environment environment) {
         this.projectService = projectService;
         this.traceExecutorService = traceExecutorService;
         this.traceResultRegistry = traceResultRegistry;
         this.listenerFactory = listenerFactory;
         this.parameterRegistry = parameterRegistry;
+        this.traceTableHtmlService = traceTableHtmlService;
         this.environment = environment;
     }
 
@@ -242,6 +246,30 @@ public class ProjectsTraceController {
         }
 
         return createMapper().buildParameterValue(param, false);
+    }
+
+    @Operation(summary = "Get traced table as HTML (BETA)", description = "Returns HTML fragment for the traced table with highlighting")
+    @ApiResponse(responseCode = "200", description = "HTML table fragment")
+    @GetMapping(value = "/nodes/{nodeId}/table", produces = MediaType.TEXT_HTML_VALUE)
+    public String getTraceTableHtml(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("nodeId") @Parameter(description = "Trace node ID") int nodeId,
+            @RequestParam(value = "showFormulas", defaultValue = "false") @Parameter(description = "Show formulas instead of values") boolean showFormulas) {
+
+        var projectId = projectService.resolveProjectId(project);
+
+        if (!traceResultRegistry.isDone(projectId)) {
+            throw new ConflictException("trace.execution.not.completed.message");
+        }
+
+        var traceHelper = traceResultRegistry.getTraceHelperIfDone(projectId);
+        if (traceHelper == null) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
+
+        var projectModel = projectService.getProjectModel(project, null);
+
+        return traceTableHtmlService.renderTraceTableHtml(traceHelper, nodeId, projectModel, showFormulas);
     }
 
     private TraceNodeViewMapper createMapper() {
