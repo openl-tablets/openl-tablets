@@ -1,31 +1,161 @@
 import React, { useState } from 'react'
-import { Card, Descriptions, Button, Spin, Typography, Tag } from 'antd'
-import { DownOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Spin, Typography } from 'antd'
+import { PlusSquareOutlined, MinusSquareOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { TraceParameterValue } from 'types/trace'
+import './TraceParameters.scss'
 
-const { Text, Paragraph } = Typography
+const { Text } = Typography
 
-interface TraceParametersProps {
-    parameters?: TraceParameterValue[]
-    title: string
-    emptyText?: string
+/**
+ * Format a simple value for display (IDEA-style).
+ */
+const formatSimpleValue = (value: any): { display: string; className: string } => {
+    if (value === null) {
+        return { display: 'null', className: 'trace-value-null' }
+    }
+    if (value === undefined) {
+        return { display: 'undefined', className: 'trace-value-null' }
+    }
+    if (typeof value === 'string') {
+        return { display: `"${value}"`, className: 'trace-value-string' }
+    }
+    if (typeof value === 'number') {
+        return { display: String(value), className: 'trace-value-number' }
+    }
+    if (typeof value === 'boolean') {
+        return { display: String(value), className: 'trace-value-boolean' }
+    }
+    return { display: String(value), className: 'trace-value-default' }
+}
+
+/**
+ * Check if value is complex (object or array).
+ */
+const isComplexValue = (value: any): boolean => {
+    return value !== null && typeof value === 'object'
+}
+
+/**
+ * Get summary for complex value (IDEA-style).
+ */
+const getComplexSummary = (value: any): string => {
+    if (Array.isArray(value)) {
+        return `{${value.length} elements}`
+    }
+    if (typeof value === 'object' && value !== null) {
+        const keys = Object.keys(value)
+        return `{${keys.length} fields}`
+    }
+    return ''
+}
+
+interface ValueNodeProps {
+    name: string
+    type?: string
+    value: any
+    depth?: number
+    defaultExpanded?: boolean
+}
+
+/**
+ * Renders a single value node with expand/collapse for complex values.
+ */
+const ValueNode: React.FC<ValueNodeProps> = ({
+    name,
+    type,
+    value,
+    depth = 0,
+    defaultExpanded = false,
+}) => {
+    const [expanded, setExpanded] = useState(defaultExpanded)
+    const isComplex = isComplexValue(value)
+    const indent = depth * 16
+
+    const toggleExpand = () => {
+        if (isComplex) {
+            setExpanded(!expanded)
+        }
+    }
+
+    const renderValue = () => {
+        if (!isComplex) {
+            const { display, className } = formatSimpleValue(value)
+            return <span className={className}>{display}</span>
+        }
+        return <span className="trace-value-summary">{getComplexSummary(value)}</span>
+    }
+
+    const renderChildren = () => {
+        if (!expanded || !isComplex) return null
+
+        if (Array.isArray(value)) {
+            return (
+                <div className="trace-value-children">
+                    {value.map((item, index) => (
+                        <ValueNode
+                            key={index}
+                            name={`[${index}]`}
+                            value={item}
+                            depth={depth + 1}
+                        />
+                    ))}
+                </div>
+            )
+        }
+
+        if (typeof value === 'object' && value !== null) {
+            return (
+                <div className="trace-value-children">
+                    {Object.entries(value).map(([key, val]) => (
+                        <ValueNode
+                            key={key}
+                            name={key}
+                            value={val}
+                            depth={depth + 1}
+                        />
+                    ))}
+                </div>
+            )
+        }
+
+        return null
+    }
+
+    return (
+        <div className="trace-value-node" style={{ marginLeft: indent }}>
+            <div className="trace-value-row" onClick={toggleExpand}>
+                {isComplex ? (
+                    <span className="trace-expand-icon">
+                        {expanded ? <MinusSquareOutlined /> : <PlusSquareOutlined />}
+                    </span>
+                ) : (
+                    <span className="trace-expand-icon trace-expand-placeholder" />
+                )}
+                <span className="trace-value-name">{name}</span>
+                {type && <span className="trace-value-type">{type}</span>}
+                <span className="trace-value-equals">=</span>
+                {renderValue()}
+            </div>
+            {renderChildren()}
+        </div>
+    )
 }
 
 interface ParameterItemProps {
     param: TraceParameterValue
+    inline?: boolean
 }
 
 /**
- * Single parameter item with lazy loading support.
+ * Single parameter item with lazy loading support (IDEA debug style).
  */
-const ParameterItem: React.FC<ParameterItemProps> = ({ param }) => {
+const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) => {
     const { t } = useTranslation('trace')
     const { fetchLazyParameter } = useTraceStore()
     const [loading, setLoading] = useState(false)
     const [loadedValue, setLoadedValue] = useState<any>(null)
-    const [expanded, setExpanded] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const handleLoadValue = async () => {
@@ -44,77 +174,67 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param }) => {
     }
 
     const displayValue = loadedValue ?? param.value
-    const isComplex =
-        typeof displayValue === 'object' && displayValue !== null
 
-    const renderValue = () => {
-        if (param.lazy && displayValue === undefined && !loading) {
-            return (
-                <Button
-                    type="link"
-                    size="small"
-                    onClick={handleLoadValue}
-                    disabled={loading}
-                >
+    // Lazy parameter not yet loaded
+    if (param.lazy && displayValue === undefined && !loading) {
+        return (
+            <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
+                <span className="trace-expand-icon trace-expand-placeholder" />
+                <span className="trace-value-name">{param.name}</span>
+                <span className="trace-value-type">{param.description}</span>
+                <span className="trace-value-equals">=</span>
+                <span className="trace-value-lazy" onClick={handleLoadValue}>
                     {t('param.loadValue')}
-                </Button>
-            )
-        }
+                </span>
+            </div>
+        )
+    }
 
-        if (loading) {
-            return <Spin indicator={<LoadingOutlined spin />} size="small" />
-        }
+    // Loading state
+    if (loading) {
+        return (
+            <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
+                <span className="trace-expand-icon trace-expand-placeholder" />
+                <span className="trace-value-name">{param.name}</span>
+                <span className="trace-value-type">{param.description}</span>
+                <span className="trace-value-equals">=</span>
+                <Spin indicator={<LoadingOutlined spin />} size="small" />
+            </div>
+        )
+    }
 
-        if (error) {
-            return <Text type="danger">{error}</Text>
-        }
-
-        if (displayValue === null) {
-            return <Text type="secondary">null</Text>
-        }
-
-        if (displayValue === undefined) {
-            return <Text type="secondary">undefined</Text>
-        }
-
-        if (isComplex) {
-            return (
-                <div className="trace-param-complex">
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={expanded ? <DownOutlined /> : <RightOutlined />}
-                        onClick={() => setExpanded(!expanded)}
-                    >
-                        {expanded ? t('param.collapse') : t('param.expand')}
-                    </Button>
-                    {expanded && (
-                        <Paragraph>
-                            <pre className="trace-param-json">
-                                {JSON.stringify(displayValue, null, 2)}
-                            </pre>
-                        </Paragraph>
-                    )}
-                </div>
-            )
-        }
-
-        return <Text>{String(displayValue)}</Text>
+    // Error state
+    if (error) {
+        return (
+            <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
+                <span className="trace-expand-icon trace-expand-placeholder" />
+                <span className="trace-value-name">{param.name}</span>
+                <span className="trace-value-type">{param.description}</span>
+                <span className="trace-value-equals">=</span>
+                <span className="trace-value-error">{error}</span>
+            </div>
+        )
     }
 
     return (
-        <div className="trace-param-item">
-            <div className="trace-param-header">
-                <Text strong>{param.name}</Text>
-                <Tag color="blue">{param.description}</Tag>
-            </div>
-            <div className="trace-param-value">{renderValue()}</div>
-        </div>
+        <ValueNode
+            name={param.name}
+            type={param.description}
+            value={displayValue}
+            defaultExpanded={false}
+        />
     )
 }
 
+interface TraceParametersProps {
+    parameters?: TraceParameterValue[]
+    title: string
+    emptyText?: string
+}
+
 /**
- * Component for displaying trace parameters (input, context, result).
+ * Component for displaying trace parameters (IDEA debug style).
+ * Format: Parameters: + param1 Type = value    param2 Type = value
  */
 const TraceParameters: React.FC<TraceParametersProps> = ({
     parameters,
@@ -125,18 +245,24 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
 
     if (!parameters || parameters.length === 0) {
         return (
-            <Card title={title} size="small" className="trace-params-card">
-                <Text type="secondary">{emptyText || t('details.noParameters')}</Text>
-            </Card>
+            <div className="trace-params-section">
+                <span className="trace-params-title">{title}:</span>
+                <Text type="secondary" className="trace-params-empty">
+                    {emptyText || t('details.noParameters')}
+                </Text>
+            </div>
         )
     }
 
     return (
-        <Card title={title} size="small" className="trace-params-card">
-            {parameters.map((param, index) => (
-                <ParameterItem key={`${param.name}-${index}`} param={param} />
-            ))}
-        </Card>
+        <div className="trace-params-section">
+            <span className="trace-params-title">{title}:</span>
+            <div className="trace-params-list">
+                {parameters.map((param, index) => (
+                    <ParameterItem key={`${param.name}-${index}`} param={param} />
+                ))}
+            </div>
+        </div>
     )
 }
 
@@ -152,16 +278,22 @@ export const SingleParameter: React.FC<{
 
     if (!parameter) {
         return (
-            <Card title={title} size="small" className="trace-params-card">
-                <Text type="secondary">{emptyText || t('details.noResult')}</Text>
-            </Card>
+            <div className="trace-params-section">
+                <span className="trace-params-title">{title}:</span>
+                <Text type="secondary" className="trace-params-empty">
+                    {emptyText || t('details.noResult')}
+                </Text>
+            </div>
         )
     }
 
     return (
-        <Card title={title} size="small" className="trace-params-card">
-            <ParameterItem param={parameter} />
-        </Card>
+        <div className="trace-params-section">
+            <span className="trace-params-title">{title}:</span>
+            <div className="trace-params-list">
+                <ParameterItem param={parameter} />
+            </div>
+        </div>
     )
 }
 

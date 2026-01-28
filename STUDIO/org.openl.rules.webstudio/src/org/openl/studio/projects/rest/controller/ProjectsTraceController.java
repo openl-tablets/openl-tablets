@@ -177,6 +177,9 @@ public class ProjectsTraceController {
 
         var projectId = projectService.resolveProjectId(project);
 
+        if (!traceResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
         if (!traceResultRegistry.isDone(projectId)) {
             throw new ConflictException("trace.execution.not.completed.message");
         }
@@ -201,6 +204,9 @@ public class ProjectsTraceController {
 
         var projectId = projectService.resolveProjectId(project);
 
+        if (!traceResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
         if (!traceResultRegistry.isDone(projectId)) {
             throw new ConflictException("trace.execution.not.completed.message");
         }
@@ -236,6 +242,9 @@ public class ProjectsTraceController {
 
         var projectId = projectService.resolveProjectId(project);
 
+        if (!traceResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
         if (!traceResultRegistry.isDone(projectId)) {
             throw new ConflictException("trace.execution.not.completed.message");
         }
@@ -258,6 +267,9 @@ public class ProjectsTraceController {
 
         var projectId = projectService.resolveProjectId(project);
 
+        if (!traceResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("trace.execution.task.message");
+        }
         if (!traceResultRegistry.isDone(projectId)) {
             throw new ConflictException("trace.execution.not.completed.message");
         }

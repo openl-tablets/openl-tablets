@@ -13,14 +13,12 @@ i18next.addResourceBundle('en', 'trace', {
 
     details: {
         title: 'Node Details',
-        parameters: 'Input Parameters',
-        context: 'Runtime Context',
+        parameters: 'Parameters',
         result: 'Returned Result',
         errors: 'Errors',
         table: 'Traced Table',
         noSelection: 'Select a node to view details',
-        noParameters: 'No input parameters',
-        noContext: 'No runtime context',
+        noParameters: 'No parameters',
         noResult: 'No result',
         noErrors: 'No errors',
         noTable: 'No table view available',

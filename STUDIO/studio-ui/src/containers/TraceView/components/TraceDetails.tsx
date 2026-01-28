@@ -92,20 +92,18 @@ const TraceDetails: React.FC = () => {
 
     const { parameters, context, result, errors } = selectedNodeDetails
 
+    // Combine parameters with context (context becomes part of parameters)
+    const allParameters = context
+        ? [...(parameters || []), context]
+        : parameters
+
     return (
         <div className="trace-details">
-            {/* Input Parameters */}
+            {/* Parameters (including context) */}
             <TraceParameters
-                parameters={parameters}
+                parameters={allParameters}
                 title={t('details.parameters')}
                 emptyText={t('details.noParameters')}
-            />
-
-            {/* Runtime Context */}
-            <SingleParameter
-                parameter={context}
-                title={t('details.context')}
-                emptyText={t('details.noContext')}
             />
 
             {/* Returned Result */}

@@ -1,7 +1,7 @@
 .trace-details {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     height: 100%;
     overflow: auto;
 
@@ -12,9 +12,8 @@
         justify-content: center;
     }
 
-    .trace-params-card,
-    .trace-errors-card,
-    .trace-table-card {
+    // Errors card
+    .trace-errors-card {
         .ant-card-head {
             min-height: 36px;
             padding: 0 12px;
@@ -30,38 +29,6 @@
         }
     }
 
-    .trace-param-item {
-        padding: 8px 0;
-        border-bottom: 1px solid #f0f0f0;
-
-        &:last-child {
-            border-bottom: none;
-        }
-
-        .trace-param-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-
-        .trace-param-value {
-            padding-left: 8px;
-        }
-
-        .trace-param-complex {
-            .trace-param-json {
-                background: #f5f5f5;
-                padding: 8px;
-                border-radius: 4px;
-                margin-top: 8px;
-                font-size: 12px;
-                overflow: auto;
-                max-height: 300px;
-            }
-        }
-    }
-
     .trace-error-location {
         margin-top: 4px;
         font-size: 12px;
@@ -69,7 +36,22 @@
         font-family: monospace;
     }
 
+    // Table card
     .trace-table-card {
+        .ant-card-head {
+            min-height: 36px;
+            padding: 0 12px;
+
+            .ant-card-head-title {
+                padding: 8px 0;
+                font-size: 13px;
+            }
+        }
+
+        .ant-card-body {
+            padding: 12px;
+        }
+
         .trace-table-loading {
             display: flex;
             align-items: center;
