@@ -1,0 +1,62 @@
+.trace-tree {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .trace-tree-options {
+        padding: 8px 12px;
+        border-bottom: 1px solid #e8e8e8;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+
+        .trace-tree-count {
+            color: #8c8c8c;
+            font-size: 12px;
+        }
+    }
+
+    .trace-tree-content {
+        flex: 1;
+        overflow: auto;
+        padding: 8px;
+
+        .ant-tree {
+            background: transparent;
+
+            .ant-tree-node-content-wrapper {
+                display: flex;
+                align-items: center;
+            }
+
+            .ant-tree-iconEle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+    }
+
+    .trace-tree-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+}
+
+// Node styling based on status
+.trace-node-result {
+    .trace-node-title {
+        font-weight: 600;
+    }
+}
+
+.trace-node-fail,
+.trace-node-no-result {
+    .trace-node-title {
+        font-style: italic;
+        color: #8c8c8c;
+    }
+}
