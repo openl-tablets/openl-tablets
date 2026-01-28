@@ -18,7 +18,7 @@ interface TraceViewParams {
  * Main trace view container.
  * Standalone page with resizable split layout between tree and details panels.
  *
- * URL format: /trace/{projectId}?tableId={tableId}&showFormulas={true|false}
+ * URL format: /trace/{projectId}?tableId={tableId}&showRealNumbers={true|false}
  */
 const TraceView: React.FC = () => {
     const { t } = useTranslation('trace')
@@ -26,7 +26,6 @@ const TraceView: React.FC = () => {
     const [searchParams] = useSearchParams()
     const tableId = searchParams.get('tableId')
     const showRealNumbers = searchParams.get('showRealNumbers') === 'true'
-    const showFormulas = searchParams.get('showFormulas') === 'true'
 
     const {
         setRouteParams,
@@ -53,14 +52,14 @@ const TraceView: React.FC = () => {
     // Initialize on mount
     useEffect(() => {
         if (projectId && tableId) {
-            setRouteParams(projectId, tableId, showFormulas)
+            setRouteParams(projectId, tableId, showRealNumbers)
             fetchRootNodes()
         }
 
         return () => {
             reset()
         }
-    }, [projectId, tableId, showFormulas, setRouteParams, fetchRootNodes, reset])
+    }, [projectId, tableId, showRealNumbers, setRouteParams, fetchRootNodes, reset])
 
     // Handle cancel trace
     const handleCancelTrace = useCallback(async () => {

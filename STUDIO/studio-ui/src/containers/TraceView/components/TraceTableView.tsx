@@ -11,11 +11,10 @@ interface TraceTableViewProps {
 /**
  * Component for displaying traced table HTML with highlighted cells.
  * Fetches HTML fragment from backend and renders it.
- * The showFormulas setting comes from the URL query parameter.
  */
 const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     const { t } = useTranslation('trace')
-    const { projectId, showFormulas } = useTraceStore()
+    const { projectId } = useTraceStore()
     const [html, setHtml] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -29,8 +28,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
             try {
                 const tableHtml = await traceService.getTraceTableHtml(
                     projectId,
-                    nodeId,
-                    showFormulas
+                    nodeId
                 )
                 setHtml(tableHtml)
             } catch (err: any) {
@@ -46,7 +44,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
         }
 
         fetchTable()
-    }, [projectId, nodeId, showFormulas, t])
+    }, [projectId, nodeId, t])
 
     if (loading) {
         return (
