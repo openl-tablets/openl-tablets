@@ -111,7 +111,7 @@ The Administration Panel has been fully redesigned and migrated from JSF/RichFac
 
 Project deployment in OpenL Studio is now available as a **single-click action**, reducing configuration complexity and deployment errors.
 
-![DeployProject][images/DeployProject.png]
+![DeployProject](images/DeployProject.png)
 
 ### **1.4 Project Tags in OpenL Studio**
 
@@ -124,7 +124,7 @@ Project tags are now stored inside the OpenL project, improving portability and 
 
 **Migration:** Existing tags are automatically migrated and preserved in backups.
 
-![ProjectTagsStoredInProject][images/ProjectTagsStoredInProject.png]
+![ProjectTagsStoredInProject](images/ProjectTagsStoredInProject.png)
 
 ### **1.5 OpenAPI Documentation Integration In OpenL Rules**
 
@@ -136,7 +136,7 @@ Datatype tables support optional columns such as *Description, Default, Example,
 
 Full backward compatibility with existing 2-3 column format.
 
-![DatatypeTableDescriptionsInAPISchema][images/DatatypeTableDescriptionsInAPISchema.png]
+![DatatypeTableDescriptionsInAPISchema](images/DatatypeTableDescriptionsInAPISchema.png)
 
 #### **Method & Spreadsheet Documentation**
 
@@ -145,7 +145,7 @@ Full backward compatibility with existing 2-3 column format.
 * Step-level descriptions improve calculation transparency  
 * Alias datatype descriptions supported
 
-![RulesTableDescriptionsInAPISchema][images/RulesTableDescriptionsInAPISchema.png]
+![RulesTableDescriptionsInAPISchema](images/RulesTableDescriptionsInAPISchema.png)
 
 ### **1.6 New Statistical Functions in OpenL Rules**
 
