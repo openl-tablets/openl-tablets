@@ -560,16 +560,18 @@
                                             value="Run into File" title="Run into File" onclick="moduleOnlyInputArgs()"
                                             action="#{runTestHelper.catchParamsToDownload}"
                                             oncomplete="downloadManualTest();"/>
-                                        <a4j:commandButton id="traceButton" style="display: none"
-                                            styleClass="changes-listener manual-trace"
-                                            action="#{runTestHelper.initTrace}" onclick="moduleOnlyInputArgs()"
-                                            oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                            value="Trace" title="Launch the table and trace steps"/>
+                                        <h:commandButton id="traceButton" style="display: none"
+                                            styleClass="manual-trace"
+                                            value="Trace" title="Launch the table and trace steps"
+                                            onclick="prepareAndTraceExecutableTable('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', #{studio.showRealNumbers}); return false;"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
                                             onclick="moduleOnlyInputArgs()" action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
                                             title="Trace into File" />
                                     </div>
                                 </div>
+                                <a4j:jsFunction name="fetchParamsForTrace"
+                                    data="#{inputArgsBean.paramsAsJson}"
+                                    oncomplete="onParamsFetched(event.data)" />
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
                                 <a4j:commandLink styleClass="toolbarButton on-errors-hide" title="Run"
@@ -914,6 +916,88 @@
                         encodeURIComponent(projectId) +
                         '?tableId=' + encodeURIComponent(tableId) +
                         '&showRealNumbers=#{studio.showRealNumbers}';
+                    window.open(viewUrl, 'trace_win', 'width=1240,height=700,resizable=yes,scrollbars=yes');
+                } else {
+                    response.text().then(function(text) {
+                        ws.ui.error('Failed to start trace: ' + text);
+                    });
+                }
+            })
+            .catch(function(error) {
+                ws.ui.error('Failed to start trace: ' + error.message);
+            });
+        }
+
+        // Store trace params for callback (executable tables)
+        var _executableTraceContext = null;
+
+        /**
+         * Prepare and initiate trace for executable tables.
+         * First fetches params via a4j:jsFunction, then calls trace API.
+         */
+        function prepareAndTraceExecutableTable(repositoryId, projectName, tableId, moduleName, showRealNumbers) {
+            // Store context for the callback
+            _executableTraceContext = {
+                repositoryId: repositoryId,
+                projectName: projectName,
+                tableId: tableId,
+                moduleName: moduleName,
+                showRealNumbers: showRealNumbers
+            };
+            // Trigger a4j:jsFunction to fetch params from bean
+            fetchParamsForTrace();
+        }
+
+        /**
+         * Callback invoked by a4j:jsFunction oncomplete.
+         * Receives params JSON and calls trace REST API.
+         */
+        function onParamsFetched(paramsJson) {
+            if (!_executableTraceContext) {
+                ws.ui.error('Trace context not initialized');
+                return;
+            }
+
+            var ctx = _executableTraceContext;
+            _executableTraceContext = null;
+
+            var projectId = btoa(ctx.repositoryId + ':' + ctx.projectName);
+
+            // Parse the JSON string returned from bean
+            var inputArgs;
+            try {
+                inputArgs = JSON.parse(paramsJson);
+            } catch (e) {
+                ws.ui.error('Failed to parse parameters: ' + e.message);
+                return;
+            }
+
+            // Build trace API URL
+            var apiUrl = '#{request.contextPath}/web/projects/' +
+                encodeURIComponent(projectId) + '/trace';
+
+            var params = new URLSearchParams();
+            params.set('tableId', ctx.tableId);
+
+            // Add fromModule if "Within Current Module Only" is checked
+            var moduleOnlyCheckbox = document.getElementById('runTestModuleOnlyInputArgs');
+            if (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) {
+                params.set('fromModule', ctx.moduleName);
+            }
+
+            // Call trace API with input parameters
+            fetch(apiUrl + '?' + params.toString(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputArgs)
+            })
+            .then(function(response) {
+                if (response.ok || response.status === 202) {
+                    // Trace initiated - open modern React UI
+                    var viewUrl = '#{request.contextPath}/trace/' +
+                        encodeURIComponent(projectId) +
+                        '?tableId=' + encodeURIComponent(ctx.tableId) +
+                        '&showRealNumbers=' + ctx.showRealNumbers;
                     window.open(viewUrl, 'trace_win', 'width=1240,height=700,resizable=yes,scrollbars=yes');
                 } else {
                     response.text().then(function(text) {
