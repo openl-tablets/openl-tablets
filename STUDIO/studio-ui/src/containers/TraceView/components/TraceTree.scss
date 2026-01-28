@@ -11,21 +11,32 @@
 
     .trace-tree-content {
         flex: 1;
-        overflow: auto;
+        overflow: auto; // Both vertical and horizontal scrolls
         padding: 8px;
 
         .ant-tree {
             background: transparent;
+            min-width: max-content; // Prevent tree from shrinking, enables horizontal scroll
+
+            .ant-tree-treenode {
+                white-space: nowrap; // Prevent title from wrapping
+            }
 
             .ant-tree-node-content-wrapper {
                 display: flex;
                 align-items: center;
+                flex-shrink: 0; // Prevent content from shrinking
+            }
+
+            .ant-tree-title {
+                white-space: nowrap; // Ensure title stays on single line
             }
 
             .ant-tree-iconEle {
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                flex-shrink: 0;
             }
         }
     }
