@@ -9,7 +9,6 @@ i18next.addResourceBundle('en', 'trace', {
         expandAll: 'Expand All',
         collapseAll: 'Collapse All',
         noNodes: 'No trace data available',
-        totalNodes: '{{count}} nodes total',
     },
 
     details: {

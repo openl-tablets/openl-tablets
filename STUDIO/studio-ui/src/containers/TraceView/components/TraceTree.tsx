@@ -20,7 +20,6 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
     const {
         treeData,
         loading,
-        totalNodes,
         selectedNodeId,
         hideFailedNodes,
         toggleHideFailedNodes,
@@ -115,11 +114,6 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 >
                     {t('tree.showDetails')}
                 </Checkbox>
-                {totalNodes > 0 && (
-                    <span className="trace-tree-count">
-                        {t('tree.totalNodes', { count: totalNodes })}
-                    </span>
-                )}
             </div>
             <div className="trace-tree-content">
                 {displayData.length > 0 ? (

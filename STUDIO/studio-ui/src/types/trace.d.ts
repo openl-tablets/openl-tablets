@@ -51,16 +51,6 @@ export interface TraceParameterValue {
 }
 
 /**
- * Response from GET /projects/{projectId}/trace
- */
-export interface TraceResultResponse {
-    /** Immediate children of the root trace node */
-    rootNodes: TraceNodeView[]
-    /** Total count of all nodes in the trace tree */
-    totalNodes: number
-}
-
-/**
  * Error/warning message description.
  */
 export interface MessageDescription {

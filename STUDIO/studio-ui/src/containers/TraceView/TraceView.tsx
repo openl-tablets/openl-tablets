@@ -27,7 +27,7 @@ const TraceView: React.FC = () => {
 
     const {
         setRouteParams,
-        fetchTraceResult,
+        fetchRootNodes,
         executionStatus,
         progressMessage,
         loading,
@@ -51,13 +51,13 @@ const TraceView: React.FC = () => {
     useEffect(() => {
         if (projectId && tableId) {
             setRouteParams(projectId, tableId)
-            fetchTraceResult()
+            fetchRootNodes()
         }
 
         return () => {
             reset()
         }
-    }, [projectId, tableId, setRouteParams, fetchTraceResult, reset])
+    }, [projectId, tableId, setRouteParams, fetchRootNodes, reset])
 
     // Handle cancel trace
     const handleCancelTrace = useCallback(async () => {

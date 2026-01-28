@@ -133,60 +133,11 @@ flowchart TB
 
 ---
 
-### 2. Get Trace Result
-
-**Endpoint**: `GET /projects/{projectId}/trace`
-
-**Description**: Retrieves the completed trace result with root nodes and total count.
-
-**HTTP Method**: GET
-
-**Path Parameters**:
-- `projectId` (string, required): Project identifier
-
-**Query Parameters**:
-- `showRealNumbers` (boolean, default: false): Show exact numbers instead of formatted values
-
-**Response**: `200 OK`
-```json
-{
-  "rootNodes": [
-    {
-      "key": 1,
-      "title": "TestSuiteMethod TestBankRating",
-      "tooltip": "Test suite with 5 test cases",
-      "type": "test",
-      "lazy": true,
-      "extraClasses": ""
-    },
-    {
-      "key": 2,
-      "title": "Test Case 1",
-      "tooltip": "Input: bank=commerz",
-      "type": "method",
-      "lazy": true,
-      "extraClasses": ""
-    }
-  ],
-  "totalNodes": 42
-}
-```
-
-**Notes**:
-- Uses `@JsonView(GenericView.Short.class)` - only basic node fields included
-- Parameters, context, result, and errors are not included (use node details endpoint)
-
-**Errors**:
-- `404 Not Found`: No trace task exists for this project
-- `409 Conflict`: Trace execution not yet completed
-
----
-
-### 3. Get Trace Node Children
+### 2. Get Trace Node Children
 
 **Endpoint**: `GET /projects/{projectId}/trace/nodes`
 
-**Description**: Retrieves child nodes for lazy loading. Use this to progressively load the trace tree.
+**Description**: Retrieves child nodes for lazy loading, or root nodes if no node ID is provided. Use this to progressively load the trace tree.
 
 **HTTP Method**: GET
 
@@ -194,7 +145,7 @@ flowchart TB
 - `projectId` (string, required): Project identifier
 
 **Query Parameters**:
-- `id` (integer, optional): Node ID (defaults to 0 for root)
+- `id` (integer, optional): Node ID (omit for root nodes, defaults to 0)
 - `showRealNumbers` (boolean, default: false): Show exact numbers
 
 **Response**: `200 OK`
@@ -220,9 +171,10 @@ flowchart TB
 ```
 
 **Behavior**:
-1. Retrieves node from TraceHelper cache by ID
-2. Initializes lazy children on the node (if any)
-3. Maps children to simple TraceNodeView (no detailed fields)
+1. If `id` is not provided, returns root nodes (immediate children of the trace root)
+2. If `id` is provided, retrieves node from TraceHelper cache by ID and returns its children
+3. Initializes lazy children on the node (if any)
+4. Maps children to simple TraceNodeView (no detailed fields)
 
 **Errors**:
 - `404 Not Found`: No trace task exists
@@ -230,7 +182,7 @@ flowchart TB
 
 ---
 
-### 4. Get Trace Node Details
+### 3. Get Trace Node Details
 
 **Endpoint**: `GET /projects/{projectId}/trace/nodes/{nodeId}`
 
@@ -319,7 +271,7 @@ flowchart TB
 
 ---
 
-### 5. Cancel Trace Execution
+### 4. Cancel Trace Execution
 
 **Endpoint**: `DELETE /projects/{projectId}/trace`
 
@@ -338,7 +290,7 @@ flowchart TB
 
 ---
 
-### 6. Get Lazy Parameter Value
+### 5. Get Lazy Parameter Value
 
 **Endpoint**: `GET /projects/{projectId}/trace/parameters/{parameterId}`
 
@@ -389,7 +341,7 @@ flowchart TB
 
 ---
 
-### 7. Get Traced Table HTML
+### 6. Get Traced Table HTML
 
 **Endpoint**: `GET /projects/{projectId}/trace/nodes/{nodeId}/table`
 
@@ -454,17 +406,6 @@ interface TraceInputRequest {
     "age": 30,
     "coverage": "Full"
   }
-}
-```
-
----
-
-### TraceResultResponse
-
-```typescript
-interface TraceResultResponse {
-  rootNodes: TraceNodeView[];  // Immediate children of root
-  totalNodes: number;          // Total count of all nodes in tree
 }
 ```
 
@@ -572,25 +513,32 @@ interface MessageDescription {
 2. Wait for completion (via WebSocket or polling)
    WebSocket: PENDING -> STARTED -> COMPLETED
 
-3. Get trace result
-   GET /projects/MyProject/trace
+3. Get root nodes
+   GET /projects/MyProject/trace/nodes
+
+   Response: [
+     {"key": 1, "title": "BankRating", "lazy": true, ...}
+   ]
+
+4. Expand node to get children
+   GET /projects/MyProject/trace/nodes?id=1
+
+   Response: [
+     {"key": 2, "title": "Rule 1", "lazy": false, ...},
+     {"key": 3, "title": "Rule 2", "lazy": false, ...}
+   ]
+
+5. Get node details
+   GET /projects/MyProject/trace/nodes/2
 
    Response: {
-     "rootNodes": [...],
-     "totalNodes": 28
-   }
-
-4. Get node details
-   GET /projects/MyProject/trace/nodes/5
-
-   Response: {
-     "key": 5,
-     "title": "Rule 3: matched",
+     "key": 2,
+     "title": "Rule 1: matched",
      "parameters": [...],
      "result": {...}
    }
 
-5. Load lazy parameter if needed
+6. Load lazy parameter if needed
    GET /projects/MyProject/trace/parameters/7
 
    Response: {
@@ -611,18 +559,15 @@ interface MessageDescription {
 
 2. Wait for completion
 
-3. Get trace result
-   GET /projects/MyProject/trace
+3. Get root nodes (test cases)
+   GET /projects/MyProject/trace/nodes
 
-   Response: {
-     "rootNodes": [
-       {"key": 1, "title": "Test Case 1", ...},
-       {"key": 2, "title": "Test Case 2", ...},
-       {"key": 3, "title": "Test Case 3", ...},
-       {"key": 4, "title": "Test Case 5", ...}
-     ],
-     "totalNodes": 156
-   }
+   Response: [
+     {"key": 1, "title": "Test Case 1", "type": "test", ...},
+     {"key": 2, "title": "Test Case 2", "type": "test", ...},
+     {"key": 3, "title": "Test Case 3", "type": "test", ...},
+     {"key": 4, "title": "Test Case 5", "type": "test", ...}
+   ]
 
 4. Expand specific test case
    GET /projects/MyProject/trace/nodes?id=1
@@ -642,9 +587,9 @@ interface MessageDescription {
    POST /projects/MyProject/trace?tableId=DT_PricingRules
    ...wait for completion...
 
-2. Get trace result and find table node
-   GET /projects/MyProject/trace
-   GET /projects/MyProject/trace/nodes?id=0
+2. Get root nodes and find table node
+   GET /projects/MyProject/trace/nodes
+   GET /projects/MyProject/trace/nodes?id=1
 
 3. Get HTML table with highlighting
    GET /projects/MyProject/trace/nodes/3/table
@@ -720,7 +665,7 @@ POST /projects/MyProject/trace?tableId=INVALID_TABLE
 
 **Request**:
 ```bash
-GET /projects/MyProject/trace
+GET /projects/MyProject/trace/nodes
 ```
 
 **Response**: `404 Not Found`
@@ -740,7 +685,7 @@ GET /projects/MyProject/trace
 
 **Request**:
 ```bash
-GET /projects/MyProject/trace
+GET /projects/MyProject/trace/nodes
 ```
 
 **Response**: `409 Conflict`
@@ -770,7 +715,7 @@ GET /projects/MyProject/trace/nodes/999
 }
 ```
 
-**Resolution**: Use valid node ID from trace result
+**Resolution**: Use valid node ID from trace nodes list
 
 ---
 
@@ -816,21 +761,18 @@ curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAsse
 
 # Response: 202 Accepted (no body)
 
-# Step 2: Wait and get result
-curl "http://localhost:8080/projects/MyProject/trace"
+# Step 2: Wait and get root nodes
+curl "http://localhost:8080/projects/MyProject/trace/nodes"
 
 # Response
-{
-  "rootNodes": [
-    {
-      "key": 1,
-      "title": "DT_RiskAssessment",
-      "type": "method",
-      "lazy": true
-    }
-  ],
-  "totalNodes": 15
-}
+[
+  {
+    "key": 1,
+    "title": "DT_RiskAssessment",
+    "type": "method",
+    "lazy": true
+  }
+]
 
 # Step 3: Get children
 curl "http://localhost:8080/projects/MyProject/trace/nodes?id=1"
@@ -867,19 +809,16 @@ curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=TEST_RiskAs
 
 # Response: 202 Accepted
 
-# Get results
-curl "http://localhost:8080/projects/MyProject/trace"
+# Get root nodes (test cases)
+curl "http://localhost:8080/projects/MyProject/trace/nodes"
 
 # Response
-{
-  "rootNodes": [
-    {"key": 1, "title": "Test Case 1: age=25, income=50000", "type": "test"},
-    {"key": 2, "title": "Test Case 2: age=45, income=100000", "type": "test"},
-    {"key": 3, "title": "Test Case 3: age=30, income=75000", "type": "test"},
-    {"key": 4, "title": "Test Case 5: age=60, income=25000", "type": "test"}
-  ],
-  "totalNodes": 64
-}
+[
+  {"key": 1, "title": "Test Case 1: age=25, income=50000", "type": "test"},
+  {"key": 2, "title": "Test Case 2: age=45, income=100000", "type": "test"},
+  {"key": 3, "title": "Test Case 3: age=30, income=75000", "type": "test"},
+  {"key": 4, "title": "Test Case 5: age=60, income=25000", "type": "test"}
+]
 ```
 
 ---
@@ -932,7 +871,7 @@ const ws = new WebSocket("ws://localhost:8080/ws/trace-progress");
 ws.onmessage = (event) => {
   const status = JSON.parse(event.data);
   if (status.status === "COMPLETED") {
-    fetchTraceResult();
+    fetchRootNodes();
   }
 };
 ```
@@ -940,9 +879,9 @@ ws.onmessage = (event) => {
 ### 2. Implement Lazy Loading for Large Traces
 
 ```javascript
-// Initial load - just get root nodes
-const result = await fetch("/projects/MyProject/trace");
-const {rootNodes, totalNodes} = await result.json();
+// Initial load - get root nodes
+const rootNodes = await fetch("/projects/MyProject/trace/nodes");
+const nodes = await rootNodes.json();
 
 // On user expand - load children
 async function expandNode(nodeId) {
@@ -993,7 +932,7 @@ async function getFullParameterValue(param) {
 async function waitForCompletion(projectId, maxAttempts = 30) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const result = await fetch(`/projects/${projectId}/trace`);
+      const result = await fetch(`/projects/${projectId}/trace/nodes`);
       if (result.status === 200) {
         return result.json();
       }

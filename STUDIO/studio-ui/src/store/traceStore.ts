@@ -14,7 +14,6 @@ interface TraceState {
 
     // Data
     rootNodes: TraceNodeView[]
-    totalNodes: number
     selectedNodeId: number | null
     selectedNodeDetails: TraceNodeView | null
     traceTableHtml: string | null
@@ -36,7 +35,7 @@ interface TraceState {
 
     // Actions
     setRouteParams: (projectId: string, tableId: string) => void
-    fetchTraceResult: () => Promise<void>
+    fetchRootNodes: () => Promise<void>
     fetchNodeChildren: (nodeId: number) => Promise<TraceNodeView[]>
     selectNode: (nodeId: number) => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
@@ -87,7 +86,6 @@ const initialState = {
     projectId: null,
     tableId: null,
     rootNodes: [],
-    totalNodes: 0,
     selectedNodeId: null,
     selectedNodeDetails: null,
     traceTableHtml: null,
@@ -109,17 +107,17 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         set({ projectId, tableId })
     },
 
-    fetchTraceResult: async () => {
+    fetchRootNodes: async () => {
         const { projectId, showRealNumbers } = get()
         if (!projectId) return
 
         set({ loading: true, error: null })
         try {
-            const result = await traceService.getTraceResult(projectId, showRealNumbers)
-            const treeData = result.rootNodes.map(transformToTreeNode)
+            // Get root nodes by calling getNodeChildren without nodeId
+            const rootNodes = await traceService.getNodeChildren(projectId, undefined, showRealNumbers)
+            const treeData = rootNodes.map(transformToTreeNode)
             set({
-                rootNodes: result.rootNodes,
-                totalNodes: result.totalNodes,
+                rootNodes,
                 treeData,
                 loading: false,
                 executionStatus: 'COMPLETED',
@@ -187,9 +185,9 @@ export const useTraceStore = create<TraceState>((set, get) => ({
 
     setExecutionStatus: (status, message) => {
         set({ executionStatus: status, progressMessage: message || null })
-        // If completed, fetch the trace result
+        // If completed, fetch the root nodes
         if (status === 'COMPLETED') {
-            get().fetchTraceResult()
+            get().fetchRootNodes()
         }
     },
 
@@ -200,7 +198,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
     toggleShowRealNumbers: () => {
         set((state) => ({ showRealNumbers: !state.showRealNumbers }))
         // Refetch with new setting
-        get().fetchTraceResult()
+        get().fetchRootNodes()
     },
 
     updateTreeData: (parentKey, children) => {

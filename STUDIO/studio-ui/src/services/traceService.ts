@@ -1,6 +1,5 @@
 import apiCall from './apiCall'
 import type {
-    TraceResultResponse,
     TraceNodeView,
     TraceParameterValue,
 } from 'types/trace'
@@ -11,33 +10,25 @@ import type {
  */
 export const traceService = {
     /**
-     * Get trace result (root nodes + total count).
-     * Returns 404 if no trace exists, 409 if trace not completed.
-     */
-    getTraceResult: (
-        projectId: string,
-        showRealNumbers = false
-    ): Promise<TraceResultResponse> =>
-        apiCall(
-            `/projects/${encodeURIComponent(projectId)}/trace?showRealNumbers=${showRealNumbers}`,
-            undefined,
-            { throwError: true }
-        ),
-
-    /**
-     * Get node children for lazy loading.
-     * @param nodeId Parent node ID to get children for
+     * Get node children for lazy loading, or root nodes if nodeId is not provided.
+     * @param nodeId Parent node ID to get children for (omit for root nodes)
      */
     getNodeChildren: (
         projectId: string,
-        nodeId: number,
+        nodeId?: number,
         showRealNumbers = false
-    ): Promise<TraceNodeView[]> =>
-        apiCall(
-            `/projects/${encodeURIComponent(projectId)}/trace/nodes?id=${nodeId}&showRealNumbers=${showRealNumbers}`,
+    ): Promise<TraceNodeView[]> => {
+        const params = new URLSearchParams()
+        if (nodeId !== undefined) {
+            params.set('id', String(nodeId))
+        }
+        params.set('showRealNumbers', String(showRealNumbers))
+        return apiCall(
+            `/projects/${encodeURIComponent(projectId)}/trace/nodes?${params.toString()}`,
             undefined,
             { throwError: true }
-        ),
+        )
+    },
 
     /**
      * Get full node details including parameters, context, result, errors.
