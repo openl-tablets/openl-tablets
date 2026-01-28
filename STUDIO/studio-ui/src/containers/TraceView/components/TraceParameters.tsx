@@ -71,7 +71,6 @@ const ValueNode: React.FC<ValueNodeProps> = ({
 }) => {
     const [expanded, setExpanded] = useState(defaultExpanded)
     const isComplex = isComplexValue(value)
-    const indent = depth * 16
 
     const toggleExpand = () => {
         if (isComplex) {
@@ -118,7 +117,7 @@ const ValueNode: React.FC<ValueNodeProps> = ({
     }
 
     return (
-        <div className="trace-value-node" style={{ marginLeft: indent }}>
+        <div className="trace-value-node">
             <div className="trace-value-row" onClick={toggleExpand}>
                 {isComplex ? (
                     <span className="trace-expand-icon">
@@ -149,7 +148,8 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) 
     const { t } = useTranslation('trace')
     const { fetchLazyParameter } = useTraceStore()
     const [loading, setLoading] = useState(false)
-    const [loadedValue, setLoadedValue] = useState<any>(null)
+    const [loaded, setLoaded] = useState(false)
+    const [loadedValue, setLoadedValue] = useState<any>(undefined)
     const [error, setError] = useState<string | null>(null)
 
     const handleLoadValue = async () => {
@@ -160,6 +160,7 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) 
         try {
             const result = await fetchLazyParameter(param.parameterId)
             setLoadedValue(result.value)
+            setLoaded(true)
         } catch (err: any) {
             setError(err?.message || t('errors.parameterFailed'))
         } finally {
@@ -167,10 +168,10 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) 
         }
     }
 
-    const displayValue = loadedValue ?? param.value
+    const displayValue = loaded ? loadedValue : param.value
 
     // Lazy parameter not yet loaded
-    if (param.lazy && displayValue === undefined && !loading) {
+    if (param.lazy && !loaded && displayValue === undefined && !loading) {
         return (
             <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
                 <span className="trace-expand-icon trace-expand-placeholder" />
@@ -206,6 +207,19 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) 
                 <span className="trace-value-type">{param.description}</span>
                 <span className="trace-value-equals">=</span>
                 <span className="trace-value-error">{error}</span>
+            </div>
+        )
+    }
+
+    // Loaded but value is undefined - show empty braces
+    if (loaded && displayValue === undefined) {
+        return (
+            <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
+                <span className="trace-expand-icon trace-expand-placeholder" />
+                <span className="trace-value-name">{param.name}</span>
+                <span className="trace-value-type">{param.description}</span>
+                <span className="trace-value-equals">=</span>
+                <span className="trace-value-empty">{'{}'}</span>
             </div>
         )
     }

@@ -17,6 +17,7 @@ import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
@@ -232,7 +233,11 @@ public class TraceNodeViewMapper {
             return null;
         }
         try {
-            value = SpreadsheetResult.convertSpreadsheetResult(value, null, type, null);
+            Class<?> toType = null;
+            if (type instanceof CustomSpreadsheetResultOpenClass csrOpenClass) {
+                toType = csrOpenClass.getBeanClass();
+            }
+            value = SpreadsheetResult.convertSpreadsheetResult(value, toType, type, null);
             return objectMapper.valueToTree(value);
         } catch (Exception ignored) {
             return null;

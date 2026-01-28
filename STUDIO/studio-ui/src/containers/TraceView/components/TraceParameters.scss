@@ -153,6 +153,11 @@
     color: #cf1322;
 }
 
+.trace-value-empty {
+    color: #6e6e6e;
+    font-style: italic;
+}
+
 // Override card styles for trace details
 .trace-details {
     .trace-params-section {
