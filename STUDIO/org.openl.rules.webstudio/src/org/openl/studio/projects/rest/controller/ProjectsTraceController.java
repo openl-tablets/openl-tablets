@@ -39,7 +39,6 @@ import org.openl.studio.projects.model.trace.TraceInputRequest;
 import org.openl.studio.projects.model.trace.TraceNodeView;
 import org.openl.studio.projects.model.trace.TraceNodeViewMapper;
 import org.openl.studio.projects.model.trace.TraceParameterValue;
-import org.openl.studio.projects.model.trace.TraceResultResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
@@ -135,35 +134,6 @@ public class ProjectsTraceController {
         }
 
         traceResultRegistry.setTask(projectId, tableId, traceTask, traceHelper);
-    }
-
-    @Operation(summary = "Get trace result (BETA)", description = "Retrieves the completed trace result")
-    @ApiResponse(responseCode = "200", description = "Trace result retrieved successfully")
-    @GetMapping
-    @JsonView(GenericView.Short.class)
-    public TraceResultResponse getTraceResult(
-            @ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestParam(value = "showRealNumbers", defaultValue = "false") @Parameter(description = "Show exact numbers instead of formatted") boolean showRealNumbers) {
-
-        var projectId = projectService.resolveProjectId(project);
-
-        if (!traceResultRegistry.hasTask(projectId)) {
-            throw new NotFoundException("trace.execution.task.message");
-        }
-        if (!traceResultRegistry.isDone(projectId)) {
-            throw new ConflictException("trace.execution.not.completed.message");
-        }
-
-        var traceHelper = traceResultRegistry.getTraceHelperIfDone(projectId);
-        if (traceHelper == null) {
-            throw new NotFoundException("trace.execution.task.message");
-        }
-
-        var rootElement = traceHelper.getTableTracer(0);
-        var mapper = createMapper();
-        var rootNodes = mapper.createSimpleNodes(rootElement.getChildren(), traceHelper, showRealNumbers);
-
-        return new TraceResultResponse(rootNodes, countTotalNodes(rootElement));
     }
 
     @Operation(summary = "Get trace node children (BETA)", description = "Retrieves child nodes for lazy loading")
@@ -286,14 +256,6 @@ public class ProjectsTraceController {
 
     private TraceNodeViewMapper createMapper() {
         return new TraceNodeViewMapper(configureObjectMapper(), parameterRegistry);
-    }
-
-    private int countTotalNodes(ITracerObject element) {
-        int count = 1;
-        for (ITracerObject child : element.getChildren()) {
-            count += countTotalNodes(child);
-        }
-        return count;
     }
 
     private Object[] parseInputParams(TraceInputRequest request, IOpenMethod method) {

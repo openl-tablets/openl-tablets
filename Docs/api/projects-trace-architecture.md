@@ -37,7 +37,7 @@ flowchart TB
     end
 
     subgraph REST["REST Controller Layer"]
-        C["ProjectsTraceController<br/>- 7 REST endpoints<br/>- Request validation<br/>- Response mapping"]
+        C["ProjectsTraceController<br/>- 6 REST endpoints<br/>- Request validation<br/>- Response mapping"]
     end
 
     subgraph SERVICE["Service Layer"]
@@ -119,7 +119,7 @@ flowchart TB
 #### Responsibilities
 
 1. **Request Handling**
-   - Expose 7 REST endpoints for trace operations
+   - Expose 6 REST endpoints for trace operations
    - Validate incoming requests (tableId, testRanges, parameters)
    - Map DTOs to service layer models
 
@@ -180,9 +180,9 @@ public void startTrace(...) {
 
 **Pattern 3: JsonView for Partial Responses**
 ```java
-@GetMapping
+@GetMapping("/nodes")
 @JsonView(GenericView.Short.class)  // Only basic fields
-public TraceResultResponse getTraceResult(...) { }
+public List<TraceNodeView> getNodes(...) { }
 
 @GetMapping("/nodes/{nodeId}")
 @JsonView(GenericView.Full.class)   // All fields including parameters
@@ -853,14 +853,14 @@ public class TraceHelper {
 
 ---
 
-### Flow 2: Get Trace Result
+### Flow 2: Get Root Nodes
 
 ```
 ┌──────┐            ┌──────────┐           ┌──────────┐          ┌───────┐
 │Client│            │Controller│           │Registry  │          │Mapper │
 └──┬───┘            └────┬─────┘           └────┬─────┘          └───┬───┘
    │                     │                      │                    │
-   │ GET /trace          │                      │                    │
+   │ GET /trace/nodes    │                      │                    │
    ├────────────────────>│                      │                    │
    │                     │                      │                    │
    │                     │ hasTask(projectId)   │                    │
@@ -887,7 +887,7 @@ public class TraceHelper {
    │                     │  List<TraceNodeView> │                    │
    │                     │<───────────────────────────────────────────┤
    │                     │                      │                    │
-   │ TraceResultResponse │                      │                    │
+   │ List<TraceNodeView> │                      │                    │
    │<────────────────────┤                      │                    │
 ```
 
