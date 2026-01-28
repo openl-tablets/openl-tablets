@@ -3,6 +3,7 @@ package org.openl.studio.projects.model.trace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +15,10 @@ import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.base.INamedThing;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.TraceFormatter;
@@ -104,6 +108,7 @@ public class TraceNodeViewMapper {
                 .parameters(buildInputParameters(element))
                 .context(buildContext(element))
                 .result(buildResult(element))
+                .errors(buildErrors(element))
                 .build();
     }
 
@@ -171,6 +176,31 @@ public class TraceNodeViewMapper {
             return null;
         }
         return buildParameterValue(new ParameterWithValueDeclaration("return", resultValue), true);
+    }
+
+    private List<MessageDescription> buildErrors(ITracerObject tto) {
+        List<OpenLMessage> messages = getErrors(tto);
+        if (messages.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<MessageDescription> result = new ArrayList<>();
+        for (OpenLMessage msg : messages) {
+            result.add(new MessageDescription(msg.getId(), msg.getSummary(), msg.getSeverity()));
+        }
+        return result;
+    }
+
+    private List<OpenLMessage> getErrors(ITracerObject tto) {
+        if (tto instanceof ATableTracerNode tableNode) {
+            Throwable error = tableNode.getError();
+            if (error != null) {
+                Throwable cause = error.getCause();
+                return OpenLMessagesUtils.newErrorMessages(Objects.requireNonNullElse(cause, error));
+            }
+        } else if (tto instanceof RefToTracerNodeObject refNode) {
+            return getErrors(refNode.getOriginalTracerNode());
+        }
+        return Collections.emptyList();
     }
 
     private ObjectNode generateSchema(IOpenClass type) {

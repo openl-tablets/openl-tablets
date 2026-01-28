@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.studio.common.model.GenericView;
 
 /**
@@ -46,7 +47,11 @@ public record TraceNodeView(
 
         @Schema(description = "Return result of the traced method")
         @JsonView(GenericView.Full.class)
-        TraceParameterValue result
+        TraceParameterValue result,
+
+        @Schema(description = "List of error messages occurred during trace execution")
+        @JsonView(GenericView.Full.class)
+        List<MessageDescription> errors
 ) {
 
     public static Builder builder() {
@@ -63,6 +68,7 @@ public record TraceNodeView(
         private List<TraceParameterValue> parameters;
         private TraceParameterValue context;
         private TraceParameterValue result;
+        private List<MessageDescription> errors;
 
         private Builder() {
         }
@@ -112,8 +118,22 @@ public record TraceNodeView(
             return this;
         }
 
+        public Builder errors(List<MessageDescription> errors) {
+            this.errors = errors;
+            return this;
+        }
+
         public TraceNodeView build() {
-            return new TraceNodeView(key, title, tooltip, type, lazy, extraClasses, parameters, context, result);
+            return new TraceNodeView(key,
+                    title,
+                    tooltip,
+                    type,
+                    lazy,
+                    extraClasses,
+                    parameters,
+                    context,
+                    result,
+                    errors);
         }
     }
 }
