@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Spin, Empty, Switch } from 'antd'
+import { Card, Spin, Empty } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
@@ -11,14 +11,14 @@ interface TraceTableViewProps {
 /**
  * Component for displaying traced table HTML with highlighted cells.
  * Fetches HTML fragment from backend and renders it.
+ * The showFormulas setting comes from the URL query parameter.
  */
 const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     const { t } = useTranslation('trace')
-    const { projectId } = useTraceStore()
+    const { projectId, showFormulas } = useTraceStore()
     const [html, setHtml] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [showFormulas, setShowFormulas] = useState(false)
 
     useEffect(() => {
         if (!projectId || !nodeId) return
@@ -83,15 +83,6 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
             title={t('details.table')}
             size="small"
             className="trace-table-card"
-            extra={
-                <Switch
-                    checkedChildren={t('table.showFormulas')}
-                    unCheckedChildren={t('table.showValues')}
-                    checked={showFormulas}
-                    onChange={setShowFormulas}
-                    size="small"
-                />
-            }
         >
             <div
                 className="trace-table-content"

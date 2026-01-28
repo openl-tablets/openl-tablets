@@ -130,7 +130,7 @@ const router = createBrowserRouter([
         element: <RedirectRoute to="logout" />,
     },
     {
-        path: '/trace/:projectId/:tableId',
+        path: '/trace/:projectId',
         element: <TraceView />,
         errorElement: <RouteErrorFallback />,
     },

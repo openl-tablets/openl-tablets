@@ -76,9 +76,4 @@ i18next.addResourceBundle('en', 'trace', {
         WARNING: 'Warning',
         INFO: 'Info',
     },
-
-    table: {
-        showFormulas: 'Show formulas',
-        showValues: 'Show values',
-    },
 })

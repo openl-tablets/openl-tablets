@@ -11,6 +11,7 @@ interface TraceState {
     // Route params
     projectId: string | null
     tableId: string | null
+    showFormulas: boolean
 
     // Data
     rootNodes: TraceNodeView[]
@@ -34,7 +35,7 @@ interface TraceState {
     progressMessage: string | null
 
     // Actions
-    setRouteParams: (projectId: string, tableId: string) => void
+    setRouteParams: (projectId: string, tableId: string, showFormulas: boolean) => void
     fetchRootNodes: () => Promise<void>
     fetchNodeChildren: (nodeId: number) => Promise<TraceNodeView[]>
     selectNode: (nodeId: number) => Promise<void>
@@ -85,6 +86,7 @@ const updateTreeChildren = (
 const initialState = {
     projectId: null,
     tableId: null,
+    showFormulas: false,
     rootNodes: [],
     selectedNodeId: null,
     selectedNodeDetails: null,
@@ -103,8 +105,8 @@ const initialState = {
 export const useTraceStore = create<TraceState>((set, get) => ({
     ...initialState,
 
-    setRouteParams: (projectId, tableId) => {
-        set({ projectId, tableId })
+    setRouteParams: (projectId, tableId, showFormulas) => {
+        set({ projectId, tableId, showFormulas })
     },
 
     fetchRootNodes: async () => {
