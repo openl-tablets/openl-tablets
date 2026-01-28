@@ -46,6 +46,21 @@
         }
     }
 
+    // Animated expand/collapse wrapper using CSS grid technique
+    .trace-value-children-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.2s ease-out;
+
+        &.expanded {
+            grid-template-rows: 1fr;
+        }
+
+        > .trace-value-children {
+            overflow: hidden;
+        }
+    }
+
     .trace-value-children {
         border-left: 1px solid #e0e0e0;
         margin-left: 7px;

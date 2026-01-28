@@ -88,39 +88,33 @@ const ValueNode: React.FC<ValueNodeProps> = ({
     }
 
     const renderChildren = () => {
-        if (!expanded || !isComplex) return null
+        if (!isComplex) return null
 
-        if (Array.isArray(value)) {
-            return (
+        const childNodes = Array.isArray(value)
+            ? value.map((item, index) => (
+                <ValueNode
+                    key={index}
+                    name={`[${index}]`}
+                    value={item}
+                    depth={depth + 1}
+                />
+            ))
+            : Object.entries(value).map(([key, val]) => (
+                <ValueNode
+                    key={key}
+                    name={key}
+                    value={val}
+                    depth={depth + 1}
+                />
+            ))
+
+        return (
+            <div className={`trace-value-children-wrapper ${expanded ? 'expanded' : ''}`}>
                 <div className="trace-value-children">
-                    {value.map((item, index) => (
-                        <ValueNode
-                            key={index}
-                            name={`[${index}]`}
-                            value={item}
-                            depth={depth + 1}
-                        />
-                    ))}
+                    {childNodes}
                 </div>
-            )
-        }
-
-        if (typeof value === 'object' && value !== null) {
-            return (
-                <div className="trace-value-children">
-                    {Object.entries(value).map(([key, val]) => (
-                        <ValueNode
-                            key={key}
-                            name={key}
-                            value={val}
-                            depth={depth + 1}
-                        />
-                    ))}
-                </div>
-            )
-        }
-
-        return null
+            </div>
+        )
     }
 
     return (
