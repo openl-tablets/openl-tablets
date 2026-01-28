@@ -20,7 +20,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
     const {
         treeData,
         loading,
-        selectedNodeId,
+        selectedTreeKey,
         hideFailedNodes,
         toggleHideFailedNodes,
         fetchNodeChildren,
@@ -51,12 +51,14 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
 
     /**
      * Transform TraceTreeDataNode to Ant Design TreeDataNode.
+     * Stores nodeId in the data-node-id attribute for retrieval during events.
      */
     const transformNode = useCallback(
-        (node: TraceTreeDataNode): TreeDataNode => {
+        (node: TraceTreeDataNode): TreeDataNode & { nodeId: number } => {
             const nodeClassName = getNodeClassName(node.extraClasses)
             return {
                 key: node.key,
+                nodeId: node.nodeId,
                 title: (
                     <Tooltip title={node.tooltip} mouseEnterDelay={0.5}>
                         <span className={`trace-node-title ${nodeClassName}`}>
@@ -80,19 +82,25 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
 
     /**
      * Handle lazy loading of node children.
+     * Uses both treeKey (path-based) for tree structure and nodeId for API call.
      */
     const handleLoadData: TreeProps['loadData'] = async (treeNode) => {
-        const nodeId = treeNode.key as number
-        await fetchNodeChildren(nodeId)
+        const treeKey = treeNode.key as string
+        const nodeId = (treeNode as any).nodeId as number
+        await fetchNodeChildren(treeKey, nodeId)
     }
 
     /**
      * Handle node selection.
+     * Extracts nodeId from the path-based key (last segment after last '-').
      */
     const handleSelect: TreeProps['onSelect'] = (selectedKeys) => {
         if (selectedKeys.length > 0) {
-            const nodeId = selectedKeys[0] as number
-            selectNode(nodeId)
+            const treeKey = selectedKeys[0] as string
+            // Extract nodeId from path-based key (e.g., "24-25" -> 25, "25" -> 25)
+            const keyParts = treeKey.split('-')
+            const nodeId = parseInt(keyParts[keyParts.length - 1], 10)
+            selectNode(treeKey, nodeId)
             onSelect?.(nodeId)
         }
     }
@@ -122,7 +130,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                         showLine={{ showLeafIcon: false }}
                         loadData={handleLoadData}
                         onSelect={handleSelect}
-                        selectedKeys={selectedNodeId ? [selectedNodeId] : []}
+                        selectedKeys={selectedTreeKey ? [selectedTreeKey] : []}
                         treeData={displayData}
                         blockNode
                     />

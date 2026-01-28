@@ -66,9 +66,13 @@ export interface MessageDescription {
 
 /**
  * Ant Design Tree data node structure for trace tree.
+ * Uses path-based keys to handle duplicate nodes (same node under multiple parents).
  */
 export interface TraceTreeDataNode {
-    key: number
+    /** Unique tree key (path-based, e.g., "24-25" for node 25 under parent 24) */
+    key: string
+    /** Original node ID from backend (used for API calls) */
+    nodeId: number
     title: string
     tooltip?: string
     type: string

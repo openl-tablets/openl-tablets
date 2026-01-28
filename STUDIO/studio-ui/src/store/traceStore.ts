@@ -14,6 +14,9 @@ interface TraceState {
 
     // Data
     rootNodes: TraceNodeView[]
+    /** Selected tree key (path-based, e.g., "24-25") for tree highlighting */
+    selectedTreeKey: string | null
+    /** Selected node ID for API calls */
     selectedNodeId: number | null
     selectedNodeDetails: TraceNodeView | null
     traceTableHtml: string | null
@@ -36,22 +39,38 @@ interface TraceState {
     // Actions
     setRouteParams: (projectId: string, tableId: string, showRealNumbers: boolean) => void
     fetchRootNodes: () => Promise<void>
-    fetchNodeChildren: (nodeId: number) => Promise<TraceNodeView[]>
-    selectNode: (nodeId: number) => Promise<void>
+    /** Fetch children for a node. treeKey is the path-based key, nodeId is the backend node ID. */
+    fetchNodeChildren: (treeKey: string, nodeId: number) => Promise<TraceNodeView[]>
+    /** Select a node. treeKey is for tree highlighting, nodeId is for API calls. */
+    selectNode: (treeKey: string, nodeId: number) => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     fetchTraceTable: (nodeId: number) => Promise<void>
     setExecutionStatus: (status: TraceExecutionStatus, message?: string) => void
     toggleHideFailedNodes: () => void
     toggleShowRealNumbers: () => void
-    updateTreeData: (parentKey: number, children: TraceTreeDataNode[]) => void
+    updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => void
     reset: () => void
 }
 
 /**
  * Transform TraceNodeView to TraceTreeDataNode for Ant Design Tree.
+ * Uses path-based keys to ensure uniqueness when same node appears under multiple parents.
+ *
+ * This handles duplicate nodes correctly - the same nodeId can appear multiple times
+ * in the tree (e.g., node 25 under parents 24, 33, and 45), and each occurrence
+ * gets a unique tree key based on its full path:
+ * - "24-25" (node 25 under parent 24)
+ * - "33-25" (node 25 under parent 33)
+ * - "45-25" (node 25 under parent 45)
+ *
+ * Deeply nested duplicates also work: "24-25-30" vs "33-25-30" vs "45-25-30"
+ *
+ * @param node The trace node from backend
+ * @param parentKey The parent's tree key (empty string for root level)
  */
-const transformToTreeNode = (node: TraceNodeView): TraceTreeDataNode => ({
-    key: node.key,
+const transformToTreeNode = (node: TraceNodeView, parentKey: string = ''): TraceTreeDataNode => ({
+    key: parentKey ? `${parentKey}-${node.key}` : String(node.key),
+    nodeId: node.key,
     title: node.title,
     tooltip: node.tooltip,
     type: node.type,
@@ -62,10 +81,11 @@ const transformToTreeNode = (node: TraceNodeView): TraceTreeDataNode => ({
 
 /**
  * Recursively update tree data with children for a specific node.
+ * Uses path-based string keys for matching.
  */
 const updateTreeChildren = (
     treeData: TraceTreeDataNode[],
-    parentKey: number,
+    parentKey: string,
     children: TraceTreeDataNode[]
 ): TraceTreeDataNode[] => {
     return treeData.map((node) => {
@@ -86,6 +106,7 @@ const initialState = {
     projectId: null,
     tableId: null,
     rootNodes: [],
+    selectedTreeKey: null,
     selectedNodeId: null,
     selectedNodeDetails: null,
     traceTableHtml: null,
@@ -128,17 +149,18 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         }
     },
 
-    fetchNodeChildren: async (nodeId) => {
+    fetchNodeChildren: async (treeKey, nodeId) => {
         const { projectId, showRealNumbers } = get()
         if (!projectId) return []
 
         try {
             const children = await traceService.getNodeChildren(projectId, nodeId, showRealNumbers)
-            const childNodes = children.map(transformToTreeNode)
+            // Transform children with parent's tree key to generate unique path-based keys
+            const childNodes = children.map(child => transformToTreeNode(child, treeKey))
 
-            // Update tree data with children
+            // Update tree data with children using the path-based tree key
             set((state) => ({
-                treeData: updateTreeChildren(state.treeData, nodeId, childNodes),
+                treeData: updateTreeChildren(state.treeData, treeKey, childNodes),
             }))
 
             return children
@@ -148,11 +170,11 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         }
     },
 
-    selectNode: async (nodeId) => {
+    selectNode: async (treeKey, nodeId) => {
         const { projectId, showRealNumbers } = get()
         if (!projectId) return
 
-        set({ selectedNodeId: nodeId, detailsLoading: true, traceTableHtml: null })
+        set({ selectedTreeKey: treeKey, selectedNodeId: nodeId, detailsLoading: true, traceTableHtml: null })
         try {
             const details = await traceService.getNodeDetails(projectId, nodeId, showRealNumbers)
             set({ selectedNodeDetails: details, detailsLoading: false })
@@ -201,7 +223,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         get().fetchRootNodes()
     },
 
-    updateTreeData: (parentKey, children) => {
+    updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => {
         set((state) => ({
             treeData: updateTreeChildren(state.treeData, parentKey, children),
         }))
