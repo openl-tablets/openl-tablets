@@ -42,7 +42,7 @@ public class TraceTableHtmlService {
      *
      * @param traceHelper  the trace helper containing cached trace objects
      * @param nodeId       the trace node ID
-     * @param projectModel the project model for fcilter holder access
+     * @param projectModel the project model for filter holder access
      * @param showFormulas whether to show formulas instead of values
      * @return HTML string representing the traced table
      */
@@ -61,7 +61,7 @@ public class TraceTableHtmlService {
         if (tsn == null) {
             throw new NotFoundException("trace.node.not.found.message");
         }
-        IOpenLTable table = new TableSyqntaxNodeAdapter(tsn);
+        IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
 
         // 3. Create filters (replicates ShowTraceTableBean.getTraceFilters())
         IGridFilter[] filters = createTraceFilters(tto, projectModel);
