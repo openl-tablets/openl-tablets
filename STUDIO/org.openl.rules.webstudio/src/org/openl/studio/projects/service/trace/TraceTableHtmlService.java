@@ -3,7 +3,7 @@ package org.openl.studio.projects.service.trace;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -42,7 +42,7 @@ public class TraceTableHtmlService {
      *
      * @param traceHelper  the trace helper containing cached trace objects
      * @param nodeId       the trace node ID
-     * @param projectModel the project model for filter holder access
+     * @param projectModel the project model for fcilter holder access
      * @param showFormulas whether to show formulas instead of values
      * @return HTML string representing the traced table
      */
@@ -61,7 +61,7 @@ public class TraceTableHtmlService {
         if (tsn == null) {
             throw new NotFoundException("trace.node.not.found.message");
         }
-        IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
+        IOpenLTable table = new TableSyqntaxNodeAdapter(tsn);
 
         // 3. Create filters (replicates ShowTraceTableBean.getTraceFilters())
         IGridFilter[] filters = createTraceFilters(tto, projectModel);
@@ -199,7 +199,7 @@ public class TraceTableHtmlService {
             return new IGridFilter[0];
         }
 
-        IGridRegion[] aRegions = regions.toArray(new IGridRegion[0]);
+        IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
         RegionGridSelector gridSelector = new RegionGridSelector(aRegions, true);
         ColorGridFilter colorGridFilter = new ColorGridFilter(gridSelector, defaultColorFilter);
         return new IGridFilter[]{colorGridFilter};
