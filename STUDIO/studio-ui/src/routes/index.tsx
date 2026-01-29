@@ -16,6 +16,7 @@ import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
 import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
+import TraceView from '../containers/TraceView'
 import { CONFIG } from '../services'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
@@ -127,6 +128,11 @@ const router = createBrowserRouter([
     {
         path: '/logout',
         element: <RedirectRoute to="logout" />,
+    },
+    {
+        path: '/trace/:projectId',
+        element: <TraceView />,
+        errorElement: <RouteErrorFallback />,
     },
 ], {
     basename: CONFIG.CONTEXT,
