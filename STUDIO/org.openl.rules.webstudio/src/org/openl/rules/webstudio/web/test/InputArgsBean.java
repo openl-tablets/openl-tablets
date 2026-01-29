@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jakarta.faces.model.SelectItem;
@@ -489,6 +490,44 @@ public class InputArgsBean {
 
     public IRulesRuntimeContext getRuntimeContext() {
         return runtimeContext;
+    }
+
+    /**
+     * Converts current parameters to JSON string for trace API.
+     * Format: {"params": {...}, "runtimeContext": {...}}
+     *
+     * @return JSON string with params and optional runtime context
+     */
+    public String getParamsAsJson() {
+        try {
+            ObjectMapper mapper = configureObjectMapper();
+            Map<String, Object> result = new LinkedHashMap<>();
+
+            // Get params - this also populates runtimeContext as side effect
+            Object[] paramValues = getParams();
+
+            // Build params map keyed by parameter name
+            Map<String, Object> params = new LinkedHashMap<>();
+            IOpenMethod method = getTestedMethod();
+            if (method != null && paramValues != null) {
+                var signature = method.getSignature();
+                for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                    String paramName = signature.getParameterName(i);
+                    params.put(paramName, i < paramValues.length ? paramValues[i] : null);
+                }
+            }
+            result.put("params", params);
+
+            // Include runtime context if available
+            if (runtimeContext != null) {
+                result.put("runtimeContext", runtimeContext);
+            }
+
+            return mapper.writeValueAsString(result);
+        } catch (Exception e) {
+            log.error("Failed to serialize params to JSON", e);
+            return "{}";
+        }
     }
 
     private static <T> T tryParseJson(String json, Class<T> clazz, ObjectMapper mapper) throws IOException {
