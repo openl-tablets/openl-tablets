@@ -1,4 +1,4 @@
-// IDEA-style debug view for trace parameters
+// IDEA-style debug view for trace parameters using Ant Design Tree
 
 .trace-params-section {
     margin-bottom: 12px;
@@ -17,7 +17,7 @@
     }
 
     .trace-params-list {
-        display: inline;
+        display: block;
     }
 }
 
@@ -26,6 +26,7 @@
     align-items: center;
     gap: 4px;
     padding: 2px 0;
+    padding-left: 24px; // Align with tree nodes
 
     &.inline {
         display: inline-flex;
@@ -33,58 +34,86 @@
     }
 }
 
-.trace-value-node {
-    .trace-value-row {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 2px 0;
-        cursor: default;
+// Ant Design Tree customization for trace parameters
+.trace-param-tree {
+    .ant-tree {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 12px;
+        background: transparent;
 
-        &:hover {
-            background-color: #f5f5f5;
-        }
-    }
+        // Tree node container
+        .ant-tree-treenode {
+            padding: 0;
+            align-items: center;
 
-    // Animated expand/collapse wrapper using CSS grid technique
-    .trace-value-children-wrapper {
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 0.2s ease-out;
-
-        &.expanded {
-            grid-template-rows: 1fr;
+            &:hover {
+                background-color: transparent;
+            }
         }
 
-        > .trace-value-children {
-            overflow: hidden;
+        // Indent units
+        .ant-tree-indent-unit {
+            width: 16px;
         }
-    }
 
-    .trace-value-children {
-        border-left: 1px solid #e0e0e0;
-        margin-left: 7px;
-        padding-left: 4px;
+        // Hide the default line pseudo-elements (they don't work well with custom fonts)
+        .ant-tree-indent-unit::before,
+        .ant-tree-switcher-leaf-line::before,
+        .ant-tree-switcher-leaf-line::after {
+            display: none !important;
+        }
+
+        // Switcher (expand/collapse +/- icons)
+        .ant-tree-switcher {
+            width: 16px;
+            height: 22px;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e6e6e;
+            flex-shrink: 0;
+
+            &:hover {
+                color: #1890ff;
+            }
+
+            // Style the +/- icons
+            .ant-tree-switcher-line-icon {
+                font-size: 10px;
+            }
+        }
+
+        // Leaf nodes - keep same width for alignment
+        .ant-tree-switcher-leaf-line {
+            width: 16px;
+        }
+
+        // Content wrapper
+        .ant-tree-node-content-wrapper {
+            padding: 0 4px;
+            min-height: 22px;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+
+            &:hover {
+                background-color: #f5f5f5;
+            }
+        }
+
+        // Remove default selection styling
+        .ant-tree-node-content-wrapper.ant-tree-node-selected {
+            background-color: transparent;
+        }
     }
 }
 
-.trace-expand-icon {
-    width: 14px;
-    height: 14px;
+// Tree title styling (used in both tree nodes and simple values)
+.trace-tree-title {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #6e6e6e;
-    cursor: pointer;
-
-    &:hover {
-        color: #1890ff;
-    }
-
-    &.trace-expand-placeholder {
-        visibility: hidden;
-    }
+    gap: 4px;
 }
 
 .trace-value-name {
