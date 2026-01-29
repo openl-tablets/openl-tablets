@@ -170,8 +170,8 @@ const ParameterItem: React.FC<ParameterItemProps> = ({ param, inline = false }) 
 
     const displayValue = loaded ? loadedValue : param.value
 
-    // Lazy parameter not yet loaded
-    if (param.lazy && !loaded && displayValue === undefined && !loading) {
+    // Lazy parameter not yet loaded (backend sends value: null for lazy params)
+    if (param.lazy && !loaded && (displayValue === undefined || displayValue === null) && !loading) {
         return (
             <div className={`trace-param-item ${inline ? 'inline' : ''}`}>
                 <span className="trace-expand-icon trace-expand-placeholder" />
