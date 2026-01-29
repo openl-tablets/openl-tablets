@@ -1410,10 +1410,15 @@ public class ProjectModel {
         }
     }
 
-    public synchronized void traceElement(TestSuite testSuite) {
+    /**
+     * Execute trace for a test suite without relying on request parameters.
+     * This method is designed for REST API usage where request context is not available.
+     *
+     * @param testSuite           the test suite to trace
+     * @param currentOpenedModule if true, use currently opened module; otherwise, use full project
+     */
+    public synchronized void traceElement(TestSuite testSuite, boolean currentOpenedModule) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        boolean currentOpenedModule = Boolean
-                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         try {
             if (currentOpenedModule) {
                 Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
