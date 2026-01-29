@@ -31,8 +31,8 @@ const TraceView: React.FC = () => {
         setRouteParams,
         fetchRootNodes,
         executionStatus,
+        setExecutionStatus,
         progressMessage,
-        loading,
         error,
         reset,
     } = useTraceStore()
@@ -43,7 +43,7 @@ const TraceView: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null)
 
     // WebSocket subscription for progress updates
-    const { isConnected } = useTraceProgress({
+    useTraceProgress({
         projectId: projectId || '',
         tableId: tableId || '',
         enabled: !!projectId && !!tableId,
@@ -66,10 +66,12 @@ const TraceView: React.FC = () => {
         if (!projectId) return
         try {
             await traceService.cancelTrace(projectId)
+            // Update local status since backend doesn't emit WebSocket status on cancel
+            setExecutionStatus('INTERRUPTED')
         } catch (err) {
             console.error('Failed to cancel trace:', err)
         }
-    }, [projectId])
+    }, [projectId, setExecutionStatus])
 
     // Resizer handlers
     const handleMouseDown = useCallback((e: React.MouseEvent) => {

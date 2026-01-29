@@ -71,10 +71,20 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
 
             ITracerObject root = executeTrace(projectModel, testSuite, currentOpenedModule, traceHelper);
 
+            // Check if thread was interrupted during execution
+            if (Thread.currentThread().isInterrupted()) {
+                listener.onStatusChanged(TraceExecutionStatus.INTERRUPTED);
+                return CompletableFuture.completedFuture(root);
+            }
+
             listener.onStatusChanged(TraceExecutionStatus.COMPLETED);
             return CompletableFuture.completedFuture(root);
 
         } catch (Exception e) {
+            if (isInterruptedException(e)) {
+                listener.onStatusChanged(TraceExecutionStatus.INTERRUPTED);
+                return CompletableFuture.completedFuture(null);
+            }
             listener.onError(e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
         }
@@ -115,10 +125,20 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
 
             ITracerObject root = executeTrace(projectModel, testSuite, currentOpenedModule, traceHelper);
 
+            // Check if thread was interrupted during execution
+            if (Thread.currentThread().isInterrupted()) {
+                listener.onStatusChanged(TraceExecutionStatus.INTERRUPTED);
+                return CompletableFuture.completedFuture(root);
+            }
+
             listener.onStatusChanged(TraceExecutionStatus.COMPLETED);
             return CompletableFuture.completedFuture(root);
 
         } catch (Exception e) {
+            if (isInterruptedException(e)) {
+                listener.onStatusChanged(TraceExecutionStatus.INTERRUPTED);
+                return CompletableFuture.completedFuture(null);
+            }
             listener.onError(e.getMessage(), e);
             return CompletableFuture.failedFuture(e);
         }
@@ -157,5 +177,19 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
             return xlsModuleOpenClass.getDataBase();
         }
         return null;
+    }
+
+    /**
+     * Check if the exception is caused by thread interruption.
+     */
+    private static boolean isInterruptedException(Throwable e) {
+        Throwable cause = e;
+        while (cause != null) {
+            if (cause instanceof InterruptedException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 }
