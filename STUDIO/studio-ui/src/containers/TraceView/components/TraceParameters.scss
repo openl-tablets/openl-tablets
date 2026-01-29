@@ -1,0 +1,170 @@
+// IDEA-style debug view for trace parameters
+
+.trace-params-section {
+    margin-bottom: 12px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+
+    .trace-params-title {
+        font-weight: 600;
+        color: #000;
+        margin-right: 8px;
+    }
+
+    .trace-params-empty {
+        font-style: italic;
+    }
+
+    .trace-params-list {
+        display: inline;
+    }
+}
+
+.trace-param-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+
+    &.inline {
+        display: inline-flex;
+        margin-right: 16px;
+    }
+}
+
+.trace-value-node {
+    .trace-value-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 0;
+        cursor: default;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+    }
+
+    // Animated expand/collapse wrapper using CSS grid technique
+    .trace-value-children-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.2s ease-out;
+
+        &.expanded {
+            grid-template-rows: 1fr;
+        }
+
+        > .trace-value-children {
+            overflow: hidden;
+        }
+    }
+
+    .trace-value-children {
+        border-left: 1px solid #e0e0e0;
+        margin-left: 7px;
+        padding-left: 4px;
+    }
+}
+
+.trace-expand-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #6e6e6e;
+    cursor: pointer;
+
+    &:hover {
+        color: #1890ff;
+    }
+
+    &.trace-expand-placeholder {
+        visibility: hidden;
+    }
+}
+
+.trace-value-name {
+    color: #871094; // Purple for variable names (IDEA style)
+    font-weight: 500;
+}
+
+.trace-value-type {
+    color: #6e6e6e;
+    font-style: italic;
+    margin-left: 4px;
+
+    &::before {
+        content: '(';
+    }
+
+    &::after {
+        content: ')';
+    }
+}
+
+.trace-value-equals {
+    color: #000;
+    margin: 0 4px;
+}
+
+// Value type colors (IDEA style)
+.trace-value-string {
+    color: #067d17; // Green for strings
+}
+
+.trace-value-number {
+    color: #1750eb; // Blue for numbers
+}
+
+.trace-value-boolean {
+    color: #0033b3; // Dark blue for booleans
+    font-weight: 600;
+}
+
+.trace-value-null {
+    color: #6e6e6e;
+    font-style: italic;
+}
+
+.trace-value-default {
+    color: #000;
+}
+
+.trace-value-summary {
+    color: #6e6e6e;
+    font-style: italic;
+}
+
+.trace-value-lazy {
+    color: #1890ff;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover {
+        color: #40a9ff;
+    }
+}
+
+.trace-value-error {
+    color: #cf1322;
+}
+
+.trace-value-empty {
+    color: #6e6e6e;
+    font-style: italic;
+}
+
+// Override card styles for trace details
+.trace-details {
+    .trace-params-section {
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+    }
+}

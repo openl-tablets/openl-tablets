@@ -11,6 +11,7 @@ export interface WebSocketSubscription {
     id: string
     destination: string
     callback: (message: WebSocketMessage) => void
+    stompSubscription?: { unsubscribe: () => void }
 }
 
 class WebSocketService {
@@ -46,10 +47,21 @@ class WebSocketService {
     private onConnect() {
         this.isConnected = true
         this.reconnectAttempts = 0
-        
+
         // Re-subscribe to all previous subscriptions
         this.subscriptions.forEach((subscription) => {
-            this.subscribe(subscription.destination, subscription.callback, subscription.id)
+            if (this.client) {
+                const stompSubscription = this.client.subscribe(subscription.destination, (message: IMessage) => {
+                    const wsMessage: WebSocketMessage = {
+                        body: message.body,
+                        headers: message.headers,
+                        command: message.command,
+                        destination: subscription.destination
+                    }
+                    subscription.callback(wsMessage)
+                }, { id: subscription.id })
+                subscription.stompSubscription = stompSubscription
+            }
         })
     }
 
@@ -123,7 +135,7 @@ class WebSocketService {
         this.subscriptions.set(id, subscription)
 
         if (this.client && this.isConnected) {
-            this.client.subscribe(destination, (message: IMessage) => {
+            const stompSubscription = this.client.subscribe(destination, (message: IMessage) => {
                 const wsMessage: WebSocketMessage = {
                     body: message.body,
                     headers: message.headers,
@@ -131,7 +143,9 @@ class WebSocketService {
                     destination: destination // Use the subscription destination instead of message.destination
                 }
                 callback(wsMessage)
-            })
+            }, { id })
+            // Store the STOMP subscription for proper unsubscribe
+            subscription.stompSubscription = stompSubscription
         }
 
         return id
@@ -139,10 +153,13 @@ class WebSocketService {
 
     public unsubscribe(subscriptionId: string) {
         const subscription = this.subscriptions.get(subscriptionId)
-        if (subscription && this.client && this.isConnected) {
-            this.client.unsubscribe(subscriptionId)
+        if (subscription) {
+            // Use the stored STOMP subscription's unsubscribe method
+            if (subscription.stompSubscription) {
+                subscription.stompSubscription.unsubscribe()
+            }
+            this.subscriptions.delete(subscriptionId)
         }
-        this.subscriptions.delete(subscriptionId)
     }
 
     public send(destination: string, body: string, headers?: { [key: string]: string }) {
