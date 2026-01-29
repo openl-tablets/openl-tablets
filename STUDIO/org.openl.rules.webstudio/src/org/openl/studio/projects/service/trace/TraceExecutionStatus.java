@@ -15,6 +15,8 @@ public enum TraceExecutionStatus {
     STARTED,
     /** Trace execution completed successfully */
     COMPLETED,
+    /** Trace execution was interrupted/cancelled by the user */
+    INTERRUPTED,
     /** Trace execution failed with an error */
     ERROR
 }

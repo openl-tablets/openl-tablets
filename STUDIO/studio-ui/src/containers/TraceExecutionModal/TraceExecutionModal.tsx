@@ -72,7 +72,6 @@ export const TraceExecutionModal: React.FC = () => {
     const [tableId, setTableId] = useState<string | null>(null)
     const [showRealNumbers, setShowRealNumbers] = useState(false)
     const [downloadMode, setDownloadMode] = useState(false)
-    const [isStarting, setIsStarting] = useState(false)
     const [isCancelling, setIsCancelling] = useState(false)
 
     const subscriptionRef = useRef<string | null>(null)
@@ -151,7 +150,6 @@ export const TraceExecutionModal: React.FC = () => {
             subscriptionRef.current = subscribe(topic, handleProgressMessage, `trace-modal-${Date.now()}`)
 
             // 3. Call trace API
-            setIsStarting(true)
             await traceService.startTrace(projId, {
                 tableId: tblId,
                 testRanges: eventDetail.testRanges,
@@ -165,8 +163,6 @@ export const TraceExecutionModal: React.FC = () => {
                 description: errorMessage
             })
             handleClose()
-        } finally {
-            setIsStarting(false)
         }
     }, [isConnected, connect, subscribe, handleProgressMessage, handleClose, t])
 

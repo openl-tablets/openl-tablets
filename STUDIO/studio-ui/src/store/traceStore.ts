@@ -19,7 +19,6 @@ interface TraceState {
     /** Selected node ID for API calls */
     selectedNodeId: number | null
     selectedNodeDetails: TraceNodeView | null
-    traceTableHtml: string | null
 
     // Tree data (transformed for Ant Design Tree)
     treeData: TraceTreeDataNode[]
@@ -27,7 +26,6 @@ interface TraceState {
     // UI State
     loading: boolean
     detailsLoading: boolean
-    tableLoading: boolean
     error: string | null
     showRealNumbers: boolean
     hideFailedNodes: boolean
@@ -44,7 +42,6 @@ interface TraceState {
     /** Select a node. treeKey is for tree highlighting, nodeId is for API calls. */
     selectNode: (treeKey: string, nodeId: number) => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
-    fetchTraceTable: (nodeId: number) => Promise<void>
     setExecutionStatus: (status: TraceExecutionStatus, message?: string) => void
     toggleHideFailedNodes: () => void
     toggleShowRealNumbers: () => void
@@ -109,11 +106,9 @@ const initialState = {
     selectedTreeKey: null,
     selectedNodeId: null,
     selectedNodeDetails: null,
-    traceTableHtml: null,
     treeData: [],
     loading: false,
     detailsLoading: false,
-    tableLoading: false,
     error: null,
     showRealNumbers: false,
     hideFailedNodes: false,
@@ -174,7 +169,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         const { projectId, showRealNumbers } = get()
         if (!projectId) return
 
-        set({ selectedTreeKey: treeKey, selectedNodeId: nodeId, detailsLoading: true, traceTableHtml: null })
+        set({ selectedTreeKey: treeKey, selectedNodeId: nodeId, detailsLoading: true })
         try {
             const details = await traceService.getNodeDetails(projectId, nodeId, showRealNumbers)
             set({ selectedNodeDetails: details, detailsLoading: false })
@@ -189,20 +184,6 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         if (!projectId) throw new Error('No project ID')
 
         return traceService.getParameterValue(projectId, parameterId)
-    },
-
-    fetchTraceTable: async (nodeId) => {
-        const { projectId } = get()
-        if (!projectId) return
-
-        set({ tableLoading: true })
-        try {
-            const html = await traceService.getTraceTableHtml(projectId, nodeId)
-            set({ traceTableHtml: html, tableLoading: false })
-        } catch (error: any) {
-            console.error('Failed to fetch trace table:', error)
-            set({ traceTableHtml: null, tableLoading: false })
-        }
     },
 
     setExecutionStatus: (status, message) => {
