@@ -37,7 +37,7 @@ import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 
 public class TraceFormatter {
-    static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
+    public static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {

@@ -38,7 +38,9 @@ public class RunTestHelper {
         ITracerObject t;
         try {
             t = TreeBuildTracer.initialize(lazyNodes);
-            model.traceElement(testSuite);
+            boolean currentOpenedModule = Boolean
+                    .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+            model.traceElement(testSuite, currentOpenedModule);
         } finally {
             TreeBuildTracer.destroy();
         }

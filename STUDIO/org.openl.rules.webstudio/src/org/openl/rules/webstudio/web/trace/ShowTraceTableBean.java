@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.trace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -153,10 +154,7 @@ public class ShowTraceTableBean {
 
             if (error != null) {
                 Throwable cause = error.getCause();
-                if (cause != null) {
-                    return OpenLMessagesUtils.newErrorMessages(cause);
-                }
-                return OpenLMessagesUtils.newErrorMessages(error);
+                return OpenLMessagesUtils.newErrorMessages(Objects.requireNonNullElse(cause, error));
             }
         } else if (tto instanceof RefToTracerNodeObject) {
             return getErrors(((RefToTracerNodeObject) tto).getOriginalTracerNode());

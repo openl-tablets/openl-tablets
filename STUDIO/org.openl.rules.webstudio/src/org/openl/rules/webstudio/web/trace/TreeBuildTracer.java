@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.domain.IIntSelector;
-import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
@@ -153,7 +153,7 @@ public final class TreeBuildTracer extends Tracer {
             var rootNode = initialize(true);
             try {
                 invoke(lazyNode.getExecutor(), lazyNode.getTarget(), lazyNode.getParams(), lazyNode.getEnv(), lazyNode.getSource());
-            } catch (OpenLUserRuntimeException ignored) {
+            } catch (OpenLRuntimeException ignored) {
             } catch (Throwable ex) {
                 LOG.warn("Error during lazy node execution", ex);
             }
