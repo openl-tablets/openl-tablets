@@ -20,11 +20,11 @@ Access is now managed through three predefined roles:
 * **Contributor**: Content modification without system administration  
 * **Viewer**: Read-only access with test execution capabilities
 
-The legacy permission model has been consolidated into **five core permissions**—**Manage, View, Create, Edit, and Delete**—which are embedded directly into roles. This ensures consistent and predictable access control.
+The legacy permission model has been consolidated into **five core permissions**—**Manage, View, Create, Edit, and Delete**—which are embedded directly into roles.
 
 All existing permissions are **automatically migrated** to the new role structure during upgrade.
 
-Deprecated permissions were included by default in the roles and features:
+The following legacy permissions have been deprecated and their functionality is now included by default in the predefined roles and features:
 
 * View Projects  
 * Run and Trace Tables  
@@ -178,7 +178,7 @@ security.single.display-name=John Smith
 
 #### **Automatic OpenL Project Recognition**
 
-Projects are automatically detected in Git repositories and added to OpenL Studio
+Projects are automatically detected in Git repositories and added to OpenL Studio.
 
 #### **Personal Access Tokens for OpenL API Authentication**
 
@@ -496,8 +496,6 @@ security.allow-project-create-delete
 * Role assignments and default group permissions should be reviewed after upgrade.
 
 #### **User Access & Permission Mapping**
-
-**User Access & Permission Changes**
 
 | Legacy Permission | New Behavior | Notes / Action |
 | :---- | :---- | :---- |
