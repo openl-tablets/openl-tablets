@@ -172,7 +172,7 @@
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
 
         <!-- Commons and utils -->
-        <commons-codec.version>1.20.0</commons-codec.version>
+        <commons-codec.version>1.21.0</commons-codec.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-io.version>2.21.0</commons-io.version>
