@@ -978,186 +978,101 @@ public class TraceHelper {
 
 ### Flow 1: Start Trace Execution
 
-```
-┌──────┐            ┌──────────┐           ┌─────────┐          ┌───────────┐
-│Client│            │Controller│           │Executor │          │TreeBuild  │
-│      │            │          │           │Service  │          │Tracer     │
-└──┬───┘            └────┬─────┘           └────┬────┘          └─────┬─────┘
-   │                     │                      │                     │
-   │ POST /trace         │                      │                     │
-   ├────────────────────>│                      │                     │
-   │                     │                      │                     │
-   │                     │ cancelIfAny()        │                     │
-   │                     ├──────┐               │                     │
-   │                     │      │               │                     │
-   │                     │<─────┘               │                     │
-   │                     │                      │                     │
-   │                     │ traceMethod()        │                     │
-   │                     ├─────────────────────>│                     │
-   │                     │                      │                     │
-   │                     │                      │ initialize(lazy)    │
-   │                     │                      ├────────────────────>│
-   │                     │                      │                     │
-   │                     │                      │ projectModel.trace()│
-   │                     │                      ├──────┐              │
-   │                     │                      │      │ (execution)  │
-   │                     │                      │<─────┘              │
-   │                     │                      │                     │
-   │                     │                      │ destroy()           │
-   │                     │                      ├────────────────────>│
-   │                     │                      │                     │
-   │                     │ setTask(future)      │                     │
-   │                     ├──────┐               │                     │
-   │                     │      │               │                     │
-   │                     │<─────┘               │                     │
-   │                     │                      │                     │
-   │  202 Accepted       │                      │                     │
-   │<────────────────────┤                      │                     │
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant ExecutorService as Executor Service
+    participant TreeBuildTracer as TreeBuild Tracer
+
+    Client->>Controller: POST /trace
+    Controller->>Controller: cancelIfAny()
+    Controller->>ExecutorService: traceMethod()
+    ExecutorService->>TreeBuildTracer: initialize(lazy)
+    ExecutorService->>ExecutorService: projectModel.trace() (execution)
+    ExecutorService->>TreeBuildTracer: destroy()
+    Controller->>Controller: setTask(future)
+    Controller-->>Client: 202 Accepted
 ```
 
 ---
 
 ### Flow 2: Get Root Nodes
 
-```
-┌──────┐            ┌──────────┐           ┌──────────┐          ┌───────┐
-│Client│            │Controller│           │Registry  │          │Mapper │
-└──┬───┘            └────┬─────┘           └────┬─────┘          └───┬───┘
-   │                     │                      │                    │
-   │ GET /trace/nodes    │                      │                    │
-   ├────────────────────>│                      │                    │
-   │                     │                      │                    │
-   │                     │ hasTask(projectId)   │                    │
-   │                     ├─────────────────────>│                    │
-   │                     │                      │                    │
-   │                     │      true            │                    │
-   │                     │<─────────────────────┤                    │
-   │                     │                      │                    │
-   │                     │ isDone(projectId)    │                    │
-   │                     ├─────────────────────>│                    │
-   │                     │                      │                    │
-   │                     │      true            │                    │
-   │                     │<─────────────────────┤                    │
-   │                     │                      │                    │
-   │                     │ getTraceHelper()     │                    │
-   │                     ├─────────────────────>│                    │
-   │                     │                      │                    │
-   │                     │    TraceHelper       │                    │
-   │                     │<─────────────────────┤                    │
-   │                     │                      │                    │
-   │                     │ createSimpleNodes()  │                    │
-   │                     ├───────────────────────────────────────────>│
-   │                     │                      │                    │
-   │                     │  List<TraceNodeView> │                    │
-   │                     │<───────────────────────────────────────────┤
-   │                     │                      │                    │
-   │ List<TraceNodeView> │                      │                    │
-   │<────────────────────┤                      │                    │
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant Registry
+    participant Mapper
+
+    Client->>Controller: GET /trace/nodes
+    Controller->>Registry: hasTask(projectId)
+    Registry-->>Controller: true
+    Controller->>Registry: isDone(projectId)
+    Registry-->>Controller: true
+    Controller->>Registry: getTraceHelper()
+    Registry-->>Controller: TraceHelper
+    Controller->>Mapper: createSimpleNodes()
+    Mapper-->>Controller: List<TraceNodeView>
+    Controller-->>Client: List<TraceNodeView>
 ```
 
 ---
 
 ### Flow 3: Get Node Details with Lazy Parameter
 
-```
-┌──────┐            ┌──────────┐           ┌───────┐          ┌──────────┐
-│Client│            │Controller│           │Mapper │          │ParamReg  │
-└──┬───┘            └────┬─────┘           └───┬───┘          └────┬─────┘
-   │                     │                     │                   │
-   │ GET /nodes/5        │                     │                   │
-   ├────────────────────>│                     │                   │
-   │                     │                     │                   │
-   │                     │ createDetailedNode()│                   │
-   │                     ├────────────────────>│                   │
-   │                     │                     │                   │
-   │                     │                     │ isComplexType()   │
-   │                     │                     ├───────┐           │
-   │                     │                     │       │ true      │
-   │                     │                     │<──────┘           │
-   │                     │                     │                   │
-   │                     │                     │ register(param)   │
-   │                     │                     ├──────────────────>│
-   │                     │                     │                   │
-   │                     │                     │     parameterId=7 │
-   │                     │                     │<──────────────────┤
-   │                     │                     │                   │
-   │                     │   TraceNodeView     │                   │
-   │                     │   (lazy param)      │                   │
-   │                     │<────────────────────┤                   │
-   │                     │                     │                   │
-   │ {parameters: [{     │                     │                   │
-   │   lazy: true,       │                     │                   │
-   │   parameterId: 7    │                     │                   │
-   │ }]}                 │                     │                   │
-   │<────────────────────┤                     │                   │
-   │                     │                     │                   │
-   │ GET /parameters/7   │                     │                   │
-   ├────────────────────>│                     │                   │
-   │                     │                     │                   │
-   │                     │                     │ get(7)            │
-   │                     │                     ├──────────────────>│
-   │                     │                     │                   │
-   │                     │                     │     param value   │
-   │                     │                     │<──────────────────┤
-   │                     │                     │                   │
-   │                     │ buildParameterValue │                   │
-   │                     │ (preferLazy=false)  │                   │
-   │                     ├────────────────────>│                   │
-   │                     │                     │                   │
-   │                     │  TraceParameterValue│                   │
-   │                     │  (full value)       │                   │
-   │                     │<────────────────────┤                   │
-   │                     │                     │                   │
-   │ {lazy: false,       │                     │                   │
-   │  value: {...}}      │                     │                   │
-   │<────────────────────┤                     │                   │
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant Mapper
+    participant ParamReg as Parameter Registry
+
+    Client->>Controller: GET /nodes/5
+    Controller->>Mapper: createDetailedNode()
+    Mapper->>Mapper: isComplexType() → true
+    Mapper->>ParamReg: register(param)
+    ParamReg-->>Mapper: parameterId=7
+    Mapper-->>Controller: TraceNodeView (lazy param)
+    Controller-->>Client: {parameters: [{lazy: true, parameterId: 7}]}
+
+    Note over Client,ParamReg: Later, client requests lazy parameter
+
+    Client->>Controller: GET /parameters/7
+    Controller->>ParamReg: get(7)
+    ParamReg-->>Controller: param value
+    Controller->>Mapper: buildParameterValue(preferLazy=false)
+    Mapper-->>Controller: TraceParameterValue (full value)
+    Controller-->>Client: {lazy: false, value: {...}}
 ```
 
 ---
 
 ### Flow 4: Export Trace
 
-```
-┌──────┐            ┌──────────┐           ┌──────────┐          ┌───────────┐
-│Client│            │Controller│           │Export    │          │TraceHelper│
-│      │            │          │           │Service   │          │           │
-└──┬───┘            └────┬─────┘           └────┬─────┘          └─────┬─────┘
-   │                     │                      │                      │
-   │ GET /trace/export   │                      │                      │
-   │ ?release=true       │                      │                      │
-   ├────────────────────>│                      │                      │
-   │                     │                      │                      │
-   │                     │ getCompletedTraceHelper()                   │
-   │                     ├─────────────────────────────────────────────>│
-   │                     │                      │                      │
-   │                     │      traceHelper     │                      │
-   │                     │<─────────────────────────────────────────────┤
-   │                     │                      │                      │
-   │                     │ setContentDisposition│                      │
-   │                     │ (trace.txt)          │                      │
-   │                     │                      │                      │
-   │                     │ exportTrace(writer)  │                      │
-   │                     ├─────────────────────>│                      │
-   │                     │                      │                      │
-   │                     │                      │ getTableTracer(0)    │
-   │                     │                      ├─────────────────────>│
-   │                     │                      │                      │
-   │                     │                      │      root node       │
-   │                     │                      │<─────────────────────┤
-   │                     │                      │                      │
-   │                     │                      │ (recursive export    │
-   │                     │                      │  with tree format)   │
-   │                     │                      │                      │
-   │                     │      (streams to     │                      │
-   │                     │       response)      │                      │
-   │                     │<─────────────────────┤                      │
-   │                     │                      │                      │
-   │                     │ if release:          │                      │
-   │                     │   clear registries   │                      │
-   │                     │                      │                      │
-   │ text/plain          │                      │                      │
-   │ (trace.txt)         │                      │                      │
-   │<────────────────────┤                      │                      │
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant ExportService as Export Service
+    participant TraceHelper as Trace Helper
+
+    Client->>Controller: GET /trace/export?release=true
+    Controller->>TraceHelper: getCompletedTraceHelper()
+    TraceHelper-->>Controller: traceHelper
+    Controller->>Controller: setContentDisposition(trace.txt)
+    Controller->>ExportService: exportTrace(writer)
+    ExportService->>TraceHelper: getTableTracer(0)
+    TraceHelper-->>ExportService: root node
+    ExportService->>ExportService: recursive export with tree format
+    ExportService-->>Controller: streams to response
+
+    alt release=true
+        Controller->>Controller: clear registries
+    end
+
+    Controller-->>Client: text/plain (trace.txt)
 ```
 
 ---
@@ -1166,39 +1081,30 @@ public class TraceHelper {
 
 ### Session Lifecycle
 
+``` mermaid
+stateDiagram-v2
+    [*] --> NO_TRACE
+
+    NO_TRACE --> TRACE_PENDING: POST /trace
+
+    TRACE_PENDING --> TRACE_PENDING: WebSocket STARTED
+    TRACE_PENDING --> TRACE_COMPLETE: WebSocket COMPLETED
+    TRACE_PENDING --> TRACE_COMPLETE: WebSocket ERROR
+    TRACE_PENDING --> NO_TRACE: DELETE /trace
+
+    TRACE_COMPLETE --> TRACE_COMPLETE: Query endpoints (nodes, parameters, table)
+    TRACE_COMPLETE --> NO_TRACE: DELETE /trace
+    TRACE_COMPLETE --> TRACE_PENDING: POST /trace (cancels previous)
+
+    NO_TRACE --> [*]
 ```
-State: NO_TRACE
-  │
-  │ POST /trace (start new trace)
-  ▼
-State: TRACE_PENDING
-  │
-  │ (async execution in progress)
-  │
-  ├─── WebSocket: STARTED
-  │
-  │ (execution completes)
-  │
-  ├─── WebSocket: COMPLETED ──────────────────┐
-  │                                           │
-  ├─── WebSocket: ERROR ──────────────────────┤
-  │                                           ▼
-  │                                   State: TRACE_COMPLETE
-  │                                           │
-  │                                           ├─── GET /trace
-  │                                           ├─── GET /nodes
-  │                                           ├─── GET /nodes/{id}
-  │                                           ├─── GET /parameters/{id}
-  │                                           ├─── GET /nodes/{id}/table
-  │                                           │
-  │                                           ▼
-  │                                   State: TRACE_COMPLETE
-  │
-  └─── DELETE /trace ───────────────────────> State: NO_TRACE
-  │
-  └─── POST /trace (new trace) ─────────────> State: TRACE_PENDING
-                                              (previous cancelled)
-```
+
+**Available endpoints in TRACE_COMPLETE state:**
+- `GET /trace/nodes` - Get root/child nodes
+- `GET /trace/nodes/{id}` - Get node details
+- `GET /trace/parameters/{id}` - Get lazy parameter
+- `GET /trace/nodes/{id}/table` - Get table HTML
+- `GET /trace/export` - Export trace
 
 ### One Trace Per Session
 
@@ -1352,68 +1258,35 @@ private boolean isComplexType(Class<?> type, Object value) {
 
 ### Execution Flow with Tracing
 
-```
-1. Client: POST /trace
-   │
-   ▼
-2. TraceExecutorService.traceMethod()
-   │
-   ├─ TreeBuildTracer.initialize(true)
-   │  └─ Sets ThreadLocal tracer state
-   │
-   ▼
-3. ProjectModel.traceElement(testSuite)
-   │
-   ├─ Creates TestSuite with TestDescription
-   │
-   └─ TestSuiteMethod.invoke()
-      │
-      ├─ For each test case:
-      │  ├─ Setup runtime context
-      │  │
-      │  ├─ Tracer.invoke()  ────────────────┐
-      │  │                                   │
-      │  │  ┌─────────────────────────────────┘
-      │  │  │
-      │  │  ▼
-      │  │  TreeBuildTracer.doBegin()
-      │  │  └─ Create ITracerObject
-      │  │  └─ Push to trace stack
-      │  │
-      │  ├─ Execute method
-      │  │  │
-      │  │  ├─ Decision table: evaluate conditions
-      │  │  │  └─ Tracer.put() for each condition
-      │  │  │
-      │  │  ├─ Spreadsheet: evaluate cells
-      │  │  │  └─ Tracer.put() for each cell
-      │  │  │
-      │  │  └─ Nested method calls
-      │  │     └─ Recursive Tracer.invoke()
-      │  │
-      │  ├─ TreeBuildTracer.doEnd()
-      │  │  └─ Pop from trace stack
-      │  │  └─ Store result
-      │  │
-      │  └─ Capture result
-      │
-      └─ Return trace root
-   │
-   ▼
-4. TraceHelper.cacheTraceTree(root)
-   │
-   ├─ BFS traversal
-   └─ Assign integer IDs
-   │
-   ▼
-5. TreeBuildTracer.destroy()
-   │
-   └─ Clean up ThreadLocal state
-   │
-   ▼
-6. CompletableFuture.complete(root)
-   │
-   └─ WebSocket: COMPLETED
+``` mermaid
+flowchart TD
+    A["1. Client: POST /trace"] --> B["2. TraceExecutorService.traceMethod()"]
+    B --> B1["TreeBuildTracer.initialize(true)<br/>Sets ThreadLocal tracer state"]
+    B1 --> C["3. ProjectModel.traceElement(testSuite)"]
+    C --> C1["Creates TestSuite with TestDescription"]
+    C1 --> C2["TestSuiteMethod.invoke()"]
+
+    C2 --> LOOP["For each test case"]
+    LOOP --> TC1["Setup runtime context"]
+    TC1 --> TC2["Tracer.invoke()"]
+    TC2 --> TC3["TreeBuildTracer.doBegin()<br/>• Create ITracerObject<br/>• Push to trace stack"]
+    TC3 --> EXEC["Execute method"]
+
+    EXEC --> EXEC1["Decision table: evaluate conditions<br/>→ Tracer.put() for each condition"]
+    EXEC --> EXEC2["Spreadsheet: evaluate cells<br/>→ Tracer.put() for each cell"]
+    EXEC --> EXEC3["Nested method calls<br/>→ Recursive Tracer.invoke()"]
+
+    EXEC1 --> TC4["TreeBuildTracer.doEnd()<br/>• Pop from trace stack<br/>• Store result"]
+    EXEC2 --> TC4
+    EXEC3 --> TC4
+
+    TC4 --> TC5["Capture result"]
+    TC5 --> LOOP
+    LOOP --> ROOT["Return trace root"]
+
+    ROOT --> D["4. TraceHelper.cacheTraceTree(root)<br/>• BFS traversal<br/>• Assign integer IDs"]
+    D --> E["5. TreeBuildTracer.destroy()<br/>Clean up ThreadLocal state"]
+    E --> F["6. CompletableFuture.complete(root)<br/>→ WebSocket: COMPLETED"]
 ```
 
 ---
@@ -1422,31 +1295,22 @@ private boolean isComplexType(Class<?> type, Object value) {
 
 ### Architecture
 
-```
-┌──────────────┐          ┌─────────────────────┐          ┌─────────────┐
-│ TraceExecutor│          │SocketListener       │          │ WebSocket   │
-│ Service      │          │ Factory             │          │ Session     │
-└──────┬───────┘          └──────────┬──────────┘          └──────┬──────┘
-       │                             │                            │
-       │ onStatusChanged(PENDING)    │                            │
-       ├────────────────────────────>│                            │
-       │                             │                            │
-       │                             │ send({status: PENDING})    │
-       │                             ├───────────────────────────>│
-       │                             │                            │
-       │ onStatusChanged(STARTED)    │                            │
-       ├────────────────────────────>│                            │
-       │                             │                            │
-       │                             │ send({status: STARTED})    │
-       │                             ├───────────────────────────>│
-       │                             │                            │
-       │ ... execution ...           │                            │
-       │                             │                            │
-       │ onStatusChanged(COMPLETED)  │                            │
-       ├────────────────────────────>│                            │
-       │                             │                            │
-       │                             │ send({status: COMPLETED})  │
-       │                             ├───────────────────────────>│
+``` mermaid
+sequenceDiagram
+    participant TES as TraceExecutor Service
+    participant SLF as SocketListener Factory
+    participant WS as WebSocket Session
+
+    TES->>SLF: onStatusChanged(PENDING)
+    SLF->>WS: send({status: PENDING})
+
+    TES->>SLF: onStatusChanged(STARTED)
+    SLF->>WS: send({status: STARTED})
+
+    Note over TES: ... execution ...
+
+    TES->>SLF: onStatusChanged(COMPLETED)
+    SLF->>WS: send({status: COMPLETED})
 ```
 
 ### Message Format
