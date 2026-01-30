@@ -87,6 +87,12 @@ security.allow-project-create-delete=false # Hides create/delete buttons
 
 The Administration Panel has been fully redesigned and migrated from JSF/RichFaces to a modern **React-based UI**, improving performance, usability, and browser compatibility.
 
+Previous version
+![AdminViewBefore](images/AdminViewBefore.png) 
+
+New version
+![AdminViewAfter](images/AdminViewAfter.png)
+
 #### **Repository Management**
 
 * Redesigned interface for Design and Production repositories  
@@ -106,6 +112,8 @@ The Administration Panel has been fully redesigned and migrated from JSF/RichFac
 * Redesigned login and error pages (403, 404, 500)  
 * Integrated Help page with links to documentation  
 * Support for external UI plugins and embedded editors
+
+![HelpPage](images/HelpPage.png)
 
 ### **1.3 Simplified Deploy Workflow in OpenL Studio**
 
