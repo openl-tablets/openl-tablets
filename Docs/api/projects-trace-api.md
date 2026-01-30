@@ -1196,8 +1196,8 @@ async function exportLargeTrace(projectId) {
 ## Support
 
 For issues or questions:
-- **GitHub Issues**: https://github.com/openl-tablets/openl-tablets/issues
-- **Documentation**: https://openl-tablets.org
+- **GitHub Issues**: [openl-tablets/openl-tablets](https://github.com/openl-tablets/openl-tablets/issues)
+- **Documentation**: [openl-tablets.org](https://openl-tablets.org)
 - **API Status**: BETA - Subject to changes in future releases
 
 ---
