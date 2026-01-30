@@ -46,13 +46,9 @@ Automatically activate when the user:
 1. **Version Number**: The OpenL Tablets version for the release notes (e.g., "5.27.8", "6.0.0")
    - Note: JIRA version format may be "OpenL X.X.X" not just "X.X.X"
 
-2. **Base Version** (optional): Previous version for Git comparison
-   - If not provided, will auto-detect from Git tags
-   - Example: "5.27.5" as base for "5.27.8" release
-
-3. **Known Major Changes** (optional): Any areas of focus
-   - Helps prioritize analysis
-   - Examples: "new admin UI", "ACL redesign", "Jakarta EE migration"
+**Auto-detected values:**
+- **Base Version**: Automatically detected from Git tags (previous version in the same release series)
+- **Major Changes**: Identified automatically through JIRA ticket analysis and Git diff
 
 **Output Location**: The file will be automatically generated in `Docs/release-notes/` within the OpenL Tablets repository.
 
@@ -647,10 +643,10 @@ Inform the user:
 - Check if .git directory exists
 - Ask user to navigate to correct directory
 
-**If base version not found:**
+**If base version cannot be auto-detected:**
 - List available Git tags: `git tag --list "v*"`
-- Ask user to select base version
-- Suggest most recent previous minor version
+- Auto-detect most recent previous version in the same release series
+- Fall back to comparison against main branch if no previous version exists
 
 **If branch doesn't exist:**
 - Check if version is tagged instead: `git tag --list "v{version}"`
@@ -769,16 +765,6 @@ Generate release notes for OpenL Tablets version 6.0.0
 
 ### Advanced Usage
 
-**With Base Version:**
-```
-Generate release notes for version 5.27.8 comparing against 5.27.5
-```
-
-**With Focus Areas:**
-```
-Generate release notes for version 6.0.0, focusing on the new Admin UI and ACL changes
-```
-
 **Git-Only Mode (if JIRA unavailable):**
 ```
 Generate release notes for version 6.0.0 using only Git repository analysis
@@ -883,12 +869,12 @@ Generate release notes for version 6.0.0 and include an appendix with all ticket
 
 ### Git Issues
 
-**Problem**: Can't find base version
+**Problem**: Can't auto-detect base version
 
 **Solution**:
 - List available tags: `git tag --list "v*"`
-- Skill will suggest closest version
-- Manually specify base version
+- Skill will auto-detect closest previous version in the same release series
+- If auto-detection fails, skill will use comparison against main branch
 
 **Problem**: Repository not up to date
 
