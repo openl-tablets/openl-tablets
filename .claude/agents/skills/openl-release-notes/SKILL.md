@@ -1,31 +1,11 @@
 ---
 name: openl-release-notes
-description: Generate professional release notes for OpenL Tablets releases by analyzing Git branches and commits to identify actual functionality changes. Use when the user requests release notes generation for OpenL Tablets, mentions "openl-tablets", "release notes", or specific version numbers like "5.27.8". This skill analyzes Git repository branches, extracts real functional changes (not just commit messages), and formats them according to the official OpenL Tablets release notes template.
+description: Generate professional release notes for OpenL Tablets by collecting and analyzing JIRA tickets. Use when user mentions "generate release notes", "create release notes", "OpenL release notes", or "release notes for OpenL Tablets".
 ---
 
 # OpenL Tablets Release Notes Generator
 
-This skill generates user-focused release notes for OpenL Tablets releases by analyzing Git repository changes and JIRA tickets to identify actual functional changes.
-
-## Core Principle
-
-**Release notes are user-facing product documentation, not engineering changelogs.**
-
-Release notes must explain what changed for users in clear, descriptive language organized by feature area. They should:
-- Lead with value and user impact
-- Provide context and explanation
-- Use narrative, descriptive prose
-- Include visual aids where helpful
-- Organize by feature/topic, not by component
-- Guide users through breaking changes and migration
-
-Release notes are NOT:
-- Brief bullet-point changelogs
-- Technical commit lists
-- Component-grouped bug lists
-- Minimalist reference documents
-
----
+This skill generates comprehensive, professional release notes for OpenL Tablets releases by automatically collecting tickets from JIRA, analyzing them, categorizing by type and component, and creating formatted documentation in both Word and Markdown formats.
 
 ## When to Use This Skill
 
@@ -33,722 +13,530 @@ Automatically activate when the user:
 - Says "generate release notes" or "create release notes"
 - Mentions "OpenL Tablets release notes" or "OpenL release notes"
 - Asks to generate or create release documentation for OpenL
-- References a specific version number like "5.27.8" or "6.0.0"
 
 ---
 
-## Complete Workflow
+## Step-by-Step Workflow
 
-### Phase 1: Environment Setup & Requirements Gathering
+### Step 1: Verify Environment & Gather Requirements
 
-#### Step 1.1: Verify Environment
+**First, verify the environment:**
+- Check that you're in the OpenL Tablets repository root (look for `Docs/` directory)
+- If not in the repository, inform the user and stop
+- Verify `Docs/release-notes/` directory exists, create it if needed
 
-**Check Prerequisites:**
-- Verify you're in the OpenL Tablets repository root (look for `Docs/` directory)
-- If not in repository, inform the user and stop
-- Verify `Docs/release-notes/` directory exists, create if needed
-- Check Git repository is up to date: `git fetch --all --tags`
-
-#### Step 1.2: Gather Release Information
-
-**Ask the user for:**
+**Then, ask the user for:**
 
 1. **Version Number**: The OpenL Tablets version for the release notes (e.g., "5.27.8", "6.0.0")
-   - Note: JIRA version format may be "OpenL X.X.X" not just "X.X.X"
-2. **Release Type**: Is this a major (6.0), minor (5.28), or patch (5.27.8) release?
-   - Major releases have more extensive documentation needs
-   - Minor releases focus on new features
-   - Patch releases emphasize fixes and improvements
+   - Note: The version format in JIRA may be "OpenL X.X.X" not just "X.X.X"
 
-**Auto-detected values:**
-- **Base Version**: Automatically detected from Git tags (previous version in the same release series)
-- **Release Date**: Current date or user-specified date
-- **Major Changes**: Identified automatically through JIRA ticket analysis and Git diff
+**Output Location**: Files will be automatically generated in `Docs/release-notes/` within the OpenL Tablets repository.
 
-**Output Location**: The file will be automatically generated in `Docs/release-notes/` within the OpenL Tablets repository.
-
----
-
-### Phase 2: Data Collection (Dual-Source Approach)
-
-#### Step 2.1: Collect JIRA Tickets (Primary Source)
+### Step 2: Collect Tickets from JIRA
 
 Use Jira MCP tools to search for issues:
 
 **JQL Query:**
-```jql
+```
 project = EPBDS AND fixVersion = "OpenL {version}" AND "Release Notes" != "No, don't include ticket in Release Notes"
 ```
 
-**Execution Notes:**
-- Try version format "OpenL X.X.X" first (e.g., "OpenL 6.0.0")
+**Important Notes:**
+- Try the version format "OpenL X.X.X" first (e.g., "OpenL 6.0.0")
 - If that fails, try just the version number (e.g., "6.0.0")
-- Use `jira_get_project_versions` if needed to find exact version format
-- **Paginate through all results** if more than 50 tickets (use start_at parameter)
-- Collect all tickets before proceeding to next step
+- Use `jira_get_project_versions` if you need to find the exact version format
+- Paginate through all results if there are more than 50 tickets (use start_at parameter)
+- Collect fields: summary, description, issuetype, labels, components, customfield for Release Notes
 
-**Fields to Extract:**
-- Issue key and summary
-- Issue type (Bug, Story, Task, Improvement, New Feature)
-- Description (detailed information)
-- Components (which OpenL component(s) affected)
-- Labels (additional categorization)
-- Custom field: "Release Notes" (pre-written release notes text if available)
-- Priority and severity (for bug categorization)
+### Step 3: Analyze Tickets
 
-**Store Complete Dataset:**
-Create a temporary data structure with all ticket information for later analysis.
-
-#### Step 2.2: Analyze Git Repository (Validation Source)
-
-**Execute Git Analysis:**
-
-```bash
-# Ensure we're in the openl-tablets repository
-cd /path/to/openl-tablets
-
-# Identify release branch (if exists)
-git branch -a | grep -i "release.*{version}"
-
-# Get commit list between base and target version
-git log --oneline {base_version}..{target_branch} > /tmp/git-commits.txt
-
-# Get detailed statistics
-git diff {base_version}..{target_branch} --stat > /tmp/git-stats.txt
-
-# Identify modified files by functional area
-git diff {base_version}..{target_branch} --name-only | grep -E "^(WSFrontend|STUDIO|Util)" > /tmp/modified-areas.txt
-```
-
-**Key Areas to Analyze:**
-- Rule Services runtime (STUDIO/org.openl.rules.ruleservice)
-- OpenL Studio/Webstudio (WSFrontend, STUDIO/org.openl.rules.webstudio)
-- Core engine (Util/openl-*)
-- Repository implementations (STUDIO/org.openl.rules.repository)
-- Security (STUDIO/org.openl.security)
-- Integration features (Docker, cloud storage, APIs)
-
-**Identify in Git:**
-- CVE fixes (security patches)
-- Library version updates (pom.xml, package.json changes)
-- Major architectural changes
-- Files/modules with significant changes
-
-#### Step 2.3: Cross-Validation
-
-**Validation Checklist:**
-
-1. **Completeness Check**:
-   - Compare Git commit count with JIRA ticket count
-   - Look for commits without associated tickets
-   - Identify any significant file changes not covered by tickets
-
-2. **Accuracy Check**:
-   - For major features in JIRA, verify actual implementation in Git
-   - Check if ticket descriptions match actual code changes
-   - Validate library versions mentioned in tickets against pom.xml/package.json
-
-3. **Missing Items Detection**:
-   - Find Git commits that might not have JIRA tickets
-   - Identify any CVE fixes in dependencies not captured in JIRA
-   - Check for undocumented breaking changes in APIs
-
----
-
-### Phase 3: Ticket Analysis & Feature Grouping
-
-#### Step 3.1: Deep Analysis of Each Ticket
-
-For each ticket collected from JIRA, extract and enrich:
-
-**Core Information:**
-- **Issue Type**: Bug, Story, Task, Improvement, New Feature
+For each ticket, extract:
+- **Issue Type**: Bug, Story, Task, Improvement, New Feature, etc.
 - **Summary**: Brief description
-- **Description**: Detailed technical information
-- **Components**: Which OpenL component(s) affected
+- **Description**: Detailed information (may contain technical details)
+- **Components**: Which OpenL component(s) it affects
 - **Labels**: Additional categorization
-- **Release Notes Field**: Custom field with pre-written text
+- **Release Notes field**: Custom field with release notes text (if available)
 
-**Enhanced Analysis:**
-- **User Impact**: How does this affect end users?
-- **Breaking Changes**: Does this require user action or migration?
-- **Dependencies**: Are there library updates involved?
-- **Security Impact**: Any CVE fixes or security improvements?
-- **Related Features**: Does this connect with other changes?
+Identify:
+- Breaking changes or migration requirements
+- Major features requiring detailed descriptions
+- Component affected (OpenL Studio, Rule Services, Core, Repository, Security, etc.)
 
-**Cross-Reference with Git:**
-- Find related commits for this ticket
-- Examine actual code changes to understand true impact
-- Validate ticket description against implementation
-- Extract specific technical details (file formats, API changes, configuration options)
+### Step 4: Categorize Tickets
 
-#### Step 3.2: Group into Feature Areas
+Organize tickets into these categories:
 
-Instead of grouping by component (Core, Studio, Rule Services), group by **user-facing feature area**:
+1. **New Features**: New functionality added to the product
+2. **Improvements**: Enhancements to existing functionality
+3. **Breaking Changes**: Changes that require user action or migration
+4. **Bug Fixes**: Fixed bugs and issues
+5. **Updated Libraries**: Dependency and library updates
 
-**For Major Releases (e.g., 6.0.0):**
-- Security & Access Control
-- Administration & Configuration
-- Rule Authoring & Development
-- API & Integration
-- Performance & Scalability
-- Documentation & Usability
-
-**For Minor/Patch Releases (e.g., 5.27.8):**
-- Core Improvements
-- OpenL Studio Enhancements
-- Rule Services Updates
-- Bug Fixes
-
-**Feature Grouping Rules:**
-1. Combine related tickets into cohesive feature stories
-2. Lead with the most impactful changes
-3. Group breaking changes together
-4. Separate new features from improvements to existing features
-5. Keep bug fixes in their own section unless they're part of a larger feature
+Within each category, group by component:
+- OpenL Studio
+- OpenL Studio Admin
+- OpenL Rule Services
+- OpenL Core
+- OpenL Repository
+- Security
+- DEMO
+- Documentation
 
 ---
 
-### Phase 4: Content Generation (User-Focused Style)
+## Step 5: Generate Professional Content
 
-#### Step 4.1: Output Structure
+### ✅ Pre-Generation Checklist
 
-**For Major Releases (6.0.0 style):**
+Before writing content, identify which features need detailed descriptions:
+
+**Major Features Requiring Detailed Descriptions (2-4 paragraphs each):**
+- [ ] New Administration UI or UI redesigns
+- [ ] Access Control Lists (ACL) or security model changes
+- [ ] Framework migrations (Jakarta EE, Spring, etc.)
+- [ ] New APIs or significant API changes
+- [ ] User/Group management features
+- [ ] Major architectural changes
+- [ ] New integration capabilities (OAuth, SAML, etc.)
+- [ ] Significant performance improvements
+- [ ] New testing or deployment features
+- [ ] Statistical functions or major functional additions
+
+**Regular Features (1-2 sentences each):**
+- [ ] Minor improvements
+- [ ] Bug fixes
+- [ ] Library updates
+- [ ] Small UI tweaks
+- [ ] Documentation updates
+
+### ⚠️ CRITICAL: Major Features MUST Have Detailed Descriptions
+
+**IMPORTANT**: For significant features like ACL, Admin UI updates, framework migrations, and major new functionality:
+- **DO NOT** write single-line bullet points
+- **ALWAYS** provide comprehensive 2-4 paragraph descriptions
+- **EXPLAIN** the feature in depth with context and benefits
+
+### Content Writing Guidelines
+
+**For Major Features (New Features & Improvements):**
+
+Write following this structure:
+
+**REQUIRED Elements:**
+1. **Overview (1-2 sentences)**: What is this feature and why was it added?
+2. **Key Components/Capabilities (2-4 bullets)**: What specific functionality does it provide?
+3. **Benefits and Use Cases (1-2 sentences)**: How will users benefit? What problems does it solve?
+4. **Technical Details (1-2 sentences)**: Implementation approach, technologies used, integration points
+5. **Examples or Scenarios (optional)**: Specific usage scenarios if helpful
+
+**Writing Guidelines:**
+- Provide detailed descriptions that explain what the feature does and why it matters
+- Include use cases showing how users will benefit from the feature
+- Explain the context - what problem does this solve or what capability does it add
+- Be specific about functionality - don't just say "improved X", explain what specifically was improved and the impact
+- Add technical details where relevant (e.g., supported formats, configuration options, API changes)
+- Use 2-3 paragraphs for major features instead of single bullet points
+- Think of the audience: Developers, BAs, and architects need enough detail to understand impact
+
+**For Bug Fixes and Minor Changes:**
+- Keep descriptions concise (1-2 sentences)
+- Focus on what was broken and what now works correctly
+
+**General Style:**
+- Use professional, concise technical writing
+- Start sections with component names in bold
+- Use bullet points for each change
+- Focus on what changed and impact to users
+- Avoid mentioning internal ticket numbers in the main content
+- Keep descriptions clear and actionable
+- Maintain consistency with https://openl-tablets.org/release-notes format
+
+---
+
+### Example Format for MAJOR Features (Use This Style!)
+
+**GOOD EXAMPLE - Major Feature with Detailed Description:**
 
 ```markdown
-# OpenL Tablets {version} Release Notes
+## New Features
 
-{Opening paragraph describing the release theme and major highlights}
+### Redesigned Administration Interface
 
-{Optional: Breaking changes warning for major releases}
+**Overview**
 
-## 1. New Features
+The administration panel has been completely redesigned using modern React technology, replacing the legacy JSF/RichFaces implementation. The new interface provides a more intuitive, responsive, and user-friendly experience for system administrators.
 
-### 1.1 {Feature Name}
+**Key Components**
 
-{Narrative description of the feature, its value, and how it works}
+- **Security Settings**: Manage authentication modes (Multi-user, Active Directory, SAML, OAuth2) with improved configuration interface
+- **User Management**: Enhanced user creation, editing, and deletion with improved validation and error handling
+- **Group Management**: Streamlined group administration with member count display and quick access to group details
+- **Repository Management**: Intuitive repository configuration with support for Git, AWS S3, and JDBC repositories, including connection testing and improved error reporting
+- **System Settings**: Centralized management of system properties including date formats, time formats, auto-compile settings, and thread pool configurations
 
-#### {Sub-feature or Aspect}
+**Benefits**
 
-{Detailed explanation with context}
+The new UI is built using React 18 with modern component architecture, providing real-time updates through WebSocket connections. The interface follows responsive design principles and is compatible with all modern browsers. All administrative operations are backed by RESTful APIs, enabling potential automation and integration scenarios.
 
-* Bulleted lists for specific capabilities or details
-* Multiple bullets providing concrete information
-* Technical details where relevant
+---
 
-{Additional subsections as needed}
+### Enhanced Access Control Lists (ACL)
 
-#### Migration Notes (if applicable)
+**Overview**
 
-{Clear, step-by-step migration guidance}
+OpenL Tablets 6.0.0 introduces a completely redesigned access control system that simplifies permissions management while providing more granular control over resources. The new ACL system replaces the previous 16-permission model with a streamlined 3-role approach.
 
-### 1.2 {Next Feature}
+**New Role Model**
 
-{Continue pattern...}
+The simplified role model consists of three primary roles:
+- **Viewer**: Read-only access to resources. Can view content, run tests, and execute benchmarks but cannot make modifications
+- **Contributor**: Full edit access including the ability to create, modify, and delete content within assigned resources
+- **Manager**: Complete administrative control over assigned resources with all Contributor capabilities plus the ability to assign access rights to other users
 
-## 2. Improvements
+**Integration Features**
 
-### {Component Name}
-
-* {Descriptive improvement explanation}
-* {Another improvement with context}
-
-## 3. Breaking Changes (if major release)
-
-### 3.1 {Breaking Change Title}
-
-{Explanation of what changed and why}
-
-#### What Changed
-
-* Clear description of the change
-* Impact on users
-
-#### Migration Steps
-
-* Step-by-step migration guide
-* Code examples where helpful
-
-## 4. Security & Library Updates
-
-### 4.1 Security Vulnerability Fixes
-
-* **CVE-YYYY-XXXXX**: {Description and impact}
-
-### 4.2 Major Library Upgrades
-
-#### Runtime Dependencies
-
-* Library Name X.Y.Z (from A.B.C)
-* {List of major upgrades}
-
-## 5. Bug Fixes
-
-* {Descriptive bug fix explanation}
-* {Another fix with context}
-
-## 6. Migration Notes (if major release)
-
-{Comprehensive migration guidance organized by user role or topic}
+Access control is applied at the repository level, allowing administrators to grant specific roles for Design and Deployment repositories independently. The system seamlessly integrates with external user management systems including Active Directory, SAML, and OAuth2 providers. A new REST API enables bulk import and export of ACL configurations, facilitating automated deployment processes across multiple environments.
 ```
 
-**For Minor/Patch Releases (5.27.8 style):**
+**BAD EXAMPLE - Major Feature with Insufficient Detail:**
 
 ```markdown
-# OpenL Tablets Release Notes v{version}
+## New Features
 
-**Release Date:** {date}
+**OpenL Studio**
+- New Administration UI with React
+- Enhanced ACL with simplified roles
+- User and group management improvements
+```
 
-[v{version} on GitHub](https://github.com/openl-tablets/openl-tablets/releases/tag/{version})
+↑ **THIS IS NOT ACCEPTABLE for major features!**
 
+---
+
+**GOOD EXAMPLE - Regular Features:**
+
+```markdown
 ## Improvements
 
-### Core
+**OpenL Studio**
+- **Enhanced Rule Validation**: Improved validation engine now provides more detailed error messages with specific line numbers, suggested fixes, and links to documentation. Validation performance improved by 40% for large projects with thousands of rules.
 
-* **{Feature Name}**: {Descriptive explanation of the improvement and its value}
-* **{Another Feature}**: {Clear description with technical context}
+- **Project Import Performance**: Optimized project import process to handle large files more efficiently, reducing import time by up to 60% for projects over 100MB. Added progress indicators and the ability to resume interrupted imports.
 
-### OpenL Studio
+## Bug Fixes
 
-* **{Feature Name}**: {Explanation of the improvement}
-* **{Another Feature}**: {Description with user benefit}
-
-### Rule Services
-
-* **{Feature Name}**: {Description of the improvement}
-
-## Fixed Bugs
-
-### Core
-
-* **{Bug Description}**: {Explanation of what was fixed and the impact}
-
-### OpenL Studio
-
-* **{Bug Fix}**: {Clear description of the fix}
-
-### Rule Services
-
-* **{Bug Fix}**: {Description of what was corrected}
-
-## Fixed Vulnerabilities (if applicable)
-
-* **CVE-YYYY-XXXXX** (Severity): {Description, affected component, resolution}
-
-## Updated Libraries
-
-| Library | Previous Version | New Version |
-|---------|-----------------|-------------|
-| {entries} | | |
-
-## Removed Features (if applicable)
-
-* **{Feature Name}**: {Why removed and migration path}
-
-## Migration Notes (if breaking changes)
-
-### {Topic}
-
-{Migration guidance for this specific area}
+**OpenL Studio**
+- Fixed ClassCastException that occurred when editing complex data types with nested collections
+- Resolved issue where project import would fail for certain file structures containing special characters in folder names
+```
 
 ---
 
-For more information, visit [OpenL Tablets Documentation](https://openl-tablets.org/documentation) or [GitHub Repository](https://github.com/openl-tablets/openl-tablets).
-```
+## Step 6: Generate Migration Notes
 
-#### Step 4.2: Writing Style Guidelines
-
-**CRITICAL DIFFERENCES from Changelog Style:**
-
-**DO:**
-- Write in complete sentences and paragraphs
-- Provide context and explanation for changes
-- Lead with user value and benefits
-- Use descriptive headings that convey meaning
-- Include "what" and "why" for major changes
-- Group related changes into cohesive feature stories
-- Add subsections for complex features
-- Include migration guidance inline with breaking changes
-- Use bold for emphasis on feature names and important concepts
-
-**DON'T:**
-- Write minimal bullet points without context
-- Use generic headings like "Improvements" without subheadings
-- List bugs without explaining the impact
-- Group everything by component (Core/Studio/Rule Services)
-- Omit the reasoning behind changes
-- Skip migration guidance
-- Use ticket numbers in main content
-
-**Length Guidelines:**
-- **Major features**: 2-4 paragraphs with subsections
-- **Minor improvements**: 1-2 sentences per bullet point
-- **Bug fixes**: 1 sentence explaining what was fixed
-- **Breaking changes**: Full explanation plus migration steps
-
-#### Step 4.3: Feature Description Pattern
-
-**For Major Features (New Features section):**
-
-```markdown
-### 1.X {Feature Name}
-
-{Opening paragraph: What is this feature and why was it added? What problem does it solve?}
-
-{Second paragraph: How does it work at a high level? What are the key concepts?}
-
-#### {Specific Aspect or Capability}
-
-{Explanation of this aspect}
-
-* Bullet point providing specific detail
-* Another capability or characteristic
-* Technical configuration if relevant
-
-#### {Another Aspect}
-
-{Continue pattern...}
-
-#### Migration Notes
-
-1. {Step-by-step migration guidance}
-2. {Configuration examples}
-3. {What to test}
-```
-
-**For Improvements (Improvements section):**
-
-```markdown
-### {Component Name}
-
-* **{Feature Name}**: {1-2 sentence description explaining what improved, how it benefits users, and any relevant technical details}
-* **{Another Improvement}**: {Similar format}
-```
-
-**For Bug Fixes:**
-
-```markdown
-* **{Description of Problem}**: {Explanation of what was broken and how it's now fixed}
-```
-
-#### Step 4.4: Library Updates
-
-**Format as table:**
-
-```markdown
-| Library | Previous Version | New Version |
-|---------|-----------------|-------------|
-| Spring Framework | 5.3.36 | 5.3.39 |
-| Jackson | 2.17.1 | 2.17.2 |
-```
-
-**Rules:**
-- Only include libraries in the table, no explanatory text
-- Validate versions against actual pom.xml/package.json from Git
-- Group by category if very long (Runtime Dependencies, Test Dependencies, etc.)
-
-#### Step 4.5: Breaking Changes Handling
-
-**Breaking changes require:**
-1. Clear heading identifying it as breaking
-2. "What Changed" subsection explaining the change
-3. "Impact" or "Why This Changed" subsection providing context
-4. "Migration Steps" subsection with concrete actions
-5. Code examples or configuration examples where helpful
-
-**Example:**
-
-```markdown
-### 3.1 JSON Serialization Type Format Change
-
-OpenL Rules now uses NAME-based polymorphic type identifiers in JSON serialization instead of CLASS-based identifiers.
-
-#### What Changed
-
-* JSON type information now uses simple type names (e.g., "Driver") instead of fully qualified class names (e.g., "com.example.Driver")
-* This affects all polymorphic type serialization in REST APIs and JSON storage
-
-#### Why This Changed
-
-* CLASS-based typing exposes internal implementation details
-* NAME-based typing is more portable and cleaner for API consumers
-* Aligns with modern JSON serialization best practices
-
-#### Impact
-
-* Clients expecting CLASS-based types must be updated
-* Stored JSON data with CLASS types may need migration
-
-#### Migration Steps
-
-* Update client applications to handle NAME-based type information
-* Test JSON serialization/deserialization thoroughly
-* If you must use CLASS format (not recommended), set:
-
-  ```properties
-  ruleservice.jackson.jsonTypeInfoId=CLASS
-  ```
-```
-
-#### Step 4.6: CVE and Vulnerability Fixes
+For breaking changes, create a dedicated "Migration Notes" section:
 
 **Format:**
 ```markdown
-* **CVE-2024-12345** (Critical): Fixed remote code execution vulnerability in Apache Tomcat. Updated to version 10.1.28.
-* **CVE-2024-67890** (High): Addressed XML parsing vulnerability in Apache Commons Text. Updated to version 1.11.0.
+## Migration Notes
+
+### Component Name - Breaking Change Title
+
+**Impact**: Description of what this affects (e.g., "Affects all users using feature X")
+
+**Action Required**:
+1. Step-by-step migration instructions
+2. Any configuration updates needed
+3. Code changes if applicable
+4. Timeline or version compatibility information
+
+**Example** (if helpful):
+Show before/after code examples or configuration changes
 ```
 
-**Requirements:**
-- Always list CVE IDs
-- Include severity in parentheses
-- Provide one-sentence explanation of the vulnerability
-- Specify affected library and new version
+**Guidelines:**
+- Explain what changed and why
+- Provide clear steps for users to migrate
+- Include code examples if relevant
+- Highlight any configuration changes needed
+- Be specific about version compatibility
 
 ---
 
-### Phase 5: Document Generation
+## Step 7: Create Output Files
 
-#### Step 5.1: Create Markdown File
+Generate two files using Python with python-docx library:
 
-**Generate the complete Markdown document following the appropriate structure:**
-- Use Major Release structure for X.0.0 versions
-- Use Minor/Patch Release structure for X.Y.Z versions
+### Python Implementation Script
 
-**Key Requirements:**
-- Lead with most impactful changes
-- Group related features together
-- Provide adequate context and explanation
-- Include migration guidance for breaking changes
-- Use descriptive headings and subheadings
-- Write in complete sentences, not fragments
-- Validate all technical details against Git repository
+```python
+from docx import Document
+from docx.shared import Pt, RGBColor, Inches
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from datetime import datetime
 
-**Save as:** `Docs/release-notes/OpenL_Tablets_{version}_Release_Notes.md`
+def create_release_notes(version, tickets_data):
+    """
+    Generate Word and Markdown release notes files.
+
+    Args:
+        version: OpenL version (e.g., "6.0.0")
+        tickets_data: Dict with categorized tickets
+    """
+
+    # Output directory is always Docs/release-notes
+    output_dir = "Docs/release-notes"
+
+    # Create Word document
+    doc = Document()
+
+    # Title
+    title = doc.add_heading(f'OpenL Tablets {version} Release Notes', 0)
+    title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    # Release Date
+    date_para = doc.add_paragraph(f'Release Date: {datetime.now().strftime("%B %d, %Y")}')
+    date_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    doc.add_paragraph()
+
+    # Overview
+    if 'overview' in tickets_data:
+        doc.add_heading('Overview', 1)
+        doc.add_paragraph(tickets_data['overview'])
+        doc.add_paragraph()
+
+    # New Features
+    if 'new_features' in tickets_data:
+        doc.add_heading('New Features', 1)
+        for component, features in tickets_data['new_features'].items():
+            doc.add_heading(component, 2)
+            for feature in features:
+                if feature.get('is_major'):
+                    # Major feature with detailed description
+                    doc.add_heading(feature['title'], 3)
+                    if isinstance(feature['description'], list):
+                        for para in feature['description']:
+                            doc.add_paragraph(para)
+                    else:
+                        doc.add_paragraph(feature['description'])
+                    doc.add_paragraph()
+                else:
+                    # Minor feature as bullet
+                    doc.add_paragraph(feature['description'], style='List Bullet')
+
+    # Improvements
+    if 'improvements' in tickets_data:
+        doc.add_heading('Improvements', 1)
+        for component, improvements in tickets_data['improvements'].items():
+            doc.add_heading(component, 2)
+            for improvement in improvements:
+                doc.add_paragraph(improvement, style='List Bullet')
+
+    # Breaking Changes
+    if 'breaking_changes' in tickets_data:
+        doc.add_heading('Breaking Changes', 1)
+        for change in tickets_data['breaking_changes']:
+            doc.add_heading(change['title'], 2)
+            doc.add_paragraph(change['description'])
+            doc.add_paragraph()
+
+    # Bug Fixes
+    if 'bug_fixes' in tickets_data:
+        doc.add_heading('Bug Fixes', 1)
+        for component, fixes in tickets_data['bug_fixes'].items():
+            doc.add_heading(component, 2)
+            for fix in fixes:
+                doc.add_paragraph(fix, style='List Bullet')
+
+    # Updated Libraries
+    if 'updated_libraries' in tickets_data:
+        doc.add_heading('Updated Libraries', 1)
+        for lib in tickets_data['updated_libraries']:
+            doc.add_paragraph(lib, style='List Bullet')
+
+    # Migration Notes
+    if 'migration_notes' in tickets_data:
+        doc.add_heading('Migration Notes', 1)
+        for note in tickets_data['migration_notes']:
+            doc.add_heading(note['title'], 2)
+            doc.add_paragraph(f"**Impact**: {note['impact']}")
+            doc.add_paragraph("**Action Required**:")
+            for step in note['steps']:
+                doc.add_paragraph(step, style='List Number')
+            if 'example' in note:
+                doc.add_paragraph("**Example**:")
+                doc.add_paragraph(note['example'])
+            doc.add_paragraph()
+
+    # Save Word document
+    docx_path = f"{output_dir}/OpenL_Tablets_{version}_Release_Notes_Detailed.docx"
+    doc.save(docx_path)
+
+    # Create Markdown version
+    md_content = f"# OpenL Tablets {version} Release Notes\n\n"
+    md_content += f"**Release Date:** {datetime.now().strftime('%B %d, %Y')}\n\n"
+
+    # Add same sections in Markdown format
+    # ... (similar structure)
+
+    md_path = f"{output_dir}/OpenL_Tablets_{version}_Release_Notes_Detailed.md"
+    with open(md_path, 'w', encoding='utf-8') as f:
+        f.write(md_content)
+
+    return docx_path, md_path
+```
+
+### File Naming Convention
+
+- Word: `OpenL_Tablets_{version}_Release_Notes_Detailed.docx`
+- Markdown: `OpenL_Tablets_{version}_Release_Notes_Detailed.md`
 
 ---
 
-### Phase 6: Quality Assurance
+## Step 8: Confirm Completion
 
-#### Step 6.1: Validation Checklist
-
-Before finalizing, verify:
-
-**Content Structure:**
-- [ ] Appropriate structure for release type (major vs minor/patch)
-- [ ] Features grouped logically by topic, not just by component
-- [ ] Breaking changes clearly identified and explained
-- [ ] Migration guidance provided for all breaking changes
-- [ ] Related features grouped into cohesive stories
-
-**Content Style:**
-- [ ] Written in narrative, descriptive prose
-- [ ] Major features have 2-4 paragraph explanations
-- [ ] Context provided for why changes were made
-- [ ] User value and benefits clearly articulated
-- [ ] No minimal bullet points without explanation
-- [ ] No ticket references in main content (EPBDS-XXXX)
-
-**Technical Accuracy:**
-- [ ] All JIRA tickets accounted for
-- [ ] Git validation completed
-- [ ] CVE IDs formatted correctly (CVE-YYYY-XXXXX)
-- [ ] Library versions validated against pom.xml/package.json
-- [ ] Breaking changes have complete migration guidance
-- [ ] Configuration examples are accurate
-
-**User Experience:**
-- [ ] Clear value proposition for each major feature
-- [ ] Migration guidance is actionable
-- [ ] Technical details are accurate but accessible
-- [ ] Organized for easy scanning and navigation
-- [ ] Breaking changes are prominently highlighted
-
-#### Step 6.2: Completeness Check
-
-**Ensure all ticket categories are covered:**
-- New features properly described
-- Improvements explained with context
-- Bugs fixes documented with impact
-- Security vulnerabilities addressed
-- Library updates listed
-- Removed features documented with migration paths
-- Breaking changes explained with migration guidance
-
----
-
-### Phase 7: Completion & Delivery
-
-#### Step 7.1: Present File to User
-
-```bash
-# Copy file to outputs directory for user access
-cp Docs/release-notes/OpenL_Tablets_{version}_Release_Notes.md /mnt/user-data/outputs/
-```
-
-Use `present_files` tool to make the file available.
-
-#### Step 7.2: Provide Summary
-
-Generate a brief summary:
-
-```
-Release Notes Generated Successfully
-
-Summary:
-├─ Release Type: {Major/Minor/Patch}
-├─ Total Features: {X}
-├─ Improvements: {Y}
-├─ Bug Fixes: {Z}
-├─ Vulnerabilities Fixed: {N} CVEs
-├─ Libraries Updated: {M}
-└─ Breaking Changes: {B}
-
-File: OpenL_Tablets_{version}_Release_Notes.md
-Format: User-focused release notes with narrative explanations
-```
+After generating files:
+1. Confirm both files were created successfully
+2. Display file locations with full paths
+3. Show file sizes
+4. Provide a brief summary (e.g., "156 tickets categorized into 45 new features, 67 improvements, 8 breaking changes, and 36 bug fixes")
 
 ---
 
 ## Error Handling
 
-### JIRA Connection Issues
-
-**If JIRA authentication fails:**
-- Inform user that JIRA authentication failed
+**If JIRA connection fails:**
+- Inform user that authentication failed
 - Suggest checking JIRA MCP server configuration
 - Verify user has access to EPBDS project
-- Offer to proceed with Git-only analysis (limited detail)
 
 **If no tickets found:**
-- Verify version format (try "OpenL X.X.X" vs "X.X.X")
+- Verify the version format (try "OpenL X.X.X" vs "X.X.X")
 - Use `jira_get_project_versions` to check available versions
-- Confirm version exists in JIRA
-- Ask user if version number is correct
+- Confirm the version exists in JIRA
 
-**If pagination fails:**
-- JIRA returns max 50 results per query
-- Use start_at parameter to fetch remaining tickets
-- Continue until all tickets collected
-- Inform user of progress: "Collecting tickets: 150/200..."
-
-### Git Repository Issues
-
-**If Git repository not found:**
-- Verify current directory is openl-tablets root
-- Check if .git directory exists
-- Ask user to navigate to correct directory
-
-**If base version cannot be auto-detected:**
-- List available Git tags: `git tag --list "v*"`
-- Auto-detect most recent previous version in the same release series
-- Fall back to comparison against main branch if no previous version exists
-
-**If branch doesn't exist:**
-- Check if version is tagged instead: `git tag --list "v{version}"`
-- Use tag if branch doesn't exist
-- Fall back to master/main branch comparison
-
-### Document Generation Issues
-
-**If directory creation fails:**
-- Check write permissions for Docs/release-notes/
-- Offer alternative output location
-- Ask user for preferred output directory
+**If Docs/release-notes directory doesn't exist:**
+- Automatically create the directory
+- Inform user that the directory was created
 
 **If file writing fails:**
-- Check disk space
-- Verify file path is valid
-- Check for file lock (file already open)
+- Check directory permissions
+- Verify python-docx is installed
+- Ensure you're in the OpenL Tablets repository root
 
----
-
-## Style Examples
-
-### Good User-Focused Example (Major Feature)
-
-```markdown
-### 1.1 Simplified User Access & Permissions Management in OpenL Studio
-
-OpenL Studio introduces a **completely redesigned access control system** with a simplified, role-based permission model. The new approach significantly reduces configuration complexity while maintaining enterprise-grade security.
-
-The new system supports **granular, resource-level access control** through role assignments, with a reduced and streamlined set of permissions for improved clarity and maintainability.
-
-#### Role-Based Access Control
-
-Access is now managed through three predefined roles:
-
-* **Manager**: Full control with ability to assign roles
-* **Contributor**: Content modification without system administration
-* **Viewer**: Read-only access with test execution capabilities
-
-The legacy permission model has been consolidated into **five core permissions**—**Manage, View, Create, Edit, and Delete**—which are embedded directly into roles.
-
-All existing permissions are **automatically migrated** to the new role structure during upgrade.
-```
-
-### Good User-Focused Example (Improvement)
-
-```markdown
-### OpenL Studio
-
-* **Enhanced Object Cloning**: Completely rewritten cloning mechanism that works without illegal reflection operations, providing better performance and full compatibility with modern Java versions including Java 21
-* **Modern UI Framework**: Migrated from jQuery 1.7.2 to jQuery 3.7.1, along with updates to jQuery UI (1.13.2) and Fancytree (2.38.3), providing better browser compatibility and improved UI performance
-* **Memory Optimization**: Improved memory usage by reusing existing search index nodes instead of creating duplicates, reducing overall memory footprint during rule compilation
-```
-
-### Bad Changelog Example (DO NOT USE)
-
-```markdown
-## Improvements
-
-### Core
-• Added SpreadsheetResult parameterization support
-• Implemented automatic table type inference
-• Enhanced virtual compilation
-
-### OpenL Studio
-• Added full-text search
-• Implemented OAuth2 authentication
-• Refactored administration UI
-```
-
-**Why this is bad:**
-- Too brief, lacks context and explanation
-- No user value articulated
-- Generic component grouping
-- No details about benefits or how features work
-- Reads like a commit log, not user documentation
+**If pagination issues:**
+- JIRA returns max 50 results per query
+- Use start_at parameter to fetch remaining
+- Continue until all tickets collected
 
 ---
 
 ## Prerequisites
 
-### Required Tools
-
-1. **OpenL Tablets Repository**
-   - Must be run from repository root
-   - Git repository must be accessible
-   - Recommend latest code: `git pull --all`
-
-2. **JIRA MCP Server**
-   - Configured with EPBDS project access
-   - Valid authentication credentials
-   - Network access to JIRA instance
-
-3. **Git**
-   - For repository analysis
-   - Version: 2.20+ recommended
+1. **OpenL Tablets Repository**: Must be run from within the openl-tablets repository root
+2. **Jira MCP Server**: Configured with EPBDS project access
+3. **Python 3**: Installed (`python3 --version`)
+4. **python-docx**: Installed (`pip install python-docx`)
+5. **Internet Connection**: Required for JIRA API
 
 ---
 
-## License & Support
+## Installation
 
-**Skill Version**: 4.0.0 (User-Focused Release Notes)
-**Last Updated**: January 2026
-**Compatible With**: Claude Desktop with JIRA MCP Server
-**Maintained By**: OpenL Tablets Team
+### For Business Analysts
 
-**Support Channels:**
-- GitHub Issues: https://github.com/openl-tablets/openl-tablets/issues
-- Documentation: https://openl-tablets.org/documentation
-- Email: support@openl-tablets.org
+1. **Download** this SKILL.md file
+2. **Create directory**: `~/.claude/skills/openl-release-notes/`
+3. **Copy file** to: `~/.claude/skills/openl-release-notes/SKILL.md`
+4. **Restart** Claude Desktop
+
+### Verify Installation
+
+1. Open Claude Desktop
+2. Type: `/openl`
+3. Should see "openl-release-notes" in list
+4. Ready to use!
+
+---
+
+## Usage
+
+### Basic Usage
+
+Just ask Claude:
+```
+Generate release notes for OpenL Tablets version 6.0.0
+```
+
+Claude will:
+1. Ask for version number
+2. Connect to JIRA and collect tickets
+3. Categorize and analyze them
+4. Generate comprehensive release notes
+5. Create Word and Markdown files in Docs/release-notes/
+6. Complete in 2-5 minutes
+
+### Example Output
+
+For version 6.0.0 with 156 tickets:
+- **Word**: `Docs/release-notes/OpenL_Tablets_6.0.0_Release_Notes_Detailed.docx` (44 KB, ~30 pages)
+- **Markdown**: `Docs/release-notes/OpenL_Tablets_6.0.0_Release_Notes_Detailed.md` (20 KB)
+
+---
+
+## Tips for Best Results
+
+1. Skill automatically identifies major features requiring detailed descriptions
+2. Changes are organized by component for readability
+3. Technical language appropriate for developers and architects
+4. Specific details (e.g., "40% performance improvement")
+5. Breaking changes are prominent with migration instructions
+6. Version format handling is automatic
+
+---
+
+## Troubleshooting
+
+**Skill doesn't appear:**
+- Restart Claude Desktop
+- Verify location: `~/.claude/skills/openl-release-notes/SKILL.md`
+
+**JIRA authentication failed:**
+- Check JIRA MCP in Claude settings
+- Verify EPBDS project access
+
+**Python/python-docx not installed:**
+- Install Python from python.org
+- Run: `pip install python-docx`
+
+**No tickets found:**
+- Skill tries different version formats automatically
+- Verify version exists in JIRA
+
+---
+
+## Quick Reference
+
+**Typical Workflow:**
+1. User: "Generate release notes for OpenL Tablets version 6.0.0"
+2. Claude asks for version number (if not provided)
+3. Claude queries JIRA and collects tickets
+4. Claude categorizes by type and component
+5. Claude writes detailed descriptions for major features
+6. Claude generates Word and Markdown files in Docs/release-notes/
+7. Claude confirms completion with full file paths
+
+**Time:** 2-5 minutes (50-200 tickets)
+
+**Output Size:**
+- Word: 40-50 KB (~30 pages)
+- Markdown: 15-25 KB (~400-500 lines)
+
+---
+
+## Version
+
+**Version:** 1.0.0
+**Last Updated:** January 2026
+**Compatible with:** Claude Desktop with JIRA MCP Server
