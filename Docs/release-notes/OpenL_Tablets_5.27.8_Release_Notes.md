@@ -1,80 +1,89 @@
-# OpenL Tablets 5.27.8 Release Notes
+# OpenL Tablets Release Notes v5.27.8
 
 **Release Date:** September 19, 2024
-**GitHub Release:** https://github.com/openl-tablets/openl-tablets/releases/tag/5.27.8
 
----
-
-## New Features
-
-### Core
-
-- Adds full support for building OpenL Tablets under Java 21, including all unit and integration tests verified on both Java 11 and Java 21.
-- Generates `valueOf(SpreadsheetResult)` methods for seamless conversion of SpreadsheetResult objects to their corresponding Java bean representations.
-
----
+[v5.27.8 on GitHub](https://github.com/openl-tablets/openl-tablets/releases/tag/5.27.8)
 
 ## Improvements
 
 ### Core
 
-- Replaces the legacy cloning library with a new implementation that operates without illegal reflective access, ensuring compatibility with Java 9+ module restrictions.
-- Improves cloner performance by using simpler bean introspection techniques instead of complex reflection chains.
-- Uses OpenLClassLoader to define generated classes via direct classloader method calls, avoiding deprecated Unsafe-based class definition.
-- Adds a new utility class for working with Java Bean properties/fields via safe reflection operations.
-- Replaces illegal reflective access with JSON deserialization using Jackson for complex object graphs.
-- Uses JDK 11 HttpClient instead of hacked HttpURLConnection for HTTP operations.
-- Removes usage of `setAccessible(true)` calls throughout the codebase.
+* **Java 21 Build Support**: OpenL Tablets now fully supports building and running under Java 21. All unit and integration tests have been verified on both Java 11 and Java 21, ensuring the rules engine operates correctly on the latest long-term support Java release.
+
+* **SpreadsheetResult to Bean Conversion**: Introduces automatic `valueOf(SpreadsheetResult)` method generation for seamless conversion of SpreadsheetResult objects to their corresponding Java bean representations. This simplifies working with spreadsheet outputs in strongly-typed Java code and improves integration with external systems.
+
+* **Modern Cloning Implementation**: Completely rewrites the object cloning mechanism to operate without illegal reflective access, ensuring full compatibility with Java 9+ module restrictions. The new implementation uses simpler bean introspection techniques instead of complex reflection chains, delivering better performance and future-proofing.
+
+* **Safe Class Loading**: Uses OpenLClassLoader to define generated classes via direct classloader method calls, replacing deprecated Unsafe-based class definition approaches that were blocked in recent Java versions.
+
+* **Memory Optimization for Decision Tables**: Optimizes the equals index implementation to reuse existing search nodes when identical, significantly reducing memory consumption during rule compilation and execution for large decision tables.
+
+* **Improved Reflection Utilities**: Introduces a new utility class for working with Java Bean properties and fields via safe reflection operations, replacing illegal reflective access patterns with JSON deserialization using Jackson for complex object graphs.
+
+* **Modern HTTP Client**: Replaces legacy hacked HttpURLConnection implementations with the JDK 11 HttpClient API, providing better performance, connection pooling, and HTTP/2 support.
 
 ### OpenL Studio
 
-- Rebrands WebStudio to **OpenL Studio** throughout the product for consistent identity.
-- Migrates frontend from legacy jQuery to jQuery 3.7.x with custom overrides for RichFaces compatibility.
-- Improves OAuth2 authentication with graceful error handling when external authentication servers are unavailable.
-- Adds Keycloak-based integration tests for OAuth2 authentication validation.
-- Supports unlimited form keys for submitted forms, removing previous field count restrictions.
-- Decreases database connection pool usage to reduce resource consumption under high load.
-- Adds validation to ensure projects are opened before actions requiring an open project via `/projects` API.
+* **jQuery 3.7 Migration**: Upgrades the frontend from legacy jQuery 1.x to jQuery 3.7.x with custom overrides for RichFaces compatibility. This modernizes the UI framework, improves browser compatibility, and addresses security vulnerabilities in the older jQuery version.
+
+* **Improved OAuth2 Authentication**: Enhances OAuth2 authentication with graceful error handling when external authentication servers are unavailable. Users now see meaningful error messages instead of internal server error pages when identity providers are temporarily unreachable.
+
+* **Keycloak Integration Testing**: Adds comprehensive Keycloak-based integration tests to validate OAuth2 authentication flows, ensuring reliable authentication across different identity provider configurations.
+
+* **Reduced Database Connections**: Decreases the database connection pool usage to reduce resource consumption under high load, improving stability in multi-user environments and reducing memory footprint.
+
+* **Unlimited Form Fields**: Removes the previous restriction on the number of form fields that can be submitted, allowing complex rule tables with many parameters to be saved without encountering form key limits.
+
+* **Project Validation for API Actions**: Adds validation to ensure projects are properly opened before executing actions that require an active project context via the `/projects` API, preventing confusing error messages from incomplete project states.
+
+* **Product Rebranding**: Updates product naming from "WebStudio" to "OpenL Studio" throughout the user interface for consistent branding and identity.
 
 ### Rule Services
 
-- Optimizes equals index implementation to reuse existing search nodes when identical, significantly reducing memory usage.
-- Refactors Kafka deployment configuration for improved maintainability using patterned file names and property substitution.
-- Logs warning when unofficial `kafka-deploy.yml` file names are used.
-- Uses system timezone instead of hardcoded UTC for JSON date/time serialization and deserialization.
-- Includes `deployment.yaml` file in downloaded ZIP exports automatically.
-- Validates services before deployment, catching configuration errors earlier.
-- Changes default OpenTelemetry agent port for compatibility with OpenTelemetry 2.0.
+* **Local Timezone for JSON Serialization**: Uses the system's local timezone instead of hardcoded UTC for JSON date/time serialization and deserialization. This aligns timestamp handling with user expectations and eliminates timezone conversion confusion in deployed services.
 
----
+* **Deployment Configuration Improvements**: Refactors Kafka deployment configuration for improved maintainability using patterned file names and property substitution, making it easier to manage multiple deployment configurations.
+
+* **Kafka Configuration Warnings**: Logs warnings when unofficial `kafka-deploy.yml` file names are used, helping administrators identify and correct non-standard configuration files that may cause deployment issues.
+
+* **Pre-Deployment Validation**: Validates services before deployment, catching configuration errors earlier in the deployment pipeline and providing clearer error messages about what needs to be fixed.
+
+* **Deployment YAML in Exports**: Automatically includes the `deployment.yaml` file in downloaded ZIP exports, ensuring complete deployment artifacts are available when exporting projects for deployment.
+
+* **OpenTelemetry 2.0 Compatibility**: Updates the default OpenTelemetry agent port to maintain compatibility with OpenTelemetry 2.0, ensuring observability features continue working after library upgrades.
 
 ## Fixed Bugs
 
 ### Core
 
-- Fixed issue where update table logic via REST API could cause incorrect updates under certain conditions.
+* **REST API Table Updates**: Fixed an issue where update table logic via the REST API could cause incorrect updates under certain race conditions, ensuring reliable table modifications through the API.
 
 ### OpenL Studio
 
-- Fixed `$('select').val()` returning incorrect values when the default option was selected and disabled in jQuery 3.
-- Fixed Ajax error callbacks to use `fail` method instead of deprecated `error` method removed in jQuery 3.
-- Fixed built-in `fileupload.js` component incompatibility with jQuery 3.x.
-- Fixed email inputs toggle functionality broken after jQuery upgrade.
-- Fixed `changeSelectAllStatus` function for multiselect plugin to work with jQuery 3.
-- Patched `jQuery.position()` in jQuery 3.7 to use algorithm from jQuery 1.7.2 due to incorrect `{top: 1, left: 1}` returns.
+* **jQuery Select Value Handling**: Fixed an issue where `$('select').val()` returned incorrect values when the default option was selected and disabled, which caused form submissions to fail in certain scenarios after the jQuery 3 upgrade.
+
+* **Ajax Error Callbacks**: Fixed Ajax error handling to use the `fail` method instead of the deprecated `error` method that was removed in jQuery 3, restoring proper error notification to users.
+
+* **File Upload Component**: Fixed the built-in `fileupload.js` component incompatibility with jQuery 3.x that prevented file uploads from working correctly.
+
+* **Email Input Toggle**: Fixed email input toggle functionality that stopped working after the jQuery upgrade, restoring the ability to enable/disable email notifications.
+
+* **Multiselect Plugin**: Fixed the `changeSelectAllStatus` function for the multiselect plugin to work correctly with jQuery 3, allowing "select all" functionality to operate properly.
+
+* **Position Calculation**: Patched `jQuery.position()` in jQuery 3.7 to use the algorithm from jQuery 1.7.2, fixing incorrect position calculations that returned `{top: 1, left: 1}` and broke UI element positioning.
 
 ### Rule Services
 
-- Fixed incompatibility between JAXB deserialization and Java Bean introspection causing serialization failures.
-- Fixed serialization and deserialization issues when using Jackson MixIn classes.
-- Fixed deploying when `version` tag is defined in `rules-deploy.xml`.
+* **JAXB and Bean Introspection**: Fixed incompatibility between JAXB deserialization and Java Bean introspection that caused serialization failures when using certain data structures.
 
----
+* **Jackson MixIn Serialization**: Fixed serialization and deserialization issues when using Jackson MixIn classes for custom JSON mapping configurations.
+
+* **Deployment Version Tag**: Fixed an issue where deployments failed when the `version` tag was defined in `rules-deploy.xml`, ensuring version-tagged deployments work correctly.
 
 ## Updated Libraries
 
 | Library | Previous Version | New Version |
-|---------|------------------|-------------|
+|---------|-----------------|-------------|
 | Spring Framework | 5.3.36 | 5.3.39 |
 | Spring Security | 5.8.12 | 5.8.14 |
 | Jackson | 2.17.1 | 2.17.2 |
@@ -106,29 +115,16 @@
 | Groovy | 4.0.21 | 4.0.23 |
 | Snappy Java | 1.1.10.5 | 1.1.10.7 |
 | Byte Buddy | (new) | 1.15.1 |
-| jQuery | 1.x (legacy) | 3.7.x |
-
----
+| jQuery | 1.7.2 | 3.7.1 |
 
 ## Removed Features
 
-- Removes the `openl2text` module from the project, moving `OpenL2TextUtils` to a more appropriate location.
-- Removes `picocli` command-line parsing library.
-- Removes `progressbar` library.
-- Removes `joda-time` library dependency (migrated to java.time API).
-- Removes support for alternative Kafka configuration file names; use standard `kafka-deploy.yml` naming convention.
+* **openl2text Module**: The `openl2text` module has been removed from the project, with `OpenL2TextUtils` relocated to a more appropriate location within the codebase. Projects using this utility should update their imports accordingly.
+
+* **Alternative Kafka File Names**: Support for alternative Kafka configuration file names has been removed. Use the standard `kafka-deploy.yml` naming convention for deployment configurations.
+
+* **Legacy Libraries**: Removed dependencies on `picocli` command-line parsing library, `progressbar` library, and `joda-time` library (migrated to the java.time API).
 
 ---
 
-## Live Demo
-
-Try OpenL Tablets online: https://openl-tablets.org/demo
-
----
-
-## Getting Help
-
-- **Documentation**: https://openl-tablets.org/documentation
-- **Community Forum**: https://openl-tablets.org/forum
-- **GitHub Issues**: https://github.com/openl-tablets/openl-tablets/issues
-- **Commercial Support**: contact@openl-tablets.org
+For more information, visit [OpenL Tablets Documentation](https://openl-tablets.org/documentation) or [GitHub Repository](https://github.com/openl-tablets/openl-tablets).
