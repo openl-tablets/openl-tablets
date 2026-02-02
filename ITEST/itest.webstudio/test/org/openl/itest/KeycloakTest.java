@@ -126,7 +126,7 @@ public class KeycloakTest {
 
     private void initStudio(org.openl.itest.core.HttpClient httpClient, String authServerUrl) {
         var oauth2Config = (ObjectNode) httpClient.readTree("test-resources-oauth2/set-authentication-template.json");
-        oauth2Config.put("issuerUri", authServerUrl + "realms/openlstudio");
+        oauth2Config.put("issuerUri", authServerUrl + "/realms/openlstudio");
         oauth2Config.put("clientSecret", CLIENT_SECRET);
         oauth2Config.put("clientId", CLIENT_ID);
         httpClient.postForObject("/rest/admin/settings/authentication", oauth2Config);
@@ -134,7 +134,7 @@ public class KeycloakTest {
 
     private String getAccessTokenForUser(String authServerUrl, String username, String password) throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder()
-                .uri(new URI(authServerUrl + "realms/openlstudio/protocol/openid-connect/token"))
+                .uri(new URI(authServerUrl + "/realms/openlstudio/protocol/openid-connect/token"))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .POST(HttpRequest.BodyPublishers.ofString("grant_type=password&scope=openid profile email" +
                         "&client_id=" + CLIENT_ID +

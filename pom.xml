@@ -145,7 +145,7 @@
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.11.0</xmlunit.version>
         <testcontainers.version>2.0.3</testcontainers.version>
-        <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
+        <testcontainers.keycloak.version>4.1.1</testcontainers.keycloak.version>
         <minio.version>8.6.0</minio.version>
         <ojdbc11.version>23.26.0.0.0</ojdbc11.version>
         <postgresql.version>42.7.9</postgresql.version>
