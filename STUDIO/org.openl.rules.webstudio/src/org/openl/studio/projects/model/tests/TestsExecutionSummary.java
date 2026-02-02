@@ -24,7 +24,13 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
     private final int numberOfFailures;
 
     private TestsExecutionSummary(Builder builder) {
-        super(builder.testCases, builder.page.getPageNumber(), builder.page.getPageSize());
+        super(builder.testCases,
+                builder.page.isUnpaged()
+                        ? -1
+                        : builder.page.getPageNumber(),
+                builder.page.isUnpaged()
+                        ? builder.testCases.size()
+                        : builder.page.getPageSize());
         this.executionTimeMs = builder.executionTimeMs;
         this.numberOfTests = builder.numberOfTests;
         this.numberOfFailures = builder.numberOfFailures;
@@ -84,7 +90,7 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
             return this;
         }
 
-        public  Builder page(Pageable page) {
+        public Builder page(Pageable page) {
             this.page = page;
             return this;
         }
