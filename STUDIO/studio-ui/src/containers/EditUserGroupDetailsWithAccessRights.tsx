@@ -241,28 +241,34 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return url
         }
 
-        deletedRoles.forEach((repo: any) => {
-            apiCall(generateURL(repo.id), {
-                method: 'DELETE',
-                headers
-            })
-        })
+        await Promise.all(
+            deletedRoles.map((repo: any) =>
+                apiCall(generateURL(repo.id), {
+                    method: 'DELETE',
+                    headers
+                })
+            )
+        )
 
-        addedRoles.forEach((repo: any) => {
-            apiCall(generateURL(repo.id), {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ role: repo.role })
-            })
-        })
+        await Promise.all(
+            addedRoles.map((repo: any) =>
+                apiCall(generateURL(repo.id), {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ role: repo.role })
+                })
+            )
+        )
 
-        updatedRoles.forEach((repo: any) => {
-            apiCall(generateURL(repo.id), {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ role: repo.role })
-            })
-        })
+        await Promise.all(
+            updatedRoles.map((repo: any) =>
+                apiCall(generateURL(repo.id), {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ role: repo.role })
+                })
+            )
+        )
     }
 
     const saveDesignRepositoriesRoles = async (values: FormValues, sid: string) => {
@@ -290,7 +296,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         const syncRootRole = async (type: RepositoryType, value?: RootRoleFormValue): Promise<void> => {
             const currentRole = rootRepositoryRoles[type]?.role
             const nextRole = value && value !== NONE_ROLE_VALUE ? value as Role : undefined
-            
+
             if (!nextRole && currentRole) {
                 await apiCall(generateRootURL(type), {
                     method: 'DELETE',
@@ -346,28 +352,34 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return url
         }
 
-        deletedRoles.forEach((project: any) => {
-            apiCall(generateURL(project.id), {
-                method: 'DELETE',
-                headers
-            })
-        })
+        await Promise.all(
+            deletedRoles.map((project: any) =>
+                apiCall(generateURL(project.id), {
+                    method: 'DELETE',
+                    headers
+                })
+            )
+        )
 
-        addedRoles.forEach((project: any) => {
-            apiCall(generateURL(project.id), {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ role: project.role })
-            })
-        })
+        await Promise.all(
+            addedRoles.map((project: any) =>
+                apiCall(generateURL(project.id), {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ role: project.role })
+                })
+            )
+        )
 
-        updatedRoles.forEach((project: any) => {
-            apiCall(generateURL(project.id), {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ role: project.role })
-            })
-        })
+        await Promise.all(
+            updatedRoles.map((project: any) =>
+                apiCall(generateURL(project.id), {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ role: project.role })
+                })
+            )
+        )
     }
 
     const accessTabs = useMemo(() => [
@@ -403,7 +415,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 // @ts-ignore
                 sid = await saveGroup(values)
             }
-            
+
             if (!sid) {
                 notification.error({
                     message: t('common:error'),
@@ -413,12 +425,11 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
 
             // Save roles for design and deploy repositories and projects
-            await Promise.all([
-                saveDesignRepositoriesRoles(values, sid),
-                saveDeployRepositoriesRoles(values, sid),
-                saveRootRepositoriesRoles(values, sid),
-                saveProjectRoles(values, sid)
-            ])
+            // It is mandatory to await each function to ensure that BE updates are done in order
+            await saveDesignRepositoriesRoles(values, sid)
+            await saveDeployRepositoriesRoles(values, sid)
+            await saveRootRepositoriesRoles(values, sid)
+            await saveProjectRoles(values, sid)
 
             // Reload users and groups if necessary
             if (reloadUsers) {
