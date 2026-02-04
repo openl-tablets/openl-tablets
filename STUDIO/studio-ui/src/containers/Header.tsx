@@ -60,14 +60,15 @@ export const Header = () => {
             return (<Alert
                 key={messageToShow}
                 banner
-                closable
-                message={messageToShow}
-                type="error"
-                onClose={() => {
-                    if (lastWsMessage) {
-                        setLastWsMessage('')
-                    }
+                closable={{
+                    onClose: () => {
+                        if (lastWsMessage) {
+                            setLastWsMessage('')
+                        }
+                    },
                 }}
+                title={messageToShow}
+                type="error"
             />)
         }
         return null

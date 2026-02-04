@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
+import { Alert, Badge, Button, Modal, Row, Table, Typography, Tooltip } from 'antd'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ import { ColumnsType } from 'antd/es/table/interface'
 import { RenderGroupCell } from './users/RenderGroupCell'
 import { useGroups } from './groups/useGroups'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
+import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
@@ -17,7 +18,7 @@ export const Users: React.FC = () => {
     const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
     const [selectedUser, setSelectedUser] = useState<UserDetails>()
     const [users, setUsers] = useState<UserDetails[]>([])
-    const { groups, reloadGroups } = useGroups()
+    const { groups, error: groupsError, reloadGroups } = useGroups()
     const [isLoading, setIsLoading] = useState(false)
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
@@ -168,6 +169,21 @@ export const Users: React.FC = () => {
 
     return (
         <>
+            <DefaultGroupInfo />
+            {groupsError && (
+                <Alert
+                    action={
+                        <Button onClick={reloadGroups} size="small" type="primary">
+                            {t('groups:retry')}
+                        </Button>
+                    }
+                    closable
+                    showIcon
+                    title={t('groups:failed_to_load_groups')}
+                    style={{ marginBottom: 16 }}
+                    type="error"
+                />
+            )}
             <Table
                 columns={columns}
                 dataSource={users}

@@ -102,13 +102,13 @@ export const CommitInfoModal: React.FC<CommitInfoModalProps> = ({
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                     <Alert
                         showIcon
-                        message={t('merge:commit_info.description')}
+                        title={t('merge:commit_info.description')}
                         type="info"
                     />
                     {error && (
                         <Alert
                             showIcon
-                            message={error}
+                            title={error}
                             type="error"
                         />
                     )}
