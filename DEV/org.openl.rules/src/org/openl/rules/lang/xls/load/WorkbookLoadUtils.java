@@ -21,7 +21,12 @@ final class WorkbookLoadUtils {
         Logger log = LoggerFactory.getLogger(WorkbookLoadUtils.class);
         log.debug("Loading workbook '{}'...", fileSource.getUri());
         if (VirtualSourceCodeModule.SOURCE_URI.equals(fileSource.getUri())) {
-            return new XSSFWorkbook();
+            var workbook = new XSSFWorkbook();
+            // Virtual workbook must have at least one sheet to ensure WorksheetSyntaxNode[] is not empty.
+            // This is required by MatchingOpenMethodDispatcher.getDispatcherTable() which adds
+            // dynamically generated dispatcher tables to the first worksheet.
+            workbook.createSheet("$virtual_sheet$");
+            return workbook;
         }
 
         ExcelUtils.configureZipBombDetection();
