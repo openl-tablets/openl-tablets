@@ -11,7 +11,7 @@ import org.openl.studio.common.model.GenericView;
 /**
  * Representation of a trace node for JSON response.
  */
-@Schema(description = "trace.field.node.title.desc")
+@Schema(description = "trace.type.node-view.desc")
 public record TraceNodeView(
         @Schema(description = "trace.field.node.key.desc")
         @JsonView({GenericView.Short.class, GenericView.Full.class})

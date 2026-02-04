@@ -11,6 +11,7 @@ import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.TraceFormatter;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.util.FileUtils;
 
 /**
@@ -47,6 +48,9 @@ public class TraceExportServiceImpl implements TraceExportService {
         long deadline = System.currentTimeMillis() + MAX_WAIT_TIMEOUT;
         // Start from root node (id=0)
         ITracerObject root = traceHelper.getTableTracer(0);
+        if (root == null) {
+            throw new NotFoundException("trace.node.not.found.message");
+        }
         printRecursive(root, traceHelper, 0, writer, deadline, showRealNumbers);
     }
 
