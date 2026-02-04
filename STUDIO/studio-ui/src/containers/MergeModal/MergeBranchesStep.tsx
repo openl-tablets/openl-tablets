@@ -181,7 +181,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             {error && (
                 <Alert
                     showIcon
-                    message={error}
+                    title={error}
                     type="error"
                 />
             )}
@@ -189,7 +189,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 <Alert
                     showIcon
                     icon={<WarningOutlined />}
-                    message={t('merge:status.protected_warning')}
+                    title={t('merge:status.protected_warning')}
                     type="warning"
                 />
             )}

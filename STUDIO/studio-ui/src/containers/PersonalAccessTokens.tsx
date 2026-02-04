@@ -332,7 +332,7 @@ export const PersonalAccessTokens: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
             <Alert
                 showIcon
-                message={t('pat:token_created_message')}
+                title={t('pat:token_created_message')}
                 type="warning"
             />
             {renderCodeBlock(

@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-import { Button, Table, Modal, Row } from 'antd'
+import { Alert, Button, Table, Modal, Row } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { GroupItem } from '../types/group'
 import { useGroups } from './groups/useGroups'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
+import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
     const [selectedGroup, setSelectedGroup] = useState<GroupItem | undefined>()
-    const { groups, reloadGroups } = useGroups()
+    const { groups, loading, error, reloadGroups } = useGroups()
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
     const showEditGroupDrawer = () => {
@@ -81,9 +82,25 @@ export const Groups: React.FC = () => {
 
     return (
         <>
+            <DefaultGroupInfo />
+            {error && (
+                <Alert
+                    action={
+                        <Button onClick={reloadGroups} size="small" type="primary">
+                            {t('groups:retry')}
+                        </Button>
+                    }
+                    closable
+                    showIcon
+                    title={t('groups:failed_to_load_groups')}
+                    style={{ marginBottom: 16 }}
+                    type="error"
+                />
+            )}
             <Table
                 columns={columns}
                 dataSource={groups}
+                loading={loading}
                 pagination={{ hideOnSinglePage: true }}
                 onRow={(record) => ({
                     onDoubleClick: () => onEditGroup(record),

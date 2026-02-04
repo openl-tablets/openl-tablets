@@ -36,4 +36,6 @@ i18next.addResourceBundle('en', 'groups', {
     group_name_max_length: 'Group name must be at most 65 characters long',
     description_max_length: 'Description must be at most 200 characters long',
     edit_group: 'Edit Group',
+    failed_to_load_groups: 'Failed to load groups. Please try again.',
+    retry: 'Retry',
 })

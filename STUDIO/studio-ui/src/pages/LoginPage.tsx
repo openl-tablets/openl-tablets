@@ -77,7 +77,7 @@ const LoginPage = () => {
             <div style={cardStyle}>
                 <Logo height={72} width={72} />
                 <div style={titleStyle}>{t('sign_in_to_openl_studio')}</div>
-                {error && <Alert showIcon message={error} style={{ marginBottom: 16, width: '100%' }} type="error" />}
+                {error && <Alert showIcon title={error} style={{ marginBottom: 16, width: '100%' }} type="error" />}
                 <Form layout="vertical" onFinish={onFinish} style={{ width: '100%' }}>
                     <Form.Item label={t('username_label')} name="username" rules={[{ required: true, message: t('username_required') }]}>
                         <Input autoFocus autoComplete="username" size="large" />
