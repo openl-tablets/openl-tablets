@@ -1,0 +1,13 @@
+# Copy this file to compose.override.yaml and add your local changes there.
+# compose.override.yaml is in .gitignore and will not be committed.
+# Docker Compose automatically merges compose.override.yaml with compose.yaml
+# when you run: docker compose up
+#
+# Example: override a port or environment variable for local development
+#
+# services:
+#   studio:
+#     ports:
+#       - "9080:8080"
+#     environment:
+#       _REACT_UI_ROOT_: http://localhost:3100

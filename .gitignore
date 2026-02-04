@@ -1,6 +1,10 @@
 # use global syntax for excludes
 syntax: glob
 
+# Local Docker Compose overrides (merged with compose.yaml by docker compose)
+compose.override.yaml
+compose.override.yml
+
 #exclude macOS system files
 .DS_Store
 
