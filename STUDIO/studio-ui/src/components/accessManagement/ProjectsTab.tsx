@@ -82,9 +82,9 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
 
     return (
         <Form.List name="projects">
-                {(fields, { add, remove }) => (
-                    <>
-                        {fields.map(({ key, name, ...restField }) => (
+            {(fields, { add, remove }) => (
+                <>
+                    {fields.map(({ key, name, ...restField }) => (
                         <Space key={key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
                             <Form.Item
                                 {...restField}

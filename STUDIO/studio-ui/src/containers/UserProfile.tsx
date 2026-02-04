@@ -102,7 +102,7 @@ export const UserProfile: React.FC = () => {
             <UserDetailsTab displayPasswordField={false} externalFlags={userProfile?.externalFlags} isNewUser={false} showResendVerification={true} userProfile={userProfile} />
             {!isExternalAuthSystem && (
                 <>
-                    <Divider orientation="left">{t('users:edit_modal.change_password')}</Divider>
+                    <Divider titlePlacement="start">{t('users:edit_modal.change_password')}</Divider>
                     <InputPassword label={t('users:edit_modal.current_password')} name={['changePassword', 'currentPassword']} />
                     <InputPassword label={t('users:edit_modal.new_password')} name={['changePassword', 'newPassword']} />
                     <InputPassword label={t('users:edit_modal.confirm_password')} name={['changePassword', 'confirmPassword']} />

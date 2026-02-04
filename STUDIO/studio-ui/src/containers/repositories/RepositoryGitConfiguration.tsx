@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox, Input, InputNumber, InputPassword } from '../../components'
-import { Divider, Form } from 'antd'
+import { Input, InputNumber, InputPassword } from '../../components'
+import { Divider } from 'antd'
 import {
     BranchModal,
     DefaultBranchModal,
@@ -18,7 +18,6 @@ interface RepositoryGitConfigurationProps {
 
 export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = ({ repositoryDataType }) => {
     const { t } = useTranslation()
-    const form = Form.useFormInstance()
 
     return (
         <>
@@ -36,7 +35,7 @@ export const RepositoryGitConfiguration: FC<RepositoryGitConfigurationProps> = (
             <InputNumber label={t('repository:connection_timeout')} name={['settings', 'connectionTimeout']} />
             {repositoryDataType === RepositoryDataType.DESIGN && (
                 <>
-                    <Divider orientation="left">{t('repository:new_branch')}</Divider>
+                    <Divider titlePlacement="start">{t('repository:new_branch')}</Divider>
                     <Input label={t('repository:default_branch_name')} name={['settings', 'newBranchTemplate']} tooltip={{ icon: DefaultBranchModal }} />
                     <Input label={t('repository:branch_name_pattern')} name={['settings', 'newBranchRegex']} tooltip={{ icon: NewBranchRegexModal }} />
                     <Input label={t('repository:invalid_branch_name_message_hint')} name={['settings', 'newBranchRegexError']} tooltip={{ icon: MewBranchRegexErrorModal }} />

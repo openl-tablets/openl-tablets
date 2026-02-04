@@ -53,7 +53,7 @@ export const EditGroupDetails: React.FC = () => {
 
     return (
         <>
-            <Divider orientation="left">{t('common:details')}</Divider>
+            <Divider titlePlacement="start">{t('common:details')}</Divider>
             <Select
                 showSearch
                 defaultActiveFirstOption={false}
