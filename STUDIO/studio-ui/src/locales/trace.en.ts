@@ -50,6 +50,7 @@ i18next.addResourceBundle('en', 'trace', {
 
     errors: {
         notFound: 'Trace not found. Please execute a trace first.',
+        missingParams: 'Missing projectId or tableId in URL.',
         notCompleted: 'Trace execution is still in progress.',
         loadFailed: 'Failed to load trace data.',
         detailsFailed: 'Failed to load node details.',

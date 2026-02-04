@@ -32,6 +32,24 @@ export interface TraceExecutionEventDetail {
 }
 
 /**
+ * Valid trace execution status values.
+ */
+const VALID_TRACE_STATUSES: readonly TraceExecutionStatus[] = [
+    'PENDING',
+    'STARTED',
+    'COMPLETED',
+    'INTERRUPTED',
+    'ERROR',
+] as const
+
+/**
+ * Type guard to validate if a value is a valid TraceExecutionStatus.
+ */
+const isValidTraceExecutionStatus = (value: unknown): value is TraceExecutionStatus => {
+    return typeof value === 'string' && VALID_TRACE_STATUSES.includes(value as TraceExecutionStatus)
+}
+
+/**
  * Get status icon based on current execution status.
  */
 const getStatusIcon = (status: TraceExecutionStatus | null) => {
@@ -82,12 +100,22 @@ export const TraceExecutionModal: React.FC = () => {
     const handleProgressMessage = useCallback((msg: WebSocketMessage) => {
         try {
             const data: TraceProgressMessage = JSON.parse(msg.body)
-            setStatus(data.status)
-            setMessage(data.message || null)
-        } catch {
-            // Fallback: treat body as plain status string
-            const statusValue = msg.body as TraceExecutionStatus
-            setStatus(statusValue)
+            if (isValidTraceExecutionStatus(data.status)) {
+                setStatus(data.status)
+                setMessage(data.message || null)
+            } else {
+                console.error('Invalid trace status in parsed message:', data.status)
+                setMessage(null)
+            }
+        } catch (error) {
+            // Log parse error for debugging
+            console.error('Failed to parse trace progress message:', error, 'Raw body:', msg.body)
+            // Fallback: treat body as plain status string, but validate it first
+            if (isValidTraceExecutionStatus(msg.body)) {
+                setStatus(msg.body)
+                setMessage(null)
+            }
+            // If body is not a valid status, keep previous state (don't update)
         }
     }, [])
 

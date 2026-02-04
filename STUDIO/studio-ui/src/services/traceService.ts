@@ -26,7 +26,7 @@ export const traceService = {
         return apiCall(
             `/projects/${encodeURIComponent(projectId)}/trace/nodes?${params.toString()}`,
             undefined,
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         )
     },
 
@@ -42,7 +42,7 @@ export const traceService = {
         apiCall(
             `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}?showRealNumbers=${showRealNumbers}`,
             undefined,
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         ),
 
     /**
@@ -56,7 +56,7 @@ export const traceService = {
         apiCall(
             `/projects/${encodeURIComponent(projectId)}/trace/parameters/${parameterId}`,
             undefined,
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         ),
 
     /**
@@ -72,7 +72,7 @@ export const traceService = {
         apiCall(
             `/projects/${encodeURIComponent(projectId)}/trace/nodes/${nodeId}/table?showFormulas=${showFormulas}`,
             { headers: { Accept: 'text/html' } },
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         ),
 
     /**
@@ -83,7 +83,7 @@ export const traceService = {
         apiCall(
             `/projects/${encodeURIComponent(projectId)}/trace`,
             { method: 'DELETE' },
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         ),
 
     /**
@@ -113,7 +113,7 @@ export const traceService = {
                 headers: options.inputJson ? { 'Content-Type': 'application/json' } : {},
                 body: options.inputJson || undefined
             },
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         )
     },
 }
