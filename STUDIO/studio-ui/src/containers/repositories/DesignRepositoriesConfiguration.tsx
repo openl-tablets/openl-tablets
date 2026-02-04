@@ -266,7 +266,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                                 onFinish={onFinish}
                                 wrapperCol={{ flex: 1 }}
                             >
-                                <Divider orientation="left">{t('repository:common')}</Divider>
+                                <Divider titlePlacement="start">{t('repository:common')}</Divider>
                                 <RepositoryConfigurationComponent configuration={configurationData} onChangeType={onChangeType} repositoryDataType={repositoryDataType} repositoryType={repositoryType} />
                                 {repositoryDataType === RepositoryDataType.DESIGN && (
                                     <DesignRepositoryCommentsConfiguration />

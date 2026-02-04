@@ -20,7 +20,7 @@ export const DesignRepositoryCommentsConfiguration = () => {
 
     return (
         <>
-            <Divider orientation="left">{t('repository:comments')}</Divider>
+            <Divider titlePlacement="start">{t('repository:comments')}</Divider>
             <Checkbox label={t('repository:customize_comments')} name={['settings', 'useCustomComments']} />
             {isCustomCommentsEnabled && (
                 <>
@@ -37,7 +37,7 @@ export const DesignRepositoryCommentsConfiguration = () => {
                         rules={[{ required: true, message: t('common:validation.required') }]}
                         tooltip={{ icon: InvalidUserMessageHintModal }}
                     />
-                    <Divider orientation="left">{t('repository:user_message_templates')}</Divider>
+                    <Divider titlePlacement="start">{t('repository:user_message_templates')}</Divider>
                     <Input label={t('repository:save_project')} name={['settings', 'defaultCommentSave']} tooltip={{ icon: MessageSaveProjectModal }} />
                     <Input label={t('repository:create_project')} name={['settings', 'defaultCommentCreate']} tooltip={{ icon: MessageCreateProjectModal }} />
                     <Input label={t('repository:archive_project')} name={['settings', 'defaultCommentArchive']} tooltip={{ icon: MessageArchiveProjectModal }} />

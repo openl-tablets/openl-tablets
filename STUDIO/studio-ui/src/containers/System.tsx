@@ -113,7 +113,7 @@ export const System: React.FC = () => {
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >
-            <Divider orientation="left">{t('system:core')}</Divider>
+            <Divider titlePlacement="start">{t('system:core')}</Divider>
             <Checkbox
                 label={t('system:dispatching_validation')}
                 name="dispatchingValidationEnabled"
@@ -122,12 +122,12 @@ export const System: React.FC = () => {
                 label={t('system:verify_on_edit')}
                 name="autoCompile"
             />
-            <Divider orientation="left">{t('system:testing')}</Divider>
+            <Divider titlePlacement="start">{t('system:testing')}</Divider>
             <InputNumber
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
             />
-            <Divider orientation="left">{t('system:history')}</Divider>
+            <Divider titlePlacement="start">{t('system:history')}</Divider>
             <InputNumber
                 label={t('system:maximum_count_of_changes')}
                 name="projectHistoryCount"
@@ -135,7 +135,7 @@ export const System: React.FC = () => {
             <Row justify="end">
                 <Button onClick={showDeleteAllHistoryConfirm}>{t('system:clear_all_history')}</Button>
             </Row>
-            <Divider orientation="left">{t('system:other')}</Divider>
+            <Divider titlePlacement="start">{t('system:other')}</Divider>
             <Checkbox
                 label={t('system:update_table_properties')}
                 name="updateSystemProperties"
@@ -148,7 +148,7 @@ export const System: React.FC = () => {
                 label={t('system:time_format')}
                 name="timeFormat"
             />
-            <Divider orientation="left">{t('system:database_configuration')}</Divider>
+            <Divider titlePlacement="start">{t('system:database_configuration')}</Divider>
             <Typography.Paragraph>
                 {t('system:database_configuration_info')}
             </Typography.Paragraph>
@@ -161,7 +161,7 @@ export const System: React.FC = () => {
                     {t('common:btn.apply')}
                 </Button>
             </Row>
-            <Divider orientation="left" style={{ color: 'red' }}>{t('system:reset_settings')}</Divider>
+            <Divider style={{ color: 'red' }} titlePlacement="start">{t('system:reset_settings')}</Divider>
             <p>
                 <WarningFilled style={{ color: 'red' }} />
                 <Trans components={[<b style={{ color: 'red' }} />]} i18nKey="system:restore_defaults_warning" />

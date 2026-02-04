@@ -22,7 +22,7 @@
         margin: 0;
         overflow-x: auto;
         white-space: pre-wrap;
-        word-wrap: break-word;
+        overflow-wrap: break-word;
 
         code {
             font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;

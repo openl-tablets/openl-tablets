@@ -156,7 +156,7 @@ export const Security = () => {
             onFinish={onFinish}
             wrapperCol={{ flex: 1 }}
         >
-            <Divider orientation="left">{t('security:select_user_mode')}</Divider>
+            <Divider titlePlacement="start">{t('security:select_user_mode')}</Divider>
             <Typography.Paragraph>{t('security:select_user_mode_info')}</Typography.Paragraph>
             <RadioGroup
                 label={t('security:user_mode')}

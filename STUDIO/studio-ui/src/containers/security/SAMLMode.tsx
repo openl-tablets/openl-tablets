@@ -8,7 +8,7 @@ export const SAMLMode = () => {
 
     return (
         <>
-            <Divider orientation="left">{t('security:configure_saml')}</Divider>
+            <Divider titlePlacement="start">{t('security:configure_saml')}</Divider>
             <Typography.Paragraph>{t('security:configure_saml_info')}</Typography.Paragraph>
             <Input required label={t('security:entity_id')} name="entityId" />
             <Input required label={t('security:saml_server_metadata_url')} name="metadataUrl" />

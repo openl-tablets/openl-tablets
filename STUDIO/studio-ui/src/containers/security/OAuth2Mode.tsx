@@ -8,7 +8,7 @@ export const OAuth2Mode = () => {
 
     return (
         <>
-            <Divider orientation="left">{t('security:configure_oauth2')}</Divider>
+            <Divider titlePlacement="start">{t('security:configure_oauth2')}</Divider>
             <Typography.Paragraph>{t('security:configure_oauth2_info')}</Typography.Paragraph>
             <Input
                 required

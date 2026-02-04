@@ -14,6 +14,7 @@ import { UpdatedUserRequest } from './users/EditUserModal'
 import { GroupItem } from '../types/group'
 import { UserDetails } from '../types/user'
 import { SelectedGroup } from './users/RenderGroupCell'
+import { runSequentialCollectErrors } from '../utils/async'
 
 interface EditUserGroupDetailsWithAccessRightsProps {
     isOpenFromParent?: boolean
@@ -241,34 +242,34 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return url
         }
 
-        await Promise.all(
-            deletedRoles.map((repo: any) =>
-                apiCall(generateURL(repo.id), {
-                    method: 'DELETE',
-                    headers
-                })
-            )
+        // Sequential execution with error accumulation: continue on failure so remaining operations
+        // still run; then report all failures at once. See saveProjectRoles for the same pattern.
+        const deleteFailures = await runSequentialCollectErrors(deletedRoles, (repo) =>
+            apiCall(generateURL(repo.id), { method: 'DELETE', headers })
+        )
+        const addFailures = await runSequentialCollectErrors(addedRoles, (repo) =>
+            apiCall(generateURL(repo.id), {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ role: repo.role })
+            })
+        )
+        const updateFailures = await runSequentialCollectErrors(updatedRoles, (repo) =>
+            apiCall(generateURL(repo.id), {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ role: repo.role })
+            })
         )
 
-        await Promise.all(
-            addedRoles.map((repo: any) =>
-                apiCall(generateURL(repo.id), {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ role: repo.role })
-                })
-            )
-        )
-
-        await Promise.all(
-            updatedRoles.map((repo: any) =>
-                apiCall(generateURL(repo.id), {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ role: repo.role })
-                })
-            )
-        )
+        const totalFailures = deleteFailures.length + addFailures.length + updateFailures.length
+        if (totalFailures > 0) {
+            notification.error({
+                message: t('common:error'),
+                description: t('users:some_role_operations_failed', { count: totalFailures })
+            })
+            throw new Error(`Repository roles: ${totalFailures} operation(s) failed`)
+        }
     }
 
     const saveDesignRepositoriesRoles = async (values: FormValues, sid: string) => {
@@ -314,18 +315,26 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
         }
 
-        try {
-            await Promise.all([
-                syncRootRole(RepositoryType.DESIGN, values.designRootRole),
-                syncRootRole(RepositoryType.PROD, values.deployRootRole)
-            ])
-        } catch (error) {
-            console.error('Failed to save root repository roles:', error)
+        // Sequential execution with error accumulation: run both, then report if any failed.
+        const ops: Array<{ type: RepositoryType; value?: RootRoleFormValue }> = [
+            { type: RepositoryType.DESIGN, value: values.designRootRole },
+            { type: RepositoryType.PROD, value: values.deployRootRole }
+        ]
+        const failures: Array<{ type: RepositoryType; error: unknown }> = []
+        for (const { type, value } of ops) {
+            try {
+                await syncRootRole(type, value)
+            } catch (e) {
+                failures.push({ type, error: e })
+            }
+        }
+        if (failures.length > 0) {
+            console.error('Failed to save root repository roles:', failures)
             notification.error({
                 message: t('common:error'),
                 description: t('users:failed_to_save_root_repository_roles')
             })
-            throw error
+            throw new Error(`Root repository roles: ${failures.length} operation(s) failed`)
         }
     }
 
@@ -352,34 +361,33 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             return url
         }
 
-        await Promise.all(
-            deletedRoles.map((project: any) =>
-                apiCall(generateURL(project.id), {
-                    method: 'DELETE',
-                    headers
-                })
-            )
+        // Sequential execution with error accumulation; see saveReposRoles.
+        const deleteFailures = await runSequentialCollectErrors(deletedRoles, (project) =>
+            apiCall(generateURL(project.id), { method: 'DELETE', headers })
+        )
+        const addFailures = await runSequentialCollectErrors(addedRoles, (project) =>
+            apiCall(generateURL(project.id), {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ role: project.role })
+            })
+        )
+        const updateFailures = await runSequentialCollectErrors(updatedRoles, (project) =>
+            apiCall(generateURL(project.id), {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ role: project.role })
+            })
         )
 
-        await Promise.all(
-            addedRoles.map((project: any) =>
-                apiCall(generateURL(project.id), {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ role: project.role })
-                })
-            )
-        )
-
-        await Promise.all(
-            updatedRoles.map((project: any) =>
-                apiCall(generateURL(project.id), {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ role: project.role })
-                })
-            )
-        )
+        const totalFailures = deleteFailures.length + addFailures.length + updateFailures.length
+        if (totalFailures > 0) {
+            notification.error({
+                message: t('common:error'),
+                description: t('users:some_role_operations_failed', { count: totalFailures })
+            })
+            throw new Error(`Project roles: ${totalFailures} operation(s) failed`)
+        }
     }
 
     const accessTabs = useMemo(() => [
@@ -599,7 +607,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                     ) : (
                         <EditGroupDetails />
                     )}
-                    <Divider orientation="left">{t('common:access_rights')}</Divider>
+                    <Divider titlePlacement="start">{t('common:access_rights')}</Divider>
                     <Tabs items={accessTabs} renderTabBar={renderTabBar} />
                 </Form>
             </Drawer>

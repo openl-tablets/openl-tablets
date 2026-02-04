@@ -11,7 +11,7 @@ export const InitialUsers: FC<InitialUsersProps> = ({ userGroups }) => {
     const { t } = useTranslation()
     return (
         <div>
-            <Divider orientation="left">{t('security:configure_initial_users')}</Divider>
+            <Divider titlePlacement="start">{t('security:configure_initial_users')}</Divider>
             <Typography.Paragraph>
                 {t('security:configure_initial_users_info')}
             </Typography.Paragraph>

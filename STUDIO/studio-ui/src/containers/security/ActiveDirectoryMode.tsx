@@ -39,7 +39,7 @@ export const ActiveDirectoryMode = () => {
 
     return (
         <>
-            <Divider orientation="left">{t('security:configure_active_directory')}</Divider>
+            <Divider titlePlacement="start">{t('security:configure_active_directory')}</Divider>
             <Typography.Paragraph>{t('security:configure_active_directory_info')}</Typography.Paragraph>
             <Input required label={t('security:active_directory_domain')} name="domain" />
             <Input required label={t('security:active_directory_url')} name="serverUrl" />

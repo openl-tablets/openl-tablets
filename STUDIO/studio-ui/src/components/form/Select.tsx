@@ -96,14 +96,14 @@ const Select: FC<SelectProps> = ({
                 onBlur={onBlur}
                 onChange={onChange}
                 onSearch={onSearch}
+                open={open}
+                // @ts-ignore
+                options={predefinedOptions || options}
                 placeholder={placeholder}
                 showSearch={showSearch}
                 style={style}
                 suffixIcon={suffixIcon}
                 tokenSeparators={tokenSeparators}
-                open={open}
-                // @ts-ignore
-                options={predefinedOptions || options}
             />
         </Form.Item>
     )

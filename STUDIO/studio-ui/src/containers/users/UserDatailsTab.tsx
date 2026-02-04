@@ -103,7 +103,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
 
     return (
         <>
-            <Divider orientation="left">{t('users:account')}</Divider>
+            <Divider titlePlacement="start">{t('users:account')}</Divider>
             <Input
                 disabled={!isNewUser}
                 label={t('users:edit_modal.username')}
@@ -168,7 +168,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     />
                 </Form.Item>
             )}
-            <Divider orientation="left">{t('users:name')}</Divider>
+            <Divider titlePlacement="start">{t('users:name')}</Divider>
             <Input
                 disabled={externalFlags?.firstNameExternal}
                 label={t('users:edit_modal.first_name')}
