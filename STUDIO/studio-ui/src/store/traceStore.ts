@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { notification } from 'antd'
 import type {
     TraceNodeView,
     TraceParameterValue,
@@ -44,7 +45,7 @@ interface TraceState {
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
     setExecutionStatus: (status: TraceExecutionStatus, message?: string) => void
     toggleHideFailedNodes: () => void
-    toggleShowRealNumbers: () => void
+    toggleShowRealNumbers: () => Promise<void>
     updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => void
     reset: () => void
 }
@@ -160,7 +161,8 @@ export const useTraceStore = create<TraceState>((set, get) => ({
 
             return children
         } catch (error: any) {
-            console.error('Failed to fetch node children:', error)
+            const message = error?.message || 'Failed to fetch node children'
+            notification.error({ message })
             return []
         }
     },
@@ -174,7 +176,8 @@ export const useTraceStore = create<TraceState>((set, get) => ({
             const details = await traceService.getNodeDetails(projectId, nodeId, showRealNumbers)
             set({ selectedNodeDetails: details, detailsLoading: false })
         } catch (error: any) {
-            console.error('Failed to fetch node details:', error)
+            const message = error?.message || 'Failed to fetch node details'
+            notification.error({ message })
             set({ selectedNodeDetails: null, detailsLoading: false })
         }
     },
@@ -198,10 +201,12 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         set((state) => ({ hideFailedNodes: !state.hideFailedNodes }))
     },
 
-    toggleShowRealNumbers: () => {
-        set((state) => ({ showRealNumbers: !state.showRealNumbers }))
+    toggleShowRealNumbers: async () => {
+        // Compute new value first to avoid race condition with fetchRootNodes
+        const newShowRealNumbers = !get().showRealNumbers
+        set({ showRealNumbers: newShowRealNumbers })
         // Refetch with new setting
-        get().fetchRootNodes()
+        await get().fetchRootNodes()
     },
 
     updateTreeData: (parentKey: string, children: TraceTreeDataNode[]) => {

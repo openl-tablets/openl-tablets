@@ -138,7 +138,12 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
                 }
 
                 html.append(">");
-                html.append(cell.getContent(showFormulas));
+                // Escape cell content to prevent XSS, then restore intentional HTML entities
+                // from CellModel.convertContent() (which converts spaces to &nbsp; and newlines to <br>)
+                String cellContent = StringEscapeUtils.escapeHtml4(cell.getContent(showFormulas));
+                cellContent = cellContent.replace("&amp;nbsp;", "&nbsp;");
+                cellContent = cellContent.replace("&lt;br&gt;", "<br>");
+                html.append(cellContent);
                 html.append("</td>\n");
             }
             html.append("</tr>\n");

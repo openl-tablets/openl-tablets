@@ -154,6 +154,9 @@ public class ProjectsTraceController {
 
         var traceHelper = getCompletedTraceHelper(project);
         var element = traceHelper.getTableTracer(id == null ? 0 : id);
+        if (element == null) {
+            throw new NotFoundException("trace.node.not.found.message");
+        }
         return createMapper().createSimpleNodes(element.getChildren(), traceHelper, showRealNumbers);
     }
 
@@ -233,10 +236,10 @@ public class ProjectsTraceController {
 
         // Stream directly to response (no RAM buffering)
         try (Writer writer = response.getWriter()) {
-            traceExportService.exportTrace(traceHelper, writer, showRealNumbers);
-        } catch (TimeoutException e) {
-            // Trace already partially written, append timeout message
-            try (Writer writer = response.getWriter()) {
+            try {
+                traceExportService.exportTrace(traceHelper, writer, showRealNumbers);
+            } catch (TimeoutException e) {
+                // Trace already partially written, append timeout message
                 writer.write("\n!!!TRACE WAS LIMITED BY TIMEOUT!!!\n");
             }
         } finally {

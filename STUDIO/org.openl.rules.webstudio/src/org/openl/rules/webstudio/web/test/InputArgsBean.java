@@ -524,9 +524,19 @@ public class InputArgsBean {
             }
 
             return mapper.writeValueAsString(result);
-        } catch (Exception e) {
-            log.error("Failed to serialize params to JSON", e);
-            return "{}";
+        } catch (Message e) {
+            throw e;
+        } catch (IOException e) {
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Failed to serialize params to JSON. " + e.getMessage(), e);
+            }
+            throw new Message("Failed to serialize params to JSON.", e);
+        } catch (RuntimeException e) {
+            if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
+                throw new Message("Failed to serialize params to JSON.", e);
+            } else {
+                throw e;
+            }
         }
     }
 

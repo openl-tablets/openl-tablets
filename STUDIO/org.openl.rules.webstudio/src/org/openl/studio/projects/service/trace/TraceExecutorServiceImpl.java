@@ -1,9 +1,11 @@
 package org.openl.studio.projects.service.trace;
 
 import java.util.concurrent.CompletableFuture;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -38,17 +40,18 @@ import org.openl.types.IOpenMethod;
  * </ul>
  * </p>
  */
+@Validated
 @Component
 public class TraceExecutorServiceImpl implements TraceExecutorService {
 
     @Override
     @Async("testSuiteExecutor")
-    public CompletableFuture<ITracerObject> traceTestSuite(TraceExecutionProgressListener listener,
-                                                          ProjectModel projectModel,
-                                                          IOpenLTable table,
+    public CompletableFuture<ITracerObject> traceTestSuite(@NotNull TraceExecutionProgressListener listener,
+                                                          @NotNull ProjectModel projectModel,
+                                                          @NotNull IOpenLTable table,
                                                           String testRanges,
                                                           boolean currentOpenedModule,
-                                                          TraceHelper traceHelper) {
+                                                          @NotNull TraceHelper traceHelper) {
         listener.onStatusChanged(TraceExecutionStatus.STARTED);
 
         try {
@@ -79,7 +82,6 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
 
             listener.onStatusChanged(TraceExecutionStatus.COMPLETED);
             return CompletableFuture.completedFuture(root);
-
         } catch (Exception e) {
             if (isInterruptedException(e)) {
                 listener.onStatusChanged(TraceExecutionStatus.INTERRUPTED);
@@ -92,13 +94,13 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
 
     @Override
     @Async("testSuiteExecutor")
-    public CompletableFuture<ITracerObject> traceMethod(TraceExecutionProgressListener listener,
-                                                        ProjectModel projectModel,
-                                                        IOpenLTable table,
+    public CompletableFuture<ITracerObject> traceMethod(@NotNull TraceExecutionProgressListener listener,
+                                                        @NotNull ProjectModel projectModel,
+                                                        @NotNull IOpenLTable table,
                                                         Object[] params,
                                                         IRulesRuntimeContext runtimeContext,
                                                         boolean currentOpenedModule,
-                                                        TraceHelper traceHelper) {
+                                                        @NotNull TraceHelper traceHelper) {
         listener.onStatusChanged(TraceExecutionStatus.STARTED);
 
         try {
@@ -109,6 +111,9 @@ public class TraceExecutorServiceImpl implements TraceExecutorService {
 
             if (method instanceof OpenMethodDispatcher) {
                 method = projectModel.getCurrentDispatcherMethod(method, uri);
+                if (method == null) {
+                    throw new IllegalStateException("Failed to resolve dispatcher method for table: " + uri);
+                }
             }
 
             // If runtime context is provided, get project-level method

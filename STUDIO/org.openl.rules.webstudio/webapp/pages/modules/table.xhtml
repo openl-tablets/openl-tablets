@@ -958,9 +958,21 @@
             }
 
             if (isJsonMode) {
-                // JSON mode - get raw JSON from textarea and call API directly
+                // JSON mode - get raw JSON from textarea, validate, and call API
                 var jsonTextarea = document.querySelector('textarea[id$="jsonInput"]');
                 var rawJson = jsonTextarea ? jsonTextarea.value : '{}';
+
+                // Validate JSON before proceeding (same pattern as checkInput())
+                if (rawJson && rawJson.length > 0) {
+                    try {
+                        JSON.parse(rawJson);
+                    } catch (e) {
+                        message(e.message, 4000, true);
+                        _executableTraceContext = null;
+                        return;
+                    }
+                }
+
                 onParamsFetched(rawJson);
             } else {
                 // Tree Form mode - fetch formatted params from bean

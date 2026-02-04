@@ -15,8 +15,8 @@ class EmptyError extends Error {
 }
 
 class NotFoundError extends Error {
-    constructor() {
-        super('Not found')
+    constructor(message?: string) {
+        super(message || 'Not found')
         this.name = 'NotFoundError'
     }
 }
@@ -29,6 +29,23 @@ class ForbiddenError extends Error {
 }
 
 const appStore = useAppStore.getState()
+
+/**
+ * Extract error message from response body.
+ * Tries to parse JSON and extract 'message' field, falls back to default message.
+ */
+const extractErrorMessage = async (response: Response, defaultMessage: string): Promise<string> => {
+    try {
+        const contentType = response.headers.get('Content-Type')
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+            const data = await response.json()
+            return data.message || defaultMessage
+        }
+    } catch {
+        // Ignore parse errors, use default message
+    }
+    return defaultMessage
+}
 
 interface ApiCallOptions {
     throwError?: boolean
@@ -75,17 +92,23 @@ const apiCall = async (
                 if (!opts.suppressErrorPages) {
                     appStore.setShowForbidden(true)
                 }
-                throw new ForbiddenError('Forbidden! You do not have permission to access this resource.')
+                // Try to extract error message from response body
+                const errorMessage = await extractErrorMessage(response, 'Forbidden! You do not have permission to access this resource.')
+                throw new ForbiddenError(errorMessage)
             } else if (status === 404) {
                 if (!opts.suppressErrorPages) {
                     appStore.setShowNotFound(true)
                 }
-                throw new NotFoundError()
+                // Try to extract error message from response body
+                const errorMessage = await extractErrorMessage(response, 'Not found')
+                throw new NotFoundError(errorMessage)
             } else if (status === 500) {
                 if (!opts.suppressErrorPages) {
                     appStore.setShowServerError(true)
                 }
-                throw new Error('Internal server error! Please try again later.')
+                // Try to extract error message from response body
+                const errorMessage = await extractErrorMessage(response, 'Internal server error! Please try again later.')
+                throw new Error(errorMessage)
             } else {
                 const data = await response.json()
                 if (data.fields) {
