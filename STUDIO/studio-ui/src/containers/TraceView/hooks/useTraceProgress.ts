@@ -25,7 +25,7 @@ export const useTraceProgress = ({
     const { isConnected, subscribe, unsubscribe } = useWebSocket({
         autoConnect: enabled,
     })
-    const { setExecutionStatus, fetchRootNodes } = useTraceStore()
+    const { setExecutionStatus } = useTraceStore()
     const subscriptionIdRef = useRef<string | null>(null)
 
     const handleMessage = useCallback(
@@ -33,23 +33,16 @@ export const useTraceProgress = ({
             try {
                 // Try to parse as JSON first
                 const data: TraceProgressMessage = JSON.parse(message.body)
+                // setExecutionStatus already triggers fetchRootNodes() for 'COMPLETED' status
                 setExecutionStatus(data.status, data.message)
-
-                // If completed, trigger tree refresh
-                if (data.status === 'COMPLETED') {
-                    fetchRootNodes()
-                }
             } catch {
                 // Fall back to plain string status
                 const status = message.body as TraceExecutionStatus
+                // setExecutionStatus already triggers fetchRootNodes() for 'COMPLETED' status
                 setExecutionStatus(status)
-
-                if (status === 'COMPLETED') {
-                    fetchRootNodes()
-                }
             }
         },
-        [setExecutionStatus, fetchRootNodes]
+        [setExecutionStatus]
     )
 
     useEffect(() => {

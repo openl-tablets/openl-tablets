@@ -124,7 +124,7 @@ const TraceView: React.FC = () => {
                 <Alert
                     type="error"
                     message={t('errors.notFound')}
-                    description="Missing projectId or tableId in URL"
+                    description={t('errors.missingParams')}
                 />
             </div>
         )

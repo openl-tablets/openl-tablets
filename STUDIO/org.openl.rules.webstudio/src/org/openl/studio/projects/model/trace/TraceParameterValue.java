@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * Parameter value for trace node with lazy loading support.
  */
-@Schema(description = "trace.field.param.name.desc")
+@Schema(description = "trace.type.parameter-value.desc")
 public record TraceParameterValue(
         @Schema(description = "trace.field.param.name.desc")
         String name,
