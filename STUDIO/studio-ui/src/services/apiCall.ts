@@ -47,7 +47,7 @@ const extractErrorMessage = async (response: Response, defaultMessage: string): 
     return defaultMessage
 }
 
-interface ApiCallOptions {
+export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
 }

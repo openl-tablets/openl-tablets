@@ -141,7 +141,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
             })
         } catch (error: any) {
             const message = error?.message || 'Failed to load trace'
-            set({ error: message, loading: false })
+            set({ error: message, loading: false, executionStatus: 'ERROR' })
         }
     },
 

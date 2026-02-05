@@ -929,16 +929,30 @@
         }
 
         // Store trace params for callback (executable tables)
+        // Guarded by requestToken to prevent concurrent calls from clobbering context
         var _executableTraceContext = null;
 
         /**
          * Prepare and initiate trace for executable tables.
          * Checks input mode and either fetches formatted params (Tree Form)
          * or passes raw JSON directly (JSON mode).
+         *
+         * Concurrency guard: blocks new requests while one is pending to prevent
+         * context from being overwritten by concurrent calls.
          */
         function prepareAndTraceExecutableTable(repositoryId, projectName, tableId, moduleName, showRealNumbers, downloadMode) {
-            // Store context for the callback
+            // Concurrency guard: block if another trace request is already pending
+            if (_executableTraceContext !== null) {
+                ws.ui.error('Trace operation already in progress. Please wait for it to complete.');
+                return;
+            }
+
+            // Generate unique request token to detect stale callbacks
+            var requestToken = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+            // Store context for the callback with token for validation
             _executableTraceContext = {
+                requestToken: requestToken,
                 repositoryId: repositoryId,
                 projectName: projectName,
                 tableId: tableId,
@@ -991,13 +1005,19 @@
         /**
          * Dispatch trace execution event to React TraceExecutionModal.
          * Fetches real project ID from backend first.
+         *
+         * Note: Context includes requestToken for debugging concurrent call issues.
+         * The blocking guard in prepareAndTraceExecutableTable prevents context
+         * from being overwritten, so stale callbacks should not occur.
          */
         function dispatchTraceEvent(inputJson) {
             if (!_executableTraceContext) {
-                ws.ui.error('Trace context not initialized');
+                // Context was cleared (possibly by error handling) - this is a stale callback
+                console.warn('Trace callback received but context is null (stale or cleared)');
                 return;
             }
 
+            // Capture context and clear immediately to allow new requests
             var ctx = _executableTraceContext;
             _executableTraceContext = null;
 
