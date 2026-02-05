@@ -1,0 +1,45 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId=ecbdd3752cd6916e883e10cd08eb57cf HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "currentFinancialData": {
+    "reportDate": "2010-01-01T00:00:00.000",
+    "totalAssets": 754299.0,
+    "claimsOnDemand": 74502.0,
+    "claimsUpTo3Months": 179938.0,
+    "claimsSecuredByPropertyCharges": 134321.0,
+    "claimsOnBanks": 110956.0,
+    "claimsOnCustomers": 336872.0,
+    "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+    "otherAssets": 7349.0,
+    "capital": 40857.0,
+    "equity": 28658.0,
+    "liabilities": 725641.0,
+    "liabilitiesToBanks": 137626.0,
+    "liabilitiesToCustomers": 262827.0,
+    "liabilitiesOnDemand": 193986.0,
+    "liabilitiesToCustomersOnDemand": 143807.0,
+    "consolidatedProfit": 1489.0
+  },
+  "previousFinancialData": {
+    "reportDate": "2009-01-01T00:00:00.000",
+    "totalAssets": 0.0,
+    "claimsOnDemand": 69940.0,
+    "claimsUpTo3Months": 176674.0,
+    "claimsSecuredByPropertyCharges": 0.0,
+    "claimsOnBanks": 0.0,
+    "claimsOnCustomers": 0.0001,
+    "loanLossProvisionsForClaimsOnCustomers": 0.0,
+    "otherAssets": 0.0,
+    "capital": 41437.0,
+    "equity": 0.0,
+    "liabilities": 817527.0,
+    "liabilitiesToBanks": 0.0,
+    "liabilitiesToCustomers": 264618.0,
+    "liabilitiesOnDemand": 179283.0,
+    "liabilitiesToCustomersOnDemand": 0.0,
+    "consolidatedProfit": -4633.0
+  }
+
+}

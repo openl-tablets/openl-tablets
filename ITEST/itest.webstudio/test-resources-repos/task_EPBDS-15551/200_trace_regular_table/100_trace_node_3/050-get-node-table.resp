@@ -1,0 +1,78 @@
+HTTP/1.1 200 OK
+Content-Type: text/html;charset=iso-8859-1
+
+<table class="te_table">
+<tr>
+<td colspan="4" style="***" id="cell_1_1">Spreadsheet Double BalanceDynamicIndexCalculation (FinancialData currentFinancialData, FinancialData previousFinancialData)</td>
+</tr>
+<tr>
+<td style="***" id="cell_2_1">properties</td>
+<td style="***" id="cell_2_2">description</td>
+<td colspan="2" style="***" id="cell_2_3">The analysis of dynamic performance of such factors as capital (D1), quick liquidity (D2), liquidity (D3), profit (D4) and liabilities to customers (D5) is used for calculating the first correction index B1 (Balance Dynamic Index). Final value of B1 is the arithmetic mean of the scores of these five factors obtained: B1 = (D1 + D2 + D3 + D4 + D5) / 5.</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_3_1">Step</td>
+<td style="***" id="cell_3_3">Description</td>
+<td style="***" id="cell_3_4">Value</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_4_1">CapitalDynamic</td>
+<td style="***" id="cell_4_3">Calculate Capital Dynamic (%)</td>
+<td style="***" id="cell_4_4">= currentFinancialData.capital / previousFinancialData.capital * 100</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_5_1">CapitalDynamicScore</td>
+<td style="***" id="cell_5_3">Capital Dynamic Score D1</td>
+<td style="***" id="cell_5_4">= CapitalDynamicScore($CapitalDynamic)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_6_1">QuickLiquidityDynamic</td>
+<td style="***" id="cell_6_3">Calculate Quick Liquidity Dynamic (%)</td>
+<td style="***" id="cell_6_4">= currentFinancialData.claimsOnDemand * previousFinancialData.liabilitiesOnDemand / (previousFinancialData.claimsOnDemand * currentFinancialData.liabilitiesOnDemand) * 100</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_7_1">QuickLiquidityDynamicScore</td>
+<td style="***" id="cell_7_3">Quick Liquidity Dynamic Score D2</td>
+<td style="***" id="cell_7_4">= LiquidityDynamicScore($QuickLiquidityDynamic)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_8_1">LiquidityDynamic</td>
+<td style="***" id="cell_8_3">Calculate Liquidity Dynamic (%)</td>
+<td style="***" id="cell_8_4">= currentFinancialData.claimsUpTo3Months * previousFinancialData.liabilities / (previousFinancialData.claimsUpTo3Months * currentFinancialData.liabilities) * 100</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_9_1">LiquidityDynamicScore</td>
+<td style="***" id="cell_9_3">Liquidity Dynamic Score D3</td>
+<td style="***" id="cell_9_4">= LiquidityDynamicScore($LiquidityDynamic)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_10_1">ProfitDynamic</td>
+<td style="***" id="cell_10_3">Calculate Profit Dynamic (%)</td>
+<td style="***" id="cell_10_4">= currentFinancialData.consolidatedProfit / previousFinancialData.consolidatedProfit * 100</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_11_1">ProfitDynamicScore</td>
+<td style="***" id="cell_11_3">Profit Dynamic Score D4</td>
+<td style="***" id="cell_11_4">= ProfitDynamicScore($ProfitDynamic, currentFinancialData.consolidatedProfit)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_12_1">LiabilitiesToCustomersDynamic</td>
+<td style="***" id="cell_12_3">Calculate Liabilities to Customers Dynamic (%)</td>
+<td style="***" id="cell_12_4">= currentFinancialData.liabilitiesToCustomers / previousFinancialData.liabilitiesToCustomers * 100</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_13_1">LiabilitiesToCustomersDynamicScore</td>
+<td style="***" id="cell_13_3">Liabilities to Customers Dynamic Score D5</td>
+<td style="***" id="cell_13_4">= LiabilitiesToCustomersDynamicScore($LiabilitiesToCustomersDynamic)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_14_1">BalanceDynamicIndex</td>
+<td style="***" id="cell_14_3">Balance Dynamic Index<br>B1 = (D1 + D2 + D3 + D4 + D5) / 5</td>
+<td style="***" id="cell_14_4">= round(($CapitalDynamicScore + $QuickLiquidityDynamicScore + $LiquidityDynamicScore + $ProfitDynamicScore + $LiabilitiesToCustomersDynamicScore ) / 5, 2)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_15_1">RETURN</td>
+<td style="***" id="cell_15_3">&nbsp;</td>
+<td style="***" id="cell_15_4">= $BalanceDynamicIndex</td>
+</tr>
+</table>

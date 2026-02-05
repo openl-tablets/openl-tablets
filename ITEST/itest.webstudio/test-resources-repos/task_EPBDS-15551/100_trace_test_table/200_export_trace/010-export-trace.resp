@@ -1,0 +1,746 @@
+HTTP/1.1 200 OK
+Content-Disposition: attachment; filename=trace.txt; filename*=UTF-8''trace.txt
+Content-Type: text/plain;charset=utf-8
+
+TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
+    at VIRTUAL_WORKBOOK@*?sheet=Sheet0&range=A1:B6&openl=
+	TRACE: Returned rule: [R1]
+	    at VIRTUAL_WORKBOOK@*?sheet=Sheet0&range=A1:B6&openl=
+	TRACE: SpreadSheet SpreadsheetResultBankRatingCalculation BankRatingCalculation(Bank bank) = SpreadsheetResultBankRatingCalculation
+	    at Bank%20Rating&openl=
+		TRACE: $Value$CheckCurrentFinancialData = FinancialData
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData
+			    at Bank%20Rating&openl=
+				TRACE: $Formula$TotalAssets = 754299
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 754299
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsOnDemand = 74502
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 74502
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsUpTo3Months = 179938
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 179938
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsOnCustomers = 336872
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 336872
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Capital = 40857
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 40857
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Liabilities = 725641
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 725641
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$LiabilitiesToCustomers = 262827
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 262827
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$LiabilitiesOnDemand = 193986
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 193986
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ConsolidatedProfit = 1489
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 1489
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Return = FinancialData
+				    at Bank%20Rating&openl=
+					TRACE: $Formula$TotalAssets = 754299
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsOnDemand = 74502
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsUpTo3Months = 179938
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsOnCustomers = 336872
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$Capital = 40857
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$Liabilities = 725641
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$LiabilitiesToCustomers = 262827
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$LiabilitiesOnDemand = 193986
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ConsolidatedProfit = 1489
+					    at Bank%20Rating&openl=
+		TRACE: $Value$CheckPreviousPeriodFinancialData = FinancialData
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData
+			    at Bank%20Rating&openl=
+				TRACE: $Formula$TotalAssets = 0.0001
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 0.0001
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1, R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsOnDemand = 69940
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 69940
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsUpTo3Months = 176674
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 176674
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ClaimsOnCustomers = 0.0001
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 0.0001
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Capital = 41437
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 41437
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Liabilities = 817527
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 817527
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$LiabilitiesToCustomers = 264618
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 264618
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$LiabilitiesOnDemand = 179283
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = 179283
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$ConsolidatedProfit = -4633
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NonZeroValues(Double value) = -4633
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Formula$Return = FinancialData
+				    at Bank%20Rating&openl=
+					TRACE: $Formula$TotalAssets = 0.0001
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsOnDemand = 69940
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsUpTo3Months = 176674
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ClaimsOnCustomers = 0.0001
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$Capital = 41437
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$Liabilities = 817527
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$LiabilitiesToCustomers = 264618
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$LiabilitiesOnDemand = 179283
+					    at Bank%20Rating&openl=
+					TRACE: $Formula$ConsolidatedProfit = -4633
+					    at Bank%20Rating&openl=
+		TRACE: $Value$BalanceQualityIndexCalculation = SpreadsheetResultBalanceQualityIndexCalculation
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet SpreadsheetResultBalanceQualityIndexCalculation BalanceQualityIndexCalculation(FinancialData currentFinancialData) = SpreadsheetResultBalanceQualityIndexCalculation
+			    at Bank%20Rating&openl=
+				TRACE: $Description$CapitalAdequacy = Calculate Capital Adequacy (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CapitalAdequacy = 5.4
+				    at Bank%20Rating&openl=
+				TRACE: $Description$CapitalAdequacyScore = Score Q1
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CapitalAdequacyScore = 0.8
+				    at Bank%20Rating&openl=
+					TRACE: $Value$CapitalAdequacy = 5.4
+					    at Bank%20Rating&openl=
+					TRACE: DT Double CapitalAdequacyScore(Double capitalAdequacy) = 0.8
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$ClaimsOnCustomerRatio = Calculate Claims on  Customer Ratio in Assets (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$ClaimsOnCustomerRatio = 44.7
+				    at Bank%20Rating&openl=
+				TRACE: $Description$ClaimsOnCustomerRatioScore = Score Q2
+				    at Bank%20Rating&openl=
+				TRACE: $Value$ClaimsOnCustomerRatioScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$ClaimsOnCustomerRatio = 44.7
+					    at Bank%20Rating&openl=
+					TRACE: DT Double ClaimsOnCustomerRatioScore(Double claimsOnCustomerRatio) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$CreditPortfolioQuality = Calculate Quality of Credit Portfolio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CreditPortfolioQuality = 2.7
+				    at Bank%20Rating&openl=
+				TRACE: $Description$CreditPortfolioQualityScore = Score Q3
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CreditPortfolioQualityScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$CreditPortfolioQuality = 2.7
+					    at Bank%20Rating&openl=
+					TRACE: DT Double CreditPortfolioQualityScore(Double creditPortfolioQuality) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$SecuredByPropertyChargesClaimsRatio = Calculate Secured by Property Charges Claims Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$SecuredByPropertyChargesClaimsRatio = 39.9
+				    at Bank%20Rating&openl=
+				TRACE: $Description$SecuredByPropertyChargesClaimsRatioScore = Score Q4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$SecuredByPropertyChargesClaimsRatioScore = 0.95
+				    at Bank%20Rating&openl=
+					TRACE: $Value$SecuredByPropertyChargesClaimsRatio = 39.9
+					    at Bank%20Rating&openl=
+					TRACE: DT Double SecuredByPropertyChargesClaimsRatioScore(Double securedClaimsRatio) = 0.95
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R5]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R5]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$QuickRatio = Calculate Quick Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$QuickRatio = 38.4
+				    at Bank%20Rating&openl=
+				TRACE: $Description$QuickRatioScore = Score Q5
+				    at Bank%20Rating&openl=
+				TRACE: $Value$QuickRatioScore = 0.95
+				    at Bank%20Rating&openl=
+					TRACE: $Value$QuickRatio = 38.4
+					    at Bank%20Rating&openl=
+					TRACE: DT Double QuickRatioScore(Double quickRatio) = 0.95
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R5]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R5]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$LiquidityRatio = Calculate Liquidity Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiquidityRatio = 24.8
+				    at Bank%20Rating&openl=
+				TRACE: $Description$LiquidityRatioScore = Score Q6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiquidityRatioScore = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$LiquidityRatio = 24.8
+					    at Bank%20Rating&openl=
+					TRACE: DT Double LiquidityRatioScore(Double liquidityRatio) = 0.9
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R4]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R4]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$HighLiquidityRatio = Calculate High Liquidity Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$HighLiquidityRatio = 9.9
+				    at Bank%20Rating&openl=
+				TRACE: $Description$HighLiquidityRatioScore = Score Q7
+				    at Bank%20Rating&openl=
+				TRACE: $Value$HighLiquidityRatioScore = 0.8
+				    at Bank%20Rating&openl=
+					TRACE: $Value$HighLiquidityRatio = 9.9
+					    at Bank%20Rating&openl=
+					TRACE: DT Double HighLiquidityRatioScore(Double highLiquidityRatio) = 0.8
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$NetMoneyMarketLiabilities = Calculate Net Liabilities at Money Market (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$NetMoneyMarketLiabilities = 3.5
+				    at Bank%20Rating&openl=
+				TRACE: $Description$NetMoneyMarketLiabilitiesScore = Score Q8
+				    at Bank%20Rating&openl=
+				TRACE: $Value$NetMoneyMarketLiabilitiesScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$NetMoneyMarketLiabilities = 3.5
+					    at Bank%20Rating&openl=
+					TRACE: DT Double NetMoneyMarketLiabilitiesScore(Double netMoneyMarketLiabilities) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$LiabilitiesToCustomersOnDemandRatio = Calculate Liabilities to Customers on Demand Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiabilitiesToCustomersOnDemandRatio = 19.8
+				    at Bank%20Rating&openl=
+				TRACE: $Description$LiabilitiesToCustomersOnDemandRatioScore = Score Q9
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiabilitiesToCustomersOnDemandRatioScore = 0.95
+				    at Bank%20Rating&openl=
+					TRACE: $Value$LiabilitiesToCustomersOnDemandRatio = 19.8
+					    at Bank%20Rating&openl=
+					TRACE: DT Double LiabilitiesToCustomersOnDemandRatioScore(Double liabilitiesToCustOnDemand) = 0.95
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$OtherAssetsRatio = Calculate Other Assets Ratio (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$OtherAssetsRatio = 1
+				    at Bank%20Rating&openl=
+				TRACE: $Description$OtherAssetsRatioScore = Score Q10
+				    at Bank%20Rating&openl=
+				TRACE: $Value$OtherAssetsRatioScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$OtherAssetsRatio = 1
+					    at Bank%20Rating&openl=
+					TRACE: DT Double OtherAssetsRatioScore(Double otherAssetsRatio) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$BalanceQualityIndex = Balance Quality Index
+B = Q1 x Q2 x Q3 x Q4 x Q5 x Q6 x Q7 x x Q8 x Q9 x Q10
+				    at Bank%20Rating&openl=
+				TRACE: $Value$BalanceQualityIndex = 0.49
+				    at Bank%20Rating&openl=
+					TRACE: $Value$CapitalAdequacyScore = 0.8
+					    at Bank%20Rating&openl=
+					TRACE: $Value$ClaimsOnCustomerRatioScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$CreditPortfolioQualityScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$SecuredByPropertyChargesClaimsRatioScore = 0.95
+					    at Bank%20Rating&openl=
+					TRACE: $Value$QuickRatioScore = 0.95
+					    at Bank%20Rating&openl=
+					TRACE: $Value$LiquidityRatioScore = 0.9
+					    at Bank%20Rating&openl=
+					TRACE: $Value$HighLiquidityRatioScore = 0.8
+					    at Bank%20Rating&openl=
+					TRACE: $Value$NetMoneyMarketLiabilitiesScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$LiabilitiesToCustomersOnDemandRatioScore = 0.95
+					    at Bank%20Rating&openl=
+					TRACE: $Value$OtherAssetsRatioScore = 1
+					    at Bank%20Rating&openl=
+		TRACE: $Description$BalanceDynamicIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators
+		    at Bank%20Rating&openl=
+		TRACE: $Value$BalanceDynamicIndexCalculation = 0.94
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet Double BalanceDynamicIndexCalculation(FinancialData currentFinancialData, FinancialData previousFinancialData) = 0.94
+			    at Bank%20Rating&openl=
+				TRACE: $Description$CapitalDynamic = Calculate Capital Dynamic (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CapitalDynamic = 98.60028476965032
+				    at Bank%20Rating&openl=
+				TRACE: $Description$CapitalDynamicScore = Capital Dynamic Score D1
+				    at Bank%20Rating&openl=
+				TRACE: $Value$CapitalDynamicScore = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$CapitalDynamic = 98.60028476965032
+					    at Bank%20Rating&openl=
+					TRACE: DT Double CapitalDynamicScore(Double capitalDynamic) = 0.9
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$QuickLiquidityDynamic = Calculate Quick Liquidity Dynamic (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$QuickLiquidityDynamic = 98.44893589645855
+				    at Bank%20Rating&openl=
+				TRACE: $Description$QuickLiquidityDynamicScore = Quick Liquidity Dynamic Score D2
+				    at Bank%20Rating&openl=
+				TRACE: $Value$QuickLiquidityDynamicScore = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$QuickLiquidityDynamic = 98.44893589645855
+					    at Bank%20Rating&openl=
+					TRACE: DT Double LiquidityDynamicScore(Double liquidityDynamic) = 0.9
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$LiquidityDynamic = Calculate Liquidity Dynamic (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiquidityDynamic = 114.74414621146013
+				    at Bank%20Rating&openl=
+				TRACE: $Description$LiquidityDynamicScore = Liquidity Dynamic Score D3
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiquidityDynamicScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$LiquidityDynamic = 114.74414621146013
+					    at Bank%20Rating&openl=
+					TRACE: DT Double LiquidityDynamicScore(Double liquidityDynamic) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R4]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R4]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$ProfitDynamic = Calculate Profit Dynamic (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$ProfitDynamic = -32.13900280595726
+				    at Bank%20Rating&openl=
+				TRACE: $Description$ProfitDynamicScore = Profit Dynamic Score D4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$ProfitDynamicScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$ProfitDynamic = -32.13900280595726
+					    at Bank%20Rating&openl=
+					TRACE: DT Double ProfitDynamicScore(Double profitDynamic, Double profit) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Indexed condition: C1, Rules: [R1, R6]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: C2, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$LiabilitiesToCustomersDynamic = Calculate Liabilities to Customers Dynamic (%)
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiabilitiesToCustomersDynamic = 99.32317529419767
+				    at Bank%20Rating&openl=
+				TRACE: $Description$LiabilitiesToCustomersDynamicScore = Liabilities to Customers Dynamic Score D5
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LiabilitiesToCustomersDynamicScore = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$LiabilitiesToCustomersDynamic = 99.32317529419767
+					    at Bank%20Rating&openl=
+					TRACE: DT Double LiabilitiesToCustomersDynamicScore(Double LiabToCustDynamic) = 0.9
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R3]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$BalanceDynamicIndex = Balance Dynamic Index
+B1 = (D1 + D2 + D3 + D4 + D5) / 5
+				    at Bank%20Rating&openl=
+				TRACE: $Value$BalanceDynamicIndex = 0.94
+				    at Bank%20Rating&openl=
+					TRACE: $Value$CapitalDynamicScore = 0.9
+					    at Bank%20Rating&openl=
+					TRACE: $Value$QuickLiquidityDynamicScore = 0.9
+					    at Bank%20Rating&openl=
+					TRACE: $Value$LiquidityDynamicScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$ProfitDynamicScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$LiabilitiesToCustomersDynamicScore = 0.9
+					    at Bank%20Rating&openl=
+				TRACE: $Value$RETURN = 0.94
+				    at Bank%20Rating&openl=
+					TRACE: $Value$BalanceDynamicIndex = 0.94
+					    at Bank%20Rating&openl=
+		TRACE: $Description$BankQualitativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators
+		    at Bank%20Rating&openl=
+		TRACE: $Value$BankQualitativeIndexCalculation = 0.9
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet Double BankQualitativeIndexCalculation(Bank bank) = 0.9
+			    at Bank%20Rating&openl=
+				TRACE: $Description$LossesInThisYearScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$LossesInThisYearScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double LossesInThisYearScore(Boolean lossesInThisYear) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$NegativeHistoryRelationsScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$NegativeHistoryRelationsScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NegativeHistoryRelationsScore(Boolean negativeHistoryRelations) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$NegativeMassMediaScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$NegativeMassMediaScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NegativeMassMediaScore(Boolean negativeMassMedia) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$NegativeInfoShareHoldersOrManagementScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$NegativeInfoShareHoldersOrManagementScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double NegativeInfoShareHoldersOrManagementScore(Boolean negativeManagInfo) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R2]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$DowngradesOfBankRatingScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$DowngradesOfBankRatingScore = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: DT Double DowngradesOfBankRatingScore(Boolean downgradesOfBankRating) = 0.9
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$TotalBalanceScore = Calculate Qualitative Indices I1, I2, …, I6
+				    at Bank%20Rating&openl=
+				TRACE: $Value$TotalBalanceScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double TotalBalanceScore(Double totalBalance, CountryCode countryCode) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Indexed condition: C2, Rules: [R1, R2, R3, R4, R5]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: C1, Rules: [R3, R5]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R3, R5]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$BankQualitativeIndex = Bank Qualitative Index
+B2 = min {I1, I2, …, I6}
+				    at Bank%20Rating&openl=
+				TRACE: $Value$BankQualitativeIndex = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$LossesInThisYearScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$NegativeHistoryRelationsScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$NegativeMassMediaScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$NegativeInfoShareHoldersOrManagementScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$DowngradesOfBankRatingScore = 0.9
+					    at Bank%20Rating&openl=
+					TRACE: $Value$TotalBalanceScore = 1
+					    at Bank%20Rating&openl=
+				TRACE: $Value$RETURN = 0.9
+				    at Bank%20Rating&openl=
+					TRACE: $Value$BankQualitativeIndex = 0.9
+					    at Bank%20Rating&openl=
+		TRACE: $Description$IsAdequateNormativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators
+		    at Bank%20Rating&openl=
+		TRACE: $Value$IsAdequateNormativeIndexCalculation = 1
+		    at Bank%20Rating&openl=
+			TRACE: SpreadSheet Double IsAdequateNormativeIndexCalculation(Bank bank) = 1
+			    at Bank%20Rating&openl=
+				TRACE: $Description$IsAdequateCoreCapitalRatioScore = Calculate Qualitative Indices N1, N2, N3, N4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$IsAdequateCoreCapitalRatioScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double IsAdequateCoreCapitalRatioScore(Boolean isAdequateCoreCapitalRatio) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$IsAdequateLiquidityRatioScore = Calculate Qualitative Indices N1, N2, N3, N4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$IsAdequateLiquidityRatioScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double IsAdequateLiquidityRatioScore(Boolean isAdequateLiquidityRatio) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$IsAdequateMaxCreditRiskScore = Calculate Qualitative Indices N1, N2, N3, N4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$IsAdequateMaxCreditRiskScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1, R2]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: HC1, Rules: [R1]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R1, R2]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$EquityScore = Calculate Qualitative Indices N1, N2, N3, N4
+				    at Bank%20Rating&openl=
+				TRACE: $Value$EquityScore = 1
+				    at Bank%20Rating&openl=
+					TRACE: DT Double EquityScore(CountryCode countryCode, Double equity) = 1
+					    at Bank%20Rating&openl=
+						TRACE: Condition: MC1, Rules: [R1, R2]
+						    at Bank%20Rating&openl=
+						TRACE: Condition: HC1, Rules: [R5]
+						    at Bank%20Rating&openl=
+						TRACE: Returned rule: [R5, R6]
+						    at Bank%20Rating&openl=
+				TRACE: $Description$IsAdequateNormativeIndex = Calculate IsAdequateNormative Index
+B3 = min {N1, N2, N3, N4}
+				    at Bank%20Rating&openl=
+				TRACE: $Value$IsAdequateNormativeIndex = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$IsAdequateCoreCapitalRatioScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$IsAdequateLiquidityRatioScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$IsAdequateMaxCreditRiskScore = 1
+					    at Bank%20Rating&openl=
+					TRACE: $Value$EquityScore = 1
+					    at Bank%20Rating&openl=
+				TRACE: $Value$RETURN = 1
+				    at Bank%20Rating&openl=
+					TRACE: $Value$IsAdequateNormativeIndex = 1
+					    at Bank%20Rating&openl=
+		TRACE: $Description$BankRating = Bank Rating R = B x B1 x B2 x B3
+		    at Bank%20Rating&openl=
+		TRACE: $Value$BankRating = 0.41
+		    at Bank%20Rating&openl=
+			TRACE: $Value$BalanceQualityIndexCalculation = SpreadsheetResultBalanceQualityIndexCalculation
+			    at Bank%20Rating&openl=
+			TRACE: $Value$BalanceDynamicIndexCalculation = 0.94
+			    at Bank%20Rating&openl=
+			TRACE: $Value$BankQualitativeIndexCalculation = 0.9
+			    at Bank%20Rating&openl=
+			TRACE: $Value$IsAdequateNormativeIndexCalculation = 1
+			    at Bank%20Rating&openl=
+		TRACE: $Description$BankRatingGroup = Calculate Bank Rating Group
+		    at Bank%20Rating&openl=
+		TRACE: $Value$BankRatingGroup = R3
+		    at Bank%20Rating&openl=
+			TRACE: $Value$BankRating = 0.41
+			    at Bank%20Rating&openl=
+			TRACE: DT RatingGroup BankRatingGroup(Double bankRating) = R3
+			    at Bank%20Rating&openl=
+				TRACE: Condition: MC1, Rules: [R3]
+				    at Bank%20Rating&openl=
+				TRACE: Returned rule: [R3]
+				    at Bank%20Rating&openl=
+		TRACE: $Description$LimitIndex = Calculate Limit Index Kl
+		    at Bank%20Rating&openl=
+		TRACE: $Value$LimitIndex = 1
+		    at Bank%20Rating&openl=
+			TRACE: $Value$BankRatingGroup = R3
+			    at Bank%20Rating&openl=
+			TRACE: DT Double BankLimitIndex(Bank bank, RatingGroup bankRatingGroup) = 1
+			    at Bank%20Rating&openl=
+				TRACE: Condition: C2, Rules: [1, 2, 3, 9]
+				    at Bank%20Rating&openl=
+				TRACE: Indexed condition: HC1, Rules: [1, 1, 1, 1]
+				    at Bank%20Rating&openl=
+				TRACE: Condition: HC2, Rules: [1, 1]
+				    at Bank%20Rating&openl=
+				TRACE: Condition: C1, Rules: [1]
+				    at Bank%20Rating&openl=
+				TRACE: Condition: C1, Rules: [2]
+				    at Bank%20Rating&openl=
+				TRACE: Condition: C1, Rules: [3]
+				    at Bank%20Rating&openl=
+				TRACE: Condition: C1, Rules: [9]
+				    at Bank%20Rating&openl=
+				TRACE: Returned rule: [1, 1, 2, 2, 3, 3, 9, 9]
+				    at Bank%20Rating&openl=
+		TRACE: $Description$Limit = Max Limit which Bank is Allowed
+L = Kl x Lmax
+		    at Bank%20Rating&openl=
+		TRACE: $Value$Limit = 5000
+		    at Bank%20Rating&openl=
+			TRACE: $Value$LimitIndex = 1
+			    at Bank%20Rating&openl=
+
