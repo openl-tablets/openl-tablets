@@ -8,12 +8,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
-import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
-import com.github.victools.jsonschema.generator.SchemaVersion;
-import com.github.victools.jsonschema.module.jackson.JacksonModule;
-import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessage;
@@ -53,18 +48,12 @@ public class TraceNodeViewMapper {
     private final SchemaGenerator schemaGenerator;
     private final TraceParameterRegistry parameterRegistry;
 
-    public TraceNodeViewMapper(ObjectMapper objectMapper, TraceParameterRegistry parameterRegistry) {
+    public TraceNodeViewMapper(ObjectMapper objectMapper,
+                               SchemaGenerator schemaGenerator,
+                               TraceParameterRegistry parameterRegistry) {
         this.objectMapper = objectMapper;
-        this.schemaGenerator = initSchemaGenerator(objectMapper);
+        this.schemaGenerator = schemaGenerator;
         this.parameterRegistry = parameterRegistry;
-    }
-
-    private static SchemaGenerator initSchemaGenerator(ObjectMapper objectMapper) {
-        var config = new SchemaGeneratorConfigBuilder(objectMapper, SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
-                .with(new JacksonModule())
-                .with(new Swagger2Module())
-                .build();
-        return new SchemaGenerator(config);
     }
 
     public List<TraceNodeView> createSimpleNodes(Iterable<ITracerObject> children,

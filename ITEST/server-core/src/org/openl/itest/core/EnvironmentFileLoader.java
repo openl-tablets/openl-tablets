@@ -22,8 +22,6 @@ import java.util.Map;
  *   <li>Quoted values (KEY="value" or KEY='value') have quotes stripped</li>
  *   <li>Child folder values override parent folder values</li>
  * </ul>
- *
- * @author OpenL Tablets
  */
 public final class EnvironmentFileLoader {
 
