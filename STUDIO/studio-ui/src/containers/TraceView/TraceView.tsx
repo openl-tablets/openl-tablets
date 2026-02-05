@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert } from 'antd'
+import { Alert, notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import TraceTree from './components/TraceTree'
@@ -70,8 +70,13 @@ const TraceView: React.FC = () => {
             setExecutionStatus('INTERRUPTED')
         } catch (err) {
             console.error('Failed to cancel trace:', err)
+            const errorMessage = err instanceof Error ? err.message : String(err)
+            notification.error({
+                message: t('errors.cancelFailed'),
+                description: errorMessage,
+            })
         }
-    }, [projectId, setExecutionStatus])
+    }, [projectId, setExecutionStatus, t])
 
     // Resizer handlers
     const handleMouseDown = useCallback((e: React.MouseEvent) => {

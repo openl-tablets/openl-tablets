@@ -60,7 +60,8 @@ const TraceDetails: React.FC = () => {
         detailsLoading,
     } = useTraceStore()
 
-    if (!selectedNodeId) {
+    // Use explicit null check - 0 is a valid node ID
+    if (selectedNodeId === null) {
         return (
             <div className="trace-details trace-details-empty">
                 <Empty
