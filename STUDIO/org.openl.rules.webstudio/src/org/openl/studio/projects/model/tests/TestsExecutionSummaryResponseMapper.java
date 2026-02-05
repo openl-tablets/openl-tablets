@@ -9,6 +9,7 @@ import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
+import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
@@ -37,6 +38,7 @@ public class TestsExecutionSummaryResponseMapper {
 
     private SchemaGenerator initSchemaGenerator(ObjectMapper objectMapper) {
         var schemaGeneratorConfig = new SchemaGeneratorConfigBuilder(objectMapper, SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
+                .with(new JacksonModule())
                 .with(new Swagger2Module())
                 .build();
         return new SchemaGenerator(schemaGeneratorConfig);

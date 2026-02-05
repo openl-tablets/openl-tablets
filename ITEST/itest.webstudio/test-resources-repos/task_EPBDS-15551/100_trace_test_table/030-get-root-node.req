@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/trace/nodes HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

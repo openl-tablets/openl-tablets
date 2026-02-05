@@ -1,0 +1,158 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 4,
+    "title": "$Value$CheckCurrentFinancialData = FinancialData",
+    "tooltip": "$Value$CheckCurrentFinancialData = FinancialData",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 6,
+    "title": "$Value$CheckPreviousPeriodFinancialData = FinancialData",
+    "tooltip": "$Value$CheckPreviousPeriodFinancialData = FinancialData",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 8,
+    "title": "$Value$BalanceQualityIndexCalculation = SpreadsheetResultBalanceQualityIndexCalculation",
+    "tooltip": "$Value$BalanceQualityIndexCalculation = SpreadsheetResultBalanceQualityIndexCalculation",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 10,
+    "title": "$Description$BalanceDynamicIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "tooltip": "$Description$BalanceDynamicIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 11,
+    "title": "$Value$BalanceDynamicIndexCalculation = 0.94",
+    "tooltip": "$Value$BalanceDynamicIndexCalculation = 0.94",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 13,
+    "title": "$Description$BankQualitativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "tooltip": "$Description$BankQualitativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 14,
+    "title": "$Value$BankQualitativeIndexCalculation = 0.9",
+    "tooltip": "$Value$BankQualitativeIndexCalculation = 0.9",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 16,
+    "title": "$Description$IsAdequateNormativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "tooltip": "$Description$IsAdequateNormativeIndexCalculation = Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 17,
+    "title": "$Value$IsAdequateNormativeIndexCalculation = 1",
+    "tooltip": "$Value$IsAdequateNormativeIndexCalculation = 1",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 19,
+    "title": "$Description$BankRating = Bank Rating R = B x B1 x B2 x B3",
+    "tooltip": "$Description$BankRating = Bank Rating R = B x B1 x B2 x B3",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 20,
+    "title": "$Value$BankRating = 0.41",
+    "tooltip": "$Value$BankRating = 0.41",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 25,
+    "title": "$Description$BankRatingGroup = Calculate Bank Rating Group",
+    "tooltip": "$Description$BankRatingGroup = Calculate Bank Rating Group",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 26,
+    "title": "$Value$BankRatingGroup = R3",
+    "tooltip": "$Value$BankRatingGroup = R3",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 29,
+    "title": "$Description$LimitIndex = Calculate Limit Index Kl",
+    "tooltip": "$Description$LimitIndex = Calculate Limit Index Kl",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 30,
+    "title": "$Value$LimitIndex = 1",
+    "tooltip": "$Value$LimitIndex = 1",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 33,
+    "title": "$Description$Limit = Max Limit which Bank is Allowed\nL = Kl x Lmax",
+    "tooltip": "$Description$Limit = Max Limit which Bank is Allowed\nL = Kl x Lmax",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 34,
+    "title": "$Value$Limit = 5000",
+    "tooltip": "$Value$Limit = 5000",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  }
+]
