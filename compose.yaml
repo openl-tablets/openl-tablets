@@ -143,7 +143,6 @@ services:
         chown 1000:999 /openl-home/.properties
         chown 1000:999 /openl-home
 
-        mkdir /www/nginx
         echo '
         events {
           worker_connections  1024;
