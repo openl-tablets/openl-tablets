@@ -227,7 +227,247 @@ Content-Type: application/json
     "parameterId": 2,
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object"
+      "$defs": {
+        "FinancialData": {
+          "type": "object",
+          "properties": {
+            "capital": {
+              "type": "number"
+            },
+            "claimsOnBanks": {
+              "type": "number"
+            },
+            "claimsOnCustomers": {
+              "type": "number"
+            },
+            "claimsOnDemand": {
+              "type": "number"
+            },
+            "claimsSecuredByPropertyCharges": {
+              "type": "number"
+            },
+            "claimsUpTo3Months": {
+              "type": "number"
+            },
+            "consolidatedProfit": {
+              "type": "number"
+            },
+            "equity": {
+              "type": "number"
+            },
+            "liabilities": {
+              "type": "number"
+            },
+            "liabilitiesOnDemand": {
+              "type": "number"
+            },
+            "liabilitiesToBanks": {
+              "type": "number"
+            },
+            "liabilitiesToCustomers": {
+              "type": "number"
+            },
+            "liabilitiesToCustomersOnDemand": {
+              "type": "number"
+            },
+            "loanLossProvisionsForClaimsOnCustomers": {
+              "type": "number"
+            },
+            "otherAssets": {
+              "type": "number"
+            },
+            "reportDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "totalAssets": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "type": "object",
+      "properties": {
+        "Value_CheckCurrentFinancialData": {
+          "$ref": "#/$defs/FinancialData"
+        },
+        "Value_CheckPreviousPeriodFinancialData": {
+          "$ref": "#/$defs/FinancialData"
+        },
+        "Value_BalanceQualityIndexCalculation": {
+          "type": "object",
+          "properties": {
+            "Description_CapitalAdequacy": {
+              "type": "string"
+            },
+            "Value_CapitalAdequacy": {
+              "type": "number"
+            },
+            "Description_CapitalAdequacyScore": {
+              "type": "string"
+            },
+            "Value_CapitalAdequacyScore": {
+              "type": "number"
+            },
+            "Description_ClaimsOnCustomerRatio": {
+              "type": "string"
+            },
+            "Value_ClaimsOnCustomerRatio": {
+              "type": "number"
+            },
+            "Description_ClaimsOnCustomerRatioScore": {
+              "type": "string"
+            },
+            "Value_ClaimsOnCustomerRatioScore": {
+              "type": "number"
+            },
+            "Description_CreditPortfolioQuality": {
+              "type": "string"
+            },
+            "Value_CreditPortfolioQuality": {
+              "type": "number"
+            },
+            "Description_CreditPortfolioQualityScore": {
+              "type": "string"
+            },
+            "Value_CreditPortfolioQualityScore": {
+              "type": "number"
+            },
+            "Description_SecuredByPropertyChargesClaimsRatio": {
+              "type": "string"
+            },
+            "Value_SecuredByPropertyChargesClaimsRatio": {
+              "type": "number"
+            },
+            "Description_SecuredByPropertyChargesClaimsRatioScore": {
+              "type": "string"
+            },
+            "Value_SecuredByPropertyChargesClaimsRatioScore": {
+              "type": "number"
+            },
+            "Description_QuickRatio": {
+              "type": "string"
+            },
+            "Value_QuickRatio": {
+              "type": "number"
+            },
+            "Description_QuickRatioScore": {
+              "type": "string"
+            },
+            "Value_QuickRatioScore": {
+              "type": "number"
+            },
+            "Description_LiquidityRatio": {
+              "type": "string"
+            },
+            "Value_LiquidityRatio": {
+              "type": "number"
+            },
+            "Description_LiquidityRatioScore": {
+              "type": "string"
+            },
+            "Value_LiquidityRatioScore": {
+              "type": "number"
+            },
+            "Description_HighLiquidityRatio": {
+              "type": "string"
+            },
+            "Value_HighLiquidityRatio": {
+              "type": "number"
+            },
+            "Description_HighLiquidityRatioScore": {
+              "type": "string"
+            },
+            "Value_HighLiquidityRatioScore": {
+              "type": "number"
+            },
+            "Description_NetMoneyMarketLiabilities": {
+              "type": "string"
+            },
+            "Value_NetMoneyMarketLiabilities": {
+              "type": "number"
+            },
+            "Description_NetMoneyMarketLiabilitiesScore": {
+              "type": "string"
+            },
+            "Value_NetMoneyMarketLiabilitiesScore": {
+              "type": "number"
+            },
+            "Description_LiabilitiesToCustomersOnDemandRatio": {
+              "type": "string"
+            },
+            "Value_LiabilitiesToCustomersOnDemandRatio": {
+              "type": "number"
+            },
+            "Description_LiabilitiesToCustomersOnDemandRatioScore": {
+              "type": "string"
+            },
+            "Value_LiabilitiesToCustomersOnDemandRatioScore": {
+              "type": "number"
+            },
+            "Description_OtherAssetsRatio": {
+              "type": "string"
+            },
+            "Value_OtherAssetsRatio": {
+              "type": "number"
+            },
+            "Description_OtherAssetsRatioScore": {
+              "type": "string"
+            },
+            "Value_OtherAssetsRatioScore": {
+              "type": "number"
+            },
+            "Description_BalanceQualityIndex": {
+              "type": "string"
+            },
+            "Value_BalanceQualityIndex": {
+              "type": "number"
+            }
+          }
+        },
+        "Description_BalanceDynamicIndexCalculation": {
+          "type": "string"
+        },
+        "Value_BalanceDynamicIndexCalculation": {
+          "type": "number"
+        },
+        "Description_BankQualitativeIndexCalculation": {
+          "type": "string"
+        },
+        "Value_BankQualitativeIndexCalculation": {
+          "type": "number"
+        },
+        "Description_IsAdequateNormativeIndexCalculation": {
+          "type": "string"
+        },
+        "Value_IsAdequateNormativeIndexCalculation": {
+          "type": "number"
+        },
+        "Description_BankRating": {
+          "type": "string"
+        },
+        "Value_BankRating": {
+          "type": "number"
+        },
+        "Description_BankRatingGroup": {
+          "type": "string"
+        },
+        "Value_BankRatingGroup": {
+          "type": "string"
+        },
+        "Description_LimitIndex": {
+          "type": "string"
+        },
+        "Value_LimitIndex": {
+          "type": "number"
+        },
+        "Description_Limit": {
+          "type": "string"
+        },
+        "Value_Limit": {
+          "type": "number"
+        }
+      }
     }
   }
 }

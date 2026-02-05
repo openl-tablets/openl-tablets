@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -115,6 +116,11 @@ public class ProjectsController {
 
     @Lookup
     public WebStudio getWebStudio() {
+        return null;
+    }
+
+    @Lookup
+    protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
         return null;
     }
 
@@ -320,7 +326,9 @@ public class ProjectsController {
         var projectModel = projectService.getProjectModel(project, fromModule);
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
-        var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
+        var objectMapper = configureObjectMapper();
+        var schemaGenerator = getSchemaGenerator(objectMapper);
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
         if (StringUtils.isBlank(tableId)) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -389,7 +397,9 @@ public class ProjectsController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
+            var objectMapper = configureObjectMapper();
+            var schemaGenerator = getSchemaGenerator(objectMapper);
+            var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
             var query = TestExecutionSummaryQuery.builder()
                     .failedOnly(failuresOnly)
                     .failures(failures)
