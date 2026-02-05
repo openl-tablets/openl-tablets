@@ -1,0 +1,212 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 2,
+    "title": "$Description$CapitalDynamic = Calculate Capital Dynamic (%)",
+    "tooltip": "$Description$CapitalDynamic = Calculate Capital Dynamic (%)",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 3,
+    "title": "$Value$CapitalDynamic = 98.60028476965032",
+    "tooltip": "$Value$CapitalDynamic = 98.60028476965032",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 4,
+    "title": "$Description$CapitalDynamicScore = Capital Dynamic Score D1",
+    "tooltip": "$Description$CapitalDynamicScore = Capital Dynamic Score D1",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 5,
+    "title": "$Value$CapitalDynamicScore = 0.9",
+    "tooltip": "$Value$CapitalDynamicScore = 0.9",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 8,
+    "title": "$Description$QuickLiquidityDynamic = Calculate Quick Liquidity Dynamic (%)",
+    "tooltip": "$Description$QuickLiquidityDynamic = Calculate Quick Liquidity Dynamic (%)",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 9,
+    "title": "$Value$QuickLiquidityDynamic = 98.44893589645855",
+    "tooltip": "$Value$QuickLiquidityDynamic = 98.44893589645855",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 10,
+    "title": "$Description$QuickLiquidityDynamicScore = Quick Liquidity Dynamic Score D2",
+    "tooltip": "$Description$QuickLiquidityDynamicScore = Quick Liquidity Dynamic Score D2",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 11,
+    "title": "$Value$QuickLiquidityDynamicScore = 0.9",
+    "tooltip": "$Value$QuickLiquidityDynamicScore = 0.9",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 14,
+    "title": "$Description$LiquidityDynamic = Calculate Liquidity Dynamic (%)",
+    "tooltip": "$Description$LiquidityDynamic = Calculate Liquidity Dynamic (%)",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 15,
+    "title": "$Value$LiquidityDynamic = 114.74414621146013",
+    "tooltip": "$Value$LiquidityDynamic = 114.74414621146013",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 16,
+    "title": "$Description$LiquidityDynamicScore = Liquidity Dynamic Score D3",
+    "tooltip": "$Description$LiquidityDynamicScore = Liquidity Dynamic Score D3",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 17,
+    "title": "$Value$LiquidityDynamicScore = 1",
+    "tooltip": "$Value$LiquidityDynamicScore = 1",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 20,
+    "title": "$Description$ProfitDynamic = Calculate Profit Dynamic (%)",
+    "tooltip": "$Description$ProfitDynamic = Calculate Profit Dynamic (%)",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 21,
+    "title": "$Value$ProfitDynamic = -32.13900280595726",
+    "tooltip": "$Value$ProfitDynamic = -32.13900280595726",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 22,
+    "title": "$Description$ProfitDynamicScore = Profit Dynamic Score D4",
+    "tooltip": "$Description$ProfitDynamicScore = Profit Dynamic Score D4",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 23,
+    "title": "$Value$ProfitDynamicScore = 1",
+    "tooltip": "$Value$ProfitDynamicScore = 1",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 26,
+    "title": "$Description$LiabilitiesToCustomersDynamic = Calculate Liabilities to Customers Dynamic (%)",
+    "tooltip": "$Description$LiabilitiesToCustomersDynamic = Calculate Liabilities to Customers Dynamic (%)",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 27,
+    "title": "$Value$LiabilitiesToCustomersDynamic = 99.32317529419767",
+    "tooltip": "$Value$LiabilitiesToCustomersDynamic = 99.32317529419767",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 28,
+    "title": "$Description$LiabilitiesToCustomersDynamicScore = Liabilities to Customers Dynamic Score D5",
+    "tooltip": "$Description$LiabilitiesToCustomersDynamicScore = Liabilities to Customers Dynamic Score D5",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 29,
+    "title": "$Value$LiabilitiesToCustomersDynamicScore = 0.9",
+    "tooltip": "$Value$LiabilitiesToCustomersDynamicScore = 0.9",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 32,
+    "title": "$Description$BalanceDynamicIndex = Balance Dynamic Index\nB1 = (D1 + D2 + D3 + D4 + D5) / 5",
+    "tooltip": "$Description$BalanceDynamicIndex = Balance Dynamic Index\nB1 = (D1 + D2 + D3 + D4 + D5) / 5",
+    "type": "spreadsheetCell",
+    "lazy": false,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 33,
+    "title": "$Value$BalanceDynamicIndex = 0.94",
+    "tooltip": "$Value$BalanceDynamicIndex = 0.94",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 39,
+    "title": "$Value$RETURN = 0.94",
+    "tooltip": "$Value$RETURN = 0.94",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  }
+]

@@ -1,0 +1,85 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "previousFinancialData",
+  "description": "FinancialData",
+  "lazy": false,
+  "value": {
+    "reportDate": "2009-01-01T00:00:00.000",
+    "totalAssets": 0.0,
+    "claimsOnDemand": 69940.0,
+    "claimsUpTo3Months": 176674.0,
+    "claimsSecuredByPropertyCharges": 0.0,
+    "claimsOnBanks": 0.0,
+    "claimsOnCustomers": 0.0001,
+    "loanLossProvisionsForClaimsOnCustomers": 0.0,
+    "otherAssets": 0.0,
+    "capital": 41437.0,
+    "equity": 0.0,
+    "liabilities": 817527.0,
+    "liabilitiesToBanks": 0.0,
+    "liabilitiesToCustomers": 264618.0,
+    "liabilitiesOnDemand": 179283.0,
+    "liabilitiesToCustomersOnDemand": 0.0,
+    "consolidatedProfit": -4633.0
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "capital": {
+        "type": "number"
+      },
+      "claimsOnBanks": {
+        "type": "number"
+      },
+      "claimsOnCustomers": {
+        "type": "number"
+      },
+      "claimsOnDemand": {
+        "type": "number"
+      },
+      "claimsSecuredByPropertyCharges": {
+        "type": "number"
+      },
+      "claimsUpTo3Months": {
+        "type": "number"
+      },
+      "consolidatedProfit": {
+        "type": "number"
+      },
+      "equity": {
+        "type": "number"
+      },
+      "liabilities": {
+        "type": "number"
+      },
+      "liabilitiesOnDemand": {
+        "type": "number"
+      },
+      "liabilitiesToBanks": {
+        "type": "number"
+      },
+      "liabilitiesToCustomers": {
+        "type": "number"
+      },
+      "liabilitiesToCustomersOnDemand": {
+        "type": "number"
+      },
+      "loanLossProvisionsForClaimsOnCustomers": {
+        "type": "number"
+      },
+      "otherAssets": {
+        "type": "number"
+      },
+      "reportDate": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "totalAssets": {
+        "type": "number"
+      }
+    }
+  }
+}

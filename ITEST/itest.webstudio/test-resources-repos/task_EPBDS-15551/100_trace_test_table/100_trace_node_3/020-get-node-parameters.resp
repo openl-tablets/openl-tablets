@@ -1,0 +1,233 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "key": 3,
+  "title": "SpreadSheet SpreadsheetResultBankRatingCalculation BankRatingCalculation(Bank bank) = SpreadsheetResultBankRatingCalculation",
+  "tooltip": "SpreadSheet SpreadsheetResultBankRatingCalculation BankRatingCalculation(Bank bank) = SpreadsheetResultBankRatingCalculation",
+  "type": "spreadsheet",
+  "lazy": true,
+  "extraClasses": "spreadsheet",
+  "error": false,
+  "parameters": [
+    {
+      "name": "bank",
+      "description": "Bank",
+      "lazy": true,
+      "parameterId": 1,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$defs": {
+          "FinancialData": {
+            "type": "object",
+            "properties": {
+              "capital": {
+                "type": "number"
+              },
+              "claimsOnBanks": {
+                "type": "number"
+              },
+              "claimsOnCustomers": {
+                "type": "number"
+              },
+              "claimsOnDemand": {
+                "type": "number"
+              },
+              "claimsSecuredByPropertyCharges": {
+                "type": "number"
+              },
+              "claimsUpTo3Months": {
+                "type": "number"
+              },
+              "consolidatedProfit": {
+                "type": "number"
+              },
+              "equity": {
+                "type": "number"
+              },
+              "liabilities": {
+                "type": "number"
+              },
+              "liabilitiesOnDemand": {
+                "type": "number"
+              },
+              "liabilitiesToBanks": {
+                "type": "number"
+              },
+              "liabilitiesToCustomers": {
+                "type": "number"
+              },
+              "liabilitiesToCustomersOnDemand": {
+                "type": "number"
+              },
+              "loanLossProvisionsForClaimsOnCustomers": {
+                "type": "number"
+              },
+              "otherAssets": {
+                "type": "number"
+              },
+              "reportDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "totalAssets": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "properties": {
+          "bankFullName": {
+            "type": "string"
+          },
+          "bankID": {
+            "type": "string"
+          },
+          "bankRatings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rating": {
+                  "type": "string"
+                },
+                "ratingAgency": {
+                  "type": "string",
+                  "enum": [
+                    "Moody's Investors Service",
+                    "Fitch",
+                    "Standard & Poor's"
+                  ]
+                }
+              }
+            }
+          },
+          "countryCode": {
+            "type": "string",
+            "enum": [
+              "DE",
+              "BE",
+              "NL",
+              "AT",
+              "CH",
+              "DK",
+              "US",
+              "FR",
+              "IT",
+              "CZ",
+              "SE",
+              "FI",
+              "UA",
+              "KZ",
+              "PL",
+              "GB",
+              "RU",
+              "IE"
+            ]
+          },
+          "currentFinancialData": {
+            "$ref": "#/$defs/FinancialData"
+          },
+          "previousFinancialData": {
+            "$ref": "#/$defs/FinancialData"
+          },
+          "qualityIndicators": {
+            "type": "object",
+            "properties": {
+              "downgradesOfBankRating": {
+                "type": "boolean"
+              },
+              "isAdequateCoreCapitalRatio": {
+                "type": "boolean"
+              },
+              "isAdequateLiquidityRatio": {
+                "type": "boolean"
+              },
+              "isAdequateMaxCreditRisk": {
+                "type": "boolean"
+              },
+              "lossesInThisYear": {
+                "type": "boolean"
+              },
+              "negativeHistoryRelations": {
+                "type": "boolean"
+              },
+              "negativeInfoShareHoldersOrManagement": {
+                "type": "boolean"
+              },
+              "negativeMassMedia": {
+                "type": "boolean"
+              },
+              "reportDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "context": {
+    "name": "context",
+    "description": "DefaultRulesRuntimeContext",
+    "lazy": false,
+    "value": {
+      "currentDate": null,
+      "requestDate": null,
+      "lob": null,
+      "nature": null,
+      "usState": null,
+      "country": null,
+      "usRegion": null,
+      "currency": null,
+      "lang": null,
+      "region": null,
+      "caProvince": null,
+      "caRegion": null,
+      "locale": null
+    },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "caProvince": "{\"type\":\"*\",\"enum\":***}",
+        "caRegion": "{\"type\":\"*\",\"enum\":***}",
+        "country": "{\"type\":\"*\",\"enum\":***}",
+        "currency": "{\"type\":\"*\",\"enum\":***}",
+        "currentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lang": "{\"type\":\"*\",\"enum\":***}",
+        "lob": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "object"
+        },
+        "nature": {
+          "type": "string"
+        },
+        "region": "{\"type\":\"*\",\"enum\":***}",
+        "requestDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "usRegion": "{\"type\":\"*\",\"enum\":***}",
+        "usState": "{\"type\":\"*\",\"enum\":***}"
+      }
+    }
+  },
+  "result": {
+    "name": "return",
+    "description": "SpreadsheetResultBankRatingCalculation",
+    "lazy": true,
+    "parameterId": 2,
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object"
+    }
+  }
+}
