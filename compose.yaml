@@ -14,14 +14,14 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: '10G'
+          memory: '1G'
         reservations:
           memory: 512M
     volumes:
       - jars:/opt/openl/lib
       - openl-home:/opt/openl/shared
     environment:
-      JAVA_OPTS: '-Xmx9000m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
+      JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
 #      _REACT_UI_ROOT_: http://localhost:3100
     depends_on:
       postgres:

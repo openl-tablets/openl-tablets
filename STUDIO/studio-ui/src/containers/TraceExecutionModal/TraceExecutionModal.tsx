@@ -93,6 +93,8 @@ export const TraceExecutionModal: React.FC = () => {
     const [isCancelling, setIsCancelling] = useState(false)
 
     const subscriptionRef = useRef<string | null>(null)
+    // Execution token to detect stale async operations after modal close
+    const executionTokenRef = useRef<string | null>(null)
 
     /**
      * Handle WebSocket progress message.
@@ -138,8 +140,12 @@ export const TraceExecutionModal: React.FC = () => {
 
     /**
      * Close modal and cleanup.
+     * Clears execution token to signal in-flight async operations to abort.
      */
     const handleClose = useCallback(() => {
+        // Clear execution token to abort any in-flight async operations
+        executionTokenRef.current = null
+
         // Unsubscribe from WebSocket
         if (subscriptionRef.current) {
             unsubscribe(subscriptionRef.current)
@@ -148,15 +154,21 @@ export const TraceExecutionModal: React.FC = () => {
         setVisible(false)
         setStatus(null)
         setMessage(null)
+        setIsCancelling(false)
         // Clear event detail
         window.dispatchEvent(new CustomEvent('openTraceExecutionModal', { detail: null }))
     }, [unsubscribe])
 
     /**
      * Start trace execution.
+     * Uses execution token to detect and abort stale operations after modal close.
      */
     const startExecution = useCallback(async (eventDetail: TraceExecutionEventDetail) => {
         const { projectId: projId, tableId: tblId, showRealNumbers: showReal, downloadMode: download } = eventDetail
+
+        // Generate unique execution token for this execution
+        const executionToken = `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        executionTokenRef.current = executionToken
 
         // Reset state
         setVisible(true)
@@ -173,9 +185,24 @@ export const TraceExecutionModal: React.FC = () => {
                 await connect()
             }
 
+            // Check if execution was cancelled during connect
+            if (executionTokenRef.current !== executionToken) {
+                console.warn('Trace execution aborted: modal closed during WebSocket connect')
+                return
+            }
+
             // 2. Subscribe to progress topic BEFORE API call (use local vars, not state)
             const topic = `/user/topic/projects/${encodeURIComponent(projId)}/tables/${encodeURIComponent(tblId)}/trace/status`
-            subscriptionRef.current = subscribe(topic, handleProgressMessage, `trace-modal-${Date.now()}`)
+            const subscriptionId = subscribe(topic, handleProgressMessage, `trace-modal-${Date.now()}`)
+
+            // Only store subscription if execution is still valid
+            if (executionTokenRef.current !== executionToken) {
+                // Execution was cancelled during subscribe - clean up immediately
+                console.warn('Trace execution aborted: modal closed during WebSocket subscribe')
+                unsubscribe(subscriptionId)
+                return
+            }
+            subscriptionRef.current = subscriptionId
 
             // 3. Call trace API
             await traceService.startTrace(projId, {
@@ -184,7 +211,18 @@ export const TraceExecutionModal: React.FC = () => {
                 fromModule: eventDetail.fromModule,
                 inputJson: eventDetail.inputJson
             })
+
+            // Check if execution was cancelled during API call
+            if (executionTokenRef.current !== executionToken) {
+                console.warn('Trace execution aborted: modal closed during startTrace API call')
+                return
+            }
         } catch (error: unknown) {
+            // Only show error if this execution is still active
+            if (executionTokenRef.current !== executionToken) {
+                console.warn('Trace execution error ignored: modal was closed')
+                return
+            }
             const errorMessage = error instanceof Error ? error.message : String(error)
             notification.error({
                 message: t('modal.errors.startFailed'),
@@ -192,7 +230,7 @@ export const TraceExecutionModal: React.FC = () => {
             })
             handleClose()
         }
-    }, [isConnected, connect, subscribe, handleProgressMessage, handleClose, t])
+    }, [isConnected, connect, subscribe, unsubscribe, handleProgressMessage, handleClose, t])
 
     /**
      * Handle incoming event from JSF.
@@ -219,22 +257,32 @@ export const TraceExecutionModal: React.FC = () => {
 
     /**
      * Cancel trace execution.
+     * Uses execution token to detect and abort stale operations after modal close.
      */
     const handleCancel = async () => {
         if (!projectId) return
+
+        // Capture current execution token to detect if modal closes during cancel
+        const currentToken = executionTokenRef.current
+
         setIsCancelling(true)
         try {
             await traceService.cancelTrace(projectId)
-            // Close modal after successful cancellation
-            handleClose()
+
+            // Only close if this cancel operation is still relevant
+            if (executionTokenRef.current === currentToken && currentToken !== null) {
+                handleClose()
+            }
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : String(error)
-            notification.error({
-                message: t('modal.errors.cancelFailed'),
-                description: errorMessage
-            })
-        } finally {
-            setIsCancelling(false)
+            // Only show error if modal is still open with the same execution
+            if (executionTokenRef.current === currentToken && currentToken !== null) {
+                const errorMessage = error instanceof Error ? error.message : String(error)
+                notification.error({
+                    message: t('modal.errors.cancelFailed'),
+                    description: errorMessage
+                })
+                setIsCancelling(false)
+            }
         }
     }
 

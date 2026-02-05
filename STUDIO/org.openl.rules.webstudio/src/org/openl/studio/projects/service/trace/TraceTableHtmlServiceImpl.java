@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.trace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.stereotype.Service;
@@ -140,7 +141,9 @@ public class TraceTableHtmlServiceImpl implements TraceTableHtmlService {
                 html.append(">");
                 // Escape cell content to prevent XSS, then restore intentional HTML entities
                 // from CellModel.convertContent() (which converts spaces to &nbsp; and newlines to <br>)
-                String cellContent = StringEscapeUtils.escapeHtml4(cell.getContent(showFormulas));
+                // Note: escapeHtml4 returns null if input is null, so normalize to empty string first
+                String cellContent = Objects.toString(
+                        StringEscapeUtils.escapeHtml4(cell.getContent(showFormulas)), "");
                 cellContent = cellContent.replace("&amp;nbsp;", "&nbsp;");
                 cellContent = cellContent.replace("&lt;br&gt;", "<br>");
                 html.append(cellContent);

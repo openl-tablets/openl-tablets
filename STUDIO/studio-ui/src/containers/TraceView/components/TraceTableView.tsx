@@ -20,7 +20,8 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!projectId || !nodeId) return
+        // Use explicit null check - 0 is a valid node ID
+        if (projectId == null || nodeId == null) return
 
         const fetchTable = async () => {
             setLoading(true)
