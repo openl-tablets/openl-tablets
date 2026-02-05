@@ -9,10 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -88,6 +90,11 @@ public class ProjectsTraceController {
         this.inputParserService = inputParserService;
         this.traceExportService = traceExportService;
         this.environment = environment;
+    }
+
+    @Lookup
+    protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
+        return null;
     }
 
     @Operation(summary = "trace.start.summary", description = "trace.start.desc")
@@ -268,7 +275,9 @@ public class ProjectsTraceController {
     }
 
     private TraceNodeViewMapper createMapper() {
-        return new TraceNodeViewMapper(configureObjectMapper(), parameterRegistry);
+        var objectMapper = configureObjectMapper();
+        var schemaGenerator = getSchemaGenerator(objectMapper);
+        return new TraceNodeViewMapper(objectMapper, schemaGenerator, parameterRegistry);
     }
 
     private ObjectMapper configureObjectMapper() {
