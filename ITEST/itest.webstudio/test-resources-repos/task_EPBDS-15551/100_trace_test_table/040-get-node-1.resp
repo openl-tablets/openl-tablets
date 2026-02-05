@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 2,
+    "title": "Returned rule: [R1]",
+    "tooltip": "Returned rule: [R1]",
+    "type": "rule",
+    "lazy": false,
+    "extraClasses": "rule",
+    "error": false
+  },
+  {
+    "key": 3,
+    "title": "SpreadSheet SpreadsheetResultBankRatingCalculation BankRatingCalculation(Bank bank) = SpreadsheetResultBankRatingCalculation",
+    "tooltip": "SpreadSheet SpreadsheetResultBankRatingCalculation BankRatingCalculation(Bank bank) = SpreadsheetResultBankRatingCalculation",
+    "type": "spreadsheet",
+    "lazy": true,
+    "extraClasses": "spreadsheet",
+    "error": false
+  }
+]

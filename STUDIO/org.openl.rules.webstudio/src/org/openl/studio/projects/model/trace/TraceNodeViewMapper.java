@@ -12,6 +12,7 @@ import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
+import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.base.INamedThing;
@@ -60,6 +61,7 @@ public class TraceNodeViewMapper {
 
     private static SchemaGenerator initSchemaGenerator(ObjectMapper objectMapper) {
         var config = new SchemaGeneratorConfigBuilder(objectMapper, SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
+                .with(new JacksonModule())
                 .with(new Swagger2Module())
                 .build();
         return new SchemaGenerator(config);
@@ -230,7 +232,10 @@ public class TraceNodeViewMapper {
             return null;
         }
         try {
-            return schemaGenerator.generateSchema(type.getInstanceClass());
+            var clazz = type instanceof CustomSpreadsheetResultOpenClass csrOpenClass
+                    ? csrOpenClass.getBeanClass()
+                    : type.getInstanceClass();
+            return schemaGenerator.generateSchema(clazz);
         } catch (Exception ignored) {
             return null;
         }

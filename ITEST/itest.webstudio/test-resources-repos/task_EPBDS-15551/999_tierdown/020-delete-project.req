@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design-flat/projects/{PROJECT_NAME}/delete HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar

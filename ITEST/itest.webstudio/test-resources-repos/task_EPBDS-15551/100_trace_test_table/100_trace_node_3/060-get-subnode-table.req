@@ -1,0 +1,4 @@
+GET /rest/projects/{PROJECT_ID}/trace/nodes/14/table HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Accept: text/html
+
