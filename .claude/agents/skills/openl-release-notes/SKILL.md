@@ -92,27 +92,29 @@ Within each category, group by component:
 Before writing content, identify which features need detailed descriptions:
 
 **Major Features Requiring Detailed Descriptions (2-4 paragraphs each):**
-- [ ] New Administration UI or UI redesigns
-- [ ] Access Control Lists (ACL) or security model changes
-- [ ] Framework migrations (Jakarta EE, Spring, etc.)
-- [ ] New APIs or significant API changes
-- [ ] User/Group management features
-- [ ] Major architectural changes
-- [ ] New integration capabilities (OAuth, SAML, etc.)
-- [ ] Significant performance improvements
-- [ ] New testing or deployment features
-- [ ] Statistical functions or major functional additions
+Major Features have the following characteristics: 
+- Change how users work or unlock entirely new capabilities
+- Require business context to understand their value
+- Impact multiple parts of the system or workflows
+- Took considerable development effort (multiple sprints and epics)
 
 **Regular Features (1-2 sentences each):**
-- [ ] Minor improvements
-- [ ] Bug fixes
-- [ ] Library updates
-- [ ] Small UI tweaks
-- [ ] Documentation updates
+These features:
+- Enhance existing capabilities in meaningful ways
+- Need some business context but purpose is fairly clear
+- Improve user efficiency or solve known pain points
+- Take moderate effort (1-2 sprints)
+
+**Small Features/Enhancements (bullets):**
+These are:
+- Incremental improvements that are self-explanatory
+- Need minimal business context - the value is obvious
+- Fix edge cases or polish existing features
+- Quick to implement (days, not weeks)
 
 ### ⚠️ CRITICAL: Major Features MUST Have Detailed Descriptions
 
-**IMPORTANT**: For significant features like ACL, Admin UI updates, framework migrations, and major new functionality:
+**IMPORTANT**: For significant features and major new functionality:
 - **DO NOT** write single-line bullet points
 - **ALWAYS** provide comprehensive 2-4 paragraph descriptions
 - **EXPLAIN** the feature in depth with context and benefits
@@ -127,20 +129,18 @@ Write following this structure:
 1. **Overview (1-2 sentences)**: What is this feature and why was it added?
 2. **Key Components/Capabilities (2-4 bullets)**: What specific functionality does it provide?
 3. **Benefits and Use Cases (1-2 sentences)**: How will users benefit? What problems does it solve?
-4. **Technical Details (1-2 sentences)**: Implementation approach, technologies used, integration points
-5. **Examples or Scenarios (optional)**: Specific usage scenarios if helpful
+4. **Examples or Scenarios (optional)**: Specific usage scenarios if helpful
 
 **Writing Guidelines:**
-- Provide detailed descriptions that explain what the feature does and why it matters
+- Provide descriptions that explain what the feature does and why it matters according to the feature size
 - Include use cases showing how users will benefit from the feature
 - Explain the context - what problem does this solve or what capability does it add
 - Be specific about functionality - don't just say "improved X", explain what specifically was improved and the impact
-- Add technical details where relevant (e.g., supported formats, configuration options, API changes)
 - Use 2-3 paragraphs for major features instead of single bullet points
 - Think of the audience: Developers, BAs, and architects need enough detail to understand impact
 
 **For Bug Fixes and Minor Changes:**
-- Keep descriptions concise (1-2 sentences)
+- Keep descriptions concise (1-2 sentences or list them as bullets)
 - Focus on what was broken and what now works correctly
 
 **General Style:**
