@@ -73,38 +73,46 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     String projectName = pd.projectName();
                     String projectPath = pd.path();
                     String branch = pd.branch();
+
+                    // For mapped folder repos, ACL permissions are stored using internal paths
+                    // (without rulesPath prefix), so repository operations must use internal paths.
+                    String effectiveRulesPath = repository.supports().mappedFolders() ? "" : rulesPath;
+                    String effectiveProjectName = repository.supports().mappedFolders() ? projectPath : projectName;
+
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(username)
                             .setBuildNumber(pd.projectVersion().getRevision())
                             .setImplementationTitle(projectName)
-                            .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, version));
+                            .setImplementationVersion(resolveProjectVersion(repositoryId, effectiveRulesPath, effectiveProjectName, version));
                     if (branch != null) {
                         manifestBuilder.setBuildBranch(branch);
                     }
-                    String technicalName = projectName;
+                    String technicalName = effectiveProjectName;
                     try {
                         AProject designProject = designRepo.getProjectByPath(repositoryId,
                                 branch,
                                 projectPath,
                                 version);
                         if (designProject != null) {
-                            technicalName = designProject.getName();
+                            technicalName = repository.supports().mappedFolders()
+                                    ? designProject.getRealPath()
+                                    : designProject.getName();
                         }
                     } catch (IOException e) {
                         LOG.error(e.getMessage(), e);
                         return false;
                     }
-                    projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
+                    projectIterator = getProjectIterator(repository, effectiveRulesPath, technicalName, version, manifestBuilder);
                     return projectIterator != null && projectIterator.hasNext();
                 } else {
                     return false;
                 }
             }
 
-            private String resolveProjectVersion(String repositoryId, String projectName, String version) {
+            private String resolveProjectVersion(String repositoryId, String effectiveRulesPath, String effectiveProjectName, String version) {
                 try {
                     final FileData historyData = designRepo.getRepository(repositoryId)
-                            .checkHistory(rulesPath + projectName, version);
+                            .checkHistory(effectiveRulesPath + effectiveProjectName, version);
                     return RepositoryUtils.buildProjectVersion(historyData);
                 } catch (IOException ignored) {
                     return null;
@@ -112,15 +120,16 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             }
 
             private Iterator<FileItem> getProjectIterator(Repository baseRepo,
+                                                          String effectiveRulesPath,
                                                           String projectName,
                                                           String version,
                                                           DeploymentManifestBuilder manifestBuilder) {
                 try {
                     if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
-                        String srcProjectPath = rulesPath + projectName + "/";
+                        String srcProjectPath = effectiveRulesPath + projectName + "/";
                         Repository repository = RepositoryUtils
-                                .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
+                                .getRepositoryForVersion(baseRepo, effectiveRulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             LOG.warn("Cannot find files in project {}", projectName);
@@ -138,10 +147,10 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         return new FolderIterator(repository, files, projectName, manifestBuilder.build());
                     } else {
                         // Project in design repository is stored as a zip file
-                        FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
+                        FileItem srcPrj = baseRepo.readHistory(effectiveRulesPath + projectName, version);
                         if (srcPrj == null) {
                             throw new FileNotFoundException(String
-                                    .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
+                                    .format("File '%s' for version %s is not found.", effectiveRulesPath + projectName, version));
                         }
                         IOUtils.closeQuietly(openedStream);
                         ZipInputStream stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));

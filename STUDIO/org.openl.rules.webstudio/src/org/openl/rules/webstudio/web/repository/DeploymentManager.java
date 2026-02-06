@@ -113,12 +113,17 @@ public class DeploymentManager implements InitializingBean {
                     String projectPath = pd.path();
                     String branch = pd.branch();
 
+                    // For mapped folder repos, ACL permissions are stored using internal paths
+                    // (without rulesPath prefix), so repository operations must use internal paths.
+                    String effectiveRulesPath = designRepo.supports().mappedFolders() ? "" : rulesPath;
+                    String effectiveProjectName = designRepo.supports().mappedFolders() ? projectPath : projectName;
+
                     FileData dest = new FileData();
                     dest.setName(deploymentPath + projectName);
                     dest.setAuthor(request.currentUser().getUserInfo());
                     dest.setComment(request.comment());
 
-                    final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
+                    final FileData historyData = designRepo.checkHistory(effectiveRulesPath + effectiveProjectName, version);
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(request.currentUser().getUserName())
                             .setBuildNumber(pd.projectVersion().getRevision())
@@ -129,21 +134,23 @@ public class DeploymentManager implements InitializingBean {
                     }
 
                     if (designRepo.supports().folders()) {
-                        String technicalName = projectName;
+                        String technicalName = effectiveProjectName;
                         AProject designProject = designRepository
                                 .getProjectByPath(repositoryId, branch, projectPath, version);
                         if (designProject != null) {
-                            technicalName = designProject.getName();
+                            technicalName = designRepo.supports().mappedFolders()
+                                    ? designProject.getRealPath()
+                                    : designProject.getName();
                         }
                         archiveAndSave(designRepo,
-                                rulesPath,
+                                effectiveRulesPath,
                                 technicalName,
                                 version,
                                 deployRepo,
                                 dest,
                                 manifestBuilder.build());
                     } else {
-                        FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
+                        FileItem srcPrj = designRepo.readHistory(effectiveRulesPath + effectiveProjectName, version);
                         includeManifestIntoArchiveAndSave(deployRepo,
                                 dest,
                                 srcPrj.getStream(),
