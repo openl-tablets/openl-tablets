@@ -2,11 +2,20 @@
 
 OpenL Tablets **6.0.0** is a major release introducing a modernized security model, redesigned administration experience, enhanced documentation capabilities, and significant platform upgrades.
 
-This release also includes **breaking changes** that require careful review before upgrading.
+This release also includes breaking changes that require careful review before upgrading.
 
-## **1. New Features**
+## **Contents**
 
-### **1.1 Simplified User Access & Permissions Management in OpenL Studio**
+* [New Features](#new-features)
+* [Improvements](#improvements)
+* [Breaking Changes](#breaking-changes)
+* [Security & Library Updates](#security--library-updates)
+* [Bug Fixes](#bug-fixes)
+* [Migration Notes](#migration-notes)
+
+## **New Features**
+
+### **Simplified User Access & Permissions Management in OpenL Studio**
 
 OpenL Studio introduces a **completely redesigned access control system** with a simplified, role-based permission model. The new approach significantly reduces configuration complexity while maintaining enterprise-grade security.
 
@@ -83,7 +92,9 @@ security.allow-project-create-delete=true  # Default (allows creation)
 security.allow-project-create-delete=false # Hides create/delete buttons
 ```
 
-### **1.2 Administration Panel Redesign in OpenL Studio**
+---
+
+### **Administration Panel Redesign in OpenL Studio**
 
 The Administration Panel has been fully redesigned and migrated from JSF/RichFaces to a modern **React-based UI**, improving performance, usability, and browser compatibility.
 
@@ -115,13 +126,17 @@ New version
 
 ![HelpPage](images/HelpPage.png)
 
-### **1.3 Simplified Deploy Workflow in OpenL Studio**
+---
+
+### **Simplified Deploy Workflow in OpenL Studio**
 
 Project deployment in OpenL Studio is now available as a **single-click action**, reducing configuration complexity and deployment errors.
 
 ![DeployProject](images/DeployProject.png)
 
-### **1.4 Project Tags in OpenL Studio**
+---
+
+### **Project Tags in OpenL Studio**
 
 Project tags are now stored inside the OpenL project, improving portability and version control integration.
 
@@ -134,7 +149,9 @@ Project tags are now stored inside the OpenL project, improving portability and 
 
 ![ProjectTagsStoredInProject](images/ProjectTagsStoredInProject.png)
 
-### **1.5 OpenAPI Documentation Integration In OpenL Rules**
+---
+
+### **OpenAPI Documentation Integration In OpenL Rules**
 
 OpenL Rules now provides enhanced OpenAPI (Swagger) documentation generation with automatic extraction of rule and datatype descriptions.
 
@@ -155,7 +172,9 @@ Full backward compatibility with existing 2-3 column format.
 
 ![RulesTableDescriptionsInAPISchema](images/RulesTableDescriptionsInAPISchema.png)
 
-### **1.6 New Statistical Functions in OpenL Rules**
+---
+
+### **New Statistical Functions in OpenL Rules**
 
 OpenL Rules introduces a comprehensive set of built-in statistical functions for advanced analytics, all supporting multiple numeric types and null-safe execution:
 
@@ -167,7 +186,9 @@ OpenL Rules introduces a comprehensive set of built-in statistical functions for
 
 These functions enable advanced calculations for risk assessment, forecasting, and financial modeling.
 
-### **1.7 Additional Features**
+---
+
+### **Additional Features**
 
 #### **Customizable User Data in Single User Mode**
 
@@ -211,15 +232,17 @@ Introduced support for **Personal Access Tokens (PATs)** for **API and service i
 * Ability to inject current ProjectDescriptor into service method handlers  
 * Enhanced customization capabilities for developers
 
-## **2. Improvements**
+## **Improvements**
 
-### **2.1 Demo Enhancements**
+### **Demo Enhancements**
 
 * Replaced DEMO docker image with compose.yaml file  
 * Reduced the download size of the zip file  
 * Removed manual Java installation step
 
-### **2.2 Security Hardening**
+---
+
+### **Security Hardening**
 
 * Removed VBScript execution under Windows  
 * Removed Userworkspace UI setting  
@@ -227,11 +250,11 @@ Introduced support for **Personal Access Tokens (PATs)** for **API and service i
 * Password fields no longer returned by any API  
 * Sensitive configuration values protected in API responses
 
-## **3. Breaking Changes**
+## **Breaking Changes**
 
 This section outlines critical changes that may break existing implementations and require migration action.
 
-### **3.1 Jakarta EE 10 Migration (CRITICAL)**
+### **Jakarta EE 10 Migration (CRITICAL)**
 
 OpenL Tablets 6.0.0 migrates from **Java EE (`javax.*`) to Jakarta EE 10 (`jakarta.*`)**.
 
@@ -282,7 +305,9 @@ Update all Java imports by replacing `javax.*` packages with `jakarta.*`, for ex
 
 Also ensure that all third-party libraries used by your custom code are updated to versions compatible with **Jakarta EE 10**.
 
-### **3.2 Java 21 Required**
+---
+
+### **Java 21 Required**
 
 OpenL Tablets 6.0.0 requires Java 21. Java 8, 11, and 17 are no longer supported.
 
@@ -292,7 +317,9 @@ OpenL Tablets 6.0.0 requires Java 21. Java 8, 11, and 17 are no longer supported
 * **Recommended**: Java 21 (Eclipse Temurin)  
 * **Demo package**: The system automatically detects the installed Java. If Java is not present or does not meet the minimum required version, OpenL Tablets downloads and uses its own Java for OpenL Tablets only. It does not replace or modify any existing Java installation.
 
-### **3.3 Removed Embedded JDBC Drivers**
+---
+
+### **Removed Embedded JDBC Drivers**
 
 OpenL Studio 6.0.0 no longer ships with embedded JDBC drivers for Oracle, SQL Server. Users must provide their own JDBC drivers.
 
@@ -301,7 +328,9 @@ OpenL Studio 6.0.0 no longer ships with embedded JDBC drivers for Oracle, SQL Se
 1. Download the appropriate JDBC driver for your database  
 2. Mount drivers to `/opt/openl/lib` folder
 
-### **3.4 Variations Functionality Removed**
+---
+
+### **Variations Functionality Removed**
 
 The variations functionality has been completely removed. Applications using variations must be refactored to use array-based rules.
 
@@ -326,7 +355,9 @@ The variations functionality has been completely removed. Applications using var
 2. (Optional) Remove **cacheable property and recalculate property** from rules  
 3. Create variations with the help of OpenL rules manually in your Excel/rules files
 
-### **3.5 isProvideRuntimeContext Default Changed**
+---
+
+### **isProvideRuntimeContext Default Changed**
 
 The default value for isProvideRuntimeContext has changed from true to false.
 
@@ -346,7 +377,9 @@ The default value for isProvideRuntimeContext has changed from true to false.
 
   `isProvideRuntimeContext=true` in `rules-deploy.xml`.
 
-### **3.6 Jackson Serialization Security Change**
+---
+
+### **Jackson Serialization Security Change**
 
 Jackson deserialization default changed from CLASS-based to NAME-based type identification to fix security vulnerability.
 
@@ -370,7 +403,9 @@ Jackson deserialization default changed from CLASS-based to NAME-based type iden
 
   `ruleservice.jackson.jsonTypeInfoId=CLASS`
 
-### **3.7 OAuth2 Configuration Changes**
+---
+
+### **OAuth2 Configuration Changes**
 
 OAuth2 username mapping has changed from preferred_name claim to sub claim by default in OpenL Studio 6.0.0.
 
@@ -392,7 +427,9 @@ OAuth2 username mapping has changed from preferred_name claim to sub claim by de
 * Update user mappings if user IDs have changed  
 * If you must use old previous behavior, set `security.oauth2.attribute.username=preferred_name`
 
-### **3.8 Removed Features Summary**
+---
+
+### **Removed Features Summary**
 
 The following features, protocols, and APIs have been completely removed from OpenL Tablets 6.0.0:
 
@@ -438,14 +475,16 @@ The following features, protocols, and APIs have been completely removed from Op
 * **Userworkspace Setting from UI**  
   * **Migration**: Configure via environment variables only
 
-## **4. Security & Library Updates**
+## **Security & Library Updates**
 
-### **4.1 Security Vulnerability Fixes**
+### **Security Vulnerability Fixes**
 
 * **CVE-2025-41249**: Spring Framework vulnerability fixed  
 * **CVE-2025-41248**: Spring Security vulnerability fixed
 
-### **4.2 Major Library Upgrades**
+---
+
+### **Major Library Upgrades**
 
 #### **Runtime Dependencies**
 
@@ -475,14 +514,14 @@ The following features, protocols, and APIs have been completely removed from Op
 
 * commons-jxpath
 
-## **5. Bug Fixes**
+## **Bug Fixes**
 
 * Fixed GitLFS issues with BitBucket repositories  
 * Fixed tracing and dependency graph issues  
 * Fixed flat folder structure display issue  
 * Fixed deployment repository errors when base.path not specified
 
-## **6. Migration Notes**
+## **Migration Notes**
 
 ### **Quick Role-Based Pointers**
 
@@ -490,7 +529,9 @@ The following features, protocols, and APIs have been completely removed from Op
 * **If you are a Developer** → pay special attention to sections **2, 3, 5**  
 * **If you are an Administrator / Platform Owner** → pay special attention to sections **1, 2, 6**
 
-### **1. Access Control & Permissions**
+---
+
+### **Access Control & Permissions**
 
 * The legacy permission model has been replaced with role-based access control (RBAC).  
   Permissions are migrated automatically, but effective access may differ after upgrade.  
@@ -516,13 +557,17 @@ security.allow-project-create-delete
 | **Lock / Unlock Projects** | Removed | Project locking functionality was deprecated |
 | **Deploy Configuration (Create/Edit/Delete/Erase)** | System action | Available to users with Viewer access to Design repo and Edit access to Deploy repo |
 
-### **2. Runtime Environment**
+---
+
+### **Runtime Environment**
 
 * Java **21** is required. Earlier Java versions are no longer supported.  
 * All `javax.*` packages have been replaced with `jakarta.*`.  
   Custom Java code must be updated accordingly and all dependencies must be Jakarta EE 10 compatible.
 
-### **3. Rules & Rule Execution**
+---
+
+### **Rules & Rule Execution**
 
 * The **variations** feature has been completely removed.  
   * Variation-based endpoints are no longer created.  
@@ -530,14 +575,18 @@ security.allow-project-create-delete
 * The default value of `isProvideRuntimeContext` is now **false**.  
   * Rules that relied on implicit runtime context (for example, `currentDate`, `requestId`) may receive `null` unless enabled explicitly.
 
-### **4. Metadata & OpenAPI**
+---
+
+### **Metadata & OpenAPI**
 
 * Project tags are now stored inside the project structure.  
   * Tags are migrated automatically.  
   * Tag changes are version-controlled and visible in Git history.  
 * Rule and datatype descriptions are automatically exposed in generated OpenAPI documentation.
 
-### **5. Integration & Serialization**
+---
+
+### **Integration & Serialization**
 
 * JSON polymorphic serialization now uses **NAME-based** type identification instead of **CLASS-based**.  
   * Client applications relying on CLASS-based typing may require updates.  
@@ -546,7 +595,9 @@ security.allow-project-create-delete
 * Embedded JDBC drivers are no longer included.  
   * Required database drivers must be provided explicitly.
 
-### **6. Administration, Deployment & Removed Features**
+---
+
+### **Administration, Deployment & Removed Features**
 
 * The following components and protocols are no longer supported:  
   * RMI  
