@@ -7,7 +7,7 @@ import TraceTree from './components/TraceTree'
 import TraceDetails from './components/TraceDetails'
 import TraceProgress from './components/TraceProgress'
 import useTraceProgress from './hooks/useTraceProgress'
-import traceService from 'services/traceService'
+import { traceService } from 'services/traceService'
 import './TraceView.scss'
 
 interface TraceViewParams {

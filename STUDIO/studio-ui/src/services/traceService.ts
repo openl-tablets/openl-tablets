@@ -1,5 +1,6 @@
 import apiCall from './apiCall'
 import type { ApiCallOptions } from './apiCall'
+import CONFIG from './config'
 import { errorHandler } from 'utils/errorHandling'
 import type {
     TraceNodeView,
@@ -228,6 +229,21 @@ export const traceService = {
             },
             TRACE_API_OPTIONS
         )
+    },
+
+    /**
+     * Export trace as text file download.
+     * @param projectId Project ID
+     * @param showRealNumbers Show real numbers instead of formatted values
+     * @param release Whether to clear trace from memory after download
+     */
+    exportTrace: (
+        projectId: string,
+        showRealNumbers: boolean,
+        release: boolean = false
+    ): void => {
+        const url = `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/trace/export?showRealNumbers=${showRealNumbers}&release=${release}`
+        window.location.href = url
     },
 }
 

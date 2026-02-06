@@ -6,10 +6,25 @@
     font-size: 12px;
     line-height: 1.6;
 
+    .trace-params-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
     .trace-params-title {
         font-weight: 600;
         color: #000;
-        margin-right: 8px;
+    }
+
+    .trace-copy-button {
+        color: #8c8c8c;
+        padding: 0 4px;
+
+        &:hover {
+            color: #1890ff;
+        }
     }
 
     .trace-params-empty {
