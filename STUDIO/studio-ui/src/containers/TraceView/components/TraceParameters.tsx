@@ -244,6 +244,8 @@ interface TraceParametersProps {
     parameters?: TraceParameterValue[]
     title: string
     emptyText?: string
+    /** Optional copy button to display next to the title */
+    copyButton?: React.ReactNode
 }
 
 /**
@@ -254,13 +256,16 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
     parameters,
     title,
     emptyText,
+    copyButton,
 }) => {
     const { t } = useTranslation('trace')
 
     if (!parameters || parameters.length === 0) {
         return (
             <div className="trace-params-section">
-                <span className="trace-params-title">{title}:</span>
+                <div className="trace-params-header">
+                    <span className="trace-params-title">{title}:</span>
+                </div>
                 <Text type="secondary" className="trace-params-empty">
                     {emptyText || t('details.noParameters')}
                 </Text>
@@ -270,7 +275,10 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
 
     return (
         <div className="trace-params-section">
-            <span className="trace-params-title">{title}:</span>
+            <div className="trace-params-header">
+                <span className="trace-params-title">{title}:</span>
+                {copyButton}
+            </div>
             <div className="trace-params-list">
                 {parameters.map((param, index) => (
                     <ParameterTree
@@ -291,13 +299,17 @@ export const SingleParameter: React.FC<{
     parameter?: TraceParameterValue
     title: string
     emptyText?: string
-}> = ({ parameter, title, emptyText }) => {
+    /** Optional copy button to display next to the title */
+    copyButton?: React.ReactNode
+}> = ({ parameter, title, emptyText, copyButton }) => {
     const { t } = useTranslation('trace')
 
     if (!parameter) {
         return (
             <div className="trace-params-section">
-                <span className="trace-params-title">{title}:</span>
+                <div className="trace-params-header">
+                    <span className="trace-params-title">{title}:</span>
+                </div>
                 <Text type="secondary" className="trace-params-empty">
                     {emptyText || t('details.noResult')}
                 </Text>
@@ -307,7 +319,10 @@ export const SingleParameter: React.FC<{
 
     return (
         <div className="trace-params-section">
-            <span className="trace-params-title">{title}:</span>
+            <div className="trace-params-header">
+                <span className="trace-params-title">{title}:</span>
+                {copyButton}
+            </div>
             <div className="trace-params-list">
                 <ParameterTree param={parameter} paramKey="single-param" />
             </div>
