@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo } from 'react'
-import { Tree, Checkbox, Tooltip, Empty, Spin } from 'antd'
+import { Tree, Checkbox, Tooltip, Button, Empty, Spin } from 'antd'
 import type { TreeProps, TreeDataNode } from 'antd'
+import { DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
+import traceService from 'services/traceService'
 import { getTraceIcon, getNodeClassName, parseNodeStatus } from './TraceIcons'
 import type { TraceTreeDataNode } from 'types/trace'
 import './TraceTree.scss'
@@ -25,6 +27,9 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
         toggleHideFailedNodes,
         fetchNodeChildren,
         selectNode,
+        projectId,
+        showRealNumbers,
+        executionStatus,
     } = useTraceStore()
 
     /**
@@ -122,6 +127,15 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 >
                     {t('tree.showDetails')}
                 </Checkbox>
+                <Tooltip title={t('actions.downloadTooltip')}>
+                    <Button
+                        type="text"
+                        size="small"
+                        icon={<DownloadOutlined />}
+                        onClick={() => projectId && traceService.exportTrace(projectId, showRealNumbers, false)}
+                        disabled={executionStatus !== 'COMPLETED' || !projectId}
+                    />
+                </Tooltip>
             </div>
             <div className="trace-tree-content">
                 {displayData.length > 0 ? (

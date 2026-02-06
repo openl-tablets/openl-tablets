@@ -130,15 +130,6 @@ export const TraceExecutionModal: React.FC = () => {
     }, [])
 
     /**
-     * Download trace file.
-     * The release=true parameter tells the server to clear trace from memory after export completes.
-     */
-    const downloadTraceFile = useCallback((projId: string, showReal: boolean) => {
-        const downloadUrl = `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projId)}/trace/export?showRealNumbers=${showReal}&release=true`
-        window.location.href = downloadUrl
-    }, [])
-
-    /**
      * Close modal and cleanup.
      * Clears execution token to signal in-flight async operations to abort.
      */
@@ -247,13 +238,14 @@ export const TraceExecutionModal: React.FC = () => {
     useEffect(() => {
         if (status === 'COMPLETED' && projectId && tableId) {
             if (downloadMode) {
-                downloadTraceFile(projectId, showRealNumbers)
+                // Use release=true to clear trace from memory after download
+                traceService.exportTrace(projectId, showRealNumbers, true)
             } else {
                 openTraceWindow(projectId, tableId, showRealNumbers)
             }
             handleClose()
         }
-    }, [status, projectId, tableId, showRealNumbers, downloadMode, openTraceWindow, downloadTraceFile, handleClose])
+    }, [status, projectId, tableId, showRealNumbers, downloadMode, openTraceWindow, handleClose])
 
     /**
      * Cancel trace execution.

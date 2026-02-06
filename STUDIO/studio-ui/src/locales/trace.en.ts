@@ -3,6 +3,18 @@ import i18next from 'i18next'
 i18next.addResourceBundle('en', 'trace', {
     title: 'Execution Trace',
 
+    actions: {
+        download: 'Download',
+        downloadTooltip: 'Download trace as text file',
+    },
+
+    copy: {
+        parameters: 'Copy parameters as JSON',
+        result: 'Copy result as JSON',
+        copied: 'Copied!',
+        failed: 'Failed to copy to clipboard',
+    },
+
     tree: {
         showDetails: 'Show detailed trace',
         hideDetails: 'Hide failed conditions',

@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -226,7 +229,12 @@ public class ProjectsTraceController {
     }
 
     @Operation(summary = "trace.export.summary", description = "trace.export.desc")
-    @ApiResponse(responseCode = "200", description = "trace.export.200.desc")
+    @ApiResponse(
+            responseCode = "200",
+            description = "trace.export.200.desc",
+            headers = @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc"),
+            content = @Content(mediaType = MediaType.TEXT_PLAIN_VALUE, schema = @Schema(implementation = String.class))
+    )
     @GetMapping(value = "/export", produces = MediaType.TEXT_PLAIN_VALUE)
     public void exportTrace(
             @ProjectId @PathVariable("projectId") RulesProject project,

@@ -43,6 +43,8 @@ interface TraceState {
     /** Select a node. treeKey is for tree highlighting, nodeId is for API calls. */
     selectNode: (treeKey: string, nodeId: number) => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
+    /** Update a parameter value in selectedNodeDetails after lazy loading */
+    updateParameterValue: (parameterId: number, value: unknown) => void
     setExecutionStatus: (status: TraceExecutionStatus, message?: string) => void
     toggleHideFailedNodes: () => void
     toggleShowRealNumbers: () => Promise<void>
@@ -186,7 +188,38 @@ export const useTraceStore = create<TraceState>((set, get) => ({
         const { projectId } = get()
         if (!projectId) throw new Error('No project ID')
 
-        return traceService.getParameterValue(projectId, parameterId)
+        const result = await traceService.getParameterValue(projectId, parameterId)
+        // Update the parameter value in selectedNodeDetails
+        get().updateParameterValue(parameterId, result.value)
+        return result
+    },
+
+    updateParameterValue: (parameterId, value) => {
+        const { selectedNodeDetails } = get()
+        if (!selectedNodeDetails) return
+
+        // Helper to update parameter in array
+        const updateInArray = (params?: TraceParameterValue[]): TraceParameterValue[] | undefined => {
+            if (!params) return params
+            return params.map(p =>
+                p.parameterId === parameterId ? { ...p, value } : p
+            )
+        }
+
+        // Helper to update single parameter
+        const updateSingle = (param?: TraceParameterValue): TraceParameterValue | undefined => {
+            if (!param || param.parameterId !== parameterId) return param
+            return { ...param, value }
+        }
+
+        set({
+            selectedNodeDetails: {
+                ...selectedNodeDetails,
+                parameters: updateInArray(selectedNodeDetails.parameters),
+                context: updateSingle(selectedNodeDetails.context),
+                result: updateSingle(selectedNodeDetails.result),
+            }
+        })
     },
 
     setExecutionStatus: (status, message) => {

@@ -4,6 +4,9 @@
     height: 100%;
 
     .trace-tree-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: 8px 12px;
         border-bottom: 1px solid #e8e8e8;
         flex-shrink: 0;

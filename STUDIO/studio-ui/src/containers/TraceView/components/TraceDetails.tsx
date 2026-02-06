@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import TraceParameters, { SingleParameter } from './TraceParameters'
 import TraceTableView from './TraceTableView'
+import CopyJsonButton from './CopyJsonButton'
 import type { MessageDescription } from 'types/trace'
 import './TraceDetails.scss'
 
@@ -105,6 +106,7 @@ const TraceDetails: React.FC = () => {
                 parameters={allParameters}
                 title={t('details.parameters')}
                 emptyText={t('details.noParameters')}
+                copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
             />
 
             {/* Returned Result */}
@@ -112,6 +114,7 @@ const TraceDetails: React.FC = () => {
                 parameter={result}
                 title={t('details.result')}
                 emptyText={t('details.noResult')}
+                copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
             />
 
             {/* Errors */}
