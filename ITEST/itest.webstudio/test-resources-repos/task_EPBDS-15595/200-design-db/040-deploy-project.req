@@ -1,0 +1,11 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Basic dXNlcjE6dXNlcjE=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-15595-db",
+  "projectId": "ZGVzaWduOkVQQkRTXzE1NTk1",
+  "comment": "Deploy project EPBDS_15595 from design"
+}

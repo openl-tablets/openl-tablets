@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS_15595",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduOkVQQkRTXzE1NTk1",
+      "status": "CLOSED",
+      "comment": "Project EPBDS_15595 is created.",
+      "repository": "design"
+    },
+    {
+      "name": "EPBDS_15595",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTU6ZmVmNjJhMTQxMjE3NDAyMWI4NjhkNTE2ZTljMDcyOTI4YTg0MWEyOGVkOGNmZjgwYjMwMDM0YmIwMjhhY2I2OQ==",
+      "status": "CLOSED",
+      "comment": "Project EPBDS_15595 is created.",
+      "repository": "design-flat",
+      "path": "EPBDS_15595",
+      "branch": "master",
+      "selectedBranches": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
