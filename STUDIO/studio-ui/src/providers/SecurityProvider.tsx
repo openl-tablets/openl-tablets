@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import React, { FC, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
 import { SystemContext, PermissionContext } from '../contexts'
 import { apiCall } from '../services'
 import { OpenlInfo, SystemSettings } from '../types/system'
@@ -43,9 +43,9 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
 
     }, [openlInfo])
 
-    const hasAdminPermission = () => {
+    const hasAdminPermission = useCallback(() => {
         return !!(userProfile && userProfile.administrator)
-    }
+    }, [userProfile])
 
     const isExternalAuthSystem = useMemo(() => {
         return systemSettings?.userMode === SystemUserMode.EXTERNAL

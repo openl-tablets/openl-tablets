@@ -1,7 +1,8 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { GroupItem, GroupList } from '../types/group'
 import { apiCall } from '../services'
 import { UserGroupType } from '../constants'
+import { PermissionContext } from './PermissionContext'
 
 type GroupsContextType = {
     groups: GroupItem[]
@@ -19,12 +20,23 @@ const defaultValue: GroupsContextType = {
 
 export const GroupsContext = createContext<GroupsContextType>(defaultValue)
 
+/**
+ * Provides the list of groups. The API /admin/management/groups is available only for admins;
+ * the request is skipped when the user has no admin permission.
+ */
 export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { hasAdminPermission } = useContext(PermissionContext)
     const [groups, setGroups] = useState<GroupItem[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<Error | null>(null)
 
     const fetchGroups = useCallback(async () => {
+        if (!hasAdminPermission()) {
+            setGroups([])
+            setError(null)
+            setLoading(false)
+            return
+        }
         setError(null)
         setLoading(true)
         try {
@@ -44,11 +56,13 @@ export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [hasAdminPermission])
+
+    const isAdmin = hasAdminPermission()
 
     useEffect(() => {
         fetchGroups()
-    }, [fetchGroups])
+    }, [fetchGroups, isAdmin])
 
     const reloadGroups = useCallback(async () => {
         await fetchGroups()
