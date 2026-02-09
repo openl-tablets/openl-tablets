@@ -41,13 +41,17 @@ export const UserProfile: React.FC = () => {
                 }
             }
 
-            await apiCall('/users/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
+            await apiCall(
+                '/users/profile',
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
                 },
-                body: JSON.stringify(body)
-            })
+                { throwError: true }
+            )
             await fetchUserProfile()
             notification.success({ message: t('users:user_profile_updated_successfully') })
             if (emailChanged) {
@@ -59,6 +63,9 @@ export const UserProfile: React.FC = () => {
             }
         } catch (error) {
             console.error('error', error)
+            if (error instanceof Error) {
+                notification.error({ message: error.message })
+            }
         } finally {
             setSaving(false)
         }
