@@ -118,20 +118,25 @@ public class DeploymentManager implements InitializingBean {
                     dest.setAuthor(request.currentUser().getUserInfo());
                     dest.setComment(request.comment());
 
-                    final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
-                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
+                    var manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(request.currentUser().getUserName())
                             .setBuildNumber(pd.projectVersion().getRevision())
-                            .setImplementationTitle(projectName)
-                            .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
+                            .setImplementationTitle(projectName);
+                    final FileData historyData;
+                    AProject designProject = null;
+                    if (designRepo.supports().folders()) {
+                        designProject = designRepository.getProjectByPath(repositoryId, branch, projectPath, version);
+                        historyData = designProject.getFileData();
+                    } else {
+                        historyData = designRepo.checkHistory(rulesPath + projectName, version);
+                    }
+                    manifestBuilder.setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
                     if (pd.branch() != null) {
                         manifestBuilder.setBuildBranch(pd.branch());
                     }
 
                     if (designRepo.supports().folders()) {
                         String technicalName = projectName;
-                        AProject designProject = designRepository
-                                .getProjectByPath(repositoryId, branch, projectPath, version);
                         if (designProject != null) {
                             technicalName = designProject.getName();
                         }

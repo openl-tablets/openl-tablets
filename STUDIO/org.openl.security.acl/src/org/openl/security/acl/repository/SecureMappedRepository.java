@@ -46,6 +46,6 @@ public class SecureMappedRepository extends SecureBranchRepository implements Fo
 
     @Override
     public String findMappedName(String internalPath) {
-        return null;
+        return mappedRepository.findMappedName(internalPath);
     }
 }
