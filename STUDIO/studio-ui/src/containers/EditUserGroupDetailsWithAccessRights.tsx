@@ -15,6 +15,7 @@ import { GroupItem } from '../types/group'
 import { UserDetails } from '../types/user'
 import { SelectedGroup } from './users/RenderGroupCell'
 import { runSequentialCollectErrors } from '../utils/async'
+import { useUserStore } from '../store'
 
 interface EditUserGroupDetailsWithAccessRightsProps {
     isOpenFromParent?: boolean
@@ -77,6 +78,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     newUser
 }) => {
     const { t } = useTranslation()
+    const { userProfile, fetchUserProfile } = useUserStore()
     const [form] = Form.useForm()
     const [designRepos, setDesignRepos] = useState<RepositoryRole[]>([])
     const [deployRepos, setDeployRepos] = useState<RepositoryRole[]>([])
@@ -445,6 +447,11 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
             if (reloadGroups) {
                 await reloadGroups()
+            }
+
+            // If the edited user is the current user, refresh profile so "My Profile" and header show updated data
+            if (isUser && sid && sid === userProfile?.username) {
+                await fetchUserProfile()
             }
 
             handleCloseDrawer()
