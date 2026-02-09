@@ -427,10 +427,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             }
 
             if (!sid) {
-                notification.error({
-                    message: t('common:error'),
-                    description: t('users:failed_to_save_user_or_group')
-                })
+                // Specific error (e.g. username already exists) was already shown by apiCall; avoid duplicate generic message
                 return
             }
 
@@ -533,7 +530,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 throw new Error('Error updating user')
             }
         } catch (error) {
-            console.error('Error updating group:', error)
+            console.error('Error updating user:', error)
         }
     }
 

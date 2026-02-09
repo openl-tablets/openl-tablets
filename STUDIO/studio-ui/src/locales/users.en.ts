@@ -93,7 +93,6 @@ i18next.addResourceBundle('en', 'users', {
     cannot_delete_yourself: 'Cannot delete your own account',
     failed_to_load_root_repository_roles: 'Failed to load root repository roles. Please try again later.',
     failed_to_save_root_repository_roles: 'Failed to save root repository roles. Please try again later.',
-    failed_to_save_user_or_group: 'Failed to save user or group. Please try again later.',
     failed_to_load_projects: 'Failed to load projects. Please try again later.',
     some_role_operations_failed: '{{count}} role operation(s) failed. The rest were applied. Please retry the failed ones or check the server.',
 })
