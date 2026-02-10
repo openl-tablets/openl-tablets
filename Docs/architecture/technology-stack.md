@@ -66,20 +66,20 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Modern Frontend (studio-ui)
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| React | 18.3.1 | UI library |
-| TypeScript | 5.8.3 | Type-safe JavaScript |
-| Ant Design | 5.26.4 | Component library |
-| React Router | 7.6.3 | Routing |
-| Zustand | 5.0.6 | State management |
-| i18next | 25.3.1 | Internationalization |
+| React | 19.2.x | UI library |
+| TypeScript | 5.9.x | Type-safe JavaScript |
+| Ant Design | 6.2.x | Component library |
+| React Router | 7.13.x | Routing |
+| Zustand | 5.0.x | State management |
+| i18next | 25.8.x | Internationalization |
 
 ### Build Tools
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Webpack | 5.100.2 | Module bundler |
-| SCSS/Sass | 1.89.2 | CSS preprocessor |
+| Webpack | 5.105.x | Module bundler |
+| SCSS/Sass | 1.97.x | CSS preprocessor |
 | Frontend Maven Plugin | 1.15.4 | Maven integration |
-| Node.js | 24.9.0 | Runtime for build tools |
+| Node.js | 24.13.x | Runtime for build tools |
 
 ### Legacy Frontend
 - **JSF/RichFaces**: Server-side component framework (being phased out)
@@ -92,17 +92,17 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Bytecode Manipulation & Code Generation
 | Library | Version | Purpose |
 |---------|---------|---------|
-| ASM | 9.8 | Bytecode generation for proxies and dynamic types |
-| ByteBuddy | 1.17.7 | Runtime code generation |
+| ASM | 9.9.1 | Bytecode generation for proxies and dynamic types |
+| ByteBuddy | 1.18.4 | Runtime code generation |
 | JavaCC | 3.1.1 | Parser generation (BExGrammar) |
-| JCodeModel | 4.0.0 | Java code generation for OpenAPI |
+| JCodeModel | 4.1.0 | Java code generation for OpenAPI |
 
 **Critical**: ASM is essential for rule execution - generates proxy classes at runtime.
 
 ### Parsing & Language Processing
 | Library | Version | Purpose |
 |---------|---------|---------|
-| Groovy | 4.0.28 | Expression evaluation |
+| Groovy | 4.0.30 | Expression evaluation |
 | Apache Velocity | 2.4.1 | Template engine for code generation |
 | ANTLR | (Not used - JavaCC instead) | N/A |
 
@@ -111,7 +111,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Excel Processing
 | Library | Version | Purpose |
 |---------|---------|---------|
-| Apache POI | 5.4.1 | Excel file parsing (XLS/XLSX) |
+| Apache POI | 5.5.1 | Excel file parsing (XLS/XLSX) |
 | Excel Builder | Internal | Custom Excel file generation |
 
 **Critical**: Rules are defined in Excel spreadsheets - POI is essential.
@@ -123,7 +123,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Database
 | Component | Version | Purpose |
 |-----------|---------|---------|
-| Hibernate ORM | 6.6.31 | Object-relational mapping |
+| Hibernate ORM | 6.6.42 | Object-relational mapping |
 | Hibernate Validator | 8.0.3 | Bean validation |
 | HikariCP | 7.0.2 | Connection pooling |
 | Flyway | 4.2.0.3 | Database migrations (forked by OpenL) |
@@ -134,7 +134,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Serialization
 | Library | Version | Purpose |
 |---------|---------|---------|
-| Jackson | 2.20.0 | JSON serialization |
+| Jackson | 2.21.0 | JSON serialization |
 | GSON | 2.13.2 | JSON serialization (alternative) |
 | JAXB | 4.0.4 | XML serialization |
 
@@ -376,7 +376,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 
 ### Modern (Current)
 - ✅ Spring Boot 3.x (Jakarta namespace)
-- ✅ React 18.x frontend
+- ✅ React 19.x frontend
 - ✅ Java 21+
 - ✅ Hibernate 6.x
 - ✅ OpenTelemetry observability

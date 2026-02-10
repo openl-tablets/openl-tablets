@@ -74,7 +74,7 @@
 - org.openl.rules.tableeditor
 
 **Batch 5 - Studio Frontend** (1 module):
-- studio-ui (React 18.3.1 + TypeScript 5.8.3)
+- studio-ui (React 19.2.x + TypeScript 5.9.x)
 - Complete architecture documentation
 - Component structure
 - State management (Zustand)

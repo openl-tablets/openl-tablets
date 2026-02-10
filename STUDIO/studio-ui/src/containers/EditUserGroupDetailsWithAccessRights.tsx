@@ -151,7 +151,20 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         setIsOpen(true)
     }
 
+    const resetFormAndState = () => {
+        form.resetFields()
+        setDesignRepos([])
+        setDeployRepos([])
+        setProjects([])
+        setRootRepositoryRoles({})
+        setSelectedRepositories([])
+        setSelectedProjects([])
+        setUserGroups([])
+        setHasErrorOnTab({})
+    }
+
     const handleCloseDrawer = () => {
+        resetFormAndState()
         setIsOpen(false)
         onClose()
     }

@@ -150,7 +150,7 @@ constrainer, annotations, util, gen, test
 **Build Output**: `/STUDIO/org.openl.rules.webstudio/target/webapp.war`
 
 **`studio-ui`** - Modern Frontend
-- **Technology**: React 18, TypeScript, Ant Design
+- **Technology**: React 19, TypeScript, Ant Design
 - **Location**: `/STUDIO/studio-ui/src/`
 - **Structure**:
   ```

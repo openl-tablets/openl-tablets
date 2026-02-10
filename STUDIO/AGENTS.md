@@ -150,12 +150,12 @@ PostgreSQL / H2 Database
 - Apache CXF (SOAP/REST)
 
 **Frontend** (`studio-ui/`):
-- React 18.3.1 with Hooks
-- TypeScript 5.8.3
-- Ant Design 5.26.4 (UI components)
-- Zustand 5.0.6 (state management)
-- React Router 7.6.3 (routing)
-- i18next 25.3.1 (internationalization)
+- React 19.x with Hooks
+- TypeScript 5.9.x
+- Ant Design 6.2.x (UI components)
+- Zustand 5.0.x (state management)
+- React Router 7.13.x (routing)
+- i18next 25.x (internationalization)
 
 ### Request Flow
 

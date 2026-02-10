@@ -114,7 +114,7 @@ public interface IOpenClass {
 
 ### TypeScript/React (Frontend)
 
-**Version**: TypeScript 5.8.3, React 18.3.1
+**Version**: TypeScript 5.9.x, React 19.2.x
 **Style**: Standard TS/React conventions
 
 #### Key Conventions

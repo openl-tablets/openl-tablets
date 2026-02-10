@@ -192,7 +192,7 @@ security.jwt.expiration = 86400
 ### 1. org.openl.rules.webstudio - Main Application
 
 **Type**: WAR application
-**Technology**: Spring Boot 3.5.6, JSF 4.0.12 (legacy), React 18.3.1 (modern)
+**Technology**: Spring Boot 3.5.6, JSF 4.0.12 (legacy), React 19.2.x (modern)
 **Build Output**: `webapp.war`
 
 **Architecture**:
@@ -302,7 +302,7 @@ webstudio.concurrent.builds = 4
 ### Overview
 
 **Location**: `/home/user/openl-tablets/STUDIO/studio-ui/`
-**Technology**: React 18.3.1, TypeScript 5.8.3, Ant Design 5.26.4
+**Technology**: React 19.2.x, TypeScript 5.9.x, Ant Design 6.2.x
 
 ### Architecture
 
@@ -358,7 +358,7 @@ export const useProjectStore = create<ProjectStore>((set) => ({
 }));
 ```
 
-**Routing** - React Router 7.6.3:
+**Routing** - React Router 7.13.x:
 ```typescript
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 

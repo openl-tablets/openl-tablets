@@ -392,7 +392,7 @@ flyway baseline -baselineVersion=5.0
 OpenL Tablets is migrating from JavaServer Faces (JSF) to React:
 
 - **Old**: JSF with PrimeFaces
-- **New**: React 18.3.1 + TypeScript + Ant Design
+- **New**: React 19.2.x + TypeScript + Ant Design
 
 **Location**: `STUDIO/studio-ui/`
 
