@@ -1,0 +1,11 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Basic dXNlcjE6dXNlcjE=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production",
+  "deploymentName": "EPBDS-15595-path",
+  "projectId": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTVfcGF0aDoyMzRmZmMzZjhmOGM4N2ZjZDUzNGY0MDQ2OTljNzU2ZTMxMWNlOWZiNjM4YjQwMjk1ZDc4MWEzYmViY2Q2MTJl",
+  "comment": "Deploy project EPBDS_15595_path from design-flat"
+}

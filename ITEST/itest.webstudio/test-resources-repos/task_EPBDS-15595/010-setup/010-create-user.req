@@ -1,0 +1,14 @@
+PUT /rest/users HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "displayName": "User One",
+  "username": "user1",
+  "internalPassword": {
+    "password": "user1"
+  },
+  "firstName": "User",
+  "lastName": "One",
+  "email": "user1@email"
+}

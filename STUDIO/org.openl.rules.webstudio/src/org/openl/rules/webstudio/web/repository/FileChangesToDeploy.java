@@ -26,6 +26,7 @@ import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
 
 class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
@@ -77,7 +78,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                             .setBuiltBy(username)
                             .setBuildNumber(pd.projectVersion().getRevision())
                             .setImplementationTitle(projectName)
-                            .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, version));
+                            .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, branch, projectPath, version));
                     if (branch != null) {
                         manifestBuilder.setBuildBranch(branch);
                     }
@@ -101,10 +102,16 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
             }
 
-            private String resolveProjectVersion(String repositoryId, String projectName, String version) {
+            private String resolveProjectVersion(String repositoryId, String projectName, String branch,  String projectPath, String version) {
                 try {
-                    final FileData historyData = designRepo.getRepository(repositoryId)
-                            .checkHistory(rulesPath + projectName, version);
+                    var repo = designRepo.getRepository(repositoryId);
+                    FileData historyData;
+                    if (repo.supports().folders()) {
+                        var designProject = designRepo.getProjectByPath(repositoryId, branch, projectPath, version);
+                        historyData = designProject.getFileData();
+                    } else {
+                        historyData = repo.checkHistory(rulesPath + projectName, version);
+                    }
                     return RepositoryUtils.buildProjectVersion(historyData);
                 } catch (IOException ignored) {
                     return null;
@@ -118,9 +125,13 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 try {
                     if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
-                        String srcProjectPath = rulesPath + projectName + "/";
+                        String srcProjectPath = rulesPath + projectName;
                         Repository repository = RepositoryUtils
                                 .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
+                        if (repository.supports().mappedFolders()) {
+                            srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
+                        }
+                        srcProjectPath += "/";
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             LOG.warn("Cannot find files in project {}", projectName);
@@ -223,7 +234,12 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
             FileItem fileItem;
             try {
-                fileItem = baseRepo.readHistory(file.getName(), file.getVersion());
+                FileMappingData fileMappingData = file.getAdditionalData(FileMappingData.class);
+                String name = file.getName();
+                if (fileMappingData != null) {
+                    name = fileMappingData.getInternalPath();
+                }
+                fileItem = baseRepo.readHistory(name, file.getVersion());
                 IOUtils.closeQuietly(openedStream);
                 openedStream = fileItem.getStream();
                 return new FileItem(fileTo, openedStream);

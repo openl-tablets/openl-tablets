@@ -8,7 +8,7 @@ Content-Type: application/json
     "content": [
       {
         "type": "text",
-        "text": "[{\"aclId\":\"REVTSUdOOmRlc2lnbi1mbGF0\",\"id\":\"design-flat\",\"name\":\"Git Flat\"}]"
+        "text": "[{\"aclId\":\"REVTSUdOOmRlc2lnbi1mbGF0\",\"id\":\"design-flat\",\"name\":\"Git Flat\"},{\"aclId\":\"REVTSUdOOmRlc2lnbg==\",\"id\":\"design\",\"name\":\"H2\"}]"
       }
     ],
     "isError": false

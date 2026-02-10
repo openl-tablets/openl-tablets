@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "cHJvZHVjdGlvbjpFUEJEUy0xNTU5NS1mbGF0",
+    "name": "EPBDS-15595-flat",
+    "repository": "production"
+  }
+]

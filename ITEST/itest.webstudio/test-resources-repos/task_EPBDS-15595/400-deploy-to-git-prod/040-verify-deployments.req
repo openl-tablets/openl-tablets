@@ -1,0 +1,4 @@
+GET /rest/deployments?repository=production-git HTTP/1.1
+Authorization: Basic dXNlcjE6dXNlcjE=
+Cookie: NO_JSESSIONID=noAuth
+

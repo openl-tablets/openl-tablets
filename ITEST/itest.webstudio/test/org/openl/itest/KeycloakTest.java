@@ -27,6 +27,8 @@ import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import org.openl.itest.core.JettyServer;
 
@@ -45,14 +47,30 @@ public class KeycloakTest {
                 .withRealmImportFile("/openlstudio-realm.json");
     }
 
+    @SuppressWarnings("resource")
+    private static MinIOContainer createMinioContainer() {
+        return new MinIOContainer("minio/minio") {
+            @Override
+            public void configure() {
+                super.configure();
+                waitingFor(Wait.defaultWaitStrategy());
+            }
+        };
+    }
+
     @Test
     public void smoke() throws Exception {
-        try (var keycloack = createKeycloakContainer()) {
+        try (var keycloack = createKeycloakContainer();
+             var minio = createMinioContainer()) {
             keycloack.start();
+            minio.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
             try (var httpClient = JettyServer.get()
                         .withProfile("oauth2")
+                        .withInitParam("repository.production-s3.service-endpoint", minio.getS3URL())
+                        .withInitParam("repository.production-s3.access-key", minio.getUserName())
+                        .withInitParam("repository.production-s3.secret-key", minio.getPassword())
                         .start()) {
                 initStudio(httpClient, authServerUrl);
 
@@ -68,12 +86,17 @@ public class KeycloakTest {
 
     @Test
     public void smokePat() throws Exception {
-        try (var keycloack = createKeycloakContainer()) {
+        try (var keycloack = createKeycloakContainer();
+             var minio = createMinioContainer()) {
             keycloack.start();
+            minio.start();
             var authServerUrl = keycloack.getAuthServerUrl();
             var bearerTokens = retrieveBearerAccessTokens(authServerUrl);
             try (var httpClient = JettyServer.get()
                     .withProfile("oauth2")
+                    .withInitParam("repository.production-s3.service-endpoint", minio.getS3URL())
+                    .withInitParam("repository.production-s3.access-key", minio.getUserName())
+                    .withInitParam("repository.production-s3.secret-key", minio.getPassword())
                     .start()) {
                 initStudio(httpClient, authServerUrl);
 

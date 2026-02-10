@@ -17,6 +17,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 
 public class SecureRepository implements Repository, RepositoryDelegate {
     private final Repository repository;
@@ -47,7 +48,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> list(String path) throws IOException {
         return repository.list(path)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -172,7 +173,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> listFolders(String path) throws IOException {
         return repository.listFolders(path)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
     }
 
@@ -180,8 +181,17 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     public List<FileData> listFiles(String path, String version) throws IOException {
         return repository.listFiles(path, version)
                 .stream()
-                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(BasePermission.READ)))
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), getName(e), List.of(BasePermission.READ)))
                 .collect(Collectors.toList());
+    }
+
+    private static String getName(FileData fileData) {
+        FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+        if (fileMappingData != null) {
+            return fileMappingData.getInternalPath();
+        } else {
+            return fileData.getName();
+        }
     }
 
     @Override
