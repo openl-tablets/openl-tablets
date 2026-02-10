@@ -1,0 +1,6 @@
+DELETE /rest/user-workspace/design/projects/EPBDS_15595/delete HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/x-www-form-urlencoded
+
+comment=Cleanup EPBDS-15595

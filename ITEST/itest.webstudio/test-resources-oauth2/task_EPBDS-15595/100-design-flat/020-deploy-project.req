@@ -1,0 +1,11 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production-s3",
+  "deploymentName": "EPBDS-15595-flat",
+  "projectId": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTU6ZmVmNjJhMTQxMjE3NDAyMWI4NjhkNTE2ZTljMDcyOTI4YTg0MWEyOGVkOGNmZjgwYjMwMDM0YmIwMjhhY2I2OQ==",
+  "comment": "Deploy project EPBDS_15595 to S3"
+}
