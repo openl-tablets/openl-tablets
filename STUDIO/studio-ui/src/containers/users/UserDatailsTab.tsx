@@ -6,6 +6,7 @@ import { DisplayUserName } from '../../constants'
 import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
+import './UserDetailsTab.scss'
 
 interface UserDetailsTabProps {
     isNewUser?: boolean
@@ -125,7 +126,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     message: t('users:edit_modal.email_max_length')
                 }]}
             >
-                <Row align="top" gutter={8} style={{ width: '100%' }}>
+                <Row align="top" gutter={8} style={{ width: '100%', height: 32 }}>
                     <Col flex="auto">
                         <Input
                             disabled={externalFlags?.emailExternal}
