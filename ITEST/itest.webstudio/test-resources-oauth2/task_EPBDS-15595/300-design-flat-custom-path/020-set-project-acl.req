@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTVfcGF0aDoyMzRmZmMzZjhmOGM4N2ZjZDUzNGY0MDQ2OTljNzU2ZTMxMWNlOWZiNjM4YjQwMjk1ZDc4MWEzYmViY2Q2MTJl?sid=guest&principal=true HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "role": "VIEWER"
+}

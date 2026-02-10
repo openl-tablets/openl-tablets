@@ -2,4 +2,6 @@ PATCH /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU1OTU6ZmVmNjJhMTQxMjE3NDAyMWI4Njh
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Content-Type: application/json
 
-{"status": "CLOSED"}
+{
+  "status": "CLOSED"
+}

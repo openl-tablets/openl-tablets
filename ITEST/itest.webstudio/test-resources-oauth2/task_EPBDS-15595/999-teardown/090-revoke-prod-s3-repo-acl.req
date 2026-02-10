@@ -1,0 +1,3 @@
+DELETE /rest/acls/repositories/UFJPRDpwcm9kdWN0aW9uLXMz?sid=guest&principal=true HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+
