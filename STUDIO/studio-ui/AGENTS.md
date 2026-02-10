@@ -70,12 +70,12 @@ npm run start
 ## Technology Stack
 
 ### Core framework
-- React 18.3.1 with functional components and hooks.
-- TypeScript 5.8.3 in strict mode.
+- React 19.x with functional components and hooks.
+- TypeScript 5.9.x in strict mode.
 - Node.js 24.x for build tooling only.
 
 ### UI & styling
-- Ant Design 5.26 for base components.
+- Ant Design 6.x for base components.
 - Global SCSS (`src/index.scss`) plus feature-specific SCSS files such as `MainMenu.scss` and `UserMenu.scss`.
 - No CSS modules today; styles are either global overrides or scoped via BEM-like class names.
 
@@ -85,7 +85,7 @@ npm run start
 - `@stomp/stompjs` websocket client with a reconnecting singleton in `services/websocket`.
 
 ### Internationalization
-- i18next 25.3.1 + react-i18next 15.6.
+- i18next 25.x + react-i18next 16.x.
 - English resource bundles live in `src/locales/*.en.ts` and are registered via `i18next.addResourceBundle`.
 
 ### Tooling

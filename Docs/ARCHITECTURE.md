@@ -174,7 +174,7 @@ Source Layer (Excel, Files)
 ```
 
 **Technology Stack:**
-- **Frontend**: React 18.3.1, TypeScript 5.8.3, Zustand, Axios
+- **Frontend**: React 19.2.x, TypeScript 5.9.x, Zustand, fetch
 - **Backend**: Spring Boot 3.5.6, Spring Security, Spring Data JPA
 - **Legacy**: JSF 2.3, RichFaces (forked), Facelets
 

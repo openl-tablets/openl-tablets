@@ -208,9 +208,12 @@ JSON/XML Responses
 
 | Library | Version | Purpose | Replaceability |
 |---------|---------|---------|----------------|
-| **React** | 18.3.1 | UI framework | 🟡 Could use Vue/Angular |
-| **TypeScript** | 5.8.3 | Type safety | 🟢 Could use plain JS |
-| **Ant Design** | 5.26.4 | Components | 🟡 Could use Material-UI |
+| **React** | 19.2.x | UI framework | 🟡 Could use Vue/Angular |
+| **TypeScript** | 5.9.x | Type safety | 🟢 Could use plain JS |
+| **Ant Design** | 6.2.x | Components | 🟡 Could use Material-UI |
+| **React Router** | 7.13.x | Routing | 🟢 Could use other router |
+| **Zustand** | 5.0.x | State management | 🟢 Could use Redux |
+| **i18next** | 25.8.x | Internationalization | 🟢 Could use other i18n |
 
 ### Data & Serialization
 

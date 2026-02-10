@@ -101,7 +101,7 @@ This document provides a complete map of legacy, modern, and transitional compon
 
 **Migration Path**:
 ```
-JSF/RichFaces → React 18.3.1 + TypeScript 5.8.3
+JSF/RichFaces → React 19.2.x + TypeScript 5.9.x
 ```
 
 **Current Status**:
