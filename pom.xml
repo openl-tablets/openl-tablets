@@ -192,6 +192,7 @@
 
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <node.version>v24.13.0</node.version>
+        <npm.version>11.7.0</npm.version>
         <npm.test.skip>false</npm.test.skip>
 
         <!-- It needs to detect memory leaks. -->
@@ -427,6 +428,7 @@
                     <version>${frontend-maven-plugin.version}</version>
                     <configuration>
                         <nodeVersion>${node.version}</nodeVersion>
+                        <npmVersion>${npm.version}</npmVersion>
                         <installDirectory>${project.build.directory}</installDirectory>
                     </configuration>
                 </plugin>
