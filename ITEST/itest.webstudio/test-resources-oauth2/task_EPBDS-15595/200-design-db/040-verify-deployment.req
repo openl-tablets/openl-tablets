@@ -1,4 +1,4 @@
 GET /rest/deployments?repository=production-s3 HTTP/1.1
-Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Authorization: Bearer ${GUEST_ACCESS_TOKEN}
 Cookie: NO_JSESSIONID=noAuth
 
