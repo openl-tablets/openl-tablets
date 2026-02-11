@@ -44,11 +44,11 @@
         function openEditBranchesDialog(repositoryId, projectName) {
             const projectId = btoa(repositoryId + ":" + projectName);
 
-            const availableBranchesRequest = $j.get("#{contextPath}/web/repos/" + repositoryId + "/branches");
+            const availableBranchesRequest = $j.get("#{contextPath}/web/projects/" + projectId + "/branches");
             const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
 
             $j.when(availableBranchesRequest, projectDataRequest).done((availableRes, projectDataRes) => {
-                const availableBranches = availableRes[0];
+                const availableBranches = availableRes[0].map(b => b.name);
                 const projectData = projectDataRes[0];
 
                 $j("#projectBusinessName").text(projectData.name);

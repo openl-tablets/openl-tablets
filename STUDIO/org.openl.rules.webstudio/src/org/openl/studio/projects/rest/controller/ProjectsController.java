@@ -53,6 +53,7 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -196,6 +197,12 @@ public class ProjectsController {
         } catch (ProjectException e) {
             throw new ConflictException("project.branch.create.failed.message");
         }
+    }
+
+    @GetMapping("/{projectId}/branches")
+    @Operation(summary = "Get all available branches for the project (BETA)")
+    public List<ProjectBranchInfo> getBranches(@ProjectId @PathVariable("projectId") RulesProject project) throws ProjectException {
+        return projectService.getBranches(project);
     }
 
     @GetMapping("/{projectId}/tables")

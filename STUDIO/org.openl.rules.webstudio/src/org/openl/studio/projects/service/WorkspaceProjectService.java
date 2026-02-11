@@ -53,6 +53,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -440,6 +441,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             repository.createBranch(project.getDesignFolderName(), model.getBranch(), model.getRevision());
         } catch (IOException e) {
             throw new ProjectException("Failed to create branch", e);
+        }
+    }
+
+    public List<ProjectBranchInfo> getBranches(RulesProject project) throws ProjectException {
+        if (!project.isSupportsBranches()) {
+            throw new ConflictException("project.branch.unsupported.message");
+        }
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
+            throw new ForbiddenException("default.message");
+        }
+        var repository = (BranchRepository) project.getDesignRepository();
+        try {
+            // projectPath parameter is not required because we need all branches for repository, not only selected project branches
+            return repository.getBranches(null).stream()
+                    .map(branch -> ProjectBranchInfo.builder()
+                            .name(branch)
+                            .protectedFlag(repository.isBranchProtected(branch))
+                            .build())
+                    .sorted(Comparator.comparing(ProjectBranchInfo::name, String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+        } catch (IOException e) {
+            throw new ProjectException("Failed to retrieve branches", e);
         }
     }
 
