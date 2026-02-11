@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MDA6MjBlYTk0ZTViOGI1Y2ZkZjRkM2I3YjIzYTE1ZTEzNTQwMDg3MjQxMzMxOGMxMThkOTRiZDQ5ZTJiMjBkNTVmNQ==?sid=EPBDS_15600&principal=true HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "role": "CONTRIBUTOR"
+}

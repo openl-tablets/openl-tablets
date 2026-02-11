@@ -1,0 +1,77 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "EPBDS-13930_Project2",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-13931_1",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-14376_1",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-14905",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15381_1",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15409_1",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithAutoConflictResolving_one",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithAutoConflictResolving_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolving_one",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolving_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolvingCancel_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseBase_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseCustom_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseOurs_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithManualConflictResolvingUseTheirs_two",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithoutConflicts_one",
+    "protected": false
+  },
+  {
+    "name": "EPBDS-15439_MergeWithoutConflicts_two",
+    "protected": false
+  },
+  {
+    "name": "master",
+    "protected": false
+  }
+]
