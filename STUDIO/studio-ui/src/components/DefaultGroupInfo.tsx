@@ -63,11 +63,11 @@ export const DefaultGroupInfo: React.FC = () => {
                     <Tag color={tagColor}>{defaultGroupName}</Tag>
                 )
             ) : (
-                <Typography.Text type="secondary" italic>
+                <Typography.Text italic type="secondary">
                     {t('security:default_group_none')}
                 </Typography.Text>
             )}
-            <Tooltip title={<Trans i18nKey="security:default_group_tooltip" components={{ strong: <strong /> }} />}>
+            <Tooltip title={<Trans components={{ strong: <strong /> }} i18nKey="security:default_group_tooltip" />}>
                 <InfoCircleOutlined
                     aria-label={t('security:default_group_info_aria')}
                     style={{ color: 'var(--ant-color-text-tertiary)', cursor: 'help' }}

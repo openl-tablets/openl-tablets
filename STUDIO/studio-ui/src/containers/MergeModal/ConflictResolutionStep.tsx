@@ -390,8 +390,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             {error && (
                 <Alert
                     showIcon
-                    title={error}
                     style={{ marginBottom: 16 }}
+                    title={error}
                     type="error"
                 />
             )}

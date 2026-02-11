@@ -85,16 +85,16 @@ export const Groups: React.FC = () => {
             <DefaultGroupInfo />
             {error && (
                 <Alert
+                    closable
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                    title={t('groups:failed_to_load_groups')}
+                    type="error"
                     action={
                         <Button onClick={reloadGroups} size="small" type="primary">
                             {t('groups:retry')}
                         </Button>
                     }
-                    closable
-                    showIcon
-                    title={t('groups:failed_to_load_groups')}
-                    style={{ marginBottom: 16 }}
-                    type="error"
                 />
             )}
             <Table

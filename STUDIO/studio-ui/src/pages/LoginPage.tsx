@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Alert, Button, Form, Input } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../services'
+import { isSafeRedirectUrl } from '../utils/loginRedirect'
 import Logo from '../components/Logo'
 
 const containerStyle: React.CSSProperties = {
@@ -53,17 +54,22 @@ const LoginPage = () => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: encodedBody
-        }).then((response) => {
-            if (response.redirected) {
-                window.location.href = response.url // manually trigger browser redirect
-            } else if (response.ok) {
-                window.location.href = `${CONFIG.CONTEXT}/` // or default success redirect
-            } else {
-                setError(t('login_failed_message'))
-            }
-        }).finally(() => {
-            setLoading(false)
         })
+            .then((response) => {
+                if (response.redirected) {
+                    window.location.href = isSafeRedirectUrl(response.url) ? response.url : `${CONFIG.CONTEXT}/`
+                } else if (response.ok) {
+                    window.location.href = `${CONFIG.CONTEXT}/`
+                } else {
+                    setError(t('login_failed_message'))
+                }
+            })
+            .catch(() => {
+                setError(t('login_failed_message'))
+            })
+            .finally(() => {
+                setLoading(false)
+            })
     }
 
     useEffect(() => {
@@ -77,7 +83,7 @@ const LoginPage = () => {
             <div style={cardStyle}>
                 <Logo height={72} width={72} />
                 <div style={titleStyle}>{t('sign_in_to_openl_studio')}</div>
-                {error && <Alert showIcon title={error} style={{ marginBottom: 16, width: '100%' }} type="error" />}
+                {error && <Alert showIcon style={{ marginBottom: 16, width: '100%' }} title={error} type="error" />}
                 <Form layout="vertical" onFinish={onFinish} style={{ width: '100%' }}>
                     <Form.Item label={t('username_label')} name="username" rules={[{ required: true, message: t('username_required') }]}>
                         <Input autoFocus autoComplete="username" size="large" />
