@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MDA6MjBlYTk0ZTViOGI1Y2ZkZjRkM2I3YjIzYTE1ZTEzNTQwMDg3MjQxMzMxOGMxMThkOTRiZDQ5ZTJiMjBkNTVmNQ== HTTP/1.1
+Authorization: Basic RVBCRFNfMTU2MDA6RVBCRFNfMTU2MDA=
+Content-Type: application/json
+
+{
+  "selectedBranches": ["EPBDS-15600"]
+}

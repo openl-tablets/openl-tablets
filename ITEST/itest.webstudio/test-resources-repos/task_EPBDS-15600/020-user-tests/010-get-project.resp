@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS_15600",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "path": "EPBDS_15600",
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MDA6MjBlYTk0ZTViOGI1Y2ZkZjRkM2I3YjIzYTE1ZTEzNTQwMDg3MjQxMzMxOGMxMThkOTRiZDQ5ZTJiMjBkNTVmNQ==",
+  "status": "CLOSED",
+  "comment": "Project EPBDS_15600 is created.",
+  "repository": "design-flat",
+  "selectedBranches": ["master"]
+}
