@@ -17,11 +17,11 @@ import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
 import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
 import { CONFIG } from '../services'
+import { RedirectToRoot } from './RedirectToRoot'
 import Forbidden from '../pages/403'
 import NotFound from '../pages/404'
 import ServerError from '../pages/500'
 import LoginPage from '../pages/LoginPage'
-import Tesseract from '../components/Tesseract'
 import { RouteErrorFallback } from '../components/RouteErrorFallback'
 
 const router = createBrowserRouter([
@@ -30,6 +30,10 @@ const router = createBrowserRouter([
         element: <DefaultLayout />,
         errorElement: <RouteErrorFallback />,
         children: [
+            {
+                index: true,
+                element: <></>,
+            },
             {
                 path: 'faces/*', // To integrate with JSF Repository and Editor tabs
             },
@@ -115,7 +119,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '*',
-                element: <Tesseract size={400} />
+                element: <RedirectToRoot />
             }
         ],
     },
