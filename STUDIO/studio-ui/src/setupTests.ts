@@ -3,6 +3,13 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import { TextEncoder, TextDecoder } from 'util'
+
+// react-router-dom uses TextEncoder (not defined in jsdom)
+if (typeof globalThis.TextEncoder === 'undefined') {
+    globalThis.TextEncoder = TextEncoder
+    globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder
+}
 
 // MessageChannel is used by @rc-component/form (Ant Design Form) but is not available in jsdom
 if (typeof globalThis.MessageChannel === 'undefined') {

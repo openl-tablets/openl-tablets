@@ -12,13 +12,19 @@ export const Repositories = () => {
     const { t } = useTranslation()
     const { repositoryTab } = useParams()
     const navigate = useNavigate()
-    const formRef = useRef<FormRefProps>(null)
+    const designFormRef = useRef<FormRefProps>(null)
+    const deploymentFormRef = useRef<FormRefProps>(null)
     const [isEditingNewRepository, setIsEditingNewRepository] = useState(false)
-    
+
     // Get the current repository data type based on the active tab
-    const currentRepositoryDataType = repositoryTab === RepositoryDataType.DEPLOYMENT 
-        ? RepositoryDataType.DEPLOYMENT 
+    const currentRepositoryDataType = repositoryTab === RepositoryDataType.DEPLOYMENT
+        ? RepositoryDataType.DEPLOYMENT
         : RepositoryDataType.DESIGN
+
+    // Get the ref for the currently active tab
+    const currentFormRef = currentRepositoryDataType === RepositoryDataType.DEPLOYMENT
+        ? deploymentFormRef
+        : designFormRef
 
     const navigateTo = (key: string) => {
         if (key !== repositoryTab) {
@@ -27,43 +33,47 @@ export const Repositories = () => {
     }
 
     const onChangeTab = (key: string) => {
-        const form = formRef.current?.getForm()
+        // Only check for unsaved changes if we're actually switching to a different tab
+        // and the form is initialized (to avoid false positives during form initialization)
+        if (key !== repositoryTab) {
+            const hasUnsavedChanges = currentFormRef.current?.hasUnsavedChanges?.() ?? false
 
-        if (form?.isFieldsTouched()) {
-            Modal.confirm({
-                title: t('repository:confirm_leave_without_saving'),
-                content: t('repository:confirm_leave_without_saving_message'),
-                onOk: () => {
-                    navigateTo(key)
-                    // Reset editing state when switching between Design and Deployment tabs
-                    setIsEditingNewRepository(false)
-                },
-            })
-        } else {
-            navigateTo(key)
-            // Reset editing state when switching between Design and Deployment tabs
-            setIsEditingNewRepository(false)
+            if (hasUnsavedChanges) {
+                Modal.confirm({
+                    title: t('repository:confirm_leave_without_saving'),
+                    content: t('repository:confirm_leave_without_saving_message'),
+                    onOk: () => {
+                        navigateTo(key)
+                        // Reset editing state when switching between Design and Deployment tabs
+                        setIsEditingNewRepository(false)
+                    },
+                })
+            } else {
+                navigateTo(key)
+                // Reset editing state when switching between Design and Deployment tabs
+                setIsEditingNewRepository(false)
+            }
         }
     }
 
     const handleAddRepository = async () => {
-        if (formRef.current) {
-            await formRef.current.addRepository()
+        if (currentFormRef.current) {
+            await currentFormRef.current.addRepository()
             setIsEditingNewRepository(true)
         }
     }
 
-    const addRepositoryButtonLabel = currentRepositoryDataType === RepositoryDataType.DESIGN 
-        ? t('repository:add_design_repository') 
+    const addRepositoryButtonLabel = currentRepositoryDataType === RepositoryDataType.DESIGN
+        ? t('repository:add_design_repository')
         : t('repository:add_deployment_repository')
 
     return (
         <Tabs
             destroyOnHidden
-            activeKey={repositoryTab} 
+            activeKey={repositoryTab}
             onChange={onChangeTab}
             tabBarExtraContent={
-                <Button 
+                <Button
                     disabled={isEditingNewRepository}
                     icon={<PlusOutlined />}
                     onClick={handleAddRepository}
@@ -75,8 +85,8 @@ export const Repositories = () => {
         >
             <Tabs.TabPane key={RepositoryDataType.DESIGN} tab={t('repository:tabs.design_repositories')}>
                 <div style={{ minHeight: '400px' }}>
-                    <DesignRepositoriesConfiguration 
-                        ref={formRef} 
+                    <DesignRepositoriesConfiguration
+                        ref={designFormRef}
                         onEditingStateChange={setIsEditingNewRepository}
                         repositoryDataType={RepositoryDataType.DESIGN}
                     />
@@ -84,8 +94,8 @@ export const Repositories = () => {
             </Tabs.TabPane>
             <Tabs.TabPane key={RepositoryDataType.DEPLOYMENT} tab={t('repository:tabs.deployment_repositories')}>
                 <div style={{ minHeight: '400px' }}>
-                    <DesignRepositoriesConfiguration 
-                        ref={formRef} 
+                    <DesignRepositoriesConfiguration
+                        ref={deploymentFormRef}
                         onEditingStateChange={setIsEditingNewRepository}
                         repositoryDataType={RepositoryDataType.DEPLOYMENT}
                     />
