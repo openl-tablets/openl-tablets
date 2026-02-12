@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFNfMTU2MjE6YzZlMWFkYmZmZjZhNDQzMWU5NzdhODUzNmZmYThhODBmODUwMmZkMGQ5YWM0ZTFlZDM3YmQ0NTgyMmYyZDNiNA== HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+Cookie: NO_JSESSIONID=noAuth
+
+{
+  "status": "CLOSED"
+}

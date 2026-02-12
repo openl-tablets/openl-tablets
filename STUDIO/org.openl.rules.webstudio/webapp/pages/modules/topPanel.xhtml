@@ -127,7 +127,7 @@
                                onclick="openSaveDialog('#{studio.currentRepositoryType}'); return false;" value="Save"
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
-                               rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editableProject}"/>
+                               rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editableProject and studio.model.canSave}"/>
                 <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
                                value="Sync"
                                title="Synchronize updates"

@@ -691,6 +691,18 @@ public class ProjectModel {
                 .isOpenedForEditing());
     }
 
+    public boolean getCanSave() {
+        if (isEditable()) {
+            if (studio.getCurrentModule() == null) {
+                RulesProject currentProject = getProject();
+                var alcService = studio.getDesignRepositoryAclService();
+                return alcService.isGranted(currentProject, List.of(BasePermission.WRITE));
+            }
+            return true;
+        }
+        return false;
+    }
+
     public boolean getCanUpdate() {
         if (isEditable()) {
             if (studio.getCurrentModule() == null) {
