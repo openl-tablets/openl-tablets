@@ -684,14 +684,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-        return aclServiceProvider.getDesignRepoAclService().isGranted(selectedProject, List.of(BasePermission.WRITE));
+        return aclProjectsHelper.hasPermission(selectedProject, BasePermission.WRITE);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            return selectedProject != null && selectedProject
-                    .isModified() && !isCurrentBranchProtected(selectedProject);
+            return selectedProject != null && selectedProject.isModified()
+                    && !isCurrentBranchProtected(selectedProject)
+                    && aclProjectsHelper.hasPermission(selectedProject, BasePermission.WRITE);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
