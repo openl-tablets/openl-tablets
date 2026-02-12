@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "cHJvZHVjdGlvbi1naXQ6RVBCRFMtMTU1OTUtZGI=",
+    "name": "EPBDS-15595-db",
+    "repository": "production-git"
+  },
+  {
+    "id": "cHJvZHVjdGlvbi1naXQ6RVBCRFMtMTU1OTUtZmxhdA==",
+    "name": "EPBDS-15595-flat",
+    "repository": "production-git"
+  },
+  {
+    "id": "cHJvZHVjdGlvbi1naXQ6RVBCRFMtMTU1OTUtcGF0aA==",
+    "name": "EPBDS-15595-path",
+    "repository": "production-git"
+  },
+  {
+    "id": "cHJvZHVjdGlvbi1naXQ6RVBCRFMtMTU1OTUtdXNlcjI=",
+    "name": "EPBDS-15595-user2",
+    "repository": "production-git"
+  }
+]
