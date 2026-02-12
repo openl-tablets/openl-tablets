@@ -89,14 +89,14 @@ For each ticket, analyze the **actual functionality** described in:
 - Refactoring for better maintainability
 - Library updates that improve functionality
 - UI/UX improvements
-- Group by component: **WebStudio:**, **Rule Services:**, **Core:**, etc.
+- Group by component: **OpenL Studio:**, **Rule Services:**, **Core:**, etc.
 - Each item is a concise bullet point (1-2 sentences)
 
 **Fixed Bugs** section:
 - Bug fixes
 - Error corrections
 - Issues resolved
-- Group by component: **WebStudio:**, **Rule Services:**, etc.
+- Group by component: **OpenL Studio:**, **Rule Services:**, etc.
 - Each item describes the problem that was fixed
 
 **Updated Libraries** section (if applicable):
