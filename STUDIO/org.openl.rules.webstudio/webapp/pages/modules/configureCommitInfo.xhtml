@@ -129,6 +129,7 @@
 
         $j("#configureCommitInfoForm").change(processRequiredCommitInfoFields);
         $j("#configureCommitInfoForm").keyup(processRequiredCommitInfoFields);
+        processRequiredCommitInfoFields();
 
         RichFaces.$('modalConfigureCommitInfo').show();
     }
