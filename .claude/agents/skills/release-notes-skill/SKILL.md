@@ -250,7 +250,7 @@ Where X.Y.Z is the version number (e.g., `release-notes-5.27.8.md`).
 
 ### Writing Style
 
-- **Technical but accessible**: Write for developers and technical users
+- **Business-friendly, developer-oriented**: Written for developers/admins, but phrased so business rule authors can understand the impact.
 - **Professional tone**: Formal, clear, and concise
 - **Active voice**: "Added support for..." not "Support was added for..."
 - **Present tense for features**: "Allows users to..." not "Will allow..."
@@ -334,13 +334,12 @@ of using the ACL feature.
 ## Common Components
 
 Group features by these common components:
+- **Core**
 - **OpenL Studio**
 - **Rule Services**
-- **Core**
 - **OpenL Studio, Rule Services** (when both are affected)
 - **Runtime**
 - **Maven Plugin**
-- **Documentation**
 
 ## Error Handling
 
