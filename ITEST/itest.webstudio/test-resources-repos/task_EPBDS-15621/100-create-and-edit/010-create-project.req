@@ -1,0 +1,13 @@
+PUT /rest/repos/design-flat/projects/EPBDS_15621 HTTP/1.1
+Authorization: Basic RVBCRFNfMTU2MjE6RVBCRFNfMTU2MjE=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&../project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

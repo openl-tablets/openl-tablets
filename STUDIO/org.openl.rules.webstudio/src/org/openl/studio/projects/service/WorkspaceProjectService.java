@@ -36,6 +36,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -112,7 +113,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
             TableWriterExecutor tableWriterExecutor,
-            TableWritersFactory tableWritersFactory) {
+            TableWritersFactory tableWritersFactory, AclProjectsHelper aclProjectsHelper) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -242,6 +243,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void save(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (!project.isModified()) {
             return;
+        }
+        if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException("default.message");
         }
         var comment = model.getComment().map(String::trim).orElse(null);
         try {
