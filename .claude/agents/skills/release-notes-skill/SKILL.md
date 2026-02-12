@@ -58,15 +58,15 @@ For each ticket, analyze the **actual functionality** described in:
 - Requires significant business context to understand value
 - Impacts multiple parts of the system or workflows
 - Took considerable development effort (min 4 sprints)
-- Examples: ACL implementation, OpenL MCP, APIs sescription
+- Examples: ACL implementation, new merge conflict resolution, new syntax support
 
 **Medium-Sized Features/Improvements**:
 - Enhances existing capabilities in meaningful ways
 - Needs some business context but purpose is fairly clear
 - Improves user efficiency or solves known pain points
 - Took moderate effort (1-2 sprints)
-- Examples: introdcuing tokens in OpenL Studio, new OpenL functions 
-- 
+- Examples: UI improvements, refactoring for better performance, migration to new libraries
+
 **Small Features/Enhancements**:
 - Incremental improvements that are self-explanatory
 - Need minimal business context - value is obvious
@@ -75,6 +75,13 @@ For each ticket, analyze the **actual functionality** described in:
 - Examples: Button reordering, link additions, minor UI tweaks
 
 #### Categorization Rules
+
+**Release Overview** (Major releases only):
+- Write a brief 2-3 sentence summary after the GitHub link and release date
+- First sentence: Identify this as a major release
+- Following sentences: Highlight the 3-5 most significant features/changes in the release
+- Keep it concise and high-level - details come in the feature descriptions
+- Example: "OpenL Tablets 6.0.0 is a major release that introduces a completely redesigned administration interface built with modern React technology, a simplified and more robust Access Control Lists (ACL) system with streamlined role-based permissions, migration to Jakarta EE 10 and Java 21, and comprehensive API improvements including Personal Access Tokens for automation and MCP integration support."
 
 **New Features** section (Major releases only):
 - Completely new functionality
@@ -122,6 +129,10 @@ For each ticket, analyze the **actual functionality** described in:
 ## Release Notes
 
 [vX.Y.Z](https://github.com/openl-tablets/openl-tablets/releases/tag/X.Y.Z) on the GitHub
+
+**Release Date:** [Date]
+
+[One-sentence summary introducing this as a major release, followed by 1-2 sentences highlighting the most significant features and changes. For example: "OpenL Tablets X.Y.Z is a major release that introduces... and comprehensive improvements including..."]
 
 ### New Features
 
@@ -239,7 +250,7 @@ Where X.Y.Z is the version number (e.g., `release-notes-5.27.8.md`).
 
 ### Writing Style
 
-- **Business-friendly, developer-oriented**: Written for developers/admins, but phrased so business rule authors can understand the impact.
+- **Technical but accessible**: Write for developers and technical users
 - **Professional tone**: Formal, clear, and concise
 - **Active voice**: "Added support for..." not "Support was added for..."
 - **Present tense for features**: "Allows users to..." not "Will allow..."
@@ -354,6 +365,7 @@ Before finalizing:
 10. ✓ Blank lines separate all paragraphs for readability
 11. ✓ No paragraph exceeds 4 sentences
 12. ✓ Complex features are properly organized with clear paragraph structure
+13. ✓ Major releases include release overview with date and high-level summary
 
 ## Final Output
 
