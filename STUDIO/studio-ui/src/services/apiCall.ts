@@ -21,6 +21,13 @@ class NotFoundError extends Error {
     }
 }
 
+class ForbiddenError extends Error {
+    constructor(message = 'Forbidden') {
+        super(message)
+        this.name = 'ForbiddenError'
+    }
+}
+
 const appStore = useAppStore.getState()
 
 interface ApiCallOptions {
@@ -68,7 +75,7 @@ const apiCall = async (
                 if (!opts.suppressErrorPages) {
                     appStore.setShowForbidden(true)
                 }
-                throw new Error('Forbidden! You do not have permission to access this resource.')
+                throw new ForbiddenError('Forbidden! You do not have permission to access this resource.')
             } else if (status === 404) {
                 if (!opts.suppressErrorPages) {
                     appStore.setShowNotFound(true)
@@ -102,5 +109,5 @@ const apiCall = async (
         })
 }
 
-export { NotFoundError, EmptyError }
+export { NotFoundError, EmptyError, ForbiddenError }
 export default apiCall
