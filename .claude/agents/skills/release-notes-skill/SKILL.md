@@ -58,15 +58,15 @@ For each ticket, analyze the **actual functionality** described in:
 - Requires significant business context to understand value
 - Impacts multiple parts of the system or workflows
 - Took considerable development effort (min 4 sprints)
-- Examples: ACL implementation, new merge conflict resolution, new syntax support
+- Examples: ACL implementation, OpenL MCP, APIs sescription
 
 **Medium-Sized Features/Improvements**:
 - Enhances existing capabilities in meaningful ways
 - Needs some business context but purpose is fairly clear
 - Improves user efficiency or solves known pain points
 - Took moderate effort (1-2 sprints)
-- Examples: UI improvements, refactoring for better performance, migration to new libraries
-
+- Examples: introdcuing tokens in OpenL Studio, new OpenL functions 
+- 
 **Small Features/Enhancements**:
 - Incremental improvements that are self-explanatory
 - Need minimal business context - value is obvious
@@ -80,7 +80,13 @@ For each ticket, analyze the **actual functionality** described in:
 - Completely new functionality
 - New capabilities that didn't exist before
 - Should have business value descriptions
-- Include 2-3 sentences explaining the feature and its benefits
+- Write each feature with:
+  - A bold title (e.g., **Feature Name**)
+  - Multiple paragraphs (not one long paragraph) explaining the feature
+  - Each paragraph should focus on one aspect: what it does, key capabilities, technical details, benefits
+  - Use blank lines between paragraphs for readability
+  - Break long descriptions into 2-4 shorter paragraphs
+  - Each paragraph should be 2-4 sentences maximum
 - May include screenshots or examples if available
 
 **Improvements** section:
@@ -121,11 +127,17 @@ For each ticket, analyze the **actual functionality** described in:
 
 **Feature Title 1**
 
-Detailed description of the feature (2-4 sentences explaining what it does and why it matters). Include business context and user benefits.
+First paragraph describing what the feature does and its primary purpose (2-4 sentences).
+
+Second paragraph covering key capabilities or components, using proper formatting and structure. Break down complex features into digestible chunks.
+
+Third paragraph (if needed) explaining technical details or benefits. Keep paragraphs focused and concise.
 
 **Feature Title 2**
 
-Another detailed description with business value.
+Another feature description following the same multi-paragraph structure. Each paragraph addresses one aspect of the feature.
+
+Continue with additional paragraphs as needed, maintaining readability through proper spacing.
 
 ### Improvements
 
@@ -164,7 +176,7 @@ Another detailed description with business value.
 
 **Important migration information and breaking changes.**
 
-Details about database schema changes, deprecated code removal, or other migration requirements.
+Details about database schema changes, deprecated code removal, or other migration requirements. Use multiple paragraphs with blank lines between them for better readability.
 
 ### Live Demo
 
@@ -227,11 +239,14 @@ Where X.Y.Z is the version number (e.g., `release-notes-5.27.8.md`).
 
 ### Writing Style
 
-- **Technical but accessible**: Write for developers and technical users
+- **Business-friendly, developer-oriented**: Written for developers/admins, but phrased so business rule authors can understand the impact.
 - **Professional tone**: Formal, clear, and concise
 - **Active voice**: "Added support for..." not "Support was added for..."
 - **Present tense for features**: "Allows users to..." not "Will allow..."
 - **Past tense for fixes**: "Fixed an issue where..." not "Fixes an issue..."
+- **Paragraph formatting**: Use blank lines between paragraphs for readability
+- **Avoid wall of text**: Break long descriptions into multiple focused paragraphs
+- **One idea per paragraph**: Each paragraph should address a single aspect or concept
 
 ### Describing Features
 
@@ -239,6 +254,19 @@ Where X.Y.Z is the version number (e.g., `release-notes-5.27.8.md`).
 - **Improvements**: Focus on what changed and why it's better
 - **Bug fixes**: Describe the symptom/problem, not the technical cause
 - **No Jira references**: Never mention ticket numbers like "EPBDS-12345"
+
+### Formatting Requirements
+
+- **Paragraph structure**: Always use blank lines between paragraphs in feature descriptions
+- **Paragraph length**: Keep paragraphs to 2-4 sentences maximum
+- **Content organization**:
+  - First paragraph: What the feature is and its main purpose
+  - Second paragraph: Key capabilities, components, or how it works
+  - Third paragraph: Benefits, technical details, or usage guidance
+  - Additional paragraphs as needed for complex features
+- **Avoid single-paragraph blocks**: Features with 5+ sentences must be broken into multiple paragraphs
+- **Lists within features**: Use bullet points or numbered lists for enumerating capabilities when appropriate
+- **Section spacing**: Maintain consistent blank lines between all major sections
 
 ### Language Rules
 
@@ -284,11 +312,12 @@ The newly developed Access Control Lists (ACL) feature available in
 OpenL WebStudio is a more robust and granular way to control user
 access to assets. This update brings a comprehensive mechanism for
 controlling the actions of subjects on objects, focusing on enhancing
-security, authorization, and user identification. Currently, ACL
-management is available through the built-in API tool or other API
-tools. We recommend that users read the description available at
-webstudio/rest/api-docs to fully understand the nuances of using
-the ACL feature.
+security, authorization, and user identification.
+
+Currently, ACL management is available through the built-in API tool
+or other API tools. We recommend that users read the description
+available at webstudio/rest/api-docs to fully understand the nuances
+of using the ACL feature.
 ```
 
 ## Common Components
@@ -321,6 +350,10 @@ Before finalizing:
 6. ✓ Version number in title and GitHub link match
 7. ✓ File saved to correct location: `docs/release-notes/release-notes-X.Y.Z.md`
 8. ✓ Grouping by components is logical and consistent
+9. ✓ Feature descriptions are broken into multiple paragraphs (not single blocks)
+10. ✓ Blank lines separate all paragraphs for readability
+11. ✓ No paragraph exceeds 4 sentences
+12. ✓ Complex features are properly organized with clear paragraph structure
 
 ## Final Output
 
