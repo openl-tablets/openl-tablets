@@ -2,6 +2,10 @@
 
 [v6.0.0](https://github.com/openl-tablets/openl-tablets/releases/tag/6.0.0) on the GitHub
 
+**Release Date:** February 2026
+
+OpenL Tablets 6.0.0 is a major release that introduces a completely redesigned administration interface built with modern React technology, a simplified and more robust Access Control Lists (ACL) system with streamlined role-based permissions, and migration to Jakarta EE 10 and Java 21. The release also includes MCP integration for AI-powered workflows, Personal Access Tokens for automation, and comprehensive API improvements with enhanced OpenAPI documentation.
+
 ### New Features
 
 **Redesigned Administration Interface**
@@ -36,12 +40,6 @@ The implementation includes an OAuth 2.1-compliant /.well-known/oauth-protected-
 
 A comprehensive REST API has been extended to support AI-powered workflows, including table viewing, editing, and creation through the API, with pagination and filtering support for projects and tables.
 
-**OpenAPI Documentation Descriptions**
-
-OpenL Tablets 6.0.0 adds support for generating meaningful OpenAPI descriptions from Excel documentation. This includes descriptions for datatype fields, method arguments, and spreadsheet result structures.
-
-The enriched OpenAPI specifications improve the developer experience when integrating with OpenL REST services. External consumers can now understand the business meaning of each field and parameter directly from the generated API documentation, reducing the need to consult Excel source files.
-
 ### Improvements
 
 **OpenL Studio:**
@@ -57,6 +55,7 @@ The enriched OpenAPI specifications improve the developer experience when integr
 * Added a REST API for running tests in OpenL Studio.
 
 **Rule Services:**
+* Added support for generating meaningful OpenAPI descriptions from Excel documentation, including descriptions for datatype fields, method arguments, and spreadsheet result structures.
 * Added the ability to inject the current ProjectDescriptor into service method handlers.
 * Migrated Rule Services to Jakarta EE 10 with updated Spring Framework 6.2 and Spring Boot 3.4.
 
