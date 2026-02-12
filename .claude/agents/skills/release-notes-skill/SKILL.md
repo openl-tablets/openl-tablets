@@ -294,7 +294,7 @@ the ACL feature.
 ## Common Components
 
 Group features by these common components:
-- **WebStudio** (or **OpenL WebStudio** for emphasis)
+- **OpenL Studio**
 - **Rule Services**
 - **Core**
 - **OpenL Studio, Rule Services** (when both are affected)
