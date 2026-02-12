@@ -29,6 +29,7 @@ import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.projects.converter.Base64ProjectConverter;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.security.CommitInfoRequired;
 
 @RestController
 @RequestMapping(value = "/deployments", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,6 +63,7 @@ public class DeploymentsController {
     @Operation(summary = "Deploy Project", description = "Deploys a project to the specified deployment.")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CommitInfoRequired
     public void deploy(@RequestBody DeployProjectModel deployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.builder()
                 .repository(deployProject.productionRepositoryId)
@@ -74,6 +76,7 @@ public class DeploymentsController {
     @Operation(summary = "Redeploy Project", description = "Redeploys a project to an existing deployment.")
     @PostMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CommitInfoRequired
     public void redeploy(@PathVariable("id") String id, @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = ProjectIdModel.decode(id);
         var projectToDeploy = projectConverter.convert(redeployProject.projectId.encode());
