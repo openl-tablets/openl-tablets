@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Modal, Form, Button, Space, notification, Spin } from 'antd'
 import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
-import { useGlobalEvents } from '../hooks'
-import { Select, TextArea } from '../components/form'
-import { apiCall } from '../services'
-import { Repository } from '../types/repositories'
 import { useTranslation } from 'react-i18next'
-import { WIDTH_OF_FORM_LABEL_MODAL } from '../constants'
+import { useGlobalEvents } from 'hooks'
+import { Select, TextArea } from 'components/form'
+import { apiCall, ForbiddenError } from 'services'
+import { Repository } from 'types/repositories'
+import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
 
 interface DeployModalDetail {
     branch: string
@@ -44,8 +44,30 @@ export const DeployModal: React.FC = () => {
     }
 
     const fetchDeploymentNames = async () => {
-        const response: Array<{id: string, name: string}> = await apiCall(`/deployments?repository=${selectedRepository}`)
-        setDeploymentNames(response)
+        try {
+            const response: Array<{id: string, name: string}> = await apiCall(
+                `/deployments?repository=${encodeURIComponent(selectedRepository)}`,
+                undefined,
+                { throwError: true, suppressErrorPages: true }
+            )
+            setDeploymentNames(response)
+            form.setFields([{ name: 'repository', errors: [] }])
+        } catch (error) {
+            if (error instanceof ForbiddenError) {
+                setDeploymentNames([])
+                form.setFields([{
+                    name: 'repository',
+                    errors: [t('deploy:notifications.no_deploy_rights_short')],
+                }])
+            } else {
+                setDeploymentNames([])
+                notification.error({
+                    message: t('deploy:notifications.deploy_failed'),
+                    description: error instanceof Error ? error.message : t('deploy:notifications.deploy_failed_description'),
+                    placement: 'topRight',
+                })
+            }
+        }
     }
 
     useEffect(() => {
@@ -93,6 +115,8 @@ export const DeployModal: React.FC = () => {
             
             setIsDeploying(true)
             
+            const deployOptions = { throwError: true, suppressErrorPages: true }
+            let didDeploy = false
             if (isNewDeployment) {
                 // Create new deployment
                 await apiCall('/deployments', {
@@ -106,12 +130,13 @@ export const DeployModal: React.FC = () => {
                         productionRepositoryId: repository,
                         projectId,
                     }),
-                })
+                }, deployOptions)
                 notification.success({
                     message: t('deploy:notifications.deploy_configuration_added'),
                     description: t('deploy:notifications.deploy_configuration_added_description'),
                     placement: 'topRight',
                 })
+                didDeploy = true
             } else {
                 // Deploy to existing deployment
                 const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
@@ -125,23 +150,48 @@ export const DeployModal: React.FC = () => {
                             comment,
                             projectId,
                         }),
-                    })
+                    }, deployOptions)
                     notification.success({
                         message: t('deploy:notifications.deploy_configuration_added'),
                         description: t('deploy:notifications.deploy_configuration_added_description'),
                         placement: 'topRight',
                     })
+                    didDeploy = true
+                } else {
+                    notification.error({
+                        message: t('deploy:notifications.deploy_failed'),
+                        description: t('deploy:notifications.deploy_failed_description'),
+                        placement: 'topRight',
+                    })
                 }
             }
-            
-            handleClose()
+
+            if (didDeploy) {
+                handleClose()
+            }
         } catch (info) {
+            // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
+            if (info && typeof info === 'object' && Array.isArray((info as { errorFields?: unknown }).errorFields)) {
+                return
+            }
             console.error('Validate Failed:', info)
-            notification.error({
-                message: t('deploy:notifications.deploy_failed'),
-                description: t('deploy:notifications.deploy_failed_description'),
-                placement: 'topRight',
-            })
+            if (info instanceof ForbiddenError) {
+                form.setFields([{
+                    name: 'repository',
+                    errors: [t('deploy:notifications.no_deploy_rights_short')],
+                }])
+                notification.warning({
+                    message: t('deploy:notifications.deploy_failed'),
+                    description: t('deploy:notifications.no_deploy_rights'),
+                    placement: 'topRight',
+                })
+            } else {
+                notification.error({
+                    message: t('deploy:notifications.deploy_failed'),
+                    description: t('deploy:notifications.deploy_failed_description'),
+                    placement: 'topRight',
+                })
+            }
         } finally {
             setIsDeploying(false)
         }
@@ -211,21 +261,24 @@ export const DeployModal: React.FC = () => {
             }
         >
             <Spin spinning={isDeploying} tip={t('deploy:messages.deploying_configuration')}>
-                <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
+                <Space direction="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
                     <Form 
                         labelWrap
                         form={form}
                         labelAlign="right"
                         labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                         name="deploy_form"
+                        style={{ minWidth: 0 }}
                         wrapperCol={{ flex: 1 }}
                     >
                         <Select
                             required
+                            formItemStyle={{ minWidth: 0 }}
                             label={t('deploy:repository.label')}
                             name="repository"
                             options={deploymentRepositoriesOptions}
                             placeholder={t('deploy:repository.placeholder')}
+                            style={{ width: '100%' }}
                             suffixIcon={<BranchesOutlined />}
                         />
                         <Select
