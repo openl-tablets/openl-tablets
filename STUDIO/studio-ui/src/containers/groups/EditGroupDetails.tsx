@@ -17,7 +17,7 @@ export const EditGroupDetails: React.FC = () => {
     const form = Form.useFormInstance<FormValues>()
 
     const fetchExternalGroups = async () => {
-        const response: string[] = await apiCall(`/admin/management/groups/external?search=${searchString}`)
+        const response: string[] = await apiCall(`/admin/management/groups/external?search=${encodeURIComponent(searchString)}`)
         setExternalGroups(response)
     }
 
