@@ -10,10 +10,10 @@ Each version has its own folder containing the release notes and associated asse
 release-notes/
 ├── README.md                    # This file
 ├── v6.0.0/
-│   ├── RELEASE_NOTES.md         # Release notes for 6.0.0
+│   ├── index.md                 # Release notes for 6.0.0
 │   └── images/                  # Screenshots and diagrams for 6.0.0
 ├── v6.1.0/
-│   ├── RELEASE_NOTES.md
+│   ├── index.md
 │   └── images/
 └── ...
 ```
@@ -29,12 +29,12 @@ Each version folder contains:
 
 | File/Folder | Purpose |
 |-------------|---------|
-| `RELEASE_NOTES.md` | Main release notes document |
+| `index.md` | Main release notes document |
 | `images/` | Screenshots, diagrams, and other visual assets |
 
 ## Template
 
-Each `RELEASE_NOTES.md` should include:
+Each `index.md` should include:
 
 1. **Version** - The version number in the title
 2. **Release Date** - When the version was released
@@ -65,7 +65,7 @@ Image naming conventions:
 When adding release notes for a new version:
 
 1. Create a new folder: `v{version}/`
-2. Copy the template from an existing version or create `RELEASE_NOTES.md`
+2. Copy the template from an existing version or create `index.md`
 3. Create the `images/` subfolder
 4. Add content following the template structure
 5. Include links to relevant issues/PRs where applicable
