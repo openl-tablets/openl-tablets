@@ -9,10 +9,10 @@ Each version has its own folder containing the release notes and associated asse
 ```
 release-notes/
 ├── README.md                    # This file
-├── v6.0.0/
+├── 6.0.0/
 │   ├── index.md                 # Release notes for 6.0.0
 │   └── images/                  # Screenshots and diagrams for 6.0.0
-├── v6.1.0/
+├── 6.1.0/
 │   ├── index.md
 │   └── images/
 └── ...
@@ -20,8 +20,8 @@ release-notes/
 
 ## Folder Naming Convention
 
-- `v{major}.{minor}.{patch}/` - One folder per release version
-- Examples: `v6.0.0/`, `v6.1.0/`, `v5.27.0/`
+- `{major}.{minor}.{patch}/` - One folder per release version
+- Examples: `6.0.0/`, `6.1.0/`, `5.27.0/`
 
 ## Folder Contents
 
@@ -64,7 +64,7 @@ Image naming conventions:
 
 When adding release notes for a new version:
 
-1. Create a new folder: `v{version}/`
+1. Create a new folder: `{version}/`
 2. Copy the template from an existing version or create `index.md`
 3. Create the `images/` subfolder
 4. Add content following the template structure
