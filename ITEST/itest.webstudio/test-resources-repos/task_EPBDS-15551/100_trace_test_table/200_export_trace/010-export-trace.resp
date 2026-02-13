@@ -12,7 +12,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 		    at Bank%20Rating&openl=
 			TRACE: SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData
 			    at Bank%20Rating&openl=
-				TRACE: $Formula$TotalAssets = 754299
+				TRACE: $TotalAssets = 754299
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 754299
 					    at Bank%20Rating&openl=
@@ -22,7 +22,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsOnDemand = 74502
+				TRACE: $ClaimsOnDemand = 74502
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 74502
 					    at Bank%20Rating&openl=
@@ -32,7 +32,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsUpTo3Months = 179938
+				TRACE: $ClaimsUpTo3Months = 179938
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 179938
 					    at Bank%20Rating&openl=
@@ -42,7 +42,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsOnCustomers = 336872
+				TRACE: $ClaimsOnCustomers = 336872
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 336872
 					    at Bank%20Rating&openl=
@@ -52,7 +52,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Capital = 40857
+				TRACE: $Capital = 40857
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 40857
 					    at Bank%20Rating&openl=
@@ -62,7 +62,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Liabilities = 725641
+				TRACE: $Liabilities = 725641
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 725641
 					    at Bank%20Rating&openl=
@@ -72,7 +72,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$LiabilitiesToCustomers = 262827
+				TRACE: $LiabilitiesToCustomers = 262827
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 262827
 					    at Bank%20Rating&openl=
@@ -82,7 +82,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$LiabilitiesOnDemand = 193986
+				TRACE: $LiabilitiesOnDemand = 193986
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 193986
 					    at Bank%20Rating&openl=
@@ -92,7 +92,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ConsolidatedProfit = 1489
+				TRACE: $ConsolidatedProfit = 1489
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 1489
 					    at Bank%20Rating&openl=
@@ -102,31 +102,31 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Return = FinancialData
+				TRACE: $Return = FinancialData
 				    at Bank%20Rating&openl=
-					TRACE: $Formula$TotalAssets = 754299
+					TRACE: $TotalAssets = 754299
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsOnDemand = 74502
+					TRACE: $ClaimsOnDemand = 74502
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsUpTo3Months = 179938
+					TRACE: $ClaimsUpTo3Months = 179938
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsOnCustomers = 336872
+					TRACE: $ClaimsOnCustomers = 336872
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$Capital = 40857
+					TRACE: $Capital = 40857
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$Liabilities = 725641
+					TRACE: $Liabilities = 725641
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$LiabilitiesToCustomers = 262827
+					TRACE: $LiabilitiesToCustomers = 262827
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$LiabilitiesOnDemand = 193986
+					TRACE: $LiabilitiesOnDemand = 193986
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ConsolidatedProfit = 1489
+					TRACE: $ConsolidatedProfit = 1489
 					    at Bank%20Rating&openl=
 		TRACE: $Value$CheckPreviousPeriodFinancialData = FinancialData
 		    at Bank%20Rating&openl=
 			TRACE: SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData
 			    at Bank%20Rating&openl=
-				TRACE: $Formula$TotalAssets = 0.0001
+				TRACE: $TotalAssets = 0.0001
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 0.0001
 					    at Bank%20Rating&openl=
@@ -136,7 +136,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R1, R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsOnDemand = 69940
+				TRACE: $ClaimsOnDemand = 69940
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 69940
 					    at Bank%20Rating&openl=
@@ -146,7 +146,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsUpTo3Months = 176674
+				TRACE: $ClaimsUpTo3Months = 176674
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 176674
 					    at Bank%20Rating&openl=
@@ -156,7 +156,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ClaimsOnCustomers = 0.0001
+				TRACE: $ClaimsOnCustomers = 0.0001
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 0.0001
 					    at Bank%20Rating&openl=
@@ -166,7 +166,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Capital = 41437
+				TRACE: $Capital = 41437
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 41437
 					    at Bank%20Rating&openl=
@@ -176,7 +176,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Liabilities = 817527
+				TRACE: $Liabilities = 817527
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 817527
 					    at Bank%20Rating&openl=
@@ -186,7 +186,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$LiabilitiesToCustomers = 264618
+				TRACE: $LiabilitiesToCustomers = 264618
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 264618
 					    at Bank%20Rating&openl=
@@ -196,7 +196,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$LiabilitiesOnDemand = 179283
+				TRACE: $LiabilitiesOnDemand = 179283
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = 179283
 					    at Bank%20Rating&openl=
@@ -206,7 +206,7 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$ConsolidatedProfit = -4633
+				TRACE: $ConsolidatedProfit = -4633
 				    at Bank%20Rating&openl=
 					TRACE: DT Double NonZeroValues(Double value) = -4633
 					    at Bank%20Rating&openl=
@@ -216,25 +216,25 @@ TRACE: Overloaded method choice for method BankRatingCalculation(Bank bank)
 						    at Bank%20Rating&openl=
 						TRACE: Returned rule: [R2]
 						    at Bank%20Rating&openl=
-				TRACE: $Formula$Return = FinancialData
+				TRACE: $Return = FinancialData
 				    at Bank%20Rating&openl=
-					TRACE: $Formula$TotalAssets = 0.0001
+					TRACE: $TotalAssets = 0.0001
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsOnDemand = 69940
+					TRACE: $ClaimsOnDemand = 69940
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsUpTo3Months = 176674
+					TRACE: $ClaimsUpTo3Months = 176674
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ClaimsOnCustomers = 0.0001
+					TRACE: $ClaimsOnCustomers = 0.0001
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$Capital = 41437
+					TRACE: $Capital = 41437
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$Liabilities = 817527
+					TRACE: $Liabilities = 817527
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$LiabilitiesToCustomers = 264618
+					TRACE: $LiabilitiesToCustomers = 264618
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$LiabilitiesOnDemand = 179283
+					TRACE: $LiabilitiesOnDemand = 179283
 					    at Bank%20Rating&openl=
-					TRACE: $Formula$ConsolidatedProfit = -4633
+					TRACE: $ConsolidatedProfit = -4633
 					    at Bank%20Rating&openl=
 		TRACE: $Value$BalanceQualityIndexCalculation = SpreadsheetResultBalanceQualityIndexCalculation
 		    at Bank%20Rating&openl=
@@ -743,4 +743,3 @@ L = Kl x Lmax
 		    at Bank%20Rating&openl=
 			TRACE: $Value$LimitIndex = 1
 			    at Bank%20Rating&openl=
-
