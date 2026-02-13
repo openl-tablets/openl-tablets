@@ -284,6 +284,8 @@
             return query;
         }
 
+        var $jq = jQuery.noConflict();
+
         $j('#testPanel').off('refresh').on('refresh', function (e, state) {
             return $jq.ajax({
                 url: "#{contextPath}/web/compile/tests",
