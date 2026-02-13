@@ -359,7 +359,7 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                     <!-- WARNING: Do not update to a higher version. For some unknown reason, dependencies that were
                     copied during the `prepare-package` phase are being removed during the `war` packaging process. -->
-                    <version>3.0.2</version>
+                    <version>3.10.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
