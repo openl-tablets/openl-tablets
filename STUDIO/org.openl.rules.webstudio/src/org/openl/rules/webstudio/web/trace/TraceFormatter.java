@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -165,9 +166,14 @@ public class TraceFormatter {
     private static String getDisplayName(SpreadsheetTracerLeaf stl, boolean smartNumbers) {
         StringBuilder buf = new StringBuilder(64);
         Spreadsheet spreadsheet = (Spreadsheet) stl.getTraceObject();
-        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         SpreadsheetCell spreadsheetCell = stl.getSpreadsheetCell();
-        buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        var colsCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
+                .filter(Objects::nonNull)
+                .count();
+        if (colsCount > 1) {
+            buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+            buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        }
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 

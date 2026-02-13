@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 5,
+    "title": "SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData",
+    "tooltip": "SpreadSheet FinancialData SetNonZeroValues(FinancialData financialData) = FinancialData",
+    "type": "spreadsheet",
+    "lazy": true,
+    "extraClasses": "spreadsheet",
+    "error": false
+  }
+]

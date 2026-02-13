@@ -1,0 +1,95 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 64,
+    "title": "$TotalAssets = 754299",
+    "tooltip": "$TotalAssets = 754299",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 66,
+    "title": "$ClaimsOnDemand = 74502",
+    "tooltip": "$ClaimsOnDemand = 74502",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 68,
+    "title": "$ClaimsUpTo3Months = 179938",
+    "tooltip": "$ClaimsUpTo3Months = 179938",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 70,
+    "title": "$ClaimsOnCustomers = 336872",
+    "tooltip": "$ClaimsOnCustomers = 336872",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 72,
+    "title": "$Capital = 40857",
+    "tooltip": "$Capital = 40857",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 74,
+    "title": "$Liabilities = 725641",
+    "tooltip": "$Liabilities = 725641",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 76,
+    "title": "$LiabilitiesToCustomers = 262827",
+    "tooltip": "$LiabilitiesToCustomers = 262827",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 78,
+    "title": "$LiabilitiesOnDemand = 193986",
+    "tooltip": "$LiabilitiesOnDemand = 193986",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 80,
+    "title": "$ConsolidatedProfit = 1489",
+    "tooltip": "$ConsolidatedProfit = 1489",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  },
+  {
+    "key": 82,
+    "title": "$Return = FinancialData",
+    "tooltip": "$Return = FinancialData",
+    "type": "spreadsheetCell",
+    "lazy": true,
+    "extraClasses": "spreadsheetCell",
+    "error": false
+  }
+]
