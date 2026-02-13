@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
-import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
-import com.github.victools.jsonschema.generator.SchemaVersion;
-import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -30,16 +26,9 @@ public class TestsExecutionSummaryResponseMapper {
     private final ObjectMapper objectMapper;
     private final SchemaGenerator schemaGenerator;
 
-    public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper) {
+    public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper, SchemaGenerator schemaGenerator) {
         this.objectMapper = objectMapper;
-        this.schemaGenerator = initSchemaGenerator(this.objectMapper);
-    }
-
-    private SchemaGenerator initSchemaGenerator(ObjectMapper objectMapper) {
-        var schemaGeneratorConfig = new SchemaGeneratorConfigBuilder(objectMapper, SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
-                .with(new Swagger2Module())
-                .build();
-        return new SchemaGenerator(schemaGeneratorConfig);
+        this.schemaGenerator = schemaGenerator;
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {

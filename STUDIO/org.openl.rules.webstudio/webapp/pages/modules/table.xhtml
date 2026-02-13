@@ -216,7 +216,6 @@
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
 
     <div id="unitsMenu" style="display: none; min-width: 300px">
-        <c:set var="traceUrl" value="#{contextPath}/faces/pages/modules/traceView.xhtml" />
         <h:form prependId="false">
             <h:panelGroup id="runModuleOnlySetting" layout="block">
                 <div style="margin: 10px 15px 0; white-space:nowrap;" title="Within Current Module Only">
@@ -323,18 +322,16 @@
                                    onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
                                    value="Test into File" title="Test into File"
                                    styleClass="hidden on-errors-hide b-test"/>
-                <a4j:commandButton id="traceButton"
+                <h:commandButton id="traceButton"
                                    rendered="#{tableBean.canRun}"
                                    value="Trace" title="Trace"
-                                   styleClass="hidden on-errors-hide b-trace changes-listener"
-                                   action="#{runTestHelper.initTrace}"
-                                   oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                   onclick="return isAnyTestSelected(); "/>
-                <!-- Don't use a4j:commandButton for file download -->
-                <h:commandButton id="traceIntoFileButton" action="#{traceIntoFileBean.traceIntoFile}"
+                                   styleClass="hidden on-errors-hide b-trace"
+                                   onclick="if (isAnyTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); } return false;"/>
+                <h:commandButton id="traceIntoFileButton"
                                  rendered="#{tableBean.canRun}"
-                                 value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
-                                 styleClass="hidden on-errors-hide b-trace"/>
+                                 value="Trace into File" title="Trace into File"
+                                 styleClass="hidden on-errors-hide b-trace"
+                                 onclick="if (isAnyTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', true); } return false;"/>
                 <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
@@ -490,7 +487,6 @@
                     <td>
                         <h:form id="inputArgsForm" onsubmit="return checkInput()">
                             <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
-                            <c:set var="traceUrl" value="#{contextPath}/faces/pages/modules/traceView.xhtml" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
@@ -561,16 +557,19 @@
                                             value="Run into File" title="Run into File" onclick="moduleOnlyInputArgs()"
                                             action="#{runTestHelper.catchParamsToDownload}"
                                             oncomplete="downloadManualTest();"/>
-                                        <a4j:commandButton id="traceButton" style="display: none"
-                                            styleClass="changes-listener manual-trace"
-                                            action="#{runTestHelper.initTrace}" onclick="moduleOnlyInputArgs()"
-                                            oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                            value="Trace" title="Launch the table and trace steps"/>
+                                        <h:commandButton id="traceButton" style="display: none"
+                                            styleClass="manual-trace"
+                                            value="Trace" title="Launch the table and trace steps"
+                                            onclick="prepareAndTraceExecutableTable('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', #{studio.showRealNumbers}); return false;"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
-                                            onclick="moduleOnlyInputArgs()" action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
-                                            title="Trace into File" />
+                                            value="Trace into File" title="Trace into File"
+                                            onclick="prepareAndTraceExecutableTable('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', #{studio.showRealNumbers}, true); return false;"/>
                                     </div>
                                 </div>
+                                <a4j:jsFunction name="fetchParamsForTrace"
+                                    execute="@form"
+                                    data="#{inputArgsBean.paramsAsJson}"
+                                    oncomplete="onParamsFetched(event.data)" />
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
                                 <a4j:commandLink styleClass="toolbarButton on-errors-hide" title="Run"
@@ -580,14 +579,15 @@
                                     <div>Run</div>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{runTestHelper.initTrace}"
-                                                 styleClass="toolbarButton on-errors-hide changes-listener"
-                                                 rendered="#{tableBean.canRun}"
-                                                 oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
-                                    <img src="#{contextPath}/webresource/images/trace.gif" />
-                                    <div>Trace</div>
-                                    <a4j:param name="id" value="#{tableBean.id}"/>
-                                </a4j:commandLink>
+                                <c:if test="#{tableBean.canRun}">
+                                    <a href="javascript:void(0)"
+                                       class="toolbarButton on-errors-hide"
+                                       onclick="traceNoParamsMethod('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); return false;"
+                                       title="Trace">
+                                        <img src="#{contextPath}/webresource/images/trace.gif" />
+                                        <div>Trace</div>
+                                    </a>
+                                </c:if>
                             </c:if>
                             <input type="hidden" name="id" value="#{tableBean.id}" />
                             <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyInputArgs"/>
@@ -872,6 +872,178 @@
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700, top=20, left=100")
         }
 
+        /**
+         * Initiate trace via React modal.
+         * Used for test tables only.
+         * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
+         */
+        function startTestTableTrace(repositoryId, projectName, tableId, moduleName, downloadMode) {
+            var testRanges = getTestRangesParam();
+            var moduleOnlyCheckbox = document.getElementById('runTestModuleOnly');
+            var tempProjectId = btoa(repositoryId + ':' + projectName);
+
+            // Fetch real project ID from backend
+            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
+                .done(function(project) {
+                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
+                        detail: {
+                            projectId: project.id,
+                            tableId: tableId,
+                            moduleName: moduleName,
+                            showRealNumbers: #{studio.showRealNumbers},
+                            testRanges: testRanges || undefined,
+                            fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? moduleName : undefined,
+                            downloadMode: downloadMode || false
+                        }
+                    }));
+                })
+                .fail(function(xhr, status, error) {
+                    ws.ui.error('Failed to get project: ' + error);
+                });
+        }
+
+        /**
+         * Trace executable method without parameters.
+         * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
+         */
+        function traceNoParamsMethod(repositoryId, projectName, tableId, moduleName) {
+            var tempProjectId = btoa(repositoryId + ':' + projectName);
+
+            // Fetch real project ID from backend
+            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
+                .done(function(project) {
+                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
+                        detail: {
+                            projectId: project.id,
+                            tableId: tableId,
+                            moduleName: moduleName,
+                            showRealNumbers: #{studio.showRealNumbers},
+                            inputJson: '{}',
+                            downloadMode: false
+                        }
+                    }));
+                })
+                .fail(function(xhr, status, error) {
+                    ws.ui.error('Failed to get project: ' + error);
+                });
+        }
+
+        // Store trace params for callback (executable tables)
+        // Guarded by requestToken to prevent concurrent calls from clobbering context
+        var _executableTraceContext = null;
+
+        /**
+         * Prepare and initiate trace for executable tables.
+         * Checks input mode and either fetches formatted params (Tree Form)
+         * or passes raw JSON directly (JSON mode).
+         *
+         * Concurrency guard: blocks new requests while one is pending to prevent
+         * context from being overwritten by concurrent calls.
+         */
+        function prepareAndTraceExecutableTable(repositoryId, projectName, tableId, moduleName, showRealNumbers, downloadMode) {
+            // Concurrency guard: block if another trace request is already pending
+            if (_executableTraceContext !== null) {
+                ws.ui.error('Trace operation already in progress. Please wait for it to complete.');
+                return;
+            }
+
+            // Generate unique request token to detect stale callbacks
+            var requestToken = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+            // Store context for the callback with token for validation
+            _executableTraceContext = {
+                requestToken: requestToken,
+                repositoryId: repositoryId,
+                projectName: projectName,
+                tableId: tableId,
+                moduleName: moduleName,
+                showRealNumbers: showRealNumbers,
+                downloadMode: downloadMode || false
+            };
+
+            // Check input mode - find the selected radio button
+            var inputTypeRadios = document.querySelectorAll('input[name$="inputTestCaseType"]');
+            var isJsonMode = false;
+            for (var i = 0; i < inputTypeRadios.length; i++) {
+                if (inputTypeRadios[i].checked && inputTypeRadios[i].value === 'TEXT') {
+                    isJsonMode = true;
+                    break;
+                }
+            }
+
+            if (isJsonMode) {
+                // JSON mode - get raw JSON from textarea, validate, and call API
+                var jsonTextarea = document.querySelector('textarea[id$="jsonInput"]');
+                var rawJson = jsonTextarea ? jsonTextarea.value : '{}';
+
+                // Validate JSON before proceeding (same pattern as checkInput())
+                if (rawJson && rawJson.length > 0) {
+                    try {
+                        JSON.parse(rawJson);
+                    } catch (e) {
+                        message(e.message, 4000, true);
+                        _executableTraceContext = null;
+                        return;
+                    }
+                }
+
+                onParamsFetched(rawJson);
+            } else {
+                // Tree Form mode - fetch formatted params from bean
+                fetchParamsForTrace();
+            }
+        }
+
+        /**
+         * Callback invoked by a4j:jsFunction oncomplete or directly with raw JSON.
+         * Receives JSON string and dispatches to React TraceExecutionModal.
+         */
+        function onParamsFetched(inputJson) {
+            dispatchTraceEvent(inputJson);
+        }
+
+        /**
+         * Dispatch trace execution event to React TraceExecutionModal.
+         * Fetches real project ID from backend first.
+         *
+         * Note: Context includes requestToken for debugging concurrent call issues.
+         * The blocking guard in prepareAndTraceExecutableTable prevents context
+         * from being overwritten, so stale callbacks should not occur.
+         */
+        function dispatchTraceEvent(inputJson) {
+            if (!_executableTraceContext) {
+                // Context was cleared (possibly by error handling) - this is a stale callback
+                console.warn('Trace callback received but context is null (stale or cleared)');
+                return;
+            }
+
+            // Capture context and clear immediately to allow new requests
+            var ctx = _executableTraceContext;
+            _executableTraceContext = null;
+
+            var moduleOnlyCheckbox = document.getElementById('runTestModuleOnlyInputArgs');
+            var tempProjectId = btoa(ctx.repositoryId + ':' + ctx.projectName);
+
+            // Fetch real project ID from backend
+            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
+                .done(function(project) {
+                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
+                        detail: {
+                            projectId: project.id,
+                            tableId: ctx.tableId,
+                            moduleName: ctx.moduleName,
+                            showRealNumbers: ctx.showRealNumbers,
+                            fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? ctx.moduleName : undefined,
+                            inputJson: inputJson,
+                            downloadMode: ctx.downloadMode || false
+                        }
+                    }));
+                })
+                .fail(function(xhr, status, error) {
+                    ws.ui.error('Failed to get project: ' + error);
+                });
+        }
+
         function showButtonMenu(event, popupId, buttonElem) {
             event.stopPropagation();
             var button = $j(event.target).parent(buttonElem);
@@ -960,11 +1132,6 @@
                     proceed();
                 }
             });
-        }
-
-        function onTraceAction() {
-            open_win('#{traceUrl}', 'trace_win');
-            ws.nav.reload();
         }
 
         function moduleOnlyInputArgs() {
@@ -1136,7 +1303,7 @@
             var currentOpenedModule = $j("#inputArgsMenu").find('input[type=checkbox]')[0].checked;
             ws.nav.go("#{studio.url('test/run')}?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule);
         }
-        
+
         function editTable() {
             getCurrentTable().toEditMode();
         }
@@ -1207,7 +1374,7 @@
                 });
             });
         });
-        
+
         function onInputTestCaseTypeChange() {
             var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[0].checked;
             if(beanSelected){

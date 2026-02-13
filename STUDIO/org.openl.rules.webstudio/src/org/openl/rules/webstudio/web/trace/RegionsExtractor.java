@@ -22,7 +22,7 @@ import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 
 public class RegionsExtractor {
-    static List<IGridRegion> getGridRegions(ITracerObject obj) {
+    public static List<IGridRegion> getGridRegions(ITracerObject obj) {
         if (obj instanceof DTRuleTraceObject) {
             return getiGridRegions((DTRuleTraceObject) obj);
         } else if (obj instanceof DTRuleTracerLeaf) {

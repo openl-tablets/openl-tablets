@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -37,7 +38,35 @@ import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 
 public class TraceFormatter {
-    static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
+
+    /**
+     * Returns a human-readable display name for the given {@link ITracerObject}.
+     * <p>
+     * The returned string varies based on the runtime type of {@code obj}:
+     * <ul>
+     *   <li>{@link WScoreTraceObject}: returns {@code "Score: "} followed by the result value</li>
+     *   <li>{@link ResultTraceObject}: returns {@code "Result: "} followed by the result value</li>
+     *   <li>{@link MatchTraceObject}: returns match operation details with check value and result</li>
+     *   <li>{@link TBasicOperationTraceObject}: returns step details including row, operation name, and local vars</li>
+     *   <li>{@link DTRuleTraceObject}: returns condition name and matching rule names</li>
+     *   <li>{@link SpreadsheetTracerLeaf}: returns cell reference (e.g., {@code $Column$Row}) with optional result</li>
+     *   <li>{@link OverloadedMethodChoiceTraceObject}: returns overloaded method choice description</li>
+     *   <li>{@link DTRuleTracerLeaf}: returns {@code "Returned rule: "} followed by rule names</li>
+     *   <li>{@link ATableTracerNode}: returns method signature with prefix and optional result</li>
+     *   <li>{@link RefToTracerNodeObject}: recursively resolves the original tracer node</li>
+     *   <li>Unknown types: returns {@code "NULL - "} followed by the object's class name</li>
+     * </ul>
+     * <p>
+     * When {@code smartNumbers} is {@code true}, numeric values are formatted using smart formatting
+     * (e.g., removing unnecessary trailing zeros). When {@code false}, numbers use the default
+     * number format. Arrays are formatted with curly braces and comma separators.
+     *
+     * @param obj          the {@link ITracerObject} instance to format; must not be {@code null}
+     * @param smartNumbers {@code true} to apply smart number formatting (cleaner display),
+     *                     {@code false} to use the default number format
+     * @return a non-null display string describing the tracer object
+     */
+    public static String getDisplayName(ITracerObject obj, boolean smartNumbers) {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {
@@ -137,9 +166,14 @@ public class TraceFormatter {
     private static String getDisplayName(SpreadsheetTracerLeaf stl, boolean smartNumbers) {
         StringBuilder buf = new StringBuilder(64);
         Spreadsheet spreadsheet = (Spreadsheet) stl.getTraceObject();
-        buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         SpreadsheetCell spreadsheetCell = stl.getSpreadsheetCell();
-        buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        var colsCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
+                .filter(Objects::nonNull)
+                .count();
+        if (colsCount > 1) {
+            buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+            buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);
+        }
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 

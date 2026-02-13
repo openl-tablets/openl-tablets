@@ -1,0 +1,101 @@
+.trace-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    overflow: auto;
+
+    &.trace-details-empty,
+    &.trace-details-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    // Errors card
+    .trace-errors-card {
+        .ant-card-head {
+            min-height: 36px;
+            padding: 0 12px;
+
+            .ant-card-head-title {
+                padding: 8px 0;
+                font-size: 13px;
+            }
+        }
+
+        .ant-card-body {
+            padding: 12px;
+        }
+    }
+
+    .trace-error-location {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #8c8c8c;
+        font-family: monospace;
+    }
+
+    // Table card
+    .trace-table-card {
+        .ant-card-head {
+            min-height: 36px;
+            padding: 0 12px;
+
+            .ant-card-head-title {
+                padding: 8px 0;
+                font-size: 13px;
+            }
+        }
+
+        .ant-card-body {
+            padding: 12px;
+        }
+
+        .trace-table-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .trace-table-content {
+            overflow: auto;
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+
+                td,
+                th {
+                    border: 1px solid #d9d9d9;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                }
+
+                th {
+                    background: #fafafa;
+                    font-weight: 500;
+                }
+
+                // Traced cell highlighting
+                .trace-highlighted {
+                    background: #fffbe6;
+                }
+
+                .trace-result {
+                    background: #f6ffed;
+                    font-weight: 600;
+                }
+
+                .trace-condition-true {
+                    background: #e6f7ff;
+                }
+
+                .trace-condition-false {
+                    background: #fff1f0;
+                }
+            }
+        }
+    }
+}

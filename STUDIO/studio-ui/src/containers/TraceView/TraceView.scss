@@ -1,0 +1,86 @@
+#trace-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    background: #fff;
+
+    &.resizing {
+        cursor: ew-resize;
+        user-select: none;
+
+        .trace-left-panel,
+        .trace-right-panel {
+            pointer-events: none;
+        }
+    }
+
+    .trace-left-panel {
+        min-width: 200px;
+        max-width: 70%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #e8e8e8;
+    }
+
+    .trace-resizer {
+        width: 5px;
+        cursor: ew-resize;
+        background: #f0f0f0;
+        flex-shrink: 0;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #d9d9d9;
+        }
+    }
+
+    .trace-right-panel {
+        min-width: 200px;
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .trace-error-banner {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        max-width: 80%;
+    }
+
+    &.trace-view-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+// Progress overlay
+.trace-progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+    .trace-progress-content {
+        text-align: center;
+
+        .ant-result {
+            padding: 24px;
+        }
+    }
+}

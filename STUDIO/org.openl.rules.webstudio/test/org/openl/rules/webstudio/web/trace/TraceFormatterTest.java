@@ -11,10 +11,10 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 
-public class TraceFormatterTest {
+class TraceFormatterTest {
 
     @Test
-    public void getDisplayNameTest() {
+    void getDisplayNameTest() {
         Spreadsheet spreadsheet = createNodeMock();
         SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory
                 .getTracedObject(spreadsheet, null, null, null, null);
@@ -53,7 +53,23 @@ public class TraceFormatterTest {
         assertEquals("$Value$Vehicle_Premiums = {{0.00001,0.3},{0.3,0.00001}}", TraceFormatter.getDisplayName(leafNode, true));
     }
 
-    protected SpreadsheetCell createCellMock() {
+    @Test
+    void getDisplayNameTestSingleCell() {
+        Spreadsheet spreadsheet = mock(Spreadsheet.class);
+        when(spreadsheet.getColumnNames()).thenReturn(new String[]{"Value"});
+        when(spreadsheet.getRowNames()).thenReturn(new String[]{"Vehicle_Premiums"});
+        when(spreadsheet.getColumnNamesForResultModel()).thenReturn(new String[]{"Value"});
+        SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory
+                .getTracedObject(spreadsheet, null, null, null, null);
+        SpreadsheetCell cell = createCellMock();
+        SimpleTracerObject leafNode = TracedObjectFactory.getTracedObject(null, cell, null, null, null);
+        spreadsheetTraceObject.addChild(leafNode);
+
+        leafNode.setResult(null);
+        assertEquals("$Vehicle_Premiums = null", TraceFormatter.getDisplayName(leafNode, false));
+    }
+
+        protected SpreadsheetCell createCellMock() {
         SpreadsheetCell cell = mock(SpreadsheetCell.class);
         when(cell.getColumnIndex()).thenReturn(0);
         when(cell.getRowIndex()).thenReturn(0);
@@ -62,8 +78,9 @@ public class TraceFormatterTest {
 
     protected Spreadsheet createNodeMock() {
         Spreadsheet spreadsheet = mock(Spreadsheet.class);
-        when(spreadsheet.getColumnNames()).thenReturn(new String[]{"Value"});
+        when(spreadsheet.getColumnNames()).thenReturn(new String[]{"Value", "Description"});
         when(spreadsheet.getRowNames()).thenReturn(new String[]{"Vehicle_Premiums"});
+        when(spreadsheet.getColumnNamesForResultModel()).thenReturn(new String[]{"Value", "Description"});
         return spreadsheet;
     }
 

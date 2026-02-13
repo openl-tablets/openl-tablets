@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 1,
+    "title": "Overloaded method choice for method BankRatingCalculation(Bank bank)",
+    "tooltip": "Overloaded method choice for method BankRatingCalculation(Bank bank)",
+    "type": "overloadedMethodChoice",
+    "lazy": true,
+    "extraClasses": "overloadedMethodChoice",
+    "error": false
+  }
+]
