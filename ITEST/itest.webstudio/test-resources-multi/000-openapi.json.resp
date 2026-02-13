@@ -4,6 +4,179 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "TraceNodeView_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/TraceParameterValue_Full"
+          },
+          "error": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "errors": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription_Full"
+            }
+          },
+          "extraClasses": {
+            "type": "string",
+            "description": "***"
+          },
+          "key": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TraceParameterValue_Full"
+            }
+          },
+          "result": {
+            "$ref": "#/components/schemas/TraceParameterValue_Full"
+          },
+          "title": {
+            "type": "string",
+            "description": "***"
+          },
+          "tooltip": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TraceParameterValue_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameterId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "schema": {
+            "type": "object",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
+      "MessageDescription_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
+      "TraceNodeView_Short": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "extraClasses": {
+            "type": "string",
+            "description": "***"
+          },
+          "key": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "title": {
+            "type": "string",
+            "description": "***"
+          },
+          "tooltip": {
+            "type": "string",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TraceParameterValue": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameterId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "schema": {
+            "type": "object",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
       "ProjectBranchInfo": {
         "type": "object",
         "properties": {
@@ -2299,27 +2472,6 @@ Content-Type: application/json
         ],
         "type": "object"
       },
-      "TraceNode": {
-        "properties": {
-          "extraClasses": {
-            "type": "string"
-          },
-          "key": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "lazy": {
-            "type": "boolean"
-          },
-          "title": {
-            "type": "string"
-          },
-          "tooltip": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "NumberOfMembers" : {
         "type" : "object",
         "properties" : {
@@ -4188,6 +4340,772 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/projects/{projectId}/trace/nodes": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "showRealNumbers",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TraceNodeView_Short"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "204": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "testRanges",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "***"
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/export": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "showRealNumbers",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "release",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "***",
+            "headers": {
+              "Content-Disposition": {
+                "description": "***",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/nodes/{nodeId}/table": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "nodeId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "showFormulas",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/parameters/{parameterId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "parameterId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceParameterValue"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/trace/nodes/{nodeId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "nodeId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "showRealNumbers",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceNodeView_Full"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Trace (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/merge": {
       "post": {
         "description": "*",
@@ -13817,109 +14735,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/trace/nodes": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "query",
-            "name": "id",
-            "schema": {
-              "format": "int32",
-              "type": "integer"
-            }
-          }, {
-            "description": "***",
-            "in": "query",
-            "name": "showRealNumbers",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TraceNode"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Trace"
-        ]
-      }
-    },
     "/users": {
       "get": {
         "description": "***",
@@ -16115,19 +16930,19 @@ Content-Type: application/json
   ],
   "tags": [
     {
-      "description": "ACL Management Bulk API",
+      "description": "***",
       "name": "ACL Management"
     },
     {
-      "description": "ACL Management API for Projects",
+      "description": "***",
       "name": "ACL Management: Projects"
     },
     {
-      "description": "ACL Management API for Repositories",
+      "description": "***",
       "name": "ACL Management: Repositories"
     },
     {
-      "description": "ACL Management API for Roles",
+      "description": "***",
       "name": "ACL Management: Roles"
     },
     {
@@ -16137,7 +16952,7 @@ Content-Type: application/json
       "name": "Conflict"
     },
     {
-      "description": "Deployment management APIs",
+      "description": "***",
       "name": "Deployments"
     },
     {
@@ -16171,12 +16986,16 @@ Content-Type: application/json
       "name": "Project Tables"
     },
     {
-      "description": "Experimental projects API",
+      "description": "***",
       "name": "Projects (BETA)"
     },
     {
-      "description": "Experimental projects merge API",
+      "description": "***",
       "name": "Projects: Merge (BETA)"
+    },
+    {
+      "description": "***",
+      "name": "Projects: Trace (BETA)"
     },
     {
       "name": "Settings"
@@ -16204,9 +17023,6 @@ Content-Type: application/json
     },
     {
       "name": "Test"
-    },
-    {
-      "name": "Trace"
     },
     {
       "name": "Users"
