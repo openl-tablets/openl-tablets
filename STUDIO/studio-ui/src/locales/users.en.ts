@@ -17,7 +17,7 @@ i18next.addResourceBundle('en', 'users', {
     confirm_deletion: 'Confirm Deletion',
     first_last: 'First Last',
     last_first: 'Last First',
-    other: 'Other',
+    other: 'Custom',
     details: 'Details',
     access_management: 'Access Management',
     design_repositories: 'Design Repositories',

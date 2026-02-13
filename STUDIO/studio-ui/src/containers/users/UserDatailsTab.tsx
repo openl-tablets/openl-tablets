@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Divider, Form, Space, Button, notification, Row, Col } from 'antd'
+import { Divider, Form, Space, Button, notification, Row, Col, Input as AntInput } from 'antd'
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
@@ -89,6 +89,10 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
         ]
     ), [t])
 
+    const isResendVerificationButtonVisible: Boolean = useMemo(() => {
+        return !!(showResendVerification && userProfile && userProfile.externalFlags && !userProfile.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification)
+    }, [showResendVerification, userProfile, systemSettings])
+
     useEffect(() => {
         if (form.getFieldValue('displayNameSelect') === DisplayUserName.FirstLast) {
             form.setFieldsValue({
@@ -117,7 +121,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             <Form.Item
                 label={t('users:edit_modal.email')}
                 name="email"
-                style={displayPasswordField ? { marginBottom: 8 } : {}}
+                style={displayPasswordField ? { marginBottom: 24 } : {}}
                 rules={[{
                     type: 'email',
                     message: t('users:edit_modal.email_invalid')
@@ -126,15 +130,15 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     message: t('users:edit_modal.email_max_length')
                 }]}
             >
-                <Row align="top" gutter={8} style={{ width: '100%', height: 32 }}>
-                    <Col flex="auto">
-                        <Input
+                <Row align="top" className="profile-email-row" gutter={8} style={{ width: '100%', height: 32 }}>
+                    <Col className={`${isResendVerificationButtonVisible ? 'profile-email-input' : ''}`} flex="auto">
+                        <AntInput
                             disabled={externalFlags?.emailExternal}
                             name="email"
                             type="email"
                         />
                     </Col>
-                    {showResendVerification && userProfile && userProfile.externalFlags && !userProfile.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification && (
+                    {isResendVerificationButtonVisible && (
                         <Col>
                             <Button
                                 disabled={cooldownToUse > 0 || isFormDirty}
@@ -154,20 +158,15 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 </Row>
             </Form.Item>
             {displayPasswordField && !isExternalAuthSystem && (
-                <Form.Item
+                <InputPassword
+                    disabled={externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"
-                    style={{ marginBottom: 8 }}
                     rules={[{
                         required: isNewUser,
                         message: t('users:edit_modal.password_required')
                     }]}
-                >
-                    <InputPassword
-                        disabled={externalFlags?.emailExternal}
-                        name="password"
-                    />
-                </Form.Item>
+                />
             )}
             <Divider titlePlacement="start">{t('users:name')}</Divider>
             <Input

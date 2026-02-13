@@ -51,7 +51,7 @@ export const DeployModal: React.FC = () => {
                 { throwError: true, suppressErrorPages: true }
             )
             setDeploymentNames(response)
-            form.setFields([{ name: 'repository', errors: [] }])
+            form.setFields([{ name: 'repository', errors: []}])
         } catch (error) {
             if (error instanceof ForbiddenError) {
                 setDeploymentNames([])
@@ -109,12 +109,12 @@ export const DeployModal: React.FC = () => {
     const handleDeploy = async () => {
         try {
             const values = await form.validateFields()
-            
+
             const { repository, deploymentName, comment } = values
             const projectId = detail?.id
-            
+
             setIsDeploying(true)
-            
+
             const deployOptions = { throwError: true, suppressErrorPages: true }
             let didDeploy = false
             if (isNewDeployment) {
@@ -243,8 +243,8 @@ export const DeployModal: React.FC = () => {
                 <Button key="cancel" disabled={isDeploying} onClick={handleClose}>
                     {t('deploy:buttons.cancel')}
                 </Button>,
-                <Button 
-                    key="deploy" 
+                <Button
+                    key="deploy"
                     icon={isDeploying ? <LoadingOutlined /> : <RocketOutlined />}
                     loading={isDeploying}
                     onClick={handleDeploy}
@@ -262,7 +262,7 @@ export const DeployModal: React.FC = () => {
         >
             <Spin spinning={isDeploying} tip={t('deploy:messages.deploying_configuration')}>
                 <Space direction="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
-                    <Form 
+                    <Form
                         labelWrap
                         form={form}
                         labelAlign="right"
