@@ -6,7 +6,7 @@
   "homepage": "/",
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.2",
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.0",
     "i18next": "^25.8.6",
@@ -34,7 +34,7 @@
     "ajv": "^8.17.1",
     "babel-loader": "10.0.0",
     "css-loader": "^7.1.3",
-    "eslint": "^10.0.0",
+    "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.3.0",
     "husky": "^9.1.7",
