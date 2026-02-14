@@ -32,11 +32,17 @@ public final class ClassLoaderUtils {
 
     /**
      * Define and load a class from the bytecode.
+     *
+     * <p><b>Important:</b> This method may create a new OpenLClassLoader wrapper if the provided loader
+     * is not already an OpenLClassLoader. Callers must ensure proper cleanup of the classloader
+     * (via {@link OpenLClassLoader#close()}) to prevent memory leaks. The generated class bytecode
+     * will be stored in the OpenLClassLoader's internal cache until the classloader is closed.</p>
+     *
      * @param className the class name
      * @param bytes the byte code of the class
-     * @param loader OpenLClassLoader instance
+     * @param loader OpenLClassLoader instance or any ClassLoader (will be wrapped if needed)
      * @return initialized class
-     * @throws ClassNotFoundException
+     * @throws ClassNotFoundException if the class cannot be found or loaded
      */
     public static Class<?> defineClass(String className, byte[] bytes, ClassLoader loader) throws ClassNotFoundException {
         var openLClassLoader = loader instanceof OpenLClassLoader ? (OpenLClassLoader) loader : new OpenLClassLoader(loader);
