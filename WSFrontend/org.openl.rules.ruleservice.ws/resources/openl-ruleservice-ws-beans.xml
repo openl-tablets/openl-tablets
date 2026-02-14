@@ -36,10 +36,21 @@
     <bean class="org.openl.rules.ruleservice.admin.RulesDeployerRestController" id="deployer" lazy-init="true"/>
     <bean class="java.lang.Object" id="emptyEndPoint" lazy-init="true"/>
 
+    <bean id="adminServiceBeansBase" abstract="true">
+        <property name="sourceList">
+            <list>
+                <bean class="org.openl.rules.ruleservice.admin.AdminRestController"/>
+                <ref bean="#{ ${ruleservice.deployer.enabled} ? 'deployer' : 'emptyEndPoint'}"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="adminServiceBeans" parent="adminServiceBeansBase"
+          class="org.springframework.beans.factory.config.ListFactoryBean" />
+    
     <jaxrs:server address="/admin">
         <jaxrs:serviceBeans>
-            <bean class="org.openl.rules.ruleservice.admin.AdminRestController"/>
-            <ref bean="#{ ${ruleservice.deployer.enabled} ? 'deployer' : 'emptyEndPoint'}"/>
+            <ref bean="adminServiceBeans"/> 
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider"/>
