@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { usePasswordRules } from './hooks'
+import { getFieldValueProps } from './utils'
 import { RuleObject } from 'rc-field-form/lib/interface'
 import { useTranslation } from 'react-i18next'
 
@@ -64,7 +65,14 @@ const InputPassword: FC<InputProps> = ({
     }, [placeholder, isSecret, isDisabled])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
+        <Form.Item
+            label={label}
+            name={name}
+            rules={allRules}
+            style={formItemStyle}
+            getValueProps={(val) => getFieldValueProps(val, { clearSecret: true })}
+            {...rest}
+        >
             <AntdInput.Password autoComplete={autoComplete} disabled={isDisabled} placeholder={passwordPlaceholder} style={style} />
         </Form.Item>
     )

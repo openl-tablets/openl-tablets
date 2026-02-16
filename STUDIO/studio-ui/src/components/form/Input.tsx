@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { Input as AntdInput, Form, TooltipProps } from 'antd'
 import { useRules } from './hooks'
+import { getFieldValueProps } from './utils'
 import { RuleObject } from 'rc-field-form/lib/interface'
 
 type InputProps = {
@@ -53,7 +54,14 @@ const Input: FC<InputProps> = ({
     }, [value])
 
     return (
-        <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
+        <Form.Item
+            label={label}
+            name={name}
+            rules={allRules}
+            style={formItemStyle}
+            getValueProps={getFieldValueProps}
+            {...rest}
+        >
             <AntdInput autoComplete={autoComplete} disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
         </Form.Item>
     )
