@@ -120,23 +120,26 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             />
             <Form.Item
                 label={t('users:edit_modal.email')}
-                name="email"
                 style={displayPasswordField ? { marginBottom: 24 } : {}}
-                rules={[{
-                    type: 'email',
-                    message: t('users:edit_modal.email_invalid')
-                }, {
-                    max: 254,
-                    message: t('users:edit_modal.email_max_length')
-                }]}
             >
                 <Row align="top" className="profile-email-row" gutter={8} style={{ width: '100%', height: 32 }}>
                     <Col className={`${isResendVerificationButtonVisible ? 'profile-email-input' : ''}`} flex="auto">
-                        <AntInput
-                            disabled={externalFlags?.emailExternal}
+                        <Form.Item
                             name="email"
-                            type="email"
-                        />
+                            noStyle
+                            rules={[{
+                                type: 'email',
+                                message: t('users:edit_modal.email_invalid')
+                            }, {
+                                max: 254,
+                                message: t('users:edit_modal.email_max_length')
+                            }]}
+                        >
+                            <AntInput
+                                disabled={externalFlags?.emailExternal}
+                                type="email"
+                            />
+                        </Form.Item>
                     </Col>
                     {isResendVerificationButtonVisible && (
                         <Col>
