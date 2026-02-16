@@ -1,4 +1,21 @@
+---
+name: openl-release-notes
+description: Generate and manage OpenL Tablets release notes by collecting Jira tickets, categorizing features, and producing professional markdown documentation that matches the official OpenL website style. Handles version documentation, updates, and maintains consistency across releases.
+---
+
 # OpenL Release Notes Generator Skill
+
+## Template Location
+The release notes template is located at:
+- **Relative path:** `./templates/release-notes-template.md`
+- **Purpose:** Reference template for structure, examples, and writing guidelines
+
+When generating release notes, consult this template for:
+- Section structure and organization
+- Writing examples (Major/Medium/Small features)
+- Categorization criteria
+- Formatting standards
+- Quality checklists
 
 ## Overview
 This skill helps users generate and manage OpenL Tablets release notes in a consistent, professional format similar to the official OpenL website (https://openl-tablets.org/release-notes). The skill automates the collection of Jira tickets, categorizes features, and produces well-formatted markdown documentation.
@@ -496,7 +513,7 @@ Release notes generated for OpenL Tablets [VERSION]
 
 ## Template Integration
 
-**Always use the template file** (release-notes-template.md) as reference:
+**Always use the template file** (./templates/release-notes-template.md) as reference:
 - It contains detailed examples
 - It shows proper formatting
 - It includes writing guidelines
@@ -567,3 +584,18 @@ fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
 - [ ] Quality checks passed
 - [ ] README created in images folder
 - [ ] GitHub structure is correct
+```
+
+---
+
+**The key changes:**
+1. Added the YAML frontmatter with `name` and `description`
+2. Added "Template Location" section at the beginning
+3. The description is concise but comprehensive
+
+Your final structure should be:
+```
+.clade/agents/skills/release-notes.skill/
+├── SKILL.md                           (with proper headers)
+└── templates/
+    └── release-notes-template.md      (template file - same as before)
