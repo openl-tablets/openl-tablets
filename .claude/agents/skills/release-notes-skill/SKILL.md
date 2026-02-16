@@ -1,738 +1,569 @@
-# OpenL Tablets Release Notes Generator
+# OpenL Release Notes Generator Skill
 
 ## Overview
-
-This skill automatically generates professional release notes for OpenL Tablets releases by analyzing Jira tickets and producing well-structured technical documentation in the established OpenL markdown format for GitHub.
+This skill helps users generate and manage OpenL Tablets release notes in a consistent, professional format similar to the official OpenL website (https://openl-tablets.org/release-notes). The skill automates the collection of Jira tickets, categorizes features, and produces well-formatted markdown documentation.
 
 ## When to Use This Skill
+- User requests generation of release notes for a specific OpenL version
+- User wants to update or modify existing release notes
+- User needs to create documentation for a new release
+- User mentions "release notes", "version documentation", or "changelog"
+- User wants to apply updates while maintaining consistency
 
-Use this skill when:
-- User requests release notes generation for OpenL Tablets
-- User mentions "generate release notes" or "create release notes"
-- User specifies a version number for release notes
-- User asks to document features for a release
+## Core Requirements
+1. **NO Jira ticket numbers** anywhere in the output
+2. **User-focused language** - emphasize benefits over technical details
+3. **Proper categorization** - Major/Medium/Small features based on effort and impact
+4. **Professional formatting** - consistent with official OpenL style
+5. **Markdown output** - generate files in .md format
+6. **GitHub structure** - create proper folder hierarchy
 
 ## Workflow
 
-### Step 1: Collect Release Version
+### Step 1: Gather Release Information
 
-If the user hasn't provided a release version:
+**If version not provided, ask:**
+"I'll help you generate release notes for OpenL Tablets. What version number should I create the release notes for? (Format: X.Y.Z, e.g., 5.27.0)"
+
+**Validate format:**
+- Must be X.Y.Z format
+- Examples: 5.27.0, 6.0.0, 5.26.5
+
+**Confirm details:**
+- GitHub repository: openl-tablets/openl-tablets
+- Target folder: Docs/release-notes/[VERSION]/
+- Images folder: Docs/release-notes/[VERSION]/images/
+
+### Step 2: Collect Jira Tickets
+
+**Execute Jira search:**
 ```
-Ask the user: "What release version should I generate the notes for? (e.g., 5.27.8, 6.0.0)"
+Use jira:jira_search with JQL:
+fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
+
+Fields to retrieve:
+- summary
+- description  
+- issuetype
+- priority
+- status
+- labels
+- created
+- updated
 ```
 
-### Step 2: Determine Release Type
+**Handle results:**
+- Process all tickets (may need multiple pages)
+- Filter out any with "Exclude from Release Notes" flag
+- Gather full details for analysis
 
-Based on the version number:
-- **Major release**: X.Y.0 (e.g., 5.27.0, 6.0.0)
-- **Non-major release**: X.Y.Z where Z > 0 (e.g., 5.27.8, 5.27.15)
+### Step 3: Categorize Features
 
-### Step 3: Fetch Jira Tickets
+**Analyze each ticket and categorize:**
 
-Use the Jira MCP tools to collect all tickets for the specified release:
-
-```javascript
-// Search for tickets with the specific Fix Version
-jira_search({
-  jql: `fixVersion = "${version}" ORDER BY priority DESC, created ASC`,
-  fields: "summary,description,issuetype,priority,status,labels,components,comment",
-  limit: 100
-})
-```
-
-If there are more than 100 tickets, use pagination to fetch all of them.
-
-### Step 4: Analyze and Categorize Features
-
-For each ticket, analyze the **actual functionality** described in:
-1. The summary
-2. The description
-3. Comments (to understand what was actually implemented)
-
-**DO NOT** rely solely on ticket titles or issue types. Read the content to understand the real impact.
-
-#### Feature Size Classification
-
-**Major Features** (for major releases):
-- Changes how users work or unlocks entirely new capabilities
+#### Major Features (Detailed 3-5 paragraph sections)
+**Criteria:**
+- Changes how users work OR unlocks entirely new capabilities
 - Requires significant business context to understand value
 - Impacts multiple parts of the system or workflows
-- Took considerable development effort (min 4 sprints)
-- Examples: ACL implementation, Administration Panel Redesign, Jakarta EE migration
-- These become H3 sections (###) under "New Features"
+- Takes considerable development effort (min 4 sprints)
+- Often Epic issue type or has multiple linked stories
 
-**Medium-Sized Features**:
+**Red flags for mis-categorization:**
+- If you can explain it in one sentence → probably not Major
+- If it's just "faster" or "better" without new capability → not Major
+- If it's only used in edge cases → not Major
+
+#### Medium-Sized Features (1-2 paragraph sections)
+**Criteria:**
 - Enhances existing capabilities in meaningful ways
 - Needs some business context but purpose is fairly clear
 - Improves user efficiency or solves known pain points
-- Took moderate effort (1-2 sprints)
-- Can be major features or go under "Additional Features" subsection
+- Takes moderate effort (1-2 sprints)
 
-**Small Features/Enhancements**:
+#### Small Features (Bullet point list)
+**Criteria:**
 - Incremental improvements that are self-explanatory
-- Need minimal business context - value is obvious
+- Needs minimal business context - value is obvious
+- Fixes edge cases or polishes existing features
 - Quick to implement (days, not weeks)
-- These go under "Improvements" section or "Additional Features" subsection
 
-#### Categorization Rules
+**Examples:**
+- Added keyboard shortcut
+- Improved error message
+- Added tooltip
+- Enhanced search to include X
+- Supported new format
 
-**Document Title**:
-- Format: `# **OpenL Tablets X.Y.Z Release Notes**` (H1 with bold)
-- Followed by 2 paragraphs:
-  - First: High-level overview identifying as major release with 3-5 key features
-  - Second: "This release also includes breaking changes that require careful review before upgrading." (if applicable)
+### Step 4: Write Content
 
-**Contents Section**:
-- H2 heading: `## **Contents**`
-- Bullet list with anchor links to main sections:
-  - `[New Features](#new-features)`
-  - `[Improvements](#improvements)`
-  - `[Breaking Changes](#breaking-changes)`
-  - `[Security & Library Updates](#security--library-updates)`
-  - `[Bug Fixes](#bug-fixes)`
-  - `[Migration Notes](#migration-notes)`
+#### For Major Features:
+**Structure each as:**
 
-**New Features Section** (Major releases):
-- H2 heading: `## **New Features**`
-- Each major feature:
-  - H3 heading: `### **Feature Name**` (bold)
-  - Opening paragraph(s) explaining the feature
-  - H4 subsections (####) for capabilities: `#### **Subsection Name**` (bold)
-  - H5 subsections (#####) for sub-capabilities if needed: `##### **Sub-subsection Name**` (bold)
-  - Bullet lists for details
-  - Code blocks with proper syntax highlighting
-  - Images if mentioned: `![ImageDescription](images/ImageName.png)`
-  - Horizontal rule `---` separating major features
-- Last subsection: `### **Additional Features**` for smaller features
+1. **Problem Statement** (1 paragraph)
+   - What problem does this solve?
+   - What was the pain point before?
+   - Why did users need this?
 
-**Improvements Section**:
-- H2 heading: `## **Improvements**`
-- H3 subsections for themes: `### **Theme Name**` (bold)
-- Bullet lists under each theme
-- Simple descriptions (1-2 sentences per bullet)
+2. **Solution Overview** (1-2 paragraphs)
+   - How does this feature work?
+   - What are the key capabilities?
+   - How does it change workflows?
 
-**Breaking Changes Section**:
-- H2 heading: `## **Breaking Changes**`
-- Opening paragraph if needed
-- Each breaking change:
-  - H3 heading: `### **Breaking Change Name**` (bold, add "(CRITICAL)" if severe)
-  - Opening paragraph
-  - H4 subsections: `#### **What Changed**`, `#### **Impact**`, `#### **Who Is Affected**`, `#### **Migration Steps**`
-  - Detailed bullet lists and code examples
-  - Horizontal rule `---` separating major breaking changes
-- Final subsection: `### **Removed Features Summary**` with categorized removals
+3. **Business Value** (1 paragraph)
+   - What benefits does this provide?
+   - Who will find this most valuable?
+   - What use cases does it enable?
 
-**Security & Library Updates Section**:
-- H2 heading: `## **Security & Library Updates**`
-- H3 subsections: `### **Security Vulnerability Fixes**`, `### **Major Library Upgrades**`
-- Security: Bullet list with CVEs
-- Libraries: H4 subsections for categories, bullet lists with versions
-- Format: `Library Name Version.Number (from X.x)` for major upgrades
-- Horizontal rule `---` between Security and Library sections
+4. **Key Capabilities** (bulleted list with bold headers)
+   - **Capability 1**: description
+   - **Capability 2**: description
 
-**Bug Fixes Section**:
-- H2 heading: `## **Bug Fixes**`
-- Simple bullet list of fixes
-- No component grouping
-- Format: "Fixed [description]"
+5. **Usage Context** (1 paragraph)
+   - When to use this
+   - Real-world scenarios
+   - Impact on daily work
 
-**Migration Notes Section**:
-- H2 heading: `## **Migration Notes**`
-- First subsection: `### **Quick Role-Based Pointers**`
-  - Bullet list with bold role names and sections to review
-- Subsequent subsections: `### **Category Name**` for each migration area
-- Each subsection includes:
-  - Bullet lists or paragraphs
-  - Code blocks for configuration examples
-  - Tables for mappings (use markdown tables)
-  - Horizontal rules `---` separating major migration areas
-
-### Step 5: Write Release Notes
-
-#### Document Structure for Major Releases
-
+**Include image placeholder:**
 ```markdown
-# **OpenL Tablets X.Y.Z Release Notes**
-
-OpenL Tablets **X.Y.Z** is a major release introducing [key themes and major features].
-
-This release also includes breaking changes that require careful review before upgrading.
-
-## **Contents**
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Breaking Changes](#breaking-changes)
-* [Security & Library Updates](#security--library-updates)
-* [Bug Fixes](#bug-fixes)
-* [Migration Notes](#migration-notes)
-
-## **New Features**
-
-### **First Major Feature Name**
-
-Opening paragraph explaining what this feature is and its primary purpose. Use 2-4 sentences to set context.
-
-Second paragraph covering additional scope or capabilities. Keep paragraphs focused and readable.
-
-#### **Key Capability Name**
-
-Introduction sentence for this capability.
-
-* Bullet point detail 1
-* Bullet point detail 2
-* Bullet point detail 3
-
-Additional paragraph if needed.
-
-##### **Sub-capability Name**
-
-Even more detailed breakdown using H5 headings when necessary.
-
-Configuration example if applicable:
-
-```properties
-property.name=value
-property.name2=value2
+![Feature Name](images/feature-name.png)
 ```
 
-#### **Migration Notes**
-
-1. Automatic migration details
-2. Manual migration requirements:
-   * Step detail 1
-   * Step detail 2
-
-```properties
-code.example=value
-```
-
----
-
-### **Second Major Feature Name**
-
-Structure similar to first feature with opening paragraphs, subsections, and horizontal rule separator.
-
-![FeatureScreenshot](images/FeatureName.png)
-
----
-
-### **Additional Features**
-
-#### **Smaller Feature 1**
-
-Brief description with bullet points:
-
-* Detail 1
-* Detail 2
-
-**Configuration properties:**
-
-```properties
-property.name=value
-```
-
-#### **Smaller Feature 2**
-
-Brief description.
-
-##### **Key characteristics:**
-
-* Characteristic 1
-* Characteristic 2
-
-## **Improvements**
-
-### **Improvement Theme 1**
-
-* Improvement detail 1
-* Improvement detail 2
-* Improvement detail 3
-
-### **Improvement Theme 2**
-
-* Improvement detail 1
-* Improvement detail 2
-
-## **Breaking Changes**
-
-Optional opening paragraph explaining the breaking changes section.
-
-### **Breaking Change Name (CRITICAL if applicable)**
-
-Opening paragraph explaining the breaking change and its significance.
-
-#### **What Changed**
-
-* Change detail 1
-* Change detail 2
-
-Major framework upgrades:
-
-* Framework 1 Version (from X.x)
-* Framework 2 Version (from X.x)
-
-#### **Impact**
-
-* Impact detail 1
-* Impact detail 2
-
-#### **Who Is Affected**
-
-You are affected only if your OpenL projects include [specific conditions]:
-
-* Condition 1
-* Condition 2
-
-#### **Migration Steps**
-
-If you are using OpenL Studio without [condition], no action is required.
-
-The steps below apply only if [condition applies].
-
-##### **Required changes for specific area**
-
-1. Step 1 description
-2. Step 2 description
-
-```java
-// Code example
-package.name → new.package.name
-```
-
----
-
-### **Another Breaking Change**
-
-Follow same structure as above.
-
----
-
-### **Removed Features Summary**
-
-The following features, protocols, and APIs have been completely removed from OpenL Tablets X.Y.Z:
-
-#### **Removed Protocols & Integration Methods**
-
-* **Protocol Name**
-  * **Migration**: Migration path description
-
-#### **Removed Database Support**
-
-* **Database Name**
-  * **Migration**: Migration path description
-
-#### **Removed Libraries & Extensions**
-
-* **Library Name**
-  * **Migration**: Migration path description
-
-#### **Removed APIs**
-
-* **API Name**
-  * **Migration**: Migration path description
-* **Method Names:**
-  * method1(), method2()
-  * **Migration**: Migration path
-
-#### **Removed UI Features**
-
-* **Feature Name**
-  * **Migration**: Migration path
-
-## **Security & Library Updates**
-
-### **Security Vulnerability Fixes**
-
-* **CVE-YYYY-XXXXX**: Description of vulnerability fixed
-* **CVE-YYYY-XXXXX**: Description of vulnerability fixed
-
----
-
-### **Major Library Upgrades**
-
-#### **Runtime Dependencies**
-
-* Spring Framework 6.2.11 (from 5.x)
-* Spring Boot 3.5.6 (from 2.x)
-* Spring Security 6.5.5 (from 5.x)
-* Hibernate ORM 6.6.29.Final (from 5.x)
-* [Continue with other libraries...]
-
-#### **Test Dependencies**
-
-* Mockito 5.20.0
-* XMLUnit 2.10.4
-* PostgreSQL Driver 42.7.8
-
-#### **Removed Dependencies**
-
-* commons-jxpath
-
-## **Bug Fixes**
-
-* Fixed GitLFS issues with BitBucket repositories
-* Fixed tracing and dependency graph issues
-* Fixed deployment repository errors when base.path not specified
-
-## **Migration Notes**
-
-### **Quick Role-Based Pointers**
-
-* **If you are a Rules Author** → pay special attention to sections **3, 4**
-* **If you are a Developer** → pay special attention to sections **2, 3, 5**
-* **If you are an Administrator / Platform Owner** → pay special attention to sections **1, 2, 6**
-
----
-
-### **Access Control & Permissions**
-
-* The legacy permission model has been replaced with role-based access control (RBAC).
-  Permissions are migrated automatically, but effective access may differ after upgrade.
-* `security.default-group` no longer grants implicit READ access to repositories.
-* Project creation and deletion are additionally controlled by the system property:
-
-```properties
-security.allow-project-create-delete
-```
-
-* Role assignments and default group permissions should be reviewed after upgrade.
-
-#### **User Access & Permission Mapping**
-
-| Legacy Permission | New Behavior | Notes / Action |
-| :---- | :---- | :---- |
-| **View Projects** | Included in all roles | Deprecated; project viewing available to all roles |
-| **Edit Projects** | Included in Contributor role | Covered by the Edit permission |
-
----
-
-### **Runtime Environment**
-
-* Java **21** is required. Earlier Java versions are no longer supported.
-* All `javax.*` packages have been replaced with `jakarta.*`.
-  Custom Java code must be updated accordingly.
-
----
-
-### **Rules & Rule Execution**
-
-* The **variations** feature has been completely removed.
-  * Variation-based endpoints are no longer created.
-  * Rules relying on variations must be rewritten.
-
----
-
-### **Metadata & OpenAPI**
-
-* Project tags are now stored inside the project structure.
-  * Tags are migrated automatically.
-  * Tag changes are version-controlled.
-
----
-
-### **Integration & Serialization**
-
-* JSON polymorphic serialization now uses **NAME-based** type identification.
-  * Client applications relying on CLASS-based typing may require updates.
-
----
-
-### **Administration, Deployment & Removed Features**
-
-* The following components are no longer supported:
-  * RMI
-  * CAS SSO
-  * Legacy APIs
-  * Install Wizard
-* The Administration UI has been fully redesigned.
-  * No functional loss; familiarize yourself with the new layout.
-```
-
-#### Document Structure for Non-Major Releases
-
+**Example:**
 ```markdown
-# **OpenL Tablets X.Y.Z Release Notes**
+#### Advanced Rule Validation Engine
 
-## **Improvements**
+Managing complex rule dependencies has traditionally been one of the most challenging aspects of large-scale business rule applications. As rule sets grow, understanding the relationships between rules, identifying potential conflicts, and ensuring consistency becomes increasingly difficult. Teams often spent hours manually tracing dependencies and debugging issues that arose from unexpected rule interactions.
 
-* Brief description of improvement 1
-* Brief description of improvement 2
+OpenL Tablets 5.27.0 introduces the Dependency Visualization Engine, a comprehensive tool that automatically maps relationships between rules and provides interactive visual representations of your rule architecture. The engine analyzes your entire rule set, identifies all connections—from direct references to implicit dependencies—and presents them in an intuitive, explorable interface.
 
-## **Bug Fixes**
+**Key capabilities:**
+- **Interactive dependency graphs** showing how rules relate to each other
+- **Impact analysis** that predicts which rules will be affected by changes
+- **Conflict detection** that identifies potential logical contradictions
+- **Performance insights** highlighting dependency chains that may impact execution speed
 
-* Fixed [issue description]
-* Fixed [issue description]
+This feature is particularly valuable for teams working with large rule repositories, conducting impact assessments before making changes, or onboarding new developers who need to understand complex rule structures. By visualizing dependencies, teams can make informed decisions, reduce errors, and maintain better control over their business logic.
 
-## **Security & Library Updates**
-
-### **Security Vulnerability Fixes**
-
-* **CVE-YYYY-XXXXX**: Description fixed
-
-### **Library Upgrades**
-
-#### **Runtime Dependencies**
-
-* Library1 X.Y.Z
-* Library2 A.B.C
+![Dependency Visualization Dashboard](images/dependency-visualization.png)
 ```
 
-### Step 6: Create Markdown File
+#### For Medium Features:
+**Structure as 1-2 paragraphs:**
 
-Save the generated content to:
-```
-release-notes-X.Y.Z.md
-```
+1. **What's Better** (Paragraph 1)
+   - What existing capability is improved?
+   - What specific enhancement was made?
+   - What was the limitation before?
 
-Where X.Y.Z is the version number (e.g., `release-notes-6.0.0.md`).
+2. **User Benefit** (Paragraph 2)
+   - How does this make things easier/faster/better?
+   - Who benefits most?
+   - What can users do now that was harder before?
 
-## Style Guidelines
-
-### Writing Style
-
-- **Technical but accessible**: Written for technical users but clear for informed business users
-- **Professional tone**: Formal, clear, and comprehensive
-- **Active voice**: "The system supports..." not "Support is provided..."
-- **Present tense for features**: "Allows users to..." not "Will allow..."
-- **Past tense for fixes**: "Fixed an issue where..." not "Fixes an issue..."
-- **Detailed explanations**: Major features get comprehensive treatment
-- **Migration-focused**: Breaking changes include detailed guidance
-
-### Describing Features
-
-- **Major features**: Multi-paragraph descriptions with subsections, bullet lists
-- **Opening paragraphs**: Set context before diving into details
-- **Subsections**: Use H4 for capabilities, H5 for sub-capabilities
-- **Bullet lists**: For enumerating items, capabilities, or steps
-- **Code blocks**: With proper language tags (properties, java, yaml, etc.)
-- **Images**: Reference with captions when available
-- **Migration notes**: Detailed steps within feature sections when relevant
-- **Improvements**: Grouped by theme, not by component
-- **Bug fixes**: Simple descriptions, no component grouping
-- **No Jira references**: Never mention ticket numbers
-
-### Formatting Requirements
-
-#### Heading Hierarchy
-- **H1**: Document title with bold: `# **OpenL Tablets X.Y.Z Release Notes**`
-- **H2**: Main sections with bold: `## **New Features**`, `## **Breaking Changes**`
-- **H3**: Major features and subsections with bold: `### **Feature Name**`
-- **H4**: Capabilities and structured subsections with bold: `#### **What Changed**`
-- **H5**: Sub-capabilities with bold: `##### **Sub-capability Name**`
-
-#### Bold Formatting
-- All headings include **bold** markers around the text
-- Important terms in bullets use **bold**
-- Property names in text use `code` formatting, not bold
-
-#### Paragraph Structure
-- Opening paragraphs: 2-4 sentences introducing the section/feature
-- Detail paragraphs: 2-3 sentences focused on one aspect
-- Blank lines: Always separate paragraphs
-
-#### Lists and Bullets
-- Use bullet lists (`*`) for enumerating items
-- Use numbered lists for sequential steps
-- Nested bullets for sub-items
-- Each bullet can be a full sentence or phrase
-
-#### Code Blocks
-- Always specify language: ```properties, ```java, ```yaml
-- Include comments in code examples
-- Use inline code (`backticks`) for property names, class names, methods
-
-#### Horizontal Rules
-- Use `---` to separate major features
-- Use `---` to separate major breaking changes
-- Use `---` to separate major migration sections
-- Use `---` between Security Fixes and Library Upgrades
-
-#### Tables
-- Use markdown tables for mappings
-- Include header row with alignment
-- Keep cells concise but complete
-
-#### Images
-- Format: `![ImageDescription](images/ImageName.png)`
-- Place after relevant text explaining what the image shows
-- Use descriptive alt text
-
-### Language Rules
-
-- **American English**: Use "color" not "colour", "optimize" not "optimise"
-- **Technical accuracy**: Use correct technical terms
-- **Consistency**: Same terms throughout
-- **Clarity**: Be comprehensive rather than overly concise
-- **Component names**:
-  - "OpenL Studio" (not "WebStudio")
-  - "Rule Services" (not "RuleServices")
-  - "OpenL Rules" (for rules engine/runtime)
-  - "OpenL Tablets" (for overall platform)
-
-## Content Organization Principles
-
-### New Features Section
-1. Each major feature gets H3 heading with bold
-2. Features separated by `---` horizontal rules
-3. Structure:
-   - H3 feature name (bold)
-   - Opening paragraphs
-   - H4 subsections for capabilities (bold)
-   - H5 sub-subsections if needed (bold)
-   - Bullet lists for details
-   - Code blocks for configuration
-   - Images if available
-   - Migration notes subsection if relevant
-4. Last subsection: "Additional Features" for smaller items
-
-### Improvements Section
-1. Group by theme with H3 headings (bold)
-2. Bullet lists under each theme
-3. Keep descriptions brief (1-2 sentences)
-4. No component grouping
-
-### Breaking Changes Section
-1. Each change gets detailed H3 section (bold)
-2. Structured H4 subsections (bold): What Changed, Impact, Who Is Affected, Migration Steps
-3. H5 for detailed migration steps (bold)
-4. Separated by `---` rules
-5. Final "Removed Features Summary" subsection with categorized removals
-
-### Library Updates Section
-1. H3 for Security Fixes (bold)
-2. Horizontal rule `---`
-3. H3 for Library Upgrades (bold)
-4. H4 categories: Runtime, Test, Removed (bold)
-5. Bullet lists with version comparisons for major upgrades
-
-### Bug Fixes Section
-- Simple bullet list
-- No grouping
-- Format: "Fixed [description]"
-
-### Migration Notes Section
-1. H3 "Quick Role-Based Pointers" first (bold)
-2. Subsequent H3 sections for migration areas (bold)
-3. Bullet lists and paragraphs
-4. Code examples
-5. Tables for mappings
-6. Separated by `---` rules
-
-## Common Components
-
-Use these exact names:
-- **OpenL Studio**
-- **Rule Services**
-- **OpenL Rules**
-- **OpenL Tablets**
-- **Core**
-- **DEMO**
-
-## Error Handling
-
-If issues occur:
-1. **No tickets found**: Verify version number and Fix Version in Jira
-2. **Too many tickets**: Process in batches
-3. **Missing information**: Note what needs manual review
-4. **Ambiguous categorization**: Err on side of more detail for major releases
-
-## Quality Checks
-
-Before finalizing:
-1. ✓ Document title is H1 with bold: `# **OpenL Tablets X.Y.Z Release Notes**`
-2. ✓ Contents section with working anchor links
-3. ✓ All section headings use bold formatting
-4. ✓ Major features separated by `---` horizontal rules
-5. ✓ H3 for features, H4 for capabilities, H5 for sub-capabilities (all bold)
-6. ✓ Breaking changes have structured subsections
-7. ✓ Security and Library sections separated by `---`
-8. ✓ Migration notes with role-based pointers
-9. ✓ Code blocks have language tags
-10. ✓ No Jira ticket numbers in text
-11. ✓ Component names are correct
-12. ✓ Grammar and spelling correct (American English)
-13. ✓ Images referenced with proper markdown syntax
-14. ✓ Tables properly formatted
-
-## Example Transformations
-
-### From Jira Ticket to Release Note
-
-**Jira Ticket:**
-```
-EPBDS-12345: Implement ACL
-Description: Complete redesign of access control with role-based 
-permissions. Migration from 16-permission to 3-role model.
-Took 6 sprints. Includes UI redesign and batch API.
-```
-
-**Release Note:**
+**Example:**
 ```markdown
-### **Simplified User Access & Permissions Management in OpenL Studio**
+#### Enhanced Excel Import Performance
 
-OpenL Studio introduces a **completely redesigned access control system** with a 
-simplified, role-based permission model. The new approach significantly reduces 
-configuration complexity while maintaining enterprise-grade security.
+The Excel import functionality has been completely re-architected to handle large spreadsheets more efficiently. Import times for files over 10MB are now up to 60% faster, and memory usage has been reduced by 40% through improved streaming and parsing algorithms.
 
-The new system supports **granular, resource-level access control** through role 
-assignments, with a reduced and streamlined set of permissions for improved 
-clarity and maintainability.
-
-#### **Role-Based Access Control**
-
-Access is now managed through three predefined roles:
-
-* **Manager**: Full control with ability to assign roles
-* **Contributor**: Content modification without system administration
-* **Viewer**: Read-only access with test execution capabilities
-
-[Continue with more subsections...]
-
-#### **Migration Notes**
-
-1. ACL structures are migrated automatically during upgrade
-2. Legacy permissions automatically migrated:
-   * Legacy "View Projects" → Viewer role at repository level
-   * Legacy "Edit Projects" → Contributor role at repository level
-
----
+This enhancement directly addresses feedback from users working with extensive data tables and complex Excel-based rule definitions. Development teams will notice significantly reduced wait times when importing or refreshing data, making iterative development more fluid.
 ```
 
----
+#### For Small Features:
+**One clear sentence each:**
+- Start with action verb (Added, Improved, Enhanced)
+- State what capability was added or enhanced
+- Include the benefit if not obvious
+- No technical implementation details
 
-**Jira Ticket:**
-```
-EPBDS-12346: Add compose.yaml to DEMO
-Description: Replaced Docker image with compose.yaml.
-Reduces size and removes Java requirement.
-```
-
-**Release Note:**
+**Examples:**
 ```markdown
-### **Demo Enhancements**
-
-* Replaced DEMO docker image with compose.yaml file
-* Reduced the download size of the zip file
-* Removed manual Java installation step
+- Added support for custom date formats in data tables, allowing regional formats without manual conversion
+- Improved error messages in the Rules Editor with clearer explanations and suggested fixes
+- Enhanced search functionality in WebStudio to include rule descriptions and comments
+- Added keyboard shortcuts for common operations (Ctrl+S to save, Ctrl+F to find)
 ```
 
-## Final Output
+#### For Bug Fixes:
+**Describe from user perspective:**
+- What issue was resolved
+- What now works correctly
+- Group by functional area when possible
 
-After generating the release notes:
-1. Save the markdown file to `release-notes-X.Y.Z.md`
-2. Show the user a preview
-3. Inform them of the file location
-4. Offer to make adjustments if needed
+**Examples:**
+```markdown
+### Rules Editor
+- Fixed an issue where syntax highlighting would stop working after editing very long rule expressions
+- Resolved a problem where the editor would occasionally lose focus when auto-save triggered
 
-## Notes
+### Data Tables
+- Corrected behavior when copying cells with formulas between tables
+- Fixed an issue where column headers would disappear after certain resize operations
+```
 
-- This format is optimized for GitHub rendering and web viewing
-- All headings use bold formatting
-- Horizontal rules separate major sections
-- Contents section provides easy navigation
-- Images can be referenced but actual image files must be provided separately
-- Code blocks should specify language for syntax highlighting
-- Tables use markdown format for better readability
-- Focus on user-facing value and comprehensive migration guidance
-- Major releases require all sections; non-major releases are simplified
+### Step 5: Generate Release Notes Structure
+
+**Use this exact structure:**
+```markdown
+# OpenL Tablets [VERSION] Release Notes
+
+## Overview
+
+[2-3 paragraphs covering:
+- What makes this release significant
+- Key themes or focus areas
+- Overall direction
+- Why these changes matter to users]
+
+## What's New
+
+### Major Features
+
+#### [Feature Name 1]
+[3-5 paragraphs with detailed description]
+![Feature Name](images/feature-name.png)
+
+#### [Feature Name 2]
+[3-5 paragraphs with detailed description]
+
+### Enhancements
+
+#### [Enhancement Name 1]
+[1-2 paragraphs]
+
+#### [Enhancement Name 2]
+[1-2 paragraphs]
+
+### Additional Improvements
+
+- [Small enhancement 1]
+- [Small enhancement 2]
+- [Small enhancement 3]
+[Continue list...]
+
+## Bug Fixes
+
+### [Functional Area 1]
+- [Bug fix 1]
+- [Bug fix 2]
+
+### [Functional Area 2]
+- [Bug fix 3]
+- [Bug fix 4]
+
+### General
+- [Other bug fixes]
+
+## Technical Updates
+
+- [Infrastructure improvement 1]
+- [Dependency update 1]
+- [Performance optimization 1]
+
+## Breaking Changes
+
+[Only include if there are breaking changes]
+
+### [Breaking Change Title]
+
+**What Changed:** [Description]
+
+**Impact:** [Who is affected]
+
+**Migration:** [How to adapt]
+
+## Deprecations
+
+[Only include if there are deprecations]
+
+### [Deprecated Feature]
+
+**Status:** Deprecated in [VERSION], will be removed in [FUTURE VERSION]
+
+**Alternative:** [What to use instead]
+
+**Reason:** [Why being deprecated]
+
+## Known Issues
+
+[Only include if there are significant known issues]
+
+### [Issue Title]
+
+**Description:** [What doesn't work]
+
+**Workaround:** [How to work around it]
+
+**Status:** [Expected resolution]
+
+## Installation & Upgrade
+
+### New Installations
+
+For new installations, download OpenL Tablets [VERSION] from our [downloads page](https://openl-tablets.org/downloads) and follow the [installation guide](https://openl-tablets.org/documentation/installation).
+
+### Upgrading from Previous Versions
+
+**From [PREVIOUS VERSION]:**
+- Standard upgrade process applies
+- Review Breaking Changes section above if applicable
+- Backup your existing installation before upgrading
+- Follow the [upgrade guide](https://openl-tablets.org/documentation/upgrade)
+
+### System Requirements
+
+- Java 11 or higher
+- Minimum 4GB RAM (8GB recommended for production)
+- [Other requirements]
+
+## Resources
+
+- **Documentation:** [https://openl-tablets.org/documentation](https://openl-tablets.org/documentation)
+- **Download:** [https://openl-tablets.org/downloads](https://openl-tablets.org/downloads)
+- **Release Notes Archive:** [https://openl-tablets.org/release-notes](https://openl-tablets.org/release-notes)
+- **Community Forum:** [https://openl-tablets.org/community](https://openl-tablets.org/community)
+- **Support:** [support contact or link]
+```
+
+### Step 6: Create GitHub Folder Structure
+
+**Execute in order:**
+
+1. Create release-notes folder (if doesn't exist):
+```
+   Docs/release-notes/
+```
+
+2. Create version folder:
+```
+   Docs/release-notes/[VERSION]/
+```
+
+3. Create images folder:
+```
+   Docs/release-notes/[VERSION]/images/
+```
+
+4. Create images README:
+```
+   Docs/release-notes/[VERSION]/images/README.md
+```
+   
+   Content:
+```markdown
+   # Images for OpenL Tablets [VERSION] Release Notes
+   
+   Upload screenshots and diagrams to this folder to reference in the release notes.
+   
+   ## Naming Convention
+   - Use descriptive names: `feature-name.png` not `screenshot1.png`
+   - Use lowercase with hyphens
+   - Prefer PNG format for screenshots
+   - Keep file sizes reasonable (compress if needed)
+   
+   ## Referenced Images
+   
+   The following images are referenced in the release notes and need to be uploaded:
+   
+   [List will be generated based on image references in the release notes]
+```
+
+5. Create main release notes file:
+```
+   Docs/release-notes/[VERSION]/index.md
+```
+
+### Step 7: Writing Style Guidelines
+
+**MUST follow:**
+- **Active voice**: "You can now..." not "The system now allows..."
+- **User-focused**: Benefits over technical details
+- **Clear and concise**: No unnecessary jargon
+- **Professional**: Business-friendly language
+- **Consistent**: Same terminology throughout
+
+**MUST avoid:**
+- Jira ticket numbers (NEVER include these)
+- Overly technical implementation details
+- Copy-pasting Jira summaries verbatim
+- Acronyms without explanation on first use
+- Vague descriptions like "improved performance" without specifics
+
+**Formatting standards:**
+- Use `##` for main sections
+- Use `###` for subsections  
+- Use `####` for individual features
+- Use `-` for bullet points
+- Use `**bold**` for feature names and key terms
+- Use `code` for UI elements, commands, technical terms
+- Include descriptive alt text for images
+
+### Step 8: Quality Checks
+
+**Before delivering, verify:**
+- [ ] Version number is correct throughout
+- [ ] All Jira tickets are accounted for
+- [ ] Features are properly categorized
+- [ ] NO ticket numbers appear anywhere
+- [ ] Language is clear and business-focused
+- [ ] Structure matches template exactly
+- [ ] All links are valid
+- [ ] Image placeholders are properly formatted
+- [ ] Spelling and grammar are correct
+- [ ] Formatting is consistent
+- [ ] Overview is compelling
+- [ ] Each major feature has 3-5 paragraphs
+- [ ] Each medium feature has 1-2 paragraphs
+- [ ] Small features are one-liners
+- [ ] Bug fixes are grouped by area
+
+### Step 9: Deliver to User
+
+**Provide:**
+1. **Generated release notes file** (index.md)
+2. **Images README file**
+3. **Summary of what was generated:**
+   - Number of major features
+   - Number of medium features
+   - Number of small improvements
+   - Number of bug fixes
+   - List of image placeholders that need images
+
+**Instructions to user:**
+```
+Release notes generated for OpenL Tablets [VERSION]
+
+📁 Files created:
+- Docs/release-notes/[VERSION]/index.md
+- Docs/release-notes/[VERSION]/images/README.md
+
+📊 Summary:
+- X Major Features (detailed descriptions)
+- X Enhancements (medium features)
+- X Additional Improvements
+- X Bug Fixes
+
+🖼️ Images needed:
+[List each image placeholder that needs to be uploaded]
+
+📝 Next steps:
+1. Review the generated release notes for accuracy
+2. Add screenshots/diagrams to the images/ folder
+3. Update any placeholder content
+4. Have stakeholders review
+5. Publish to the website
+```
+
+## Handling Updates
+
+**When user requests updates to existing release notes:**
+
+1. **Locate the file:**
+   - Search for Docs/release-notes/[VERSION]/index.md
+   - Read current content
+
+2. **Apply changes while maintaining:**
+   - Consistent style
+   - Proper formatting
+   - Structure integrity
+   - Professional tone
+   - All quality standards
+
+3. **Preserve:**
+   - Image references
+   - Links
+   - Structure
+   - Formatting
+
+4. **Update only what's needed:**
+   - Don't rewrite everything
+   - Keep user's approved content
+   - Match existing tone
+
+## Common Pitfalls to Avoid
+
+1. **Including Jira IDs**: NEVER write "OPENL-1234" or reference tickets
+2. **Too technical**: Focus on business value, not code changes
+3. **Inconsistent categorization**: Be strict with Major/Medium/Small criteria
+4. **Poor descriptions**: Rewrite Jira summaries, don't copy verbatim
+5. **Missing context**: Major features need full story, not just feature list
+6. **Weak overview**: Must compellingly summarize the release
+7. **Broken structure**: Follow template structure exactly
+8. **Forgetting images**: Include placeholder for every major feature
+9. **Vague benefits**: "Better performance" → "60% faster imports for files over 10MB"
+10. **Wrong categorization**: "Added button" is not a Major Feature
+
+## Template Integration
+
+**Always use the template file** (release-notes-template.md) as reference:
+- It contains detailed examples
+- It shows proper formatting
+- It includes writing guidelines
+- It has quality checklists
+
+**The template should be consulted for:**
+- Section structure
+- Writing examples
+- Categorization criteria
+- Formatting standards
+- Common patterns
+
+## Integration with Jira
+
+**Jira Tools to Use:**
+```
+jira:jira_search - Find all tickets for version
+jira:jira_get_issue - Get detailed ticket info
+jira:jira_search_fields - Find custom field names
+```
+
+**JQL Query Pattern:**
+```
+fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
+```
+
+**Handle Jira Data:**
+- Read summary and description
+- Understand the context
+- Rewrite in user-friendly language
+- Never copy verbatim
+- Never include ticket numbers
+
+## Success Criteria
+
+**Release notes are successful when:**
+- Structure matches official OpenL style perfectly
+- Content is clear and valuable to business users
+- No Jira ticket numbers anywhere
+- Features are properly categorized (Major/Medium/Small)
+- Writing is professional and concise
+- All sections are complete
+- Formatting is consistent throughout
+- Images folder is ready with README
+- User can understand value without technical background
+- Major features tell compelling stories
+- Overview captures the essence of the release
+
+## Final Checklist
+
+**Before presenting to user, confirm:**
+- [ ] Version number correct everywhere
+- [ ] JQL search completed successfully
+- [ ] All tickets analyzed and categorized
+- [ ] NO ticket numbers in output
+- [ ] Major features have 3-5 paragraphs each
+- [ ] Medium features have 1-2 paragraphs each
+- [ ] Small features are one-line bullets
+- [ ] Bug fixes are grouped and clear
+- [ ] Overview is compelling (2-3 paragraphs)
+- [ ] All sections present
+- [ ] Formatting is consistent
+- [ ] Links are valid
+- [ ] Image placeholders included
+- [ ] Writing is professional
+- [ ] Language is user-focused
+- [ ] Structure matches template
+- [ ] Quality checks passed
+- [ ] README created in images folder
+- [ ] GitHub structure is correct
