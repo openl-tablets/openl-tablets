@@ -108,8 +108,15 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
 
     return (
         <>
+            {isNewUser && (
+                <div aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, width: 1, height: 1, opacity: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                    <input autoComplete="username" name="fake-username" tabIndex={-1} type="text" />
+                    <input autoComplete="current-password" name="fake-password" tabIndex={-1} type="password" />
+                </div>
+            )}
             <Divider titlePlacement="start">{t('users:account')}</Divider>
             <Input
+                autoComplete={isNewUser ? 'off' : undefined}
                 disabled={!isNewUser}
                 label={t('users:edit_modal.username')}
                 name="username"
@@ -125,8 +132,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                 <Row align="top" className="profile-email-row" gutter={8} style={{ width: '100%', height: 32 }}>
                     <Col className={`${isResendVerificationButtonVisible ? 'profile-email-input' : ''}`} flex="auto">
                         <Form.Item
-                            name="email"
                             noStyle
+                            name="email"
                             rules={[{
                                 type: 'email',
                                 message: t('users:edit_modal.email_invalid')
@@ -136,6 +143,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                             }]}
                         >
                             <AntInput
+                                autoComplete={isNewUser ? 'off' : undefined}
                                 disabled={externalFlags?.emailExternal}
                                 type="email"
                             />
@@ -162,6 +170,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             </Form.Item>
             {displayPasswordField && !isExternalAuthSystem && (
                 <InputPassword
+                    autoComplete="new-password"
                     disabled={externalFlags?.emailExternal}
                     label={t('users:edit_modal.password')}
                     name="password"

@@ -15,6 +15,7 @@ type InputProps = {
     defaultValue?: string
     rules?: RuleObject[]
     required?: boolean
+    autoComplete?: string
 };
 
 const InputPassword: FC<InputProps> = ({
@@ -26,6 +27,7 @@ const InputPassword: FC<InputProps> = ({
     placeholder,
     required,
     rules = [],
+    autoComplete,
     ...rest
 }) => {
     const { t } = useTranslation()
@@ -63,7 +65,7 @@ const InputPassword: FC<InputProps> = ({
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdInput.Password disabled={isDisabled} placeholder={passwordPlaceholder} style={style} />
+            <AntdInput.Password autoComplete={autoComplete} disabled={isDisabled} placeholder={passwordPlaceholder} style={style} />
         </Form.Item>
     )
 }
