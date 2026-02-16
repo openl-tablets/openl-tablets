@@ -16,6 +16,7 @@ type InputProps = {
     rules?: RuleObject[]
     required?: boolean
     type?: string
+    autoComplete?: string
 }
 
 const Input: FC<InputProps> = ({
@@ -28,6 +29,7 @@ const Input: FC<InputProps> = ({
     required,
     rules = [],
     type,
+    autoComplete,
     ...rest
 }) => {
     const form = Form.useFormInstance()
@@ -52,7 +54,7 @@ const Input: FC<InputProps> = ({
 
     return (
         <Form.Item label={label} name={name} rules={allRules} style={formItemStyle} {...rest}>
-            <AntdInput disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
+            <AntdInput autoComplete={autoComplete} disabled={isDisabled} placeholder={placeholder} style={style} type={type} />
         </Form.Item>
     )
 }
