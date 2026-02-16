@@ -16,9 +16,5 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
-        <dependency>
-            <groupId>at.yawk.lz4</groupId>
-            <artifactId>lz4-java</artifactId>
-        </dependency>
     </dependencies>
 </project>

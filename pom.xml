@@ -93,7 +93,7 @@
         <byte-buddy.version>1.18.4</byte-buddy.version>
 
         <!-- Kafka -->
-        <kafka.version>4.1.1</kafka.version>
+        <kafka.version>4.2.0</kafka.version>
 
         <!-- Open Telemetry -->
         <opentelemetry.version>2.24.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
@@ -1384,18 +1384,6 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
                 <version>${kafka.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.lz4</groupId>
-                        <artifactId>lz4-java</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- Remove the following override after updating kafka version to 4.2+ -->
-            <dependency>
-                <groupId>at.yawk.lz4</groupId>
-                <artifactId>lz4-java</artifactId>
-                <version>1.10.3</version>
             </dependency>
             <!-- //Kafka -->
             <!-- Open Telemetry -->
