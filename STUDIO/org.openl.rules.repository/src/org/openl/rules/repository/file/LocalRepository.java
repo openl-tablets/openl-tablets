@@ -36,6 +36,12 @@ public class LocalRepository extends FileSystemRepository {
         return null;
     }
 
+    @Override
+    protected String getVersion(String path) throws IOException {
+        var data = check(path);
+        return data != null ? data.getVersion() : null;
+    }
+
     private File[] listAllFiles(File dir) {
         try (Stream<Path> stream = Files.walk(dir.toPath())) {
             return stream.filter(Files::isRegularFile).map(Path::toFile).toArray(File[]::new);

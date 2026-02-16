@@ -354,8 +354,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
+        return new FeaturesBuilder(delegate)
+                .setVersions(delegate.supports().versions())
                 .setMappedFolders(true)
+                .setBranches(delegate.supports().branches())
                 .setFolders(delegate.supports().folders())
                 .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
                 .setSearchable(delegate.supports().searchable())
