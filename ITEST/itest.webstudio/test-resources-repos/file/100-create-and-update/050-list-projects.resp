@@ -1,0 +1,31 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "name": "Project",
+      "status": "CLOSED",
+      "repository": "design-file",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project"
+    },
+    {
+      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDI6MmMyNmI0NmI2OGZmYzY4ZmY5OWI0NTNjMWQzMDQxMzQxMzQyMmQ3MDY0ODNiZmEwZjk4YTVlODg2MjY2ZTdhZQ==",
+      "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design-file",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "foo"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
