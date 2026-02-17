@@ -239,7 +239,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        if (Objects.equals(version, getVersion(name))) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return check(name);
         }
         return null;
@@ -247,7 +247,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        if (Objects.equals(version, getVersion(name))) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return read(name);
         }
         return null;
@@ -255,12 +255,15 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        return Objects.equals(data.getVersion(), getVersion(data.getName())) && delete(data);
+        if (data.getVersion() == null || Objects.equals(data.getVersion(), getVersion(data.getName()))) {
+            return delete(data);
+        }
+        return false;
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (Objects.equals(version, getVersion(srcName))) {
+        if (version == null || Objects.equals(version, getVersion(srcName))) {
             return copy(srcName, destData);
         }
         throw new FileNotFoundException("File versions are not supported.");
@@ -343,7 +346,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        if (Objects.equals(version, getVersion(path))) {
+        if (version == null || Objects.equals(version, getVersion(path))) {
             return list(path);
         }
 
