@@ -106,7 +106,7 @@
         <grpc.version>1.79.0</grpc.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.42</swagger.core.version>
+        <swagger.core.version>2.2.43</swagger.core.version>
         <swagger.parser.version>2.1.38</swagger.parser.version>
 
         <!-- AI -->
