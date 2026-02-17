@@ -96,7 +96,7 @@
         <kafka.version>4.2.0</kafka.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.24.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.25.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- REST -->
         <jackson.version>2.21.0</jackson.version>
@@ -1395,7 +1395,7 @@
             <dependency>
                 <groupId>io.opentelemetry.javaagent</groupId>
                 <artifactId>opentelemetry-javaagent-extension-api</artifactId>
-                <version>${opentelemetry.version}-alpha</version>
+                <version>${opentelemetry.version}</version>
             </dependency>
             <!-- Javaagent for ITEST -->
             <dependency>
