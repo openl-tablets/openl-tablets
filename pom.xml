@@ -82,7 +82,7 @@
         <spring.integration.version>6.5.6</spring.integration.version>
 
         <!-- Security -->
-        <spring.security.version>6.5.7</spring.security.version>
+        <spring.security.version>6.5.8</spring.security.version>
         <opensaml.version>5.2.0</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
@@ -107,7 +107,7 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.43</swagger.core.version>
-        <swagger.parser.version>2.1.37</swagger.parser.version>
+        <swagger.parser.version>2.1.38</swagger.parser.version>
 
         <!-- AI -->
         <spring.ai.version>1.1.2</spring.ai.version>
