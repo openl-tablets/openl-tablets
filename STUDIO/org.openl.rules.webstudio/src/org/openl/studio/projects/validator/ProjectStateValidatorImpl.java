@@ -7,12 +7,33 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 
 /**
  * Project state validator implementation
  */
 @Component
 public class ProjectStateValidatorImpl implements ProjectStateValidator {
+
+    @Override
+    public boolean canSave(UserWorkspaceProject project) {
+        return project.isModified() && isEditableProject(project);
+    }
+
+    private boolean isEditableProject(UserWorkspaceProject project) {
+        if (isCurrentBranchProtected(project)) {
+            return false;
+        }
+        return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
+    }
+
+    private boolean isCurrentBranchProtected(UserWorkspaceProject project) {
+        if (project != null && !project.isLocalOnly()) {
+            Repository repo = project.getDesignRepository();
+            return repo.supports().branches() && ((BranchRepository) repo).isBranchProtected(project.getBranch());
+        }
+        return false;
+    }
 
     @Override
     public boolean canClose(UserWorkspaceProject project) {

@@ -9,6 +9,14 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 public interface ProjectStateValidator {
 
     /**
+     * Check if project can be saved
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canSave(UserWorkspaceProject project);
+
+    /**
      * Check if project can be closed
      *
      * @param project project

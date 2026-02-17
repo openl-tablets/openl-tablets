@@ -244,6 +244,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             return;
         }
+        if (!projectStateValidator.canSave(project) || project.isLocalOnly()) {
+            throw new ConflictException("project.save.conflict.message");
+        }
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
