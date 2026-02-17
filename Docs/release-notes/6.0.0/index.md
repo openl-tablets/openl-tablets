@@ -69,13 +69,26 @@ The web container has been upgraded from Jetty 9/11 to Jetty 12.1 with Jakarta E
 
 This modernization ensures that OpenL Tablets runs cleanly on current enterprise infrastructure, passes security scans without legacy library warnings, and benefits from the performance and security improvements in modern Java runtimes.
 
-### Enhancements
-
 #### Simplified Role-Based Access Control
 
-The previous permissions model used a complex set of fine-grained access control rules that were difficult to configure and audit. Administrators often struggled to understand the effective permissions for a given user, especially when permissions were inherited through multiple group memberships.
+The previous OpenL Tablets permissions model used a complex, fine-grained access control system that was difficult to configure, audit, and reason about. Permissions were scattered across multiple configuration layers, and when users inherited access through several group memberships, understanding their effective permissions required careful manual analysis. Administrators frequently reported that setting up correct access for new team members was one of the most time-consuming and error-prone tasks, and misconfigured permissions led to either overly permissive access or unnecessary roadblocks for legitimate users.
 
-OpenL Tablets 6.0.0 introduces a streamlined three-role access control system — **Viewer** (read-only), **Contributor** (read and write), and **Manager** (full control including access management). Roles can be assigned at the repository level with a default role, and then overridden on a per-repository or per-project basis. This model is easier to understand, faster to configure, and provides clear audit trails through the new Admin Panel.
+OpenL Tablets 6.0.0 replaces this system with a fundamentally simpler three-role model built on Spring Security ACL. Every user's access to a repository or project is expressed as one of three roles: **Viewer** (read-only access to rules and test results), **Contributor** (read and write access to create, edit, and test rules), or **Manager** (full control including the ability to manage access for other users). Each repository has a configurable default role, and administrators can override access at the repository or individual project level when finer control is needed.
+
+The new model is fully integrated with the redesigned Admin Panel. The **Users** tab shows each user's effective access across all repositories at a glance, while the **Groups** tab lets administrators assign roles to entire teams in a single operation. When a user's access is changed, the update takes effect immediately without requiring a session restart. New REST API endpoints under `/acls` expose the same capabilities programmatically, enabling automated provisioning workflows and integration with identity management systems.
+
+**Key capabilities:**
+- **Three clear roles** — Viewer, Contributor, and Manager — that eliminate ambiguity about what each user can do
+- **Repository-level defaults** with per-project overrides for organizations that need targeted exceptions
+- **Group-based assignment** that works with both internal groups and external directory groups (Active Directory, SAML, OAuth2)
+- **Immediate effect** — permission changes apply instantly without requiring users to log out and back in
+- **Audit-friendly** — the simplified model makes compliance reviews and access audits straightforward
+
+This change is especially valuable for organizations with large teams, frequent onboarding, or regulatory requirements around access control. By reducing the permissions model to three well-defined roles, OpenL Tablets 6.0.0 makes it practical for any administrator — not just platform specialists — to manage access confidently and correctly.
+
+![Simplified Access Control](images/access-control.png)
+
+### Enhancements
 
 #### Personal Access Tokens
 

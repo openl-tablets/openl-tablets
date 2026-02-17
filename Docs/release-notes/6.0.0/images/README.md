@@ -14,3 +14,4 @@ The following images are referenced in the release notes and need to be uploaded
 
 - `admin-panel.png` — Screenshot of the redesigned Admin Panel showing the unified navigation and user management interface
 - `mcp-integration.png` — Diagram or screenshot illustrating the MCP integration architecture and AI assistant workflow
+- `access-control.png` — Screenshot of the simplified role-based access control interface showing the three-role model
