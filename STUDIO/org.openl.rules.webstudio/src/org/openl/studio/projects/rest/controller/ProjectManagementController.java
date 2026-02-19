@@ -154,7 +154,7 @@ public class ProjectManagementController {
     @Hidden
     @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/delete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
-    public void delete(@DesignRepository("repo-name") Repository repo,
+    public void delete(@PathVariable("repo-name") String repoId,
                        @PathVariable("proj-name") String name,
                        @RequestParam(value = "comment", required = false) final String comment) {
         // FIXME request body is not allowed for DELETE method.
@@ -162,13 +162,12 @@ public class ProjectManagementController {
         // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE
         // request might cause some existing implementations to reject the request.
         try {
-            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            RulesProject project = getUserWorkspace().getProject(repoId, name);
             if (!aclProjectsHelper.hasPermission(project, BasePermission.DELETE)) {
                 throw new ForbiddenException();
             }
             if (!projectStateValidator.canDelete(project)) {
-                if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
-                        .isLocalOnly()) {
+                if (!project.isLocalOnly() && project.getDesignRepository().supports().branches() && project.getVersion() == null) {
                     throw new ConflictException("project.delete.branch.message");
                 }
                 if (project.isLocked() || project.isLockedByMe()) {

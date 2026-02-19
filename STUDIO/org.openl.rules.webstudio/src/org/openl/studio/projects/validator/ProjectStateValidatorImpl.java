@@ -64,8 +64,11 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
         if (project == null || project.isDeleted()) {
             return false;
         }
-
-        if (!project.isLocalOnly() && project.getRepository().supports().branches() && project.getVersion() == null) {
+        if (project.isLocalOnly()) {
+            // any user can delete own local project
+            return true;
+        }
+        if (project.getRepository().supports().branches() && project.getVersion() == null) {
             return false;
         }
 
