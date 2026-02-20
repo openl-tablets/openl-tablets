@@ -1,0 +1,75 @@
+.trace-tree {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .trace-tree-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-bottom: 1px solid #e8e8e8;
+        flex-shrink: 0;
+    }
+
+    .trace-tree-content {
+        flex: 1;
+        overflow: auto; // Both vertical and horizontal scrolls
+        padding: 8px;
+
+        .ant-tree {
+            background: transparent;
+            min-width: max-content; // Prevent tree from shrinking, enables horizontal scroll
+
+            .ant-tree-treenode {
+                white-space: nowrap; // Prevent title from wrapping
+            }
+
+            .ant-tree-node-content-wrapper {
+                display: flex;
+                align-items: center;
+                flex-shrink: 0; // Prevent content from shrinking
+            }
+
+            .ant-tree-title {
+                white-space: nowrap; // Ensure title stays on single line
+            }
+
+            .ant-tree-iconEle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    .trace-tree-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+}
+
+// Node styling based on status
+.trace-node-result {
+    .trace-node-title {
+        font-weight: 600;
+    }
+}
+
+.trace-node-fail,
+.trace-node-no-result {
+    .trace-node-title {
+        font-style: italic;
+        color: #8c8c8c;
+    }
+}
+
+// Error node styling
+.trace-node-error {
+    .trace-node-title {
+        color: #ff4d4f;  // Ant Design error red
+    }
+}

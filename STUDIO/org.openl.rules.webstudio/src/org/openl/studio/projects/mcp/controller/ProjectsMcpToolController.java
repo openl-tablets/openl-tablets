@@ -1,6 +1,5 @@
 package org.openl.studio.projects.mcp.controller;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,8 +10,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.common.ProjectException;
@@ -59,15 +60,18 @@ public class ProjectsMcpToolController {
     private final Base64ProjectConverter base64ProjectConverter;
     private final ProjectHistoryService projectHistoryService;
     private final TestsExecutorService testsExecutorService;
+    private final ObjectProvider<SchemaGenerator> schemaGeneratorProvider;
 
     public ProjectsMcpToolController(WorkspaceProjectService projectService,
                                      Base64ProjectConverter base64ProjectConverter,
                                      ProjectHistoryService projectHistoryService,
-                                     TestsExecutorService testsExecutorService) {
+                                     TestsExecutorService testsExecutorService,
+                                     ObjectProvider<SchemaGenerator> schemaGeneratorProvider) {
         this.projectService = projectService;
         this.base64ProjectConverter = base64ProjectConverter;
         this.projectHistoryService = projectHistoryService;
         this.testsExecutorService = testsExecutorService;
+        this.schemaGeneratorProvider = schemaGeneratorProvider;
     }
 
     @Tool(name = McpToolNameConstants.LIST_TOOL_PREFIX + "_projects", description = "List all projects with optional filters (repository, status, name, tag). Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field (format: 'repository-projectName') to use with other tools. Use this to discover and filter projects before opening them for editing.")
@@ -299,7 +303,9 @@ public class ProjectsMcpToolController {
             }
         }
 
-        var mapper = new TestsExecutionSummaryResponseMapper(configureObjectMapper());
+        var objectMapper = configureObjectMapper();
+        var schemaGenerator = schemaGeneratorProvider.getObject(objectMapper);
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
         Pageable pageable;
         if (pagination != null) {
             pageable = Offset.of(pagination.offset(), pagination.limit());

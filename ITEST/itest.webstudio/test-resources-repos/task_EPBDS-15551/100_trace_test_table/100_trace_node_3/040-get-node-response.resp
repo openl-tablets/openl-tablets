@@ -1,0 +1,350 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "return",
+  "description": "SpreadsheetResultBankRatingCalculation",
+  "lazy": false,
+  "value": {
+    "Value_CheckCurrentFinancialData": {
+      "reportDate": "2010-01-01T00:00:00.000",
+      "totalAssets": 754299.0,
+      "claimsOnDemand": 74502.0,
+      "claimsUpTo3Months": 179938.0,
+      "claimsSecuredByPropertyCharges": 134321.0,
+      "claimsOnBanks": 110956.0,
+      "claimsOnCustomers": 336872.0,
+      "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+      "otherAssets": 7349.0,
+      "capital": 40857.0,
+      "equity": 28658.0,
+      "liabilities": 725641.0,
+      "liabilitiesToBanks": 137626.0,
+      "liabilitiesToCustomers": 262827.0,
+      "liabilitiesOnDemand": 193986.0,
+      "liabilitiesToCustomersOnDemand": 143807.0,
+      "consolidatedProfit": 1489.0
+    },
+    "Value_CheckPreviousPeriodFinancialData": {
+      "reportDate": "2009-01-01T00:00:00.000",
+      "totalAssets": 0.0001,
+      "claimsOnDemand": 69940.0,
+      "claimsUpTo3Months": 176674.0,
+      "claimsSecuredByPropertyCharges": 0.0,
+      "claimsOnBanks": 0.0,
+      "claimsOnCustomers": 0.0001,
+      "loanLossProvisionsForClaimsOnCustomers": 0.0,
+      "otherAssets": 0.0,
+      "capital": 41437.0,
+      "equity": 0.0,
+      "liabilities": 817527.0,
+      "liabilitiesToBanks": 0.0,
+      "liabilitiesToCustomers": 264618.0,
+      "liabilitiesOnDemand": 179283.0,
+      "liabilitiesToCustomersOnDemand": 0.0,
+      "consolidatedProfit": -4633.0
+    },
+    "Value_BalanceQualityIndexCalculation": {
+      "Description_CapitalAdequacy": "Calculate Capital Adequacy (%)",
+      "Value_CapitalAdequacy": 5.4,
+      "Description_CapitalAdequacyScore": "Score Q1",
+      "Value_CapitalAdequacyScore": 0.8,
+      "Description_ClaimsOnCustomerRatio": "Calculate Claims on  Customer Ratio in Assets (%)",
+      "Value_ClaimsOnCustomerRatio": 44.7,
+      "Description_ClaimsOnCustomerRatioScore": "Score Q2",
+      "Value_ClaimsOnCustomerRatioScore": 1.0,
+      "Description_CreditPortfolioQuality": "Calculate Quality of Credit Portfolio (%)",
+      "Value_CreditPortfolioQuality": 2.7,
+      "Description_CreditPortfolioQualityScore": "Score Q3",
+      "Value_CreditPortfolioQualityScore": 1.0,
+      "Description_SecuredByPropertyChargesClaimsRatio": "Calculate Secured by Property Charges Claims Ratio (%)",
+      "Value_SecuredByPropertyChargesClaimsRatio": 39.9,
+      "Description_SecuredByPropertyChargesClaimsRatioScore": "Score Q4",
+      "Value_SecuredByPropertyChargesClaimsRatioScore": 0.95,
+      "Description_QuickRatio": "Calculate Quick Ratio (%)",
+      "Value_QuickRatio": 38.4,
+      "Description_QuickRatioScore": "Score Q5",
+      "Value_QuickRatioScore": 0.95,
+      "Description_LiquidityRatio": "Calculate Liquidity Ratio (%)",
+      "Value_LiquidityRatio": 24.8,
+      "Description_LiquidityRatioScore": "Score Q6",
+      "Value_LiquidityRatioScore": 0.9,
+      "Description_HighLiquidityRatio": "Calculate High Liquidity Ratio (%)",
+      "Value_HighLiquidityRatio": 9.9,
+      "Description_HighLiquidityRatioScore": "Score Q7",
+      "Value_HighLiquidityRatioScore": 0.8,
+      "Description_NetMoneyMarketLiabilities": "Calculate Net Liabilities at Money Market (%)",
+      "Value_NetMoneyMarketLiabilities": 3.5,
+      "Description_NetMoneyMarketLiabilitiesScore": "Score Q8",
+      "Value_NetMoneyMarketLiabilitiesScore": 1.0,
+      "Description_LiabilitiesToCustomersOnDemandRatio": "Calculate Liabilities to Customers on Demand Ratio (%)",
+      "Value_LiabilitiesToCustomersOnDemandRatio": 19.8,
+      "Description_LiabilitiesToCustomersOnDemandRatioScore": "Score Q9",
+      "Value_LiabilitiesToCustomersOnDemandRatioScore": 0.95,
+      "Description_OtherAssetsRatio": "Calculate Other Assets Ratio (%)",
+      "Value_OtherAssetsRatio": 1.0,
+      "Description_OtherAssetsRatioScore": "Score Q10",
+      "Value_OtherAssetsRatioScore": 1.0,
+      "Description_BalanceQualityIndex": "Balance Quality Index \nB = Q1 x Q2 x Q3 x Q4 x Q5 x Q6 x Q7 x x Q8 x Q9 x Q10",
+      "Value_BalanceQualityIndex": 0.49
+    },
+    "Description_BalanceDynamicIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "Value_BalanceDynamicIndexCalculation": 0.94,
+    "Description_BankQualitativeIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "Value_BankQualitativeIndexCalculation": 0.9,
+    "Description_IsAdequateNormativeIndexCalculation": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators",
+    "Value_IsAdequateNormativeIndexCalculation": 1.0,
+    "Description_BankRating": "Bank Rating R = B x B1 x B2 x B3",
+    "Value_BankRating": 0.41,
+    "Description_BankRatingGroup": "Calculate Bank Rating Group",
+    "Value_BankRatingGroup": "R3",
+    "Description_LimitIndex": "Calculate Limit Index Kl",
+    "Value_LimitIndex": 1.0,
+    "Description_Limit": "Max Limit which Bank is Allowed\nL = Kl x Lmax",
+    "Value_Limit": 5000.0
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "FinancialData": {
+        "type": "object",
+        "properties": {
+          "capital": {
+            "type": "number"
+          },
+          "claimsOnBanks": {
+            "type": "number"
+          },
+          "claimsOnCustomers": {
+            "type": "number"
+          },
+          "claimsOnDemand": {
+            "type": "number"
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number"
+          },
+          "claimsUpTo3Months": {
+            "type": "number"
+          },
+          "consolidatedProfit": {
+            "type": "number"
+          },
+          "equity": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "liabilitiesOnDemand": {
+            "type": "number"
+          },
+          "liabilitiesToBanks": {
+            "type": "number"
+          },
+          "liabilitiesToCustomers": {
+            "type": "number"
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number"
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number"
+          },
+          "otherAssets": {
+            "type": "number"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAssets": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "type": "object",
+    "properties": {
+      "Value_CheckCurrentFinancialData": {
+        "$ref": "#/$defs/FinancialData"
+      },
+      "Value_CheckPreviousPeriodFinancialData": {
+        "$ref": "#/$defs/FinancialData"
+      },
+      "Value_BalanceQualityIndexCalculation": {
+        "type": "object",
+        "properties": {
+          "Description_CapitalAdequacy": {
+            "type": "string"
+          },
+          "Value_CapitalAdequacy": {
+            "type": "number"
+          },
+          "Description_CapitalAdequacyScore": {
+            "type": "string"
+          },
+          "Value_CapitalAdequacyScore": {
+            "type": "number"
+          },
+          "Description_ClaimsOnCustomerRatio": {
+            "type": "string"
+          },
+          "Value_ClaimsOnCustomerRatio": {
+            "type": "number"
+          },
+          "Description_ClaimsOnCustomerRatioScore": {
+            "type": "string"
+          },
+          "Value_ClaimsOnCustomerRatioScore": {
+            "type": "number"
+          },
+          "Description_CreditPortfolioQuality": {
+            "type": "string"
+          },
+          "Value_CreditPortfolioQuality": {
+            "type": "number"
+          },
+          "Description_CreditPortfolioQualityScore": {
+            "type": "string"
+          },
+          "Value_CreditPortfolioQualityScore": {
+            "type": "number"
+          },
+          "Description_SecuredByPropertyChargesClaimsRatio": {
+            "type": "string"
+          },
+          "Value_SecuredByPropertyChargesClaimsRatio": {
+            "type": "number"
+          },
+          "Description_SecuredByPropertyChargesClaimsRatioScore": {
+            "type": "string"
+          },
+          "Value_SecuredByPropertyChargesClaimsRatioScore": {
+            "type": "number"
+          },
+          "Description_QuickRatio": {
+            "type": "string"
+          },
+          "Value_QuickRatio": {
+            "type": "number"
+          },
+          "Description_QuickRatioScore": {
+            "type": "string"
+          },
+          "Value_QuickRatioScore": {
+            "type": "number"
+          },
+          "Description_LiquidityRatio": {
+            "type": "string"
+          },
+          "Value_LiquidityRatio": {
+            "type": "number"
+          },
+          "Description_LiquidityRatioScore": {
+            "type": "string"
+          },
+          "Value_LiquidityRatioScore": {
+            "type": "number"
+          },
+          "Description_HighLiquidityRatio": {
+            "type": "string"
+          },
+          "Value_HighLiquidityRatio": {
+            "type": "number"
+          },
+          "Description_HighLiquidityRatioScore": {
+            "type": "string"
+          },
+          "Value_HighLiquidityRatioScore": {
+            "type": "number"
+          },
+          "Description_NetMoneyMarketLiabilities": {
+            "type": "string"
+          },
+          "Value_NetMoneyMarketLiabilities": {
+            "type": "number"
+          },
+          "Description_NetMoneyMarketLiabilitiesScore": {
+            "type": "string"
+          },
+          "Value_NetMoneyMarketLiabilitiesScore": {
+            "type": "number"
+          },
+          "Description_LiabilitiesToCustomersOnDemandRatio": {
+            "type": "string"
+          },
+          "Value_LiabilitiesToCustomersOnDemandRatio": {
+            "type": "number"
+          },
+          "Description_LiabilitiesToCustomersOnDemandRatioScore": {
+            "type": "string"
+          },
+          "Value_LiabilitiesToCustomersOnDemandRatioScore": {
+            "type": "number"
+          },
+          "Description_OtherAssetsRatio": {
+            "type": "string"
+          },
+          "Value_OtherAssetsRatio": {
+            "type": "number"
+          },
+          "Description_OtherAssetsRatioScore": {
+            "type": "string"
+          },
+          "Value_OtherAssetsRatioScore": {
+            "type": "number"
+          },
+          "Description_BalanceQualityIndex": {
+            "type": "string"
+          },
+          "Value_BalanceQualityIndex": {
+            "type": "number"
+          }
+        }
+      },
+      "Description_BalanceDynamicIndexCalculation": {
+        "type": "string"
+      },
+      "Value_BalanceDynamicIndexCalculation": {
+        "type": "number"
+      },
+      "Description_BankQualitativeIndexCalculation": {
+        "type": "string"
+      },
+      "Value_BankQualitativeIndexCalculation": {
+        "type": "number"
+      },
+      "Description_IsAdequateNormativeIndexCalculation": {
+        "type": "string"
+      },
+      "Value_IsAdequateNormativeIndexCalculation": {
+        "type": "number"
+      },
+      "Description_BankRating": {
+        "type": "string"
+      },
+      "Value_BankRating": {
+        "type": "number"
+      },
+      "Description_BankRatingGroup": {
+        "type": "string"
+      },
+      "Value_BankRatingGroup": {
+        "type": "string"
+      },
+      "Description_LimitIndex": {
+        "type": "string"
+      },
+      "Value_LimitIndex": {
+        "type": "number"
+      },
+      "Description_Limit": {
+        "type": "string"
+      },
+      "Value_Limit": {
+        "type": "number"
+      }
+    }
+  }
+}

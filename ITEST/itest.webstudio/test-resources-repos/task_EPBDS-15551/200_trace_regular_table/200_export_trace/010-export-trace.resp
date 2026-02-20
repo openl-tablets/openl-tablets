@@ -1,0 +1,107 @@
+HTTP/1.1 200 OK
+Content-Disposition: attachment; filename=trace.txt; filename*=UTF-8''trace.txt
+Content-Type: text/plain;charset=utf-8
+
+TRACE: SpreadSheet Double BalanceDynamicIndexCalculation(FinancialData currentFinancialData, FinancialData previousFinancialData) = 0.94
+    at Bank%20Rating&openl=
+	TRACE: $Description$CapitalDynamic = Calculate Capital Dynamic (%)
+	    at Bank%20Rating&openl=
+	TRACE: $Value$CapitalDynamic = 98.60028476965032
+	    at Bank%20Rating&openl=
+	TRACE: $Description$CapitalDynamicScore = Capital Dynamic Score D1
+	    at Bank%20Rating&openl=
+	TRACE: $Value$CapitalDynamicScore = 0.9
+	    at Bank%20Rating&openl=
+		TRACE: $Value$CapitalDynamic = 98.60028476965032
+		    at Bank%20Rating&openl=
+		TRACE: DT Double CapitalDynamicScore(Double capitalDynamic) = 0.9
+		    at Bank%20Rating&openl=
+			TRACE: Condition: MC1, Rules: [R3]
+			    at Bank%20Rating&openl=
+			TRACE: Returned rule: [R3]
+			    at Bank%20Rating&openl=
+	TRACE: $Description$QuickLiquidityDynamic = Calculate Quick Liquidity Dynamic (%)
+	    at Bank%20Rating&openl=
+	TRACE: $Value$QuickLiquidityDynamic = 98.44893589645855
+	    at Bank%20Rating&openl=
+	TRACE: $Description$QuickLiquidityDynamicScore = Quick Liquidity Dynamic Score D2
+	    at Bank%20Rating&openl=
+	TRACE: $Value$QuickLiquidityDynamicScore = 0.9
+	    at Bank%20Rating&openl=
+		TRACE: $Value$QuickLiquidityDynamic = 98.44893589645855
+		    at Bank%20Rating&openl=
+		TRACE: DT Double LiquidityDynamicScore(Double liquidityDynamic) = 0.9
+		    at Bank%20Rating&openl=
+			TRACE: Condition: MC1, Rules: [R3]
+			    at Bank%20Rating&openl=
+			TRACE: Returned rule: [R3]
+			    at Bank%20Rating&openl=
+	TRACE: $Description$LiquidityDynamic = Calculate Liquidity Dynamic (%)
+	    at Bank%20Rating&openl=
+	TRACE: $Value$LiquidityDynamic = 114.74414621146013
+	    at Bank%20Rating&openl=
+	TRACE: $Description$LiquidityDynamicScore = Liquidity Dynamic Score D3
+	    at Bank%20Rating&openl=
+	TRACE: $Value$LiquidityDynamicScore = 1
+	    at Bank%20Rating&openl=
+		TRACE: $Value$LiquidityDynamic = 114.74414621146013
+		    at Bank%20Rating&openl=
+		TRACE: DT Double LiquidityDynamicScore(Double liquidityDynamic) = 1
+		    at Bank%20Rating&openl=
+			TRACE: Condition: MC1, Rules: [R4]
+			    at Bank%20Rating&openl=
+			TRACE: Returned rule: [R4]
+			    at Bank%20Rating&openl=
+	TRACE: $Description$ProfitDynamic = Calculate Profit Dynamic (%)
+	    at Bank%20Rating&openl=
+	TRACE: $Value$ProfitDynamic = -32.13900280595726
+	    at Bank%20Rating&openl=
+	TRACE: $Description$ProfitDynamicScore = Profit Dynamic Score D4
+	    at Bank%20Rating&openl=
+	TRACE: $Value$ProfitDynamicScore = 1
+	    at Bank%20Rating&openl=
+		TRACE: $Value$ProfitDynamic = -32.13900280595726
+		    at Bank%20Rating&openl=
+		TRACE: DT Double ProfitDynamicScore(Double profitDynamic, Double profit) = 1
+		    at Bank%20Rating&openl=
+			TRACE: Indexed condition: C1, Rules: [R1, R6]
+			    at Bank%20Rating&openl=
+			TRACE: Condition: C2, Rules: [R1]
+			    at Bank%20Rating&openl=
+			TRACE: Returned rule: [R1]
+			    at Bank%20Rating&openl=
+	TRACE: $Description$LiabilitiesToCustomersDynamic = Calculate Liabilities to Customers Dynamic (%)
+	    at Bank%20Rating&openl=
+	TRACE: $Value$LiabilitiesToCustomersDynamic = 99.32317529419767
+	    at Bank%20Rating&openl=
+	TRACE: $Description$LiabilitiesToCustomersDynamicScore = Liabilities to Customers Dynamic Score D5
+	    at Bank%20Rating&openl=
+	TRACE: $Value$LiabilitiesToCustomersDynamicScore = 0.9
+	    at Bank%20Rating&openl=
+		TRACE: $Value$LiabilitiesToCustomersDynamic = 99.32317529419767
+		    at Bank%20Rating&openl=
+		TRACE: DT Double LiabilitiesToCustomersDynamicScore(Double LiabToCustDynamic) = 0.9
+		    at Bank%20Rating&openl=
+			TRACE: Condition: MC1, Rules: [R3]
+			    at Bank%20Rating&openl=
+			TRACE: Returned rule: [R3]
+			    at Bank%20Rating&openl=
+	TRACE: $Description$BalanceDynamicIndex = Balance Dynamic Index
+B1 = (D1 + D2 + D3 + D4 + D5) / 5
+	    at Bank%20Rating&openl=
+	TRACE: $Value$BalanceDynamicIndex = 0.94
+	    at Bank%20Rating&openl=
+		TRACE: $Value$CapitalDynamicScore = 0.9
+		    at Bank%20Rating&openl=
+		TRACE: $Value$QuickLiquidityDynamicScore = 0.9
+		    at Bank%20Rating&openl=
+		TRACE: $Value$LiquidityDynamicScore = 1
+		    at Bank%20Rating&openl=
+		TRACE: $Value$ProfitDynamicScore = 1
+		    at Bank%20Rating&openl=
+		TRACE: $Value$LiabilitiesToCustomersDynamicScore = 0.9
+		    at Bank%20Rating&openl=
+	TRACE: $Value$RETURN = 0.94
+	    at Bank%20Rating&openl=
+		TRACE: $Value$BalanceDynamicIndex = 0.94
+		    at Bank%20Rating&openl=

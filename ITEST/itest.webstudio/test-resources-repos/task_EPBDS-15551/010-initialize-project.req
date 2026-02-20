@@ -1,0 +1,11 @@
+PUT /rest/repos/design-flat/projects/{PROJECT_BUSINESS_NAME} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-15551.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-15551.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

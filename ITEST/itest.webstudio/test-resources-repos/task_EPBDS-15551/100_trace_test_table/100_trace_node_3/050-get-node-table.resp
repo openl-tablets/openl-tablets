@@ -1,0 +1,69 @@
+HTTP/1.1 200 OK
+Content-Type: text/html;charset=iso-8859-1
+
+<table class="te_table">
+<tr>
+<td colspan="4" style="***" id="cell_1_1">Spreadsheet SpreadsheetResult BankRatingCalculation (Bank bank)</td>
+</tr>
+<tr>
+<td rowspan="2" style="***" id="cell_2_1">properties</td>
+<td style="***" id="cell_2_2">lob</td>
+<td colspan="2" style="***" id="cell_2_3">BANK</td>
+</tr>
+<tr>
+<td style="***" id="cell_3_2">description</td>
+<td colspan="2" style="***" id="cell_3_3">At first, Balance Quality Index B is calculated on basis of balance sheet data for assessing the quality of the bank-counterparty's balance sheet.          Then, the correction indices B1 (Balance Dynamic Index), B2 (Bank Qualitative Index), B3 (IsAdequate Normative Index) for the index B are determined according to the analysis of the dynamic performance of essential financial indicators, the qualitative factors of the bank, the abidance of central bank&amp;rsquo;s requirements.           Thereby, the final bank rating R reflecting the bank-counterparty&amp;rsquo;s reliability is defined as product of Balance Quality Index B and its three correction indices B1, B2, B3: Bank Rating R = B * B1 * B2 * B3.           Depending on the calculated value of the bank rating, the bank-counterparty is related to one of five Bank Rating Groups (categories of reliability): R1, R2, R3, R4, R5.          The final value of the Limit for transactions that are subject to credit risk from the bank-counterparty is calculated as product of the Limit Index (Kl) and the maximum limit allowed on a bank-counterparty (Lmax): L = Kl * Lmax, where Kl is determined by the Bank Rating Group, ratings assigned by international rating agencies, the country and total assets of the bank.</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_4_1">Step</td>
+<td style="***" id="cell_4_3">Description</td>
+<td style="***" id="cell_4_4">Value</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_5_1">CheckCurrentFinancialData</td>
+<td rowspan="2" style="***" id="cell_5_3">&nbsp;</td>
+<td style="***" id="cell_5_4">= SetNonZeroValues(currentFinancialData)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_6_1">CheckPreviousPeriodFinancialData</td>
+<td style="***" id="cell_6_4">= SetNonZeroValues(previousFinancialData)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_7_1">BalanceQualityIndexCalculation</td>
+<td style="***" id="cell_7_3">&nbsp;</td>
+<td style="***" id="cell_7_4">= BalanceQualityIndexCalculation(currentFinancialData)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_8_1">BalanceDynamicIndexCalculation</td>
+<td rowspan="3" style="***" id="cell_8_3">Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators</td>
+<td style="***" id="cell_8_4">= BalanceDynamicIndexCalculation(currentFinancialData, previousFinancialData)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_9_1">BankQualitativeIndexCalculation</td>
+<td style="***" id="cell_9_4">= BankQualitativeIndexCalculation(bank)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_10_1">IsAdequateNormativeIndexCalculation</td>
+<td style="***" id="cell_10_4">= IsAdequateNormativeIndexCalculation(bank)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_11_1">BankRating</td>
+<td style="***" id="cell_11_3">Bank Rating R = B x B1 x B2 x B3</td>
+<td style="***" id="cell_11_4">= round( $BalanceQualityIndexCalculation.$Value$BalanceQualityIndex * $BalanceDynamicIndexCalculation * $BankQualitativeIndexCalculation * $IsAdequateNormativeIndexCalculation, 2)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_12_1">BankRatingGroup</td>
+<td style="***" id="cell_12_3">Calculate Bank Rating Group</td>
+<td style="***" id="cell_12_4">= BankRatingGroup($BankRating)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_13_1">LimitIndex</td>
+<td style="***" id="cell_13_3">Calculate Limit Index Kl</td>
+<td style="***" id="cell_13_4">= BankLimitIndex(bank, $BankRatingGroup)</td>
+</tr>
+<tr>
+<td colspan="2" style="***" id="cell_14_1">Limit</td>
+<td style="***" id="cell_14_3">Max Limit which Bank is Allowed<br>L = Kl x Lmax</td>
+<td style="***" id="cell_14_4">= $LimitIndex * MaxLimit</td>
+</tr>
+</table>

@@ -1,0 +1,228 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "bank",
+  "description": "Bank",
+  "lazy": false,
+  "value": {
+    "bankID": "commerz",
+    "bankFullName": "Commerzbank",
+    "countryCode": "DE",
+    "bankRatings": [
+      {
+        "ratingAgency": "Moody's Investors Service",
+        "rating": "A2"
+      },
+      {
+        "ratingAgency": "Fitch",
+        "rating": "A+"
+      },
+      {
+        "ratingAgency": "Standard & Poor's",
+        "rating": "A"
+      }
+    ],
+    "currentFinancialData": {
+      "reportDate": "2010-01-01T00:00:00.000",
+      "totalAssets": 754299.0,
+      "claimsOnDemand": 74502.0,
+      "claimsUpTo3Months": 179938.0,
+      "claimsSecuredByPropertyCharges": 134321.0,
+      "claimsOnBanks": 110956.0,
+      "claimsOnCustomers": 336872.0,
+      "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+      "otherAssets": 7349.0,
+      "capital": 40857.0,
+      "equity": 28658.0,
+      "liabilities": 725641.0,
+      "liabilitiesToBanks": 137626.0,
+      "liabilitiesToCustomers": 262827.0,
+      "liabilitiesOnDemand": 193986.0,
+      "liabilitiesToCustomersOnDemand": 143807.0,
+      "consolidatedProfit": 1489.0
+    },
+    "previousFinancialData": {
+      "reportDate": "2009-01-01T00:00:00.000",
+      "totalAssets": 0.0,
+      "claimsOnDemand": 69940.0,
+      "claimsUpTo3Months": 176674.0,
+      "claimsSecuredByPropertyCharges": 0.0,
+      "claimsOnBanks": 0.0,
+      "claimsOnCustomers": 1.0E-4,
+      "loanLossProvisionsForClaimsOnCustomers": 0.0,
+      "otherAssets": 0.0,
+      "capital": 41437.0,
+      "equity": 0.0,
+      "liabilities": 817527.0,
+      "liabilitiesToBanks": 0.0,
+      "liabilitiesToCustomers": 264618.0,
+      "liabilitiesOnDemand": 179283.0,
+      "liabilitiesToCustomersOnDemand": 0.0,
+      "consolidatedProfit": -4633.0
+    },
+    "qualityIndicators": {
+      "reportDate": "2010-01-01T00:00:00.000",
+      "lossesInThisYear": false,
+      "negativeHistoryRelations": false,
+      "negativeMassMedia": false,
+      "negativeInfoShareHoldersOrManagement": false,
+      "downgradesOfBankRating": true,
+      "isAdequateCoreCapitalRatio": true,
+      "isAdequateLiquidityRatio": true,
+      "isAdequateMaxCreditRisk": true
+    }
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "FinancialData": {
+        "type": "object",
+        "properties": {
+          "capital": {
+            "type": "number"
+          },
+          "claimsOnBanks": {
+            "type": "number"
+          },
+          "claimsOnCustomers": {
+            "type": "number"
+          },
+          "claimsOnDemand": {
+            "type": "number"
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number"
+          },
+          "claimsUpTo3Months": {
+            "type": "number"
+          },
+          "consolidatedProfit": {
+            "type": "number"
+          },
+          "equity": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "liabilitiesOnDemand": {
+            "type": "number"
+          },
+          "liabilitiesToBanks": {
+            "type": "number"
+          },
+          "liabilitiesToCustomers": {
+            "type": "number"
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number"
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number"
+          },
+          "otherAssets": {
+            "type": "number"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAssets": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "type": "object",
+    "properties": {
+      "bankFullName": {
+        "type": "string"
+      },
+      "bankID": {
+        "type": "string"
+      },
+      "bankRatings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rating": {
+              "type": "string"
+            },
+            "ratingAgency": {
+              "type": "string",
+              "enum": [
+                "Moody's Investors Service",
+                "Fitch",
+                "Standard & Poor's"
+              ]
+            }
+          }
+        }
+      },
+      "countryCode": {
+        "type": "string",
+        "enum": [
+          "DE",
+          "BE",
+          "NL",
+          "AT",
+          "CH",
+          "DK",
+          "US",
+          "FR",
+          "IT",
+          "CZ",
+          "SE",
+          "FI",
+          "UA",
+          "KZ",
+          "PL",
+          "GB",
+          "RU",
+          "IE"
+        ]
+      },
+      "currentFinancialData": {
+        "$ref": "#/$defs/FinancialData"
+      },
+      "previousFinancialData": {
+        "$ref": "#/$defs/FinancialData"
+      },
+      "qualityIndicators": {
+        "type": "object",
+        "properties": {
+          "downgradesOfBankRating": {
+            "type": "boolean"
+          },
+          "isAdequateCoreCapitalRatio": {
+            "type": "boolean"
+          },
+          "isAdequateLiquidityRatio": {
+            "type": "boolean"
+          },
+          "isAdequateMaxCreditRisk": {
+            "type": "boolean"
+          },
+          "lossesInThisYear": {
+            "type": "boolean"
+          },
+          "negativeHistoryRelations": {
+            "type": "boolean"
+          },
+          "negativeInfoShareHoldersOrManagement": {
+            "type": "boolean"
+          },
+          "negativeMassMedia": {
+            "type": "boolean"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
