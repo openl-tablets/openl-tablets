@@ -17,7 +17,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     @Override
     public boolean canSave(UserWorkspaceProject project) {
-        return project.isModified() && isEditableProject(project);
+        return project != null && project.isModified() && isEditableProject(project);
     }
 
     private boolean isEditableProject(UserWorkspaceProject project) {
