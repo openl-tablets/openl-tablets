@@ -1,0 +1,3 @@
+GET /rest/projects?repository=design-file HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

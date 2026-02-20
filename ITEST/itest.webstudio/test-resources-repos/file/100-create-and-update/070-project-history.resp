@@ -1,0 +1,20 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "author": {
+        "displayName": "*"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 1,
+  "numberOfElements": 1
+}

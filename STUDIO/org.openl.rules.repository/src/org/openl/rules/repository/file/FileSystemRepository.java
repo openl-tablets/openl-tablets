@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileUtils;
 
@@ -237,7 +239,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return check(name);
         }
         return null;
@@ -245,7 +247,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(name))) {
             return read(name);
         }
         return null;
@@ -253,12 +255,15 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        return data.getVersion() == null && delete(data);
+        if (data.getVersion() == null || Objects.equals(data.getVersion(), getVersion(data.getName()))) {
+            return delete(data);
+        }
+        return false;
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(srcName))) {
             return copy(srcName, destData);
         }
         throw new FileNotFoundException("File versions are not supported.");
@@ -281,6 +286,12 @@ public class FileSystemRepository implements Repository, Closeable {
         data.setVersion(getVersion(file));
         if (Files.isRegularFile(file)) {
             data.setSize(Files.size(file));
+        }
+        try {
+            var owner = Files.getOwner(file);
+            data.setAuthor(new UserInfo(owner.getName()));
+        } catch (UnsupportedOperationException ignored) {
+            // File system does not support owner attribute
         }
         return data;
     }
@@ -329,9 +340,13 @@ public class FileSystemRepository implements Repository, Closeable {
         return null;
     }
 
+    protected String getVersion(String path) throws IOException {
+        return null;
+    }
+
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        if (version == null) {
+        if (version == null || Objects.equals(version, getVersion(path))) {
             return list(path);
         }
 

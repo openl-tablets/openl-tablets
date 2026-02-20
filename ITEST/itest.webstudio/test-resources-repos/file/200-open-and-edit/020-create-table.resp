@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "e1556fd97dd6c5017afe103067ae3e7e",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "TestType",
+  "file": "Project/Main.xlsx",
+  "pos": "*"
+}

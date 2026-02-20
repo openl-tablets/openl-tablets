@@ -1,0 +1,6 @@
+DELETE /rest/user-workspace/local/projects/EPBDS-15649/delete HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/x-www-form-urlencoded
+
+comment=Cleanup
