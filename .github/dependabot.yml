@@ -12,7 +12,8 @@ updates:
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
-    directory: "STUDIO/studio-ui/"
+    directories:
+      - "STUDIO/studio-ui/"
     schedule:
       interval: "daily"
     groups:
