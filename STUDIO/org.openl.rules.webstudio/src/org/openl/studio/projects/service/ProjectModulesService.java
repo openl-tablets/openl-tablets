@@ -8,14 +8,15 @@ import jakarta.validation.constraints.NotNull;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.studio.projects.model.modules.CopyModuleRequest;
 import org.openl.studio.projects.model.modules.CopyModuleResponse;
+import org.openl.studio.projects.model.modules.EditModuleRequest;
 import org.openl.studio.projects.model.modules.ModuleView;
 import org.openl.studio.projects.model.modules.WildcardModuleView;
 
 /**
- * Service for project module operations: listing and copying modules.
+ * Service for project module operations: listing, copying, adding, editing, and removing modules.
  *
  * <p>Provides a REST-friendly service layer for module management, replacing
- * the legacy copy-module logic from {@code ProjectBean}.</p>
+ * the legacy module logic from {@code ProjectBean}.</p>
  *
  * <h3>Thread Safety</h3>
  * <p>Implementations should be thread-safe for concurrent operations on different projects.</p>
@@ -24,6 +25,7 @@ import org.openl.studio.projects.model.modules.WildcardModuleView;
  * @see WildcardModuleView
  * @see CopyModuleRequest
  * @see CopyModuleResponse
+ * @see EditModuleRequest
  */
 public interface ProjectModulesService {
 
@@ -72,4 +74,76 @@ public interface ProjectModulesService {
                                   @NotBlank String moduleName,
                                   @Valid CopyModuleRequest request,
                                   boolean force);
+
+    /**
+     * Adds a new module to the project descriptor.
+     *
+     * <p>Replicates the legacy {@code ProjectBean.editModule()} behavior in add-new mode.</p>
+     *
+     * <p><b>Side effects:</b></p>
+     * <ul>
+     *   <li>Locks the project</li>
+     *   <li>Updates the project descriptor (rules.xml)</li>
+     * </ul>
+     *
+     * @param project the rules project to add the module to
+     * @param request module definition (name, path, method filter, compilation settings)
+     * @return the created module view
+     * @throws org.openl.studio.common.exception.BadRequestException if validation fails (name, path)
+     * @throws org.openl.studio.common.exception.ConflictException if module name or path conflicts, project is locked, or save fails
+     * @throws org.openl.studio.common.exception.ForbiddenException if insufficient permissions
+     */
+    @NotNull
+    ModuleView addModule(@NotNull RulesProject project, @Valid EditModuleRequest request);
+
+    /**
+     * Edits an existing module in the project descriptor.
+     *
+     * <p>Replicates the legacy {@code ProjectBean.editModule()} behavior in edit mode.
+     * Supports renaming, path change, method filter update, and compilation settings.</p>
+     *
+     * <p><b>Side effects:</b></p>
+     * <ul>
+     *   <li>Locks the project</li>
+     *   <li>Updates the project descriptor (rules.xml)</li>
+     *   <li>If renamed: updates OpenAPI module name references</li>
+     * </ul>
+     *
+     * @param project the rules project containing the module
+     * @param moduleName current name of the module to edit
+     * @param request new module definition (name, path, method filter, compilation settings)
+     * @return the updated module view
+     * @throws org.openl.studio.common.exception.NotFoundException if module not found
+     * @throws org.openl.studio.common.exception.BadRequestException if validation fails (name, path)
+     * @throws org.openl.studio.common.exception.ConflictException if name or path conflicts, project is locked, or save fails
+     * @throws org.openl.studio.common.exception.ForbiddenException if insufficient permissions
+     */
+    @NotNull
+    ModuleView editModule(@NotNull RulesProject project,
+                          @NotBlank String moduleName,
+                          @Valid EditModuleRequest request);
+
+    /**
+     * Removes a module from the project descriptor and optionally deletes associated files.
+     *
+     * <p>Replicates the legacy {@code ProjectBean.removeModule()} behavior.</p>
+     *
+     * <p><b>Side effects:</b></p>
+     * <ul>
+     *   <li>Locks the project</li>
+     *   <li>If {@code !keepFile}: deletes module file(s) — for wildcards, all matched files</li>
+     *   <li>Updates the project descriptor (rules.xml) or marks project as modified</li>
+     *   <li>Clears OpenAPI module name references if applicable</li>
+     * </ul>
+     *
+     * @param project the rules project containing the module
+     * @param moduleName name of the module to remove
+     * @param keepFile if true, only remove from descriptor without deleting the file(s)
+     * @throws org.openl.studio.common.exception.NotFoundException if module not found
+     * @throws org.openl.studio.common.exception.ConflictException if project is locked, delete or save fails
+     * @throws org.openl.studio.common.exception.ForbiddenException if insufficient permissions for descriptor or file deletion
+     */
+    void removeModule(@NotNull RulesProject project,
+                      @NotBlank String moduleName,
+                      boolean keepFile);
 }
