@@ -563,10 +563,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectModel getProjectModel(RulesProject project, @Nullable String moduleName) {
-        if (!project.isOpened()) {
-            throw new ConflictException("project.not.opened.message");
-        }
-
         var projectDescriptor = getProjectDescriptor(project);
         var moduleSelector = projectDescriptor.getModules().stream();
         if (moduleName != null) {
@@ -577,6 +573,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private ProjectDescriptor getProjectDescriptor(RulesProject project) {
+        if (!project.isOpened()) {
+            throw new ConflictException("project.not.opened.message");
+        }
         var webstudio = getWebStudio();
         var projectName = project.getName();
         if (project.isLocalOnly()) {
