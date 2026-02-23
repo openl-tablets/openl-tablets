@@ -15,6 +15,10 @@ updates:
     directory: "STUDIO/studio-ui/"
     schedule:
       interval: "daily"
+    groups:
+      ESLint:
+        patterns:
+          - "*eslint*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
