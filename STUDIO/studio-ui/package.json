@@ -9,7 +9,7 @@
     "@eslint/js": "^9.39.2",
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.0",
-    "i18next": "^25.8.11",
+    "i18next": "^25.8.13",
     "path-browserify": "^1.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
