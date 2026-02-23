@@ -6,7 +6,7 @@
   "homepage": "/",
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^9.39.3",
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.0",
     "i18next": "^25.8.11",
