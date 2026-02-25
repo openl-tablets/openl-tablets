@@ -13,6 +13,10 @@ on:
       - '5.*.x'
     paths-ignore:
       - 'Docs/**'
+      - '.github/**'
+      - '.idea/**'
+      - '.claude/**'
+      - '*.md'
   pull_request:
     types:
       - opened
