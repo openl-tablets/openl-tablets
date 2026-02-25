@@ -33,6 +33,9 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
@@ -77,6 +80,7 @@ import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Implementation of project service for workspace projects.
@@ -557,23 +561,50 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        var webstudio = getWebStudio();
 
-        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
+        var projectDescriptor = getProjectDescriptor(project);
         var moduleSelector = projectDescriptor.getModules().stream();
         if (moduleName != null) {
             moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
         }
         var module = moduleSelector.findFirst().orElse(null);
-        return getProjectModel(project, module);
+        return getProjectModel(projectDescriptor, project, module);
     }
 
-    private ProjectModel getProjectModel(RulesProject project, @Nullable Module module) {
+    private ProjectDescriptor getProjectDescriptor(RulesProject project) {
+        var webstudio = getWebStudio();
+        var projectName = project.getName();
+        if (project.isLocalOnly()) {
+            // The case when in local project is not linked to any design repository,
+            // so project name is may not equal to it is business name.
+            // In that case we should resolve project descriptor manually. and get real project name from it.
+            var localWorkspace = getUserWorkspace().getLocalWorkspace();
+            var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+            var folder = repoRoot.resolve(project.getFolderPath());
+            try {
+                var pd = ProjectResolver.getInstance().resolve(folder);
+                projectName = pd.getName();
+            } catch (ProjectResolvingException e)  {
+                // If project descriptor cannot be resolved, then we cannot open project and get model.
+                // Usually it means that project folder is corrupted or has invalid structure.
+                // User can do nothing with such project until the problem is fixed, so we should not silently ignore that error and return null.
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        }
+
+        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), projectName);
+        if (projectDescriptor == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
+        return projectDescriptor;
+    }
+
+    private ProjectModel getProjectModel(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
         var webstudio = getWebStudio();
-        webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
+        webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
         var moduleModel = webstudio.getModel();
         while (!moduleModel.isProjectCompilationCompleted()) {
             try {
@@ -625,10 +656,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!module.containsTable(tableUri)) {
             // if table is not in the current module, then need to find it and inititialize module.
             // otherwise, all required listeners and hooks will not function properly
-            var pd = getWebStudio().getProjectByName(project.getRepository().getId(), project.getName());
+            var pd = getProjectDescriptor(project);
             module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
             // initialize module
-            moduleModel = getProjectModel(project, module);
+            moduleModel = getProjectModel(pd, project, module);
             table = moduleModel.getTableById(tableId);
             if (table == null) {
                 throw new NotFoundException("table.message");
