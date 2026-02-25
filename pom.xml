@@ -1209,6 +1209,7 @@
                 <!-- this dependency is used through AWS S3Client -->
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
+                <version>4.5.14</version>
                 <exclusions>
                     <exclusion>
                         <!-- Classes from the commons-logging are duplicated by spring-jcl
