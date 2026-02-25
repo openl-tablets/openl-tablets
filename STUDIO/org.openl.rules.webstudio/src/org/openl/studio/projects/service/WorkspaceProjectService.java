@@ -567,7 +567,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return getProjectModel(projectDescriptor, project, module);
     }
 
-    private ProjectDescriptor getProjectDescriptor(RulesProject project) {
+    public ProjectDescriptor getProjectDescriptor(RulesProject project) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
