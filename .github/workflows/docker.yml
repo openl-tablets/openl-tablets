@@ -43,7 +43,7 @@ jobs:
 
       - name: Determine the latest version
         run: |
-          metaUrl="$SERVER/org/openl/org.openl.core/maven-metadata.xml"
+          metaUrl="$SERVER/org/openl/org.openl.commons/maven-metadata.xml"
           metaData="$(wget -qO - $metaUrl)"
           latest="$(echo $metaData | xmllint --xpath /metadata/versioning/latest/text\(\) - )"
           version="${{ github.event.inputs.version }}"
