@@ -19,6 +19,8 @@ Generate release notes for OpenL Tablets versions. Output matches the official O
 3. **Keep descriptions concise** - one sentence per item unless truly complex
 4. **Bullet-first approach** - prefer bullet points over paragraphs
 5. **Output format:** Markdown (.md)
+6. **Use `---` horizontal rules** between individual items within each section (between features, between improvement areas, between breaking changes, between migration topics)
+7. **Bold section headings** - use `## **Section Name**` for top-level sections, `### **Item Title**` for items within sections
 
 ## Workflow
 
@@ -49,14 +51,15 @@ Fields: summary, description, issuetype, priority, labels
 - Keep it brief and scannable
 
 #### New Features
-- **Title only** - no sub-headers within features
+- Each feature gets `### **Title**` heading
 - **1-2 sentences** describing what it does and why it matters
 - Bullets for listing capabilities (if needed)
 - Image reference if applicable
+- **Separate each feature with `---`**
 
 **Example:**
 ```markdown
-Enhanced Rule Validation Engine
+### **Enhanced Rule Validation Engine**
 
 The new validation engine automatically detects rule conflicts and dependency issues before deployment. This reduces production errors and speeds up the development cycle.
 
@@ -65,40 +68,66 @@ The new validation engine automatically detects rule conflicts and dependency is
   * One-click impact analysis
 
 ![Image](images/rule-validation.png)
+
+---
+
+### **Simplified Deploy Workflow**
+
+Project deployment is now available as a single-click action.
+
+![DeployProject](images/deploy-project.png)
 ```
 
 #### Improvements
-- Group by area (e.g., "Rules Editor:", "WebStudio:")
+- Group by area using `### **Area Name**` headings
 - **One line per improvement** - action verb + what changed
 - No explanatory paragraphs unless absolutely necessary
+- **Separate each area group with `---`**
 
 **Example:**
 ```markdown
-Rules Editor:
+### **Rules Editor**
 
   * Improved autocomplete performance for large rule sets
   * Added syntax highlighting for custom data types
   * Enhanced find-and-replace with regex support
+
+---
+
+### **Security Hardening**
+
+  * Removed VBScript execution under Windows
+  * Password fields no longer returned by any API
 ```
 
-#### Fixed Bugs
-- Group by area
+#### Breaking Changes
+- Each breaking change gets `### **Title**` heading
+- Describe what changed and the impact
+- Include `#### **Migration Steps**` sub-section when applicable
+- **Separate each breaking change with `---`**
+
+#### Bug Fixes
+- Flat bullet list (no area grouping needed)
 - **One line per fix** - describe what now works correctly
 - User-facing language, not technical
 
 **Example:**
 ```markdown
-Data Tables:
-
-  * Fixed cell copying behavior between tables
-  * Resolved column header display issue after resizing
+  * Fixed GitLFS issues with BitBucket repositories
+  * Fixed tracing and dependency graph issues
+  * Fixed flat folder structure display issue
 ```
 
-#### Updated Libraries
-Follow template format exactly (see template for structure options).
+#### Security & Library Updates
+- Split into `### **Security Vulnerability Fixes**` and `### **Major Library Upgrades**`
+- Library upgrades subdivided by `#### **Runtime Dependencies**`, `#### **Test Dependencies**`, `#### **Removed Dependencies**`
+- Follow template format exactly (see template for structure options).
 
-#### Known Issues / Migration Notes
-Only include if applicable. Keep brief.
+#### Migration Notes
+- Each topic gets `### **Topic Title**` heading
+- **Separate each topic with `---`**
+- Keep brief, actionable guidance
+- Only include if applicable.
 
 ### Step 4: Generate Folder Structure & Files
 
@@ -193,11 +222,12 @@ This skill can also be used to validate and update existing release notes.
 - [ ] Overview is 1-2 paragraphs max
 - [ ] Only sections with content are included
 - [ ] Sections appear in correct order per template
-- [ ] Proper heading levels (`###` for sections, no `####` within)
+- [ ] Proper heading levels: `## **Section**` for top-level, `### **Item**` for items, `#### **Sub**` for sub-sections
+- [ ] `---` horizontal rules between individual items within each section
 
 **Formatting:**
 - [ ] Bullet indentation is consistent (2 spaces before `*`)
-- [ ] Colons after area groupings (e.g., "Rules Editor:")
+- [ ] Section and item headings are bold (e.g., `## **New Features**`, `### **Feature Title**`)
 - [ ] Image syntax: `![Image](images/filename.png)`
 - [ ] No excessive blank lines
 
