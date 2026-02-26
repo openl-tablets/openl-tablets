@@ -205,33 +205,22 @@ Download-Driver "$MAVEN_URL/com/oracle/database/jdbc/ojdbc11/$ORACLE_VERSION/ojd
 Download-Driver "$MAVEN_URL/com/microsoft/sqlserver/mssql-jdbc/$MSSQL_VERSION/mssql-jdbc-$MSSQL_VERSION.jar"
 
 
-# --- 6. DOWNLOAD AND UNPACK OPENL .WAR FILES ---
+# --- 6. DOWNLOAD OPENL .WAR FILES ---
 # -----------------------------------------------------------------------------------
 function Download-War {
     param($componentName, $downloadUrl)
-    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.zip"
-    $targetDir = Join-Path $WEBAPPS_DIR $componentName
+    $targetWar = Join-Path $WEBAPPS_DIR "$componentName.war"
 
-    # Check if the destination directory already exists
-    if (-not (Test-Path -Path $targetDir -PathType Container)) {
-        Write-Host "INFO: Downloading and unpacking '$componentName'..." -ForegroundColor Green
+    # Check if the .war file already exists
+    if (-not (Test-Path -Path $targetWar -PathType Leaf)) {
+        Write-Host "INFO: Downloading '$componentName'..." -ForegroundColor Green
         try {
-            # 1. Download the .war file
             Invoke-WebRequest -Uri $downloadUrl -OutFile $targetWar -UseBasicParsing
-
-            # 2. Unpack the .war archive to the target directory
-            Expand-Archive -Path $targetWar -DestinationPath $targetDir -Force
-
-            # 3. Remove the temporary .war file after extraction
-            Remove-Item -Path $targetWar -Force
-
-            Write-Host "INFO: '$componentName' has been successfully downloaded and unpacked." -ForegroundColor Green
+            Write-Host "INFO: '$componentName' has been successfully downloaded." -ForegroundColor Green
         } catch {
-            Write-Host "ERROR: Failed to download or unpack '$componentName'." -ForegroundColor Red
-            # Clean up any partial files if an error occurs
+            Write-Host "ERROR: Failed to download '$componentName'." -ForegroundColor Red
+            # Clean up any partial file if an error occurs
             if (Test-Path $targetWar) { Remove-Item -Path $targetWar -Force }
-            if (Test-Path $targetDir) { Remove-Item -Path $targetDir -Recurse -Force }
-            # Stop the script by re-throwing the exception
             throw
         }
     } else {
