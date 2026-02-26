@@ -63,6 +63,18 @@ A new visual merge wizard guides users through branch synchronization with step-
 
 ![Image](images/merge-conflict-resolution.png)
 
+---
+
+### **New Statistical Functions**
+
+A comprehensive suite of statistical functions is now available as built-in functions in OpenL rules, providing Excel-compatible analytics without external libraries. All functions support multiple numeric types (Double, Float, BigDecimal, BigInteger) and handle null values gracefully.
+
+  * **Variance**: `varS()` (sample) and `varP()` (population) for calculating data dispersion
+  * **Standard Deviation**: `stdevS()` (sample) and `stdevP()` (population) as the square root of variance
+  * **Covariance**: `covarS()` (sample) and `covarP()` (population) for measuring how two datasets vary together
+  * **Correlation**: `correl()` for Pearson correlation coefficient and `rsq()` for R-squared (coefficient of determination)
+  * **Linear Regression**: `slope()` and `intercept()` for regression line parameters, and `forecast()` for predicting values using linear regression
+
 ## **Improvements**
 
 ### **Platform Modernization**
