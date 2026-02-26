@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "*",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "HelloTest",
+      "file": "EPBDS-15035/MainTests.xlsx",
+      "pos": "B2:C5"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
