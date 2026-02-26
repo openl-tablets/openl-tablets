@@ -108,9 +108,9 @@ Only include if applicable. Keep brief.
 Docs/
 └── release-notes/
     └── [VERSION]/
-        ├── index.md          <- Main release notes file
+        ├── README.md          <- Main release notes file
         └── images/
-            └── README.md     <- Image upload instructions
+            └── .DELETE_ME     <- Placeholder so Git tracks the empty folder; delete once real images are added
 ```
 
 **Folder creation order:**
@@ -120,28 +120,18 @@ Docs/
 
 **Files to generate:**
 
-1. **Main release notes:** `Docs/release-notes/[VERSION]/index.md`
+1. **Main release notes:** `Docs/release-notes/[VERSION]/README.md`
    - Contains full release notes following template structure
 
-2. **Images README:** `Docs/release-notes/[VERSION]/images/README.md`
-   ```markdown
-   # Images for OpenL Tablets [VERSION] Release Notes
-   
-   Upload screenshots and diagrams referenced in the release notes.
-   
-   ## Naming Convention
-   - Use lowercase with hyphens: `feature-name.png`
-   - Prefer PNG format
-   
-   ## Images Needed
-   [List image placeholders from release notes]
-   ```
+2. **Images placeholder:** `Docs/release-notes/[VERSION]/images/.DELETE_ME`
+   - Empty file whose only purpose is to make Git track the `images/` directory
+   - Delete this file once actual screenshot images are added
 
 ### Step 5: Deliver
 
 Provide:
-- Generated `index.md` file
-- Generated `images/README.md` file
+- Generated `README.md` file
+- Generated `images/.DELETE_ME` placeholder
 - Brief summary: count of features, improvements, fixes
 - List of image placeholders needing screenshots
 
@@ -150,8 +140,8 @@ Provide:
 Release notes generated for OpenL Tablets [VERSION]
 
 📁 Files created:
-- Docs/release-notes/[VERSION]/index.md
-- Docs/release-notes/[VERSION]/images/README.md
+- Docs/release-notes/[VERSION]/README.md
+- Docs/release-notes/[VERSION]/images/.DELETE_ME
 
 📊 Summary:
 - X New Features
@@ -227,7 +217,7 @@ This skill can also be used to validate and update existing release notes.
 
 ### Update Workflow
 
-1. **Read existing file** from `Docs/release-notes/[VERSION]/index.md`
+1. **Read existing file** from `Docs/release-notes/[VERSION]/README.md`
 
 2. **Compare against template** structure
 
