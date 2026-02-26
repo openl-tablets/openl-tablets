@@ -1,0 +1,134 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUwMzU6YzdlZmM5OWRlYzAzOWY0NGQwN2Y1YWYwYjdhMzcyZDFlNzVmNWRiZTJkM2EyZmQzMWUxOTM3YThjYTE1MzNiYw==/tables/ee436b6a9cbeb507e57d821e7dc5e5a2 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Hello",
+  "source": [
+    [
+      {
+        "value": "Rules String Hello (Integer hour)",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Rule"
+      },
+      {
+        "value": "C1"
+      },
+      {
+        "value": "C2"
+      },
+      {
+        "value": "RET1"
+      }
+    ],
+    [
+      {},
+      {
+        "value": "min <= hour"
+      },
+      {
+        "value": "hour <= max"
+      },
+      {
+        "value": "greeting"
+      }
+    ],
+    [
+      {},
+      {
+        "value": "Integer min"
+      },
+      {
+        "value": "Integer max"
+      },
+      {
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "value": "Rule"
+      },
+      {
+        "value": "From"
+      },
+      {
+        "value": "To"
+      },
+      {
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "value": "R10"
+      },
+      {
+        "value": 0
+      },
+      {
+        "value": 11
+      },
+      {
+        "value": "Good Morning!"
+      }
+    ],
+    [
+      {
+        "value": "R20"
+      },
+      {
+        "value": 12
+      },
+      {
+        "value": 17
+      },
+      {
+        "value": "Good Afternoon!"
+      }
+    ],
+    [
+      {
+        "value": "R30"
+      },
+      {
+        "value": 18
+      },
+      {
+        "value": 21
+      },
+      {
+        "value": "Good Evening!"
+      }
+    ],
+    [
+      {
+        "value": "R40"
+      },
+      {
+        "value": 22
+      },
+      {
+        "value": 23
+      },
+      {
+        "value": "Good Night!"
+      }
+    ]
+  ]
+}

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -91,28 +92,27 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         var resolvedDescriptor = workspaceProjectService.getProjectDescriptor(project);
         var originalDescriptor = getOriginalProjectDescriptor(resolvedDescriptor);
 
-        var result = new ArrayList<ModuleView>();
-
-        for (Module originalModule : originalDescriptor.getModules()) {
-            if (projectDescriptorManager.isModuleWithWildcard(originalModule)) {
-                var builder = mapModuleFields(new WildcardModuleView.Builder(), originalModule);
-                try {
-                    var matchedModules = projectDescriptorManager.getAllModulesMatchingPathPattern(
-                            resolvedDescriptor, originalModule, originalModule.getRulesRootPath().getPath());
-                    for (Module matched : matchedModules) {
-                        builder.addMatchedModule(mapBaseFields(new BaseModuleView.Builder(), matched).build());
+        return originalDescriptor.getModules().stream()
+                .map(originalModule -> {
+                    if (projectDescriptorManager.isModuleWithWildcard(originalModule)) {
+                        var builder = mapModuleFields(new WildcardModuleView.Builder(), originalModule);
+                        try {
+                            var matchedModules = projectDescriptorManager.getAllModulesMatchingPathPattern(
+                                    resolvedDescriptor, originalModule, originalModule.getRulesRootPath().getPath());
+                            for (Module matched : matchedModules) {
+                                builder.addMatchedModule(mapBaseFields(new BaseModuleView.Builder(), matched).build());
+                            }
+                        } catch (IOException e) {
+                            LOG.error("Failed to expand wildcard module pattern '{}'",
+                                    originalModule.getRulesRootPath().getPath(), e);
+                        }
+                        return builder.build();
+                    } else {
+                        return mapModuleFields(new ModuleView.Builder(), originalModule).build();
                     }
-                } catch (IOException e) {
-                    LOG.error("Failed to expand wildcard module pattern '{}'",
-                            originalModule.getRulesRootPath().getPath(), e);
-                }
-                result.add(builder.build());
-            } else {
-                result.add(mapModuleFields(new ModuleView.Builder(), originalModule).build());
-            }
-        }
-
-        return result;
+                })
+                .sorted(Comparator.comparing(ModuleView::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     @Override

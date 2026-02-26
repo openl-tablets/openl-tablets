@@ -1,0 +1,84 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "executionTimeMs": "*",
+  "numberOfTests": 2,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "HelloTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 2,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "_res_",
+              "expectedValue": "Good Afternoon",
+              "actualValue": "Good Afternoon",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "hour",
+              "description": "hour",
+              "value": 16,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ],
+          "contextParameters": [
+            {
+              "name": "_context_.usState",
+              "description": "_context_.usState",
+              "value": "AK"
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "executionTimeMs": "*",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "_res_",
+              "expectedValue": "Good Afternoon!",
+              "actualValue": "Good Afternoon!",
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "hour",
+              "description": "hour",
+              "value": 16,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ],
+          "contextParameters": [
+            {
+              "name": "_context_.usState",
+              "description": "_context_.usState",
+              "value": "NY"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
