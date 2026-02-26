@@ -17,14 +17,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class BaseModuleView {
 
     @Schema(description = "Module name")
-    public final String name;
+    private final String name;
 
     @Schema(description = "File path relative to project root")
-    public final String path;
+    private final String path;
 
     protected BaseModuleView(ABuilder<?> builder) {
         this.name = builder.name;
         this.path = builder.path;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     /**

@@ -16,11 +16,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class ModuleView extends BaseModuleView {
 
     @Schema(description = "Method filter configuration")
-    public final MethodFilterView methodFilter;
+    private final MethodFilterView methodFilter;
 
     protected ModuleView(ABuilder<?> builder) {
         super(builder);
         this.methodFilter = builder.methodFilter;
+    }
+
+    public MethodFilterView getMethodFilter() {
+        return methodFilter;
     }
 
     /**
