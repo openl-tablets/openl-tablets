@@ -2,9 +2,9 @@
 
 [v6.0.0](https://github.com/openl-tablets/openl-tablets/releases/tag/6.0.0) on the GitHub
 
-OpenL Tablets 6.0.0 is a major release that modernizes the platform foundation and introduces AI-powered rule authoring. The entire administration interface has been rebuilt as a React single-page application, replacing the legacy JSF screens with a modern, responsive experience. The platform now requires Java 21 and has migrated from Java EE 8 to Jakarta EE 10, with Spring Boot upgraded to 3.5 and Spring Framework to 6.2.
+OpenL Tablets 6.0.0 is a major release that modernizes the platform foundation and introduces AI-powered rule authoring capabilities. The entire administration interface has been rebuilt as a React single-page application, replacing the legacy JSF screens. The platform now requires Java 21 and has migrated from Java EE 8 to Jakarta EE 10, with Spring Boot upgraded to 3.5 and Spring Framework to 6.2.
 
-Key highlights include a built-in MCP (Model Context Protocol) server that allows AI assistants to create, edit, test, and deploy business rules directly through OpenL Studio, a simplified three-role access control model (Viewer, Contributor, Manager), Personal Access Tokens for API and CI/CD authentication, and comprehensive branch merge conflict resolution with a visual step-by-step wizard.
+Key highlights include a built-in MCP (Model Context Protocol) server enabling AI assistants to manage business rules, a simplified three-role access control model, Personal Access Tokens for API and CI/CD authentication, and a visual branch merge conflict resolution wizard.
 
 ## **New Features**
 
@@ -78,11 +78,11 @@ A new visual merge wizard guides users through branch synchronization with step-
 
   * Added new REST API to retrieve the branch list for a project when the user lacks full repository permissions
   * Added real-time user profile synchronization when current user information is updated
-  * Improved application redirect rules with a dedicated RedirectToRoot component
+  * Improved application redirect rules with a dedicated RedirectToRoot component and added test coverage
   * Added URL encoding for request URLs to prevent malformed path issues
   * Restricted group loading to administrators only for improved security and performance
   * Improved user form cleanup and reset behavior when closing drawers
-  * Improved email verification warning to only trigger when changing an existing email
+  * Renamed the "Save User" button label for consistency with the UI conventions
 
 ---
 
@@ -93,18 +93,12 @@ A new visual merge wizard guides users through branch synchronization with step-
   * Removed unreachable code paths and reduced internal API visibility for better encapsulation
   * Improved testing coverage for multi-module projects
 
----
-
-### **Rule Services**
-
-  * Integrated RapiDoc as the API documentation viewer
-
 ## **Bug Fixes**
 
   * Fixed deployment failures from database and folder repositories when permissions are configured at the project level
   * Fixed trace execution breaking when a virtual source code module workbook had no sheets
   * Fixed UnsupportedOperationException when retrieving test results with the unpaged=true parameter
-  * Fixed duplicate generic error messages appearing during form operations
+  * Fixed duplicate generic error messages appearing during user profile and form operations
   * Fixed arrow styling issues in the administration interface
   * Fixed race conditions in role saving by enforcing sequential save operations
   * Fixed validation messages and styles in user management forms
