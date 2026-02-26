@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "94b9260f0ab4546aa2dd10c0394dded7",
+  "tableType": "Environment",
+  "kind": "Environment",
+  "name": "Environment",
+  "file": "EPBDS-15035/MainTests.xlsx",
+  "pos": "B2:C3"
+}

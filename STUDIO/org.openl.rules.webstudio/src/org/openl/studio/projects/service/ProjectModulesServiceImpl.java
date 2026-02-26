@@ -10,11 +10,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.JAXBException;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -168,11 +170,17 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         var resolvedDescriptor = workspaceProjectService.getProjectDescriptor(project);
         var originalDescriptor = getOriginalProjectDescriptor(resolvedDescriptor);
 
+        boolean shouldCreateFile = Boolean.TRUE.equals(request.createFile());
+
         lockProject(project);
 
         validateDescriptorPermissions(project, true);
         validateModuleNameForEdit(request.name(), null, request.path(), resolvedDescriptor);
-        validateModulePathForEdit(request.path(), resolvedDescriptor, null);
+        validateModulePathForEdit(request.path(), resolvedDescriptor, null, shouldCreateFile);
+
+        if (shouldCreateFile) {
+            createEmptyExcelFile(project, request.path());
+        }
 
         ProjectDescriptor newDescriptor = Cloner.clone(originalDescriptor);
         Module module = new Module();
@@ -201,7 +209,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
 
         validateDescriptorPermissions(project, true);
         validateModuleNameForEdit(request.name(), moduleName, request.path(), resolvedDescriptor);
-        validateModulePathForEdit(request.path(), resolvedDescriptor, moduleName);
+        validateModulePathForEdit(request.path(), resolvedDescriptor, moduleName, false);
 
         ProjectDescriptor newDescriptor = Cloner.clone(originalDescriptor);
         Module module = CollectionUtils.findFirst(newDescriptor.getModules(),
@@ -448,6 +456,32 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         }
     }
 
+    private static final Set<String> EXCEL_EXTENSIONS = Set.of("xlsx", "xls");
+
+    /**
+     * Creates an empty Excel (.xlsx) file at the specified path in the project.
+     *
+     * @param project the rules project
+     * @param path    relative file path within the project
+     */
+    private void createEmptyExcelFile(RulesProject project, String path) {
+        String ext = FileUtils.getExtension(path);
+        if (ext == null || !EXCEL_EXTENSIONS.contains(ext.toLowerCase())) {
+            throw new BadRequestException("module.path.not.excel.message");
+        }
+        validateCreatePermission(project, path);
+        try (var workbook = new XSSFWorkbook()) {
+            workbook.createSheet("Sheet1");
+            var out = new ByteArrayOutputStream();
+            workbook.write(out);
+            project.addResource(path, new ByteArrayInputStream(out.toByteArray()));
+        } catch (ProjectException e) {
+            throw new ConflictException("module.create.file.failed.message");
+        } catch (IOException e) {
+            throw new ConflictException("module.create.file.failed.message");
+        }
+    }
+
     /**
      * Copies the source file and sets ACL on the new resource.
      */
@@ -518,25 +552,31 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
      * <p>Replicates legacy {@code ProjectBean.validateModulePath()} logic:</p>
      * <ul>
      *   <li>Path must not be blank</li>
-     *   <li>For non-wildcard paths, the file must already exist</li>
+     *   <li>For non-wildcard paths, the file must already exist (unless {@code createFile} is true)</li>
      *   <li>Path must not conflict with existing modules (exact match or wildcard overlap)</li>
      * </ul>
      *
      * @param path               the module path to validate
      * @param resolvedDescriptor the resolved project descriptor for conflict checking
      * @param selfModuleName     the module being edited ({@code null} for add mode), excluded from conflict checks
+     * @param createFile         if true, allow non-existent files (the caller will create them)
      */
     private void validateModulePathForEdit(String path,
                                            ProjectDescriptor resolvedDescriptor,
-                                           String selfModuleName) {
+                                           String selfModuleName,
+                                           boolean createFile) {
         if (StringUtils.isBlank(path)) {
             throw new BadRequestException("cannot.be.empty.message");
         }
 
-        // For non-wildcard paths, the file must exist
+        // For non-wildcard paths, the file must exist (unless createFile is requested)
         if (!(path.contains("*") || path.contains("?"))) {
             Path moduleFile = resolvedDescriptor.getProjectFolder().resolve(path);
-            if (!Files.exists(moduleFile)) {
+            if (createFile) {
+                if (Files.exists(moduleFile)) {
+                    throw new ConflictException("module.file.exists.message");
+                }
+            } else if (!Files.exists(moduleFile)) {
                 throw new NotFoundException("module.file.not.found.message");
             }
         }
