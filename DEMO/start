@@ -331,6 +331,9 @@ echo "    OpenL Home: $OPENL_HOME"
 echo "   Webapps Dir: $WEBAPPS_DIR"
 echo "  Total Memory: $total_ram_kb MB"
 echo "   Memory Opts: $_JAVA_MEMORY"
+if [ -n "$JAVA_OPTS" ]; then
+echo "    Java  Opts: $JAVA_OPTS"
+fi
 echo "============================================================"
 echo -e " Access OpenL Studio at: \033[94m http://localhost:8080/webstudio \033[0m"
 echo -e "Access Rule Services at: \033[94m http://localhost:8080/webservice \033[0m"
@@ -351,6 +354,7 @@ exec "$JAVA_CMD" \
     -Djetty.httpConfig.responseHeaderSize=32768 \
     -Dapple.awt.UIElement=true \
     $_JAVA_MEMORY \
+    $JAVA_OPTS \
     -Djetty.home="$JETTY_HOME" \
     -Djetty.base="$JETTY_HOME" \
     -Djetty.deploy.webappsDir="$WEBAPPS_DIR" \

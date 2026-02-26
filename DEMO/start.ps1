@@ -285,6 +285,9 @@ Write-Host "    OpenL Home: $OPENL_HOME"
 Write-Host "   Webapps Dir: $WEBAPPS_DIR"
 Write-Host "  Total Memory: $TotalRamMB MB"
 Write-Host "   Memory Opts: $_JAVA_MEMORY"
+if ($env:JAVA_OPTS) {
+    Write-Host "    Java  Opts: $env:JAVA_OPTS"
+}
 Write-Host "============================================================" -ForegroundColor Magenta
 Write-Host " Access OpenL Studio at: `e[94m http://localhost:8080/webstudio `e[0m"
 Write-Host "Access Rule Services at: `e[94m http://localhost:8080/webservice `e[0m"
@@ -303,6 +306,7 @@ $javaArgs = @(
     "-Djetty.httpConfig.requestHeaderSize=32768",
     "-Djetty.httpConfig.responseHeaderSize=32768",
     $_JAVA_MEMORY.Split(' '),
+    $(if ($env:JAVA_OPTS) { $env:JAVA_OPTS.Split(' ') } else { @() }),
     "-Djetty.home=$JETTY_HOME",
     "-Djetty.base=$JETTY_HOME",
     "-Djetty.deploy.webappsDir=$WEBAPPS_DIR",
