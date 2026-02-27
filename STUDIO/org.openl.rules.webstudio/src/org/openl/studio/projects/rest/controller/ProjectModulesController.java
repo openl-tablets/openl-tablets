@@ -5,12 +5,14 @@ import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ import org.openl.studio.projects.model.modules.CopyModuleRequest;
 import org.openl.studio.projects.model.modules.CopyModuleResponse;
 import org.openl.studio.projects.model.modules.EditModuleRequest;
 import org.openl.studio.projects.model.modules.ModuleView;
+import org.openl.studio.projects.model.modules.WildcardModuleView;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectModulesService;
 
@@ -53,7 +56,14 @@ public class ProjectModulesController {
     }
 
     @Operation(summary = "projects.modules.list.summary", description = "projects.modules.list.desc")
-    @ApiResponse(responseCode = "200", description = "projects.modules.list.200.desc")
+    @ApiResponse(responseCode = "200", description = "projects.modules.list.200.desc",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(
+                            schema = @Schema(oneOf = {ModuleView.class, WildcardModuleView.class})
+                    )
+            )
+    )
     @GetMapping
     public List<ModuleView> getModules(@ProjectId @PathVariable("projectId") RulesProject project) {
         return modulesService.getModules(project);
@@ -62,7 +72,8 @@ public class ProjectModulesController {
     @Operation(summary = "projects.modules.copy.summary", description = "projects.modules.copy.desc")
     @ApiResponse(responseCode = "201", description = "projects.modules.copy.201.desc")
     @PostMapping("/{moduleName}/copy")
-    public ResponseEntity<CopyModuleResponse> copyModule(
+    @ResponseStatus(HttpStatus.CREATED)
+    public CopyModuleResponse copyModule(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "projects.modules.copy.param.moduleName.desc")
             @PathVariable("moduleName") String moduleName,
@@ -70,8 +81,7 @@ public class ProjectModulesController {
             @Parameter(description = "projects.modules.copy.param.force.desc")
             @RequestParam(value = "force", defaultValue = "false") boolean force) {
         try {
-            var response = modulesService.copyModule(project, moduleName, request, force);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return modulesService.copyModule(project, moduleName, request, force);
         } finally {
             getWebStudio().reset();
         }
@@ -80,20 +90,25 @@ public class ProjectModulesController {
     @Operation(summary = "projects.modules.add.summary", description = "projects.modules.add.desc")
     @ApiResponse(responseCode = "201", description = "projects.modules.add.201.desc")
     @PostMapping
-    public ResponseEntity<ModuleView> addModule(
+    @ResponseStatus(HttpStatus.CREATED)
+    public ModuleView addModule(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestBody @Valid EditModuleRequest request) {
         try {
-            var response = modulesService.addModule(project, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return modulesService.addModule(project, request);
         } finally {
             getWebStudio().reset();
         }
     }
 
     @Operation(summary = "projects.modules.edit.summary", description = "projects.modules.edit.desc")
-    @ApiResponse(responseCode = "200", description = "projects.modules.edit.200.desc")
     @PutMapping("/{moduleName}")
+    @ApiResponse(responseCode = "200", description = "projects.modules.edit.200.desc",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(oneOf = {ModuleView.class, WildcardModuleView.class})
+            )
+    )
     public ModuleView editModule(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "projects.modules.edit.param.moduleName.desc")
