@@ -2,20 +2,23 @@
 
 [v6.0.0](https://github.com/openl-tablets/openl-tablets/releases/tag/6.0.0) on the GitHub
 
-OpenL Tablets 6.0.0 is a major release that modernizes the platform foundation and introduces AI-powered rule authoring capabilities. The entire administration interface has been rebuilt as a React single-page application, replacing the legacy JSF screens. The platform now requires Java 21 and has migrated from Java EE 8 to Jakarta EE 10, with Spring Boot upgraded to 3.5 and Spring Framework to 6.2.
+OpenL Tablets 6.0.0 is a major release that modernizes the entire platform foundation. The administration interface has been completely rebuilt as a React single-page application, replacing the legacy JSF screens. A built-in MCP server enables AI assistants to create, test, and deploy business rules. The access control model has been simplified to three intuitive roles, and Personal Access Tokens provide secure API authentication for CI/CD workflows.
 
-Key highlights include a built-in MCP (Model Context Protocol) server enabling AI assistants to manage business rules, a simplified three-role access control model, Personal Access Tokens for API and CI/CD authentication, and a visual branch merge conflict resolution wizard.
+Under the hood, the platform now requires Java 21 and has fully migrated from Java EE 8 to Jakarta EE 10, with Spring Boot upgraded to 3.5, Spring Framework to 6.2, and Jetty to 12. New built-in statistical functions bring variance, standard deviation, covariance, correlation, and linear regression capabilities directly into OpenL rules.
 
 ## **New Features**
 
 ### **Redesigned Administration Panel**
 
-The entire OpenL Studio administration interface has been rebuilt using React 19, TypeScript, and Ant Design 6. The new single-page application replaces the legacy JSF-based admin screens and provides a modern, responsive experience for managing all platform settings.
+The entire OpenL Studio administration interface has been rebuilt using React 19, TypeScript 5.9, and Ant Design 6. The new single-page application replaces the legacy JSF-based admin screens and provides a modern, responsive experience for managing all platform settings.
 
-  * System configuration, security, and repository management
-  * User and group management with real-time profile synchronization
-  * Notification preferences, tag configuration, and email settings
-  * Full internationalization with i18next and Zustand-based state management
+  * System configuration with core engine settings, test threading, and history management
+  * Security and authentication management supporting five modes: Single-User, Multi-User, Active Directory, SAML, and OAuth2/OIDC
+  * User and group management with real-time profile synchronization via WebSocket
+  * Repository management for Git, AWS S3, Azure Blob Storage, JDBC, JNDI, and local file system
+  * Personal Access Token management with configurable expiration
+  * Tag configuration, email server settings, and system-wide notification broadcast
+  * Internationalization foundation with i18next and Zustand-based state management
 
 ![Image](images/admin-panel.png)
 
@@ -23,22 +26,23 @@ The entire OpenL Studio administration interface has been rebuilt using React 19
 
 ### **MCP Server for AI-Assisted Rule Authoring**
 
-OpenL Studio now includes a built-in Model Context Protocol (MCP) server that enables AI assistants to interact with the platform programmatically. The MCP integration exposes a comprehensive set of tools for project and rule lifecycle management.
+OpenL Studio now includes a built-in Model Context Protocol (MCP) server that enables AI assistants to interact with the platform programmatically. Built on Spring AI and the official MCP SDK, the server exposes 20 tools and 12 guided prompt templates covering the full project and rule lifecycle.
 
-  * List, open, and inspect projects and repositories
-  * Create, read, update, and append rule tables
-  * Run tests with targeted table and range selection
+  * List, open, and inspect projects across design and deployment repositories
+  * Create, read, update, and append rule tables including Decision Tables, Spreadsheets, and Datatypes
+  * Run tests with targeted table and range selection, and analyze results
   * Deploy and redeploy projects to production repositories
   * Browse project revision history and restore previous versions
   * Create branches and manage project status
-  * Guided prompts for rule creation, test authoring, and deployment
+  * Guided prompt templates for rule creation, test authoring, error analysis, and deployment workflows
+  * Authenticated via Personal Access Tokens or OAuth 2.0 Bearer Tokens
   * OAuth 2.0 resource metadata discovery via `/.well-known/oauth-protected-resource`
 
 ---
 
 ### **Simplified Role-Based Access Control**
 
-The access control model has been streamlined from a complex permission matrix to three clear roles: Viewer (read-only access), Contributor (read, create, edit, and delete), and Manager (full control including administration). Permissions can be assigned at the repository root level or on individual projects.
+The access control model has been streamlined from the complex ACL permission matrix introduced in 5.27.0 to three clear roles: Viewer (read-only access), Contributor (read, create, edit, and delete), and Manager (full control including administration). Permissions can be assigned at the repository root level or on individual projects.
 
   * Three intuitive roles: Viewer, Contributor, Manager
   * Repository-level and project-level permission assignment
@@ -51,15 +55,26 @@ The access control model has been streamlined from a complex permission matrix t
 
 ### **Personal Access Tokens**
 
-Users can now generate Personal Access Tokens (PATs) for authenticating REST API calls, CI/CD pipelines, and automated scripts without sharing their credentials. Tokens are created through the administration panel with configurable expiration periods (7, 30, 60, 90 days, custom date, or no expiration). The token value is displayed only once at creation time and authenticated via the `Authorization: Token <value>` header.
+Users can now generate Personal Access Tokens (PATs) for authenticating REST API calls, MCP connections, CI/CD pipelines, and automated scripts without sharing their credentials. Tokens are created through the administration panel with configurable expiration periods (7, 30, 60, 90 days, custom date, or no expiration). The token value is displayed only once at creation time and authenticated via the `Authorization: Token <value>` header.
+
+  * Cryptographically secure token generation with BCrypt hashing
+  * Available when OpenL Studio is configured with OAuth2 or SAML authentication
+  * Full REST API for token lifecycle management (create, list, delete)
 
 ![Image](images/personal-access-tokens.png)
 
 ---
 
-### **Branch Merge Conflict Resolution**
+### **Branch Merge Conflict Resolution Wizard**
 
-A new visual merge wizard guides users through branch synchronization with step-by-step conflict resolution. The merge modal allows selecting source and target branches, displays detected conflicts, and provides tools to resolve each conflicting file. Non-conflicting sheets are merged automatically, reducing manual resolution effort.
+A new visual merge wizard guides users through branch synchronization with step-by-step conflict resolution. The wizard supports two-directional merging (receive changes from or send changes to another branch) and provides four resolution strategies per conflicting file.
+
+  * Automatic merge status checking when selecting a target branch
+  * Four resolution strategies per file: keep ours, accept theirs, use base version, or upload a custom merge
+  * Automatic sheet-level merging for non-conflicting Excel sheets, reducing manual effort
+  * Download any revision (ours, theirs, base) for offline comparison
+  * Branch protection awareness with visual warnings
+  * Customizable merge commit message
 
 ![Image](images/merge-conflict-resolution.png)
 
@@ -79,10 +94,11 @@ A comprehensive suite of statistical functions is now available as built-in func
 
 ### **Platform Modernization**
 
-  * Migrated from Java EE 8 to Jakarta EE 10 with Jakarta Servlet 6.0, Jakarta XML Bind 4.0, and Jakarta Mail 2.1
+  * Migrated from Java EE 8 to Jakarta EE 10 with Jakarta Servlet 6.0, Jakarta XML Bind 4.0, Jakarta Mail 2.1, Jakarta CDI 4.0, and Jakarta WS-RS 4.0
   * Upgraded to Java 21 as the minimum required JDK version
   * Upgraded to Spring Boot 3.5.10 and Spring Framework 6.2.15
   * Upgraded to Spring Security 6.5.7
+  * Upgraded to Jetty 12.1.6 with EE10 support
 
 ---
 
@@ -135,6 +151,7 @@ A comprehensive suite of statistical functions is now available as built-in func
   * Spring Boot 3.5.10
   * Spring Framework 6.2.15
   * Spring Security 6.5.7
+  * Spring AI 1.1.2
   * Jackson 2.21.0
   * Apache CXF 4.1.4
   * Kafka 4.1.1
@@ -187,7 +204,7 @@ Java 21 is now the minimum required JDK version. Update your runtime environment
 
 ### **Jakarta EE 10 Migration**
 
-The platform has migrated from Java EE 8 to Jakarta EE 10. All `javax.*` namespace references in custom code or configuration must be updated to `jakarta.*`.
+The platform has migrated from Java EE 8 to Jakarta EE 10. All `javax.*` namespace references in custom code or configuration must be updated to `jakarta.*`. This affects Servlet, XML Bind, Mail, CDI, WS-RS, and related APIs.
 
 ---
 
@@ -205,7 +222,7 @@ The user database schema has been updated with a new `OpenL_PAT_Tokens` table fo
 
 ### **Access Control Model Changes**
 
-The access control model has been simplified to three roles (Viewer, Contributor, Manager). Existing permission assignments may need to be reviewed and remapped to the new role model.
+The access control model has been simplified from the fine-grained ACL system introduced in 5.27.0 to three roles (Viewer, Contributor, Manager). Existing permission assignments may need to be reviewed and remapped to the new role model.
 
 ---
 
