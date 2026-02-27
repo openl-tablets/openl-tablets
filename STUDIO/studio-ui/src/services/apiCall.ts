@@ -157,8 +157,12 @@ const apiCall = async (
                 const payload = await tryParseJsonBody(response)
                 if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
                     const errors = (payload as { fields: Array<{ message: unknown }> }).fields
-                        .map(({ message }) => message)
-                    throw new Error(errors)
+                        .map(({ message }) => (typeof message === 'string' ? message.trim() : String(message ?? '').trim()))
+                        .filter(Boolean)
+                    const errorMessage = errors.length > 0
+                        ? errors.join('\n')
+                        : getErrorMessage(payload, 'Something went wrong on API server!')
+                    throw new Error(errorMessage)
                 } else {
                     throw new ApiHttpError(
                         status,

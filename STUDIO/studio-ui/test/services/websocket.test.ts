@@ -1,5 +1,6 @@
 describe('webSocketService', () => {
-    const originalBaseUri = document.baseURI
+    const hadOwnBaseUri = Object.prototype.hasOwnProperty.call(document, 'baseURI')
+    const originalBaseUriDescriptor = Object.getOwnPropertyDescriptor(document, 'baseURI')
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
 
     beforeEach(() => {
@@ -14,10 +15,12 @@ describe('webSocketService', () => {
 
     afterEach(() => {
         jest.useRealTimers()
-        Object.defineProperty(document, 'baseURI', {
-            configurable: true,
-            value: originalBaseUri,
-        })
+        if (hadOwnBaseUri && originalBaseUriDescriptor) {
+            Object.defineProperty(document, 'baseURI', originalBaseUriDescriptor)
+        } else {
+            // Remove test override and fall back to prototype-provided baseURI.
+            delete (document as { baseURI?: string }).baseURI
+        }
     })
 
     afterAll(() => {

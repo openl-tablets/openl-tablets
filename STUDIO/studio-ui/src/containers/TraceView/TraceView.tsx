@@ -152,7 +152,7 @@ const TraceView: React.FC = () => {
             className={isResizing ? 'resizing' : ''}
             id="trace-view"
         >
-            {/* Progress Overlay */}
+            {/* Progress overlay is shown only while execution is in progress. */}
             <TraceProgress
                 message={progressMessage || undefined}
                 onCancel={handleCancelTrace}
@@ -160,7 +160,7 @@ const TraceView: React.FC = () => {
                 status={executionStatus}
                 visible={isExecutionInProgress}
             />
-            {/* Terminal Status Banner */}
+            {/* Terminal statuses (ERROR/INTERRUPTED) are shown as dismissible banners. */}
             {showTerminalStatusBanner && (
                 <Alert
                     closable

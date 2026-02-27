@@ -107,12 +107,20 @@ class WebSocketService {
             this.client.activate()
 
             const deadline = Date.now() + timeoutMs
+            let settled = false
 
             // Wait for connection with timeout protection
             const checkConnection = () => {
+                if (settled) {
+                    return
+                }
                 if (this.isConnected) {
+                    settled = true
                     resolve()
                 } else if (Date.now() >= deadline) {
+                    settled = true
+                    // Timeout should terminate this connect attempt and prevent late connect state.
+                    this.client?.deactivate()
                     reject(new WebSocketConnectionTimeoutError(timeoutMs))
                 } else {
                     setTimeout(checkConnection, 100)

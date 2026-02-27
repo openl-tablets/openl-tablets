@@ -25,7 +25,8 @@ interface TraceProgressProps {
 
 /**
  * Progress overlay component showing trace execution status.
- * Displays during PENDING/STARTED states and on ERROR.
+ * Displays during in-progress states (PENDING/STARTED).
+ * Terminal statuses (ERROR/INTERRUPTED) are rendered by parent containers as banners.
  */
 const TraceProgress: React.FC<TraceProgressProps> = ({
     status,

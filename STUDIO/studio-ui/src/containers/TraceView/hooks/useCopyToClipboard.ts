@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 
@@ -37,6 +37,14 @@ export const useCopyToClipboard = (): UseCopyToClipboardResult => {
             setCopying(false)
         }
     }, [t])
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+        }
+    }, [])
 
     return { copied, copying, copyToClipboard }
 }
