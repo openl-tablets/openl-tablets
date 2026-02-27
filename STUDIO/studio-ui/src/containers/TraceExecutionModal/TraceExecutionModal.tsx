@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { useWebSocket } from 'hooks/useWebSocket'
 import { traceService } from 'services/traceService'
+import { isApiHttpError } from 'services'
 import CONFIG from 'services/config'
 import type { TraceExecutionStatus, TraceProgressMessage } from 'types/trace'
 import type { WebSocketMessage } from 'services/websocket'
@@ -42,6 +43,11 @@ const VALID_TRACE_STATUSES: readonly TraceExecutionStatus[] = [
     'ERROR',
 ] as const
 
+const WS_CONNECT_TIMEOUT_MS = 5000
+const TRACE_POLL_INTERVAL_MS = 1000
+const TRACE_POLL_TIMEOUT_MS = 120000
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms))
+
 /**
  * Type guard to validate if a value is a valid TraceExecutionStatus.
  */
@@ -57,7 +63,7 @@ const getStatusIcon = (status: TraceExecutionStatus | null) => {
         case 'PENDING':
             return <ClockCircleOutlined style={{ fontSize: 48, color: '#1890ff' }} />
         case 'STARTED':
-            return <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+            return <Spin indicator={<LoadingOutlined spin style={{ fontSize: 48 }} />} />
         case 'COMPLETED':
             return <CheckCircleOutlined style={{ fontSize: 48, color: '#52c41a' }} />
         case 'INTERRUPTED':
@@ -130,6 +136,42 @@ export const TraceExecutionModal: React.FC = () => {
     }, [])
 
     /**
+     * Poll trace status via REST when WebSocket is unavailable.
+     */
+    const waitForCompletionViaPolling = useCallback(async (
+        projId: string,
+        showReal: boolean,
+        executionToken: string
+    ) => {
+        const startedAt = Date.now()
+        setMessage(t('modal.statuses.startedNoLiveProgress'))
+
+        while (Date.now() - startedAt < TRACE_POLL_TIMEOUT_MS) {
+            if (executionTokenRef.current !== executionToken) {
+                return
+            }
+
+            try {
+                await traceService.getNodeChildren(projId, undefined, showReal)
+                if (executionTokenRef.current !== executionToken) {
+                    return
+                }
+                setStatus('COMPLETED')
+                setMessage(null)
+                return
+            } catch (error) {
+                if (isApiHttpError(error) && (error.status === 404 || error.status === 409)) {
+                    await delay(TRACE_POLL_INTERVAL_MS)
+                    continue
+                }
+                throw error
+            }
+        }
+
+        throw new Error(t('modal.errors.completionTimeout'))
+    }, [t])
+
+    /**
      * Close modal and cleanup.
      * Clears execution token to signal in-flight async operations to abort.
      */
@@ -171,9 +213,18 @@ export const TraceExecutionModal: React.FC = () => {
         setDownloadMode(download || false)
 
         try {
-            // 1. Connect WebSocket if needed
-            if (!isConnected) {
-                await connect()
+            // 1. Connect WebSocket if needed (fallback to polling on failure)
+            let useLiveProgress = isConnected
+            if (!useLiveProgress) {
+                try {
+                    await connect(WS_CONNECT_TIMEOUT_MS)
+                    useLiveProgress = true
+                } catch {
+                    useLiveProgress = false
+                    notification.warning({
+                        message: t('modal.warnings.liveProgressUnavailable'),
+                    })
+                }
             }
 
             // Check if execution was cancelled during connect
@@ -182,18 +233,20 @@ export const TraceExecutionModal: React.FC = () => {
                 return
             }
 
-            // 2. Subscribe to progress topic BEFORE API call (use local vars, not state)
-            const topic = `/user/topic/projects/${encodeURIComponent(projId)}/tables/${encodeURIComponent(tblId)}/trace/status`
-            const subscriptionId = subscribe(topic, handleProgressMessage, `trace-modal-${Date.now()}`)
+            // 2. Subscribe to progress topic BEFORE API call when WebSocket is available
+            if (useLiveProgress) {
+                const topic = `/user/topic/projects/${encodeURIComponent(projId)}/tables/${encodeURIComponent(tblId)}/trace/status`
+                const subscriptionId = subscribe(topic, handleProgressMessage, `trace-modal-${Date.now()}`)
 
-            // Only store subscription if execution is still valid
-            if (executionTokenRef.current !== executionToken) {
-                // Execution was cancelled during subscribe - clean up immediately
-                console.warn('Trace execution aborted: modal closed during WebSocket subscribe')
-                unsubscribe(subscriptionId)
-                return
+                // Only store subscription if execution is still valid
+                if (executionTokenRef.current !== executionToken) {
+                    // Execution was cancelled during subscribe - clean up immediately
+                    console.warn('Trace execution aborted: modal closed during WebSocket subscribe')
+                    unsubscribe(subscriptionId)
+                    return
+                }
+                subscriptionRef.current = subscriptionId
             }
-            subscriptionRef.current = subscriptionId
 
             // 3. Call trace API
             await traceService.startTrace(projId, {
@@ -208,6 +261,12 @@ export const TraceExecutionModal: React.FC = () => {
                 console.warn('Trace execution aborted: modal closed during startTrace API call')
                 return
             }
+
+            // 4. Poll for completion if live progress is unavailable
+            if (!useLiveProgress) {
+                setStatus('STARTED')
+                await waitForCompletionViaPolling(projId, showReal, executionToken)
+            }
         } catch (error: unknown) {
             // Only show error if this execution is still active
             if (executionTokenRef.current !== executionToken) {
@@ -221,7 +280,7 @@ export const TraceExecutionModal: React.FC = () => {
             })
             handleClose()
         }
-    }, [isConnected, connect, subscribe, unsubscribe, handleProgressMessage, handleClose, t])
+    }, [isConnected, connect, subscribe, unsubscribe, handleProgressMessage, handleClose, t, waitForCompletionViaPolling])
 
     /**
      * Handle incoming event from JSF.
@@ -320,14 +379,14 @@ export const TraceExecutionModal: React.FC = () => {
     return (
         <Modal
             className="trace-execution-modal"
-            wrapClassName="trace-execution-modal-wrapper"
-            zIndex={10000}
             closable={false}
             footer={footerButtons.length > 0 ? footerButtons : null}
             maskClosable={false}
             open={visible}
             title={t('modal.title')}
             width={500}
+            wrapClassName="trace-execution-modal-wrapper"
+            zIndex={10000}
         >
             <Result
                 icon={getStatusIcon(status)}

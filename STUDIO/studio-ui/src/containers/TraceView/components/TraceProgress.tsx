@@ -9,11 +9,17 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { TraceExecutionStatus } from 'types/trace'
+import {
+    isTraceExecutionInProgress,
+    isTraceExecutionTerminal,
+    TRACE_EXECUTION_STATUS,
+} from 'utils/traceExecutionStatus'
 
 interface TraceProgressProps {
     status: TraceExecutionStatus | null
     message?: string
     onCancel?: () => void
+    onDismiss?: () => void
     visible: boolean
 }
 
@@ -25,6 +31,7 @@ const TraceProgress: React.FC<TraceProgressProps> = ({
     status,
     message,
     onCancel,
+    onDismiss,
     visible,
 }) => {
     const { t } = useTranslation('trace')
@@ -34,19 +41,19 @@ const TraceProgress: React.FC<TraceProgressProps> = ({
     }
 
     // Don't show overlay for COMPLETED status
-    if (status === 'COMPLETED') {
+    if (status === TRACE_EXECUTION_STATUS.COMPLETED) {
         return null
     }
 
     const getStatusIcon = () => {
         switch (status) {
-            case 'PENDING':
+            case TRACE_EXECUTION_STATUS.PENDING:
                 return <ClockCircleOutlined style={{ fontSize: 48, color: '#1890ff' }} />
-            case 'STARTED':
-                return <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
-            case 'INTERRUPTED':
+            case TRACE_EXECUTION_STATUS.STARTED:
+                return <Spin indicator={<LoadingOutlined spin style={{ fontSize: 48 }} />} />
+            case TRACE_EXECUTION_STATUS.INTERRUPTED:
                 return <StopOutlined style={{ fontSize: 48, color: '#faad14' }} />
-            case 'ERROR':
+            case TRACE_EXECUTION_STATUS.ERROR:
                 return <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
             default:
                 return <CheckCircleOutlined style={{ fontSize: 48, color: '#52c41a' }} />
@@ -55,34 +62,39 @@ const TraceProgress: React.FC<TraceProgressProps> = ({
 
     const getStatusText = () => {
         switch (status) {
-            case 'PENDING':
+            case TRACE_EXECUTION_STATUS.PENDING:
                 return t('progress.pending')
-            case 'STARTED':
+            case TRACE_EXECUTION_STATUS.STARTED:
                 return t('progress.started')
-            case 'INTERRUPTED':
+            case TRACE_EXECUTION_STATUS.INTERRUPTED:
                 return t('progress.interrupted')
-            case 'ERROR':
+            case TRACE_EXECUTION_STATUS.ERROR:
                 return t('progress.error')
             default:
                 return t('progress.completed')
         }
     }
 
-    const showCancelButton = (status === 'PENDING' || status === 'STARTED') && onCancel
+    const showCancelButton = isTraceExecutionInProgress(status) && onCancel
+    const showDismissButton = isTraceExecutionTerminal(status) && onDismiss
 
     return (
         <div className="trace-progress-overlay">
             <div className="trace-progress-content">
                 <Result
                     icon={getStatusIcon()}
-                    title={getStatusText()}
                     subTitle={message}
+                    title={getStatusText()}
                     extra={
-                        showCancelButton && (
-                            <Button onClick={onCancel} danger>
+                        showCancelButton ? (
+                            <Button danger onClick={onCancel}>
                                 {t('progress.cancel')}
                             </Button>
-                        )
+                        ) : showDismissButton ? (
+                            <Button onClick={onDismiss}>
+                                {t('modal.actions.close')}
+                            </Button>
+                        ) : null
                     }
                 />
             </div>

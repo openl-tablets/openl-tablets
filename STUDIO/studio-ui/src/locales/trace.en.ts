@@ -95,6 +95,7 @@ i18next.addResourceBundle('en', 'trace', {
         statuses: {
             pending: 'Preparing trace...',
             started: 'Executing trace...',
+            startedNoLiveProgress: 'Executing trace... (live progress unavailable)',
             completed: 'Trace completed!',
             interrupted: 'Trace was interrupted',
             error: 'Trace failed',
@@ -103,9 +104,13 @@ i18next.addResourceBundle('en', 'trace', {
             cancel: 'Cancel',
             close: 'Close',
         },
+        warnings: {
+            liveProgressUnavailable: 'Live progress is unavailable. Switching to completion polling.',
+        },
         errors: {
             startFailed: 'Failed to start trace',
             cancelFailed: 'Failed to cancel trace',
+            completionTimeout: 'Trace is still running. Please retry in a few moments.',
         },
     },
 })

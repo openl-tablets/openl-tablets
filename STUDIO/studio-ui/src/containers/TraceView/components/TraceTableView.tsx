@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Card, Spin, Empty } from 'antd'
+import DOMPurify from 'dompurify'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
+import { NotFoundError, isApiHttpError } from 'services'
 
 interface TraceTableViewProps {
     nodeId: number
@@ -32,12 +34,13 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
                     nodeId
                 )
                 setHtml(tableHtml)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 // 404 is expected if node has no table view
-                if (err?.message?.includes('404')) {
+                if (err instanceof NotFoundError || (isApiHttpError(err) && err.status === 404)) {
                     setHtml(null)
                 } else {
-                    setError(err?.message || t('errors.tableFailed'))
+                    const errorMessage = err instanceof Error ? err.message : t('errors.tableFailed')
+                    setError(errorMessage)
                 }
             } finally {
                 setLoading(false)
@@ -47,12 +50,17 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
         fetchTable()
     }, [projectId, nodeId, t])
 
+    const sanitizedHtml = useMemo(
+        () => (html ? DOMPurify.sanitize(html, { USE_PROFILES: { html: true } }) : ''),
+        [html]
+    )
+
     if (loading) {
         return (
             <Card
-                title={t('details.table')}
-                size="small"
                 className="trace-table-card"
+                size="small"
+                title={t('details.table')}
             >
                 <div className="trace-table-loading">
                     <Spin tip={t('loadingTable')} />
@@ -64,9 +72,9 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
     if (error) {
         return (
             <Card
-                title={t('details.table')}
-                size="small"
                 className="trace-table-card"
+                size="small"
+                title={t('details.table')}
             >
                 <Empty description={error} />
             </Card>
@@ -79,13 +87,13 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ nodeId }) => {
 
     return (
         <Card
-            title={t('details.table')}
-            size="small"
             className="trace-table-card"
+            size="small"
+            title={t('details.table')}
         >
             <div
                 className="trace-table-content"
-                dangerouslySetInnerHTML={{ __html: html }}
+                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
         </Card>
     )

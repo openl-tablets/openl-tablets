@@ -82,11 +82,11 @@ const Select: FC<SelectProps> = ({
 
     return (
         <Form.Item
+            getValueProps={getFieldValueProps}
             label={label}
             name={name}
             rules={allRules}
             style={formItemStyle}
-            getValueProps={getFieldValueProps}
             {...rest}
         >
             <AntdSelect

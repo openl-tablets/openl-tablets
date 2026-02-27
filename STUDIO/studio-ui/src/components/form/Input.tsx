@@ -55,11 +55,11 @@ const Input: FC<InputProps> = ({
 
     return (
         <Form.Item
+            getValueProps={getFieldValueProps}
             label={label}
             name={name}
             rules={allRules}
             style={formItemStyle}
-            getValueProps={getFieldValueProps}
             {...rest}
         >
             <AntdInput autoComplete={autoComplete} disabled={isDisabled} placeholder={placeholder} style={style} type={type} />

@@ -66,11 +66,11 @@ const InputPassword: FC<InputProps> = ({
 
     return (
         <Form.Item
+            getValueProps={(val) => getFieldValueProps(val, { clearSecret: true })}
             label={label}
             name={name}
             rules={allRules}
             style={formItemStyle}
-            getValueProps={(val) => getFieldValueProps(val, { clearSecret: true })}
             {...rest}
         >
             <AntdInput.Password autoComplete={autoComplete} disabled={isDisabled} placeholder={passwordPlaceholder} style={style} />

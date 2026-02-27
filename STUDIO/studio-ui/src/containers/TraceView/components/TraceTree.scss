@@ -35,7 +35,7 @@
                 white-space: nowrap; // Ensure title stays on single line
             }
 
-            .ant-tree-iconEle {
+            [class~='ant-tree-iconEle'] {
                 display: flex;
                 align-items: center;
                 justify-content: center;

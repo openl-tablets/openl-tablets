@@ -39,78 +39,78 @@ const getAriaProps = (ariaLabel?: string): React.SVGAttributes<SVGSVGElement> =>
 // ruleset.gif - Orange/yellow 4x4 grid for decision tables
 const RulesetIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="1" y="1" width="14" height="14" fill="#ffd700" stroke="#c90" strokeWidth="1" />
-        <line x1="5" y1="1" x2="5" y2="15" stroke="#c90" strokeWidth="1" />
-        <line x1="9" y1="1" x2="9" y2="15" stroke="#c90" strokeWidth="1" />
-        <line x1="13" y1="1" x2="13" y2="15" stroke="#c90" strokeWidth="1" />
-        <line x1="1" y1="5" x2="15" y2="5" stroke="#c90" strokeWidth="1" />
-        <line x1="1" y1="9" x2="15" y2="9" stroke="#c90" strokeWidth="1" />
-        <line x1="1" y1="13" x2="15" y2="13" stroke="#c90" strokeWidth="1" />
+        <rect fill="#ffd700" height="14" stroke="#c90" strokeWidth="1" width="14" x="1" y="1" />
+        <line stroke="#c90" strokeWidth="1" x1="5" x2="5" y1="1" y2="15" />
+        <line stroke="#c90" strokeWidth="1" x1="9" x2="9" y1="1" y2="15" />
+        <line stroke="#c90" strokeWidth="1" x1="13" x2="13" y1="1" y2="15" />
+        <line stroke="#c90" strokeWidth="1" x1="1" x2="15" y1="5" y2="5" />
+        <line stroke="#c90" strokeWidth="1" x1="1" x2="15" y1="9" y2="9" />
+        <line stroke="#c90" strokeWidth="1" x1="1" x2="15" y1="13" y2="13" />
         {/* Orange header cells */}
-        <rect x="1" y="1" width="4" height="4" fill="#f90" />
-        <rect x="5" y="1" width="4" height="4" fill="#fc0" />
-        <rect x="9" y="1" width="4" height="4" fill="#f90" />
+        <rect fill="#f90" height="4" width="4" x="1" y="1" />
+        <rect fill="#fc0" height="4" width="4" x="5" y="1" />
+        <rect fill="#f90" height="4" width="4" x="9" y="1" />
     </svg>
 )
 
 // spreadsheet.gif - Teal/cyan grid for spreadsheets
 const SpreadsheetIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="1" y="1" width="14" height="14" fill="#e0ffff" stroke="#008b8b" strokeWidth="1" />
-        <line x1="5" y1="1" x2="5" y2="15" stroke="#008b8b" strokeWidth="1" />
-        <line x1="9" y1="1" x2="9" y2="15" stroke="#008b8b" strokeWidth="1" />
-        <line x1="13" y1="1" x2="13" y2="15" stroke="#008b8b" strokeWidth="1" />
-        <line x1="1" y1="5" x2="15" y2="5" stroke="#008b8b" strokeWidth="1" />
-        <line x1="1" y1="9" x2="15" y2="9" stroke="#008b8b" strokeWidth="1" />
-        <line x1="1" y1="13" x2="15" y2="13" stroke="#008b8b" strokeWidth="1" />
+        <rect fill="#e0ffff" height="14" stroke="#008b8b" strokeWidth="1" width="14" x="1" y="1" />
+        <line stroke="#008b8b" strokeWidth="1" x1="5" x2="5" y1="1" y2="15" />
+        <line stroke="#008b8b" strokeWidth="1" x1="9" x2="9" y1="1" y2="15" />
+        <line stroke="#008b8b" strokeWidth="1" x1="13" x2="13" y1="1" y2="15" />
+        <line stroke="#008b8b" strokeWidth="1" x1="1" x2="15" y1="5" y2="5" />
+        <line stroke="#008b8b" strokeWidth="1" x1="1" x2="15" y1="9" y2="9" />
+        <line stroke="#008b8b" strokeWidth="1" x1="1" x2="15" y1="13" y2="13" />
         {/* Teal header row */}
-        <rect x="1" y="1" width="14" height="4" fill="#20b2aa" />
+        <rect fill="#20b2aa" height="4" width="14" x="1" y="1" />
         {/* Teal first column */}
-        <rect x="1" y="5" width="4" height="10" fill="#5f9ea0" />
+        <rect fill="#5f9ea0" height="10" width="4" x="1" y="5" />
     </svg>
 )
 
 // value.gif - Green filled circle for spreadsheet cells
 const ValueIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <circle cx="8" cy="8" r="5" fill="#32cd32" stroke="#228b22" strokeWidth="1" />
+        <circle cx="8" cy="8" fill="#32cd32" r="5" stroke="#228b22" strokeWidth="1" />
     </svg>
 )
 
 // method.gif - "fx" italic text for methods
 const MethodIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
         <text
+            fill="#333"
+            fontFamily="Times, serif"
+            fontSize="11"
+            fontStyle="italic"
             x="2"
             y="12"
-            fontFamily="Times, serif"
-            fontStyle="italic"
-            fontSize="11"
-            fill="#333"
         >
             fx
         </text>
@@ -120,20 +120,20 @@ const MethodIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
 // test_ok.gif - Checkbox with checkmark for rules
 const TestOkIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="2" y="2" width="12" height="12" fill="#fff" stroke="#333" strokeWidth="1" rx="1" />
+        <rect fill="#fff" height="12" rx="1" stroke="#333" strokeWidth="1" width="12" x="2" y="2" />
         <path
             d="M4 8 L7 11 L12 5"
             fill="none"
             stroke="#228b22"
-            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            strokeWidth="2"
         />
     </svg>
 )
@@ -141,19 +141,19 @@ const TestOkIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
 // test_success.png - Green checkmark for successful results
 const TestSuccessIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
         <path
             d="M2 8 L6 12 L14 4"
             fill="none"
             stroke="#32cd32"
-            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
+            strokeWidth="2.5"
         />
     </svg>
 )
@@ -161,19 +161,19 @@ const TestSuccessIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => 
 // test_fail.png - Red X in circle for failures
 const TestFailIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <circle cx="8" cy="8" r="7" fill="#ff4444" stroke="#cc0000" strokeWidth="1" />
+        <circle cx="8" cy="8" fill="#ff4444" r="7" stroke="#cc0000" strokeWidth="1" />
         <path
             d="M5 5 L11 11 M11 5 L5 11"
             fill="none"
             stroke="#fff"
-            strokeWidth="2"
             strokeLinecap="round"
+            strokeWidth="2"
         />
     </svg>
 )
@@ -181,61 +181,61 @@ const TestFailIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
 // cmatch.gif - Blue grid for column match
 const CMatchIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="1" y="1" width="14" height="14" fill="#e6f3ff" stroke="#4169e1" strokeWidth="1" />
-        <line x1="5" y1="1" x2="5" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="9" y1="1" x2="9" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="13" y1="1" x2="13" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="5" x2="15" y2="5" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="9" x2="15" y2="9" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="13" x2="15" y2="13" stroke="#4169e1" strokeWidth="1" />
+        <rect fill="#e6f3ff" height="14" stroke="#4169e1" strokeWidth="1" width="14" x="1" y="1" />
+        <line stroke="#4169e1" strokeWidth="1" x1="5" x2="5" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="9" x2="9" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="13" x2="13" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="5" y2="5" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="9" y2="9" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="13" y2="13" />
         {/* Blue header */}
-        <rect x="1" y="1" width="14" height="4" fill="#6495ed" />
+        <rect fill="#6495ed" height="4" width="14" x="1" y="1" />
     </svg>
 )
 
 // tbasic.gif - Blue grid for TBasic (similar to cmatch)
 const TBasicIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="1" y="1" width="14" height="14" fill="#e6f3ff" stroke="#4169e1" strokeWidth="1" />
-        <line x1="5" y1="1" x2="5" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="9" y1="1" x2="9" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="13" y1="1" x2="13" y2="15" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="5" x2="15" y2="5" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="9" x2="15" y2="9" stroke="#4169e1" strokeWidth="1" />
-        <line x1="1" y1="13" x2="15" y2="13" stroke="#4169e1" strokeWidth="1" />
+        <rect fill="#e6f3ff" height="14" stroke="#4169e1" strokeWidth="1" width="14" x="1" y="1" />
+        <line stroke="#4169e1" strokeWidth="1" x1="5" x2="5" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="9" x2="9" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="13" x2="13" y1="1" y2="15" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="5" y2="5" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="9" y2="9" />
+        <line stroke="#4169e1" strokeWidth="1" x1="1" x2="15" y1="13" y2="13" />
         {/* Blue header */}
-        <rect x="1" y="1" width="14" height="4" fill="#6495ed" />
+        <rect fill="#6495ed" height="4" width="14" x="1" y="1" />
     </svg>
 )
 
 // tbasic-operation.gif - Green down arrow for TBasic operations
 const TBasicOperationIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
         <path
             d="M8 2 L8 11 M4 8 L8 12 L12 8"
             fill="none"
             stroke="#228b22"
-            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            strokeWidth="2"
         />
     </svg>
 )
@@ -243,44 +243,44 @@ const TBasicOperationIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel })
 // tableview.gif - Teal horizontal lines for overloaded method choice
 const TableViewIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <rect x="1" y="1" width="14" height="14" fill="#f0ffff" stroke="#008b8b" strokeWidth="1" />
-        <line x1="3" y1="4" x2="13" y2="4" stroke="#20b2aa" strokeWidth="2" />
-        <line x1="3" y1="8" x2="13" y2="8" stroke="#20b2aa" strokeWidth="2" />
-        <line x1="3" y1="12" x2="13" y2="12" stroke="#20b2aa" strokeWidth="2" />
+        <rect fill="#f0ffff" height="14" stroke="#008b8b" strokeWidth="1" width="14" x="1" y="1" />
+        <line stroke="#20b2aa" strokeWidth="2" x1="3" x2="13" y1="4" y2="4" />
+        <line stroke="#20b2aa" strokeWidth="2" x1="3" x2="13" y1="8" y2="8" />
+        <line stroke="#20b2aa" strokeWidth="2" x1="3" x2="13" y1="12" y2="12" />
     </svg>
 )
 
 // Gray minus circle for no result
 const NoResultIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <circle cx="8" cy="8" r="6" fill="#d9d9d9" stroke="#999" strokeWidth="1" />
-        <line x1="4" y1="8" x2="12" y2="8" stroke="#666" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="8" cy="8" fill="#d9d9d9" r="6" stroke="#999" strokeWidth="1" />
+        <line stroke="#666" strokeLinecap="round" strokeWidth="2" x1="4" x2="12" y1="8" y2="8" />
     </svg>
 )
 
 // Unknown/default icon - question mark
 const UnknownIcon: React.FC<TraceIconProps> = ({ size = 16, ariaLabel }) => (
     <svg
-        width={size}
         height={size}
-        viewBox="0 0 16 16"
         style={{ verticalAlign: 'middle' }}
+        viewBox="0 0 16 16"
+        width={size}
         {...getAriaProps(ariaLabel)}
     >
-        <circle cx="8" cy="8" r="6" fill="#f5f5f5" stroke="#999" strokeWidth="1" />
-        <text x="8" y="11" textAnchor="middle" fontSize="9" fill="#666">?</text>
+        <circle cx="8" cy="8" fill="#f5f5f5" r="6" stroke="#999" strokeWidth="1" />
+        <text fill="#666" fontSize="9" textAnchor="middle" x="8" y="11">?</text>
     </svg>
 )
 

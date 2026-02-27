@@ -71,12 +71,12 @@ export const CopyJsonButton: React.FC<CopyJsonButtonProps> = ({ data, tooltipKey
     return (
         <Tooltip title={tooltipTitle}>
             <Button
-                type="text"
-                size="small"
+                className="trace-copy-button"
+                disabled={copying || !allFetched}
                 icon={copying ? <LoadingOutlined spin /> : <CopyOutlined />}
                 onClick={handleCopy}
-                disabled={copying || !allFetched}
-                className="trace-copy-button"
+                size="small"
+                type="text"
             />
         </Tooltip>
     )

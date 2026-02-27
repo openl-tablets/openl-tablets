@@ -55,11 +55,11 @@ const InputNumber: FC<InputNumberProps> = ({
 
     return (
         <Form.Item
+            getValueProps={getFieldValueProps}
             label={label}
             name={name}
             rules={allRules}
             style={formItemStyle}
-            getValueProps={getFieldValueProps}
             {...rest}
         >
             <AntdInputNumber disabled={isDisabled} placeholder={placeholder} style={inputStyle} />

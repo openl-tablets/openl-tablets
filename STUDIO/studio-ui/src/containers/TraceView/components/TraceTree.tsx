@@ -5,6 +5,7 @@ import { DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
+import { TRACE_EXECUTION_STATUS } from 'utils/traceExecutionStatus'
 import { getTraceIcon, getNodeClassName, parseNodeStatus } from './TraceIcons'
 import type { TraceTreeDataNode } from 'types/trace'
 import './TraceTree.scss'
@@ -65,7 +66,7 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 key: node.key,
                 nodeId: node.nodeId,
                 title: (
-                    <Tooltip title={node.tooltip} mouseEnterDelay={0.5}>
+                    <Tooltip mouseEnterDelay={0.5} title={node.tooltip}>
                         <span className={`trace-node-title ${nodeClassName}`}>
                             {node.title}
                         </span>
@@ -129,24 +130,24 @@ const TraceTree: React.FC<TraceTreeProps> = ({ onSelect }) => {
                 </Checkbox>
                 <Tooltip title={t('actions.downloadTooltip')}>
                     <Button
-                        type="text"
-                        size="small"
+                        disabled={executionStatus !== TRACE_EXECUTION_STATUS.COMPLETED || !projectId}
                         icon={<DownloadOutlined />}
                         onClick={() => projectId && traceService.exportTrace(projectId, showRealNumbers, false)}
-                        disabled={executionStatus !== 'COMPLETED' || !projectId}
+                        size="small"
+                        type="text"
                     />
                 </Tooltip>
             </div>
             <div className="trace-tree-content">
                 {displayData.length > 0 ? (
                     <Tree
+                        blockNode
                         showIcon
-                        showLine={{ showLeafIcon: false }}
                         loadData={handleLoadData}
                         onSelect={handleSelect}
                         selectedKeys={selectedTreeKey ? [selectedTreeKey] : []}
+                        showLine={{ showLeafIcon: false }}
                         treeData={displayData}
-                        blockNode
                     />
                 ) : (
                     <Empty

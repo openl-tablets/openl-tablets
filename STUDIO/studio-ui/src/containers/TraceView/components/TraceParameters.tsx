@@ -230,11 +230,11 @@ const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
     return (
         <div className="trace-param-tree">
             <Tree
-                treeData={treeData}
-                showLine={{ showLeafIcon: false }}
+                blockNode
                 defaultExpandedKeys={[]}
                 selectable={false}
-                blockNode
+                showLine={{ showLeafIcon: false }}
+                treeData={treeData}
             />
         </div>
     )
@@ -266,7 +266,7 @@ const TraceParameters: React.FC<TraceParametersProps> = ({
                 <div className="trace-params-header">
                     <span className="trace-params-title">{title}:</span>
                 </div>
-                <Text type="secondary" className="trace-params-empty">
+                <Text className="trace-params-empty" type="secondary">
                     {emptyText || t('details.noParameters')}
                 </Text>
             </div>
@@ -310,7 +310,7 @@ export const SingleParameter: React.FC<{
                 <div className="trace-params-header">
                     <span className="trace-params-title">{title}:</span>
                 </div>
-                <Text type="secondary" className="trace-params-empty">
+                <Text className="trace-params-empty" type="secondary">
                     {emptyText || t('details.noResult')}
                 </Text>
             </div>

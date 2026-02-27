@@ -19,18 +19,13 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] }> = ({ errors }) =>
     }
 
     return (
-        <Card title={t('details.errors')} size="small" className="trace-errors-card">
+        <Card className="trace-errors-card" size="small" title={t('details.errors')}>
             {errors.map((error, index) => (
                 <Alert
                     key={index}
-                    type={
-                        error.severity === 'ERROR'
-                            ? 'error'
-                            : error.severity === 'WARNING'
-                              ? 'warning'
-                              : 'info'
-                    }
+                    showIcon
                     message={error.summary}
+                    style={{ marginBottom: 8 }}
                     description={
                         <>
                             {error.detail && <div>{error.detail}</div>}
@@ -41,8 +36,13 @@ const TraceErrors: React.FC<{ errors?: MessageDescription[] }> = ({ errors }) =>
                             )}
                         </>
                     }
-                    showIcon
-                    style={{ marginBottom: 8 }}
+                    type={
+                        error.severity === 'ERROR'
+                            ? 'error'
+                            : error.severity === 'WARNING'
+                                ? 'warning'
+                                : 'info'
+                    }
                 />
             ))}
         </Card>
@@ -103,23 +103,20 @@ const TraceDetails: React.FC = () => {
         <div className="trace-details">
             {/* Parameters (including context) */}
             <TraceParameters
+                copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
+                emptyText={t('details.noParameters')}
                 parameters={allParameters}
                 title={t('details.parameters')}
-                emptyText={t('details.noParameters')}
-                copyButton={<CopyJsonButton data={allParameters} tooltipKey="copy.parameters" />}
             />
-
             {/* Returned Result */}
             <SingleParameter
+                copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
+                emptyText={t('details.noResult')}
                 parameter={result}
                 title={t('details.result')}
-                emptyText={t('details.noResult')}
-                copyButton={<CopyJsonButton data={result} tooltipKey="copy.result" />}
             />
-
             {/* Errors */}
             <TraceErrors errors={errors} />
-
             {/* Traced Table */}
             <TraceTableView nodeId={selectedNodeId} />
         </div>

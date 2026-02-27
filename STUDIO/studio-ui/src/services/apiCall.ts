@@ -14,16 +14,28 @@ class EmptyError extends Error {
     }
 }
 
-class NotFoundError extends Error {
-    constructor(message?: string) {
-        super(message || 'Not found')
+class ApiHttpError extends Error {
+    status: number
+    payload?: unknown
+
+    constructor(status: number, message: string, payload?: unknown) {
+        super(message)
+        this.name = 'ApiHttpError'
+        this.status = status
+        this.payload = payload
+    }
+}
+
+class NotFoundError extends ApiHttpError {
+    constructor(message?: string, payload?: unknown) {
+        super(404, message || 'Not found', payload)
         this.name = 'NotFoundError'
     }
 }
 
-class ForbiddenError extends Error {
-    constructor(message = 'Forbidden') {
-        super(message)
+class ForbiddenError extends ApiHttpError {
+    constructor(message = 'Forbidden', payload?: unknown) {
+        super(403, message, payload)
         this.name = 'ForbiddenError'
     }
 }
@@ -51,6 +63,35 @@ export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
 }
+
+const isJsonResponse = (response: Response): boolean => {
+    const contentType = response.headers.get('Content-Type')
+    return Boolean(contentType && contentType.indexOf('application/json') !== -1)
+}
+
+const tryParseJsonBody = async (response: Response): Promise<unknown> => {
+    if (!isJsonResponse(response)) {
+        return undefined
+    }
+    try {
+        return await response.json()
+    } catch {
+        return undefined
+    }
+}
+
+const getErrorMessage = (payload: unknown, fallbackMessage: string): string => {
+    if (payload && typeof payload === 'object' && 'message' in payload) {
+        const message = (payload as { message?: unknown }).message
+        if (typeof message === 'string' && message.trim() !== '') {
+            return message
+        }
+    }
+    return fallbackMessage
+}
+
+const isApiHttpError = (error: unknown): error is ApiHttpError =>
+    error instanceof ApiHttpError
 
 const apiCall = async (
     url: string,
@@ -106,16 +147,24 @@ const apiCall = async (
                 if (!opts.suppressErrorPages) {
                     appStore.setShowServerError(true)
                 }
-                // Try to extract error message from response body
-                const errorMessage = await extractErrorMessage(response, 'Internal server error! Please try again later.')
-                throw new Error(errorMessage)
+                const payload = await tryParseJsonBody(response)
+                throw new ApiHttpError(
+                    status,
+                    getErrorMessage(payload, 'Internal server error! Please try again later.'),
+                    payload
+                )
             } else {
-                const data = await response.json()
-                if (data.fields) {
-                    const errors = data.fields.map(({ message }: { message: any }) => message)
+                const payload = await tryParseJsonBody(response)
+                if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
+                    const errors = (payload as { fields: Array<{ message: unknown }> }).fields
+                        .map(({ message }) => message)
                     throw new Error(errors)
                 } else {
-                    throw new Error(data.message || 'Something went wrong on API server!')
+                    throw new ApiHttpError(
+                        status,
+                        getErrorMessage(payload, 'Something went wrong on API server!'),
+                        payload
+                    )
                 }
             }
         })
@@ -132,5 +181,5 @@ const apiCall = async (
         })
 }
 
-export { NotFoundError, EmptyError, ForbiddenError }
+export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }
 export default apiCall

@@ -1,21 +1,8 @@
 #trace-view {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     display: flex;
     background: #fff;
-
-    &.resizing {
-        cursor: ew-resize;
-        user-select: none;
-
-        .trace-left-panel,
-        .trace-right-panel {
-            pointer-events: none;
-        }
-    }
 
     .trace-left-panel {
         min-width: 200px;
@@ -61,16 +48,23 @@
         align-items: center;
         justify-content: center;
     }
+
+    &.resizing {
+        cursor: ew-resize;
+        user-select: none;
+
+        .trace-left-panel,
+        .trace-right-panel {
+            pointer-events: none;
+        }
+    }
 }
 
 // Progress overlay
 .trace-progress-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    inset: 0;
+    background: rgb(255 255 255 / 90%);
     display: flex;
     align-items: center;
     justify-content: center;

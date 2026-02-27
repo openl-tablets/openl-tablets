@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, notification } from 'antd'
+import { Alert, Button, notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import TraceTree from './components/TraceTree'
@@ -8,6 +8,12 @@ import TraceDetails from './components/TraceDetails'
 import TraceProgress from './components/TraceProgress'
 import useTraceProgress from './hooks/useTraceProgress'
 import { traceService } from 'services/traceService'
+import {
+    isTraceExecutionError,
+    isTraceExecutionInProgress,
+    isTraceExecutionTerminal,
+    TRACE_EXECUTION_STATUS,
+} from 'utils/traceExecutionStatus'
 import './TraceView.scss'
 
 interface TraceViewParams {
@@ -40,6 +46,7 @@ const TraceView: React.FC = () => {
     // Resizer state
     const [leftPanelWidth, setLeftPanelWidth] = useState(35) // percentage
     const [isResizing, setIsResizing] = useState(false)
+    const [terminalStatusDismissed, setTerminalStatusDismissed] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
     // WebSocket subscription for progress updates
@@ -67,7 +74,7 @@ const TraceView: React.FC = () => {
         try {
             await traceService.cancelTrace(projectId)
             // Update local status since backend doesn't emit WebSocket status on cancel
-            setExecutionStatus('INTERRUPTED')
+            setExecutionStatus(TRACE_EXECUTION_STATUS.INTERRUPTED)
         } catch (err) {
             console.error('Failed to cancel trace:', err)
             const errorMessage = err instanceof Error ? err.message : String(err)
@@ -116,20 +123,24 @@ const TraceView: React.FC = () => {
         }
     }, [isResizing, handleMouseMove, handleMouseUp])
 
-    // Determine if progress overlay should be shown
-    const showProgressOverlay =
-        executionStatus === 'PENDING' ||
-        executionStatus === 'STARTED' ||
-        executionStatus === 'ERROR' ||
-        executionStatus === 'INTERRUPTED'
+    const isExecutionInProgress = isTraceExecutionInProgress(executionStatus)
+
+    const showTerminalStatusBanner =
+        !terminalStatusDismissed && isTraceExecutionTerminal(executionStatus)
+
+    useEffect(() => {
+        if (isExecutionInProgress) {
+            setTerminalStatusDismissed(false)
+        }
+    }, [isExecutionInProgress])
 
     if (!projectId || !tableId) {
         return (
-            <div id="trace-view" className="trace-view-error">
+            <div className="trace-view-error" id="trace-view">
                 <Alert
-                    type="error"
-                    message={t('errors.notFound')}
                     description={t('errors.missingParams')}
+                    message={t('errors.notFound')}
+                    type="error"
                 />
             </div>
         )
@@ -137,28 +148,43 @@ const TraceView: React.FC = () => {
 
     return (
         <div
-            id="trace-view"
             ref={containerRef}
             className={isResizing ? 'resizing' : ''}
+            id="trace-view"
         >
             {/* Progress Overlay */}
             <TraceProgress
-                status={executionStatus}
                 message={progressMessage || undefined}
                 onCancel={handleCancelTrace}
-                visible={showProgressOverlay}
+                onDismiss={() => setTerminalStatusDismissed(true)}
+                status={executionStatus}
+                visible={isExecutionInProgress}
             />
-
-            {/* Error Banner */}
-            {error && !showProgressOverlay && (
+            {/* Terminal Status Banner */}
+            {showTerminalStatusBanner && (
                 <Alert
-                    type="error"
-                    message={error}
-                    className="trace-error-banner"
                     closable
+                    className="trace-error-banner"
+                    description={progressMessage}
+                    message={isTraceExecutionError(executionStatus) ? t('progress.error') : t('progress.interrupted')}
+                    onClose={() => setTerminalStatusDismissed(true)}
+                    type={isTraceExecutionError(executionStatus) ? 'error' : 'warning'}
+                    action={(
+                        <Button onClick={() => setTerminalStatusDismissed(true)} size="small">
+                            {t('modal.actions.close')}
+                        </Button>
+                    )}
                 />
             )}
-
+            {/* Error Banner */}
+            {error && !isExecutionInProgress && !showTerminalStatusBanner && (
+                <Alert
+                    closable
+                    className="trace-error-banner"
+                    message={error}
+                    type="error"
+                />
+            )}
             {/* Left Panel - Tree */}
             <div
                 className="trace-left-panel"
@@ -166,13 +192,11 @@ const TraceView: React.FC = () => {
             >
                 <TraceTree />
             </div>
-
             {/* Resizer */}
             <div
                 className="trace-resizer"
                 onMouseDown={handleMouseDown}
             />
-
             {/* Right Panel - Details */}
             <div
                 className="trace-right-panel"

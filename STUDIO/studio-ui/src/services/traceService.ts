@@ -1,4 +1,5 @@
 import apiCall from './apiCall'
+import { ApiHttpError } from './apiCall'
 import type { ApiCallOptions } from './apiCall'
 import CONFIG from './config'
 import { errorHandler } from 'utils/errorHandling'
@@ -33,6 +34,10 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
  * Transient errors include network failures and specific HTTP status codes.
  */
 const isTransientError = (error: unknown): boolean => {
+    if (error instanceof ApiHttpError) {
+        return error.status === 502 || error.status === 503 || error.status === 504
+    }
+
     if (error instanceof TypeError) {
         // Network errors like "Failed to fetch"
         return true

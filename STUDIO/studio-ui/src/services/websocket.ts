@@ -14,6 +14,13 @@ export interface WebSocketSubscription {
     stompSubscription?: { unsubscribe: () => void }
 }
 
+export class WebSocketConnectionTimeoutError extends Error {
+    constructor(timeoutMs: number) {
+        super(`WebSocket connection timeout after ${timeoutMs}ms`)
+        this.name = 'WebSocketConnectionTimeoutError'
+    }
+}
+
 class WebSocketService {
     private client: Client | null = null
     private subscriptions: Map<string, WebSocketSubscription> = new Map()
@@ -30,7 +37,7 @@ class WebSocketService {
         const url = new URL(document.baseURI)
         const proto = url.protocol === 'https:' ? 'wss:' : 'ws:'
         const wsUrl = `${proto}//${url.host}${url.pathname}web/ws`
-        
+
         const stompConfig: StompConfig = {
             brokerURL: wsUrl,
             reconnectDelay: this.reconnectDelay,
@@ -72,18 +79,20 @@ class WebSocketService {
     private onError(error: any) {
         console.error('WebSocket Error:', error)
         this.isConnected = false
-        
+
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++
             setTimeout(() => {
-                this.connect()
+                this.connect().catch((connectError) => {
+                    console.error('WebSocket reconnect attempt failed:', connectError)
+                })
             }, this.reconnectDelay * this.reconnectAttempts)
         } else {
             console.error('Max reconnection attempts reached')
         }
     }
 
-    public connect(): Promise<void> {
+    public connect(timeoutMs = 8000): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.client) {
                 reject(new Error('WebSocket client not initialized'))
@@ -96,11 +105,15 @@ class WebSocketService {
             }
 
             this.client.activate()
-            
-            // Wait for connection
+
+            const deadline = Date.now() + timeoutMs
+
+            // Wait for connection with timeout protection
             const checkConnection = () => {
                 if (this.isConnected) {
                     resolve()
+                } else if (Date.now() >= deadline) {
+                    reject(new WebSocketConnectionTimeoutError(timeoutMs))
                 } else {
                     setTimeout(checkConnection, 100)
                 }
@@ -116,8 +129,8 @@ class WebSocketService {
     }
 
     public subscribe(
-        destination: string, 
-        callback: (message: WebSocketMessage) => void, 
+        destination: string,
+        callback: (message: WebSocketMessage) => void,
         subscriptionId?: string
     ): string {
         if (!this.client || !this.isConnected) {
@@ -125,7 +138,7 @@ class WebSocketService {
         }
 
         const id = subscriptionId || `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        
+
         const subscription: WebSocketSubscription = {
             id,
             destination,
