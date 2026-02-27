@@ -197,7 +197,45 @@ GET /projects/MyProject/tables/LOOKUP_PrimaryBreedFactor
 
 ---
 
-### 5. **Projects Merge API (BETA)** ([projects-merge-api.md](projects-merge-api.md))
+### 5. **Project Modules API (BETA)** ([project-modules-api.md](project-modules-api.md))
+
+Complete REST API for managing project modules (Excel file definitions in `rules.xml`). Supports regular and wildcard modules with full lifecycle operations.
+
+**Key Features:**
+- List modules with wildcard expansion
+- Add modules with optional empty Excel file creation
+- Edit module name, path, method filter, and compilation settings
+- Copy modules with wildcard coverage detection
+- Remove modules with optional file deletion
+- ACL permission enforcement
+
+**Use Cases:**
+- Managing project structure programmatically
+- Creating test modules with dependencies
+- Copying modules for state-based rule variants
+- Renaming modules to match naming patterns
+
+**Example:**
+```bash
+# Add a new module with auto-created file
+POST /projects/{projectId}/modules
+{
+  "name": "MainTests",
+  "path": "MainTests.xlsx",
+  "createFile": true
+}
+
+# Copy a module
+POST /projects/{projectId}/modules/Main-CW/copy
+{
+  "newModuleName": "Main-NY",
+  "newPath": "Main-NY.xlsx"
+}
+```
+
+---
+
+### 6. **Projects Merge API (BETA)** ([projects-merge-api.md](projects-merge-api.md))
 
 The Projects Merge API provides comprehensive Git branch merge operations with conflict detection and resolution capabilities.
 
@@ -247,7 +285,7 @@ message="Merged feature-auth: kept our business rules"
 
 ---
 
-### 6. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
+### 7. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
 
 The Personal Access Token (PAT) API enables users to generate and manage authentication tokens for programmatic access to OpenL Tablets Studio. PATs provide an alternative to OAuth2/SAML authentication for service-to-service communication and API integrations.
 
@@ -566,6 +604,19 @@ Refer to the specific API documentation for detailed test cases and expected res
 | Hierarchical | ❌ No | ❌ No | ✅ Merges | ✅ Complex | ✅ Simple |
 | Type Safety | ✅ Yes | ✅ Yes | ❌ Raw | ✅ Yes | ✅ Yes |
 | Testing | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated | ✅ Integrated |
+
+### Project Modules API (BETA)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| List Modules | ✅ Complete | Wildcard expansion with oneOf schema |
+| Add Module | ✅ Complete | Optional empty Excel creation |
+| Edit Module | ✅ Complete | Rename, path, method filter |
+| Copy Module | ✅ Complete | Wildcard coverage detection |
+| Remove Module | ✅ Complete | Optional file deletion |
+| Validation | ✅ Complete | Duplicate, blank, missing, conflict |
+| ACL Permissions | ✅ Complete | WRITE, CREATE, DELETE checks |
+| Integration Tests | ✅ Complete | Full lifecycle coverage |
 
 ### Projects Merge API (BETA)
 
