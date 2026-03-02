@@ -4,11 +4,15 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "homepage": "/",
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
     "@eslint/js": "^9.39.3",
     "@stomp/stompjs": "^7.3.0",
     "antd": "^6.3.1",
+    "dompurify": "^3.3.1",
     "i18next": "^25.8.13",
     "path-browserify": "^1.0.1",
     "react": "^19.2.4",
@@ -26,7 +30,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.3.0",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.56.0",

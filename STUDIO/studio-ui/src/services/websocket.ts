@@ -11,6 +11,14 @@ export interface WebSocketSubscription {
     id: string
     destination: string
     callback: (message: WebSocketMessage) => void
+    stompSubscription?: { unsubscribe: () => void }
+}
+
+export class WebSocketConnectionTimeoutError extends Error {
+    constructor(timeoutMs: number) {
+        super(`WebSocket connection timeout after ${timeoutMs}ms`)
+        this.name = 'WebSocketConnectionTimeoutError'
+    }
 }
 
 class WebSocketService {
@@ -29,7 +37,7 @@ class WebSocketService {
         const url = new URL(document.baseURI)
         const proto = url.protocol === 'https:' ? 'wss:' : 'ws:'
         const wsUrl = `${proto}//${url.host}${url.pathname}web/ws`
-        
+
         const stompConfig: StompConfig = {
             brokerURL: wsUrl,
             reconnectDelay: this.reconnectDelay,
@@ -46,10 +54,21 @@ class WebSocketService {
     private onConnect() {
         this.isConnected = true
         this.reconnectAttempts = 0
-        
+
         // Re-subscribe to all previous subscriptions
         this.subscriptions.forEach((subscription) => {
-            this.subscribe(subscription.destination, subscription.callback, subscription.id)
+            if (this.client) {
+                const stompSubscription = this.client.subscribe(subscription.destination, (message: IMessage) => {
+                    const wsMessage: WebSocketMessage = {
+                        body: message.body,
+                        headers: message.headers,
+                        command: message.command,
+                        destination: subscription.destination
+                    }
+                    subscription.callback(wsMessage)
+                }, { id: subscription.id })
+                subscription.stompSubscription = stompSubscription
+            }
         })
     }
 
@@ -60,18 +79,20 @@ class WebSocketService {
     private onError(error: any) {
         console.error('WebSocket Error:', error)
         this.isConnected = false
-        
+
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++
             setTimeout(() => {
-                this.connect()
+                this.connect().catch((connectError) => {
+                    console.error('WebSocket reconnect attempt failed:', connectError)
+                })
             }, this.reconnectDelay * this.reconnectAttempts)
         } else {
             console.error('Max reconnection attempts reached')
         }
     }
 
-    public connect(): Promise<void> {
+    public connect(timeoutMs = 8000): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.client) {
                 reject(new Error('WebSocket client not initialized'))
@@ -84,11 +105,23 @@ class WebSocketService {
             }
 
             this.client.activate()
-            
-            // Wait for connection
+
+            const deadline = Date.now() + timeoutMs
+            let settled = false
+
+            // Wait for connection with timeout protection
             const checkConnection = () => {
+                if (settled) {
+                    return
+                }
                 if (this.isConnected) {
+                    settled = true
                     resolve()
+                } else if (Date.now() >= deadline) {
+                    settled = true
+                    // Timeout should terminate this connect attempt and prevent late connect state.
+                    this.client?.deactivate()
+                    reject(new WebSocketConnectionTimeoutError(timeoutMs))
                 } else {
                     setTimeout(checkConnection, 100)
                 }
@@ -104,8 +137,8 @@ class WebSocketService {
     }
 
     public subscribe(
-        destination: string, 
-        callback: (message: WebSocketMessage) => void, 
+        destination: string,
+        callback: (message: WebSocketMessage) => void,
         subscriptionId?: string
     ): string {
         if (!this.client || !this.isConnected) {
@@ -113,7 +146,7 @@ class WebSocketService {
         }
 
         const id = subscriptionId || `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        
+
         const subscription: WebSocketSubscription = {
             id,
             destination,
@@ -123,7 +156,7 @@ class WebSocketService {
         this.subscriptions.set(id, subscription)
 
         if (this.client && this.isConnected) {
-            this.client.subscribe(destination, (message: IMessage) => {
+            const stompSubscription = this.client.subscribe(destination, (message: IMessage) => {
                 const wsMessage: WebSocketMessage = {
                     body: message.body,
                     headers: message.headers,
@@ -131,7 +164,9 @@ class WebSocketService {
                     destination: destination // Use the subscription destination instead of message.destination
                 }
                 callback(wsMessage)
-            })
+            }, { id })
+            // Store the STOMP subscription for proper unsubscribe
+            subscription.stompSubscription = stompSubscription
         }
 
         return id
@@ -139,10 +174,13 @@ class WebSocketService {
 
     public unsubscribe(subscriptionId: string) {
         const subscription = this.subscriptions.get(subscriptionId)
-        if (subscription && this.client && this.isConnected) {
-            this.client.unsubscribe(subscriptionId)
+        if (subscription) {
+            // Use the stored STOMP subscription's unsubscribe method
+            if (subscription.stompSubscription) {
+                subscription.stompSubscription.unsubscribe()
+            }
+            this.subscriptions.delete(subscriptionId)
         }
-        this.subscriptions.delete(subscriptionId)
     }
 
     public send(destination: string, body: string, headers?: { [key: string]: string }) {

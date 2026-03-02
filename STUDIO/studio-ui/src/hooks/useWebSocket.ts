@@ -10,7 +10,7 @@ export interface UseWebSocketOptions {
 
 export interface UseWebSocketReturn {
     isConnected: boolean
-    connect: () => Promise<void>
+    connect: (timeoutMs?: number) => Promise<void>
     disconnect: () => void
     subscribe: (destination: string, callback: (message: WebSocketMessage) => void, subscriptionId?: string) => string
     unsubscribe: (subscriptionId: string) => void
@@ -30,14 +30,15 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     const [subscriptions, setSubscriptions] = useState<string[]>([])
     const subscriptionsRef = useRef<Set<string>>(new Set())
 
-    const connect = useCallback(async () => {
+    const connect = useCallback(async (timeoutMs?: number) => {
         try {
-            await webSocketService.connect()
+            await webSocketService.connect(timeoutMs)
             setIsConnected(true)
             onConnect?.()
         } catch (error) {
             console.error('Failed to connect to WebSocket:', error)
             onError?.(error)
+            throw error
         }
     }, [onConnect, onError])
 
@@ -48,8 +49,8 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     }, [onDisconnect])
 
     const subscribe = useCallback((
-        destination: string, 
-        callback: (message: WebSocketMessage) => void, 
+        destination: string,
+        callback: (message: WebSocketMessage) => void,
         subscriptionId?: string
     ) => {
         const id = webSocketService.subscribe(destination, callback, subscriptionId)
@@ -65,8 +66,8 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     }, [])
 
     const send = useCallback((
-        destination: string, 
-        body: string, 
+        destination: string,
+        body: string,
         headers?: { [key: string]: string }
     ) => {
         webSocketService.send(destination, body, headers)
@@ -75,7 +76,9 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     // Auto-connect on mount
     useEffect(() => {
         if (autoConnect) {
-            connect()
+            void connect().catch(() => {
+                // Connection failures are already handled in connect() via onError callback.
+            })
         }
 
         // Cleanup on unmount

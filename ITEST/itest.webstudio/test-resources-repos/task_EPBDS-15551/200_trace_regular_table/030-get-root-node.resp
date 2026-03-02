@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "key": 1,
+    "title": "SpreadSheet Double BalanceDynamicIndexCalculation(FinancialData currentFinancialData, FinancialData previousFinancialData) = 0.94",
+    "tooltip": "SpreadSheet Double BalanceDynamicIndexCalculation(FinancialData currentFinancialData, FinancialData previousFinancialData) = 0.94",
+    "type": "spreadsheet",
+    "lazy": true,
+    "extraClasses": "spreadsheet",
+    "error": false
+  }
+]
