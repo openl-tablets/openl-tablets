@@ -113,7 +113,7 @@ JSF/RichFaces → React 19.2.x + TypeScript 5.9.x
 - **Do not add new JSF pages**
 - **Bug fixes only for existing JSF**
 - **New features in React**
-- Target: Complete migration by v7.0
+- Target: Complete migration by 7.0
 
 ### 2. RichFaces Custom Fork
 
@@ -193,7 +193,7 @@ OpenL openL = builder.build();
 
 **Reason**: Static singleton anti-pattern, configuration inflexibility
 
-**Removal**: Planned for v7.0.0
+**Removal**: Planned for 7.0.0
 
 ---
 
@@ -212,7 +212,7 @@ public static int add(int a, int b) { ... }
 
 **Reason**: Annotation-based approach more flexible
 
-**Removal**: Planned for v7.0.0
+**Removal**: Planned for 7.0.0
 
 ---
 
@@ -230,7 +230,7 @@ VirtualSourceCodeModule
 
 **Reason**: Overcomplicated abstractions
 
-**Removal**: Planned for v6.1.0
+**Removal**: Planned for 6.1.0
 
 ---
 
