@@ -135,7 +135,7 @@ Foundation (commons) → Core Engine (rules) → Project Management → Integrat
 
 ### Dependencies
 
-**Internal**: `org.openl.rules.util` (since v6.0.0 - circular dependency)
+**Internal**: `org.openl.rules.util` (since 6.0.0 - circular dependency)
 **External**:
 - SLF4J 2.0.17 (logging facade)
 - Jakarta XML Bind 4.0.4 (JAXB for Java 11+)

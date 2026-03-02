@@ -11,7 +11,7 @@ public final class OpenLInfoLogger {
     public static void logInfo() {
         Logger logger = LoggerFactory.getLogger("OpenL");
 
-        logger.info("***** OpenL Tablets v{}  ({}, #{})", OpenLVersion.getVersion(), OpenLVersion.getBuildDate(), OpenLVersion.getBuildNumber());
+        logger.info("***** OpenL Tablets {}  ({}, #{})", OpenLVersion.getVersion(), OpenLVersion.getBuildDate(), OpenLVersion.getBuildNumber());
         logger.info("***** Site : {}", OpenLVersion.getUrl());
 
         String level = null;

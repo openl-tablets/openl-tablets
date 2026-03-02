@@ -57,7 +57,7 @@ The Groups and Users UI has been redesigned to improve usability and visibility:
 
 ##### **Project Creation & Deletion Control**
 
-Previously, users with the **Create Projects** permission could always create projects through the UI. Starting with v6.0.0, project creation is controlled by a new system-level property configured by administrators:
+Previously, users with the **Create Projects** permission could always create projects through the UI. Starting with 6.0.0, project creation is controlled by a new system-level property configured by administrators:
 
 ```properties
 security.allow-project-create-delete=true   # default
