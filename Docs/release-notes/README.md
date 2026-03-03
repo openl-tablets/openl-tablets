@@ -51,6 +51,7 @@ Each `index.md` should include content structured as follows:
 8. **Breaking Changes** - Changes that require user action
 9. **Library Updates** - exact version updates for all libraries, presented in a table format with columns: Library, Version
 10. **Known Issues** - Known problems in this release
+11. Do not include migration steps and reference to migration.md in index.md — they belong in migration.md only
 
 Optional `migration.md` should include:
 1. Front Matter block must have
