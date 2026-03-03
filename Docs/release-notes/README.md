@@ -11,7 +11,8 @@ release-notes/
 ├── README.md                    # This file
 ├── 6.0.0/
 │   ├── index.md                 # Release notes for 6.0.0
-│   └── images/                  # Screenshots and diagrams for 6.0.0
+│   ├── migration.md             # Migration notes for 6.0.0 if necessary
+│   └── images/                  # Screenshots and diagrams for 6.0.0 if necessary
 ├── 6.1.0/
 │   ├── index.md
 │   └── images/
@@ -27,25 +28,49 @@ release-notes/
 
 Each version folder contains:
 
-| File/Folder | Purpose |
-|-------------|---------|
-| `index.md` | Main release notes document |
-| `images/` | Screenshots, diagrams, and other visual assets |
+| File/Folder    | Purpose                                                                  |
+|----------------|--------------------------------------------------------------------------|
+| `index.md`     | Main release notes document                                              |
+| `migration.md` | Migration notes document, steps for upgrading from the previous versions |
+| `images/`      | Screenshots, diagrams, and other visual assets                           |
 
 ## Template
 
-Each `index.md` should include:
+Each `index.md` should include content structured as follows:
 
-1. **Version** - The version number in the title
-2. **Release Date** - When the version was released
+1. Front Matter block must have
+      * title - the title with version number (e.g., "OpenL Tablets 6.0.0 Release Notes")
+      * date (YYYY-MM-DD format) - the release date
+      * description (required) - a brief summary of the release (up to 50 words)
+2. No duplicate title heading — body starts directly with the intro paragraph
 3. **Highlights** - Key features and changes
 4. **New Features** - Detailed list of new features
 5. **Improvements** - Enhancements to existing functionality
 6. **Bug Fixes** - Issues resolved in this release
-7. **Breaking Changes** - Changes that require user action
-8. **Deprecations** - Features marked for removal in future versions
-9. **Known Issues** - Known problems in this release
-10. **Upgrade Notes** - Steps for upgrading from previous versions
+7. **Deprecations** - Features marked for removal in future versions
+8. **Breaking Changes** - Changes that require user action
+9. **Library Updates** - exact version updates for all libraries, presented in a table format with columns: Library, Version
+10. **Known Issues** - Known problems in this release
+
+Optional `migration.md` should include:
+1. Front Matter block must have
+    * title - the title with version number (e.g., "OpenL Tablets 6.0.0 Migration Notes")
+2. Role-based pointers for different user groups (Rules Authors, Developers, Administrators)
+3. Environment and dependency changes that may affect migration or integration (e.g., Java version, library updates)
+4. End-to-end migration steps, including any necessary code changes, configuration updates, and testing recommendations
+5. SQL statements for database migration steps if applicable
+
+## Formatting Guidelines
+
+- Do not generalize or simplify technical details — preserve the specific language and details from the source to maintain accuracy and integrity of the information presented to users
+- Use fenced code blocks with language identifiers for syntax highlighting (e.g., ```java, ```sql)
+- Include code snippets verbatim, preserving formatting and indentation
+- Use inlined code formatting for class names, method names, configuration properties, and other technical terms (e.g., `security.default-group`, `isProvideRuntimeContext`)
+- Use tables for structured data (e.g., library updates, deprecated items, changes)
+- Use bold or italics to emphasize important information or key points, but avoid overusing them to maintain readability
+- Do not use bold in the heading titles (e.g., ## **New Features** should be ## New Features)
+- Use official product names for libraries include casing (e.g., CXF, Groovy, Log4j, Jetty, gRPC, OpenSAML, POI, JGit, Commons IO)
+- Use the latest release notes (e.g. 6.0.0) as a reference for tone, formatting, and style to ensure consistency across all versions
 
 ## Adding Images
 
