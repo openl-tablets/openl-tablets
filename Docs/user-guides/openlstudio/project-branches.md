@@ -33,7 +33,7 @@ This section describes how to view existing branches, switch between them in the
     
 1.  To switch between branches in the editor, click the last link in the address bar identifying the branch name and in the list that appears, select the required branch.
     
-    ![](images/f0fdac03d8f8fe22ae1cfe39b1ae4914.jpeg)
+    ![](images/switching-branches-in-editor.jpeg)
     
     *Switching between branches in the editor*
     
@@ -42,7 +42,7 @@ This section describes how to view existing branches, switch between them in the
     
     This list also contains branches created outside of OpenL Studio.
     
-    ![](images/9c9973d12ee0870605d1b93f9954cf38.jpeg)
+    ![](images/enable-disable-branches.jpeg)
     
     *Enabling and disabling branches for a project*
     
@@ -50,7 +50,7 @@ This section describes how to view existing branches, switch between them in the
     
     The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage branches** list. The project in the branch is erased. If the non-default branch contains commits not merged to the default branch, a warning message is displayed upon deletion attempt.
     
-    ![](images/1b96e48ec5e042ca8db911d775c1e358.jpeg)
+    ![](images/delete-branch-unmerged-commits.jpeg)
     
     *Deleting a non-default branch with unmerged commits*
     
@@ -72,7 +72,7 @@ This section describes how to view existing branches, switch between them in the
     
     If upon saving there is a conflict due to updates in the same module sheet, the **Resolve conflicts** window appears.
     
-    ![](images/a5098c1701a77c2f799853d857d0abd4.png)
+    ![](images/resolve-conflicts-on-merge.png)
     
     *Resolving conflicts on merging branches*
     
@@ -90,13 +90,13 @@ This section describes how to view existing branches, switch between them in the
 
 If the same version of the project is edited by several users, upon submitting their changes using different clients, the conflict error message appears asking which version must be saved. Changes in other versions are discarded.
 
-![](images/69717c882b7e4acebe90883d7e9314f1.png)
+![](images/save-conflict-error-message.png)
 
 *An error message upon saving conflicting versions*
 
 The error message contains the **Compare** link that allows viewing both conflicting versions for comparison.
 
-![](images/b40a443c9b9f389aaf7c12c886670f5b.jpeg)
+![](images/compare-conflicting-versions.jpeg)
 
 *Comparing conflicting versions*
 
