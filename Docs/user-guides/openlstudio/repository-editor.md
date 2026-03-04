@@ -587,10 +587,10 @@ The project is deployed to the selected deployment repository.
 
 The following topics are included in this section:
 
--   [Configuring Additional Rules Deploy Configuration Settings](#configuring-additional-rules-deploy-configuration-settings)
+-   [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings)
 -   [Defining Rule Service Version](#defining-rule-service-version)
 
-#### Configuring Additional Rules Deploy Configuration Settings
+#### Configuring Rules Deploy Configuration Settings
 
 Deployment rules can be added before deploying a project to deployment repository. If a project already has the `rules-deploy.xml` configuration file, it can be edited via the **Rules Deploy Configuration** menu.
 
@@ -651,7 +651,7 @@ To define the rule service version, proceed as follows:
     
     By default, the **Major 0, Minor 0** scroll list appears.
     
-1.  For more information on how to configure deployment configuration settings, see [Configuring Additional Rules Deploy Configuration Settings](#configuring-additional-rules-deploy-configuration-settings).
+1.  For more information on how to configure deployment configuration settings, see [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings).
 2.  In the scroll list, select the services version.
     
     For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
