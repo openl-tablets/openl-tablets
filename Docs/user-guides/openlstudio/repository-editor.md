@@ -563,7 +563,7 @@ To erase a project, proceed as follows:
 
 ### Deploying a Project
 
-OpenL Studio allows deploying a project directly to a deployment repository without creating an intermediate deploy configuration.
+OpenL Studio allows deploying a project directly to a deployment repository.
 
 To deploy a project, proceed as follows:
 
