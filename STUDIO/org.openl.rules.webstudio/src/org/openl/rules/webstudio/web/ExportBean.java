@@ -123,6 +123,7 @@ public class ExportBean {
         }
     }
 
+    @Deprecated(forRemoval = true)
     public void exportFileVersion() {
         File file = null;
         String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
