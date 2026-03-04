@@ -17,6 +17,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.JAXBException;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -459,7 +461,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
     private static final Set<String> EXCEL_EXTENSIONS = Set.of("xlsx", "xls");
 
     /**
-     * Creates an empty Excel (.xlsx) file at the specified path in the project.
+     * Creates an empty Excel file at the specified path in the project.
      *
      * @param project the rules project
      * @param path    relative file path within the project
@@ -470,7 +472,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             throw new BadRequestException("module.path.not.excel.message");
         }
         validateCreatePermission(project, path);
-        try (var workbook = new XSSFWorkbook()) {
+        try (Workbook workbook = "xls".equalsIgnoreCase(ext) ? new HSSFWorkbook() : new XSSFWorkbook()) {
             workbook.createSheet("Sheet1");
             var out = new ByteArrayOutputStream();
             workbook.write(out);
