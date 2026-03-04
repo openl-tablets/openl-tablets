@@ -240,7 +240,10 @@ public class RepositoryTreeController {
 
     /**
      * Adds new file to active node (project or folder).
+     *
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
      */
+    @Deprecated
     public String addFile() {
         if (getLastUploadedFile() == null) {
             WebStudioUtils.addErrorMessage("Select a file to upload.");
@@ -266,6 +269,10 @@ public class RepositoryTreeController {
         return null;
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API with {@code createFolders=true} instead.
+     */
+    @Deprecated
     public String addFolder() {
         AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         String errorMessage = null;
@@ -851,6 +858,10 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * @deprecated Use {@code DELETE /projects/{projectId}/resources/{resourceId}} REST API instead.
+     */
+    @Deprecated
     public String deleteElement() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         String childName = WebStudioUtils.getRequestParameter("element");
@@ -1244,6 +1255,7 @@ public class RepositoryTreeController {
         return null;
     }
 
+    @Deprecated(forRemoval = true)
     public String exportFileVersion() {
         File file = null;
         String fileName;
@@ -1287,6 +1299,10 @@ public class RepositoryTreeController {
                 : projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue();
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources/{resourceId}/copy} REST API instead.
+     */
+    @Deprecated
     public String copyFileVersion() {
         String path = WebStudioUtils.getRequestParameter("copyFileForm:filePath");
         String currentRevision = WebStudioUtils.getRequestParameter("copyFileForm:currentRevision");
@@ -1894,7 +1910,10 @@ public class RepositoryTreeController {
 
     /**
      * Updates file (active node)
+     *
+     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
      */
+    @Deprecated
     public String updateFile() {
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
@@ -1994,6 +2013,10 @@ public class RepositoryTreeController {
         clearUploadedFiles();
     }
 
+    /**
+     * @deprecated Use {@code POST /projects/{projectId}/resources} REST API instead.
+     */
+    @Deprecated
     private String uploadAndAddFile() {
         if (!NameChecker.checkName(fileName)) {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
@@ -2095,6 +2118,10 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * @deprecated Use {@code PUT /projects/{projectId}/resources/{resourceId}} REST API instead.
+     */
+    @Deprecated
     private String uploadAndUpdateFile() {
         ProjectFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {

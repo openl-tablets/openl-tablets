@@ -1,5 +1,9 @@
 package org.openl.studio.projects.service.resources;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayDeque;
@@ -11,6 +15,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.security.acls.domain.BasePermission;
@@ -20,16 +25,23 @@ import org.springframework.validation.annotation.Validated;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.resources.FileResource;
 import org.openl.studio.projects.model.resources.FolderResource;
 import org.openl.studio.projects.model.resources.Resource;
+import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidator;
+import org.openl.util.FileSignatureHelper;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -48,13 +60,16 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     private final AclProjectsHelper aclProjectsHelper;
     private final BeanValidationProvider validationProvider;
     private final ResourceCriteriaQueryValidator queryValidator;
+    private final ProjectStateValidator projectStateValidator;
 
     public ProjectResourcesServiceImpl(AclProjectsHelper aclProjectsHelper,
                                        BeanValidationProvider validationProvider,
-                                       ResourceCriteriaQueryValidator queryValidator) {
+                                       ResourceCriteriaQueryValidator queryValidator,
+                                       ProjectStateValidator projectStateValidator) {
         this.aclProjectsHelper = aclProjectsHelper;
         this.validationProvider = validationProvider;
         this.queryValidator = queryValidator;
+        this.projectStateValidator = projectStateValidator;
     }
 
     @Override
@@ -77,6 +92,222 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         } else {
             return buildFlatList(baseFolder, filter, recursive);
         }
+    }
+
+    @Override
+    public AProjectResource getResource(@NotNull RulesProject project, @NotBlank String resourceId) {
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
+            throw new ForbiddenException("default.message");
+        }
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        if (found == null || found.isFolder()) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)) {
+            throw new ForbiddenException("default.message");
+        }
+        return (AProjectResource) found;
+    }
+
+    @Override
+    public void updateResource(@NotNull RulesProject project,
+                               @NotBlank String resourceId,
+                               @NotNull InputStream content) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        if (found == null || found.isFolder()) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        if (!aclProjectsHelper.hasPermission(found, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
+        var resource = (AProjectResource) found;
+        InputStream validatedContent = validateContent(resource.getName(), content);
+        try {
+            resource.setContent(validatedContent);
+        } catch (ProjectException e) {
+            throw new ConflictException("resource.update.failed.message");
+        }
+    }
+
+    @Override
+    public void deleteResource(@NotNull RulesProject project, @NotBlank String resourceId) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        if (found == null) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        if (!aclProjectsHelper.hasPermission(found, BasePermission.DELETE)) {
+            throw new ForbiddenException("default.message");
+        }
+        try {
+            found.delete();
+        } catch (ProjectException e) {
+            throw new ConflictException("resource.delete.failed.message");
+        }
+    }
+
+    @Override
+    public void copyResource(@NotNull RulesProject project,
+                             @NotBlank String resourceId,
+                             @NotBlank String destinationPath) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        if (found == null || found.isFolder()) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)) {
+            throw new ForbiddenException("default.message");
+        }
+
+        String[] segments = destinationPath.split("/");
+        AProjectFolder targetFolder = project;
+        try {
+            // Resolve or create intermediate folders
+            for (int i = 0; i < segments.length - 1; i++) {
+                String segment = segments[i];
+                if (!targetFolder.hasArtefact(segment)) {
+                    targetFolder = targetFolder.addFolder(segment);
+                } else {
+                    AProjectArtefact artefact = targetFolder.getArtefact(segment);
+                    if (!artefact.isFolder()) {
+                        throw new ConflictException("resource.copy.path.conflict.message",
+                                artefact.getInternalPath());
+                    }
+                    targetFolder = (AProjectFolder) artefact;
+                }
+            }
+            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
+                throw new ForbiddenException("default.message");
+            }
+            String fileName = segments[segments.length - 1];
+            try (var content = ((AProjectResource) found).getContent()) {
+                targetFolder.addResource(fileName, content);
+            }
+        } catch (ProjectException | IOException e) {
+            throw new ConflictException("resource.copy.failed.message");
+        }
+    }
+
+    @Override
+    public void createResource(@NotNull RulesProject project,
+                               @NotBlank String path,
+                               @NotNull InputStream content,
+                               boolean createFolders) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
+        try {
+            NameChecker.validatePath(path);
+        } catch (IOException e) {
+            throw new BadRequestException("resource.path.invalid.message");
+        }
+
+        String[] segments = path.split("/");
+        AProjectFolder targetFolder = project;
+        int firstMissing = segments.length - 1; // index of first segment to create
+        try {
+            // Resolve existing folders
+            for (int i = 0; i < segments.length - 1; i++) {
+                String segment = segments[i];
+                if (!targetFolder.hasArtefact(segment)) {
+                    if (!createFolders) {
+                        throw new NotFoundException("resource.parent.not.found.message",
+                                segment);
+                    }
+                    firstMissing = i;
+                    break;
+                }
+                AProjectArtefact artefact = targetFolder.getArtefact(segment);
+                if (!artefact.isFolder()) {
+                    throw new ConflictException("resource.path.not.folder.message",
+                            artefact.getInternalPath());
+                }
+                targetFolder = (AProjectFolder) artefact;
+            }
+            // Check permission on the deepest existing folder before creating anything
+            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
+                throw new ForbiddenException("default.message");
+            }
+            // Create missing intermediate folders
+            for (int i = firstMissing; i < segments.length - 1; i++) {
+                targetFolder = targetFolder.addFolder(segments[i]);
+            }
+            String fileName = segments[segments.length - 1];
+            InputStream validatedContent = validateContent(fileName, content);
+            targetFolder.addResource(fileName, validatedContent);
+        } catch (ProjectException e) {
+            throw new ConflictException("resource.create.failed.message");
+        }
+    }
+
+    /**
+     * Validates that the uploaded content is consistent with the file extension.
+     * For Excel files (.xlsx, .xlsm), validates the ZIP file signature.
+     * For legacy Excel files (.xls), validates the OLE2 compound document signature.
+     *
+     * @return a buffered stream positioned at the beginning (after validation)
+     */
+    private InputStream validateContent(String fileName, InputStream content) {
+        if (!FileTypeHelper.isExcelFile(fileName)) {
+            return content;
+        }
+        var buffered = new BufferedInputStream(content);
+        try {
+            buffered.mark(4);
+            int sign = new DataInputStream(buffered).readInt();
+            buffered.reset();
+
+            String lcName = fileName.toLowerCase();
+            if (lcName.endsWith(".xls") && !lcName.endsWith(".xlsx") && !lcName.endsWith(".xlsm")) {
+                if (!FileSignatureHelper.isOle2Sign(sign)) {
+                    throw new BadRequestException("resource.content.invalid.message");
+                }
+            } else {
+                if (!FileSignatureHelper.isArchiveSign(sign)) {
+                    throw new BadRequestException("resource.content.invalid.message");
+                }
+            }
+        } catch (IOException e) {
+            throw new BadRequestException("resource.content.invalid.message");
+        }
+        return buffered;
+    }
+
+    private AProjectArtefact findArtefactById(AProjectFolder rootFolder, String resourceId) {
+        Deque<AProjectFolder> queue = new ArrayDeque<>();
+        queue.add(rootFolder);
+        while (!queue.isEmpty()) {
+            AProjectFolder folder = queue.poll();
+            for (AProjectArtefact artefact : folder.getArtefacts()) {
+                if (artefact.getId().equals(resourceId)) {
+                    return artefact;
+                }
+                if (artefact.isFolder()) {
+                    queue.add((AProjectFolder) artefact);
+                }
+            }
+        }
+        return null;
     }
 
     private List<Resource> buildNested(AProjectFolder rootFolder,
