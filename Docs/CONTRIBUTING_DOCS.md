@@ -122,8 +122,8 @@ The preview auto-reloads when you save changes.
    - Verify all links work after changes
 
 4. **Images**:
-   - Store in `docs/assets/images/[guide-name]/`
-   - Use relative paths: `![Alt text](../../assets/images/openlstudio/screenshot.png)`
+   - Store in `docs/user-guides/[guide-name]/images/`
+   - Use relative paths: `![Alt text](images/screenshot.png)`
    - Provide alt text for accessibility
    - Optimize images (PNG for screenshots, JPG for photos)
 
@@ -350,11 +350,11 @@ guide/
 ### Adding Images
 
 1. Optimize the image (compress, reasonable dimensions)
-2. Save to `docs/assets/images/[guide-name]/descriptive-name.png`
+2. Save to `docs/user-guides/[guide-name]/images/descriptive-name.png`
 3. Reference in markdown:
 
 ```markdown
-![Descriptive alt text](../../assets/images/openlstudio/screenshot.png)
+![Descriptive alt text](images/screenshot.png)
 ```
 
 4. Verify the image displays correctly in preview
