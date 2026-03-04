@@ -97,12 +97,11 @@ The **Repository** section contains connection settings of design and deployment
     
     Connection to a local deployment repository is configured by default.
     
-1.  To store deploy configurations in the Design repository, in the **Repository \> Deploy configuration** tab, select the **Use Design Repository** check box and provide required parameter values.
-2.  To add design or deployment repositories, click **Add** **Repository** and enter required information.
-    
+1.  To add design or deployment repositories, click **Add** **Repository** and enter required information.
+
     ![](../../assets/images/openlstudio/522f9b767a9ec8f404d460bf60bcf6ef.jpeg)
-    
-    *Using another repository for deployment configurations*
+
+    *Adding a repository*
     
 1.  When finished, click **Apply All and Restart** to save the changes and refresh the page.
     

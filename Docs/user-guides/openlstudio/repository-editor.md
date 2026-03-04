@@ -14,7 +14,7 @@ The following topics are included in this chapter:
 -   [Modifying Project Contents](#modifying-project-contents)
 -   [Copying a Project](#copying-a-project)
 -   [Removing a Project](#removing-a-project)
--   [Deploying Projects](#deploying-projects)
+-   [Deploying a Project](#deploying-a-project)
 -   [Comparing Project Revisions](#comparing-project-revisions)
 -   [Exporting a Project or a File](#exporting-a-project-or-a-file)
 -   [Unlocking a Project](#unlocking-a-project)
@@ -28,7 +28,6 @@ Repository editor displays all projects in user's workspace and Design repositor
 | Category                  | Description                                                                                                                                                                         |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Projects**              | Contains OpenL Tablets rule projects.                                                                                                                                               |
-| **Deploy Configurations** | Contains deploy configurations for deploying rule projects to deployment repository. <br/>For information on using deploy configurations, see [Deploying Projects](#deploying-projects). |
 
 Projects from all repositories are displayed in a common list that is sorted alphabetically.
 
@@ -562,122 +561,34 @@ To erase a project, proceed as follows:
     
 1.  In the confirmation window, click **Erase**.
 
-### Deploying Projects
+### Deploying a Project
 
-This section describes tasks related to deploying rule projects to deployment repository.
+OpenL Studio allows deploying a project directly to a deployment repository without creating an intermediate deploy configuration.
+
+To deploy a project, proceed as follows:
+
+1.  In the **Projects** tree, select the project to deploy.
+2.  In the top menu, click **Deploy**.
+
+    **Note:** The **Deploy** button is disabled if the selected project has the **Local** status or is currently being edited.
+
+    The **Deploy "&lt;Project Name&gt;" project** dialog appears.
+
+    ![](../../assets/images/openlstudio/deploy-project-popup.png)
+
+    *Deploy project dialog*
+
+3.  In the **Repository** dropdown, select the target deployment repository.
+4.  In the **Deployment Name** field, review or update the deployment name. The field is pre-filled with `<Project Name> (Deployment)`.
+5.  In the **Comment** field, enter a comment describing the deployment.
+6.  Click **Deploy**.
+
+The project is deployed to the selected deployment repository.
 
 The following topics are included in this section:
 
--   [Creating a Deploy Configuration](#creating-a-deploy-configuration)
--   [Defining Projects to Deploy](#defining-projects-to-deploy)
--   [Deploying a Deploy Configuration](#deploying-a-deploy-configuration)
--   [Opening Deployed Configurations](#opening-deployed-configurations)
--   [Redeploying Projects](#redeploying-projects)
 -   [Configuring Additional Rules Deploy Configuration Settings](#configuring-additional-rules-deploy-configuration-settings)
 -   [Defining Rule Service Version](#defining-rule-service-version)
-
-#### Creating a Deploy Configuration
-
-Deployment to deployment repository is performed by using deploy configurations. A deploy configuration is a list of rule projects and specific project revisions to be deployed together to deployment repository. Deploy configurations are useful for recording the history of project deployments.
-
-Deploy configurations are listed in the **Deploy Configurations** tree. Like rule projects, deploy configurations are stored in Design repository and can be versioned.
-
-To create a deploy configuration, proceed as follows:
-
-1.  Click **Create Deploy Configuration** in the top line menu.
-2.  In the **New Deploy Configuration** window, enter the deploy configuration name and click **Create**.
-    
-    The new deploy configuration appears in the **Deploy Configuration** tree.
-    
-1.  Define deploy configuration projects as described in [Defining Projects to Deploy](#defining-projects-to-deploy).
-
-#### Defining Projects to Deploy
-
-A Project to Deploy is a reference to one specific revision of a rule project to be included in the deploy configuration. Project to Deploy must be added to the deploy configuration specifying which rule projects and project revisions are deployed.
-
-To add a new project to deploy to the deploy configuration, proceed as follows:
-
-1.  In the **Deploy Configurations** tree, select the deploy configuration and, in the right pane, select the **Projects to Deploy** tab.
-    
-    ![](../../assets/images/openlstudio/8c27bc98646284c2e73349402468d445.png)
-    
-    *Deploy configuration with projects to deploy*
-    
-    The **Projects to Deploy** tab displays existing projects to deploy of the selected deploy configuration.
-    
-1.  To add a new project to deploy, click **Add** and specify the repository, project name, branch, and revision to be included in the deploy configuration.
-    
-    ![](../../assets/images/openlstudio/70ed8c6681d4577de2c20b772582d2cd.jpeg)
-    
-    *Adding a project to deploy*
-    
-1.  Repeat this procedure to add as many projects as required.
-
-#### Deploying a Deploy Configuration
-
-To deploy a deploy configuration, click **Deploy**.
-
-**Note:** The **Deploy** button is disabled if deploy configuration is in the **In** **Editing** status.
-
-![](../../assets/images/openlstudio/752a0bdd9ba60a9ad00a1f09abd1c33e.png)
-
-*Deploying configuration to deployment repository*
-
-The specified projects are deployed to deployment repository and a deployment message is displayed.
-
-![](../../assets/images/openlstudio/704ba6cdd0eb6b0a3dd811706c9cdfcd.png)
-
-*Deployment message*
-
-**Note:** Deploy configuration cannot be deployed if any dependency projects are missed in it. Check messages on the **Projects to Deploy** tab.
-
-#### Opening Deployed Configurations
-
-Deploy configurations provide the means for tracking the deployment history of project revisions. OpenL Studio provides functionality for quickly opening the deployed configuration revisions. This is especially useful when some time has passed since deployment and a review of files during specific deployments is required.
-
-To open the specific project revisions included in a deploy configuration, proceed as follows:
-
-1.  In the **Deploy Configuration** tree, select the deploy configuration.
-2.  In the right pane, select the **Projects to Deploy** tab.
-3.  In the **Selected** column, select the check boxes for projects to be opened.
-4.  Click **Open**.
-
-The selected project revisions are opened in repository editor.
-
-#### Redeploying Projects
-
-OpenL Studio provides a function that allows a simple update and redeployment of many related deploy configurations when a particular rule project is modified. This function considers the revision of the opened rule project and works correctly, even with older project revisions.
-
-To update related deploy configurations and redeploy a rule project, proceed as follows:
-
-1.  In the Projects tree, select the modified rule project.
-2.  In the right pane, click **Deploy**.
-    
-    **Note:** The **Deploy** button is disabled if the selected project has the Local status or if it is edited.
-    
-    The **Auto Deploy** window appears listing all existing deploy configurations which’s latest revision contains a reference to the selected rule project. Deploy configurations marked for deletion are not displayed.
-    
-    ![](../../assets/images/openlstudio/568c1427aaa0589680b223a5234bae17.png)
-    
-    *Deploying a project*
-    
-    The **Message** column displays the current status of displayed deploy configurations. If a particular deploy configuration cannot be deployed, the check box is gray.     Possible reasons for a deploy configuration to be disabled are the following:
-    
-    -   The deploy configuration is saved.
-    -   The deploy configuration is locked by another user and cannot be updated.
-    
-    If the selected rule project is not referenced by any existing deploy configuration, the system offers to create a new deploy configuration containing only the rule project with an identical name.
-    
-1.  Select check boxes for the deploy configurations that must be updated and deployed.
-2.  Click **Deploy**.
-
-Update and deployment results are displayed in the user interface.
-
-![](../../assets/images/openlstudio/c02fb4bd07921f53f8b0f1010aa04d18.png)
-
-*Redeployment results*
-
-Deployment functionality is also available in the Rules Editor.
 
 #### Configuring Additional Rules Deploy Configuration Settings
 
@@ -815,13 +726,13 @@ To browse a deployment repository, proceed as follows:
 1.  Switch from the **Design repository** view to the **Deployment repositories** view by clicking **Deployment** in the top of the left pane.
 2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](../../assets/images/openlstudio/55814fc7139e046c446b4c3e39762201.png) icon).
     
-    The list of project deployments or deployed configurations – deploy configurations which consist of rule projects and specific project revisions and deployed to the selected deployment repository – are displayed in the middle pane.
-    
+    The list of project deployments in the selected deployment repository are displayed in the middle pane.
+
 1.  If needed, expand the repository tree and browse project deployments.
 
-OpenL Studio displays only the latest revisions of each deployed configuration in the deployment repository.
+OpenL Studio displays only the latest revisions of each deployment in the deployment repository.
 
-Also, when browsing deployed configurations in the deployment repository, users can see their content, namely what rules projects are deployed.
+When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
 ![](../../assets/images/openlstudio/c9186ff78edf3757eaba4fb1492cfa88.png)
 
@@ -831,13 +742,13 @@ Also, when browsing deployed configurations in the deployment repository, users 
 
 Upon user logon, the user’s display name and email are used for Git commits if the repository type for the action is Git. This applies to the following actions:
 
--   create a project or deploy configuration
--   save a project or deploy configuration
--   delete a project or deploy configuration
--   undelete a project or deploy configuration
--   erase a project or deploy configuration
--   deploy a project or deploy configuration
--   synchronize a project or configuration
+-   create a project
+-   save a project
+-   delete a project
+-   undelete a project
+-   erase a project
+-   deploy a project
+-   synchronize a project
 
 If the display name and email data is missing, the **Configure commit info** popup window appears on commit attempt. Once all the required information is entered and saved, the action that triggered the commit is completed automatically.
 
