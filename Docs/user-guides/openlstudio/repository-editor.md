@@ -734,7 +734,7 @@ OpenL Studio displays only the latest revisions of each deployment in the deploy
 
 When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
-![](images/c9186ff78edf3757eaba4fb1492cfa88.png)
+![](images/deployment-repository-deployed-projects.png)
 
 *Deployment repository with deployed projects*
 
