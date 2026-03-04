@@ -579,7 +579,7 @@ To deploy a project, proceed as follows:
     *Deploy project dialog*
 
 3.  In the **Repository** dropdown, select the target deployment repository.
-4.  In the **Deployment Name** field, review or update the deployment name. The field is pre-filled with `<Project Name> (Deployment)`.
+4.  In the **Deployment Name** field, select an existing deployment from the list or type a new name to create one.
 5.  In the **Comment** field, enter a comment describing the deployment.
 6.  Click **Deploy**.
 
