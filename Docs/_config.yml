@@ -1,0 +1,36 @@
+title: OpenL Tablets
+tagline: Open Source Business Rules Engine
+description: >-
+  OpenL Tablets is an open source business rules engine and decision management system.
+  Write business rules in Excel, manage them in OpenL Studio, and deploy as REST services.
+
+theme: minima
+
+# ── Navigation ─────────────────────────────────────────────────────────────────
+# Explicitly list only the pages that appear in the site header nav.
+# Minima matches these against page.path (relative to Docs/).
+header_pages:
+  - what-is-openl-tablets.md
+  - apologia.md
+  - features.md
+  - tutorials.md
+  - videocasts.md
+  - user-guides/index.md
+  - supported-platforms.md
+  - release-notes/index.md
+
+# ── Default layouts ─────────────────────────────────────────────────────────────
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default
+
+# ── Markdown & highlighting ────────────────────────────────────────────────────
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge

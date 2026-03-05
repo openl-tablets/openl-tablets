@@ -1,3 +1,8 @@
+---
+title: Videocasts
+description: Video tutorials and feature demonstrations for OpenL Tablets.
+---
+
 # Videocasts
 
 This page collects the OpenL videocasts. Each entry includes a short description and an embedded YouTube player (no

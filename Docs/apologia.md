@@ -1,3 +1,8 @@
+---
+title: Apologia
+description: Why OpenL Tablets — differentiators, design philosophy, and how it compares to alternative approaches.
+---
+
 # OpenL Tablets Apologia
 
 > *I don't think anyone really captures their requirements as Decision tables, but many requirements are captured as

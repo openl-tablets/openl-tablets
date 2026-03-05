@@ -1,3 +1,8 @@
+---
+title: Features
+description: Complete list of OpenL Tablets features — table types, versioning, environment, integration, and testing capabilities.
+---
+
 # OpenL Tablets Features
 
 ## User Friendly Engine

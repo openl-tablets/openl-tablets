@@ -1,3 +1,8 @@
+---
+title: What Is OpenL Tablets?
+description: Overview of OpenL Tablets — an open source business rules engine for managing complex business logic in Excel.
+---
+
 # What Is OpenL Tablets?
 
 **OpenL Tablets** is an open source business rules engine (BRE/BRMS) and decision management system. It consists of the

@@ -1,6 +1,9 @@
-# OpenL Compatibility List
+---
+title: Supported Platforms
+description: Supported platforms, application servers, databases, browsers, Java versions, and requirements for OpenL Tablets.
+---
 
-## Environments
+## Supported Environments
 
 | Component              | Version                                                                               |
 |------------------------|---------------------------------------------------------------------------------------|
@@ -9,6 +12,30 @@
 | Container OS/ARCH      | linux/amd64<br/> linux/arm64                                                          |
 | Browser                | Firefox 140 ESR<br/> Chrome 145<br/> Edge 145                                         |
 | Database               | PostgreSQL 16.1<br/> MariaDB 10.6<br/> SQL Server 2019<br/> MySQL 8.0<br/> Oracle 19c |
+
+## Requirements
+
+### OpenL Rule Services
+
+| Resource       | Minimum | Recommended |
+|----------------|---------|-------------|
+| **Memory**     | 512 MB  | 1 GB        |
+| **CPU**        | 1       | 2           |
+| **Disk Space** | 100 MB  | 500 MB      |
+| **Network**    | 1 Mbps  | 10 Mbps     |
+
+### OpenL Studio
+
+The following are the minimum and recommended system requirements for running OpenL Studio, the integrated development
+environment (IDE) for OpenL Tablets. The recommended requirements are based on typical usage scenarios and may vary
+depending on the size and complexity of the projects being developed, on the count of concurrent users.
+
+| Resource       | Minimum | Recommended |
+|----------------|---------|-------------|
+| **Memory**     | 2 GB    | 16 GB       |
+| **CPU**        | 2 cores | 4 cores     |
+| **Disk Space** | 100 MB  | 1 GB        |
+| **Network**    | 1 Mbps  | 10 Mbps     |
 
 ## Specifications, APIs, and Frameworks
 

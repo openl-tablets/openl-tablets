@@ -1,3 +1,8 @@
+---
+title: User Guides
+description: Comprehensive documentation for OpenL Tablets users — installation, Studio IDE, rule services, and reference guide.
+---
+
 # User Guides
 
 Welcome to the OpenL Tablets User Guides! This section contains comprehensive documentation for users working with OpenL Tablets.
