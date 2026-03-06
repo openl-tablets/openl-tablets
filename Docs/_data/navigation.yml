@@ -1,0 +1,126 @@
+# ── Main navigation (rendered in site header) ──────────────────────────────────
+# URLs use pretty permalinks (permalink: pretty in _config.yml).
+main:
+  - title: "What is OpenL Tablets?"
+    url: /what-is-openl-tablets/
+  - title: "Features"
+    url: /features/
+  - title: "Tutorials"
+    url: /tutorials/
+  - title: "Videocasts"
+    url: /videocasts/
+  - title: "User Guides"
+    url: /user-guides/
+  - title: "Supported Platforms"
+    url: /supported-platforms/
+  - title: "Release Notes"
+    url: /release-notes/
+  - title: "Apologia"
+    url: /apologia/
+
+# ── User guides left-sidebar navigation ────────────────────────────────────────
+# Applied automatically to all user-guides/** pages via _config.yml defaults.
+# Reference Guide lists chapters only — its ~94 pages are too many to enumerate.
+user-guides:
+  - title: "User Guides"
+    url: /user-guides/
+
+  - title: "Installation Guide"
+    children:
+      - title: "Overview"
+        url: /user-guides/installation/
+      - title: "Quick Start"
+        url: /user-guides/installation/quick-start/
+      - title: "System Requirements"
+        url: /user-guides/installation/system-requirements/
+      - title: "Configuration"
+        url: /user-guides/installation/configuration/
+      - title: "Rule Services"
+        url: /user-guides/installation/rule-services/
+      - title: "Integration"
+        url: /user-guides/installation/integration/
+      - title: "Troubleshooting"
+        url: /user-guides/installation/troubleshooting/
+
+  - title: "Demo Package"
+    children:
+      - title: "Demo Package Guide"
+        url: /user-guides/demo-package/
+
+  - title: "Getting Started"
+    children:
+      - title: "Getting Started"
+        url: /user-guides/getting-started/
+
+  - title: "OpenL Studio"
+    children:
+      - title: "Overview"
+        url: /user-guides/openlstudio/
+      - title: "Preface"
+        url: /user-guides/openlstudio/preface/
+      - title: "Introduction"
+        url: /user-guides/openlstudio/introduction/
+      - title: "Getting Started"
+        url: /user-guides/openlstudio/getting-started/
+      - title: "Editing & Testing"
+        url: /user-guides/openlstudio/editing-testing/
+      - title: "Rules Editor"
+        url: /user-guides/openlstudio/rules-editor/
+      - title: "Project Branches"
+        url: /user-guides/openlstudio/project-branches/
+      - title: "Repository Editor"
+        url: /user-guides/openlstudio/repository-editor/
+      - title: "Administration"
+        url: /user-guides/openlstudio/administration/
+      - title: "Appendix: Experienced Users"
+        url: /user-guides/openlstudio/appendices/experienced-users/
+      - title: "Appendix: OpenAPI Generation"
+        url: /user-guides/openlstudio/appendices/openapi-generation/
+      - title: "Appendix: ZIP Structure"
+        url: /user-guides/openlstudio/appendices/zip-structure/
+
+  - title: "Rule Services"
+    children:
+      - title: "Overview"
+        url: /user-guides/rule-services/
+      - title: "Preface"
+        url: /user-guides/rule-services/preface/
+      - title: "Introduction"
+        url: /user-guides/rule-services/introduction/
+      - title: "Core Concepts"
+        url: /user-guides/rule-services/core/
+      - title: "Configuration"
+        url: /user-guides/rule-services/configuration/
+      - title: "Advanced Configuration"
+        url: /user-guides/rule-services/advanced-configuration/
+      - title: "Appendix: Deployment Structure"
+        url: /user-guides/rule-services/appendices/deployment-structure/
+      - title: "Appendix: Launch Projects"
+        url: /user-guides/rule-services/appendices/launch-projects/
+      - title: "Appendix: Manifest File"
+        url: /user-guides/rule-services/appendices/manifest-file/
+      - title: "Appendix: OpenAPI Support"
+        url: /user-guides/rule-services/appendices/openapi-support/
+      - title: "Appendix: Java Client"
+        url: /user-guides/rule-services/appendices/java-client/
+      - title: "Appendix: Programmatic Deployment"
+        url: /user-guides/rule-services/appendices/programmatic-deployment/
+      - title: "Appendix: Exceptions"
+        url: /user-guides/rule-services/appendices/exceptions/
+      - title: "Appendix: Backward Compatibility"
+        url: /user-guides/rule-services/appendices/backward-compatibility/
+
+  - title: "Reference Guide"
+    children:
+      - title: "Overview"
+        url: /user-guides/reference/
+      - title: "Introduction"
+        url: /user-guides/reference/01-introduction/01-preface/
+      - title: "Working with Tables"
+        url: /user-guides/reference/02-working-with-openl-tables/01-table-recognition-algorithm/
+      - title: "Functions & Data Types"
+        url: /user-guides/reference/03-openl-tablets-functions-and-supported-data-types/01-overview/
+      - title: "Working with Projects"
+        url: /user-guides/reference/04-working-with-projects/01-project-structure/
+      - title: "Appendices"
+        url: /user-guides/reference/05-appendices/01-bex-language-overview/

@@ -1,7 +1,6 @@
 ---
 title: OpenL Tablets
 description: Open source business rules engine — write rules in Excel, manage them in a web IDE, deploy as REST services.
-layout: default
 ---
 
 # OpenL Tablets

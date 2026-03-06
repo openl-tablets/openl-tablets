@@ -1,23 +1,46 @@
-title: OpenL Tablets
-tagline: Open Source Business Rules Engine
+# ── Theme ──────────────────────────────────────────────────────────────────────
+remote_theme: "mmistakes/minimal-mistakes@4.27.3"
+minimal_mistakes_skin: "default"  # air, aqua, contrast, dark, dirt, neon, mint, plum, sunrise
+
+# ── Site settings ──────────────────────────────────────────────────────────────
+locale: "en-US"
+title: "OpenL Tablets"
+title_separator: "-"
+subtitle: "Open Source Business Rules Engine"
 description: >-
   OpenL Tablets is an open source business rules engine and decision management system.
   Write business rules in Excel, manage them in OpenL Studio, and deploy as REST services.
 
-theme: minima
+# ── Author ─────────────────────────────────────────────────────────────────────
+author:
+  name: "OpenL Tablets"
+  bio: "Open source business rules engine and decision management system."
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/openl-tablets/openl-tablets"
+    - label: "Website"
+      icon: "fas fa-fw fa-link"
+      url: "https://openl-tablets.org"
 
-# ── Navigation ─────────────────────────────────────────────────────────────────
-# Explicitly list only the pages that appear in the site header nav.
-# Minima matches these against page.path (relative to Docs/).
-header_pages:
-  - what-is-openl-tablets.md
-  - apologia.md
-  - features.md
-  - tutorials.md
-  - videocasts.md
-  - user-guides/index.md
-  - supported-platforms.md
-  - release-notes/index.md
+# ── Footer ─────────────────────────────────────────────────────────────────────
+footer:
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/openl-tablets/openl-tablets"
+    - label: "Issues"
+      icon: "fas fa-fw fa-bug"
+      url: "https://github.com/openl-tablets/openl-tablets/issues"
+
+# ── Search ─────────────────────────────────────────────────────────────────────
+search: true
+search_full_content: true
+lunr:
+  search_within_pages: true
+
+# ── Permalinks ─────────────────────────────────────────────────────────────────
+permalink: pretty
 
 # ── Default layouts ─────────────────────────────────────────────────────────────
 defaults:
@@ -25,7 +48,23 @@ defaults:
       path: ""
       type: pages
     values:
-      layout: default
+      layout: single
+      author_profile: false
+      read_time: false
+      comments: false
+      share: false
+  # ── User guides: left sidebar + sticky in-page TOC ─────────────────────────
+  - scope:
+      path: "user-guides"
+    values:
+      sidebar:
+        nav: "user-guides"
+      toc: true
+      toc_sticky: true
+
+# ── Plugins ────────────────────────────────────────────────────────────────────
+plugins:
+  - jekyll-include-cache
 
 # ── Markdown & highlighting ────────────────────────────────────────────────────
 markdown: kramdown
