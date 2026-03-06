@@ -273,7 +273,7 @@ When a user from the third-party server logs into OpenL Studio, external user gr
     
     ![](images/groups-with-admin-privilege.png)
     
-    *Groups without the administrative privilege matched with the OpenL Studio groups*
+    *Groups with the administrative privilege matched with the OpenL Studio groups*
 
 After each user login, OpenL Studio updates external groups as follows:
 
