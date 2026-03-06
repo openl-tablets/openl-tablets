@@ -34,6 +34,9 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        if (tsn.getHeader().isCollect()) {
+            builder.collect(true);
+        }
         var metaInfoReader = tsn.getMetaInfoReader();
         var cellValueReader = new CellValueReader(metaInfoReader);
         var tableBody = tsn.getTableBody();

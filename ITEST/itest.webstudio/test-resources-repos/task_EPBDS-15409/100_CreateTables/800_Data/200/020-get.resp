@@ -6,6 +6,18 @@ Content-Type: application/json
   "tableType": "Data",
   "kind": "Data",
   "name": "addresses",
+  "messages": [
+    {
+      "id": 36,
+      "summary": "Type 'Address' is not found.",
+      "severity": "ERROR"
+    },
+    {
+      "id": 37,
+      "summary": "Type 'Address' is defined with errors.",
+      "severity": "ERROR"
+    }
+  ],
   "headers": [
     {
       "fieldName": "street1",

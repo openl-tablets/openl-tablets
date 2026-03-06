@@ -38,6 +38,9 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        if (tsn.getHeader().isCollect()) {
+            builder.collect(true);
+        }
         var tableBody = tsn.getTableBody();
 
         var headers = getConditionHeaders(tableBody.getRow(0));

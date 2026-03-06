@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.ArgumentView;
 import org.openl.studio.projects.model.tables.ExecutableView;
@@ -23,10 +24,11 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
     @Override
     protected void initialize(R builder, IOpenLTable openLTable) {
         super.initialize(builder, openLTable);
-        initializeSignature(builder, openLTable.getSyntaxNode().getHeader().getSourceString());
+        initializeSignature(builder, openLTable.getSyntaxNode().getHeader());
     }
 
-    private void initializeSignature(R builder, String headerSource) {
+    private void initializeSignature(R builder, HeaderSyntaxNode header) {
+        var headerSource = header.getSourceString();
         int pos = rollWhitespaces(headerSource, 0);
         int start = pos;
         pos = rollIdentifier(headerSource, pos);
@@ -35,6 +37,11 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
             builder.tableType(headerSource.substring(start, pos));
         }
         pos = rollWhitespaces(headerSource, pos);
+        if (header.isCollect()) {
+            // skip "Collect" keyword
+            pos = rollIdentifier(headerSource, pos);
+            pos = rollWhitespaces(headerSource, pos);
+        }
         start = pos;
         pos = rollIdentifier(headerSource, pos);
         if (start < pos) {

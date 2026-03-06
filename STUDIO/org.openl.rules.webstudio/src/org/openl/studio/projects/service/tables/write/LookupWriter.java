@@ -163,6 +163,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
 
     @Override
     protected String getBusinessTableType(LookupView tableView) {
-        return tableView.tableType;
+        var type = tableView.tableType;
+        return Boolean.TRUE.equals(tableView.collect) ? type + " " + IXlsTableNames.COLLECT : type;
     }
 }

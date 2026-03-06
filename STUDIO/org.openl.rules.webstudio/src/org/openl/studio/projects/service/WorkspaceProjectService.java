@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Component;
 
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -40,6 +44,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -94,6 +99,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static final Logger LOG = LoggerFactory.getLogger(WorkspaceProjectService.class);
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+    private static final Comparator<MessageDescription> MESSAGE_DESCRIPTION_COMPARATOR = Comparator.comparing(MessageDescription::severity)
+            .thenComparing(MessageDescription::id);
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -499,8 +506,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return project tables
      */
     public PageResponse<SummaryTableView> getTables(RulesProject project,
-                                                     ProjectTableCriteriaQuery query,
-                                                     Pageable page) {
+                                                    ProjectTableCriteriaQuery query,
+                                                    Pageable page) {
         var moduleModel = getProjectModel(project);
 
         var selectors = buildTableSelector(query);
@@ -584,7 +591,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             try {
                 var pd = ProjectResolver.getInstance().resolve(folder);
                 projectName = pd.getName();
-            } catch (ProjectResolvingException e)  {
+            } catch (ProjectResolvingException e) {
                 // If project descriptor cannot be resolved, then we cannot open project and get model.
                 // Usually it means that project folder is corrupted or has invalid structure.
                 // User can do nothing with such project until the problem is fixed, so we should not silently ignore that error and return null.
@@ -625,12 +632,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table data
      */
     public TableView getTable(RulesProject project, String tableId) {
-        var table = getOpenLTable(project, tableId);
+        var context = getOpenLTable(project, tableId);
+        var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
                 .findFirst()
                 .orElse(null);
-        return reader != null ? reader.read(table) : rawTableReader.read(table);
+        var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
+        tableView.messages = context.getMessages().values().stream()
+                .flatMap(Collection::stream)
+                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                .sorted(MESSAGE_DESCRIPTION_COMPARATOR)
+                .toList();
+        return tableView;
     }
 
     /**
@@ -641,11 +655,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        var table = getOpenLTable(project, tableId);
-        return rawTableReader.read(table);
+        var context = getOpenLTable(project, tableId);
+        return rawTableReader.read(context.table());
     }
 
-    private IOpenLTable getOpenLTable(RulesProject project, String tableId) {
+    private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
         var moduleModel = getProjectModel(project);
         var table = moduleModel.getTableById(tableId);
         if (table == null) {
@@ -665,7 +679,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 throw new NotFoundException("table.message");
             }
         }
-        return table;
+        return new OpenLTableContext(table, moduleModel);
     }
 
     /**
@@ -680,8 +694,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var table = getOpenLTable(project, tableId);
-        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableWriterExecutor.executeWrite(writer, tableView);
     }
@@ -700,8 +714,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!designRepositoryAclService.isGranted(project, List.of(BasePermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
-        var table = getOpenLTable(project, tableId);
-        var writer = tableWritersFactory.getTableWriter(table, tableView.getTableType());
+        var context = getOpenLTable(project, tableId);
+        var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableWriterExecutor.executeAppend(writer, tableView);
     }
@@ -728,6 +742,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var projectModel = getProjectModel(project, createTableRequest.moduleName());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         tableCreatorService.createTable(createTableRequest, projectModel);
+    }
+
+    private record OpenLTableContext(
+            @NotNull
+            IOpenLTable table,
+            @NotNull
+            ProjectModel module
+    ) {
+
+        public Map<Severity, List<OpenLMessage>> getMessages() {
+            var tableUri = table.getUri();
+            return Stream.of(Severity.values())
+                    .flatMap(severity -> module.getMessagesByTsn(tableUri, severity).stream())
+                    .collect(Collectors.groupingBy(OpenLMessage::getSeverity));
+        }
+
     }
 
 }

@@ -35,6 +35,9 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        if (tsn.getHeader().isCollect()) {
+            builder.collect(true);
+        }
         var tableBody = tsn.getTableBody();
 
         var headerTable = tableBody.getRow(0);

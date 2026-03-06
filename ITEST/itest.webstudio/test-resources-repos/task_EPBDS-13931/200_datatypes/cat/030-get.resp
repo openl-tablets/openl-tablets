@@ -9,6 +9,13 @@ Content-Type: application/json
   "properties": {
     "description": "A cat"
   },
+  "messages": [
+    {
+      "id": 1,
+      "summary": "Type 'Person' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "fields": [
     {
       "name": "color",
