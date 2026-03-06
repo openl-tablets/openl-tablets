@@ -123,10 +123,10 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>12.1.6</jetty.version>
+        <jetty.version>12.1.7</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.42.0</amazonaws.version>
+        <amazonaws.version>2.42.2</amazonaws.version>
         <azure.version>12.33.2</azure.version>
         <netty.version>4.2.10.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
@@ -407,7 +407,7 @@
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.30.0</version>
+                    <version>6.32.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
