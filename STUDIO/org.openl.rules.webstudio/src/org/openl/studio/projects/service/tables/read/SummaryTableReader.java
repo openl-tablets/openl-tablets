@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.DataView;
 import org.openl.studio.projects.model.tables.LookupView;
@@ -50,7 +51,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var tsn = table.getSyntaxNode();
         var member = tsn.getMember();
         if (member instanceof AMethod) {
-            initializeMethodSignature(builder, table.getSyntaxNode().getHeader().getSourceString());
+            initializeMethodSignature(builder, tsn.getHeader());
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {
@@ -74,7 +75,8 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         }
     }
 
-    private void initializeMethodSignature(SummaryTableView.Builder builder, String headerSource) {
+    private void initializeMethodSignature(SummaryTableView.Builder builder, HeaderSyntaxNode header) {
+        var headerSource = header.getSourceString();
         int pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
         int start = pos;
         pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
@@ -83,6 +85,11 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             builder.tableType(headerSource.substring(start, pos));
         }
         pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        if (header.isCollect()) {
+            // skip "Collect" keyword
+            pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+            pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        }
         start = pos;
         pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
         if (start < pos) {
