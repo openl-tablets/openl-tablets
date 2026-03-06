@@ -437,6 +437,32 @@ Content-Type: application/json
                 },
                 "Map_String.Object_": {
                   "type": "object"
+                },
+                "MessageDescription": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "INFO",
+                        "WARN",
+                        "ERROR"
+                      ]
+                    },
+                    "summary": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "severity",
+                    "summary"
+                  ],
+                  "description": "***"
                 }
               },
               "anyOf": [
@@ -505,6 +531,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -570,6 +605,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",
@@ -703,6 +747,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -805,6 +858,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -883,6 +945,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -925,6 +991,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -951,6 +1026,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -986,6 +1062,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -1028,6 +1108,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -1054,6 +1143,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -1089,6 +1179,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -1122,6 +1216,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -1148,6 +1251,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -1212,6 +1316,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",
@@ -1295,6 +1408,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -1373,6 +1495,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",
@@ -2071,6 +2202,32 @@ Content-Type: application/json
                 },
                 "Map_String.Object_": {
                   "type": "object"
+                },
+                "MessageDescription": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "INFO",
+                        "WARN",
+                        "ERROR"
+                      ]
+                    },
+                    "summary": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "severity",
+                    "summary"
+                  ],
+                  "description": "***"
                 }
               },
               "anyOf": [
@@ -2139,6 +2296,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2204,6 +2370,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",
@@ -2337,6 +2512,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2439,6 +2623,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2517,6 +2710,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -2559,6 +2756,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2585,6 +2791,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -2620,6 +2827,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -2662,6 +2873,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2688,6 +2908,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -2723,6 +2944,10 @@ Content-Type: application/json
                             "$ref": "#/$defs/ArgumentView"
                           }
                         },
+                        "collect": {
+                          "type": "boolean",
+                          "description": "***"
+                        },
                         "headers": {
                           "description": "***",
                           "type": "array",
@@ -2756,6 +2981,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -2782,6 +3016,7 @@ Content-Type: application/json
                       },
                       "required": [
                         "args",
+                        "collect",
                         "headers",
                         "id",
                         "kind",
@@ -2846,6 +3081,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",
@@ -2929,6 +3173,15 @@ Content-Type: application/json
                             "Other"
                           ]
                         },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
+                        },
                         "name": {
                           "type": "string",
                           "description": "***"
@@ -3007,6 +3260,15 @@ Content-Type: application/json
                             "Properties",
                             "Other"
                           ]
+                        },
+                        "messages": {
+                          "description": "***",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/$defs/MessageDescription",
+                            "readOnly": true
+                          }
                         },
                         "name": {
                           "type": "string",

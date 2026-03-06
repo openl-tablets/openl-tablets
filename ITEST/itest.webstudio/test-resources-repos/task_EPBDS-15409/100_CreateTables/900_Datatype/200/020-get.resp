@@ -6,6 +6,13 @@ Content-Type: application/json
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "Address",
+  "messages": [
+    {
+      "id": 44,
+      "summary": "Type 'ZipCode' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "fields": [
     {
       "name": "street1",

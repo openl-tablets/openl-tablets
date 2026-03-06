@@ -105,6 +105,7 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
 
     @Override
     protected String getBusinessTableType(SimpleRulesView tableView) {
-        return SimpleRulesView.TABLE_TYPE;
+        var type = SimpleRulesView.TABLE_TYPE;
+        return Boolean.TRUE.equals(tableView.collect) ? type + " " + IXlsTableNames.COLLECT : type;
     }
 }

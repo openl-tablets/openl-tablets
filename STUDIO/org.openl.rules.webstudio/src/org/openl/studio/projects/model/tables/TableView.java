@@ -1,11 +1,14 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -51,6 +54,10 @@ public abstract class TableView {
 
     @Schema(description = "Custom properties associated with the table")
     public final Map<String, Object> properties;
+
+    @Schema(description = "List of messages (errors, warnings, info) related to the table")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public List<MessageDescription> messages;
 
     protected TableView(Builder<?> builder) {
         this.id = builder.id;
