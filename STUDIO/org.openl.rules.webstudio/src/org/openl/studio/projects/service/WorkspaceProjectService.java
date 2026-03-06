@@ -43,7 +43,6 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.git.MergeConflictException;
-import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
@@ -124,7 +123,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
             TableWriterExecutor tableWriterExecutor,
-            TableWritersFactory tableWritersFactory, AclProjectsHelper aclProjectsHelper) {
+            TableWritersFactory tableWritersFactory) {
         super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;

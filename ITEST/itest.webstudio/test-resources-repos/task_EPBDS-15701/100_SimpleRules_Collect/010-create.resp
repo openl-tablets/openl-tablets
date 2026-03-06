@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "8a6bdc372001aacc7119d371adb406c5",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "collectValues",
+  "returnType": "Double[]",
+  "signature": "collectValues(String category)",
+  "file": "EPBDS-15701/Main.xlsx",
+  "pos": "*"
+}

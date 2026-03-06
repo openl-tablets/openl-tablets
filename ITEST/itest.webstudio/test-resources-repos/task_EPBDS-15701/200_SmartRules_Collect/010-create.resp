@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "66be13e1aebed8da02e6cc50a0f0ab52",
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "collectGreeting",
+  "returnType": "String[]",
+  "signature": "collectGreeting(Integer hour)",
+  "file": "EPBDS-15701/Main.xlsx",
+  "pos": "*"
+}
