@@ -454,7 +454,7 @@ To create project tags, proceed as follows:
 2.  To delete a tag type, click the red cross icon for the appropriate tag.
 3.  To add a tag value, in the **New Tag** field, enter the tag name and press **Enter.**
 4.  To edit a tag, click the menu icon ![](images/tag-menu-icon.png), select **Edit,** modify the tag, and press **Enter** or click outside the field.
-5.  To delete a tag, click the menu icon ![](images/tag-menu-icon.png)and select **Delete.**
+5.  To delete a tag, click the menu icon ![](images/tag-menu-icon.png) and select **Delete.**
     
     All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
     
