@@ -27,7 +27,7 @@ Closing a project deletes it from the user's workspace without saving changes an
 
 The following diagram illustrates general rules project lifecycle. This is a simplified schema of rules development workflow where activities as opening, opening for editing, closing, deleting, and erasing the current project or deploying configuration are omitted.
 
-![](images/rules-project-development-workflow.png)
+![Rules project development workflow](images/rules-project-development-workflow.png)
 
 *Rules project development workflow*
 
