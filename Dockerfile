@@ -108,13 +108,13 @@ ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 # Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
 # WARN spamming in the log.
 # UID=1000 as a de-facto standard in k8s examples.
-RUN adduser -S -D -s /usr/sbin/nologin -u 1000 openl
+RUN addgroup -g 1000 -S openl && adduser -S -D -s /usr/sbin/nologin -u 1000 openl -G openl
 
 # Writable folder for 'openl' user where application files are stored.
 # It should be mounted on an external volume to persist application data between redeploying if it is required.
 # Do not confuse this with home directory of 'openl' user.
-RUN mkdir -p "$OPENL_HOME" && chown openl "$OPENL_HOME"
-RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl "$OPENL_HOME_SHARED"
+RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
+RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
 # Running a container under a non-root user
 USER openl
 
