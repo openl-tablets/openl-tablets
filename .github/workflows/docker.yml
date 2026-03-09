@@ -65,9 +65,6 @@ jobs:
             tags_11+=" -t openltablets/\$appName:$major.x"
             tags_21+=" -t openltablets/\$appName:$major.x-jre21"
           fi
-          if [ "$latest" = "$version" ]; then
-            tags_11+=" -t openltablets/\$appName:latest"
-          fi
           echo "tags_11=$tags_11" >> $GITHUB_ENV
           echo "tags_21=$tags_21" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
