@@ -14,7 +14,7 @@ The following topics are included in this chapter:
 -   [Modifying Project Contents](#modifying-project-contents)
 -   [Copying a Project](#copying-a-project)
 -   [Removing a Project](#removing-a-project)
--   [Deploying Projects](#deploying-projects)
+-   [Deploying a Project](#deploying-a-project)
 -   [Comparing Project Revisions](#comparing-project-revisions)
 -   [Exporting a Project or a File](#exporting-a-project-or-a-file)
 -   [Unlocking a Project](#unlocking-a-project)
@@ -28,7 +28,6 @@ Repository editor displays all projects in user's workspace and Design repositor
 | Category                  | Description                                                                                                                                                                         |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Projects**              | Contains OpenL Tablets rule projects.                                                                                                                                               |
-| **Deploy Configurations** | Contains deploy configurations for deploying rule projects to deployment repository. <br/>For information on using deploy configurations, see [Deploying Projects](#deploying-projects). |
 
 Projects from all repositories are displayed in a common list that is sorted alphabetically.
 
@@ -36,13 +35,13 @@ The status of each project in the tree is identified by a specific icon. The fol
 
 | Icon                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](../../assets/images/openlstudio/8e2af296adafbac75872d0fab66dda6b.png) | Project is closed. It is available only in Design repository and must be opened to copy it to user's workspace.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ![](../../assets/images/openlstudio/cf865a109e2be06a20865e2e72d28c8b.png) | Project is opened for viewing. It is copied to user's workspace and can be modified. <br/>If the product is restored from the previous revision, its status is set to **Viewing Revision,** otherwise its status is set to **No Changes.**                                                                                                                                                                                                                                                                                                                                                                 |
-| ![](../../assets/images/openlstudio/2612691cc1108289c7fafbdefb85bdb9.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/openlstudio/92724abe4cfd4fd2ef78a6586a595ba0.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/openlstudio/0911850e55e28478fb5a39990c19ba03.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ![](../../assets/images/openlstudio/2c331509e4c7655949ad8055eb387d98.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
-| ![](../../assets/images/openlstudio/4d37af564602b82442d8138a551c3229.png) | Project is marked for deletion. In OpenL Studio, deletion of a project takes place in the following phases: <br/>- Deleting a project: Project is removed from user's workspace and marked for deletion. <br/>In this phase, the project can be restored using the undelete function. <br/>For information on deleting a project, see [Deleting a Project](#deleting-a-project). <br/><br/>- Erasing a project: Deleted project is permanently removed from Design repository. <Br/>After this phase, the project cannot be restored. <br/>For information on erasing a project, see [Erasing a Project](#erasing-a-project). |
+| ![](images/project-status-closed-icon.png) | Project is closed. It is available only in Design repository and must be opened to copy it to user's workspace.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ![](images/project-status-viewing-icon.png) | Project is opened for viewing. It is copied to user's workspace and can be modified. <br/>If the product is restored from the previous revision, its status is set to **Viewing Revision,** otherwise its status is set to **No Changes.**                                                                                                                                                                                                                                                                                                                                                                 |
+| ![](images/project-status-in-editing-icon.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ![](images/project-status-closed-locked-icon.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ![](images/project-status-viewing-locked-icon.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
+| ![](images/project-status-marked-for-deletion-icon.png) | Project is marked for deletion. In OpenL Studio, deletion of a project takes place in the following phases: <br/>- Deleting a project: Project is removed from user's workspace and marked for deletion. <br/>In this phase, the project can be restored using the undelete function. <br/>For information on deleting a project, see [Deleting a Project](#deleting-a-project). <br/><br/>- Erasing a project: Deleted project is permanently removed from Design repository. <Br/>After this phase, the project cannot be restored. <br/>For information on erasing a project, see [Erasing a Project](#erasing-a-project). |
 
 ### Filtering and Grouping the Project Tree
 
@@ -50,15 +49,15 @@ Projects in the repository editor are filtered the same way as in Rules Editor.
 
 To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
 
-To group projects by repository or tag types, click the **Group Projects** icon ![](../../assets/images/openlstudio/f418655e8c30ace7c19b27edcce5d992.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](#managing-tags).
+To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](#managing-tags).
 
-![](../../assets/images/openlstudio/6591bdf7659bde341a89431f286763f5.jpeg)
+![](images/projects-grouped-by-tags.jpeg)
 
 *Grouping projects by tags*
 
-To expand or collapse the repository tree, use the expand and collapse icons ![](../../assets/images/openlstudio/70ea87784e324e0c231ea3cc4cad4bef.png).
+To expand or collapse the repository tree, use the expand and collapse icons ![](images/expand-collapse-tree-icon.png).
 
-To view archived deleted projects, click the advanced filter icon ![](../../assets/images/openlstudio/2ad8c5cb644cb4a787c63fa8252298ec.png)and clear that the **Hide deleted projects** option.
+To view archived deleted projects, click the advanced filter icon ![](images/advanced-filter-icon.png)and clear that the **Hide deleted projects** option.
 
 ### Creating Projects in Design Repository
 
@@ -114,7 +113,7 @@ To create a new project from template, proceed as follows:
     
     The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
     
-    ![](../../assets/images/openlstudio/378491ed832403ed3b92dbde1f8ee639.jpeg)
+    ![](images/create-project-from-template-dialog.jpeg)
     
     *Creating a simple project from a template*
     
@@ -149,7 +148,7 @@ A custom project template can be created and then used during new projects defin
     
     For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
     
-    ![](../../assets/images/openlstudio/2dad049ecf5a852d113b0f8c9410636b.jpeg)
+    ![](images/create-custom-project-template.jpeg)
     
     *Creating a custom project template*
 
@@ -166,7 +165,7 @@ Proceed as follows:
     
     All files are listed in the **File** area.
     
-    ![](../../assets/images/openlstudio/1ee3493194983039dc558e5868ccdf91.jpeg)
+    ![](images/create-project-from-excel-files.jpeg)
     
     *Creating a project from Excel files*
     
@@ -198,7 +197,7 @@ To create a project from the OpenAPI file, proceed as follows:
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
     
-    ![](../../assets/images/openlstudio/a95a35530e08fe3a9c233f5bfa430bdc.png)
+    ![](images/create-project-from-openapi-dialog.png)
     
     *Creating a project from an OpenAPI file*
     
@@ -222,7 +221,7 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
 2.  In the **Create Project from** dialog, click the **Zip Archive** tab.
 3.  Click the **Add** button, locate the necessary zip archive and click **Open**.
     
-    ![](../../assets/images/openlstudio/f0f5790682bf45cfc5361e3d73dec561.jpeg)
+    ![](images/create-project-from-zip-dialog.jpeg)
     
     *Creating a project from ZIP file*
     
@@ -249,7 +248,7 @@ A new project can be created in Design repository by loading a project with the 
     
     The system displays rule projects available in the workspace:
     
-    ![](../../assets/images/openlstudio/1669f8514ccf7c91f556df66ef3272f7.jpeg)
+    ![](images/create-project-from-workspace.jpeg)
     
     *Creating a project from Workspace*
     
@@ -266,7 +265,7 @@ A project existing in the Git repository can be imported into OpenL Studio as fo
 2.  In the **Create Project from** dialog, click the **Repository** tab.
 3.  Select a repository and path and click **Import.**
 
-![](../../assets/images/openlstudio/4ead93a992dcee3b4f8047f2ca2be884.jpeg)
+![](images/import-project-from-git-repository.jpeg)
 
 *Importing a project from a Git repository*
 
@@ -280,7 +279,7 @@ A new project may already contain tag values. This can happen, for instance, whe
 
 If the project contains tags that cannot be applied, a **Missing tags** pop-up window is displayed. This window lists the tag values, explains why they cannot be applied, and indicates what will happen next. If a tag type is not configured in OpenL Studio, the corresponding tag will be ignored. If a tag value is not permitted, a follow-up dialog prompts the user to enter a valid value.
 
-![](../../assets/images/openlstudio/9188d1765621c994c526b6f5bc3ac4cf477854b2.png)
+![](images/missing-tags-popup.png)
 
 *Some tags are not configured properly*
 
@@ -292,7 +291,7 @@ Default tag values are determined in the following order:
 2. If a tag value can be derived from the project name templates, it is applied.
 3. Otherwise, **None** is set as the default.
 
-![](../../assets/images/openlstudio/f760348e2e6acd823dd72a04b9841f40.jpeg)
+![](images/select-project-tags-dialog.jpeg)
     
 *Selecting project tags*
 
@@ -321,7 +320,7 @@ To open a project revision using the **Open Revision** button, proceed as follow
 1.  Click the **Open Revision** button.
 2.  In the **Project Revisions** field, select the required revision.
     
-    ![](../../assets/images/openlstudio/1d03e5defebfa102b32e946799ba24f0.png)
+    ![](images/open-project-revision-dialog.png)
     
     *Opening a project revision using the Open Revision button*
     
@@ -336,7 +335,7 @@ To open a project revision using the **Revisions** tab, proceed as follows:
     
     A list of revisions appears.
     
-    ![](../../assets/images/openlstudio/900b1b5325f41510b5214427d81320f5.jpeg)
+    ![](images/project-revisions-list.jpeg)
     
     *List of project revisions*
     
@@ -369,7 +368,7 @@ To save a project, proceed as follows:
     
     The **Save changes** window appears:
     
-    ![](../../assets/images/openlstudio/a0454a137ca0961bb3048aabafcdc453.jpeg)
+    ![](images/save-project-changes-dialog.jpeg)
     
     *Save changes in a project*
     
@@ -383,7 +382,7 @@ An editable project can be saved and closed directly from Rules Editor as descri
 
 Each rule project has a set of properties displayed in the **Properties** tab when a project is selected.
 
-![](../../assets/images/openlstudio/261485d1d65f649a6c119254b97a1fbf.jpeg)
+![](images/project-properties-tab.jpeg)
 
 *Project properties*
 
@@ -434,7 +433,7 @@ To upload a file to a project folder, proceed as follows:
     
     The **Upload File** window appears:
     
-    ![](../../assets/images/openlstudio/11c044d881e270ea6f5b83f7171a6bca.png)
+    ![](images/upload-file-dialog.png)
     
     *Uploading a file*
     
@@ -459,13 +458,13 @@ To delete a folder or a file in the project structure, proceed as follows:
 1.  Perform one of the following steps as required:
     -   Expand the project tree, select the folder or file to be deleted and, in the right pane, click **Delete**.
     
-    ![](../../assets/images/openlstudio/6362ea02fd15e637fa016cc13ea4fa9f.png)
+    ![](images/delete-project-element-button.png)
     
     *Deleting a project element*
     
-    -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](../../assets/images/openlstudio/b3283d9b02e8eafc5dfac475347f0c88.png)at the right of the item to be deleted.
+    -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](images/delete-element-icon.png)at the right of the item to be deleted.
     
-    ![](../../assets/images/openlstudio/fbc10c0636ac762909f8bf7c611af605.png)
+    ![](images/delete-project-element-from-elements-tab.png)
     
     *Deleting project elements from the* **Elements** *tab*
     
@@ -476,12 +475,12 @@ To delete a folder or a file in the project structure, proceed as follows:
 A user can create a copy of a file using the repository editor. The current revision of the file or any revision stored in the repository can be used for copying. Proceed as follows:
 
 1.  Select a project that contains a file to copy and in the files tree, select the required file.
-2.  In the upper left corner of the page, click **Copy file** ![](../../assets/images/openlstudio/26296206519d54461c96e40f613604dc.png).
+2.  In the upper left corner of the page, click **Copy file** ![](images/copy-file-icon.png).
 3.  In the window that appears, select the **Current Revision** or clear it and in the **File Revision** field, select a value.
 4.  Optionally, enter the **New File Path** property value.
 5.  In the **New File Name** field, enter the file name.
     
-    ![](../../assets/images/openlstudio/5f5774680d54bc0b7b9f1a626f1beb5e.png)
+    ![](images/copy-file-in-repository-dialog.png)
     
     *Copying a file in repository editor*
     
@@ -497,7 +496,7 @@ To copy a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the required project and, in the right pane, click the **Copy** button.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](../../assets/images/openlstudio/d2a06016b3a5f28c837d524b8f20f8fa.png)** on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](images/copy-project-item-icon.png)** on the right.
 1.  In the **Copy Project** window, enter the new project name.
 2.  Select whether a new project must be linked to the origin project.
     
@@ -530,7 +529,7 @@ To delete a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the project and, in the right pane, click **Delete**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](../../assets/images/openlstudio/b3283d9b02e8eafc5dfac475347f0c88.png)** on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](images/delete-element-icon.png)** on the right.
 1.  In the confirmation window, click **Delete** or **OK**.
     
     Deleted projects, except for those in the **Local** status, can be restored by using the **Undelete** button.
@@ -562,124 +561,36 @@ To erase a project, proceed as follows:
     
 1.  In the confirmation window, click **Erase**.
 
-### Deploying Projects
+### Deploying a Project
 
-This section describes tasks related to deploying rule projects to deployment repository.
+OpenL Studio allows deploying a project directly to a deployment repository.
+
+To deploy a project, proceed as follows:
+
+1.  In the **Projects** tree, select the project to deploy.
+2.  In the top menu, click **Deploy**.
+
+    **Note:** The **Deploy** button is disabled if the selected project has the **Local** status or is currently being edited.
+
+    The **Deploy "&lt;Project Name&gt;" project** dialog appears.
+
+    ![](images/deploy-project-popup.png)
+
+    *Deploy project dialog*
+
+3.  In the **Repository** dropdown, select the target deployment repository.
+4.  In the **Deployment Name** field, select an existing deployment from the list or type a new name to create one.
+5.  In the **Comment** field, enter a comment describing the deployment.
+6.  Click **Deploy**.
+
+The project is deployed to the selected deployment repository.
 
 The following topics are included in this section:
 
--   [Creating a Deploy Configuration](#creating-a-deploy-configuration)
--   [Defining Projects to Deploy](#defining-projects-to-deploy)
--   [Deploying a Deploy Configuration](#deploying-a-deploy-configuration)
--   [Opening Deployed Configurations](#opening-deployed-configurations)
--   [Redeploying Projects](#redeploying-projects)
--   [Configuring Additional Rules Deploy Configuration Settings](#configuring-additional-rules-deploy-configuration-settings)
+-   [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings)
 -   [Defining Rule Service Version](#defining-rule-service-version)
 
-#### Creating a Deploy Configuration
-
-Deployment to deployment repository is performed by using deploy configurations. A deploy configuration is a list of rule projects and specific project revisions to be deployed together to deployment repository. Deploy configurations are useful for recording the history of project deployments.
-
-Deploy configurations are listed in the **Deploy Configurations** tree. Like rule projects, deploy configurations are stored in Design repository and can be versioned.
-
-To create a deploy configuration, proceed as follows:
-
-1.  Click **Create Deploy Configuration** in the top line menu.
-2.  In the **New Deploy Configuration** window, enter the deploy configuration name and click **Create**.
-    
-    The new deploy configuration appears in the **Deploy Configuration** tree.
-    
-1.  Define deploy configuration projects as described in [Defining Projects to Deploy](#defining-projects-to-deploy).
-
-#### Defining Projects to Deploy
-
-A Project to Deploy is a reference to one specific revision of a rule project to be included in the deploy configuration. Project to Deploy must be added to the deploy configuration specifying which rule projects and project revisions are deployed.
-
-To add a new project to deploy to the deploy configuration, proceed as follows:
-
-1.  In the **Deploy Configurations** tree, select the deploy configuration and, in the right pane, select the **Projects to Deploy** tab.
-    
-    ![](../../assets/images/openlstudio/8c27bc98646284c2e73349402468d445.png)
-    
-    *Deploy configuration with projects to deploy*
-    
-    The **Projects to Deploy** tab displays existing projects to deploy of the selected deploy configuration.
-    
-1.  To add a new project to deploy, click **Add** and specify the repository, project name, branch, and revision to be included in the deploy configuration.
-    
-    ![](../../assets/images/openlstudio/70ed8c6681d4577de2c20b772582d2cd.jpeg)
-    
-    *Adding a project to deploy*
-    
-1.  Repeat this procedure to add as many projects as required.
-
-#### Deploying a Deploy Configuration
-
-To deploy a deploy configuration, click **Deploy**.
-
-**Note:** The **Deploy** button is disabled if deploy configuration is in the **In** **Editing** status.
-
-![](../../assets/images/openlstudio/752a0bdd9ba60a9ad00a1f09abd1c33e.png)
-
-*Deploying configuration to deployment repository*
-
-The specified projects are deployed to deployment repository and a deployment message is displayed.
-
-![](../../assets/images/openlstudio/704ba6cdd0eb6b0a3dd811706c9cdfcd.png)
-
-*Deployment message*
-
-**Note:** Deploy configuration cannot be deployed if any dependency projects are missed in it. Check messages on the **Projects to Deploy** tab.
-
-#### Opening Deployed Configurations
-
-Deploy configurations provide the means for tracking the deployment history of project revisions. OpenL Studio provides functionality for quickly opening the deployed configuration revisions. This is especially useful when some time has passed since deployment and a review of files during specific deployments is required.
-
-To open the specific project revisions included in a deploy configuration, proceed as follows:
-
-1.  In the **Deploy Configuration** tree, select the deploy configuration.
-2.  In the right pane, select the **Projects to Deploy** tab.
-3.  In the **Selected** column, select the check boxes for projects to be opened.
-4.  Click **Open**.
-
-The selected project revisions are opened in repository editor.
-
-#### Redeploying Projects
-
-OpenL Studio provides a function that allows a simple update and redeployment of many related deploy configurations when a particular rule project is modified. This function considers the revision of the opened rule project and works correctly, even with older project revisions.
-
-To update related deploy configurations and redeploy a rule project, proceed as follows:
-
-1.  In the Projects tree, select the modified rule project.
-2.  In the right pane, click **Deploy**.
-    
-    **Note:** The **Deploy** button is disabled if the selected project has the Local status or if it is edited.
-    
-    The **Auto Deploy** window appears listing all existing deploy configurations which’s latest revision contains a reference to the selected rule project. Deploy configurations marked for deletion are not displayed.
-    
-    ![](../../assets/images/openlstudio/568c1427aaa0589680b223a5234bae17.png)
-    
-    *Deploying a project*
-    
-    The **Message** column displays the current status of displayed deploy configurations. If a particular deploy configuration cannot be deployed, the check box is gray.     Possible reasons for a deploy configuration to be disabled are the following:
-    
-    -   The deploy configuration is saved.
-    -   The deploy configuration is locked by another user and cannot be updated.
-    
-    If the selected rule project is not referenced by any existing deploy configuration, the system offers to create a new deploy configuration containing only the rule project with an identical name.
-    
-1.  Select check boxes for the deploy configurations that must be updated and deployed.
-2.  Click **Deploy**.
-
-Update and deployment results are displayed in the user interface.
-
-![](../../assets/images/openlstudio/c02fb4bd07921f53f8b0f1010aa04d18.png)
-
-*Redeployment results*
-
-Deployment functionality is also available in the Rules Editor.
-
-#### Configuring Additional Rules Deploy Configuration Settings
+#### Configuring Rules Deploy Configuration Settings
 
 Deployment rules can be added before deploying a project to deployment repository. If a project already has the `rules-deploy.xml` configuration file, it can be edited via the **Rules Deploy Configuration** menu.
 
@@ -718,7 +629,7 @@ Proceed as follows:
     
     The selected rules are displayed in the **Rules Deploy Configuration** tab.
     
-    ![](../../assets/images/openlstudio/cb56c11b5d220dbe316410763acd311d.png)
+    ![](images/rules-deploy-configuration-settings.png)
     
     *Defining rules deploy configuration settings*
 
@@ -728,7 +639,7 @@ OpenL Studio supports versioning definition for rule services. This functionalit
 
 To check the services version deployment, in OpenL Tablets Rule Services, find the name of the deployed project. Services version is set both in the services header and in the services URL.
 
-![](../../assets/images/openlstudio/a509cab9401acecd82d157e44ebaf70c.png)
+![](images/services-version-header.png)
 
 *Services header and URL with the version number*
 
@@ -740,12 +651,12 @@ To define the rule service version, proceed as follows:
     
     By default, the **Major 0, Minor 0** scroll list appears.
     
-1.  For more information on how to configure deployment configuration settings, see [Configuring Additional Rules Deploy Configuration Settings](#configuring-additional-rules-deploy-configuration-settings).
+1.  For more information on how to configure deployment configuration settings, see [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings).
 2.  In the scroll list, select the services version.
     
     For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
     
-    ![](../../assets/images/openlstudio/051ff8dd63dc3613e9d8ba08404bcfba.png)
+    ![](images/services-versioning-settings.png)
     
     *Defining services versioning*
     
@@ -763,7 +674,7 @@ To compare contents of the currently opened project revision with any other revi
     
         A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
 
-    ![](../../assets/images/openlstudio/a06d3841680295798c7a25bfdb6af501.png)
+    ![](images/compare-project-revisions.png)
     
     *Comparing the current project revision from user workspace to the second project revision*
     
@@ -787,7 +698,7 @@ To export any revision of a file from Repository, proceed as follows:
 3.  In the right pane, click **Export file**.
 4.  In the displayed window, select the required file revision and click **Export**.
 
-![](../../assets/images/openlstudio/dfdde8607313b1f7db276af495834e3f.png)
+![](images/export-file-from-project.png)
 
 *Exporting a file from a project*
 
@@ -801,7 +712,7 @@ To unlock a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   In the **Projects** tree, select the project and, in the right pane, click **Unlock**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project that needs to be removed and click the corresponding **Unlock** item ![](../../assets/images/openlstudio/db81abb8713c03cc7413fc20bf951cbb.png) on the right.
+    -   Click **Projects** in Navigator to get a list of projects, navigate to the project that needs to be removed and click the corresponding **Unlock** item ![](images/unlock-project-icon.png) on the right.
 1.  In the confirmation window, click **OK**.
 
 It is recommended to grant permission to the “Unlock” functionality only for administrators.
@@ -813,17 +724,17 @@ It is recommended to grant permission to the “Unlock” functionality only for
 To browse a deployment repository, proceed as follows:
 
 1.  Switch from the **Design repository** view to the **Deployment repositories** view by clicking **Deployment** in the top of the left pane.
-2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](../../assets/images/openlstudio/55814fc7139e046c446b4c3e39762201.png) icon).
+2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](images/deployment-repository-icon.png) icon).
     
-    The list of project deployments or deployed configurations – deploy configurations which consist of rule projects and specific project revisions and deployed to the selected deployment repository – are displayed in the middle pane.
-    
+    The list of project deployments in the selected deployment repository are displayed in the middle pane.
+
 1.  If needed, expand the repository tree and browse project deployments.
 
-OpenL Studio displays only the latest revisions of each deployed configuration in the deployment repository.
+OpenL Studio displays only the latest revisions of each deployment in the deployment repository.
 
-Also, when browsing deployed configurations in the deployment repository, users can see their content, namely what rules projects are deployed.
+When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
-![](../../assets/images/openlstudio/c9186ff78edf3757eaba4fb1492cfa88.png)
+![](images/deployment-repository-deployed-projects.png)
 
 *Deployment repository with deployed projects*
 
@@ -831,13 +742,13 @@ Also, when browsing deployed configurations in the deployment repository, users 
 
 Upon user logon, the user’s display name and email are used for Git commits if the repository type for the action is Git. This applies to the following actions:
 
--   create a project or deploy configuration
--   save a project or deploy configuration
--   delete a project or deploy configuration
--   undelete a project or deploy configuration
--   erase a project or deploy configuration
--   deploy a project or deploy configuration
--   synchronize a project or configuration
+-   create a project
+-   save a project
+-   delete a project
+-   undelete a project
+-   erase a project
+-   deploy a project
+-   synchronize a project
 
 If the display name and email data is missing, the **Configure commit info** popup window appears on commit attempt. Once all the required information is entered and saved, the action that triggered the commit is completed automatically.
 
