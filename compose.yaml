@@ -50,8 +50,8 @@ services:
       PRODUCTION-REPOSITORY_URI: jdbc:postgresql://postgres:5432/db?currentSchema=repository
       PRODUCTION-REPOSITORY_LOGIN: user
       PRODUCTION-REPOSITORY_PASSWORD: s3cr3t
+      RULESERVICE_DATASOURCE_DEPLOY_CLASSPATH_JARS: ALWAYS
       RULESERVICE_DEPLOYER_ENABLED: "true"
-      ruleservice.datasource.deploy.classpath.jars: "true"
       cors.allowed.origins: "*"
       JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
     depends_on:
