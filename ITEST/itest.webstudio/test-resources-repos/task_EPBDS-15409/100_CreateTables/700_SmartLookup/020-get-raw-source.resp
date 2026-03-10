@@ -6,6 +6,18 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "CoverageRate",
+  "messages": [
+    {
+      "id": 28,
+      "summary": "Smart table has unmatched title 'Limit'.",
+      "severity": "ERROR"
+    },
+    {
+      "id": 29,
+      "summary": "Type 'CoverageForm' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "source": [
     [
       {

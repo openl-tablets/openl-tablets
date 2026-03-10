@@ -66,7 +66,7 @@ public class SimpleRulesView extends ExecutableView {
             tableType(TABLE_TYPE);
         }
 
-        public Builder collect(boolean collect) {
+        public Builder collect(Boolean collect) {
             this.collect = collect;
             return this;
         }

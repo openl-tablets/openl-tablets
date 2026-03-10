@@ -638,12 +638,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .findFirst()
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
-        tableView.messages = context.getMessages().values().stream()
+        tableView.messages = mapMessages(context.getMessages());
+        return tableView;
+    }
+
+    private List<MessageDescription> mapMessages(Map<Severity, List<OpenLMessage>> messages) {
+        return messages.values().stream()
                 .flatMap(Collection::stream)
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
                 .sorted(MESSAGE_DESCRIPTION_COMPARATOR)
                 .toList();
-        return tableView;
     }
 
     /**
@@ -655,7 +659,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
         var context = getOpenLTable(project, tableId);
-        return rawTableReader.read(context.table());
+        var tableView = rawTableReader.read(context.table());
+        tableView.messages = mapMessages(context.getMessages());
+        return tableView;
     }
 
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
