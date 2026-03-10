@@ -133,7 +133,7 @@ public class LookupView extends ExecutableView {
         public Builder() {
         }
 
-        public Builder collect(boolean collect) {
+        public Builder collect(Boolean collect) {
             this.collect = collect;
             return this;
         }
