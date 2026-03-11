@@ -1,34 +1,38 @@
 # ── Main navigation (rendered in site header) ──────────────────────────────────
 # URLs use pretty permalinks (permalink: pretty in _config.yml).
 main:
-  - title: "What is OpenL Tablets?"
+  - title: "About"
     url: /what-is-openl-tablets/
   - title: "Features"
     url: /features/
-  - title: "Tutorials"
-    url: /tutorials/
-  - title: "Videocasts"
-    url: /videocasts/
   - title: "User Guides"
     url: /user-guides/
-  - title: "Supported Platforms"
-    url: /supported-platforms/
   - title: "Release Notes"
     url: /release-notes/
+  - title: "Supported Platforms"
+    url: /supported-platforms/
   - title: "Apologia"
     url: /apologia/
 
 # ── User guides left-sidebar navigation ────────────────────────────────────────
 # Applied automatically to all user-guides/** pages via _config.yml defaults.
-# Reference Guide lists chapters only — its ~94 pages are too many to enumerate.
 user-guides:
   - title: "User Guides"
     url: /user-guides/
 
-  - title: "Installation Guide"
+  - title: "Getting Started"
+    url: /user-guides/getting-started/
     children:
-      - title: "Overview"
-        url: /user-guides/installation/
+      - title: "Tutorials"
+        url: /user-guides/tutorials/
+      - title: "Videocasts"
+        url: /user-guides/videocasts/
+      - title: "Demo Package"
+        url: /user-guides/demo-package/
+
+  - title: "Installation Guide"
+    url: /user-guides/installation/
+    children:
       - title: "Quick Start"
         url: /user-guides/installation/quick-start/
       - title: "System Requirements"
@@ -42,20 +46,9 @@ user-guides:
       - title: "Troubleshooting"
         url: /user-guides/installation/troubleshooting/
 
-  - title: "Demo Package"
-    children:
-      - title: "Demo Package Guide"
-        url: /user-guides/demo-package/
-
-  - title: "Getting Started"
-    children:
-      - title: "Getting Started"
-        url: /user-guides/getting-started/
-
   - title: "OpenL Studio"
+    url: /user-guides/openlstudio/
     children:
-      - title: "Overview"
-        url: /user-guides/openlstudio/
       - title: "Preface"
         url: /user-guides/openlstudio/preface/
       - title: "Introduction"
@@ -80,9 +73,8 @@ user-guides:
         url: /user-guides/openlstudio/appendices/zip-structure/
 
   - title: "Rule Services"
+    url: /user-guides/rule-services/
     children:
-      - title: "Overview"
-        url: /user-guides/rule-services/
       - title: "Preface"
         url: /user-guides/rule-services/preface/
       - title: "Introduction"
@@ -111,9 +103,8 @@ user-guides:
         url: /user-guides/rule-services/appendices/backward-compatibility/
 
   - title: "Reference Guide"
+    url: /user-guides/reference/
     children:
-      - title: "Overview"
-        url: /user-guides/reference/
       - title: "Introduction"
         url: /user-guides/reference/01-introduction/01-preface/
       - title: "Working with Tables"

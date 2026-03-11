@@ -29,20 +29,20 @@ Write business rules in Excel. Manage and test them in a browser-based IDE. Depl
 
 ### Getting started
 
-- **[What is OpenL Tablets?](what-is-openl-tablets.html)** — Platform overview, components, and when to use it
-- **[Tutorials](tutorials.html)** — Step-by-step walkthroughs from decision tables to advanced rule types
-- **[Videocasts](videocasts.html)** — Video demonstrations of key features
+- **[What is OpenL Tablets?](what-is-openl-tablets.md)** — Platform overview, components, and when to use it
+- **[Tutorials](user-guides/tutorials.md)** — Step-by-step walkthroughs from decision tables to advanced rule types
+- **[Videocasts](user-guides/videocasts.md)** — Video demonstrations of key features
 
 ### Reference
 
 - **[User Guides](user-guides/)** — Installation, OpenL Studio IDE, Rule Services, and the complete Reference Guide
-- **[Features](features.html)** — Full list of capabilities: table types, versioning, integration, testing
-- **[Supported Platforms](supported-platforms.html)** — Java versions, app servers, databases, browsers
+- **[Features](features.md)** — Full list of capabilities: table types, versioning, integration, testing
+- **[Supported Platforms](supported-platforms.md)** — Java versions, app servers, databases, browsers
 
 ### Project
 
 - **[Release Notes](release-notes/)** — Version history, breaking changes, and migration guides
-- **[Apologia](apologia.html)** — Design philosophy and how OpenL Tablets compares to alternatives
+- **[Apologia](apologia.md)** — Design philosophy and how OpenL Tablets compares to alternatives
 
 ---
 
