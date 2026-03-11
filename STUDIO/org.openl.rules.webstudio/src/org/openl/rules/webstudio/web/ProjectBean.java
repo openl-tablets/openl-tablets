@@ -294,7 +294,10 @@ public class ProjectBean {
         }
     }
 
-    // TODO Move messages to ValidationMessages.properties
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModuleName(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = WebStudioUtils.getRequestParameter("moduleNameOld");
@@ -318,6 +321,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModuleNameForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String newName = (String) value;
         String oldName = WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld");
@@ -341,7 +348,10 @@ public class ProjectBean {
         }
     }
 
-    // TODO Move messages to ValidationMessages.properties
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         final String path = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
@@ -373,6 +383,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
@@ -528,6 +542,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.addModule()} or {@code editModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void editModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -616,6 +634,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void copyModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -681,6 +703,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public void removeModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -762,6 +788,10 @@ public class ProjectBean {
         }
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService} and REST API permission checks instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean canCopyModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
@@ -788,6 +818,10 @@ public class ProjectBean {
         return false;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean canDeleteModule(Module module) {
         if (studio.getModel().isEditableProject()) {
             RulesProject currentProject = studio.getCurrentProject();
@@ -807,6 +841,10 @@ public class ProjectBean {
         return false;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.removeModule()} REST API instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public boolean isOnlySafeModuleRemove(Module module) {
         if (module == null) {
             return true;
@@ -1671,6 +1709,10 @@ public class ProjectBean {
         this.currentPathPattern = currentPathPattern;
     }
 
+    /**
+     * @deprecated Use {@code ProjectModulesService.copyModule()} REST API with pattern validation instead.
+     */
+    @Deprecated(since = "6.0.0", forRemoval = true)
     public Boolean getFileNameMatched() {
         if (newFileName == null) {
             return null;
