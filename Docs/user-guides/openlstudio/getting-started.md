@@ -3,6 +3,7 @@
 This chapter explains logging into OpenL Studio and briefly introduces the user interface. The following topics are included in this chapter:
 
 -   [Signing In to OpenL Studio](#signing-in-to-openl-studio)
+-   [Error Pages](#error-pages)
 -   [Modifying User Profile](#modifying-user-profile)
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
@@ -27,6 +28,28 @@ To sign in to OpenL Studio, proceed as follows:
 1.  Enter the user name and password provided by the system administrator and click **Sign in**.
 
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](#security-overview).
+
+### Error Pages
+
+OpenL Studio displays specific error pages when a user encounters access or system issues.
+
+| Error | Page | Description |
+|-------|------|-------------|
+| 403 | Access Denied | Appears when the user does not have permission to access a resource. Click **Log out** and sign in with credentials that have the required access level. |
+| 404 | Page Not Found | Appears when the requested page does not exist. Click **Home** to return to the main page. |
+| 500 | Internal Server Error | Appears when an unexpected server error occurs. Click **Home** or try again later. |
+
+<img src="images/access-denied-page.png" width="300"/>
+
+*Access denied page*
+
+<img src="images/page-not-found-page.png" width="300"/>
+
+*Page not found*
+
+<img src="images/server-error-page.png" width="300"/>
+
+*Internal server error*
 
 ### Modifying User Profile
 
