@@ -3,8 +3,6 @@ title: Tutorials
 description: Step-by-step tutorials for learning OpenL Tablets, from decision tables to advanced rule types.
 ---
 
-# Tutorials
-
 Series of tutorials designed to familiarize you with OpenL Tablets step-by-step, taking you from simple features and
 concepts to more complex ones. These tutorials are somewhat interactive to help you become familiar with OpenL Tablets
 and basic editing actions. Each tutorial is located in a separate project named Tutorial[N], where N is the tutorial

@@ -3,8 +3,6 @@ title: OpenL Tablets
 description: Open source business rules engine — write rules in Excel, manage them in a web IDE, deploy as REST services.
 ---
 
-# OpenL Tablets
-
 **Open source business rules engine and decision management system.**
 
 Write business rules in Excel. Manage and test them in a browser-based IDE. Deploy as REST services with auto-generated OpenAPI documentation — no boilerplate required.

@@ -1,7 +1,6 @@
 ---
 title: Release Notes
 description: Release history for OpenL Tablets — new features, bug fixes, breaking changes, and migration guides.
-layout: default
 ---
 
 # Release Notes
