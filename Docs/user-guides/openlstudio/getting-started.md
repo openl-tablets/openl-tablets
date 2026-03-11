@@ -33,23 +33,11 @@ For more information on OpenL Studio UI, see [Introducing Rules Editor](#introdu
 
 OpenL Studio displays specific error pages when a user encounters access or system issues.
 
-| Error | Page | Description |
-|-------|------|-------------|
-| 403 | Access Denied | Appears when the user does not have permission to access a resource. Click **Log out** and sign in with credentials that have the required access level. |
-| 404 | Page Not Found | Appears when the requested page does not exist. Click **Home** to return to the main page. |
-| 500 | Internal Server Error | Appears when an unexpected server error occurs. Click **Home** or try again later. |
-
-<img src="images/access-denied-page.png" width="300"/>
-
-*Access denied page*
-
-<img src="images/page-not-found-page.png" width="300"/>
-
-*Page not found*
-
-<img src="images/server-error-page.png" width="300"/>
-
-*Internal server error*
+| Error | Description |
+|-------|-------------|
+|  <img src="images/access-denied-page.png" width="200"/> | Appears when the user does not have permission to access a resource. Click **Log out** and sign in with credentials that have the required access level. |
+| <img src="images/page-not-found-page.png" width="200"/> | Appears when the requested page does not exist. Click **Home** to return to the main page. |
+| <img src="images/server-error-page.png" width="200"/> | Appears when an unexpected server error occurs. Click **Home** or try again later. |
 
 ### Modifying User Profile
 
