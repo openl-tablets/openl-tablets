@@ -7,11 +7,6 @@ description: Adds custom project templates in WebStudio, SpreadsheetResult retur
 
 OpenL Tablets **5.12.1** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **WebStudio:**

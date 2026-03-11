@@ -7,12 +7,6 @@ description: Release with improvements to the ternary operator, empty result pro
 
 OpenL Tablets **5.23.11** includes improvements, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 **Core:**

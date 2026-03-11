@@ -8,12 +8,6 @@ description: Introduces on-demand rule verification, PostgreSQL storage support,
 OpenL Tablets **5.18.1** is a feature release introducing on-demand rule verification, PostgreSQL repository support,
 and improved WebStudio capabilities.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### On-Demand Rule Verification in WebStudio

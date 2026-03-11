@@ -7,10 +7,6 @@ description: Maintenance release fixing 13 bugs in WebStudio, core rules engine,
 
 OpenL Tablets **5.23.12** is a maintenance release containing bug fixes.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-
 ## Bug Fixes
 
 **WebStudio:**

@@ -8,13 +8,6 @@ description: Introduces lazy module loading in web services, null support in ari
 OpenL Tablets **5.8.1** is a feature release with performance improvements, new arithmetic capabilities, and a migration
 to JSF2 and RichFaces 4.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Lazy Loading of Modules in Web Services

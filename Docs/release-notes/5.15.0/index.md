@@ -8,12 +8,6 @@ description: Introduces redesigned condition indexing for lower RAM usage and fa
 OpenL Tablets **5.15.0** is a feature release introducing condition indexing improvements, WADL schema generation, and
 significant memory optimizations.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Condition Indexing

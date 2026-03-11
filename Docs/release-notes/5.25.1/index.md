@@ -8,13 +8,6 @@ OpenL Tablets **5.25.1** is a maintenance release that introduces protected bran
 data storage support in Rule Services, improves the Docker base image, resolves 25 bugs across multiple components, and
 updates libraries.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### WebStudio

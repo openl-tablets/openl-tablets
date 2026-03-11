@@ -7,11 +7,6 @@ description: Fixed empty response when using @StoreLogDataToDB with sync=true, a
 OpenL Tablets **5.25.4** is a maintenance release that fixes an empty response issue with synchronous log data storage
 and updates Log4j.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 ### Rule Services

@@ -8,11 +8,6 @@ description: Fixed 26 bugs across the core engine, WebStudio, repository, and Ru
 OpenL Tablets **5.24.6** is a maintenance release that resolves 26 bugs across the core engine, WebStudio, repository,
 and Rule Services components, and updates libraries.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 ### Core

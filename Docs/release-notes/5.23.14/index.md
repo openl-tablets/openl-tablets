@@ -7,11 +7,6 @@ description: Maintenance release with bug fixes for the Flatten function, condit
 
 OpenL Tablets **5.23.14** is a maintenance release containing bug fixes and library updates.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 * Fixed: The `Flatten` function with Datatype arrays returns `Object[]` rather than the expected `MyDatatype[]`.

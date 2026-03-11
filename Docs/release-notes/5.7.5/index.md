@@ -7,13 +7,6 @@ description: Adds edit history revert in WebStudio, Excel-like attribute access 
 
 OpenL Tablets **5.7.5** is a patch release with new features, improvements, and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Revert Changes in WebStudio

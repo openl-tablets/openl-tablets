@@ -8,13 +8,6 @@ description: Introduces multi-module project dependencies, file name properties,
 OpenL Tablets **5.12.0** is a major feature release significantly enhancing multi-module project management, testing
 capabilities, and WebStudio usability. Eclipse plugins have been discontinued.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## New Features
 
 ### Multi-Module Project Dependencies

@@ -7,12 +7,6 @@ description: Improved Rule Services with Swagger UI enhancements and multipart s
 OpenL Tablets **5.25.8** is a maintenance release that improves Rule Services with Swagger UI enhancements and multipart
 annotation support, resolves 9 bugs in WebStudio and the core engine, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

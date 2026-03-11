@@ -8,13 +8,6 @@ description: Rewrites the Web Services application, simplifies configuration, in
 OpenL Tablets **5.8.0** is a major feature release with a rewritten Web Services application, simplified configuration,
 and significant Core enhancements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Rewritten Web Services Application

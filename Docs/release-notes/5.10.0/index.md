@@ -8,13 +8,6 @@ description: Introduces variation calculations, dynamic web service interfaces, 
 OpenL Tablets **5.10.0** is a major feature release introducing variations, dynamic interfaces, the WebStudio
 Installation Wizard, and significant usability improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## New Features
 
 ### Variation Functionality

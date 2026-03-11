@@ -7,12 +7,6 @@ description: Adds autocast from single values to arrays and Range types, null-sa
 
 OpenL Tablets **5.21.3** is a patch release with improvements, bug fixes, and a deprecation notice.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## Improvements
 
 **Core:**

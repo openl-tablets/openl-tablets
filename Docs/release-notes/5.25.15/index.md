@@ -7,11 +7,6 @@ description: Deprecated the VariationPack utilities component and comprehensive 
 OpenL Tablets **5.25.15** is a maintenance release that deprecates the VariationPack utilities component and includes
 library updates.
 
-## Contents
-
-* [Deprecations](#deprecations)
-* [Library Updates](#library-updates)
-
 ## Deprecations
 
 * The **VariationPack** utilities component has been deprecated. Consider one of the following alternatives:

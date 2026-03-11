@@ -7,11 +7,6 @@ description: Added new JSON object operations for improved performance, and fixe
 OpenL Tablets **5.24.4** is a maintenance release that introduces new JSON object operations for improved performance
 and fixes a Maven build failure.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 ### Core

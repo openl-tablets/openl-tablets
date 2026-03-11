@@ -10,14 +10,6 @@ OpenAPI-based project creation and import, cluster mode for WebStudio, a notific
 a Maven verify goal. This release includes significant improvements to WebStudio and Rule Services workflows and
 requires migration action before upgrading.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Multiple Design Repositories in WebStudio

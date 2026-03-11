@@ -2,16 +2,38 @@
 layout: single
 ---
 
-{{ content }}
+{%- assign migration_url = page.url | append: "migration/" -%}
+{%- assign migration_page = nil -%}
+{%- for p in site.pages -%}
+  {%- if p.url == migration_url -%}
+    {%- assign migration_page = p -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
 
-{% assign migration_url = page.url | append: "migration/" %}
-{% assign migration_page = nil %}
-{% for p in site.pages %}
-  {% if p.url == migration_url %}
-    {% assign migration_page = p %}
-    {% break %}
-  {% endif %}
-{% endfor %}
+{%- assign sections = content | split: '<h2 ' -%}
+{%- assign toc_count = sections.size | minus: 1 -%}
+{%- if migration_page -%}{%- assign toc_count = toc_count | plus: 1 -%}{%- endif -%}
+
+{% if toc_count > 1 %}
+<h2 id="contents">Contents</h2>
+<ul>
+{%- for section in sections -%}
+  {%- if forloop.first -%}{%- continue -%}{%- endif -%}
+  {%- assign heading_line = section | split: '</h2>' | first -%}
+  {%- assign id_parts = heading_line | split: 'id="' -%}
+  {%- assign heading_id = id_parts[1] | split: '"' | first -%}
+  {%- assign heading_tag = heading_line | prepend: '<h2 ' | append: '</h2>' -%}
+  {%- assign heading_text = heading_tag | strip_html -%}
+  <li><a href="#{{ heading_id }}">{{ heading_text }}</a></li>
+{%- endfor -%}
+{%- if migration_page -%}
+  <li><a href="#migration-notes">Migration Notes</a></li>
+{%- endif -%}
+</ul>
+{% endif %}
+
+{{ content }}
 
 {% if migration_page %}
 <hr>

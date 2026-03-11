@@ -9,11 +9,6 @@ description: Introduces a JCR-based Repository, an AJAX-based Table Editor, Voca
 OpenL Tablets **5.0.5** is a major feature release introducing the repository, a new table editor, and the Business
 Expression Language.
 
-## Contents
-
-* [New Features](#new-features)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### JCR-Based Repository

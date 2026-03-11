@@ -7,12 +7,6 @@ description: Export execution results in JSON, optimized decision table performa
 
 OpenL Tablets **5.27.11** introduces JSON export for execution results, decision table performance optimization, and includes four bug fixes alongside comprehensive library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Added ability to export execution results in JSON format.

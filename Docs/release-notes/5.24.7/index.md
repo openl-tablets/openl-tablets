@@ -8,11 +8,6 @@ description: Fixed 14 bugs across the core engine, WebStudio, repository, and de
 OpenL Tablets **5.24.7** is a maintenance release that resolves 14 bugs across the core engine, WebStudio, repository,
 and demo components, and updates libraries.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 ### Core

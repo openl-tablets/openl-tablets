@@ -7,12 +7,6 @@ description: DEDUCTION mode for JSON serialization, AWS Security Token Service s
 
 OpenL Tablets **5.26.6** is a maintenance release introducing DEDUCTION mode for JSON serialization, AWS Security Token Service support, multiple bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

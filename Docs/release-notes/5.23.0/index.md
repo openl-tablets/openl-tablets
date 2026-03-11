@@ -8,13 +8,6 @@ description: Major release introducing Kafka integration, SpreadsheetResult outp
 OpenL Tablets **5.23.0** is a major release introducing new features, significant improvements, and a large number of
 bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Kafka Integration in OpenL

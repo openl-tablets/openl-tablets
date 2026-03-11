@@ -9,12 +9,6 @@ description: Introduces alias datatypes, datatype inheritance, and floating-poin
 OpenL Tablets **5.7.2** is a feature release with new datatype capabilities, comparison improvements, and significant
 bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Alias Datatypes

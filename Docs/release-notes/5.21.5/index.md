@@ -7,12 +7,6 @@ description: Reduces SpreadsheetResult footprint in Rule Service, improves WebSt
 
 OpenL Tablets **5.21.5** is a patch release with performance improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Reduced footprint of `SpreadsheetResult` in Rule Service.

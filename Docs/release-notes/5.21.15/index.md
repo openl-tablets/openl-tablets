@@ -7,11 +7,6 @@ description: Release with improvements to WebStudio branch management and Maven 
 
 OpenL Tablets **5.21.15** is a patch release with improvements to WebStudio branch management and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **WebStudio:**

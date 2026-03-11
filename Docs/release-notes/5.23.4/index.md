@@ -7,12 +7,6 @@ description: Release with a new Maven project archetype, test dependency support
 
 OpenL Tablets **5.23.4** includes new features, improvements, and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### New Maven openl-project-archetype

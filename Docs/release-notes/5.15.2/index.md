@@ -6,11 +6,6 @@ description: Adds Canada versioning properties, improves the calculation steps D
 
 OpenL Tablets **5.15.2** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **Core:**

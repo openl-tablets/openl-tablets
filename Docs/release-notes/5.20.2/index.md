@@ -7,12 +7,6 @@ description: Adds deprecated method warnings, pluggable Cassandra/Elasticsearch 
 
 OpenL Tablets **5.20.2** is a patch release with improvements, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 **Core:**

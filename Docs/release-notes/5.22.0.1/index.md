@@ -7,14 +7,6 @@ description: Major release with Java 11 support, streaming XLSX reads, object bi
 
 OpenL Tablets **5.22.0.1** is a major release introducing new features, improvements, bug fixes, and breaking changes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Streaming Read for XLS and XLSX Files

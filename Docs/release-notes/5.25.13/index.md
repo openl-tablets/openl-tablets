@@ -7,11 +7,6 @@ description: Improved exception messages in Rule Services and
 
 OpenL Tablets **5.25.13** is a maintenance release that improves exception messaging in Rule Services and fixes several issues in the core engine.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 ### Rule Services

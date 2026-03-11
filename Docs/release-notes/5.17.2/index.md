@@ -7,10 +7,6 @@ description: Introduces deployment group property for shared repositories, updat
 
 OpenL Tablets **5.17.2** is a patch release with improvements to deployment configuration and rounding behavior.
 
-## Contents
-
-* [Improvements](#improvements)
-
 ## Improvements
 
 ### Deployment Configuration Group Property

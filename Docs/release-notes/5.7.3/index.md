@@ -7,12 +7,6 @@ description: Introduces SimpleRules and SimpleLookup tables, an execution mode w
 
 OpenL Tablets **5.7.3** is a feature release with new table types, performance improvements, and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### SimpleRules and SimpleLookup Tables

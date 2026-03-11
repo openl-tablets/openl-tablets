@@ -6,11 +6,6 @@ description: Bug fix for unpredictable AccessDeniedHandler ordering and comprehe
 
 OpenL Tablets **5.27.13** is a maintenance release that includes a bug fix and comprehensive library updates.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 * Fixed unpredictable order of `AccessDeniedHandler`.

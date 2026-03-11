@@ -8,12 +8,6 @@ description: Introduced the ability to attach external tools in WebStudio,
 OpenL Tablets **5.25.14** is a maintenance release that introduces the ability to attach external tools in WebStudio,
 adds alphabetical ordering for available services in Rule Services, resolves several bugs, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

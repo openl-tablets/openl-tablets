@@ -9,13 +9,6 @@ OpenL Tablets **5.24.2** is a feature release that introduces CORS support in We
 condition expression capabilities and array support in decision tables, and resolves over 40 bugs across multiple
 components.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### WebStudio

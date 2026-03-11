@@ -6,12 +6,6 @@ description: Improvements to Jackson configuration, CharRange syntax, and table 
 
 OpenL Tablets **5.21.13** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 **Web Services & WebStudio:**

@@ -8,12 +8,6 @@ description: Adds WebStudio start screen customization via system properties, in
 OpenL Tablets **4.1.1** is a feature release with WebStudio customization, benchmarking tools, and performance
 improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### WebStudio Start Screen Customization

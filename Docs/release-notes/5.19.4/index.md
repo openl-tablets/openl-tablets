@@ -7,12 +7,6 @@ description: Adds MariaDB/PostgreSQL authentication support, Oracle 12c and Amaz
 
 OpenL Tablets **5.19.4** is a patch release with new database support, improvements, and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 * Support added for MariaDB and PostgreSQL databases for authentication.

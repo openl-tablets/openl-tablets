@@ -7,12 +7,6 @@ description: Enhanced error handling in dataframe processing, input array flatte
 
 OpenL Tablets **5.26.16** is a maintenance release with enhanced error handling in Rule Services, input array flattening for the Run into File function, performance improvements, and comprehensive library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

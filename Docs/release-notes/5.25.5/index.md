@@ -7,12 +7,6 @@ description: Fixed 4 bugs in WebStudio and the core engine, updated Log4j, Sprin
 OpenL Tablets **5.25.5** is a maintenance release that fixes 4 bugs in WebStudio and the core engine, and updates
 libraries.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-* [Known Issues](#known-issues)
-
 ## Bug Fixes
 
 ### WebStudio

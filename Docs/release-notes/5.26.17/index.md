@@ -7,11 +7,6 @@ description: Fixed decision table indexing for contains() function, Azure BLOB r
 
 OpenL Tablets **5.26.17** is a maintenance release that fixes decision table indexing for the `contains()` function, resolves Azure BLOB repository issues, and updates several libraries.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 ### Core

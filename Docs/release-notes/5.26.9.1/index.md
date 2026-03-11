@@ -7,11 +7,6 @@ description: Dynamic references in table properties, fixed slow test table openi
 
 OpenL Tablets **5.26.9.1** is a hotfix release adding dynamic references in table properties and fixing several issues with test table performance, Maven plugin, and AWS SSE headers.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 ### Core

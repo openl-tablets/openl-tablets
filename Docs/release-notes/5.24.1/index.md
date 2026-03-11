@@ -8,12 +8,6 @@ description: Consolidated Rules deploy configuration template fields, fixed 20 b
 OpenL Tablets **5.24.1** is a maintenance release that consolidates Rules deploy configuration template fields, resolves
 20 bugs across WebStudio, repository, and the core engine, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

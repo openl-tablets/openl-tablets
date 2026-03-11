@@ -7,12 +7,6 @@ description: Docker support for MinIO as S3-compatible storage, ISO 8601 date fo
 
 OpenL Tablets **5.26.14** is a maintenance release introducing Docker support for MinIO as an S3-compatible storage repository, ISO 8601 date format support, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

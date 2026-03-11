@@ -7,12 +7,6 @@ description: Increased cell display limit, enhanced Maven plugin error messages,
 
 OpenL Tablets **5.27.1** introduces configurable cell display limits, improved Maven plugin error messages, constructor and annotation enhancements, and removes support for previously deprecated properties, alongside one bug fix and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Increased the display limit for cell counts; configurable via the `experimental.MAX_NUM_CELLS` property (default: 20,000).

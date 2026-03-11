@@ -7,13 +7,6 @@ description: Deployment branch restriction for design repositories, permission i
 
 OpenL Tablets **5.27.10** introduces deployment branch restriction for OpenL Studio design repositories, removes permission inheritance, and includes three bug fixes alongside library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Deployment Branch Restriction

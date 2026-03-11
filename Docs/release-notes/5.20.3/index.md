@@ -7,12 +7,6 @@ description: Adds auto-configuration for Java version and memory settings, impro
 
 OpenL Tablets **5.20.3** is a patch release with auto-configuration improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 * Auto-configuration has been added to automatically adjust settings for different Java versions and memory sizes. Users

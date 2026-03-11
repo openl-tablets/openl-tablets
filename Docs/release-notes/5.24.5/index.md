@@ -8,12 +8,6 @@ description: Improved menu button visibility in WebStudio, fixed 11 bugs across 
 OpenL Tablets **5.24.5** is a maintenance release that improves menu button visibility in WebStudio, resolves 11 bugs
 across the core engine, WebStudio, and Rule Services, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

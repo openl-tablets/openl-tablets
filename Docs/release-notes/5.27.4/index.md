@@ -7,13 +7,6 @@ description: MinIO Docker support in Rule Services, AWS SDK v2 migration, non-ve
 
 OpenL Tablets **5.27.4** delivers significant Rule Services improvements including MinIO Docker support, AWS SDK v2 migration, non-versioned S3 repository support, and overall deployment performance improvements, alongside three bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Implemented Docker support for MinIO as an S3-compatible storage repository in Rule Services.

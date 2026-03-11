@@ -9,13 +9,6 @@ description: Moves all CXF configurations to Spring, repackages OpenL Tablets fo
 OpenL Tablets **5.7.0** is a major release with a configurable service frontend, repackaging for Maven Central, and
 Datatype-to-Java generation.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Configurable Service Frontend

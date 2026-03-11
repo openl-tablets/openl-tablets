@@ -7,13 +7,6 @@ description: Introduces module dependency management, a rewritten rules reposito
 
 OpenL Tablets **5.7.4** is a major feature release with significant new capabilities and broad improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Dependency Management Between Rule Modules

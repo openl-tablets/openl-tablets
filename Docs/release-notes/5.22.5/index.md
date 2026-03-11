@@ -7,11 +7,6 @@ description: Maintenance release adding a new webservice.war artifact with Cassa
 
 OpenL Tablets **5.22.5** is a maintenance release containing an improvement and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **Rule Services:**

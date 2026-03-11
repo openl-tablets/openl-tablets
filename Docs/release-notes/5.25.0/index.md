@@ -8,13 +8,6 @@ OpenL Tablets **5.25.0** is a feature release that introduces project tags and g
 conditions in smart lookup tables, a redesigned multi-module project loading experience, and several improvements to
 WebStudio and Rule Services.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Project Tags and Grouping in WebStudio

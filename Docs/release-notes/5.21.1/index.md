@@ -8,11 +8,6 @@ description: Adds Docker support for Rule Service, WebStudio, and DEMO, redesign
 OpenL Tablets **5.21.1** is a patch release with improvements and bug fixes, including Docker support for all major
 components.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **WebStudio:**

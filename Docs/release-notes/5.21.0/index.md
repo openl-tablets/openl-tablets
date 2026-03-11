@@ -9,14 +9,6 @@ OpenL Tablets **5.21.0** is a feature release introducing Excel test result expo
 DEMO, and floating-point division results. This release includes a breaking change to division behavior that requires
 regression testing of existing rules.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Excel Export for Test Results

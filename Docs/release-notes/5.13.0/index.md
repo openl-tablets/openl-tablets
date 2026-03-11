@@ -8,13 +8,6 @@ description: Introduces project update from ZIP, dependency manager Java imports
 OpenL Tablets **5.13.0** is a feature release with major usability improvements to WebStudio, web services, and the core
 engine.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## New Features
 
 ### Update Project from ZIP File

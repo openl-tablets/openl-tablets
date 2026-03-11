@@ -7,13 +7,6 @@ description: JSON date format standardization, rule invocation via JSON string a
 
 OpenL Tablets **5.27.6** introduces a standardized JSON date format for `JsonUtils` and a new way to invoke OpenL rules via JSON string arguments, alongside four bug fixes and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * `JsonUtils` is set to use the `yyyy-MM-dd'T'HH:mm:ss.SSS` date format by default.

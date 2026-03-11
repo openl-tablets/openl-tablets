@@ -8,12 +8,6 @@ description: Introduces Decision Table consistency checking for under-coverage a
 
 OpenL Tablets **5.1.1** is a feature release with new validation capabilities and language improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Decision Table Consistency Checking

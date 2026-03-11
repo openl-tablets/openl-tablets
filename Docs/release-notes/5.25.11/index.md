@@ -8,12 +8,6 @@ OpenL Tablets **5.25.11** is a maintenance release that introduces unique reques
 publishes build information via a dedicated endpoint, resolves 18 bugs across the core engine, WebStudio, and Rule
 Services, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

@@ -7,13 +7,6 @@ description: Release with new transient datatype field markers, Smart Lookup and
 
 OpenL Tablets **5.23.9** includes new features, improvements, and a significant number of bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 * Added the ability to mark a field name suffix in datatype tables with a transient (`~`) or non-transient (`*`) marker.

@@ -7,12 +7,6 @@ description: Request and response tracking via headers in Kafka and WebService m
 
 OpenL Tablets **5.26.8** is a maintenance release adding request and response tracking via headers, fixing Swagger UI in DEMO, and updating libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

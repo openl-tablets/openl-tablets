@@ -7,12 +7,6 @@ description: Maintenance release adding the length() function for Map/List/Set o
 
 OpenL Tablets **5.22.6** is a maintenance release containing improvements, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 **Core:**

@@ -8,14 +8,6 @@ description: Introduces SmartLookup and SmartRules tables, Active Directory and 
 OpenL Tablets **5.20.0** is a feature release introducing new table types, enterprise authentication support, and cloud
 storage integration. This release also includes a breaking change removing implicit casting from `Double` to `Integer`.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### SmartLookup and SmartRules Table Types

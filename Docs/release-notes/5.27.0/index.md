@@ -9,15 +9,6 @@ OpenL Tablets **5.27.0** introduces improved access control capabilities, enhanc
 files, and new decision table expression referencing syntax. The release also includes OpenL Studio and Rule Services
 enhancements alongside important bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-* [Library Updates](#library-updates)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### Access Control Lists (ACL)

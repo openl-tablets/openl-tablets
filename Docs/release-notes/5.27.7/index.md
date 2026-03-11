@@ -7,12 +7,6 @@ description: Enhanced DataFrame error handling, flattened array parameters for R
 
 OpenL Tablets **5.27.7** brings several improvements to DataFrame processing, the Run into File feature, and the Repository tab, alongside six bug fixes and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Enhanced error handling in DataFrame processing with JSON-based external function calls.

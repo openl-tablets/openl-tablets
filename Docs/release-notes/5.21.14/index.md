@@ -7,12 +7,6 @@ description: Introduces Git repository support (beta) with branch management imp
 
 OpenL Tablets **5.21.14** introduces Git repository support in beta and includes repository improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 * Support of Git repository (beta).

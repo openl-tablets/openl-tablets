@@ -7,12 +7,6 @@ description: Adds test result export to XLSX in the Maven plugin, min/max for co
 
 OpenL Tablets **5.21.9** introduces test result export to XLSX format and includes improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 * Added the ability to export test results to `*.xlsx` format in the OpenL Maven Plugin.

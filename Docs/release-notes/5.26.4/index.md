@@ -7,12 +7,6 @@ description: Custom error message testing, locale context from Accept-Language h
 
 OpenL Tablets **5.26.4** is a maintenance release introducing custom error message testing, localized Rule Services responses, DEMO improvements, extensive bug fixes across all components, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Core

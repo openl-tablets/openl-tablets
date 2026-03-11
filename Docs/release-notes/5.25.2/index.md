@@ -7,12 +7,6 @@ description: Reduced StringRange memory usage, improved Rule Services database r
 OpenL Tablets **5.25.2** is a maintenance release that reduces memory usage for `StringRange`, improves database
 reconnection behavior in Rule Services, resolves 14 bugs across the core engine and WebStudio, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Core

@@ -8,11 +8,6 @@ description: Introduces Unit Tests, Run, Trace, Explanation, and Advanced Search
 
 OpenL Tablets **4.0.1** is a major release introducing key WebStudio features and language semantics changes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-
 ## New Features
 
 ### WebStudio: Unit Tests, Run, Trace, Explanation, and Advanced Search

@@ -10,11 +10,6 @@ includes bug fixes.
 
 > **Note:** Build 5.21.10 is faulty. Use OpenL Tablets 5.21.10.1 instead.
 
-## Contents
-
-* [New Features](#new-features)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### `like()` Pattern Matching Function

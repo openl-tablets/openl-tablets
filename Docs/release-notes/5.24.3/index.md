@@ -8,13 +8,6 @@ description: Added Kubernetes health probes to Rule Services, improved WebStudio
 OpenL Tablets **5.24.3** is a maintenance release that introduces Kubernetes health probes in Rule Services, improves
 WebStudio search scope and error stack trace display, resolves 14 bugs, and updates libraries.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Rule Services

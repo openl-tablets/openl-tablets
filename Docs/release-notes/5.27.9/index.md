@@ -6,12 +6,6 @@ description: Configurable database connection pool size, five bug fixes, and com
 
 OpenL Tablets **5.27.9** introduces a configurable maximum pool size for database connections and includes five bug fixes alongside comprehensive library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Added ability to configure the maximum pool size for the database connection pool in OpenL Studio.

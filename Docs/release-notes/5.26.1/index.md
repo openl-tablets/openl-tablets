@@ -7,13 +7,6 @@ description: Localization bundle support, template messaging function, AspectJ p
 
 OpenL Tablets **5.26.1** introduces localization bundle support for properties files, a template messaging function, AspectJ OpenL profiler, varargs support in array functions, and context data as a separate argument. The release also includes extensive bug fixes and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Localization Bundle Support for Properties Files

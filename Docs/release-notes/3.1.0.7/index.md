@@ -9,12 +9,6 @@ description: Introduces a Web Studio prototype, Decision Table return columns, E
 OpenL Tablets **3.1.0.7** is a major release introducing the Web Studio prototype and significant configuration
 simplifications.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Web Studio Prototype

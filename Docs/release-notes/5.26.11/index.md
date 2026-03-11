@@ -7,12 +7,6 @@ description: Removed Google Universal Analytics integration, fixed trace and sen
 
 OpenL Tablets **5.26.11** is a maintenance release that removes Google Universal Analytics integration, fixes trace and sensitive data logging issues, and includes library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

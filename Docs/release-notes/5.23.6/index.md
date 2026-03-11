@@ -7,12 +7,6 @@ description: Release with Java 14 support, JCache API integration, multiple file
 
 OpenL Tablets **5.23.6** includes improvements, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 **WebStudio:**

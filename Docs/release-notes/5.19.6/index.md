@@ -8,11 +8,6 @@ description: Performance improvements to OpenMethodDispatcher and RuleService re
 OpenL Tablets **5.19.6** is a patch release with performance improvements and bug fixes. The deprecated `IVocabulary`
 class has been removed.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **Core:**

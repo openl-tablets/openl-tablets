@@ -8,13 +8,6 @@ description: Maintenance release with a default date format for REST services, t
 OpenL Tablets **5.22.7** is a maintenance release containing an improvement, bug fixes, a deprecation, and library
 updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Ability to define a default date format for REST services.

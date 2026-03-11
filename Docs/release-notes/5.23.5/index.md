@@ -7,11 +7,6 @@ description: Maintenance release with MANIFEST.MF generation on deploy from WebS
 
 OpenL Tablets **5.23.5** is a maintenance release containing an improvement and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 * Generating `MANIFEST.MF` on deploy from WebStudio.

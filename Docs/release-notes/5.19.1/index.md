@@ -8,13 +8,6 @@ description: Introduces database storage for rules projects and deployments, arr
 OpenL Tablets **5.19.1** is a feature release introducing database-backed repository storage, array call enhancements,
 and Maven plugin improvements. Eclipse-based rules project support has been removed.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-
 ## New Features
 
 ### Database Storage for Rules Projects and Deployments

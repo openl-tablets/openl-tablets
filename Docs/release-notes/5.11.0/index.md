@@ -8,13 +8,6 @@ description: Introduces Table Part splitting, test precision and paging, Unlock 
 OpenL Tablets **5.11.0** is a feature release with significant additions to testing, table management, and WebStudio
 usability. Eclipse plugins are deprecated.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## New Features
 
 ### Table Part

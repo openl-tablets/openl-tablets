@@ -7,13 +7,6 @@ description: Custom error bodies for user exceptions in Rule Services, Variation
 
 OpenL Tablets **5.26.3** is a maintenance release introducing custom error bodies for user exceptions in Rule Services, deprecating VariationPack, and fixing several bugs.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

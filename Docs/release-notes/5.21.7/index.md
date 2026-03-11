@@ -7,13 +7,6 @@ description: Introduces constants support, array/list improvements, SmartLookup 
 
 OpenL Tablets **5.21.7** introduces constants support and includes significant improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Constants

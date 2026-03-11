@@ -8,12 +8,6 @@ description: Introduces Origin business dimension property, repository deployer 
 OpenL Tablets **5.16.0** is a feature release introducing the Origin business dimension, Java 8 support, an RMI
 publisher, and performance improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Origin Business Dimension Property

@@ -7,12 +7,6 @@ description: Release adding Git branch support with branch patterns and project 
 
 OpenL Tablets **5.22.4** includes improvements, bug fixes, and known issues.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## Improvements
 
 **Core:**

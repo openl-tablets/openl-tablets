@@ -7,13 +7,6 @@ description: Release introducing versioning by folder names, Spring Boot compati
 
 OpenL Tablets **5.23.8** includes new features, improvements, bug fixes, and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Versioning by Folder Names

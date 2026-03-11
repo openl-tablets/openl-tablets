@@ -7,13 +7,6 @@ description: Adds multi-application repository deployment filtering, JUnit4 test
 
 OpenL Tablets **5.21.4** introduces multi-application repository support and includes improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Multi-Application Repository Support

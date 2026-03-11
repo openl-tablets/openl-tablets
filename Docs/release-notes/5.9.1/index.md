@@ -8,13 +8,6 @@ description: Introduces Web Services test framework, memory-based caching, custo
 OpenL Tablets **5.9.1** is a feature release with new web service testing capabilities, caching improvements, and
 library upgrades.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Test Framework for Web Services

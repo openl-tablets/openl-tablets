@@ -8,11 +8,6 @@ description: Adds warnings for editing non-latest revisions, Black/White lists f
 OpenL Tablets **5.19.5.1** is a patch release with improvements, bug fixes, and the removal of the CGLIB dependency from
 OpenL Core.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **WebStudio:**

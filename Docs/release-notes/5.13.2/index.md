@@ -7,11 +7,6 @@ description: Adds file upload warnings and deploy configuration validation in We
 
 OpenL Tablets **5.13.2** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **WebStudio:**

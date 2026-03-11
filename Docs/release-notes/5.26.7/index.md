@@ -7,13 +7,6 @@ description: AWS S3 server-side encryption, HTTP authorization customization in 
 
 OpenL Tablets **5.26.7** is a maintenance release introducing AWS S3 server-side encryption support, HTTP authorization customization in Rule Services, multiple bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-* [Known Issues](#known-issues)
-
 ## Improvements
 
 ### Repository

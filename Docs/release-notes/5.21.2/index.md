@@ -8,10 +8,6 @@ description: Patch release with 20 bug fixes across Core, WebStudio, Rule Servic
 OpenL Tablets **5.21.2** is a patch release containing bug fixes. All demonstration examples have been converted to XLSX
 format.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-
 ## Bug Fixes
 
 **Core:**

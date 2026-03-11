@@ -7,12 +7,6 @@ description: Adds validation for tables with the "active" property and type-spec
 
 OpenL Tablets **5.4.1** is a patch release with new validation features and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Validation for Tables with the "Active" Property

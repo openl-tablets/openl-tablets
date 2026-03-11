@@ -6,11 +6,6 @@ description: Performance improvements to Spreadsheet copy and threading, SmartRu
 
 OpenL Tablets **5.21.11** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **Core:**

@@ -7,12 +7,6 @@ description: Increased cell display limit, parameter assignment in old construct
 
 OpenL Tablets **5.26.12** is a maintenance release with increased cell display limits, enhanced Maven plugin error messages, constructor syntax improvements, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

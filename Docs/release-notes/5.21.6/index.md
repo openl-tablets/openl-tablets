@@ -7,12 +7,6 @@ description: Introduces new Date functions (toDate, toString, Date), copy object
 
 OpenL Tablets **5.21.6** introduces new Date functions and includes improvements and bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### New Date Functions

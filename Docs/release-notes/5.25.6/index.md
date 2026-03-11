@@ -7,11 +7,6 @@ description: Fixed incorrect method display in Swagger UI and updated Log4j and 
 OpenL Tablets **5.25.6** is a maintenance release that fixes incorrect method display in Swagger UI and updates
 libraries.
 
-## Contents
-
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Bug Fixes
 
 ### Rule Services

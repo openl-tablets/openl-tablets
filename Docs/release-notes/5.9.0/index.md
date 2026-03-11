@@ -7,13 +7,6 @@ description: Introduces the new WebStudio Beta UI, Typed Spreadsheet Result, Dec
 OpenL Tablets **5.9.0** is a feature release introducing the redesigned WebStudio UI (beta), typed spreadsheets, and
 dispatching improvements. Tomcat 7 is now required.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### New WebStudio UI (Beta)

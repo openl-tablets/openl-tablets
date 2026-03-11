@@ -7,12 +7,6 @@ description: Added U.S. territory support, GZIP encoding, Forwarded header suppo
 OpenL Tablets **5.25.3** is a maintenance release that adds U.S. territory support, GZIP encoding, Forwarded header
 support, deprecates `*Value` types and SOAP/WSDL services, and resolves 3 bugs.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## Improvements
 
 ### Core

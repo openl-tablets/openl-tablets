@@ -7,13 +7,6 @@ description: Release with multiple project deployment, Git branch support in RES
 
 OpenL Tablets **5.22.2** includes improvements, bug fixes, breaking changes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Multiple project deployment support.

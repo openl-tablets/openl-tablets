@@ -8,13 +8,6 @@ description: Introduces condition references from return cells, Rules Interfaces
 OpenL Tablets **5.9.3** is a feature release introducing condition cell references, improved array support, and
 WebStudio usability enhancements. Source code migrated from Subversion to Mercurial.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### References to Conditions from Return Cells

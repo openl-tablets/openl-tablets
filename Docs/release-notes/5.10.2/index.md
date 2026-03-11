@@ -7,11 +7,6 @@ description: Adds implicit Double comparison in tests, full SpreadsheetResult di
 
 OpenL Tablets **5.10.2** is a patch release with improvements and bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 **Core:**

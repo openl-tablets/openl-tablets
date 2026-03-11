@@ -9,12 +9,6 @@ description: Introduces OpenL rules project descriptors, single-Excel-file proje
 OpenL Tablets **5.7.1** is a major feature release with new project structure capabilities and web services
 enhancements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### OpenL Rules Project Descriptor

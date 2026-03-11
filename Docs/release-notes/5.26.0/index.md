@@ -7,14 +7,6 @@ description: OAuth2 authorization support, Git LFS integration, Azure BLOB stora
 
 OpenL Tablets **5.26.0** introduces OAuth2 authorization support, Git Large File Storage integration, Azure BLOB storage, enhanced user management with email verification, rule dependency support, and Arm64 Docker images. The release also includes significant improvements to SpreadsheetResult handling and important bug fixes.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-* [Known Issues](#known-issues)
-
 ## New Features
 
 ### OAuth2 Authorization Support in OpenL Tablets WebStudio

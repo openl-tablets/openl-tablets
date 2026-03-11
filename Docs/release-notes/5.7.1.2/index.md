@@ -7,11 +7,6 @@ description: Maintenance release fixing 6 bugs in Decision Tables, date arithmet
 
 OpenL Tablets **5.7.1.2** is a maintenance release with bug fixes and improvements.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## Improvements
 
 * Datatype can inherit from another type.

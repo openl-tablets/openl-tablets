@@ -7,13 +7,6 @@ description: HTTP header propagation into rules execution, SpreadsheetResult bea
 
 OpenL Tablets **5.26.2** is a maintenance release introducing HTTP header propagation, SpreadsheetResult beans as input parameters, external tools attachment in WebStudio, extensive bug fixes, and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### HTTP Header Propagation

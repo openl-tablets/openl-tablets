@@ -8,12 +8,6 @@ description: Introduces warnings alongside errors, gap and overlap validation fo
 
 OpenL Tablets **5.5.0** is a feature release with new validation capabilities and improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Errors and Warnings

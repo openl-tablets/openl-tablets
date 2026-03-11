@@ -7,12 +7,6 @@ description: Improved number formatting, added several validation warnings, fixe
 OpenL Tablets **5.25.9** is a maintenance release that improves number formatting, adds several validation warnings,
 resolves 12 bugs across the core engine, WebStudio, Rule Services, and the Maven plugin, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Core

@@ -7,12 +7,6 @@ description: Added Barbados & Jamaica countries to the runtime context list, Sec
 
 OpenL Tablets **5.27.15** is a maintenance release for comprehensive library updates for improved security and stability.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 - Added Barbados & Jamaica countries to the runtime context list of supported locales.

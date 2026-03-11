@@ -6,12 +6,6 @@ description: Java 25 support, Jakarta EE 10 compliant OpenL Studio, four bug fix
 
 OpenL Tablets **5.27.12** introduces Java 25 support, a Jakarta EE 10 compliant version of OpenL Studio, and includes four bug fixes alongside comprehensive library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Java 25 support.

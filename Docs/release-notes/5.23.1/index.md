@@ -7,13 +7,6 @@ description: Release introducing a Sync button for branch merging in WebStudio, 
 
 OpenL Tablets **5.23.1** includes a new feature, improvements, bug fixes, and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Sync Button in WebStudio

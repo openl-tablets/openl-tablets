@@ -8,13 +8,6 @@ description: Introduces multiple service versions, wildcard module dependencies,
 OpenL Tablets **5.17.0** is a feature release introducing multiple service version support, BPM integration, and service
 logging capabilities.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-
 ## New Features
 
 ### Multiple Service Versions in Web Services

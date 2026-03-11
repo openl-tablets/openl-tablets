@@ -7,12 +7,6 @@ description: Improved WebStudio progress bar and dependency management, fixed 21
 OpenL Tablets **5.25.7** is a maintenance release that improves the WebStudio progress bar and dependency management,
 resolves 21 bugs across the core engine and WebStudio, and updates libraries.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### WebStudio

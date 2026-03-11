@@ -8,13 +8,6 @@ description: Reworks RESTful services, adds database production repository, modu
 OpenL Tablets **5.14.0** is a feature release with significant improvements to RESTful services, production repository
 options, and WebStudio usability.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Deprecations](#deprecations)
-
 ## New Features
 
 ### RESTful Services

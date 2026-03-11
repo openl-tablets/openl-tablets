@@ -8,12 +8,6 @@ description: Introduces multi-user security, user management UI, multiple produc
 OpenL Tablets **5.9.4** is a feature release introducing access control, multi-repository support, project versioning,
 and significant WebStudio improvements.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-
 ## New Features
 
 ### Security Modes

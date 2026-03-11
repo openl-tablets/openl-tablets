@@ -8,13 +8,6 @@ description: Introduced the Date() constructor and date manipulation functions, 
 OpenL Tablets **5.25.12** is a maintenance release that introduces the `Date()` constructor and supplementary date
 manipulation functions, adds automatic `index.lock` removal in WebStudio, resolves several bugs, and updates libraries.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Core

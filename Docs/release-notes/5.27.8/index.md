@@ -7,13 +7,6 @@ description: Reflection-free internals, classloader rewrite, eight bug fixes,
 
 OpenL Tablets **5.27.8** delivers significant internal improvements eliminating illegal reflection operations, a rewritten classloader, and eight bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Known Issues](#known-issues)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Refactored the Kafka configuration to avoid illegal reflection operations.

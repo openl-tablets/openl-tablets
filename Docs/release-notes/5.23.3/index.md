@@ -7,13 +7,6 @@ description: Release with project revision tracking, runtime context properties 
 
 OpenL Tablets **5.23.3** includes new features, improvements, bug fixes, and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 * Project revision tracking in Deployment.

@@ -9,14 +9,6 @@ OpenL Tablets **6.0.0** is a major release introducing a modernized security mod
 
 This release also includes breaking changes that require careful review before upgrading.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Breaking Changes](#breaking-changes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Simplified User Access & Permissions Management in OpenL Studio

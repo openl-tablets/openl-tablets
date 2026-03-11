@@ -7,11 +7,6 @@ description: Default date format configuration for JsonUtils, JSON string argume
 
 OpenL Tablets **5.26.15** is a maintenance release with Rule Services improvements and library updates for improved security and stability.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

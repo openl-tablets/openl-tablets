@@ -7,12 +7,6 @@ description: Maintenance release with Java 11 Docker support, Smart Rules output
 
 OpenL Tablets **5.22.1** is a maintenance release containing improvements, bug fixes, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Output parameter is populated from an input field in case the input is `Object` in Smart Rules.

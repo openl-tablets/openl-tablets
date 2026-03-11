@@ -7,12 +7,6 @@ description: New Rule Services UI, decimal number serialization in non-scientifi
 
 OpenL Tablets **5.26.13** is a maintenance release introducing a new Rule Services UI, decimal number serialization improvements, Accept-Language header support, logo and icon redesign, and multiple bug fixes.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Rule Services

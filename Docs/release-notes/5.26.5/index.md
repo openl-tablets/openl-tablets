@@ -7,12 +7,6 @@ description: OpenAPI validation in Maven plugin, multiple bug fixes for Range Ed
 
 OpenL Tablets **5.26.5** is a maintenance release introducing OpenAPI validation in the Maven plugin, multiple bug fixes across WebStudio, Rule Services, and DEMO, and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 ### Maven Plugin

@@ -7,12 +7,6 @@ description: MinIO Docker support, ISO 8601 date format in toDate(), REST endpoi
 
 OpenL Tablets **5.27.5** introduces MinIO Docker support, ISO 8601 date format handling, REST endpoints for rule table editing, and a project search feature, alongside four bug fixes and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * Implemented Docker support for MinIO as an S3-compatible storage repository.

@@ -7,12 +7,6 @@ description: New Rule Services UI, non-scientific decimal serialization, redesig
 
 OpenL Tablets **5.27.3** introduces a new Rule Services UI, a more readable decimal number format in REST responses, and a redesigned OpenL logo and icons, alongside five bug fixes and library updates.
 
-## Contents
-
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## Improvements
 
 * New Rule Services UI.

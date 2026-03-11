@@ -7,13 +7,6 @@ description: Access to table properties and tables with the same signature, redu
 
 OpenL Tablets **5.26.10** is a maintenance release introducing access to table properties, reduced memory usage in spreadsheet tables, security fixes, and library updates.
 
-## Contents
-
-* [New Features](#new-features)
-* [Improvements](#improvements)
-* [Bug Fixes](#bug-fixes)
-* [Library Updates](#library-updates)
-
 ## New Features
 
 ### Core
