@@ -95,12 +95,12 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     }
 
     @Override
-    public AProjectResource getResource(@NotNull RulesProject project, @NotBlank String resourceId) {
+    public AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path) {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
             throw new ForbiddenException("default.message");
         }
         AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        AProjectArtefact found = findArtefactByPath(projectFolder, path);
         if (found == null || found.isFolder()) {
             throw new NotFoundException("resource.not.found.message");
         }
@@ -112,7 +112,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
     @Override
     public void updateResource(@NotNull RulesProject project,
-                               @NotBlank String resourceId,
+                               @NotBlank String path,
                                @NotNull InputStream content) {
         if (!projectStateValidator.canModify(project)) {
             throw new ConflictException("project.status.update.failed.message");
@@ -121,7 +121,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             throw new ForbiddenException("default.message");
         }
         AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        AProjectArtefact found = findArtefactByPath(projectFolder, path);
         if (found == null || found.isFolder()) {
             throw new NotFoundException("resource.not.found.message");
         }
@@ -138,12 +138,12 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     }
 
     @Override
-    public void deleteResource(@NotNull RulesProject project, @NotBlank String resourceId) {
+    public void deleteResource(@NotNull RulesProject project, @NotBlank String path) {
         if (!projectStateValidator.canModify(project)) {
             throw new ConflictException("project.status.update.failed.message");
         }
         AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        AProjectArtefact found = findArtefactByPath(projectFolder, path);
         if (found == null) {
             throw new NotFoundException("resource.not.found.message");
         }
@@ -159,7 +159,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
     @Override
     public void copyResource(@NotNull RulesProject project,
-                             @NotBlank String resourceId,
+                             @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
         if (!projectStateValidator.canModify(project)) {
             throw new ConflictException("project.status.update.failed.message");
@@ -168,7 +168,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             throw new ForbiddenException("default.message");
         }
         AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactById(projectFolder, resourceId);
+        AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
         if (found == null || found.isFolder()) {
             throw new NotFoundException("resource.not.found.message");
         }
@@ -293,21 +293,20 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         return buffered;
     }
 
-    private AProjectArtefact findArtefactById(AProjectFolder rootFolder, String resourceId) {
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
-        queue.add(rootFolder);
-        while (!queue.isEmpty()) {
-            AProjectFolder folder = queue.poll();
-            for (AProjectArtefact artefact : folder.getArtefacts()) {
-                if (artefact.getId().equals(resourceId)) {
-                    return artefact;
-                }
-                if (artefact.isFolder()) {
-                    queue.add((AProjectFolder) artefact);
-                }
+    private AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {
+        String[] segments = path.split("/");
+        AProjectArtefact current = rootFolder;
+        for (String segment : segments) {
+            if (!current.isFolder()) {
+                return null;
+            }
+            try {
+                current = ((AProjectFolder) current).getArtefact(segment);
+            } catch (ProjectException e) {
+                return null;
             }
         }
-        return null;
+        return current;
     }
 
     private List<Resource> buildNested(AProjectFolder rootFolder,
@@ -513,7 +512,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     private <T extends Resource.Builder<T>> T mapResource(AProjectArtefact artefact, T builder) {
         String path = artefact.getInternalPath();
         String name = artefact.getName();
-        builder.id(artefact.getId())
+        builder.path(path)
                 .name(name)
                 .basePath(getParentPath(path));
         return builder;

@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Represents a file resource in the project.
  *
  */
-@JsonPropertyOrder({"id", "name", "type", "path", "basePath", "extension", "size", "lastModified"})
+@JsonPropertyOrder({"path", "name", "type", "basePath", "extension", "size", "lastModified"})
 @JsonDeserialize(builder = FileResource.Builder.class)
 @Schema(description = "A file resource in the project")
 public class FileResource extends Resource {

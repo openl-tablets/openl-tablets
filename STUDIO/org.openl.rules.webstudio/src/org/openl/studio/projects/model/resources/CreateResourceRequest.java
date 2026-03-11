@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public record CreateResourceRequest(
 
-        @Schema(description = "projects.resources.param.path.desc")
+        @Schema(description = "projects.resources.param.relative-path.desc")
         @NotBlank
-        String path,
+        String relativePath,
 
         @Schema(description = "projects.resources.param.file.desc")
         @NotNull
