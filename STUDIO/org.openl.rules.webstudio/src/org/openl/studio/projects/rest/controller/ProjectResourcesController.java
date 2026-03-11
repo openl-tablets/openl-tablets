@@ -62,12 +62,11 @@ public class ProjectResourcesController {
         return null;
     }
 
-    @GetMapping
+    @GetMapping("/list/{*path}")
     @Operation(summary = "projects.resources.get.summary", description = "projects.resources.get.desc")
     public List<Resource> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
-                                       @RequestParam(value = "basePath", required = false)
                                        @Parameter(description = "projects.resources.param.base-path.desc")
-                                       String basePath,
+                                       @PathVariable("path") String path,
                                        @RequestParam(value = "extensions", required = false)
                                        @Parameter(description = "projects.resources.param.extensions.desc")
                                        Set<String> extensions,
@@ -84,9 +83,10 @@ public class ProjectResourcesController {
                                        @Parameter(description = "projects.resources.param.view-mode.desc")
                                        ResourceViewMode viewMode
     ) {
+        var basePath = stripLeadingSlash(path);
 
         var query = ResourceCriteriaQuery.builder()
-                .basePath(basePath)
+                .basePath(basePath.isEmpty() ? null : basePath)
                 .extensions(extensions)
                 .namePattern(namePattern)
                 .foldersOnly(foldersOnly)
