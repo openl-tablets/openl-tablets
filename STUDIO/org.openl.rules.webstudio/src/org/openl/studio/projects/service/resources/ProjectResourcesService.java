@@ -30,39 +30,39 @@ public interface ProjectResourcesService {
                                 @NotNull ResourceViewMode viewMode);
 
     /**
-     * Get a file resource by its unique identifier.
+     * Get a file resource by its path.
      *
-     * @param project    the rules project
-     * @param resourceId unique resource identifier (SHA-256 hash of internal path)
+     * @param project the rules project
+     * @param path    project-relative path to the resource (e.g. "folder/rules.xlsx")
      * @return the project resource
      */
-    AProjectResource getResource(@NotNull RulesProject project, @NotBlank String resourceId);
+    AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path);
 
     /**
      * Update a file resource with new content.
      *
-     * @param project    the rules project
-     * @param resourceId unique resource identifier (SHA-256 hash of internal path)
-     * @param content    new file content
+     * @param project the rules project
+     * @param path    project-relative path to the resource (e.g. "folder/rules.xlsx")
+     * @param content new file content
      */
-    void updateResource(@NotNull RulesProject project, @NotBlank String resourceId, @NotNull InputStream content);
+    void updateResource(@NotNull RulesProject project, @NotBlank String path, @NotNull InputStream content);
 
     /**
-     * Delete a resource (file or folder) by its unique identifier.
+     * Delete a resource (file or folder) by its path.
      *
-     * @param project    the rules project
-     * @param resourceId unique resource identifier (SHA-256 hash of internal path)
+     * @param project the rules project
+     * @param path    project-relative path to the resource (e.g. "folder/rules.xlsx")
      */
-    void deleteResource(@NotNull RulesProject project, @NotBlank String resourceId);
+    void deleteResource(@NotNull RulesProject project, @NotBlank String path);
 
     /**
      * Copy a file resource to a new location within the project.
      *
      * @param project         the rules project
-     * @param resourceId      unique resource identifier of the source file (SHA-256 hash of internal path)
+     * @param sourcePath      project-relative path to the source file (e.g. "folder/rules.xlsx")
      * @param destinationPath relative path within the project for the new file (e.g. "folder/copy.xlsx")
      */
-    void copyResource(@NotNull RulesProject project, @NotBlank String resourceId, @NotBlank String destinationPath);
+    void copyResource(@NotNull RulesProject project, @NotBlank String sourcePath, @NotBlank String destinationPath);
 
     /**
      * Upload a new file to the project.

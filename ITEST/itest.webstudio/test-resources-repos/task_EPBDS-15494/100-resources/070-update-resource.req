@@ -1,0 +1,13 @@
+PUT /rest/projects/{PROJECT_ID}/resources/i18n/messages.properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="messages.properties"
+Content-Type: application/octet-stream
+
+greeting=Hello
+farewell=Goodbye
+welcome=Welcome
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Base class representing a project resource (file or folder).
  *
  */
-@JsonPropertyOrder({"id"})
+@JsonPropertyOrder({"path"})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FileResource.class, name = "file"),
@@ -22,8 +22,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
         discriminatorProperty = "type")
 public abstract class Resource {
 
-    @Schema(description = "Unique identifier")
-    public final String id;
+    @Schema(description = "Project-relative path (e.g. 'folder/rules.xlsx')")
+    public final String path;
 
     @Schema(description = "Simple file or folder name")
     public final String name;
@@ -32,7 +32,7 @@ public abstract class Resource {
     public final String basePath;
 
     protected Resource(Builder<?> builder) {
-        this.id = Objects.requireNonNull(builder.id, "id cannot be null");
+        this.path = Objects.requireNonNull(builder.path, "path cannot be null");
         this.name = Objects.requireNonNull(builder.name, "name cannot be null");
         this.basePath = builder.basePath;
     }
@@ -44,15 +44,15 @@ public abstract class Resource {
      */
     public abstract static class Builder<T extends Builder<T>> {
 
-        String id;
+        String path;
         String name;
         String basePath;
 
         protected Builder() {
         }
 
-        public T id(String id) {
-            this.id = id;
+        public T path(String path) {
+            this.path = path;
             return self();
         }
 

@@ -95,27 +95,31 @@ public class ProjectResourcesController {
         return resourcesService.getResources(project, query, recursive, viewMode);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.resources.create.summary", description = "projects.resources.create.desc")
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
+            @Parameter(description = "projects.resources.param.base-path.desc")
+            @PathVariable("path") String path,
             @ModelAttribute @Valid CreateResourceRequest request) throws IOException {
+        var basePath = stripLeadingSlash(path);
+        var fullPath = basePath.isEmpty() ? request.relativePath() : basePath + "/" + request.relativePath();
         try {
-            resourcesService.createResource(project, request.path(), request.file().getInputStream(),
+            resourcesService.createResource(project, fullPath, request.file().getInputStream(),
                     request.createFolders());
         } finally {
             getWebStudio().reset();
         }
     }
 
-    @GetMapping(value = "/{resourceId}", produces = MediaType.ALL_VALUE)
+    @GetMapping(value = "/{*path}", produces = MediaType.ALL_VALUE)
     @Operation(summary = "projects.resources.download.summary", description = "projects.resources.download.desc")
     public ResponseEntity<byte[]> downloadResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.resource-id.desc")
-            @PathVariable("resourceId") String resourceId) throws ProjectException, IOException {
-        var resource = resourcesService.getResource(project, resourceId);
+            @Parameter(description = "projects.resources.param.path.desc")
+            @PathVariable("path") String path) throws ProjectException, IOException {
+        var resource = resourcesService.getResource(project, stripLeadingSlash(path));
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
             stream.transferTo(output);
@@ -127,47 +131,58 @@ public class ProjectResourcesController {
                 .body(output.toByteArray());
     }
 
-    @PutMapping(value = "/{resourceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "projects.resources.update.summary", description = "projects.resources.update.desc")
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.resource-id.desc")
-            @PathVariable("resourceId") String resourceId,
+            @Parameter(description = "projects.resources.param.path.desc")
+            @PathVariable("path") String path,
             @ModelAttribute @Valid UpdateResourceRequest request) throws IOException {
         try {
-            resourcesService.updateResource(project, resourceId, request.file().getInputStream());
+            resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
         } finally {
             getWebStudio().reset();
         }
     }
 
-    @PostMapping("/{resourceId}/copy")
+    @PostMapping("/copy/{*path}")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.resources.copy.summary", description = "projects.resources.copy.desc")
     public void copyResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.resource-id.desc")
-            @PathVariable("resourceId") String resourceId,
+            @Parameter(description = "projects.resources.param.path.desc")
+            @PathVariable("path") String path,
             @RequestBody @Valid CopyResourceRequest request) {
         try {
-            resourcesService.copyResource(project, resourceId, request.destinationPath());
+            resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
         } finally {
             getWebStudio().reset();
         }
     }
 
-    @DeleteMapping("/{resourceId}")
+    @DeleteMapping("/{*path}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "projects.resources.delete.summary", description = "projects.resources.delete.desc")
     public void deleteResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.resource-id.desc")
-            @PathVariable("resourceId") String resourceId) {
+            @Parameter(description = "projects.resources.param.path.desc")
+            @PathVariable("path") String path) {
         try {
-            resourcesService.deleteResource(project, resourceId);
+            resourcesService.deleteResource(project, stripLeadingSlash(path));
         } finally {
             getWebStudio().reset();
         }
+    }
+
+    /**
+     * Strips the leading slash from the path captured by {@code {*path}}.
+     * Spring's catch-all path variable includes a leading '/' (e.g., "/folder/file.xlsx").
+     */
+    private static String stripLeadingSlash(String path) {
+        if (path != null && path.startsWith("/")) {
+            return path.substring(1);
+        }
+        return path;
     }
 }

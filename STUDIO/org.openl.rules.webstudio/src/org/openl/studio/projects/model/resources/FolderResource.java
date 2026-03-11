@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Represents a folder resource in the project.
  *
  */
-@JsonPropertyOrder({"id", "name", "type", "path", "basePath", "children"})
+@JsonPropertyOrder({"path", "name", "type", "basePath", "children"})
 @JsonDeserialize(builder = FolderResource.Builder.class)
 @Schema(description = "A folder resource in the project")
 public class FolderResource extends Resource {
@@ -38,7 +38,7 @@ public class FolderResource extends Resource {
      */
     public FolderResource withChildren(List<Resource> children) {
         return new Builder()
-                .id(this.id)
+                .path(this.path)
                 .name(this.name)
                 .basePath(this.basePath)
                 .children(children)

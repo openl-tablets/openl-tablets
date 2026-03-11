@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "rules/UK",
+    "name": "UK",
+    "type": "folder",
+    "basePath": "rules"
+  },
+  {
+    "path": "rules/Algorithm.xlsx",
+    "name": "Algorithm.xlsx",
+    "type": "file",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "path": "rules/Model.xlsx",
+    "name": "Model.xlsx",
+    "type": "file",
+    "basePath": "rules",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "path": "rules/UK/Rating.xlsx",
+    "name": "Rating.xlsx",
+    "type": "file",
+    "basePath": "rules/UK",
+    "extension": "xlsx",
+    "size": "*",
+    "lastModified": "*"
+  }
+]
