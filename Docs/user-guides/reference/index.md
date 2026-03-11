@@ -85,6 +85,7 @@ Specialized table types for specific use cases:
 - [Appendix D: Math Functions](05-appendices/04-math-functions.md) - Mathematical functions
 - [Appendix E: String Functions](05-appendices/05-string-functions.md) - String manipulation functions
 - [Appendix F: Special Functions](05-appendices/06-special-functions.md) - Special-purpose functions
+- [Appendix G: Statistical Functions](05-appendices/07-statistical-functions.md) - Variance, standard deviation, covariance, correlation, and linear regression functions
 
 ## Quick Links
 
@@ -97,6 +98,7 @@ Specialized table types for specific use cases:
 - **Representing values** → [Arrays, Dates, Booleans, Ranges](02-working-with-openl-tables/03-table-types/10-representing-values-of-different-types.md)
 - **Working with collections** → [Arrays](03-openl-tablets-functions-and-supported-data-types/04-working-with-arrays.md)
 - **Using functions** → [Functions Overview](03-openl-tablets-functions-and-supported-data-types/03-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
+- **Statistical analysis** → [Statistical Functions](05-appendices/07-statistical-functions.md)
 
 ### By Experience Level
 - **New users** → Start with [What Is OpenL Tablets?](01-introduction/02-what-is-openl-tablets.md), then [Basic Concepts](01-introduction/03-basic-concepts.md)
