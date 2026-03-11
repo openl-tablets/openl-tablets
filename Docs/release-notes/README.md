@@ -9,6 +9,7 @@ Each version has its own folder containing the release notes and associated asse
 ```
 release-notes/
 ├── README.md                    # This file
+├── index.md                     # Index page, Jekyll template for auto-generating release list
 ├── 6.0.0/
 │   ├── index.md                 # Release notes for 6.0.0
 │   ├── migration.md             # Migration notes for 6.0.0 if necessary
@@ -40,22 +41,34 @@ Each `index.md` should include content structured as follows:
 
 1. Front Matter block must have
       * title - the title with version number (e.g., "OpenL Tablets 6.0.0 Release Notes")
-      * date (YYYY-MM-DD format) - the release date
-      * description (required) - a brief summary of the release (up to 50 words)
+      * date - the release date in YYYY-MM-DD format
+      * description - a brief summary of the release (up to 50 words)
+   ```yaml
+   ---
+   title: "OpenL Tablets <version> Release Notes"
+   date: "2026-07-12"
+   description: "<What's new and significant changes in this release in few sentences (up to 50 words)>"
+   ---
+   ```
 2. No duplicate title heading — body starts directly with the intro paragraph
-3. **Highlights** - Key features and changes
-4. **New Features** - Detailed list of new features
-5. **Improvements** - Enhancements to existing functionality
-6. **Bug Fixes** - Issues resolved in this release
-7. **Deprecations** - Features marked for removal in future versions
-8. **Breaking Changes** - Changes that require user action
-9. **Library Updates** - exact version updates for all libraries, presented in a table format with columns: Library, Version
-10. **Known Issues** - Known problems in this release
-11. Do not include migration steps and reference to migration.md in index.md — they belong in migration.md only
+3. Use `##` headings for each feature/section:
+   - **Highlights** - Key features and changes
+   - **New Features** - Detailed list of new features
+   - **Improvements** - Enhancements to existing functionality
+   - **Bug Fixes** - Issues resolved in this release
+   - **Deprecations** - Features marked for removal in future versions
+   - **Breaking Changes** - Changes that require user action
+   - **Library Updates** - exact version updates for all libraries, presented in a table format with columns: Library, Version
+   - **Known Issues** - Known problems in this release
+4. Do not include migration steps and reference to migration.md in index.md — they belong in migration.md only
 
 Optional `migration.md` should include:
 1. Front Matter block must have
-    * title - the title with version number (e.g., "OpenL Tablets 6.0.0 Migration Notes")
+   ```yaml
+   ---
+   title: "OpenL Tablets <version> Migration Notes"
+   ---
+   ```
 2. Role-based pointers for different user groups (Rules Authors, Developers, Administrators)
 3. Environment and dependency changes that may affect migration or integration (e.g., Java version, library updates)
 4. End-to-end migration steps, including any necessary code changes, configuration updates, and testing recommendations
