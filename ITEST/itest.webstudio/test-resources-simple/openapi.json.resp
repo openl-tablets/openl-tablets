@@ -4,6 +4,116 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "MoveResourceRequest": {
+        "type": "object",
+        "properties": {
+          "destinationPath": {
+            "type": "string",
+            "description": "*",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "destinationPath"
+        ]
+      },
+      "CopyResourceRequest": {
+        "type": "object",
+        "properties": {
+          "destinationPath": {
+            "type": "string",
+            "description": "*",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "destinationPath"
+        ]
+      },
+      "Resource": {
+        "type": "object",
+        "description": "*",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FileResource"
+          },
+          {
+            "$ref": "#/components/schemas/FolderResource"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        },
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "*"
+          },
+          "basePath": {
+            "type": "string",
+            "description": "*"
+          },
+          "name": {
+            "type": "string",
+            "description": "*"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "FileResource": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Resource"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "extension": {
+                "type": "string",
+                "description": "*"
+              },
+              "size": {
+                "type": "integer",
+                "format": "int64",
+                "description": "*"
+              },
+              "lastModified": {
+                "type": "string",
+                "format": "date-time",
+                "description": "*"
+              }
+            }
+          }
+        ],
+        "description": "*"
+      },
+      "FolderResource": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Resource"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "children": {
+                "type": "array",
+                "description": "*",
+                "items": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        ],
+        "description": "*"
+      },
       "TraceNodeView_Full": {
         "type": "object",
         "description": "***",
@@ -4275,6 +4385,801 @@ Content-Type: application/json
   },
   "openapi": "3.0.1",
   "paths": {
+    "/projects/{projectId}/resources/{*path}": {
+      "delete": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "204": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      },
+      "get": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      },
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "relativePath": {
+                    "type": "string",
+                    "description": "*"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "*"
+                  },
+                  "createFolders": {
+                    "type": "boolean",
+                    "description": "*"
+                  }
+                },
+                "required": [
+                  "file",
+                  "relativePath"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "201": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      },
+      "put": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "*"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "204": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/resources/move/{*path}": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveResourceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "204": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/resources/copy/{*path}": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyResourceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "201": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/resources/list/{*path}": {
+      "get": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "extensions",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "namePattern",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "foldersOnly",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "recursive",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "viewMode",
+            "schema": {
+              "type": "string",
+              "default": "FLAT",
+              "enum": [
+                "FLAT",
+                "NESTED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Resource"
+                  }
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Resources (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/trace/nodes": {
       "get": {
         "description": "***",
@@ -16763,6 +17668,10 @@ Content-Type: application/json
     {
       "description": "***",
       "name": "Projects: Merge (BETA)"
+    },
+    {
+      "description" : "*",
+      "name" : "Projects: Resources (BETA)"
     },
     {
       "description": "***",

@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
         @JsonSubTypes.Type(value = FolderResource.class, name = "folder")
 })
 @Schema(description = "Base resource representing a file or folder in the project",
-        subTypes = {FileResource.class, FolderResource.class},
+        oneOf = {FileResource.class, FolderResource.class},
         discriminatorProperty = "type")
 public abstract class Resource {
 
