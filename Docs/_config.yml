@@ -10,6 +10,14 @@ subtitle: "Open Source Business Rules Engine"
 description: >-
   OpenL Tablets is an open source business rules engine and decision management system.
   Write business rules in Excel, manage them in OpenL Studio, and deploy as REST services.
+url: "https://openl-tablets.github.io"
+baseurl: "/openl-tablets"
+repository: "openl-tablets/openl-tablets"
+logo: "/assets/logo.svg"
+
+# ── Features ──────────────────────────────────────────────────────────────────
+enable_copy_code_button: true
+breadcrumbs: true
 
 # ── Author ─────────────────────────────────────────────────────────────────────
 author:
@@ -25,6 +33,7 @@ author:
 
 # ── Footer ─────────────────────────────────────────────────────────────────────
 footer:
+  since: "2004"
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
@@ -65,6 +74,11 @@ defaults:
 # ── Plugins ────────────────────────────────────────────────────────────────────
 plugins:
   - jekyll-include-cache
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-relative-links
+  - jekyll-redirect-from
 
 # ── Markdown & highlighting ────────────────────────────────────────────────────
 markdown: kramdown
@@ -73,3 +87,9 @@ kramdown:
   input: GFM
   auto_ids: true
   syntax_highlighter: rouge
+
+# ── HTML compression ──────────────────────────────────────────────────────────
+compress_html:
+  clippings: all
+  comments: all
+  blanklines: false
