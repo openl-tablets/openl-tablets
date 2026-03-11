@@ -48,6 +48,9 @@ public class LookupView extends ExecutableView {
     public static final String SMART_TABLE_TYPE = "SmartLookup";
     public static final String SIMPLE_TABLE_TYPE = "SimpleLookup";
 
+    @Schema(description = "Whether the table uses the Collect keyword for aggregation")
+    public final Boolean collect;
+
     /**
      * Headers in hierarchical structure. First-level headers represent dimensions and result columns.
      * Result column headers may have child headers for multi-level column grouping.
@@ -88,6 +91,7 @@ public class LookupView extends ExecutableView {
 
     public LookupView(Builder builder) {
         super(builder);
+        this.collect = builder.collect;
         this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElse(List.of());
         this.rows = Optional.ofNullable(builder.rows).map(List::copyOf).orElse(List.of());
     }
@@ -122,10 +126,16 @@ public class LookupView extends ExecutableView {
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
 
+        private Boolean collect;
         private List<LookupHeaderView> headers;
         private List<LinkedHashMap<String, Object>> rows;
 
         public Builder() {
+        }
+
+        public Builder collect(Boolean collect) {
+            this.collect = collect;
+            return this;
         }
 
         public Builder headers(List<LookupHeaderView> headers) {

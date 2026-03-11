@@ -1931,6 +1931,7 @@ Content-Type: application/json
         "type": "object"
       },
       "MessageDescription": {
+        "description": "***",
         "properties": {
           "id": {
             "format": "int64",
@@ -3199,6 +3200,14 @@ Content-Type: application/json
                   "Other"
                 ]
               },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "***"
@@ -3284,6 +3293,14 @@ Content-Type: application/json
                   "Other"
                 ]
               },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "***"
@@ -3360,6 +3377,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -3461,6 +3486,18 @@ Content-Type: application/json
                   "Other"
                 ]
               },
+              "collect": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "***"
@@ -3559,6 +3596,18 @@ Content-Type: application/json
                   "Other"
                 ]
               },
+              "collect": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "***"
@@ -3642,6 +3691,14 @@ Content-Type: application/json
                   "Properties",
                   "Other"
                 ]
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
               },
               "name": {
                 "type": "string",
@@ -3753,6 +3810,18 @@ Content-Type: application/json
                   "Properties",
                   "Other"
                 ]
+              },
+              "collect": {
+                "type": "boolean",
+                "description": "***"
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
               },
               "name": {
                 "type": "string",
@@ -3902,6 +3971,14 @@ Content-Type: application/json
                   "Other"
                 ]
               },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "***"
@@ -3977,6 +4054,14 @@ Content-Type: application/json
                   "Properties",
                   "Other"
                 ]
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
               },
               "name": {
                 "type": "string",
@@ -4060,6 +4145,14 @@ Content-Type: application/json
                   "Properties",
                   "Other"
                 ]
+              },
+              "messages": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/MessageDescription"
+                },
+                "readOnly": true
               },
               "name": {
                 "type": "string",

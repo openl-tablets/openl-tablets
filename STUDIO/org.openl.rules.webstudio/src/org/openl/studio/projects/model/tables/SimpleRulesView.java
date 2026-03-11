@@ -23,6 +23,9 @@ public class SimpleRulesView extends ExecutableView {
 
     public static final String TABLE_TYPE = "SimpleRules";
 
+    @Schema(description = "Whether the table uses the Collect keyword for aggregation")
+    public final Boolean collect;
+
     @Schema(description = "List of rule headers")
     public final List<SimpleRuleHeaderView> headers;
 
@@ -31,6 +34,7 @@ public class SimpleRulesView extends ExecutableView {
 
     public SimpleRulesView(Builder builder) {
         super(builder);
+        this.collect = builder.collect;
         this.rules = Optional.ofNullable(builder.rules).map(List::copyOf).orElseGet(List::of);
         this.headers = Optional.ofNullable(builder.headers).map(List::copyOf).orElseGet(List::of);
     }
@@ -54,11 +58,17 @@ public class SimpleRulesView extends ExecutableView {
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder extends ExecutableView.Builder<Builder> {
 
+        private Boolean collect;
         private List<SimpleRuleHeaderView> headers;
         private List<LinkedHashMap<String, Object>> rules;
 
         private Builder() {
             tableType(TABLE_TYPE);
+        }
+
+        public Builder collect(Boolean collect) {
+            this.collect = collect;
+            return this;
         }
 
         public Builder rules(List<LinkedHashMap<String, Object>> rules) {

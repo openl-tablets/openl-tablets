@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @author Vladyslav Pikus
  */
+@JsonIgnoreProperties("messages")
 public class SummaryTableView extends TableView {
 
     @Schema(description = "Return type of the table (e.g., Integer, String, etc.)")

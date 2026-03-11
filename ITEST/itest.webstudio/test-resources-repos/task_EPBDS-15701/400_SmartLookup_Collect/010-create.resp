@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "c926ad554329f8a5caccf920cd8600ad",
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "collectSmartLookup",
+  "returnType": "Integer[]",
+  "signature": "collectSmartLookup(String region, String category)",
+  "file": "EPBDS-15701/Main.xlsx",
+  "pos": "*"
+}

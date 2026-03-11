@@ -6,6 +6,13 @@ Content-Type: application/json
   "id": "6e3e97fd6994ad50150bd2f3d86ec198",
   "kind": "Spreadsheet",
   "name": "doSomething_SimpleSpr",
+  "messages": [
+    {
+      "id": 6,
+      "summary": "DEPRECATED 'java.lang.Integer' constructor will be removed in the next version.",
+      "severity": "WARN"
+    }
+  ],
   "returnType": "SpreadsheetResult",
   "args": [
     {

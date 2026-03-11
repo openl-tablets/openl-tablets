@@ -6,6 +6,23 @@ Content-Type: application/json
   "tableType": "SimpleSpreadsheet",
   "kind": "Spreadsheet",
   "name": "AssetsCompare",
+  "messages": [
+    {
+      "id": 52,
+      "summary": "Method 'TotalAssets()' is not found.",
+      "severity": "ERROR"
+    },
+    {
+      "id": 53,
+      "summary": "Field '$USDValue$Total' is not found in type 'null-Class'.",
+      "severity": "ERROR"
+    },
+    {
+      "id": 54,
+      "summary": "Type 'SpreadsheetResultTotalAssets' is not found.",
+      "severity": "ERROR"
+    }
+  ],
   "returnType": "SpreadsheetResult",
   "steps": [
     {

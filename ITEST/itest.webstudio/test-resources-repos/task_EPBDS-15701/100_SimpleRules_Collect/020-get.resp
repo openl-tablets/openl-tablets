@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "8a6bdc372001aacc7119d371adb406c5",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "collectValues",
+  "returnType": "Double[]",
+  "args": [
+    {
+      "name": "category",
+      "type": "String"
+    }
+  ],
+  "collect": true,
+  "headers": [
+    {
+      "title": "Category"
+    },
+    {
+      "title": "Value"
+    }
+  ],
+  "rules": [
+    {
+      "Category": "A",
+      "Value": 1.5
+    },
+    {
+      "Category": "A",
+      "Value": 2.5
+    },
+    {
+      "Category": "B",
+      "Value": 3
+    }
+  ]
+}

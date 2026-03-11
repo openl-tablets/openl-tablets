@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "624817629067f3372cb287279cd59831",
+  "tableType": "SimpleLookup",
+  "kind": "Rules",
+  "name": "collectLookup",
+  "returnType": "Double[]",
+  "signature": "collectLookup(String code, Boolean flag)",
+  "file": "EPBDS-15701/Main.xlsx",
+  "pos": "*"
+}
