@@ -65,6 +65,11 @@ defaults:
       read_time: false
       comments: false
       share: false
+  # ── Release notes: include migration notes if available ─────────────────────
+  - scope:
+      path: "release-notes"
+    values:
+      layout: release-notes
   # ── User guides: left sidebar + sticky in-page TOC ─────────────────────────
   - scope:
       path: "user-guides"

@@ -1,0 +1,20 @@
+---
+layout: single
+---
+
+{{ content }}
+
+{% assign migration_url = page.url | append: "migration/" %}
+{% assign migration_page = nil %}
+{% for p in site.pages %}
+  {% if p.url == migration_url %}
+    {% assign migration_page = p %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% if migration_page %}
+<hr>
+<h2 id="migration-notes">Migration Notes</h2>
+{{ migration_page.content | markdownify }}
+{% endif %}
