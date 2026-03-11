@@ -206,6 +206,55 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     }
 
     @Override
+    public void moveResource(@NotNull RulesProject project,
+                             @NotBlank String sourcePath,
+                             @NotBlank String destinationPath) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
+        AProjectFolder projectFolder = convertToFolder(project);
+        AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
+        if (found == null || found.isFolder()) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        if (!aclProjectsHelper.hasPermission(found, BasePermission.DELETE)) {
+            throw new ForbiddenException("default.message");
+        }
+
+        String[] segments = destinationPath.split("/");
+        AProjectFolder targetFolder = project;
+        try {
+            // Resolve or create intermediate folders
+            for (int i = 0; i < segments.length - 1; i++) {
+                String segment = segments[i];
+                if (!targetFolder.hasArtefact(segment)) {
+                    targetFolder = targetFolder.addFolder(segment);
+                } else {
+                    AProjectArtefact artefact = targetFolder.getArtefact(segment);
+                    if (!artefact.isFolder()) {
+                        throw new ConflictException("resource.move.path.conflict.message",
+                                artefact.getInternalPath());
+                    }
+                    targetFolder = (AProjectFolder) artefact;
+                }
+            }
+            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
+                throw new ForbiddenException("default.message");
+            }
+            String fileName = segments[segments.length - 1];
+            try (var content = ((AProjectResource) found).getContent()) {
+                targetFolder.addResource(fileName, content);
+            }
+            found.delete();
+        } catch (ProjectException | IOException e) {
+            throw new ConflictException("resource.move.failed.message");
+        }
+    }
+
+    @Override
     public void createResource(@NotNull RulesProject project,
                                @NotBlank String path,
                                @NotNull InputStream content,

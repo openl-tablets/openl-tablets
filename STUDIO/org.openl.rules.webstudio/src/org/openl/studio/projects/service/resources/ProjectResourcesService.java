@@ -65,6 +65,15 @@ public interface ProjectResourcesService {
     void copyResource(@NotNull RulesProject project, @NotBlank String sourcePath, @NotBlank String destinationPath);
 
     /**
+     * Move (or rename) a file resource to a new location within the project.
+     *
+     * @param project         the rules project
+     * @param sourcePath      project-relative path to the source file (e.g. "folder/rules.xlsx")
+     * @param destinationPath relative path within the project for the moved file (e.g. "folder/renamed.xlsx")
+     */
+    void moveResource(@NotNull RulesProject project, @NotBlank String sourcePath, @NotBlank String destinationPath);
+
+    /**
      * Upload a new file to the project.
      *
      * @param project       the rules project

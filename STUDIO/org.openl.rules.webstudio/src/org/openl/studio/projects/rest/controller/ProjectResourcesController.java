@@ -34,6 +34,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.model.resources.CopyResourceRequest;
 import org.openl.studio.projects.model.resources.CreateResourceRequest;
+import org.openl.studio.projects.model.resources.MoveResourceRequest;
 import org.openl.studio.projects.model.resources.Resource;
 import org.openl.studio.projects.model.resources.UpdateResourceRequest;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -156,6 +157,21 @@ public class ProjectResourcesController {
             @RequestBody @Valid CopyResourceRequest request) {
         try {
             resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @PostMapping("/move/{*path}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "projects.resources.move.summary", description = "projects.resources.move.desc")
+    public void moveResource(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @Parameter(description = "projects.resources.param.path.desc")
+            @PathVariable("path") String path,
+            @RequestBody @Valid MoveResourceRequest request) {
+        try {
+            resourcesService.moveResource(project, stripLeadingSlash(path), request.destinationPath());
         } finally {
             getWebStudio().reset();
         }
