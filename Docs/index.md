@@ -63,10 +63,3 @@ For a full setup with sample rules and data, see the [Demo Package Guide](user-g
 ## Latest Release
 
 See the **[Release Notes](release-notes/)** for what's new, breaking changes, and upgrade instructions.
-
----
-
-[GitHub](https://github.com/openl-tablets/openl-tablets) &nbsp;·&nbsp;
-[openl-tablets.org](https://openl-tablets.org) &nbsp;·&nbsp;
-[Issues](https://github.com/openl-tablets/openl-tablets/issues) &nbsp;·&nbsp;
-[Discussions](https://github.com/openl-tablets/openl-tablets/discussions)

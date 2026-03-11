@@ -41,6 +41,9 @@ footer:
     - label: "Issues"
       icon: "fas fa-fw fa-bug"
       url: "https://github.com/openl-tablets/openl-tablets/issues"
+    - label: "Discussions"
+      icon: "far fa-fw fa-comments"
+      url: "https://github.com/openl-tablets/openl-tablets/discussions"
 
 # ── Search ─────────────────────────────────────────────────────────────────────
 search: true
