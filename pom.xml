@@ -315,7 +315,7 @@
                             <openl.home>${openl.home}</openl.home>
                             <openl.config.location />
                         </systemPropertyVariables>
-                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} ${jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
+                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -552,6 +552,7 @@
             <properties>
                 <sonar />
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
+                <surefire.argLine />
             </properties>
             <build>
                 <plugins>
@@ -567,6 +568,9 @@
                             <excludes>
                                 <exclude>org/openl/generated/**/*</exclude>
                             </excludes>
+                            <formats>
+                                <format>XML</format>
+                            </formats>
                         </configuration>
                         <executions>
                             <execution>
@@ -580,6 +584,20 @@
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-ut</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-it</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>
