@@ -582,6 +582,20 @@
                                     <goal>prepare-agent-integration</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>report-ut</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-it</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>

@@ -1,0 +1,26 @@
+# Auto-merge Dependabot PRs after all required checks pass.
+# GitHub's auto-merge waits for branch protection rules to be satisfied before merging.
+
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v2
+      - name: Enable auto-merge for Dependabot PRs
+        if: steps.dependabot-metadata.outputs.package-ecosystem == 'maven'
+        run: gh pr merge --auto --squash --subject "$PR_TITLE" --body "" "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
