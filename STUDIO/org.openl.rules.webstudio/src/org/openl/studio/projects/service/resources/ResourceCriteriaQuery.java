@@ -3,28 +3,18 @@ package org.openl.studio.projects.service.resources;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.swagger.v3.oas.annotations.media.Schema;
-
 /**
  * Query criteria for filtering project resources.
  *
  */
-@JsonDeserialize(builder = ResourceCriteriaQuery.Builder.class)
 public record ResourceCriteriaQuery(
 
-        @Schema(description = "Base path to start listing resources from. If not specified, starts from project root.")
         String basePath,
 
-        @Schema(description = "Filter by file extensions (without dot). Example: xlsx, xml")
         Set<String> extensions,
 
-        @Schema(description = "Filter by name pattern (case-insensitive contains match)")
         String namePattern,
 
-        @Schema(description = "If true, only folders are returned. Default is false (include all).")
         boolean foldersOnly
 
 ) {
@@ -36,12 +26,10 @@ public record ResourceCriteriaQuery(
                 builder.foldersOnly);
     }
 
-    @JsonCreator
     public static Builder builder() {
         return new Builder();
     }
 
-    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
         private String basePath;
