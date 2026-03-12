@@ -1,4 +1,4 @@
-if (Boolean.valueOf(System.getProperty("noPerf"))) {
+if (Boolean.valueOf(noPerf)) {
     return true
 }
 

@@ -315,7 +315,7 @@
                             <openl.home>${openl.home}</openl.home>
                             <openl.config.location />
                         </systemPropertyVariables>
-                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} ${jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
+                        <argLine>-ea -Djava.io.tmpdir=${java.io.tmpdir} @{jacoco.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -430,6 +430,23 @@
                         <nodeVersion>${node.version}</nodeVersion>
                         <npmVersion>${npm.version}</npmVersion>
                         <installDirectory>${project.build.directory}</installDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.14</version>
+                    <configuration>
+                        <propertyName>jacoco.argLine</propertyName>
+                        <includes>
+                            <include>org/openl/**/*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org/openl/generated/**/*</exclude>
+                        </excludes>
+                        <formats>
+                            <format>XML</format>
+                        </formats>
                     </configuration>
                 </plugin>
             </plugins>
@@ -549,25 +566,21 @@
                     <name>sonar</name>
                 </property>
             </activation>
+            <modules>
+                <module>jacoco-report</module>
+            </modules>
             <properties>
                 <sonar />
-                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
+                <surefire.argLine />
+                <sonar.coverage.jacoco.xmlReportPaths>
+                    ${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml
+                </sonar.coverage.jacoco.xmlReportPaths>
             </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.14</version>
-                        <configuration>
-                            <propertyName>jacoco.argLine</propertyName>
-                            <includes>
-                                <include>org/openl/**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org/openl/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>prepare-ut</id>

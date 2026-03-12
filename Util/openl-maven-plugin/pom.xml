@@ -17,7 +17,8 @@
     </organization>
     <properties>
         <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
-        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m -DnoPerf=true</invoker.mavenOpts>
+        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m</invoker.mavenOpts>
+        <invoker.noPerf>true</invoker.noPerf>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <dependencies>
@@ -99,7 +100,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <reports />
+                        <reports/>
                     </reportSet>
                 </reportSets>
             </plugin>
@@ -153,6 +154,9 @@
                     </properties>
                     <showErrors>true</showErrors>
                     <mavenOpts>-ea ${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
+                    <scriptVariables>
+                        <noPerf>${invoker.noPerf}</noPerf>
+                    </scriptVariables>
                 </configuration>
             </plugin>
         </plugins>
@@ -168,6 +172,19 @@
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
                 <invoker.mavenOpts>-Xms16m -Xmx64m -XX:MaxMetaspaceSize=192m</invoker.mavenOpts>
+                <invoker.noPerf>false</invoker.noPerf>
+            </properties>
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <property>
+                    <name>sonar</name>
+                </property>
+            </activation>
+            <properties>
+                <invoker.mavenOpts/>
+                <invoker.noPerf>true</invoker.noPerf>
             </properties>
         </profile>
     </profiles>
