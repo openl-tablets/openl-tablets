@@ -1,3 +1,7 @@
+---
+title: "Editing & Testing"
+---
+
 ## Editing and Testing Functionality
 
 This chapter describes advanced OpenL Studio functions, such as table editing, performing unit tests, rule tracing, and benchmarking. The following sections are included in this chapter:

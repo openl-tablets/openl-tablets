@@ -1,3 +1,7 @@
+---
+title: "OpenL Studio"
+---
+
 # OpenL Tablets BRMS OpenL Studio User Guide
 
 OpenL Studio is a web application employed by business users and developers to view, edit, and manage business rules and rule projects created using OpenL Tablets technology.

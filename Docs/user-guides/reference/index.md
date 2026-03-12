@@ -1,3 +1,7 @@
+---
+title: "Reference Guide"
+---
+
 # OpenL Tablets BRMS Reference Guide
 
 Complete reference documentation for OpenL Tablets Business Rules Management System, covering language syntax, table types, data types, functions, and project structure.

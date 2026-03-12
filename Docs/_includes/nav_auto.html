@@ -1,0 +1,183 @@
+{%- comment -%}
+  Auto-generates sidebar navigation from folder structure under user-guides/.
+
+  How it works:
+  1. Collects all pages under user-guides/, sorted by path
+  2. Extracts unique source directories
+  3. Iterates sorted directories, tracking depth to open/close HTML tags
+  4. For each directory: renders header (from index.md title or dir name)
+     and non-index pages as children
+
+  Title derivation (priority):
+  1. page.title from front matter
+  2. Filename: strip numeric prefix, replace hyphens with spaces, title case
+
+  Ordering: natural sort by page.path (numeric prefixes ensure order)
+{%- endcomment -%}
+
+{%- assign locale = include.locale | default: site.locale -%}
+{%- assign ug_pages = site.pages | where_exp: "item", "item.path contains 'user-guides/'" | sort: "path" -%}
+
+{%- comment -%}--- Collect unique source directories ---{%- endcomment -%}
+{%- assign _dirs_str = "" -%}
+{%- for p in ug_pages -%}
+  {%- assign _nlen = p.name | size -%}
+  {%- assign _dlen = p.path | size | minus: _nlen -%}
+  {%- assign _pdir = p.path | slice: 0, _dlen -%}
+  {%- assign _dirs_arr = _dirs_str | split: "§" -%}
+  {%- unless _dirs_arr contains _pdir -%}
+    {%- if _dirs_str != "" -%}{%- assign _dirs_str = _dirs_str | append: "§" -%}{%- endif -%}
+    {%- assign _dirs_str = _dirs_str | append: _pdir -%}
+  {%- endunless -%}
+{%- endfor -%}
+{%- assign _sorted_dirs = _dirs_str | split: "§" | sort -%}
+
+<nav class="nav__list">
+  <input id="ac-toc" name="accordion-toc" type="checkbox" />
+  <label for="ac-toc">{{ site.data.ui-text[locale].menu_label | default: "Toggle Menu" }}</label>
+  <ul class="nav__items">
+
+{%- assign _prev_depth = 0 -%}
+{%- for _dir in _sorted_dirs -%}
+
+  {%- comment -%}--- Compute depth (count slashes minus 1) ---{%- endcomment -%}
+  {%- assign _dir_clean = _dir | remove: "/" -%}
+  {%- assign _slash_count = _dir | size | minus: _dir_clean.size -%}
+  {%- assign _depth = _slash_count | minus: 1 -%}
+
+  {%- comment -%}--- Close tags when going up or staying at same depth ---{%- endcomment -%}
+  {%- if _depth <= _prev_depth and _prev_depth > 0 -%}
+    {%- assign _close = _prev_depth | minus: _depth | plus: 1 -%}
+    {%- for _i in (1.._close) -%}</ul></li>
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- comment -%}--- Find index page for this directory ---{%- endcomment -%}
+  {%- assign _idx_page = nil -%}
+  {%- for p in ug_pages -%}
+    {%- assign _nlen = p.name | size -%}
+    {%- assign _dlen = p.path | size | minus: _nlen -%}
+    {%- assign _pdir = p.path | slice: 0, _dlen -%}
+    {%- if _pdir == _dir and p.name == "index.md" -%}
+      {%- assign _idx_page = p -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%}--- Derive directory title ---{%- endcomment -%}
+  {%- assign _dir_title = nil -%}
+  {%- if _idx_page and _idx_page.title and _idx_page.title != "" -%}
+    {%- assign _dir_title = _idx_page.title -%}
+  {%- else -%}
+    {%- assign _dir_parts = _dir | split: "/" -%}
+    {%- assign _raw_name = "" -%}
+    {%- for _part in _dir_parts -%}
+      {%- if _part != "" -%}{%- assign _raw_name = _part -%}{%- endif -%}
+    {%- endfor -%}
+    {%- comment -%} Strip numeric prefix (e.g., "01-foo" → "foo") {%- endcomment -%}
+    {%- assign _name_segs = _raw_name | split: "-" -%}
+    {%- assign _first_seg = _name_segs | first -%}
+    {%- assign _fc = _first_seg | slice: 0, 1 -%}
+    {%- assign _is_prefix = false -%}
+    {%- if _first_seg.size <= 3 and _name_segs.size > 1 -%}
+      {%- if _fc == "0" or _fc == "1" or _fc == "2" or _fc == "3" or _fc == "4" or _fc == "5" or _fc == "6" or _fc == "7" or _fc == "8" or _fc == "9" -%}
+        {%- assign _is_prefix = true -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if _is_prefix -%}
+      {%- assign _prefix_len = _first_seg.size | plus: 1 -%}
+      {%- assign _stripped = _raw_name | slice: _prefix_len, 999 -%}
+    {%- else -%}
+      {%- assign _stripped = _raw_name -%}
+    {%- endif -%}
+    {%- comment -%} Convert kebab-case to Title Case {%- endcomment -%}
+    {%- assign _words = _stripped | split: "-" -%}
+    {%- assign _dir_title = "" -%}
+    {%- for _w in _words -%}
+      {%- assign _cw = _w | capitalize -%}
+      {%- if _dir_title != "" -%}{%- assign _dir_title = _dir_title | append: " " -%}{%- endif -%}
+      {%- assign _dir_title = _dir_title | append: _cw -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- comment -%}--- Render directory entry ---{%- endcomment -%}
+  {%- if _depth == 0 -%}
+    {%- comment -%} Root: standalone link {%- endcomment -%}
+    {%- if _idx_page -%}
+    <li>
+      <a href="{{ _idx_page.url | relative_url }}"{% if page.url == _idx_page.url %} class="active"{% endif %}>
+        {%- if _idx_page.title and _idx_page.title != "" -%}{{ _idx_page.title }}{%- else -%}User Guides{%- endif -%}
+      </a>
+    </li>
+    {%- endif -%}
+  {%- elsif _depth == 1 -%}
+    {%- comment -%} Top-level section: bold sub-title {%- endcomment -%}
+    <li>
+      {%- if _idx_page -%}
+      <a href="{{ _idx_page.url | relative_url }}"{% if page.url == _idx_page.url %} class="active"{% endif %}><span class="nav__sub-title">{{ _dir_title }}</span></a>
+      {%- else -%}
+      <span class="nav__sub-title">{{ _dir_title }}</span>
+      {%- endif -%}
+      <ul>
+  {%- else -%}
+    {%- comment -%} Deeper section: regular link {%- endcomment -%}
+    <li>
+      {%- if _idx_page -%}
+      <a href="{{ _idx_page.url | relative_url }}"{% if page.url == _idx_page.url %} class="active"{% endif %}>{{ _dir_title }}</a>
+      {%- else -%}
+      <span>{{ _dir_title }}</span>
+      {%- endif -%}
+      <ul>
+  {%- endif -%}
+
+  {%- comment -%}--- Render non-index pages in this directory ---{%- endcomment -%}
+  {%- if _depth > 0 -%}
+    {%- for p in ug_pages -%}
+      {%- assign _nlen = p.name | size -%}
+      {%- assign _dlen = p.path | size | minus: _nlen -%}
+      {%- assign _pdir = p.path | slice: 0, _dlen -%}
+      {%- if _pdir == _dir and p.name != "index.md" -%}
+        {%- comment -%}--- Derive page title ---{%- endcomment -%}
+        {%- assign _p_title = nil -%}
+        {%- if p.title and p.title != "" -%}
+          {%- assign _p_title = p.title -%}
+        {%- else -%}
+          {%- assign _p_basename = p.name | replace: ".md", "" | replace: ".html", "" -%}
+          {%- assign _p_segs = _p_basename | split: "-" -%}
+          {%- assign _p_fc = _p_segs.first | slice: 0, 1 -%}
+          {%- assign _p_is_prefix = false -%}
+          {%- if _p_segs.first.size <= 3 and _p_segs.size > 1 -%}
+            {%- if _p_fc == "0" or _p_fc == "1" or _p_fc == "2" or _p_fc == "3" or _p_fc == "4" or _p_fc == "5" or _p_fc == "6" or _p_fc == "7" or _p_fc == "8" or _p_fc == "9" -%}
+              {%- assign _p_is_prefix = true -%}
+            {%- endif -%}
+          {%- endif -%}
+          {%- if _p_is_prefix -%}
+            {%- assign _p_prefix_len = _p_segs.first.size | plus: 1 -%}
+            {%- assign _p_stripped = _p_basename | slice: _p_prefix_len, 999 -%}
+          {%- else -%}
+            {%- assign _p_stripped = _p_basename -%}
+          {%- endif -%}
+          {%- assign _p_words = _p_stripped | split: "-" -%}
+          {%- assign _p_title = "" -%}
+          {%- for _w in _p_words -%}
+            {%- assign _cw = _w | capitalize -%}
+            {%- if _p_title != "" -%}{%- assign _p_title = _p_title | append: " " -%}{%- endif -%}
+            {%- assign _p_title = _p_title | append: _cw -%}
+          {%- endfor -%}
+        {%- endif -%}
+        <li><a href="{{ p.url | relative_url }}"{% if page.url == p.url %} class="active"{% endif %}>{{ _p_title }}</a></li>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- assign _prev_depth = _depth -%}
+{%- endfor -%}
+
+{%- comment -%}--- Close remaining open tags ---{%- endcomment -%}
+{%- if _prev_depth > 0 -%}
+  {%- for _i in (1.._prev_depth) -%}</ul></li>
+  {%- endfor -%}
+{%- endif -%}
+
+  </ul>
+</nav>

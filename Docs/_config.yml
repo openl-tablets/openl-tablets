@@ -75,7 +75,7 @@ defaults:
       path: "user-guides"
     values:
       sidebar:
-        nav: "user-guides"
+        nav: "auto"
       toc: true
       toc_sticky: true
 

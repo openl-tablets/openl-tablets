@@ -15,7 +15,7 @@ Learn how to install and set up OpenL Tablets in your environment.
 - Initial configuration
 - Troubleshooting installation issues
 
-### 🎯 [Demo Package Guide](demo-package/index.md)
+### 🎯 [Demo Package Guide](getting-started/demo-package/index.md)
 Get started quickly with the OpenL Tablets demo package.
 
 - Running the demo

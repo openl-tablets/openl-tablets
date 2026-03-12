@@ -1,3 +1,7 @@
+---
+title: "Core Concepts"
+---
+
 ## Rule Services Core
 
 This section introduces Rule Services Core functionality and includes the following topics:

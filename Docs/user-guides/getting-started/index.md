@@ -46,7 +46,7 @@ Use the following links to the applications of our Live Demo:
 | Rule Services                | [http://demo.openl-tablets.org/webservice](http://demo.openl-tablets.org/webservice)                         |
 | Rule Services client example | [http://demo.openl-tablets.org/webservice-client.html](http://demo.openl-tablets.org/webservice-client.html) |
 
-For more details on OpenL Tablets Demo, you can refer to [OpenL Tablets Demo Package Guide](../demo-package). You can
+For more details on OpenL Tablets Demo, you can refer to [OpenL Tablets Demo Package Guide](demo-package). You can
 always download and install OpenL Tablets Demo for yourself by following this guide.
 
 When you open OpenL Studio, you will see the OpenL Studio start page in your browser:

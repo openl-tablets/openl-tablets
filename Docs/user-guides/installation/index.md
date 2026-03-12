@@ -1,3 +1,7 @@
+---
+title: "Installation Guide"
+---
+
 # OpenL Tablets Installation Guide
 
 Installation guide for setting up OpenL Tablets for **development and testing** environments. For production deployment, see the [Deployment Guide](../../deployment/).
