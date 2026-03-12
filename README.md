@@ -147,10 +147,10 @@ Call from Java, Python, JavaScript, C#, Go, or any language via REST.
 ## Documentation
 
 ### 📚 For Business Users
-- **[Getting Started Guide](Docs/user-guides/installation/)** - Install and configure OpenL Tablets
-- **[Excel Rule Reference](Docs/user-guides/reference/)** - Complete guide to writing rules in Excel
-- **[WebStudio User Guide](Docs/user-guides/openlstudio/)** - Using the web interface
-- **[Testing Guide](Docs/user-guides/reference/)** - Test your rules thoroughly
+- **[Getting Started Guide](Docs/user-guides/installation-guide/)** - Install and configure OpenL Tablets
+- **[Excel Rule Reference](Docs/user-guides/reference-guide/)** - Complete guide to writing rules in Excel
+- **[WebStudio User Guide](Docs/user-guides/openl-studio/)** - Using the web interface
+- **[Testing Guide](Docs/user-guides/reference-guide/)** - Test your rules thoroughly
 
 ### 🔌 For Developers
 - **[REST API Guide](Docs/API_GUIDE.md)** - Integrate rules into your applications
@@ -202,7 +202,7 @@ docker pull openltablets/webstudio:latest
 docker pull openltablets/ws:latest
 ```
 
-**[See Installation Guide →](Docs/user-guides/installation/)**
+**[See Installation Guide →](Docs/user-guides/installation-guide/)**
 
 
 ---
@@ -232,7 +232,7 @@ OpenL Tablets is open source under the **[GNU Lesser General Public License (LGP
 
 | Resource             | Link                                                                              |
 |----------------------|-----------------------------------------------------------------------------------|
-| **🚀 Quick Start**   | [Getting Started Guide](Docs/user-guides/installation/quick-start.md)             |
+| **🚀 Quick Start**   | [Getting Started Guide](Docs/user-guides/installation-guide/quick-start.md)             |
 | **📖 Documentation** | [Complete Docs](Docs/)                                                            |
 | **🐳 Docker Hub**    | [Container Images](https://hub.docker.com/u/openltablets)                         |
 | **💬 Community**     | [GitHub Discussions](https://github.com/openl-tablets/openl-tablets/discussions)  |

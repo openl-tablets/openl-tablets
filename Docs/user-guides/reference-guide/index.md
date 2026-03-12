@@ -1,7 +1,3 @@
----
-title: "Reference Guide"
----
-
 # OpenL Tablets BRMS Reference Guide
 
 Complete reference documentation for OpenL Tablets Business Rules Management System, covering language syntax, table types, data types, functions, and project structure.
@@ -69,10 +65,10 @@ Specialized table types for specific use cases:
 
 ### OpenL Tablets Functions and Supported Data Types
 
-- [Chapter Overview](03-openl-tablets-functions-and-supported-data-types/01-overview.md) - Introduction to functions and data types
-- [Working with Data Types](03-openl-tablets-functions-and-supported-data-types/02-working-with-data-types.md) - Built-in and custom data types
-- [Working with Functions](03-openl-tablets-functions-and-supported-data-types/03-working-with-functions.md) - OpenL Tablets functions and expressions
-- [Working with Arrays](03-openl-tablets-functions-and-supported-data-types/04-working-with-arrays.md) - Array operations, manipulation, and best practices
+- [Chapter Overview](03-functions-and-data-types/01-overview.md) - Introduction to functions and data types
+- [Working with Data Types](03-functions-and-data-types/02-working-with-data-types.md) - Built-in and custom data types
+- [Working with Functions](03-functions-and-data-types/03-working-with-functions.md) - OpenL Tablets functions and expressions
+- [Working with Arrays](03-functions-and-data-types/04-working-with-arrays.md) - Array operations, manipulation, and best practices
 
 ### Working with Projects
 
@@ -100,8 +96,8 @@ Specialized table types for specific use cases:
 - **Storing data** → [Data Tables](02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md)
 - **Testing rules** → [Test Tables](02-working-with-openl-tables/03-table-types/08-test-table/01-understanding-test-tables.md), [Run Tables](02-working-with-openl-tables/03-table-types/11-less-common-table-types/04-run-table.md)
 - **Representing values** → [Arrays, Dates, Booleans, Ranges](02-working-with-openl-tables/03-table-types/10-representing-values-of-different-types.md)
-- **Working with collections** → [Arrays](03-openl-tablets-functions-and-supported-data-types/04-working-with-arrays.md)
-- **Using functions** → [Functions Overview](03-openl-tablets-functions-and-supported-data-types/03-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
+- **Working with collections** → [Arrays](03-functions-and-data-types/04-working-with-arrays.md)
+- **Using functions** → [Functions Overview](03-functions-and-data-types/03-working-with-functions.md), [Function References](05-appendices/02-array-functions.md)
 - **Statistical analysis** → [Statistical Functions](05-appendices/07-statistical-functions.md)
 
 ### By Experience Level
@@ -124,7 +120,7 @@ This reference guide is comprehensive and detailed. For best results:
 Files and folders in this guide are numbered to maintain reading order:
 - **01-introduction/** - Getting started materials
 - **02-working-with-openl-tables/** - Table types and properties
-- **03-openl-tablets-functions-and-supported-data-types/** - Functions and data types
+- **03-functions-and-data-types/** - Functions and data types
 - **04-working-with-projects/** - Project management
 - **05-appendices/** - Reference appendices
 

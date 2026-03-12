@@ -7,7 +7,7 @@ description: Open source business rules engine — write rules in Excel, manage 
 
 Write business rules in Excel. Manage and test them in a browser-based IDE. Deploy as REST services with auto-generated OpenAPI documentation — no boilerplate required.
 
-[Get Started &rarr;](user-guides/installation/){: .btn} &nbsp;
+[Get Started &rarr;](user-guides/installation-guide/){: .btn} &nbsp;
 [View on GitHub &rarr;](https://github.com/openl-tablets/openl-tablets){: .btn}
 
 ---

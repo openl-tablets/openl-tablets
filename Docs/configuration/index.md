@@ -33,9 +33,9 @@ Production deployment guide and best practices. Covers:
 ## Related Documentation
 
 ### User Guides
-- [Installation Guide](../user-guides/installation/index.md) - Initial installation and setup
+- [Installation Guide](../user-guides/installation-guide/index.md) - Initial installation and setup
 - [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime configuration
-- [OpenL Studio User Guide](../user-guides/openlstudio/index.md) - Studio configuration
+- [OpenL Studio User Guide](../user-guides/openl-studio/index.md) - Studio configuration
 
 ### Integration
 - [Spring Framework](../integration-guides/spring.md) - Spring configuration

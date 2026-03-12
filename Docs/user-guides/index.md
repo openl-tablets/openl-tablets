@@ -7,7 +7,7 @@ Welcome to the OpenL Tablets User Guides! This section contains comprehensive do
 
 ## Available Guides
 
-### 📦 [Installation Guide](installation/index.md)
+### 📦 [Installation Guide](installation-guide/index.md)
 Learn how to install and set up OpenL Tablets in your environment.
 
 - System requirements
@@ -23,7 +23,7 @@ Get started quickly with the OpenL Tablets demo package.
 - Understanding the demo structure
 - Building on the demo examples
 
-### 📚 [Reference Guide](reference/index.md)
+### 📚 [Reference Guide](reference-guide/index.md)
 Comprehensive reference documentation for OpenL Tablets features and syntax.
 
 - Table types and syntax
@@ -31,7 +31,7 @@ Comprehensive reference documentation for OpenL Tablets features and syntax.
 - Rule syntax reference
 - Best practices
 
-### 🖥️ [OpenL Studio User Guide](openlstudio/index.md)
+### 🖥️ [OpenL Studio User Guide](openl-studio/index.md)
 Master the OpenL Tablets Studio interface.
 
 - OpenL Studio overview
@@ -53,7 +53,7 @@ Learn how to deploy and use OpenL Tablets rules as web services.
 
 ## Quick Links
 
-- **Getting Started**: New to OpenL Tablets? Start with the [Installation Guide](installation/index.md)
+- **Getting Started**: New to OpenL Tablets? Start with the [Installation Guide](installation-guide/index.md)
 - **Developers**: See [Developer Guides](../developer-guides/index.md)
 - **Integration**: Check [Integration Guides](../integration-guides/index.md)
 - **Configuration**: Visit [Configuration](../configuration/index.md)

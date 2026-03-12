@@ -39,10 +39,10 @@ This guide is organized into the following sections:
 - [OpenTelemetry](../integration-guides/opentelemetry.md) - Observability integration
 
 ### User Guides
-- [Reference Guide](../user-guides/reference/index.md) - Complete language reference
-- [OpenL Studio User Guide](../user-guides/openlstudio/index.md) - Rule development and management
+- [Reference Guide](../user-guides/reference-guide/index.md) - Complete language reference
+- [OpenL Studio User Guide](../user-guides/openl-studio/index.md) - Rule development and management
 - [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime deployment and configuration
-- [Installation Guide](../user-guides/installation/index.md) - Installation and deployment
+- [Installation Guide](../user-guides/installation-guide/index.md) - Installation and deployment
 
 ### Conventions
 - [Root CLAUDE.md](/CLAUDE.md) - Repository-wide development conventions
