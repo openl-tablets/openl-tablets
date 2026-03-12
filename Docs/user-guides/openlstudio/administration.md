@@ -502,7 +502,7 @@ To manage email server configuration, proceed as follows:
     
     *Defining verification emails sender*
     
-    If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
+    If the user email is not verified, a yellow exclamation mark is displayed next to this user email in the user list.
     
     ![](images/user-unverified-email.png)
     
@@ -514,7 +514,7 @@ To manage email server configuration, proceed as follows:
 
 *Resending a verification email*
 
-A user can resend the verification email on his or her own by clicking the username in the top right corner, selecting **User Details,** and clicking **Resend.**
+A user can resend the verification email on his or her own by clicking on user profile in the top right corner, selecting **My Profile,** and clicking **Resend Verification Email.**
 
 ![](images/user-resend-verification-email.png)
 
