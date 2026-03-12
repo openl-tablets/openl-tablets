@@ -4,7 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,10 +14,14 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +56,8 @@ import org.openl.util.StringUtils;
 @Service
 @Validated
 public class ProjectResourcesServiceImpl implements ProjectResourcesService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProjectResourcesServiceImpl.class);
 
     private static final Comparator<Resource> RESOURCE_COMPARATOR = Comparator
             .comparing((Resource r) -> r instanceof FileResource)
@@ -167,6 +173,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
+        validateResourcePath(destinationPath);
         AProjectFolder projectFolder = convertToFolder(project);
         AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
         if (found == null || found.isFolder()) {
@@ -215,6 +222,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
+        validateResourcePath(destinationPath);
         AProjectFolder projectFolder = convertToFolder(project);
         AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
         if (found == null || found.isFolder()) {
@@ -248,7 +256,17 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             try (var content = ((AProjectResource) found).getContent()) {
                 targetFolder.addResource(fileName, content);
             }
-            found.delete();
+            try {
+                found.delete();
+            } catch (ProjectException deleteEx) {
+                // Rollback: remove the copied resource to avoid duplication
+                try {
+                    targetFolder.getArtefact(fileName).delete();
+                } catch (ProjectException rollbackEx) {
+                    LOG.error("Failed to rollback copied resource '{}' after move failure", destinationPath, rollbackEx);
+                }
+                throw deleteEx;
+            }
         } catch (ProjectException | IOException e) {
             throw new ConflictException("resource.move.failed.message");
         }
@@ -265,11 +283,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");
         }
-        try {
-            NameChecker.validatePath(path);
-        } catch (IOException e) {
-            throw new BadRequestException("resource.path.invalid.message");
-        }
+        validateResourcePath(path);
 
         String[] segments = path.split("/");
         AProjectFolder targetFolder = project;
@@ -340,6 +354,19 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             throw new BadRequestException("resource.content.invalid.message");
         }
         return buffered;
+    }
+
+    /**
+     * Validates a resource path using {@link NameChecker#validatePath(String)}.
+     *
+     * @throws BadRequestException if the path is invalid
+     */
+    private void validateResourcePath(String path) {
+        try {
+            NameChecker.validatePath(path);
+        } catch (IOException e) {
+            throw new BadRequestException("resource.path.invalid.message");
+        }
     }
 
     private AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {
@@ -448,7 +475,8 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
                 }
                 folder = (AProjectFolder) artefact;
             }
-        } catch (ProjectException ignored) {
+        } catch (ProjectException e) {
+            LOG.debug("Failed to resolve base folder path '{}'", query.basePath(), e);
             artefact = null;
         }
         if (artefact == null || !artefact.isFolder()) {
@@ -477,14 +505,15 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
         // Extension filter (only applies to files, folders always pass to preserve tree structure)
         if (!query.extensions().isEmpty()) {
-            var extensions = query.extensions();
+            Set<String> normalizedExtensions = query.extensions().stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toSet());
             filter = filter.and(artefact -> {
                 if (artefact.isFolder()) {
                     return true; // Folders always pass extension filter
                 }
                 var ext = FileUtils.getExtension(artefact.getName());
-                return ext != null && extensions.stream()
-                        .anyMatch(queryExt -> queryExt.equalsIgnoreCase(ext));
+                return ext != null && normalizedExtensions.contains(ext.toLowerCase());
             });
         }
 
@@ -574,7 +603,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (date == null) {
             return null;
         }
-        return date.toInstant().atZone(ZoneId.systemDefault());
+        return date.toInstant().atZone(ZoneOffset.UTC);
     }
 
 }
