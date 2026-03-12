@@ -9,7 +9,7 @@ Jekyll 3.10 + Minimal Mistakes 4.28.0 (remote theme) on GitHub Pages.
 - DO NOT add ToC markup to release notes — the `release-notes` layout generates it
 - DO NOT use custom Jekyll plugins — GitHub Pages only allows whitelisted gems
 - Use relative links between `.md` files — `jekyll-relative-links` resolves them
-- Add `title` front matter when filename contains "openl" (auto-derived "Openl" is wrong; must be "OpenL")
+- "openl" in filenames auto-resolves to "OpenL" in sidebar titles (no manual `title` needed)
 - Use numeric prefixes (`01-`, `02-`) to control page/directory ordering within a section
 - Images go in a co-located `images/` directory, referenced via relative paths
 
@@ -81,5 +81,5 @@ bundle install && bundle exec jekyll serve
 ## Caveats
 
 - `developer-guides/`, `integration-guides/`, `api/` exist but are intentionally unlinked (no front matter, not in nav)
-- Auto-derived titles capitalize each word independently — "openl" → "OpenL" (fix with explicit `title`)
+- Auto-derived titles capitalize each word independently; "openl" → "OpenL" is auto-corrected
 - Deeply nested reference guide paths produce long URLs

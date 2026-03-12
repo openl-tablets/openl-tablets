@@ -98,6 +98,7 @@
       {%- if _dir_title != "" -%}{%- assign _dir_title = _dir_title | append: " " -%}{%- endif -%}
       {%- assign _dir_title = _dir_title | append: _cw -%}
     {%- endfor -%}
+    {%- assign _dir_title = _dir_title | replace: "Openl", "OpenL" -%}
   {%- endif -%}
 
   {%- comment -%}--- Render directory entry ---{%- endcomment -%}
@@ -164,6 +165,7 @@
             {%- if _p_title != "" -%}{%- assign _p_title = _p_title | append: " " -%}{%- endif -%}
             {%- assign _p_title = _p_title | append: _cw -%}
           {%- endfor -%}
+          {%- assign _p_title = _p_title | replace: "Openl", "OpenL" -%}
         {%- endif -%}
         <li><a href="{{ p.url | relative_url }}"{% if page.url == p.url %} class="active"{% endif %}>{{ _p_title }}</a></li>
       {%- endif -%}
