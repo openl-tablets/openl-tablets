@@ -10,10 +10,8 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-    cooldown:
-      default-days: 7
-      include:
-        - "software.amazon.*"
+      - dependency-name: "software.amazon.*"
+        update-types: ["version-update:semver-patch"]
 
   - package-ecosystem: "npm"
     directory: "STUDIO/studio-ui/"
