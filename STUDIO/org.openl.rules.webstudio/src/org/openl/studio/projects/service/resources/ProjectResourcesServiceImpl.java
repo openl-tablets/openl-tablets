@@ -150,6 +150,9 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (!projectStateValidator.canModify(project)) {
             throw new ConflictException("project.status.update.failed.message");
         }
+        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
+            throw new ForbiddenException("default.message");
+        }
         validateResourcePath(path);
         AProjectFolder projectFolder = convertToFolder(project);
         AProjectArtefact found = findArtefactByPath(projectFolder, path);
