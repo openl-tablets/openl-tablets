@@ -447,7 +447,7 @@ public class AProject extends AProjectFolder implements IProject {
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
                 writeArtefact(changes, artefact);
             }
-            
+
             if (getResourceTransformer() != null) {
                 changes = getResourceTransformer().transformChangedFiles(null, changes);
             }
@@ -532,11 +532,6 @@ public class AProject extends AProjectFolder implements IProject {
     public String getInternalPath() {
         // The root of the project
         return "";
-    }
-
-    @Override
-    public String getId() {
-        throw new UnsupportedOperationException("Project ID is not supported.");
     }
 
     @Override
