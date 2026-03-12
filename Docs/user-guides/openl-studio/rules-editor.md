@@ -531,7 +531,9 @@ To create a table as a new business dimension version, proceed as follows:
 
 ### Performing a Search
 
-OpenL Studio provides search functionality to look through all module tables data for a particular project. The following topics describe search modes in OpenL Studio:
+OpenL Studio provides search functionality available both from the module level and the project-level. When opened from the project level screen, the search covers the entire project without requiring a specific module to be open. 
+
+The following topics describe search modes in OpenL Studio:
 
 -   [Performing a Simple Search](#performing-a-simple-search)
 -   [Performing an Advanced Search](#performing-an-advanced-search)
