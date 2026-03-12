@@ -508,21 +508,21 @@ To manage email server configuration, proceed as follows:
     
     *A user with unverified email*
     
-1.  If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record and click **Resend**.
+1.  If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record and click **Resend Verification Email**.
 
-![](images/resend-verification-email-admin.png)
+    <img src="images/resend-verification-email-admin.png" width="800"/>
 
-*Resending a verification email*
+    *Resending a verification email*
 
-A user can resend the verification email on his or her own by clicking on user profile in the top right corner, selecting **My Profile,** and clicking **Resend Verification Email.**
+    A user can resend the verification email on his or her own by clicking on user profile in the top right corner, selecting **My Profile,** and clicking **Resend Verification Email.**
 
-![](images/user-resend-verification-email.png)
+     <img src="images/user-resend-verification-email.png" width="800"/>
 
-*A user initiating verification email resending*
+    *A user initiating verification email resending*
 
-The verification email resembles the following:
+    The verification email resembles the following:
 
-![](images/verification-email-example.png)
+    ![](images/verification-email-example.png)
 
-*Verification email example*
+    *Verification email example*
 
