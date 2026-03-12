@@ -25,7 +25,10 @@ public final class FileSignatureHelper {
     }
 
     /**
-     * Verifies if first 4 bytes matches OLE2 Compound Document signature (legacy .xls format)
+     * Verifies if first 4 bytes matches {@link #OLE2_COMPOUND_DOC_SIGN} ({@code 0xD0CF11E0}),
+     * the OLE2 Compound Document Binary Format signature. This signature is shared by all OLE2-based
+     * formats (e.g. {@code .xls}, {@code .doc}, {@code .ppt}), so further format-specific checks
+     * are required to distinguish between them.
      *
      * @param sign first 4 bytes
      * @return {@code true} if it's OLE2 compound document, otherwise {@code false}
