@@ -498,13 +498,13 @@ To manage email server configuration, proceed as follows:
     
     When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified mailboxes manually defined by a user.
     
-    ![](images/verification-email-sender.png)
+    <img src="images/verification-email-sender.png" width="300"/>
     
     *Defining verification emails sender*
     
     If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
     
-    ![](images/user-unverified-email.png)
+    <img src="images/user-unverified-email.png" width="200"/>
     
     *A user with unverified email*
     
