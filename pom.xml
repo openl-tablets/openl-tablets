@@ -141,7 +141,7 @@
         <junit.version>6.0.3</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <mockito.version>5.22.0</mockito.version>
+        <mockito.version>5.23.0</mockito.version>
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.11.0</xmlunit.version>
         <testcontainers.version>2.0.3</testcontainers.version>
