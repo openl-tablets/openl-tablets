@@ -4,7 +4,7 @@ This section explains how to view and control OpenL Studio system settings and m
 
 To perform administration tasks, in the top line menu, click **ADMIN**.
 
-By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab on the left.
+By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System**, **Security**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab on the left.
 
 ![](images/admin-overview.jpeg)
 
@@ -17,6 +17,7 @@ The following topics are included:
 -   [Managing Common Settings](#managing-common-settings)
 -   [Managing Repository Settings](#managing-repository-settings)
 -   [Managing System Settings](#managing-system-settings)
+-   [Managing Security Settings](#managing-security-settings)
 -   [Managing User Information](#managing-user-information)
 -   [Managing Notifications](#managing-notifications)
 -   [Managing Tags](#managing-tags)
@@ -175,6 +176,43 @@ The System tab enables modifying core, project, and testing options and includes
 | Testing | **Thread number <br/>for tests**      | Indicates the number of test cases executed simultaneously.By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                                                                 |
 |         | **Restore Defaults <br/>and Restart** | Restores all settings to default values. All user defined values, such as repository settings, will be lost.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
+### Managing Security Settings
+
+The **Security** tab contains settings for user authentication and access control. It includes the following topics:
+
+-   [Configuring Authentication Mode](#configuring-authentication-mode)
+-   [Configuring Default Group](#configuring-default-group)
+
+#### Configuring Authentication Mode
+
+OpenL Studio supports multiple user authentication modes. The active mode can be changed in the **Security** tab of the **Administration** panel.
+
+The following authentication modes are available:
+
+| Mode | Description |
+|------|-------------|
+| **Single-user** | No login required. All users share a single session. Suitable for development and local evaluation only. |
+| **Multi-user** | Built-in user management with local credentials stored in OpenL Studio. Suitable for teams without an external identity provider. |
+| **Active Directory / LDAP** | Authentication against a corporate Active Directory or LDAP server. External users are created and synchronized from the directory at login. |
+| **SSO: SAML** | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services. |
+| **SSO: OAuth2** | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others. |
+
+**Note:** CAS authentication is no longer supported starting with OpenL Tablets 6.0.
+
+To change the authentication mode, in the **Security** tab, select the desired mode, configure the required settings, and click **Apply**.
+
+#### Configuring Default Group
+
+The Default Group is automatically applied to every user in the system, including users with no explicit group or role assignments. Its permissions act as a baseline that all users inherit regardless of their individual access configuration.
+
+To configure the Default Group, proceed as follows:
+
+1.  In the **Administration** panel, click **Security**, then select **Default Group**.
+2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
+3.  Click **Save** to apply the changes.
+
+**Note:** The Default Group setting is not available in Single-User mode.
+
 ### Managing User Information
 
 This section describes how to control user access in the OpenL Studio application. Access is controlled using a role-based Access Control List (ACL). Roles are assigned to users or groups on specific resources, such as repositories or individual projects.
@@ -242,7 +280,7 @@ At the top of both the **Groups** and **Users** tabs, OpenL Studio displays the 
 
 The Default Group is automatically applied to every user in the system, including users who have not been assigned to any other group. This means that if the Default Group has access to a resource, all users effectively inherit that access regardless of their individual group assignments.
 
-To change the Default Group, go to **Security → Default Group** in the administration settings and select the desired group, or select **None** to prevent any automatic default access for users.
+To change the Default Group, go to **Security → Default Group** in the administration settings as described in [Configuring Default Group](#configuring-default-group).
 
 **Note:** The Default Group is not shown in Single-User mode.
 
