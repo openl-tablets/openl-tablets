@@ -437,12 +437,18 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.14</version>
                     <configuration>
+                        <propertyName>jacoco.argLine</propertyName>
+                        <destFile>${maven.multiModuleProjectDirectory}/.jacoco-report/target/jacoco.exec</destFile>
+                        <append>true</append>
                         <includes>
                             <include>org/openl/**/*</include>
                         </includes>
                         <excludes>
                             <exclude>org/openl/generated/**/*</exclude>
                         </excludes>
+                        <formats>
+                            <format>XML</format>
+                        </formats>
                     </configuration>
                 </plugin>
             </plugins>
@@ -575,11 +581,6 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <configuration>
-                            <propertyName>jacoco.argLine</propertyName>
-                            <destFile>${maven.multiModuleProjectDirectory}/target/jacoco.exec</destFile>
-                            <append>true</append>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>prepare-ut</id>

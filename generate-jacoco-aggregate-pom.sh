@@ -173,6 +173,7 @@ cat > "$OUTPUT" << XMLEOF
                             <dataFileIncludes>
                                 <include>\${maven.multiModuleProjectDirectory}/target/jacoco.exec</include>
                             </dataFileIncludes>
+                            <outputDirectory>\${project.build.directory}/site/jacoco</outputDirectory>
                             <formats>
                                 <format>XML</format>
                             </formats>
