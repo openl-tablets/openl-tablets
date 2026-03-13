@@ -207,7 +207,7 @@ The Default Group is automatically applied to every user in the system, includin
 
 To configure the Default Group, proceed as follows:
 
-1.  In the **Administration** panel, click **Security**, then select **Default Group**.
+1.  In the **Administration** panel, click the **Security** tab, then scroll down to **Configure Initial Users** section.
 2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
 3.  Click **Save** to apply the changes.
 
@@ -221,7 +221,9 @@ To configure the Default Group, proceed as follows:
 
 This section describes how to control user access in the OpenL Studio application. Access is controlled using a role-based Access Control List (ACL). Roles are assigned to users or groups on specific resources, such as repositories or individual projects.
 
-Users and groups are managed in the **Groups & Users** section of the **Administration** panel. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
+Users and groups are managed in the **Groups** and **Users** tabs of the **Administration** panel. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
+
+**Note:** **Groups** and **Users** tabs are not not shown in Single-User mode.
 
 The following topics are included in this section:
 
@@ -285,8 +287,6 @@ At the top of both the **Groups** and **Users** tabs, OpenL Studio displays the 
 The Default Group is automatically applied to every user in the system, including users who have not been assigned to any other group. This means that if the Default Group has access to a resource, all users effectively inherit that access regardless of their individual group assignments.
 
 To change the Default Group, go to **Security → Default Group** in the administration settings as described in [Configuring Default Group](#configuring-default-group).
-
-**Note:** The Default Group is not shown in Single-User mode.
 
 ##### Viewing a List of Groups
 
