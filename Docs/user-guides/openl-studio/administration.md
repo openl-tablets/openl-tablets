@@ -206,7 +206,7 @@ To view a list of groups, proceed as follows:
     
     The system displays a list of groups similar to the following one:
     
-    ![](images/user-groups-list.jpeg)
+    ![](images/user-groups-list.png)
     
     *User groups in the* **Groups & Privileges** *tab*
     
