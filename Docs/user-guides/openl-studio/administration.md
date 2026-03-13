@@ -257,6 +257,18 @@ The following roles are available:
 | **Contributor** | Full read and write access to the resource. Users can create, edit, and delete content within the resource, but cannot manage user permissions. | ✓ | ✓ | ✓ | ✓ | |
 | **Manager** | Full access including the ability to assign roles to other users and groups on the resources they manage. | ✓ | ✓ | ✓ | ✓ | ✓ |
 
+The individual permissions that make up each role are described in the following table:
+
+| Permission | Description |
+|------------|-------------|
+| **View** | Allows viewing and reading the content of the resource, and performing actions that do not alter it. |
+| **Edit** | Allows modifying and saving changes to the existing content of the resource. This includes updating, correcting, and formatting content, but does not permit creating new resources or deleting existing ones. |
+| **Create** | Allows adding a new lower-level resource within the resource. For example, when granted on a repository, this permission allows creating new projects in that repository, but does not affect the repository itself. |
+| **Delete** | Allows removing a lower-level resource from within the resource. The resource is completely removed from the system without archiving. For example, when granted on a repository, this permission allows deleting projects from that repository, but does not affect the repository itself. |
+| **Manage** | Allows assigning roles to users and groups on the resources the user manages. |
+
+**Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects regardless of their assigned role.
+
 **Note:** The **Administrator** designation is separate from the above ACL roles and grants system-wide administrative access, including the ability to manage users, groups, and global configuration.
 
 **Deploying a project** requires access to two repositories simultaneously: the user must have at least **Viewer** access on the design repository where the source project resides, and at least **Contributor** access on the target deployment repository. A Viewer role on the deployment repository alone is not sufficient to perform a deployment.
@@ -385,6 +397,13 @@ To view a list of users, proceed as follows:
      ![](images/users-list.png)
 
     *Users list in the* **Users** *tab*
+
+    In environments integrated with an external user management system, the **Groups** column displays each user's group memberships as color-coded tags:
+
+    -   **Green** — an external identity provider group that matches a group registered in OpenL Studio. Permissions assigned to that group in OpenL Studio are applied to the user.
+    -   **Red** — an administrator group.
+    -   **Blue** — the configured Default Group.
+    -   **Gray** — an external identity provider group that does not match any group registered in OpenL Studio. Unmatched groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Clicking the badge expands the full list.
 
 1.  In the **Users** tab, perform either of the following:
 -   To create a user, proceed as described in [Creating a User](#creating-a-user).
