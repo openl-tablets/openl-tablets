@@ -549,6 +549,9 @@
                     <name>sonar</name>
                 </property>
             </activation>
+            <modules>
+                <module>.jacoco-report</module>
+            </modules>
             <properties>
                 <sonar />
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
@@ -571,6 +574,8 @@
                             <formats>
                                 <format>XML</format>
                             </formats>
+                            <destFile>${maven.multiModuleProjectDirectory}/target/jacoco.exec</destFile>
+                            <append>true</append>
                         </configuration>
                         <executions>
                             <execution>
