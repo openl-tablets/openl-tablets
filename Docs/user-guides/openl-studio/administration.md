@@ -4,7 +4,7 @@ This section explains how to view and control OpenL Studio system settings and m
 
 To perform administration tasks, in the top line menu, click **ADMIN**.
 
-By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System, Users, Groups & Privileges**, and **Notification** groups. To open the group, click the corresponding tab on the left.
+By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab on the left.
 
 ![](images/admin-overview.jpeg)
 
@@ -312,22 +312,11 @@ To delete a group, proceed as follows:
 
 #### Managing Users
 
-Users get access to OpenL Studio functions by including them in particular groups.
+In OpenL Studio, access to repositories and projects is controlled through role-based ACL assignments. In environments without external user management, access is managed directly per user in the **Users** tab. In environments integrated with an external user management system, access can additionally be managed at the group level through the **Groups** tab.
 
-By default, there are the following users in OpenL Studio predefined in Demo mode:
+**Note:** Demo mode includes a set of pre-configured users with sample access rights for evaluation purposes. These users are not intended for production use.
 
-| User name | User password | Groups               |
-|-----------|---------------|----------------------|
-| user      | user          | Viewers              |
-| u0        | u0            | Testers              |
-| u1        | u1            | Developers, Analysts |
-| u2        | u2            | Viewers              |
-| u3        | u3            | Viewers              |
-| u4        | u4            | Deployers            |
-| a1        | a1            | Administrators       |
-| admin     | admin         | Administrators       |
-
-On the first start of OpenL Studio in the multi user mode, users with administrator permissions are defined in the installation wizard, **Configure initial users** section, **Administrators** field. Administrators password is set equal to their username and can be changed later as necessary. Administrators can then create new users or update existing users in OpenL Studio as needed. For information about the permissions of the groups, refer to [Managing Groups](#managing-groups).
+The initial administrator account is configured through the `security.administrators` property in the application configuration. The administrator can then create and manage additional users through the **Administration** panel.
 
 The following topics are included in this section:
 
@@ -341,10 +330,10 @@ The following topics are included in this section:
 
 To view a list of users, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Users** on the left.
-    
+1.  In the **Administration** panel, click **Groups & Users**, then select the **Users** sub-tab.
+
     The system displays a list of OpenL Studio users.
-    
+
 1.  In the **Users** tab, perform either of the following:
 -   To create a user, proceed as described in [Creating a User](#creating-a-user).
 -   To edit a user, proceed as described in [Editing a User](#editing-a-user).
@@ -352,41 +341,55 @@ To view a list of users, proceed as follows:
 
 ##### Creating a User
 
-While creating a user, make sure to include the user in at least one group. Proceed as follows:
+To create a new user, proceed as follows:
 
-1.  Click the **Add New User** link.
-    
+1.  On the **Users** tab, click **Add New User**.
+
     The system displays the **Add New User** form.
-    
+
     ![](images/create-user-form.png)
-    
+
     *Creating a user*
-    
-1.  To create a user locally, ensure that the **Local user** check box is selected.
-    
-    This option is selected by default. For local users, password information is stored in OpenL Tablets Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
-    
-1.  Specify the user’s login name in the **Username** field.
+
+1.  To create a local user, ensure that the **Local user** check box is selected.
+
+    This option is selected by default. For local users, the password is stored in OpenL Studio and credentials from any connected identity provider are not used. This check box is available only when an external identity provider is configured.
+
+1.  In the **Username** field, specify the user login name.
 2.  Optionally, enter the user email.
-    
+
     The email value is mandatory for committing to the Git repository.
-    
-1.  In the **Password** field, enter user password value.
-    
+
+1.  In the **Password** field, enter a password.
+
     This field is unavailable for external users.
-    
+
 1.  Optionally, enter the user’s first and last name.
-    
-    By default, the **Display name** value is automatically generated as “First name”+space+”Last name”.
-    
+
+    By default, the **Display name** is automatically generated as “First name” + space + “Last name”.
+
     The display name is mandatory for committing to the Git repository.
-    
-1.  To change the **Display name** pattern, in the appropriate field, select either **First Last**, or **Last First**.
-    
+
+1.  To change the display name pattern, in the appropriate field, select either **First Last** or **Last First**.
+
     If the **Other** option is selected, the field becomes editable and any display name can be entered.
-    
-1.  Select one or more groups to assign the user to.
-2.  Click **Save** to complete.
+
+1.  To grant the user full administrative access to OpenL Studio, select the **Administrator** check box.
+
+    When this option is selected, the access management fields are disabled because administrator users have system-wide access and do not require resource-level role assignments.
+
+1.  In the **Access Management** section, configure the user’s access to repositories and projects:
+
+    | Field | Description |
+    |-------|-------------|
+    | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects. Mandatory. |
+    | **Role** | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory. |
+
+    To grant access to multiple resources, add a new row for each resource. The same resource cannot be assigned more than one role.
+
+    For a description of available roles and their permissions, see [Understanding Roles](#understanding-roles).
+
+1.  Click **Save** to complete.
 
 The system displays the new user in the **Users** list. If the username and password values are the same, an exclamation mark is displayed next to the username. A user can change the password to improve security.
 
@@ -398,19 +401,19 @@ The system displays the new user in the **Users** list. If the username and pass
 
 To edit a user, proceed as follows:
 
-1.  In the **Users** list, locate a user that needs to be modified and click the username.
-2.  In the **Edit User** form, modify user data as required.
-    
-    The username and administrator’s privilege set up in the `security.administrators` property cannot be changed.
-    For external users synchronized with Active Directory or SSO, only fields that are not received from the third party are editable.
-    
+1.  In the **Users** list, locate the user to be modified and click the username.
+2.  In the **Edit User** form, modify user data or access management settings as required.
+
+    The username and the administrator accounts defined in the `security.administrators` property cannot be changed.
+    For external users synchronized with Active Directory or an SSO provider, only fields not provided by the external system are editable.
+
 1.  Click **Save** to save the changes.
 
 ##### Deleting a User
 
-The **Administrators** group in OpenL Studio must contain at least one administrator user. That it, the only OpenL Studio administrator cannot be deleted.
+The **Administrators** group in OpenL Studio must contain at least one administrator. The only remaining administrator cannot be deleted.
 
-Initial users created during OpenL Studio installation and the currently logged in user cannot be deleted as well.
+Initial users created during OpenL Studio installation and the currently logged in user cannot be deleted.
 
 To delete a user, proceed as follows:
 
@@ -419,25 +422,25 @@ To delete a user, proceed as follows:
 
 ##### Managing Users in Case of Third Party Identity Provider
 
-There are some differences in managing users when OpenL Studio is installed with an option to sign in with a third party identity provider, such as SSO or Active Directory.
+There are some differences in managing users when OpenL Studio is configured to authenticate against a third party identity provider, such as an SSO provider or Active Directory.
 
-An external user is created in OpenL Studio upon first user logon using the credentials stored in the third party identity provider, and it is not required to create a user in OpenL Studio in advance. All corresponding user information, such as first name, last name, display name, and email address, is retrieved from the third party and saved to the OpenL Studio, locked for editing. If some part of this information is not received from the third party, the corresponding fields are available for editing in OpenL Studio. An exception is external user management for SSO, where user data cannot be edited in **Admin \> Users** and only part of data can be edited in the user details section.
+An external user is created in OpenL Studio automatically upon the user’s first login using credentials from the identity provider. It is not necessary to create the user in advance. User information such as first name, last name, display name, and email address is retrieved from the identity provider and saved to OpenL Studio with those fields locked for editing. If some information is not available from the identity provider, the corresponding fields are editable in OpenL Studio. An exception applies to SSO with external user management, where user data cannot be edited in **Admin \> Users** and only partial data can be edited in the user profile section.
 
-If a user is first created in OpenL Studio as internal or external, and for logon, OpenL Studio username and third party password are used, a user becomes external, and only third party password stays valid. After such logon, synchronization with the third party is performed, information stored in OpenL Studio is overwritten by third party data information, and the corresponding fields are locked for editing. Exceptions are as follows:
+If a user is first created in OpenL Studio as an internal or external user and subsequently logs in using their OpenL Studio username with third party authentication, the user becomes external and only the identity provider password remains valid. On this login, synchronization is performed: information in OpenL Studio is overwritten with identity provider data and the corresponding fields are locked for editing. Exceptions are as follows:
 
--   If the third party email address, first name, or last name value is empty or unavailable, the current email address, first name, or last name is not emptied.
--   If the display name value is empty or unavailable, the local display name is not modified.
+-   If the identity provider returns an empty or unavailable email address, first name, or last name, the current values in OpenL Studio are preserved.
+-   If the display name returned by the identity provider is empty, the locally stored display name is not modified.
 
-An exception is the situation when the first or last name was changed.
+An exception applies when the first or last name has changed:
 
--   If the display name was set to “first name + space + last name”, it is updated to the new “first name + space + last name”.
--   If the display name was set to the “last name + space + first name”, it is updated to the new “last name + space + first name”.
--   If the display name is set to **Other** and its value in OpenL Studio is not empty, and in the third party service, it is empty, upon synchronization, the display name set locally is not changed.
--   If the display name value is empty in OpenL Studio and the third party service, but the first name and last name values are not empty, the display name is set to “first name + space + last name”, regardless of the pattern specified upon local user creation.
+-   If the display name was set to “first name + space + last name”, it is updated to reflect the new values.
+-   If the display name was set to “last name + space + first name”, it is updated to reflect the new values.
+-   If the display name is set to **Other** and is non-empty in OpenL Studio but is empty in the identity provider, the local value is preserved upon synchronization.
+-   If the display name is empty in both OpenL Studio and the identity provider, but first name and last name are set, the display name is set to “first name + space + last name”, regardless of the pattern specified when the user was created locally.
 
-If this user was not created as a local user previously but instead, created upon the external user logon, the display name value stays empty.
+If the user was not previously created locally but was instead created on first external login, the display name remains empty.
 
-User permissions can be assigned locally in OpenL Studio. Alternatively, to retrieve permissions from a third party identity provider, in OpenL Studio, create a user group with the same name as in third party and grant the required permissions to it. It is not required that the group is manually assigned to the user in OpenL Studio. Also, additional user groups can be assigned to a user in OpenL Studio unless the SSO external user management was set up.
+Access rights can be assigned to users directly in OpenL Studio through the **Edit User** form. In environments integrated with an external user management system, permissions can alternatively be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual assignment in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user unless SSO with external user management is enabled.
 
 **Note:** When creating a user, the username in OpenL Studio must match the username in the third party identity provider.
 
@@ -455,6 +458,8 @@ Studio instances. To remove the message for all users and OpenL Studio instances
 ### Managing Tags
 
 In OpenL Tablets, tags can be assigned to a project. A **tag type** is a category holding tag values of the same group. An example is the **Product** tag that includes tags **Auto**, **Life**, and **Home**.
+
+**Note:** Starting with OpenL Tablets 6.0, project tags are stored inside the project structure rather than in a separate configuration. As a result, tag changes are version-controlled and visible in the project's Git history.
 
 If a tag type is defined as optional, its value definition can be skipped when creating a project. Otherwise, tag definition is mandatory.
 
@@ -509,7 +514,7 @@ In this window, tags are marked with colors as follows:
 
 This logic is explained in the tooltips for each tag color type.
 
-Note that if project tags are successfully modified, the project status will change to **In Editing**, unless it is already in this status. In order for those changes to be accessible for all users, the projects must be saved beforehand.
+Note that if project tags are successfully modified, the project status changes to **In Editing**, unless it is already in this status. Because tags are stored within the project, they must be saved (committed) before the changes become visible to other users. The tag changes are then included in the project's version history.
 
 ### Managing Email Server Configuration
 
