@@ -168,6 +168,15 @@ cat > "$OUTPUT" << XMLEOF
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
+                        <configuration>
+                            <!-- All modules write to a shared exec file in the root target dir -->
+                            <dataFileIncludes>
+                                <include>\${maven.multiModuleProjectDirectory}/target/jacoco.exec</include>
+                            </dataFileIncludes>
+                            <formats>
+                                <format>XML</format>
+                            </formats>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
