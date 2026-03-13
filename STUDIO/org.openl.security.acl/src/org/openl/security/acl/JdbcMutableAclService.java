@@ -106,7 +106,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private static @Nullable Long selectSidId(Connection connection, String sidName,
             boolean sidIsPrincipal) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(SELECT_SID_QUERY)) {
-            ps.setInt(1, sidIsPrincipal ? 1 : 0);
+            ps.setBoolean(1, sidIsPrincipal);
             ps.setString(2, sidName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -120,7 +120,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private static void insertSid(Connection connection, String sidName,
             boolean sidIsPrincipal) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(INSERT_SID_QUERY)) {
-            ps.setInt(1, sidIsPrincipal ? 1 : 0);
+            ps.setBoolean(1, sidIsPrincipal);
             ps.setString(2, sidName);
             ps.executeUpdate();
         }
