@@ -263,8 +263,8 @@ The individual permissions that make up each role are described in the following
 |------------|-------------|
 | **View** | Allows viewing and reading the content of the resource, and performing actions that do not alter it. |
 | **Edit** | Allows modifying and saving changes to the existing content of the resource. This includes updating, correcting, and formatting content, but does not permit creating new resources or deleting existing ones. |
-| **Create** | Allows adding a new lower-level resource within the resource. For example, when granted on a repository, this permission allows creating new projects in that repository, but does not affect the repository itself. |
-| **Delete** | Allows removing a lower-level resource from within the resource. The resource is completely removed from the system without archiving. For example, when granted on a repository, this permission allows deleting projects from that repository, but does not affect the repository itself. |
+| **Create** | Allows adding a new **lower-level** resource within the resource. For example, when granted on a repository, this permission allows creating new projects in that repository, but does not affect the repository itself. |
+| **Delete** | Allows removing a **lower-level** resource from within the resource. The resource is completely removed from the system without archiving. For example, when granted on a repository, this permission allows deleting projects from that repository, but does not affect the repository itself. |
 | **Manage** | Allows assigning roles to users and groups on the resources the user manages. |
 
 **Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects regardless of their assigned role.
