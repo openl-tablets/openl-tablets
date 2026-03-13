@@ -184,24 +184,14 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-            ObjectMapper.DefaultTyping defaultTyping = null;
-            switch (getDefaultTypingMode()) {
-                case NON_FINAL:
-                    defaultTyping = ObjectMapper.DefaultTyping.NON_FINAL;
-                    break;
-                case OBJECT_AND_NON_CONCRETE:
-                    defaultTyping = ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
-                    break;
-                case NON_CONCRETE_AND_ARRAYS:
-                    defaultTyping = ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
-                    break;
-                case JAVA_LANG_OBJECT:
-                    defaultTyping = ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
-                    break;
-                case EVERYTHING:
-                    defaultTyping = ObjectMapper.DefaultTyping.EVERYTHING;
-                    break;
-            }
+            var defaultTyping = switch (getDefaultTypingMode()) {
+                case NON_FINAL -> ObjectMapper.DefaultTyping.NON_FINAL;
+                case OBJECT_AND_NON_CONCRETE -> ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
+                case NON_CONCRETE_AND_ARRAYS -> ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
+                case JAVA_LANG_OBJECT -> ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
+                case EVERYTHING -> ObjectMapper.DefaultTyping.EVERYTHING;
+                default -> null;
+            };
             mapper.activateDefaultTypingAsProperty(
                     polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
                             : LaissezFaireSubTypeValidator.instance,
