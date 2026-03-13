@@ -209,7 +209,7 @@ To configure the Default Group, proceed as follows:
 
 1.  In the **Administration** panel, click the **Security** tab, then scroll down to **Configure Initial Users** section.
 2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
-3.  Click **Save** to apply the changes.
+3.  Click **Apply** to apply the changes.
 
 ![](images/security-default-group.png)
 
@@ -320,7 +320,7 @@ To invite a group, proceed as follows:
 
     *Invite Group dialog*
 
-1.  In the **Name** field, type the group name. As you type, a list of matching groups from the connected directory service is displayed. You can select an existing group from the list or enter a custom name.
+1.  In the **Name** field, type the group name. As you type, a list of matching groups from the connected directory service is displayed. Select an existing group from the list.
 
 1.  Optionally, provide a description in the **Description** field.
 
@@ -468,7 +468,7 @@ There are some differences in managing users when OpenL Studio is configured to 
 
 A user is created in OpenL Studio automatically upon the user’s first login using credentials from the identity provider. Users cannot be added manually. User information such as first name, last name, display name, and email address is retrieved from the identity provider and saved to OpenL Studio with those fields locked for editing. If some information is not available from the identity provider, the corresponding fields are editable in OpenL Studio. An exception applies to SSO with external user management, where user data cannot be edited in **Admin \> Users** and only partial data can be edited in the user profile section.
 
-On user's login, synchronization is performed: information in OpenL Studio is synchronized with identity provider data and the corresponding fields are updated if changed. 
+On each login, OpenL Studio synchronizes user information with the identity provider and updates any fields that have changed. 
 
 When the first or last name has changed:
 
@@ -478,7 +478,7 @@ When the first or last name has changed:
 
 In integrated environments, the **Edit User** form shows read-only account and personal information synchronized from the identity provider. The form also displays the following:
 
--   **Access Rights**: Permissions inherited from the user's group memberships are shown in read-only mode. Administrators can add direct resource-level role assignments on top of the inherited group permissions.
+-   **Access Rights**: Administrators can add direct resource-level role assignments on top of the inherited group permissions.
 
 Permissions can be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual maintenance in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user.
 
