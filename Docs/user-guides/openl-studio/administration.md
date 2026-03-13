@@ -259,6 +259,8 @@ The following roles are available:
 
 **Note:** The **Administrator** designation is separate from the above ACL roles and grants system-wide administrative access, including the ability to manage users, groups, and global configuration.
 
+**Deploying a project** requires access to two repositories simultaneously: the user must have at least **Viewer** access on the design repository where the source project resides, and at least **Contributor** access on the target deployment repository. A Viewer role on the deployment repository alone is not sufficient to perform a deployment.
+
 ###### Role Inheritance and Conflict Resolution
 
 Roles can be assigned at two levels: the **repository** level and the **project** level. When a role is assigned at the repository level, it applies to all projects within that repository unless a more specific project-level role is also configured.
