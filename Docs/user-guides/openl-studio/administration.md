@@ -316,7 +316,7 @@ To invite a group, proceed as follows:
 
     The **Invite Group** dialog appears.
 
-    ![](images/invite-group-dialog.png)
+    <img src="images/invite-group-dialog.png" width="600" alt="Invite Group dialog"/>
 
     *Invite Group dialog*
 
@@ -335,7 +335,7 @@ To invite a group, proceed as follows:
     | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
     | **Role** | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory. |
 
-    ![](images/invite-group-access-management.png)
+    <img src="images/invite-group-access-management.png" width="700" alt="Access Management section of the Invite Group dialog"/>
 
     *Access Management section of the Invite Group dialog*
 
@@ -399,7 +399,7 @@ To create a new user, proceed as follows:
 
     The system displays the **Add User** form.
 
-    ![](images/create-user-form.png)
+    <img src="images/create-user-form.png" width="600" alt="Creating a user"/>
 
     *Creating a user*
 
@@ -466,31 +466,21 @@ To delete a user, proceed as follows:
 
 There are some differences in managing users when OpenL Studio is configured to authenticate against a third party identity provider, such as an SSO provider or Active Directory.
 
-An external user is created in OpenL Studio automatically upon the user’s first login using credentials from the identity provider. It is not necessary to create the user in advance. User information such as first name, last name, display name, and email address is retrieved from the identity provider and saved to OpenL Studio with those fields locked for editing. If some information is not available from the identity provider, the corresponding fields are editable in OpenL Studio. An exception applies to SSO with external user management, where user data cannot be edited in **Admin \> Users** and only partial data can be edited in the user profile section.
+A user is created in OpenL Studio automatically upon the user’s first login using credentials from the identity provider. Users cannot be added manually. User information such as first name, last name, display name, and email address is retrieved from the identity provider and saved to OpenL Studio with those fields locked for editing. If some information is not available from the identity provider, the corresponding fields are editable in OpenL Studio. An exception applies to SSO with external user management, where user data cannot be edited in **Admin \> Users** and only partial data can be edited in the user profile section.
 
-If a user is first created in OpenL Studio as an internal or external user and subsequently logs in using their OpenL Studio username with third party authentication, the user becomes external and only the identity provider password remains valid. On this login, synchronization is performed: information in OpenL Studio is overwritten with identity provider data and the corresponding fields are locked for editing. Exceptions are as follows:
+On user's login, synchronization is performed: information in OpenL Studio is synchronized with identity provider data and the corresponding fields are updated if changed. 
 
--   If the identity provider returns an empty or unavailable email address, first name, or last name, the current values in OpenL Studio are preserved.
--   If the display name returned by the identity provider is empty, the locally stored display name is not modified.
-
-An exception applies when the first or last name has changed:
+When the first or last name has changed:
 
 -   If the display name was set to “first name + space + last name”, it is updated to reflect the new values.
 -   If the display name was set to “last name + space + first name”, it is updated to reflect the new values.
--   If the display name is set to **Other** and is non-empty in OpenL Studio but is empty in the identity provider, the local value is preserved upon synchronization.
--   If the display name is empty in both OpenL Studio and the identity provider, but first name and last name are set, the display name is set to “first name + space + last name”, regardless of the pattern specified when the user was created locally.
-
-If the user was not previously created locally but was instead created on first external login, the display name remains empty.
+-   If the display name is set to **Custom** and is non-empty in OpenL Studio but is empty in the identity provider, the local value is preserved upon synchronization.
 
 In integrated environments, the **Edit User** form shows read-only account and personal information synchronized from the identity provider. The form also displays the following:
 
--   **Group Memberships**: The list of external groups the user belongs to, resolved from the identity provider at login.
--   **Access Management**: Permissions inherited from the user's group memberships are shown in read-only mode. Administrators can add direct resource-level role assignments on top of the inherited group permissions.
--   **Administrator**: Whether the user is an OpenL Studio administrator. This status is determined by group membership and is displayed as read-only.
+-   **Access Rights**: Permissions inherited from the user's group memberships are shown in read-only mode. Administrators can add direct resource-level role assignments on top of the inherited group permissions.
 
-Permissions can be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual maintenance in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user unless SSO with external user management is enabled.
-
-**Note:** When creating a user, the username in OpenL Studio must match the username in the third party identity provider.
+Permissions can be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual maintenance in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user.
 
 ### Managing Notifications
 
