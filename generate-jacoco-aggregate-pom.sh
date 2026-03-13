@@ -108,7 +108,7 @@ walk_modules() {
         packaging=$(echo "$coords" | sed -n '3p')
 
         if [ "$packaging" = "jar" ] && [ -n "$gid" ] && [ -n "$aid" ] \
-            && { [ -d "$dir/src" ] || [ -d "$dir/test" ]; }; then
+            && [ -d "$dir/src" ]; then
             DEP_XML+="        <dependency>
             <groupId>${gid}</groupId>
             <artifactId>${aid}</artifactId>
