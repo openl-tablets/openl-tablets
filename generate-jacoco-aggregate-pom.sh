@@ -161,7 +161,6 @@ cat > "$OUTPUT" << XMLEOF
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
                 <executions>
                     <execution>
                         <id>report-aggregate</id>
@@ -169,21 +168,6 @@ cat > "$OUTPUT" << XMLEOF
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
-                        <configuration>
-                            <!-- All modules write to a shared exec file in the root target dir -->
-                            <dataFileIncludes>
-                                <include>\${maven.multiModuleProjectDirectory}/target/jacoco.exec</include>
-                            </dataFileIncludes>
-                            <includes>
-                                <include>org/openl/**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org/openl/generated/**/*</exclude>
-                            </excludes>
-                            <formats>
-                                <format>XML</format>
-                            </formats>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

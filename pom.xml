@@ -432,6 +432,21 @@
                         <installDirectory>${project.build.directory}</installDirectory>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.14</version>
+                    <configuration>
+                        <propertyName>jacoco.argLine</propertyName>
+                        <includes>
+                            <include>org/openl/**/*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org/openl/generated/**/*</exclude>
+                        </excludes>
+                        <formats>XML</formats>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -562,21 +577,6 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.14</version>
-                        <configuration>
-                            <propertyName>jacoco.argLine</propertyName>
-                            <includes>
-                                <include>org/openl/**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org/openl/generated/**/*</exclude>
-                            </excludes>
-                            <formats>
-                                <format>XML</format>
-                            </formats>
-                            <destFile>${maven.multiModuleProjectDirectory}/target/jacoco.exec</destFile>
-                            <append>true</append>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>prepare-ut</id>
@@ -589,20 +589,6 @@
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>prepare-agent-integration</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report-ut</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report-it</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>
