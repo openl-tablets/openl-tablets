@@ -1,8 +1,13 @@
 package org.openl.security.acl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import javax.sql.DataSource;
 
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.lang.Nullable;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -12,11 +17,12 @@ import org.springframework.security.acls.model.Sid;
 
 public class JdbcMutableAclService extends org.springframework.security.acls.jdbc.JdbcMutableAclService implements MutableAclService {
 
+    private static final String SELECT_SID_QUERY = "select id from acl_sid where principal=? and sid=?";
+    private static final String INSERT_SID_QUERY = "insert into acl_sid (principal, sid) values (?, ?)";
     private static final String DELETE_SID_QUERY = "delete from acl_sid where id=?";
     private static final String UPDATE_OWNER_QUERY = "update acl_object_identity set owner_sid = ? where owner_sid = ?";
     private static final String DELETE_ENTRIES_BY_SID_QUERY = "delete from acl_entry where sid=?";
     private static final String UPDATE_SID_QUERY = "update acl_sid set sid = ? where sid = ? and principal=?";
-    private static final String SELECT_SID_PRIMARY_KEY = "select id from acl_sid where principal=? and sid=?";
 
     private final AclCache aclCache;
     private final Sid relevantSystemWideSid;
@@ -34,21 +40,89 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
      * Overrides Spring's default implementation to handle concurrent SID creation.
      * <p>
      * The parent implementation uses a non-atomic check-then-act pattern (SELECT, then INSERT),
-     * which causes {@link DuplicateKeyException} when multiple threads concurrently grant
-     * permissions for the same user/group on different projects. This override catches the
-     * duplicate key and falls back to a SELECT, since the row now exists from the other thread.
+     * which causes duplicate key errors when multiple threads concurrently grant permissions
+     * for the same user/group on different projects.
+     * <p>
+     * This override executes all SQL on a single JDBC connection using a SAVEPOINT.
+     * If the INSERT fails with a duplicate key (another thread inserted the same SID concurrently),
+     * the savepoint is rolled back (required by PostgreSQL, which aborts the entire transaction
+     * on constraint violations) and the existing SID is retrieved via SELECT.
      */
     @Override
     protected @Nullable Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal,
             boolean allowCreate) {
-        try {
-            return super.createOrRetrieveSidPrimaryKey(sidName, sidIsPrincipal, allowCreate);
-        } catch (DuplicateKeyException e) {
-            // Another thread inserted the same SID concurrently — retrieve it
-            if (!allowCreate) {
-                throw e;
+        return jdbcOperations.execute((ConnectionCallback<Long>) connection -> {
+            // Try to find existing SID
+            Long id = selectSidId(connection, sidName, sidIsPrincipal);
+            if (id != null) {
+                return id;
             }
-            return super.createOrRetrieveSidPrimaryKey(sidName, sidIsPrincipal, false);
+            if (!allowCreate) {
+                return null;
+            }
+            // SID not found — try to insert it with a savepoint to handle concurrent inserts
+            boolean useSavepoint = !connection.getAutoCommit();
+            Savepoint savepoint = useSavepoint ? connection.setSavepoint() : null;
+            try {
+                insertSid(connection, sidName, sidIsPrincipal);
+            } catch (SQLException e) {
+                if (!isDuplicateKey(e)) {
+                    throw e;
+                }
+                // Duplicate key — another thread inserted the same SID concurrently.
+                // Rollback to savepoint to restore the transaction state
+                // (required by PostgreSQL which aborts after constraint violations).
+                if (savepoint != null) {
+                    connection.rollback(savepoint);
+                }
+                Long existingId = selectSidId(connection, sidName, sidIsPrincipal);
+                if (existingId != null) {
+                    return existingId;
+                }
+                throw e;
+            } finally {
+                if (savepoint != null) {
+                    try {
+                        connection.releaseSavepoint(savepoint);
+                    } catch (SQLException ignored) {
+                        // Savepoint may already be released after rollback
+                    }
+                }
+            }
+            // Re-select to get the generated id
+            return selectSidId(connection, sidName, sidIsPrincipal);
+        });
+    }
+
+    /**
+     * Checks if the SQLException is caused by a duplicate key / unique constraint violation.
+     * SQL state class "23" covers integrity constraint violations across all supported databases.
+     */
+    private static boolean isDuplicateKey(SQLException e) {
+        String sqlState = e.getSQLState();
+        return sqlState != null && sqlState.startsWith("23");
+    }
+
+    private static @Nullable Long selectSidId(Connection connection, String sidName,
+            boolean sidIsPrincipal) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(SELECT_SID_QUERY)) {
+            ps.setBoolean(1, sidIsPrincipal);
+            ps.setString(2, sidName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void insertSid(Connection connection, String sidName,
+            boolean sidIsPrincipal) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(INSERT_SID_QUERY)) {
+            ps.setBoolean(1, sidIsPrincipal);
+            ps.setString(2, sidName);
+            ps.executeUpdate();
         }
     }
 
