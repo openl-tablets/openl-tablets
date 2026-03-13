@@ -8,8 +8,10 @@
 #
 # Usage:
 #   ./generate-jacoco-aggregate-pom.sh
-#   mvn install -Psonar
-#   mvn org.jacoco:jacoco-maven-plugin:report-aggregate -Psonar
+#   mvn verify -Psonar
+#
+# The report-aggregate goal is bound to the 'verify' phase, so it runs
+# automatically as the last module in the reactor.
 #
 # Output:
 #   .jacoco-report/target/site/jacoco-aggregate/jacoco.xml
@@ -105,7 +107,8 @@ walk_modules() {
         aid=$(echo "$coords" | sed -n '2p')
         packaging=$(echo "$coords" | sed -n '3p')
 
-        if [ "$packaging" = "jar" ] && [ -n "$gid" ] && [ -n "$aid" ]; then
+        if [ "$packaging" = "jar" ] && [ -n "$gid" ] && [ -n "$aid" ] \
+            && [ -d "$dir/src" ]; then
             DEP_XML+="        <dependency>
             <groupId>${gid}</groupId>
             <artifactId>${aid}</artifactId>
@@ -159,21 +162,30 @@ cat > "$OUTPUT" << XMLEOF
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.14</version>
-                <configuration>
-                    <!-- All modules write to a shared exec file in the root target dir -->
-                    <dataFileIncludes>
-                        <include>\${maven.multiModuleProjectDirectory}/target/jacoco.exec</include>
-                    </dataFileIncludes>
-                    <includes>
-                        <include>org/openl/**/*</include>
-                    </includes>
-                    <excludes>
-                        <exclude>org/openl/generated/**/*</exclude>
-                    </excludes>
-                    <formats>
-                        <format>XML</format>
-                    </formats>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- All modules write to a shared exec file in the root target dir -->
+                            <dataFileIncludes>
+                                <include>\${maven.multiModuleProjectDirectory}/target/jacoco.exec</include>
+                            </dataFileIncludes>
+                            <includes>
+                                <include>org/openl/**/*</include>
+                            </includes>
+                            <excludes>
+                                <exclude>org/openl/generated/**/*</exclude>
+                            </excludes>
+                            <formats>
+                                <format>XML</format>
+                            </formats>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
