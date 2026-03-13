@@ -45,6 +45,9 @@ dist
 # Ignore bun artifacts, we already have npm package-lock.json
 bun.lock
 
+# Generated JaCoCo aggregate report module
+.jacoco-report
+
 # Ignore AI assistant files
 .claude/*.local.json
 
