@@ -435,9 +435,9 @@ To create a new user, proceed as follows:
 
 The system displays the new user in the **Users** list. If the username and password values are the same, an exclamation mark is displayed next to the username. A user can change the password to improve security.
 
-![](images/users-list.png)
+![](images/user-matching-password.png)
 
-*A list of users*
+*User list with a password security warning*
 
 ##### Editing a User
 
@@ -459,7 +459,7 @@ Initial users created during OpenL Studio installation and the currently logged 
 
 To delete a user, proceed as follows:
 
-1.  In the **Users** list, locate the user for deletion and click the **Delete** icon: ![](images/delete-icon.png).
+1.  In the **Users** list, locate the user for deletion and click the **Delete** icon.
 2.  Click **OK** in the confirmation dialog.
 
 ##### Managing Users in Case of Third Party Identity Provider
