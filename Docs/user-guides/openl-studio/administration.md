@@ -288,7 +288,7 @@ To change the Default Group, go to **Security → Default Group** in the adminis
 
 To view the list of groups, proceed as follows:
 
-1.  In the **Administration** panel, click **Groups & Users**, then select the **Groups** sub-tab.
+1.  In the **Administration** panel, select the **Groups** tab.
 
     The system displays a list of invited groups, including their names, descriptions, and number of members:
 
@@ -312,17 +312,13 @@ To invite a group, proceed as follows:
 
 1.  In the **Name** field, type the group name. As you type, a list of matching groups from the connected directory service is displayed. You can select an existing group from the list or enter a custom name.
 
-    The **Name** field is required and accepts up to 65 characters.
+1.  Optionally, provide a description in the **Description** field.
 
-1.  Optionally, provide a description in the **Description** field (up to 200 characters).
-
-2.  To designate this group as OpenL Studio Administrators, select the **Administrator** check box.
+2.  To designate this group as OpenL Studio Administrators, select the **Admin** check box.
 
     When this option is selected, the access management fields are disabled because administrator groups have system-wide access and do not require resource-level role assignments.
 
-1.  Click **Next** to proceed to the access management section.
-
-2.  In the **Access Management** section, configure the group's access to repositories and projects:
+2.  In the **Access Rights** section, configure the group's access to repositories and projects:
 
     | Field | Description |
     |-------|-------------|
