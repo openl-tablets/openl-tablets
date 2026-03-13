@@ -405,6 +405,10 @@ To view a list of users, proceed as follows:
     -   **Blue** — the configured Default Group.
     -   **Gray** — an external identity provider group that does not match any group registered in OpenL Studio. Unmatched groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Clicking the badge expands the full list.
 
+       ![](images/users-list-group-colors.png)
+
+       *Users list showing color-coded group membership*
+
 1.  In the **Users** tab, perform either of the following:
 -   To create a user, proceed as described in [Creating a User](#creating-a-user).
 -   To edit a user, proceed as described in [Editing a User](#editing-a-user).
