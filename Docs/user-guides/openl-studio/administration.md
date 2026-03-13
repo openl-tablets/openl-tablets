@@ -238,14 +238,14 @@ Groups registered in OpenL Studio are matched to groups from the external direct
 
 The following topics are included in this section:
 
--   [Understanding Roles and Permissions](#understanding-roles-and-permissions)
+-   [Understanding Roles](#understanding-roles)
 -   [Understanding the Default Group](#understanding-the-default-group)
 -   [Viewing a List of Groups](#viewing-a-list-of-groups)
 -   [Inviting a Group](#inviting-a-group)
 -   [Editing a Group](#editing-a-group)
 -   [Deleting a Group](#deleting-a-group)
 
-##### Understanding Roles and Permissions
+##### Understanding Roles
 
 Instead of selecting individual privileges, access in OpenL Studio is controlled by assigning a **role** to a **resource**. A resource is either a repository or an individual project within a repository.
 
@@ -448,7 +448,7 @@ To create a new user, proceed as follows:
 
     To grant access to multiple resources, add a new row for each resource. The same resource cannot be assigned more than one role.
 
-    For a description of available roles and their permissions, see [Understanding Roles and Permissions](#understanding-roles-and-permissions).
+    For a description of available roles and their permissions, see [Understanding Roles](#understanding-roles).
 
 1.  Click **Save** to complete.
 
