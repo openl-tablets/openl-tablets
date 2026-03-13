@@ -223,7 +223,7 @@ This section describes how to control user access in the OpenL Studio applicatio
 
 Users and groups are managed in the **Groups** and **Users** tabs of the **Administration** panel. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
 
-**Note:** **Groups** and **Users** tabs are not not shown in Single-User mode.
+**Note:** **Groups** and **Users** tabs are not shown in Single-User mode.
 
 The following topics are included in this section:
 
