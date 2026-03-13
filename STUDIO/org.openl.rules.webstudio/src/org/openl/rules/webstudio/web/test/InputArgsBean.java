@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jakarta.faces.model.SelectItem;
@@ -501,29 +500,41 @@ public class InputArgsBean {
     public String getParamsAsJson() {
         try {
             ObjectMapper mapper = configureObjectMapper();
-            Map<String, Object> result = new LinkedHashMap<>();
 
             // Get params - this also populates runtimeContext as side effect
             Object[] paramValues = getParams();
 
-            // Build params map keyed by parameter name
-            Map<String, Object> params = new LinkedHashMap<>();
+            // Build JSON using tree model to preserve type-aware serialization.
+            // Each parameter is serialized with its declared type via writerFor(),
+            // so Jackson uses the mixin's @JsonTypeInfo (NAME mode) instead of
+            // default typing (CLASS mode) which produces fully-qualified class names.
+            var paramsNode = mapper.createObjectNode();
             IOpenMethod method = getTestedMethod();
             if (method != null && paramValues != null) {
                 var signature = method.getSignature();
                 for (int i = 0; i < signature.getNumberOfParameters(); i++) {
                     String paramName = signature.getParameterName(i);
-                    params.put(paramName, i < paramValues.length ? paramValues[i] : null);
+                    Object value = i < paramValues.length ? paramValues[i] : null;
+                    if (value == null) {
+                        paramsNode.putNull(paramName);
+                    } else {
+                        var javaType = mapper.getTypeFactory()
+                                .constructType(signature.getParameterType(i).getInstanceClass());
+                        var json = mapper.writerFor(javaType).writeValueAsString(value);
+                        paramsNode.set(paramName, mapper.readTree(json));
+                    }
                 }
             }
-            result.put("params", params);
+
+            var resultNode = mapper.createObjectNode();
+            resultNode.set("params", paramsNode);
 
             // Include runtime context if available
             if (runtimeContext != null) {
-                result.put("runtimeContext", runtimeContext);
+                resultNode.set("runtimeContext", mapper.valueToTree(runtimeContext));
             }
 
-            return mapper.writeValueAsString(result);
+            return mapper.writeValueAsString(resultNode);
         } catch (Message e) {
             throw e;
         } catch (IOException e) {
