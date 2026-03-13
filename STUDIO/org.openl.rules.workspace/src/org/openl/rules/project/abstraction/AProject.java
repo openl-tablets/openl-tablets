@@ -447,7 +447,7 @@ public class AProject extends AProjectFolder implements IProject {
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
                 writeArtefact(changes, artefact);
             }
-            
+
             if (getResourceTransformer() != null) {
                 changes = getResourceTransformer().transformChangedFiles(null, changes);
             }

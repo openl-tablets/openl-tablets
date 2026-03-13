@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=messages.properties; filename*=UTF-8''messages.properties
+
+greeting=Hello
+farewell=Goodbye
+welcome=Welcome
