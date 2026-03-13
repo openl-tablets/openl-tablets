@@ -478,7 +478,13 @@ An exception applies when the first or last name has changed:
 
 If the user was not previously created locally but was instead created on first external login, the display name remains empty.
 
-Access rights can be assigned to users directly in OpenL Studio through the **Edit User** form. In environments integrated with an external user management system, permissions can alternatively be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual assignment in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user unless SSO with external user management is enabled.
+In integrated environments, the **Edit User** form shows read-only account and personal information synchronized from the identity provider. The form also displays the following:
+
+-   **Group Memberships**: The list of external groups the user belongs to, resolved from the identity provider at login.
+-   **Access Management**: Permissions inherited from the user's group memberships are shown in read-only mode. Administrators can add direct resource-level role assignments on top of the inherited group permissions.
+-   **Administrator**: Whether the user is an OpenL Studio administrator. This status is determined by group membership and is displayed as read-only.
+
+Permissions can be managed at the group level by inviting a group with the same name as defined in the identity provider and assigning it the required roles. Group membership is automatically resolved from the identity provider at login and does not require manual maintenance in OpenL Studio. Additional resource-level role assignments can also be applied directly on a user unless SSO with external user management is enabled.
 
 **Note:** When creating a user, the username in OpenL Studio must match the username in the third party identity provider.
 
