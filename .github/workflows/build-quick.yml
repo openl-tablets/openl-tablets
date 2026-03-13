@@ -60,6 +60,9 @@ jobs:
       - name: Maven version
         run: mvn -v
 
+      - name: Generate JaCoCo aggregate POM
+        run: ./generate-jacoco-aggregate-pom.sh
+
       - name: Build with Maven
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
