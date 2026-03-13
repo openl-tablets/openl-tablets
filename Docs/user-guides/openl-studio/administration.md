@@ -177,9 +177,9 @@ The System tab enables modifying core, project, and testing options and includes
 
 ### Managing User Information
 
-This section describes how to control user access in the OpenL Studio application based on users and user groups. All privileges in the system are assigned at a group level and will be granted to a particular user after he or she is included in a particular group.
+This section describes how to control user access in the OpenL Studio application. Access is controlled using a role-based Access Control List (ACL). Roles are assigned to users or groups on specific resources, such as repositories or individual projects.
 
-Users and groups are managed in the **Users** and **Groups & Privileges** tabs. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
+Users and groups are managed in the **Groups & Users** section of the **Administration** panel. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
 
 The following topics are included in this section:
 
@@ -188,99 +188,127 @@ The following topics are included in this section:
 
 #### Managing Groups
 
-This section explains how to create, modify, and delete a user group with a certain set of privileges. The **Administrators** group cannot be deleted from the system.
+The **Groups** tab is available only in OpenL Studio environments integrated with an external user management system, such as Active Directory, LDAP, or an SSO provider. In environments without external user management, the **Groups** tab is hidden and user access is managed directly on each user in the **Users** tab.
+
+Groups registered in OpenL Studio are matched to groups from the external directory. Each group can be granted access to one or more resources with a specific role.
 
 The following topics are included in this section:
 
+-   [Understanding Roles](#understanding-roles)
+-   [Understanding the Default Group](#understanding-the-default-group)
 -   [Viewing a List of Groups](#viewing-a-list-of-groups)
--   [Adding a Group](#adding-a-group)
+-   [Inviting a Group](#inviting-a-group)
 -   [Editing a Group](#editing-a-group)
 -   [Deleting a Group](#deleting-a-group)
--   [Managing a Group in Case of Third Party Identity Provider](#managing-a-group-in-case-of-third-party-identity-provider)
+
+##### Understanding Roles
+
+Instead of selecting individual privileges, access in OpenL Studio is controlled by assigning a **role** to a **resource**. A resource is either a repository or an individual project within a repository.
+
+The following roles are available:
+
+| Role | Description | View | Create | Edit | Delete | Manage |
+|------|-------------|:----:|:------:|:----:|:------:|:------:|
+| **Viewer** | Read-only access to the resource. Users can view content, open projects, and run and trace test tables, but cannot make any changes. | ✓ | | | | |
+| **Contributor** | Full read and write access to the resource. Users can create, edit, and delete content within the resource, but cannot manage user permissions. | ✓ | ✓ | ✓ | ✓ | |
+| **Manager** | Full access including the ability to assign roles to other users and groups on the resources they manage. | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+**Note:** The **Administrator** designation is separate from the above ACL roles and grants system-wide administrative access, including the ability to manage users, groups, and global configuration.
+
+###### Role Inheritance and Conflict Resolution
+
+Roles can be assigned at two levels: the **repository** level and the **project** level. When a role is assigned at the repository level, it applies to all projects within that repository unless a more specific project-level role is also configured.
+
+The following rules apply when resolving a user's effective access:
+
+-   **Project-level role takes precedence over repository-level role.** When a role is explicitly assigned on a project, that role determines the user's access to that project, regardless of what role the user has on the parent repository.
+
+-   **Repository-level role is inherited when no project-level role is set.** If no explicit ACL entry exists for a project, the user's access falls back to the role assigned at the repository level.
+
+-   **When a user belongs to multiple groups, the most permissive role applies.** If a user is a member of two groups and one group has Viewer access and the other has Contributor access on the same resource, the user effectively has Contributor access.
+
+**Examples:**
+
+| Repository Role | Project Role | Effective Access on the Project |
+|-----------------|--------------|----------------------------------|
+| Viewer | Contributor | **Contributor** — the explicit project role overrides the repository role |
+| Contributor | Viewer | **Viewer** — the explicit project role overrides the repository role |
+| Contributor | *(none)* | **Contributor** — the repository role is inherited |
+| *(none)* | Viewer | **Viewer** — only the project-level role applies |
+
+##### Understanding the Default Group
+
+At the top of both the **Groups** and **Users** tabs, OpenL Studio displays the currently configured **Default Group** along with an info tooltip.
+
+The Default Group is automatically applied to every user in the system, including users who have not been assigned to any other group. This means that if the Default Group has access to a resource, all users effectively inherit that access regardless of their individual group assignments.
+
+To change the Default Group, go to **Security → Default Group** in the administration settings and select the desired group, or select **None** to prevent any automatic default access for users.
+
+**Note:** The Default Group is not shown in Single-User mode.
 
 ##### Viewing a List of Groups
 
-To view a list of groups, proceed as follows:
+To view the list of groups, proceed as follows:
 
-1.  In the **Administration** section, click **Groups** tab.
-    
-    The system displays a list of groups similar to the following one:
-    
+1.  In the **Administration** panel, click **Groups & Users**, then select the **Groups** sub-tab.
+
+    The system displays a list of invited groups, including their names, descriptions, and number of members:
+
     ![](images/user-groups-list.png)
-    
-    *User groups in the* **Groups** *tab*
-    
-1.  To create a new group, proceed as described in [Adding a Group](#adding-a-group).
+
+    *Groups list in the* **Groups** *tab*
+
+1.  To invite a new group, proceed as described in [Inviting a Group](#inviting-a-group).
 2.  To edit a group, proceed as described in [Editing a Group](#editing-a-group).
-3.  To delete an existing group, proceed as described in [Deleting a Group](#deleting-a-group).
+3.  To delete a group, proceed as described in [Deleting a Group](#deleting-a-group).
 
-##### Adding a Group
+##### Inviting a Group
 
-To add a new group, proceed as follows:
+Inviting a group registers an external directory group in OpenL Studio and assigns it a role on one or more resources.
 
-1.  Click the **Add New Group** link.
-    
-    The **Add New Group** form appears.
-    
-1.  Enter the group name in the **Name** field.
-2.  Optionally, provide group description in the **Description** text box.
-3.  In the **Privilege** area, define the privileges as needed.
-    
-    To assign a set of privileges for a group, click the group name above the list of privileges, such as Developers, Testers, or Administrators. The **Authenticated** default group with the **Viewer** privilege is created if the **All authenticated users have View access** check box is selected in the installation wizard. The group is displayed in the user table if no other groups are assigned to this user.
-    
-    ![](images/add-user-group-form.png)
-    
-    *Adding a user group with required set of privileges*
-    
-1.  Click **Save**.
+To invite a group, proceed as follows:
+
+1.  Click the **Invite Group** button.
+
+    The **Invite Group** dialog appears.
+
+1.  In the **Name** field, type the group name. As you type, a list of matching groups from the connected directory service is displayed. You can select an existing group from the list or enter a custom name.
+
+    The **Name** field is required and accepts up to 65 characters.
+
+1.  Optionally, provide a description in the **Description** field (up to 200 characters).
+
+2.  To designate this group as OpenL Studio Administrators, select the **Administrator** check box.
+
+    When this option is selected, the access management fields are disabled because administrator groups have system-wide access and do not require resource-level role assignments.
+
+1.  Click **Next** to proceed to the access management section.
+
+2.  In the **Access Management** section, configure the group's access to repositories and projects:
+
+    | Field | Description |
+    |-------|-------------|
+    | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
+    | **Role** | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory. |
+
+    To grant access to multiple resources, add a new row for each resource. The same resource cannot be assigned more than one role.
+
+1.  Click **Save** to complete.
 
 ##### Editing a Group
 
-To modify a user group, proceed as follows:
+To modify a group, proceed as follows:
 
-1.  In the list of groups, locate the group that needs to be changed and click the **Edit** icon ![](images/edit-group-icon.png).
-2.  In the **Edit Group** form, change the group name, add or modify its description, and change privileges as needed.
+1.  In the group list, locate the group to be changed and click the **Edit** icon.
+2.  In the edit form, change the group name, description, administrator designation, or resource access assignments as needed.
 3.  Click **Save** to complete.
 
 ##### Deleting a Group
 
-To delete a user group, proceed as follows:
+To delete a group, proceed as follows:
 
-1.  Locate the group to be deleted and click the red cross on the right: ![](images/delete-icon.png).
+1.  In the group list, locate the group to be deleted and click the **Delete** icon.
 2.  Click **OK** in the confirmation dialog.
-
-##### Managing a Group in Case of Third Party Identity Provider
-
-If OpenL Studio is installed with the option to sign in via a third party identity provider, such as SSO or Active Directory, groups created and edited in OpenL Studio must have the same names as available in Active Directory or SSO groups.
-
-When a user from the third-party server logs into OpenL Studio, external user groups are pulled from the external server and displayed in the OpenL Studio user table.
-
--   If an external group cannot be matched with the OpenL Studio group, that is, no group with such name exists in OpenL Studio, the group is displayed as a collapsed number, for example, +1, and when the value is expanded, the group is highlighted grey.
-    
-    ![](images/groups-not-in-openl-studio.png)
-    
-    *Groups non-existing in OpenL Studio displayed as collapsed numbers*
-    
-    Groups highlighted blue are internal OpenL Studio groups.
-    
--   If an external group is matched with the OpenL Studio group but it does not have the Administrator privilege assigned, the group is highlighted green.
-    
-    ![](images/groups-without-admin-privilege.png)
-    
-    *Groups without the administrative privilege matched with the OpenL Studio groups*
-    
--   If a group has the Administrator privilege, the group is highlighted red in the user table.
-    
-    ![](images/groups-with-admin-privilege.png)
-    
-    *Groups with the administrative privilege matched with the OpenL Studio groups*
-
-After each user login, OpenL Studio updates external groups as follows:
-
--   If a user got a new group, it is added to the table.
--   If a group is revoked from this user, it is deleted from the table.
-
-Administrators cannot revoke the external group.
 
 #### Managing Users
 
