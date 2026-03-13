@@ -211,6 +211,10 @@ To configure the Default Group, proceed as follows:
 2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
 3.  Click **Save** to apply the changes.
 
+![](images/security-default-group.png)
+
+*Default Group configuration in the* **Security** *tab*
+
 **Note:** The Default Group setting is not available in Single-User mode.
 
 ### Managing User Information
@@ -310,6 +314,10 @@ To invite a group, proceed as follows:
 
     The **Invite Group** dialog appears.
 
+    ![](images/invite-group-dialog.png)
+
+    *Invite Group dialog*
+
 1.  In the **Name** field, type the group name. As you type, a list of matching groups from the connected directory service is displayed. You can select an existing group from the list or enter a custom name.
 
 1.  Optionally, provide a description in the **Description** field.
@@ -324,6 +332,10 @@ To invite a group, proceed as follows:
     |-------|-------------|
     | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
     | **Role** | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory. |
+
+    ![](images/invite-group-access-management.png)
+
+    *Access Management section of the Invite Group dialog*
 
     To grant access to multiple resources, add a new row for each resource. The same resource cannot be assigned more than one role.
 
