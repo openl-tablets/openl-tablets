@@ -378,9 +378,13 @@ The following topics are included in this section:
 
 To view a list of users, proceed as follows:
 
-1.  In the **Administration** panel, click **Groups & Users**, then select the **Users** sub-tab.
+1.  In the **Administration** panel, select the **Users** tab.
 
     The system displays a list of OpenL Studio users.
+    
+     ![](images/users-list.png)
+
+    *Users list in the* **Users** *tab*
 
 1.  In the **Users** tab, perform either of the following:
 -   To create a user, proceed as described in [Creating a User](#creating-a-user).
@@ -391,17 +395,13 @@ To view a list of users, proceed as follows:
 
 To create a new user, proceed as follows:
 
-1.  On the **Users** tab, click **Add New User**.
+1.  On the **Users** tab, click **Add User**.
 
-    The system displays the **Add New User** form.
+    The system displays the **Add User** form.
 
     ![](images/create-user-form.png)
 
     *Creating a user*
-
-1.  To create a local user, ensure that the **Local user** check box is selected.
-
-    This option is selected by default. For local users, the password is stored in OpenL Studio and credentials from any connected identity provider are not used. This check box is available only when an external identity provider is configured.
 
 1.  In the **Username** field, specify the user login name.
 2.  Optionally, enter the user email.
@@ -414,19 +414,13 @@ To create a new user, proceed as follows:
 
 1.  Optionally, enter the user’s first and last name.
 
-    By default, the **Display name** is automatically generated as “First name” + space + “Last name”.
-
     The display name is mandatory for committing to the Git repository.
 
 1.  To change the display name pattern, in the appropriate field, select either **First Last** or **Last First**.
 
-    If the **Other** option is selected, the field becomes editable and any display name can be entered.
+    If the **Custom** option is selected, the field becomes editable and any display name can be entered.
 
-1.  To grant the user full administrative access to OpenL Studio, select the **Administrator** check box.
-
-    When this option is selected, the access management fields are disabled because administrator users have system-wide access and do not require resource-level role assignments.
-
-1.  In the **Access Management** section, configure the user’s access to repositories and projects:
+1.  In the **Access Rights** section, configure the user’s access to repositories and projects:
 
     | Field | Description |
     |-------|-------------|
