@@ -202,13 +202,13 @@ The following topics are included in this section:
 
 To view a list of groups, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Groups & Privileges**.
+1.  In the **Administration** section, click **Groups** tab.
     
     The system displays a list of groups similar to the following one:
     
     ![](images/user-groups-list.png)
     
-    *User groups in the* **Groups & Privileges** *tab*
+    *User groups in the* **Groups** *tab*
     
 1.  To create a new group, proceed as described in [Adding a Group](#adding-a-group).
 2.  To edit a group, proceed as described in [Editing a Group](#editing-a-group).
@@ -279,8 +279,6 @@ After each user login, OpenL Studio updates external groups as follows:
 
 -   If a user got a new group, it is added to the table.
 -   If a group is revoked from this user, it is deleted from the table.
-
-External groups are checked and disabled for editing in the **Edit user** popup window. Administrators can add an additional group to a user, except for SSO CAS/SAML external user management.
 
 Administrators cannot revoke the external group.
 
