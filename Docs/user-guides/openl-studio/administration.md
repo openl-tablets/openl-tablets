@@ -76,6 +76,12 @@ To add a repository, proceed as follows:
 
     For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
 
+    ![](images/configure-deployment-repository.jpeg)
+
+    *Configuring deployment repository settings*
+
+    Connection to a local deployment repository is configured by default.
+
 7.  For **Deployment Repositories**, select the **Deployment branch** option:
 
     | Option               | Description                                                       |
