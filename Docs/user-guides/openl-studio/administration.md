@@ -34,6 +34,10 @@ The page has two tabs at the top:
 
 Within each tab, configured repositories are listed as vertical tabs on the left side. Selecting a repository name opens its settings form on the right.
 
+![](images/repositories-overview.png)
+
+*OpenL Studio repository settings*
+
 This section describes repository settings management and includes the following topics:
 
 -   [Managing General Repository Settings](#managing-general-repository-settings)
