@@ -14,46 +14,14 @@ Normally, the default settings are recommended, but users with appropriate permi
 
 The following topics are included:
 
--   [Managing System Settings](#managing-system-settings)
 -   [Managing Repository Settings](#managing-repository-settings)
+-   [Managing System Settings](#managing-system-settings)
 -   [Managing Security Settings](#managing-security-settings)
 -   [Managing User Information](#managing-user-information)
 -   [Managing Notifications](#managing-notifications)
 -   [Managing Tags](#managing-tags)
 -   [Managing Email Server Configuration](#managing-email-server-configuration)
 -   [Managing Personal Settings](#managing-personal-settings)
-
-### Managing Common Settings
-
-The **Common** tab defines the following general OpenL Studio settings:
-
--   [Managing User Workspace Settings](#managing-user-workspace-settings)
--   [Managing History Settings](#managing-history-settings)
--   [Managing Other OpenL Studio Settings](#managing-other-openl-studio-settings)
-
-#### Managing User Workspace Settings
-
-The **User Workspace** section is used to define the workspaces directory where user projects are located.
-
-#### Managing History Settings
-
-To manage history settings, proceed as follows:
-
-1.  In **The maximum count of saved changes for each project per user** field, enter the required number.
-    
-    By default, this field value is set to 100. If no value is provided, the number of records in history is unlimited.
-    
-1.  To clean all history files for the project, click the **Clear all history** button and confirm deletion.
-
-#### Managing Other OpenL Studio Settings
-
-The following table describes other general OpenL Studio settings:
-
-| Option                      | Description                                                                                                                                                                                                                                                                                                                     |
-|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Update table properties** | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties. |
-| **Date Format**             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
-| **Time Format**             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
 
 ### Managing Repository Settings
 
@@ -68,46 +36,46 @@ The **Repository** section contains connection settings of design and deployment
 
 1.  In the **Name** field, enter the repository name to be displayed in repository editor.
 2.  Select the connection type and enter corresponding location of the repository to be used as a data source as described in the following table.
-    
+
     | Type         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
     |--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
     | **Git**      | The repository can be configured on the local or remote machine.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
     | **Database** | The repository is located in a local or remote database. **Repository URL** field displays URL for access to the database. <br/>A user can create connection to different databases, such as MySQL, MS SQL, Oracle etc. <br/>For more information on supported versions, see <https://openl-tablets.org/supported-platforms>.                                                                                                                                                                                                                                                                                   |
-    | **AWS S3**   | The repository is located in Amazon Simple Storage Service (AWS S3). <br/>A “bucket” is a logical unit of storage in AWS S3 and it is globally unique. <br/>Choose a region for storage to reduce latency, costs, and so on. An Access key and a Secret key are needed to access storage. <br/>If empty, the system retrieves it from one of the known locations as described in [AWS Documentation. Best Practices for Managing AWS Access Keys](http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html). <br/>The Listener period is the interval in which to check repository changes, in seconds. |
-    
+    | **AWS S3**   | The repository is located in Amazon Simple Storage Service (AWS S3). <br/>A "bucket" is a logical unit of storage in AWS S3 and it is globally unique. <br/>Choose a region for storage to reduce latency, costs, and so on. An Access key and a Secret key are needed to access storage. <br/>If empty, the system retrieves it from one of the known locations as described in [AWS Documentation. Best Practices for Managing AWS Access Keys](http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html). <br/>The Listener period is the interval in which to check repository changes, in seconds. |
+
     For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#configuring-a-data-source).
-    
+
 1.  Provide the URL value.
-    
+
     The following table provides examples of deployment repository URL values for different databases.
-    
+
     | Database           | URL value sample                                                                                               |
     |--------------------|----------------------------------------------------------------------------------------------------------------|
     | **MySQL, MariaDB** | jdbc:mysql://localhost:3306/prodRepository, jdbc:mariadb://localhost:3306/ prodRepository (for MariaDB driver) |
     | **PostgreSQL**     | jdbc:postgresql://localhost:5432/ prodRepository                                                               |
     | **MS SQL**         | jdbc:sqlserver://localhost:1433;databaseName=prodRepository;integratedSecurity=false                           |
     | **Oracle**         | jdbc:oracle:thin:@localhost:1521:prodRepository                                                                |
-    
+
 1.  To set up a secure connection for connecting to remote or database-located repositories, select the **Secure connection** check box and fill in the login and password fields.
-    
+
     For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
-    
+
     ![](images/configure-deployment-repository.jpeg)
-    
+
     *Configuring deployment repository settings*
-    
+
     Connection to a local deployment repository is configured by default.
-    
+
 1.  To add design or deployment repositories, click **Add** **Repository** and enter required information.
 
     ![](images/add-repository-dialog.jpeg)
 
     *Adding a repository*
-    
+
 1.  When finished, click **Apply All and Restart** to save the changes and refresh the page.
-    
+
 To enable storing large files in a Git repository, Git Large File Support (LFS) can be used.
-    
+
 -   To enable the Git repository use LFS before it is cloned by OpenL Studio, perform the necessary configuration as described in <https://git-lfs.github.com/>.
 -   If the Git repository is already cloned by OpenL Studio, to enable using Git LFS, proceed as follows:
     1.  Close all projects in the workspace.
@@ -128,7 +96,7 @@ This section describes how to set up a connection to a Git repository, configure
 
 ##### Setting Up a Connection to a Git Repository
 
-In the **ADMIN** tab, in the **Repository** section, define values for the following connection properties:
+In the **Repositories** section, define values for the following connection properties:
 
 | Parameter                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 |---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -167,7 +135,11 @@ If the password is changed on the server side, by default, OpenL Studio makes th
 
 ### Managing System Settings
 
-The System tab enables modifying core, project, and testing options and includes the following topics:
+The **System** section enables modifying core, project, testing, and general options and includes the following topics:
+
+-   [Managing User Workspace Settings](#managing-user-workspace-settings)
+-   [Managing History Settings](#managing-history-settings)
+-   [Managing Other OpenL Studio Settings](#managing-other-openl-studio-settings)
 
 | Section | Property                         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |---------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -176,11 +148,37 @@ The System tab enables modifying core, project, and testing options and includes
 | Testing | **Thread number <br/>for tests**      | Indicates the number of test cases executed simultaneously.By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                                                                 |
 |         | **Restore Defaults <br/>and Restart** | Restores all settings to default values. All user defined values, such as repository settings, will be lost.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
+#### Managing User Workspace Settings
+
+The **User Workspace** section is used to define the workspaces directory where user projects are located.
+
+#### Managing History Settings
+
+To manage history settings, proceed as follows:
+
+1.  In **The maximum count of saved changes for each project per user** field, enter the required number.
+
+    By default, this field value is set to 100. If no value is provided, the number of records in history is unlimited.
+
+1.  To clean all history files for the project, click the **Clear all history** button and confirm deletion.
+
+#### Managing Other OpenL Studio Settings
+
+The following table describes other general OpenL Studio settings:
+
+| Option                      | Description                                                                                                                                                                                                                                                                                                                     |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Update table properties** | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties. |
+| **Date Format**             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
+| **Time Format**             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
+
+### Managing Security Settings
+
 ### Managing User Information
 
 This section describes how to control user access in the OpenL Studio application based on users and user groups. All privileges in the system are assigned at a group level and will be granted to a particular user after he or she is included in a particular group.
 
-Users and groups are managed in the **Users** and **Groups & Privileges** tabs. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
+Users and groups are managed in the **Users** and **Groups** sections. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
 
 The following topics are included in this section:
 
@@ -203,14 +201,14 @@ The following topics are included in this section:
 
 To view a list of groups, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Groups & Privileges**.
-    
+1.  In the navigation menu, click **Groups**.
+
     The system displays a list of groups similar to the following one:
-    
+
     ![](images/user-groups-list.jpeg)
-    
-    *User groups in the* **Groups & Privileges** *tab*
-    
+
+    *User groups*
+
 1.  To create a new group, proceed as described in [Adding a Group](#adding-a-group).
 2.  To edit a group, proceed as described in [Editing a Group](#editing-a-group).
 3.  To delete an existing group, proceed as described in [Deleting a Group](#deleting-a-group).
@@ -220,19 +218,19 @@ To view a list of groups, proceed as follows:
 To add a new group, proceed as follows:
 
 1.  Click the **Add New Group** link.
-    
+
     The **Add New Group** form appears.
-    
+
 1.  Enter the group name in the **Name** field.
 2.  Optionally, provide group description in the **Description** text box.
 3.  In the **Privilege** area, define the privileges as needed.
-    
+
     To assign a set of privileges for a group, click the group name above the list of privileges, such as Developers, Testers, or Administrators. The **Authenticated** default group with the **Viewer** privilege is created if the **All authenticated users have View access** check box is selected in the installation wizard. The group is displayed in the user table if no other groups are assigned to this user.
-    
+
     ![](images/add-user-group-form.png)
-    
+
     *Adding a user group with required set of privileges*
-    
+
 1.  Click **Save**.
 
 ##### Editing a Group
@@ -257,23 +255,23 @@ If OpenL Studio is installed with the option to sign in via a third party identi
 When a user from the third-party server logs into OpenL Studio, external user groups are pulled from the external server and displayed in the OpenL Studio user table.
 
 -   If an external group cannot be matched with the OpenL Studio group, that is, no group with such name exists in OpenL Studio, the group is displayed as a collapsed number, for example, +1, and when the value is expanded, the group is highlighted grey.
-    
+
     ![](images/groups-not-in-openl-studio.png)
-    
+
     *Groups non-existing in OpenL Studio displayed as collapsed numbers*
-    
+
     Groups highlighted blue are internal OpenL Studio groups.
-    
+
 -   If an external group is matched with the OpenL Studio group but it does not have the Administrator privilege assigned, the group is highlighted green.
-    
+
     ![](images/groups-without-admin-privilege.png)
-    
+
     *Groups without the administrative privilege matched with the OpenL Studio groups*
-    
+
 -   If a group has the Administrator privilege, the group is highlighted red in the user table.
-    
+
     ![](images/groups-with-admin-privilege.png)
-    
+
     *Groups with the administrative privilege matched with the OpenL Studio groups*
 
 After each user login, OpenL Studio updates external groups as follows:
@@ -316,11 +314,11 @@ The following topics are included in this section:
 
 To view a list of users, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Users** on the left.
-    
+1.  In the navigation menu, click **Users**.
+
     The system displays a list of OpenL Studio users.
-    
-1.  In the **Users** tab, perform either of the following:
+
+1.  In the **Users** section, perform either of the following:
 -   To create a user, proceed as described in [Creating a User](#creating-a-user).
 -   To edit a user, proceed as described in [Editing a User](#editing-a-user).
 -   To delete a user from the system, proceed as described in [Deleting a User](#deleting-a-user).
@@ -330,36 +328,36 @@ To view a list of users, proceed as follows:
 While creating a user, make sure to include the user in at least one group. Proceed as follows:
 
 1.  Click the **Add New User** link.
-    
+
     The system displays the **Add New User** form.
-    
+
     ![](images/create-user-form.png)
-    
+
     *Creating a user*
-    
+
 1.  To create a user locally, ensure that the **Local user** check box is selected.
-    
+
     This option is selected by default. For local users, password information is stored in OpenL Tablets Studio and third party system user data is not used. This check box is available only if the Active Directory user mode and internal user management option are selected.
-    
-1.  Specify the user’s login name in the **Username** field.
+
+1.  Specify the user's login name in the **Username** field.
 2.  Optionally, enter the user email.
-    
+
     The email value is mandatory for committing to the Git repository.
-    
+
 1.  In the **Password** field, enter user password value.
-    
+
     This field is unavailable for external users.
-    
-1.  Optionally, enter the user’s first and last name.
-    
-    By default, the **Display name** value is automatically generated as “First name”+space+”Last name”.
-    
+
+1.  Optionally, enter the user's first and last name.
+
+    By default, the **Display name** value is automatically generated as "First name"+space+"Last name".
+
     The display name is mandatory for committing to the Git repository.
-    
+
 1.  To change the **Display name** pattern, in the appropriate field, select either **First Last**, or **Last First**.
-    
+
     If the **Other** option is selected, the field becomes editable and any display name can be entered.
-    
+
 1.  Select one or more groups to assign the user to.
 2.  Click **Save** to complete.
 
@@ -375,10 +373,10 @@ To edit a user, proceed as follows:
 
 1.  In the **Users** list, locate a user that needs to be modified and click the username.
 2.  In the **Edit User** form, modify user data as required.
-    
-    The username and administrator’s privilege set up in the `security.administrators` property cannot be changed.
+
+    The username and administrator's privilege set up in the `security.administrators` property cannot be changed.
     For external users synchronized with Active Directory or SSO, only fields that are not received from the third party are editable.
-    
+
 1.  Click **Save** to save the changes.
 
 ##### Deleting a User
@@ -405,10 +403,10 @@ If a user is first created in OpenL Studio as internal or external, and for logo
 
 An exception is the situation when the first or last name was changed.
 
--   If the display name was set to “first name + space + last name”, it is updated to the new “first name + space + last name”.
--   If the display name was set to the “last name + space + first name”, it is updated to the new “last name + space + first name”.
+-   If the display name was set to "first name + space + last name", it is updated to the new "first name + space + last name".
+-   If the display name was set to the "last name + space + first name", it is updated to the new "last name + space + first name".
 -   If the display name is set to **Other** and its value in OpenL Studio is not empty, and in the third party service, it is empty, upon synchronization, the display name set locally is not changed.
--   If the display name value is empty in OpenL Studio and the third party service, but the first name and last name values are not empty, the display name is set to “first name + space + last name”, regardless of the pattern specified upon local user creation.
+-   If the display name value is empty in OpenL Studio and the third party service, but the first name and last name values are not empty, the display name is set to "first name + space + last name", regardless of the pattern specified upon local user creation.
 
 If this user was not created as a local user previously but instead, created upon the external user logon, the display name value stays empty.
 
@@ -418,9 +416,9 @@ User permissions can be assigned locally in OpenL Studio. Alternatively, to retr
 
 ### Managing Notifications
 
-In the **ADMIN \> Notification** section, users with the administrator privileges can send text messages to all OpenL Studio instances and users that are currently online or remove previously sent notifications.
+In the **Notification** section, users with the administrator privileges can send text messages to all OpenL Studio instances and users that are currently online or remove previously sent notifications.
 
-When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL 
+When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL
 Studio instances. To remove the message for all users and OpenL Studio instances, click **Remove**.
 
 ![](images/notification-red-bar.jpeg)
@@ -437,30 +435,30 @@ For extensible tag types, any user can create new tag values. For other tag type
 
 To create project tags, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Tags** on the left.
-    
+1.  In the navigation menu, click **Tags**.
+
     ![](images/select-tags-admin.jpeg)
-    
+
     *Selecting tags*
-    
+
 1.  To add a tag type, in the **New Tag Type** field, enter the tag type name and press **Enter** or Tab.
-    
+
     When at least one tag type is added, a field for adding tag values appears.
-    
+
     ![](images/add-tag-values.jpeg)
-    
+
     *Adding tag values*
-    
+
 1.  To edit a tag type, click the tag type name field and make the necessary changes.
 2.  To delete a tag type, click the red cross icon for the appropriate tag.
 3.  To add a tag value, in the **New Tag** field, enter the tag name and press **Enter.**
 4.  To edit a tag, click the menu icon ![](images/tag-menu-icon.png), select **Edit,** modify the tag, and press **Enter** or click outside the field.
 5.  To delete a tag, click the menu icon ![](images/tag-menu-icon.png) and select **Delete.**
-    
+
     All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
-    
+
     Tag values can be derived from project names. Proceed as follows:
-    
+
 1.  To define project name templates to be used for deriving tags, in the **Tags from a Project Name** section, enter the template value.
 2.  To save project name templates, click **Save Templates** or simply click outside the field.
 3.  To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill tags for projects.**
@@ -492,24 +490,24 @@ OpenL Studio supports sending emails for mailbox verification.
 
 To manage email server configuration, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Mail** on the left.
+1.  In the navigation menu, click **Mail**.
 2.  Ensure that the **Enable email address verification** check box is selected.
-3.  Specify the sender’s URL, username, and password for dispatching verification emails through this email server.
+3.  Specify the sender's URL, username, and password for dispatching verification emails through this email server.
 4.  Click **Apply All and Restart.**
-    
+
     When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified mailboxes manually defined by a user.
-    
+
     ![](images/verification-email-sender.png)
-    
+
     *Defining verification emails sender*
-    
+
     If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
-    
+
     ![](images/user-unverified-email.png)
-    
+
     *A user with unverified email*
-    
-1.  If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record and click **Resend**.
+
+1.  If the verification email is not received for some reason, to resend it, in the **Users** section, open the user record and click **Resend**.
 
 ![](images/resend-verification-email-admin.png)
 
@@ -526,4 +524,6 @@ The verification email resembles the following:
 ![](images/verification-email-example.png)
 
 *Verification email example*
+
+### Managing Personal Settings
 
