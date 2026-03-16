@@ -160,7 +160,13 @@ To enable custom commit messages, select the **Customize comments** check box. T
 | **User message pattern**      | Optional regular expression for validating user-entered commit messages.                                                                                                                                                                                                                                                                                                                                              |
 | **Invalid user message hint** | Error message displayed when the user message does not match the validation pattern.                                                                                                                                                                                                                                                                                                                                  |
 
-The following user message templates can be customized for individual operations. For **Restore from old version**, the placeholders `{revision}`, `{author}`, and `{datetime}` are also available.
+The following user message templates can be customized for individual operations.
+
+For the **Restore from old version** template, the following additional placeholders are available:
+
+-   **{revision}** is replaced by the old revision number.
+-   **{author}** is replaced by the author of the old project version.
+-   **{datetime}** is replaced by the date of the old project version.
 
 | Template                     | Operation                                       |
 |------------------------------|-------------------------------------------------|
