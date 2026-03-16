@@ -74,14 +74,16 @@ To add a repository, proceed as follows:
 
     For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
 
-6.  For **Deployment Repositories**, select the **Deployment branch** option:
+6.  For **Database JDBC** and **Database JNDI** types, to set up a secure connection, select the **Secure connection** check box and fill in the **Login** and **Password** fields.
+
+7.  For **Deployment Repositories**, select the **Deployment branch** option:
 
     | Option               | Description                                                       |
     |----------------------|-------------------------------------------------------------------|
     | **Any branch**       | Projects can be deployed to any branch.                           |
     | **Main branch only** | Projects can only be deployed to the repository's default branch. |
 
-7.  When finished, click **Apply Changes** to save the settings.
+8.  When finished, click **Apply Changes** to save the settings.
 
 To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 
