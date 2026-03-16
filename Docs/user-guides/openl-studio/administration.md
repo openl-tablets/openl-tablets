@@ -2,25 +2,24 @@
 
 This section explains how to view and control OpenL Studio system settings and manage user information in the system.
 
-To perform administration tasks, in the top line menu, click **ADMIN**.
+To access administration tools, click the user icon in the top-right corner and select **Administration** from the menu.
 
-By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, **System, Users, Groups & Privileges**, and **Notification** groups. To open the group, click the corresponding tab on the left.
+The administration area is organized as a left-side navigation menu. The available items depend on the user's permissions: all users can access their personal settings, while administration sections are visible only to users with administration privileges.
 
 ![](images/admin-overview.jpeg)
 
 *OpenL Studio administration*
 
-Normally, the default settings are recommended, but users with appropriate permissions can change them as required. After making changes, click **Apply All and Restart** and refresh the page. To restore the original settings, in the **System** tab, click the **Restore Defaults and Restart** button.
-
 The following topics are included:
 
--   [Managing Common Settings](#managing-common-settings)
--   [Managing Repository Settings](#managing-repository-settings)
 -   [Managing System Settings](#managing-system-settings)
+-   [Managing Repository Settings](#managing-repository-settings)
+-   [Managing Security Settings](#managing-security-settings)
 -   [Managing User Information](#managing-user-information)
 -   [Managing Notifications](#managing-notifications)
 -   [Managing Tags](#managing-tags)
 -   [Managing Email Server Configuration](#managing-email-server-configuration)
+-   [Managing Personal Settings](#managing-personal-settings)
 
 ### Managing Common Settings
 
