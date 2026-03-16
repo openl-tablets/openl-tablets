@@ -1,76 +1,56 @@
 # Docs — Agent Conventions
 
-Jekyll 3.10 + Minimal Mistakes 4.28.0 (remote theme) on GitHub Pages.
+Jekyll 3.10 + Minimal Mistakes 4.28.0 remote theme on GitHub Pages.
 
-## Rules
+## Strict Rules
 
-- DO NOT set `layout` in front matter — layouts are assigned via `_config.yml` defaults
-- DO NOT edit `_data/navigation.yml` for user-guide pages — sidebar is auto-generated from folder structure
-- DO NOT add ToC markup to release notes — the `release-notes` layout generates it
-- DO NOT use custom Jekyll plugins — GitHub Pages only allows whitelisted gems
-- Use relative links between `.md` files — `jekyll-relative-links` resolves them
-- "openl" in filenames auto-resolves to "OpenL" in sidebar titles (no manual `title` needed)
-- Use numeric prefixes (`01-`, `02-`) to control page/directory ordering within a section
-- Images go in a co-located `images/` directory, referenced via relative paths
+- DO NOT set `layout` in front matter — assigned via `_config.yml` defaults
+- DO NOT edit `_data/navigation.yml` for user-guide pages — sidebar is auto-generated
+- DO NOT add ToC markup to release notes — `release-notes` layout generates it
+- DO NOT use custom Jekyll plugins — GitHub Pages whitelisted gems only
 
 ## Key Files
 
-| File                          | Role                                                            |
-|-------------------------------|-----------------------------------------------------------------|
-| `_config.yml`                 | Site config, layout defaults, `nav: "auto"` for user-guides     |
-| `_data/navigation.yml`        | Header nav bar only (`main:` key)                               |
-| `_includes/nav_list`          | Theme override — routes `"auto"` → `nav_auto.html`              |
-| `_includes/nav_auto.html`     | Generates sidebar from `user-guides/` folder tree (pure Liquid) |
-| `_layouts/release-notes.html` | Auto ToC from `##` headings + auto-includes `migration.md`      |
+- **`_config.yml`** — site config, layout defaults, `nav: "auto"` for user-guides
+- **`_data/navigation.yml`** — header nav bar only (`main:` key)
+- **`_includes/nav_list`** — theme override, routes `"auto"` → `nav_auto.html`
+- **`_includes/nav_auto.html`** — generates sidebar from `user-guides/` folder tree
+- **`_layouts/release-notes.html`** — auto ToC from `##` headings + auto-includes `migration.md`
 
 ## Sidebar Navigation
 
-Auto-generated from folder structure under `user-guides/`. Triggered by `nav: "auto"` in `_config.yml`.
+Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml`. Applied to `user-guides/`.
 
-- **Title source**: front matter `title` → filename (strip numeric prefix, kebab-case → Title Case)
-- **Order**: alphabetical by `page.path` — numeric prefixes control sequence
-- **Depth 0** (`user-guides/`): root link
-- **Depth 1** (e.g. `installation/`): bold section header
-- **Depth 2+**: nested list items
-- Adding/removing a `.md` file automatically updates the sidebar on rebuild
-
-## Front Matter
-
-Minimal — only use what's needed:
-
-```yaml
----
-title: "Page Title"          # Required for index.md; optional for others if filename-derived title is OK
-description: "SEO summary"   # Optional
----
-```
-
-Reference guide sub-pages (`user-guides/reference/**`) typically have NO front matter.
+- **Title**: folder name if index.md or filename (strip numeric prefix, kebab-to-Title Case, "openl" becomes "OpenL")
+- **Order**: alphabetical by `page.path` — numeric prefixes (`01-`, `02-`) control sequence
+- **Depth**: 0 = root link, 1 = bold section header, 2+ = nested items
+- Adding/removing `.md` files auto-updates sidebar on rebuild
 
 ## File Naming
 
 - Section landing pages: `<dir>/index.md`
-- Sub-pages: `kebab-case.md` or `NN-kebab-case.md` (numeric prefix for ordering)
+- Sub-pages: `kebab-case.md` or `NN-kebab-case.md`
 - Release notes: `release-notes/<semver>/index.md` + optional `migration.md`
-- Images: `images/<name>.png` next to the page
+- Images: `images/<name>.png` co-located with the page
 
-## Tasks
+## Front Matter
 
-**Add a user-guide page**: create `.md` in the right `user-guides/` subdirectory. Done.
+Minimal — only what's needed:
 
-**Add a user-guide section**: create directory → add `index.md` with `title` → add sub-pages → link from `user-guides/index.md`.
+```yaml
+---
+title: "Page Title"        # Required for index.md; optional if filename-derived title is OK
+description: "SEO summary" # Optional
+---
+```
 
-**Add a release note**: create `release-notes/<version>/index.md`. Use `##` for sections. Add `migration.md` in the same directory if needed.
-
-**Modify header nav**: edit `_data/navigation.yml` `main:` section. URLs use pretty format with slashes (`/path/`).
-
-**Add images**: place in `images/` next to the page → `![alt](images/file.png)`.
+User guides sub-pages (`user-guides/**`) typically have NO front matter.
 
 ## Local Build
 
 ```bash
 cd Docs
-# Docker (no local Ruby needed):
+# Docker:
 docker run --rm -v "$(pwd)":/app -w /app ruby:3.3-slim \
   sh -c "apt-get update -qq && apt-get install -yqq build-essential git >/dev/null 2>&1 && \
          bundle install --quiet && bundle exec jekyll serve --host 0.0.0.0"
@@ -80,6 +60,5 @@ bundle install && bundle exec jekyll serve
 
 ## Caveats
 
-- `developer-guides/`, `integration-guides/`, `api/` exist but are intentionally unlinked (no front matter, not in nav)
-- Auto-derived titles capitalize each word independently; "openl" → "OpenL" is auto-corrected
+- `developer-guides/`, `integration-guides/`, `api/` exist but intentionally unlinked
 - Deeply nested reference guide paths produce long URLs
