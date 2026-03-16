@@ -184,22 +184,31 @@ For the **Restore from old version** template, the following additional placehol
 
 ### Managing System Settings
 
-The **System** section enables modifying core, project, testing, and general options and includes the following topics:
+The **System** section enables modifying core, testing, history, and general OpenL Studio settings. In the navigation menu, click **System** to open it.
 
--   [Managing User Workspace Settings](#managing-user-workspace-settings)
+The settings are organized into the following groups:
+
+-   [Core Settings](#core-settings)
+-   [Testing Settings](#testing-settings)
 -   [Managing History Settings](#managing-history-settings)
--   [Managing Other OpenL Studio Settings](#managing-other-openl-studio-settings)
+-   [Other Settings](#other-settings)
+-   [Managing Database Configuration](#managing-database-configuration)
+-   [Reset Settings](#reset-settings)
 
-| Section | Property                         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|---------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Core    | **Dispatching <br/>Validation**       | Setting turns on/off the mechanism of dispatching for a rule table where the only one version of this rule table exists. <br/>By default, the **dispatching.validation** value is set to **true** in OpenL Studio. <br/>For more information on dispatching validation, see <br/>[OpenL Tablets Rule Services Usage and Customization Guide>Table Dispatching Validation Mode](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#table-dispatching-validation-mode). |
-|         | **Verify on Edit**               | Allows turning on/off checking of rules consistency and validity on each edit in Rules Editor. <br/>By default, the check box is selected. Automatic checks are executed after each edit. <br/>If this option is cleared, the verification process does not launch automatically when the **Save** button is clicked. <br/>Instead, a **Verify** button appears in Rules Editor, and the user must verify manually by clicking this button.                                                                                                                  |
-| Testing | **Thread number <br/>for tests**      | Indicates the number of test cases executed simultaneously.By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                                                                 |
-|         | **Restore Defaults <br/>and Restart** | Restores all settings to default values. All user defined values, such as repository settings, will be lost.                                                                                                                                                                                                                                                                                                                                                                                                                              |
+After making changes, click **Apply** to save.
 
-#### Managing User Workspace Settings
+#### Core Settings
 
-The **User Workspace** section is used to define the workspaces directory where user projects are located.
+| Property                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Dispatching Validation** | Turns on or off the dispatching mechanism for a rule table where only one version of the rule table exists. <br/>By default, this option is enabled. <br/>For more information on dispatching validation, see [OpenL Tablets Rule Services Usage and Customization Guide > Table Dispatching Validation Mode](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#table-dispatching-validation-mode). |
+| **Verify on Edit**        | Turns on or off automatic checking of rules consistency and validity on each edit in Rules Editor. <br/>By default, this option is enabled. Automatic checks are executed after each edit. <br/>If this option is cleared, the verification process does not launch automatically when the **Save** button is clicked. <br/>Instead, a **Verify** button appears in Rules Editor, and the user must verify manually by clicking this button.                                                          |
+
+#### Testing Settings
+
+| Property                    | Description                                                                                                                                                                                                                                             |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Thread Number for Tests** | Indicates the number of test cases executed simultaneously. By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed. |
 
 #### Managing History Settings
 
@@ -209,17 +218,32 @@ To manage history settings, proceed as follows:
 
     By default, this field value is set to 100. If no value is provided, the number of records in history is unlimited.
 
-1.  To clean all history files for the project, click the **Clear all history** button and confirm deletion.
+1.  To clear all history files for all projects, click the **Clear All History** button and confirm deletion.
 
-#### Managing Other OpenL Studio Settings
-
-The following table describes other general OpenL Studio settings:
+#### Other Settings
 
 | Option                      | Description                                                                                                                                                                                                                                                                                                                     |
 |-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Update table properties** | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties. |
-| **Date Format**             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
-| **Time Format**             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                             |
+| **Date Format**             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                                        |
+| **Time Format**             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                                        |
+
+#### Managing Database Configuration
+
+The **Database Configuration** section defines the database used for managing users in OpenL Studio. Contact your System Administrator for this information if necessary.
+
+| Field                | Description                                                             |
+|----------------------|-------------------------------------------------------------------------|
+| **Database URL**     | JDBC URL of the database used to store OpenL Studio user data.          |
+| **Login**            | Database user login.                                                    |
+| **Password**         | Database user password. Leave blank to keep the current value.          |
+| **Maximum Pool Size** | Maximum number of database connections in the connection pool.          |
+
+#### Reset Settings
+
+The **Reset Settings** group contains the **Restore Defaults and Restart** button.
+
+> **WARNING!** If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
 
 ### Managing Security Settings
 
