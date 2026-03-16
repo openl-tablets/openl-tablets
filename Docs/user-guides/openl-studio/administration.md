@@ -61,7 +61,7 @@ To add a repository, proceed as follows:
 
     For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#configuring-a-data-source).
 
-5.  Fill in the connection parameters for the selected type.
+5.  Provide the URL value.
 
     The following table provides examples of JDBC URL values for different databases.
 
