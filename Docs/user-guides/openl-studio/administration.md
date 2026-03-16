@@ -76,7 +76,7 @@ To add a repository, proceed as follows:
 
     For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
 
-    ![](images/configure-deployment-repository.jpeg)
+    ![](images/configure-deployment-repository.png)
 
     *Configuring deployment repository settings*
 
