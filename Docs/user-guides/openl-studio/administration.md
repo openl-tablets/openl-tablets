@@ -6,7 +6,7 @@ To access administration tools, click the user icon in the top-right corner and 
 
 The administration area is organized as a left-side navigation menu. The available items depend on the user's permissions: all users can access their personal settings, while administration sections are visible only to users with administration privileges.
 
-![](images/admin-overview.jpeg)
+![](images/admin-overview.png)
 
 *OpenL Studio administration*
 
