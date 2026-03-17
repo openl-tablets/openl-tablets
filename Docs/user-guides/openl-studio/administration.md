@@ -4,17 +4,17 @@ This section explains how to view and control OpenL Studio system settings and m
 
 To perform administration tasks, in the top line menu, click **ADMIN**.
 
-By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**, *
-*System**, **Security**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab
+By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**,
+**System**, **Security**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab
 on the left.
 
-![OpenL Studio administration](images/admin-overview.jpeg)
+![](images/admin-overview.jpeg "OpenL Studio administration")
 
 *OpenL Studio administration*
 
 Normally, the default settings are recommended, but users with appropriate permissions can change them as required.
-After making changes, click **Apply All and Restart** and refresh the page. To restore the original settings, in the *
-*System** tab, click the **Restore Defaults and Restart** button.
+After making changes, click **Apply All and Restart** and refresh the page. To restore the original settings, in the 
+**System** tab, click the **Restore Defaults and Restart** button.
 
 The following topics are included:
 
@@ -105,7 +105,7 @@ settings, proceed as follows:
    For more information on repository security,
    see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
 
-   ![Configuring deployment repository settings](images/configure-deployment-repository.jpeg)
+   ![](images/configure-deployment-repository.jpeg "Configuring deployment repository settings")
 
    *Configuring deployment repository settings*
 
@@ -113,7 +113,7 @@ settings, proceed as follows:
 
 5. To add design or deployment repositories, click **Add** **Repository** and enter required information.
 
-   ![Adding a repository](images/add-repository-dialog.jpeg)
+   ![](images/add-repository-dialog.jpeg "Adding a repository")
 
    *Adding a repository*
 
@@ -256,7 +256,7 @@ To configure the Default Group, proceed as follows:
    for all users.
 3. Click **Apply** to apply the changes.
 
-![Default Group configuration in the **Security** tab](images/security-default-group.png)
+![](images/security-default-group.png "Default Group configuration in the Security tab")
 
 *Default Group configuration in the* **Security** *tab*
 
@@ -380,7 +380,7 @@ To view the list of groups, proceed as follows:
 
    The system displays a list of invited groups, including their names, descriptions, and number of members:
 
-   ![Groups list in the **Groups** tab](images/user-groups-list.png)
+   ![](images/user-groups-list.png "Groups list in the Groups tab")
 
    *Groups list in the* **Groups** *tab*
 
@@ -398,7 +398,7 @@ To invite a group, proceed as follows:
 
    The **Invite Group** dialog appears.
 
-   ![Invite Group dialog](images/invite-group-dialog.png)
+   ![](images/invite-group-dialog.png "Invite Group dialog")
 
    *Invite Group dialog*
 
@@ -419,7 +419,7 @@ To invite a group, proceed as follows:
    | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
    | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory.                                      |
 
-   ![Access Management section of the Invite Group dialog](images/invite-group-access-management.png)
+   ![](images/invite-group-access-management.png "Access Management section of the Invite Group dialog")
 
    *Access Management section of the Invite Group dialog*
 
@@ -473,7 +473,7 @@ To view a list of users, proceed as follows:
 
    The system displays a list of OpenL Studio users.
 
-   ![Users list in the **Users** tab](images/users-list.png)
+   ![](images/users-list.png "Users list in the Users tab")
 
    *Users list in the* **Users** *tab*
 
@@ -488,7 +488,7 @@ To view a list of users, proceed as follows:
       groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Clicking
       the badge expands the full list.
 
-   ![Users list showing color-coded group membership](images/users-list-group-colors.png)
+   ![](images/users-list-group-colors.png "Users list showing color-coded group membership")
 
    *Users list showing color-coded group membership*
 
@@ -506,7 +506,7 @@ To create a new user, proceed as follows:
 
    The system displays the **Add User** form.
 
-   ![Creating a user](images/create-user-form.png)
+   ![](images/create-user-form.png "Creating a user")
 
    *Creating a user*
 
@@ -544,7 +544,7 @@ To create a new user, proceed as follows:
 The system displays the new user in the **Users** list. If the username and password values are the same, an exclamation
 mark is displayed next to the username. A user can change the password to improve security.
 
-![User list with a password security warning](images/user-matching-password.png)
+![](images/user-matching-password.png "User list with a password security warning")
 
 *User list with a password security warning*
 
@@ -614,7 +614,7 @@ Studio instances and users that are currently online or remove previously sent n
 When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL
 Studio instances. To remove the message for all users and OpenL Studio instances, click **Remove**.
 
-![Red bar identifying a notification sent to all active users and instances](images/notification-red-bar.jpeg)
+![](images/notification-red-bar.jpeg "Red bar identifying a notification sent to all active users and instances")
 
 *Red bar identifying a notification sent to all active users and instances*
 
@@ -636,7 +636,7 @@ To create project tags, proceed as follows:
 
 1.  In the **ADMIN** tab, click **Tags** on the left.
 
-    ![Selecting tags](images/select-tags-admin.jpeg)
+    ![](images/select-tags-admin.jpeg "Selecting tags")
 
     *Selecting tags*
 
@@ -644,7 +644,7 @@ To create project tags, proceed as follows:
 
     When at least one tag type is added, a field for adding tag values appears.
 
-    ![Adding tag values](images/add-tag-values.jpeg)
+    ![](images/add-tag-values.jpeg "Adding tag values")
 
     *Adding tag values*
 
@@ -663,8 +663,8 @@ To create project tags, proceed as follows:
 8.  To define project name templates to be used for deriving tags, in the **Tags from a Project Name** section, enter the
     template value.
 9.  To save project name templates, click **Save Templates** or simply click outside the field.
-10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click *
-   *Fill tags for projects.**
+10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click
+    **Fill tags for projects.**
 
 The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple
 tag types, or do not have tags defined at all, and which name matches the project name template.
@@ -672,7 +672,7 @@ tag types, or do not have tags defined at all, and which name matches the projec
 Please note that only projects currently opened by the user can be modified. If a project exists in the repository but
 is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
 
-![Applying tags for projects matching project name templates.](images/apply-tags-window.png)
+![](images/apply-tags-window.png "Applying tags for projects matching project name templates")
 
 *Applying tags for projects matching project name templates.*
 
@@ -710,33 +710,33 @@ To manage email server configuration, proceed as follows:
    When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified
    mailboxes manually defined by a user.
 
-   ![Defining verification emails sender](images/verification-email-sender.png)
+   ![](images/verification-email-sender.png "Defining verification emails sender")
 
    *Defining verification emails sender*
 
    If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
 
-   ![A user with unverified email](images/user-unverified-email.png)
+   ![](images/user-unverified-email.png "A user with unverified email")
 
    *A user with unverified email*
 
 5. If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record
    and click **Resend**.
 
-![Resending a verification email](images/resend-verification-email-admin.png)
+![](images/resend-verification-email-admin.png "Resending a verification email")
 
 *Resending a verification email*
 
-A user can resend the verification email on his or her own by clicking the username in the top right corner, selecting *
-*User Details,** and clicking **Resend.**
+A user can resend the verification email on his or her own by clicking the username in the top right corner, selecting
+**User Details**, and clicking **Resend**.
 
-![A user initiating verification email resending](images/user-resend-verification-email.png)
+![](images/user-resend-verification-email.png "A user initiating verification email resending")
 
 *A user initiating verification email resending*
 
 The verification email resembles the following:
 
-![Verification email example](images/verification-email-example.png)
+![](images/verification-email-example.png "Verification email example")
 
 *Verification email example*
 
