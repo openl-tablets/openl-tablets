@@ -60,6 +60,6 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci`
 ## Markdown Rules
 
 - No HTML when Markdown equivalents exist
-- Images MUST have descriptive alt text
+- Single located images MUST have descriptive title text
 - Prefer bullet lists over dense prose
 - Tables only when both columns are short or 3+ columns; otherwise use `- **label** — description`
