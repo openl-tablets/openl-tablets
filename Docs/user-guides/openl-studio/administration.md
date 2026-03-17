@@ -243,8 +243,6 @@ OpenL Studio supports the following authentication modes:
 
 **Note:** CAS authentication is no longer supported starting with OpenL Tablets 6.0.
 
-For more information on configuring authentication, see [OpenL Tablets Installation Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/).
-
 #### Configuring Single-User Mode
 
 When **Single-User** is selected, configure the single user account that will be used to run OpenL Studio:
