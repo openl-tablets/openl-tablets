@@ -249,11 +249,11 @@ When **Single-User** is selected, configure the single user account that will be
 
 | Field            | Description                                           |
 |------------------|-------------------------------------------------------|
-| **Username**     | Login name for the single user. Required.             |
-| **Email**        | Email address of the user. Optional.                  |
-| **First Name**   | User's first name. Required.                          |
-| **Last Name**    | User's last name. Required.                           |
-| **Display Name** | Name displayed in the OpenL Studio UI. Required.      |
+| **Username**     | Login name for the single user.             |
+| **Email**        | Email address of the user.                  |
+| **First Name**   | User's first name.                          |
+| **Last Name**    | User's last name.                           |
+| **Display Name** | Name displayed in the OpenL Studio UI.      |
 
 #### Configuring Multi-User Mode
 
@@ -267,10 +267,10 @@ When **Active Directory / LDAP** is selected, configure the connection to the di
 
 | Field           | Description                                                                                                                                                                                                     |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Domain**      | The Active Directory domain name. Required.                                                                                                                                                                     |
-| **Server URL**  | URL of the Active Directory or LDAP server. Required.                                                                                                                                                           |
-| **User Filter** | LDAP filter string used to search for the authenticating user. Required. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only.                                                  |
-| **Group Filter** | LDAP filter string used to search for the groups the user belongs to. Optional. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only. <br/>`{2}` is replaced with the DN of the found user. |
+| **Domain**      | The Active Directory domain name.                                                                                                                                                                     |
+| **Server URL**  | URL of the Active Directory or LDAP server.                                                                                                                                                           |
+| **User Filter** | LDAP filter string used to search for the authenticating user. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only.                                                  |
+| **Group Filter** | LDAP filter string used to search for the groups the user belongs to. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only. <br/>`{2}` is replaced with the DN of the found user. |
 
 Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
 
@@ -280,15 +280,15 @@ When **SSO: SAML** is selected, configure the connection to the SAML identity pr
 
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
-| **Entity ID**                  | The SAML Entity ID of the OpenL Studio service provider. Required.                                   |
-| **Server Metadata URL**        | URL to the SAML identity provider metadata. Required.                                                |
-| **Remote Server Certificate**  | The identity provider's public certificate, used to verify SAML responses. Optional.                 |
-| **Attribute for Username**     | Name of the SAML attribute that contains the username. Optional.                                     |
-| **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name. Optional.                            |
-| **Attribute for Last Name**    | Name of the SAML attribute that contains the user's last name. Optional.                             |
-| **Attribute for Display Name** | Name of the SAML attribute that contains the display name. Optional.                                 |
-| **Attribute for Email**        | Name of the SAML attribute that contains the user's email address. Optional.                         |
-| **Attribute for Groups**       | Name of the SAML attribute that contains the user's group memberships. Optional.                     |
+| **Entity ID**                  | The SAML Entity ID of the OpenL Studio service provider.                                   |
+| **Server Metadata URL**        | URL to the SAML identity provider metadata.                                                |
+| **Remote Server Certificate**  | The identity provider's public certificate, used to verify SAML responses.                 |
+| **Attribute for Username**     | Name of the SAML attribute that contains the username.                                     |
+| **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name.                            |
+| **Attribute for Last Name**    | Name of the SAML attribute that contains the user's last name.                             |
+| **Attribute for Display Name** | Name of the SAML attribute that contains the display name.                                 |
+| **Attribute for Email**        | Name of the SAML attribute that contains the user's email address.                         |
+| **Attribute for Groups**       | Name of the SAML attribute that contains the user's group memberships.                     |
 
 Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
 
@@ -298,16 +298,16 @@ When **SSO: OAuth2** is selected, configure the connection to the OAuth2 / OpenI
 
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
-| **Client ID**                  | The OAuth2 client ID registered with the identity provider. Required.                                |
-| **Issuer URI**                 | The base URI of the identity provider's OpenID Connect discovery endpoint. Required.                 |
-| **Client Secret**              | The OAuth2 client secret. Required.                                                                  |
-| **Scope**                      | Space-separated list of OAuth2 scopes to request during authentication. Required.                    |
-| **Attribute for Username**     | Name of the token claim that contains the username. Optional.                                        |
-| **Attribute for First Name**   | Name of the token claim that contains the user's first name. Optional.                               |
-| **Attribute for Last Name**    | Name of the token claim that contains the user's last name. Optional.                                |
-| **Attribute for Display Name** | Name of the token claim that contains the display name. Optional.                                    |
-| **Attribute for Email**        | Name of the token claim that contains the user's email address. Optional.                            |
-| **Attribute for Groups**       | Name of the token claim that contains the user's group memberships. Optional.                        |
+| **Client ID**                  | The OAuth2 client ID registered with the identity provider.                                |
+| **Issuer URI**                 | The base URI of the identity provider's OpenID Connect discovery endpoint.                 |
+| **Client Secret**              | The OAuth2 client secret.                                                                  |
+| **Scope**                      | Space-separated list of OAuth2 scopes to request during authentication.                    |
+| **Attribute for Username**     | Name of the token claim that contains the username.                                        |
+| **Attribute for First Name**   | Name of the token claim that contains the user's first name.                               |
+| **Attribute for Last Name**    | Name of the token claim that contains the user's last name.                                |
+| **Attribute for Display Name** | Name of the token claim that contains the display name.                                    |
+| **Attribute for Email**        | Name of the token claim that contains the user's email address.                            |
+| **Attribute for Groups**       | Name of the token claim that contains the user's group memberships.                        |
 
 Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
 
@@ -317,7 +317,7 @@ The **Initial Users** section is displayed for all modes except **Single-User**.
 
 | Field              | Description                                                                                                                                                                                             |
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Administrators** | Comma-separated list of usernames that are granted administrator privileges in OpenL Studio. Required. These users always have administrator access, which cannot be revoked from the administration UI. |
+| **Administrators** | Comma-separated list of usernames that are granted administrator privileges in OpenL Studio. These users always have administrator access, which cannot be revoked from the administration UI. |
 | **Default Group**  | Group automatically assigned to every user in the system, including users with no explicit group assignments. Select **None** to disable automatic default access.                                       |
 
 **Note:** The Default Group setting is not available in Single-User mode.
