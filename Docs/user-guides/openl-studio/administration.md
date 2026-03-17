@@ -318,8 +318,7 @@ Where the individual permissions that make up each role:
   from that repository, but does not affect the repository itself.
 - **Manage** — Allows assigning roles to users and groups on the resources the user manages.
 
-**Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects
-** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects
+**Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects
 regardless of their assigned role.
 
 **Note:** The **Administrator** designation is separate from the above ACL roles and grants system-wide administrative
