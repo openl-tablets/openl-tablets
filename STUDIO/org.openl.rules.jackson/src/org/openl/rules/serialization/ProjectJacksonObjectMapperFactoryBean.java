@@ -87,6 +87,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             return DefaultTypingMode.JAVA_LANG_OBJECT;
         } else if (DefaultTypingMode.NON_FINAL.name().equalsIgnoreCase(defaultTypingMode.trim())) {
             return DefaultTypingMode.NON_FINAL;
+        } else if (DefaultTypingMode.NON_FINAL_AND_ENUMS.name().equalsIgnoreCase(defaultTypingMode.trim())) {
+            return DefaultTypingMode.NON_FINAL_AND_ENUMS;
         }
         throw new ObjectMapperConfigurationParsingException(String.format(
                 "Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED value for '%s' in the configuration for service '%s'.",

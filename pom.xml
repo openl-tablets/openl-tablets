@@ -118,7 +118,7 @@
         <slf4j.version>2.0.17</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
-        <maven.api.version>3.9.13</maven.api.version>
+        <maven.api.version>3.9.14</maven.api.version>
         <maven.plugin.version>3.15.2</maven.plugin.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
@@ -150,7 +150,7 @@
         <ojdbc11.version>23.26.1.0.0</ojdbc11.version>
         <postgresql.version>42.7.10</postgresql.version>
         <mariadb.version>2.7.13</mariadb.version>
-        <mssql.version>13.2.1.jre11</mssql.version>
+        <mssql.version>13.4.0.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- Jakarta APIs -->
@@ -407,7 +407,7 @@
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.32.0</version>
+                    <version>6.33.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
@@ -430,6 +430,23 @@
                         <nodeVersion>${node.version}</nodeVersion>
                         <npmVersion>${npm.version}</npmVersion>
                         <installDirectory>${project.build.directory}</installDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.14</version>
+                    <configuration>
+                        <propertyName>jacoco.argLine</propertyName>
+                        <includes>
+                            <include>org/openl/**/*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org/openl/generated/**/*</exclude>
+                        </excludes>
+                        <formats>
+                            <format>XML</format>
+                        </formats>
                     </configuration>
                 </plugin>
             </plugins>
@@ -549,29 +566,21 @@
                     <name>sonar</name>
                 </property>
             </activation>
+            <modules>
+                <module>jacoco-report</module>
+            </modules>
             <properties>
                 <sonar />
-                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
                 <surefire.argLine />
+                <sonar.coverage.jacoco.xmlReportPaths>
+                    ${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml
+                </sonar.coverage.jacoco.xmlReportPaths>
             </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.14</version>
-                        <configuration>
-                            <propertyName>jacoco.argLine</propertyName>
-                            <includes>
-                                <include>org/openl/**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org/openl/generated/**/*</exclude>
-                            </excludes>
-                            <formats>
-                                <format>XML</format>
-                            </formats>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>prepare-ut</id>
@@ -584,20 +593,6 @@
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>prepare-agent-integration</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report-ut</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report-it</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>

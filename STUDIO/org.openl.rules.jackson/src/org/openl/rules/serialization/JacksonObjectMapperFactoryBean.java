@@ -189,6 +189,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 case NON_FINAL:
                     defaultTyping = ObjectMapper.DefaultTyping.NON_FINAL;
                     break;
+                case NON_FINAL_AND_ENUMS:
+                    defaultTyping = ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS;
+                    break;
                 case OBJECT_AND_NON_CONCRETE:
                     defaultTyping = ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
                     break;
