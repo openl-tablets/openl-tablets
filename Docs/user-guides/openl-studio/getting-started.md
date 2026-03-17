@@ -20,7 +20,7 @@ To sign in to OpenL Studio, proceed as follows:
     
     In the single user mode, users are automatically signed in using the DEFAULT account. In the multi-user mode, the following form appears.
        
-       <img src="images/login-page.png" width="300" alt="OpenL Studio login form with username and password fields and a Sign in button"/>
+       <img src="images/login-page.png" width="400" alt="OpenL Studio login form with username and password fields and a Sign in button"/>
        
        *Login window*
        
