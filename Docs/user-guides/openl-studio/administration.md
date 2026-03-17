@@ -487,9 +487,9 @@ To invite a group, proceed as follows:
 5. In the **Access Rights** section, configure the group's access to repositories and projects:
 
    | Field        | Description                                                                                                                                |
-            |--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-   | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
-   | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory.                                      |
+   |--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+   | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. |
+   | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**.                                      |
 
    ![](images/invite-group-access-management.png "Access Management section of the Invite Group dialog")
 
