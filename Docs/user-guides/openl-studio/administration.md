@@ -215,47 +215,112 @@ To clear all history files for all projects, click the **Clear All History** but
 
 ### Managing Security Settings
 
-The **Security** tab contains settings for user authentication and access control. It includes the following topics:
+The **Security** section contains settings for user authentication and access control. In the navigation menu, click **Security** to open it.
 
-- [Configuring Authentication Mode](#configuring-authentication-mode)
-- [Configuring Default Group](#configuring-default-group)
+To configure security, select the authentication mode, fill in the required settings, and click **Apply**.
 
-#### Configuring Authentication Mode
+This section includes the following topics:
 
-OpenL Studio supports multiple user authentication modes. The active mode can be changed in the **Security** tab of the
-**Administration** panel.
+-   [Selecting an Authentication Mode](#selecting-an-authentication-mode)
+-   [Configuring Single-User Mode](#configuring-single-user-mode)
+-   [Configuring Multi-User Mode](#configuring-multi-user-mode)
+-   [Configuring Active Directory / LDAP Mode](#configuring-active-directory--ldap-mode)
+-   [Configuring SSO: SAML Mode](#configuring-sso-saml-mode)
+-   [Configuring SSO: OAuth2 Mode](#configuring-sso-oauth2-mode)
+-   [Configuring Initial Users](#configuring-initial-users)
 
-The following authentication modes are available:
+#### Selecting an Authentication Mode
 
-| Mode                        | Description                                                                                                                                  |
-|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| **Single-user**             | No login required. All users share a single session. Suitable for development and local evaluation only.                                     |
-| **Multi-user**              | Built-in user management with local credentials stored in OpenL Studio. Suitable for teams without an external identity provider.            |
-| **Active Directory / LDAP** | Authentication against a corporate Active Directory or LDAP server. External users are created and synchronized from the directory at login. |
-| **SSO: SAML**               | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services.                      |
-| **SSO: OAuth2**             | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                            |
+OpenL Studio supports the following authentication modes:
+
+| Mode                        | Description                                                                                                                                     |
+|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Single-User**             | Only one user can run OpenL Studio. No login is required. Suitable for development and local evaluation only.                                   |
+| **Multi-User**              | Multiple users can run OpenL Studio using unique usernames. User credentials are managed directly in OpenL Studio.                              |
+| **Active Directory / LDAP** | Multiple users authenticate against a corporate Active Directory or LDAP server. User credentials are managed by the directory service.         |
+| **SSO: SAML**               | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services.                         |
+| **SSO: OAuth2**             | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                               |
 
 **Note:** CAS authentication is no longer supported starting with OpenL Tablets 6.0.
 
-To change the authentication mode, in the **Security** tab, select the desired mode, configure the required settings,
-and click **Apply**.
+For more information on configuring authentication, see [OpenL Tablets Installation Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/).
 
-#### Configuring Default Group
+#### Configuring Single-User Mode
 
-The Default Group is automatically applied to every user in the system, including users with no explicit group or role
-assignments. Its permissions act as a baseline that all users inherit regardless of their individual access
-configuration.
+When **Single-User** is selected, configure the single user account that will be used to run OpenL Studio:
 
-To configure the Default Group, proceed as follows:
+| Field            | Description                                           |
+|------------------|-------------------------------------------------------|
+| **Username**     | Login name for the single user. Required. Maximum 125 characters. |
+| **Email**        | Email address of the user. Optional.                  |
+| **First Name**   | User's first name. Required. Maximum 125 characters.  |
+| **Last Name**    | User's last name. Required. Maximum 125 characters.   |
+| **Display Name** | Name displayed in the OpenL Studio UI. Required. Maximum 255 characters. |
 
-1. In the **Administration** panel, click the **Security** tab, then scroll down to **Configure Initial Users** section.
-2. In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access
-   for all users.
-3. Click **Apply** to apply the changes.
+#### Configuring Multi-User Mode
 
-![](images/security-default-group.png "Default Group configuration in the Security tab")
+When **Multi-User** is selected, no additional configuration parameters are required in this section. User accounts are created and managed in the **Users** tab of the administration panel as described in [Managing Users](#managing-users).
 
-*Default Group configuration in the* **Security** *tab*
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring Active Directory / LDAP Mode
+
+When **Active Directory / LDAP** is selected, configure the connection to the directory service:
+
+| Field           | Description                                                                                                                                                                                                     |
+|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Domain**      | The Active Directory domain name. Required.                                                                                                                                                                     |
+| **Server URL**  | URL of the Active Directory or LDAP server. Required.                                                                                                                                                           |
+| **User Filter** | LDAP filter string used to search for the authenticating user. Required. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only.                                                  |
+| **Group Filter** | LDAP filter string used to search for the groups the user belongs to. Optional. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only. <br/>`{2}` is replaced with the DN of the found user. |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring SSO: SAML Mode
+
+When **SSO: SAML** is selected, configure the connection to the SAML identity provider:
+
+| Field                          | Description                                                                                          |
+|--------------------------------|------------------------------------------------------------------------------------------------------|
+| **Entity ID**                  | The SAML Entity ID of the OpenL Studio service provider. Required.                                   |
+| **Server Metadata URL**        | URL to the SAML identity provider metadata. Required.                                                |
+| **Remote Server Certificate**  | The identity provider's public certificate, used to verify SAML responses. Optional.                 |
+| **Attribute for Username**     | Name of the SAML attribute that contains the username. Optional.                                     |
+| **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name. Optional.                            |
+| **Attribute for Last Name**    | Name of the SAML attribute that contains the user's last name. Optional.                             |
+| **Attribute for Display Name** | Name of the SAML attribute that contains the display name. Optional.                                 |
+| **Attribute for Email**        | Name of the SAML attribute that contains the user's email address. Optional.                         |
+| **Attribute for Groups**       | Name of the SAML attribute that contains the user's group memberships. Optional.                     |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring SSO: OAuth2 Mode
+
+When **SSO: OAuth2** is selected, configure the connection to the OAuth2 / OpenID Connect identity provider:
+
+| Field                          | Description                                                                                          |
+|--------------------------------|------------------------------------------------------------------------------------------------------|
+| **Client ID**                  | The OAuth2 client ID registered with the identity provider. Required.                                |
+| **Issuer URI**                 | The base URI of the identity provider's OpenID Connect discovery endpoint. Required.                 |
+| **Client Secret**              | The OAuth2 client secret. Required.                                                                  |
+| **Scope**                      | Space-separated list of OAuth2 scopes to request during authentication. Required.                    |
+| **Attribute for Username**     | Name of the token claim that contains the username. Optional.                                        |
+| **Attribute for First Name**   | Name of the token claim that contains the user's first name. Optional.                               |
+| **Attribute for Last Name**    | Name of the token claim that contains the user's last name. Optional.                                |
+| **Attribute for Display Name** | Name of the token claim that contains the display name. Optional.                                    |
+| **Attribute for Email**        | Name of the token claim that contains the user's email address. Optional.                            |
+| **Attribute for Groups**       | Name of the token claim that contains the user's group memberships. Optional.                        |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring Initial Users
+
+The **Initial Users** section is displayed for all modes except **Single-User**. It defines the administrator account and the default group applied to all users.
+
+| Field              | Description                                                                                                                                                                                             |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Administrators** | Comma-separated list of usernames that are granted administrator privileges in OpenL Studio. Required. These users always have administrator access, which cannot be revoked from the administration UI. |
+| **Default Group**  | Group automatically assigned to every user in the system, including users with no explicit group assignments. Select **None** to disable automatic default access.                                       |
 
 **Note:** The Default Group setting is not available in Single-User mode.
 
