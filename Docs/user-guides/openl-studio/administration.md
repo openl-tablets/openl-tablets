@@ -738,11 +738,20 @@ To create project tags, proceed as follows:
 
     Tag values can be derived from project names. Proceed as follows:
 
-8.  To define project name templates to be used for deriving tags, in the **Tags from a Project Name** section, enter the template value.
+8.  To define project name templates, in the **Tags from a Project Name** section, enter the templates in the **Project Name Templates** text area.
 
-9.  To save project name templates, click **Save Templates** or simply click outside the field.
+    Templates use the following syntax:
 
-10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill tags for projects.**
+    -   Tag type names are wrapped with the `%` symbol, for example, `%Domain%`.
+    -   `?` stands for any single symbol.
+    -   `*` stands for any text of any length.
+    -   Each template must be defined on its own line. Templates are evaluated in order: the first template has the highest priority, the last has the lowest.
+
+    **Example:** For the `%Domain%-%LOB%-*` template, the project named `Policy-L&A-rules` receives the tag **Policy** for the **Domain** tag type and **L&A** for **LOB**.
+
+9.  To save project name templates, click **Save Templates**.
+
+10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill Tags for Project**.
 
 The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple tag types, or do not have tags defined at all, and which name matches the project name template.
 
