@@ -249,11 +249,11 @@ When **Single-User** is selected, configure the single user account that will be
 
 | Field            | Description                                           |
 |------------------|-------------------------------------------------------|
-| **Username**     | Login name for the single user. Required. Maximum 125 characters. |
+| **Username**     | Login name for the single user. Required.             |
 | **Email**        | Email address of the user. Optional.                  |
-| **First Name**   | User's first name. Required. Maximum 125 characters.  |
-| **Last Name**    | User's last name. Required. Maximum 125 characters.   |
-| **Display Name** | Name displayed in the OpenL Studio UI. Required. Maximum 255 characters. |
+| **First Name**   | User's first name. Required.                          |
+| **Last Name**    | User's last name. Required.                           |
+| **Display Name** | Name displayed in the OpenL Studio UI. Required.      |
 
 #### Configuring Multi-User Mode
 
