@@ -320,6 +320,18 @@ The **Initial Users** section is displayed for all modes except **Single-User**.
 | **Administrators** | Comma-separated list of usernames that are granted administrator privileges in OpenL Studio. These users always have administrator access, which cannot be revoked from the administration UI. |
 | **Default Group**  | Group automatically assigned to every user in the system, including users with no explicit group assignments. Select **None** to disable automatic default access.                                       |
 
+The Default Group acts as a permission baseline automatically applied to every user, including users with no explicit group or role assignments. All users inherit its permissions regardless of their individual access configuration.
+
+To configure the Default Group, proceed as follows:
+
+1.  In the navigation menu, click **Security** and scroll down to the **Initial Users** section.
+2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
+3.  Click **Apply** to apply the changes.
+
+![](images/security-default-group.png "Default Group configuration in the Security tab")
+
+*Default Group configuration in the* **Security** *tab*
+
 **Note:** The Default Group setting is not available in Single-User mode.
 
 The **Permit creating and deleting projects** check box controls whether users are allowed to create and delete projects in OpenL Studio. When this option is disabled, users cannot create or delete projects regardless of their assigned role. For more information on roles, see [Understanding Roles](#understanding-roles).
