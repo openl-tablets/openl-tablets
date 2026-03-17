@@ -249,11 +249,11 @@ When **Single-User** is selected, configure the single user account that will be
 
 | Field            | Description                                           |
 |------------------|-------------------------------------------------------|
-| **Username**     | Login name for the single user.             |
-| **Email**        | Email address of the user.                  |
-| **First Name**   | User's first name.                          |
-| **Last Name**    | User's last name.                           |
-| **Display Name** | Name displayed in the OpenL Studio UI.      |
+| **Username**     | Login name used to identify the single user in OpenL Studio. |
+| **Email**        | Email address of the user. Used for Git commits and email verification. |
+| **First Name**   | User's first name. Used to form the display name and included in Git commit metadata. |
+| **Last Name**    | User's last name. Used to form the display name and included in Git commit metadata. |
+| **Display Name** | Full name shown in the OpenL Studio UI and recorded in Git commits. |
 
 #### Configuring Multi-User Mode
 
@@ -267,8 +267,8 @@ When **Active Directory / LDAP** is selected, configure the connection to the di
 
 | Field           | Description                                                                                                                                                                                                     |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Domain**      | The Active Directory domain name.                                                                                                                                                                     |
-| **Server URL**  | URL of the Active Directory or LDAP server.                                                                                                                                                           |
+| **Domain**      | The Active Directory domain name used for user authentication, for example, `example.com`. Appended to the username to form the `login@domain` format passed to the directory service.               |
+| **Server URL**  | URL of the Active Directory or LDAP server, for example, `ldap://ad.example.com:389`.                                                                                                                |
 | **User Filter** | LDAP filter string used to search for the authenticating user. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only.                                                  |
 | **Group Filter** | LDAP filter string used to search for the groups the user belongs to. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only. <br/>`{2}` is replaced with the DN of the found user. |
 
@@ -280,9 +280,9 @@ When **SSO: SAML** is selected, configure the connection to the SAML identity pr
 
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
-| **Entity ID**                  | The SAML Entity ID of the OpenL Studio service provider.                                   |
-| **Server Metadata URL**        | URL to the SAML identity provider metadata.                                                |
-| **Remote Server Certificate**  | The identity provider's public certificate, used to verify SAML responses.                 |
+| **Entity ID**                  | A globally unique identifier that represents OpenL Studio as a SAML service provider. This value must be registered with the identity provider.  |
+| **Server Metadata URL**        | URL to the identity provider's SAML metadata document, used to automatically configure the trust relationship between OpenL Studio and the identity provider. |
+| **Remote Server Certificate**  | The identity provider's public X.509 certificate, used to verify the signature of SAML responses. Required when the metadata URL is not publicly accessible or does not include the certificate. |
 | **Attribute for Username**     | Name of the SAML attribute that contains the username.                                     |
 | **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name.                            |
 | **Attribute for Last Name**    | Name of the SAML attribute that contains the user's last name.                             |
@@ -298,10 +298,10 @@ When **SSO: OAuth2** is selected, configure the connection to the OAuth2 / OpenI
 
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
-| **Client ID**                  | The OAuth2 client ID registered with the identity provider.                                |
-| **Issuer URI**                 | The base URI of the identity provider's OpenID Connect discovery endpoint.                 |
-| **Client Secret**              | The OAuth2 client secret.                                                                  |
-| **Scope**                      | Space-separated list of OAuth2 scopes to request during authentication.                    |
+| **Client ID**                  | A public identifier for OpenL Studio as a registered application in the identity provider. Obtained when registering the application with the identity provider. |
+| **Issuer URI**                 | The base URL of the identity provider's OpenID Connect discovery endpoint, for example, `https://accounts.google.com`. Used to automatically retrieve provider configuration. |
+| **Client Secret**              | A confidential credential issued by the identity provider to authenticate OpenL Studio as a registered application. Must be kept secure and never shared publicly. |
+| **Scope**                      | Space-separated list of OAuth2 scopes that define what user information OpenL Studio requests from the identity provider, for example, `openid profile email`. |
 | **Attribute for Username**     | Name of the token claim that contains the username.                                        |
 | **Attribute for First Name**   | Name of the token claim that contains the user's first name.                               |
 | **Attribute for Last Name**    | Name of the token claim that contains the user's last name.                                |
