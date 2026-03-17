@@ -680,13 +680,13 @@ directly on a user.
 
 ### Managing Notifications
 
-In the **ADMIN \> Notification** section, users with the administrator privileges can send text messages to all OpenL
-Studio instances and users that are currently online or remove previously sent notifications.
+In the navigation menu, click **Notification** to open the notification management page. Users with administrator privileges can send a text message to all currently active OpenL Studio users and instances, or clear a previously sent notification.
 
-When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL
-Studio instances. To remove the message for all users and OpenL Studio instances, click **Remove**.
+To send a notification, enter the message text in the **Message** field and click **Notify**. A red bar with the notification text appears for all active users and OpenL Studio instances.
 
-![](images/notification-red-bar.jpeg "Red bar identifying a notification sent to all active users and instances")
+To remove the notification for all users and instances, click **Clear**.
+
+![](images/notification-red-bar.png "Red bar identifying a notification sent to all active users and instances")
 
 *Red bar identifying a notification sent to all active users and instances*
 
