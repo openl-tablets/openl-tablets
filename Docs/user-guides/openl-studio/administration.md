@@ -322,6 +322,8 @@ The **Initial Users** section is displayed for all modes except **Single-User**.
 
 **Note:** The Default Group setting is not available in Single-User mode.
 
+The **Permit creating and deleting projects** check box controls whether users are allowed to create and delete projects in OpenL Studio. When this option is disabled, users cannot create or delete projects regardless of their assigned role. For more information on roles, see [Understanding Roles](#understanding-roles).
+
 ### Managing User Information
 
 This section describes how to control user access in the OpenL Studio application. Access is controlled using a
