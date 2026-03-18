@@ -101,8 +101,6 @@ If this user was not created as a local user previously but instead, created upo
 
 #### Modifying My Settings
 
-The **My Settings** page is organized into three sections: **Table Settings**, **Testing Settings**, and **Trace Settings**.
-
 To manage personal settings, proceed as follows:
 
 1.  In OpenL Studio, in the top-right corner, click the user icon.
