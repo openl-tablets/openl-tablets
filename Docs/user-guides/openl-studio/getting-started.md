@@ -123,7 +123,7 @@ To manage personal settings, proceed as follows:
     -   **Failures Only** — show only failed test cases in the results.
     -   **Compound Result** — display compound test results.
 
-    For more information on testing settings, see [Running Unit Tests](#running-unit-tests).
+    For more information on testing settings, see [Running Unit Tests](editing-testing.md#running-unit-tests).
 
 5.  In the **Trace Settings** section, configure the following option:
 
