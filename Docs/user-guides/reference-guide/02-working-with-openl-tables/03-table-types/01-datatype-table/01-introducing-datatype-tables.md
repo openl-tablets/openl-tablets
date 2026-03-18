@@ -21,13 +21,22 @@ For more information on creating vocabulary for data elements, see [Vocabulary D
 A Datatype table has the following structure:
 
 1.  The first row is the header containing the **Datatype** keyword followed by the name of the data type.
-2.  Every row, starting with the second one, represents one attribute of the data type.
-    
-    The first column contains attribute types, and the second column contains corresponding attribute names.
-    
+2.  Every row, starting with the second one, represents one attribute of the data type. Each attribute must include the following **required** columns:
+    -   The first column contains the **Type** of the attribute.
+    -   The second column contains the corresponding attribute **Name**.
+
     **Note:** While there are no special restrictions, usually an attribute type starts with a capital letter and attribute name starts with a small letter.
-    
-1.  The third column is optional and defines default values for fields.
+
+    -   Starting from the third column, all columns are optional and may be used to provide additional information about each attribute. Optional columns include:
+        -   **Default** — specifies a default value for the attribute.
+        -   **Description** — provides the purpose, usage context, or other helpful details about the attribute.
+        -   **Example** — provides a sample value.
+        -   **Mandatory** — indicates whether the attribute is required. It does not perform any validation and is intended for informational purposes only.
+
+        These optional columns can appear in any combination and order.
+
+    -   If the table contains only the Type and Name columns, or Type, Name, and Default, column headers are not required.
+    -   If the table includes any other columns (such as Description, Example, Mandatory, etc.), then column headers are required to clearly identify each column.
 
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person’s** data elements, such as name, social security number, date of birth, gender, and address.
 
@@ -72,12 +81,6 @@ During execution, the system takes default values from FinancialData data type.
 *Datatype table with default values*
 
 **Note:** For array types \_DEFAULT_creates an empty array.
-
-**Note:** It is strongly recommended to leave an empty column right after the third column with default values if such column is used. Otherwise, in case the data type has 3 or less attributes, errors occur due to transposed tables support in OpenL Tablets.
-
-![](../../../ref-guide-images/datatypeTableCommentsNearby.png)
-
-*Datatype table with comments nearby*
 
 **Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
 
