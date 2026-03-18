@@ -49,8 +49,6 @@ This section describes how to modify user profile information and includes the f
 
 #### Modifying My Profile
 
-The **My Profile** page is organized into three sections: **Account**, **Name**, and **Change Password**.
-
 To manage profile details, proceed as follows:
 
 1.  In OpenL Studio, in the top-right corner, click the user icon.
