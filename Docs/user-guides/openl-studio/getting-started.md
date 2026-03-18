@@ -46,6 +46,7 @@ This section describes how to modify user profile information and includes the f
 -   [Modifying My Profile](#modifying-my-profile)
 -   [Synchronizing with a Third Party Service](#synchronizing-with-a-third-party-service)
 -   [Modifying My Settings](#modifying-my-settings)
+-   [Managing Personal Access Tokens](#managing-personal-access-tokens)
 
 #### Modifying My Profile
 
@@ -129,6 +130,30 @@ To manage personal settings, proceed as follows:
     -   **Show Numbers Without Formatting** — display numeric values without locale-based formatting in the trace view.
 
 6.  Click **Save**.
+
+#### Managing Personal Access Tokens
+
+Personal access tokens allow you to authenticate with OpenL Studio APIs without using your password. They are useful for scripts, integrations, and automated tools.
+
+Personal access tokens are available only when **SSO: OAuth2** or **SSO: SAML** authentication mode is configured. The **Personal Access Tokens** item is not displayed in other authentication modes.
+
+To create a personal access token, proceed as follows:
+
+1.  In OpenL Studio, in the top-right corner, click the user icon.
+2.  In the panel, click **Personal Access Tokens**.
+3.  Click **+ Create Token**.
+4.  In the **Create Token** drawer, enter a **Token Name** that identifies the token's purpose, such as `CI/CD Pipeline` or `MCP Client`.
+5.  Select an **Expiration** period: 7 days, 30 days, 60 days, 90 days, a custom date, or no expiration.
+6.  Click **Create**.
+7.  Copy the generated token value immediately.
+
+    The token is displayed only once and cannot be retrieved after closing the drawer.
+
+    The token can be used in API requests with the following header:
+
+    `Authorization: Token <value>`
+
+To delete a token, in the tokens list, click the delete icon next to the token and confirm the deletion.
 
 ### Displaying the OpenL Studio Help
 
