@@ -40,13 +40,13 @@ A Datatype table has the following structure:
 
 If a datatype is used as an input or output in a rule exposed as an API endpoint, its optional fields — if provided — are shown in the API specification.
 
-![](../../../ref-guide-images/datatypeTableVehicleOptionalColumns.png)
+![](../../../ref-guide-images/DatatypeVehicleWithAdditionalColumns.png)
 
 *Datatype Vehicle table with optional columns*
 
-![](../../../ref-guide-images/datatypeTableApiSchemaExample.png)
+![](../../../ref-guide-images/DatatatypeVehicleSchemaExample.png)
 
-![](../../../ref-guide-images/datatypeTableApiSchemaSchema.png)
+![](../../../ref-guide-images/DatatypeVehicleSchema.png)
 
 *Example of how values from a Datatype table are displayed in the API schema*
 
