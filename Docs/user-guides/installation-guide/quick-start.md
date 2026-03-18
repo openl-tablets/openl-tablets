@@ -116,7 +116,9 @@ Choose one of the following modes:
 
 - **Single-User**: Local development, no authentication
 - **Multi-User**: Database-backed, with user management
-- **SSO Options**: Active Directory, SSO: SAML, SSO: OIDC (OAuth2)
+- **Active Directory**: Enterprise directory-based authentication (AD/LDAP)
+- **SSO: SAML**: Single Sign-On via a SAML 2.0 identity provider
+- **SSO: OIDC (OAuth2)**: Single Sign-On via an OAuth2/OIDC identity provider
 
 #### Step 2: Repository Configuration
 
