@@ -213,5 +213,21 @@ An output result for this spreadsheet is as follows.
 }
 ```
   
+If the description column is marked with `//` it is displayed as a field property in the JSON structure. However, the steps listed in this column are excluded from the schema tree representation.
+
+![](../../../ref-guide-images/SpreadsheetWith::Value.png)
+
+![](../../../ref-guide-images/StepsDescriptionInSchema.png)
+
+*Step descriptions added via //<ColumnName> column*
+
+**Note:** Rule descriptions included in API-exposed rules will appear in the OpenL Tablets Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
+
+![](../../../ref-guide-images/SRDescriptionInOpenLStudio.png)
+
+![](../../../ref-guide-images/SpreadsheetDescriptionInRuleServices.png)
+
+*Rule description displayed in OpenL Rule Services*
+
 **Note:** If the Maven plugin is used for generating a spreadsheet result output model, system integration can be based on generated classes. A default Java package for generated Java beans for particular spreadsheet tables is set using the spreadsheetResultPackage table property. Nevertheless, it is recommended to avoid any integration based on generated classes.
 
