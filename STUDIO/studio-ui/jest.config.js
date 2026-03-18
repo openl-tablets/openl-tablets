@@ -15,4 +15,7 @@ module.exports = {
             tsconfig: 'tsconfig.test.json',
         }],
     },
+    collectCoverage: true,
+    coverageReporters: ['lcov', 'text-summary'],
+    collectCoverageFrom: [ 'src/**/*.{ts,tsx,js,jsx}' ],
 }

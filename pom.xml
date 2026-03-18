@@ -191,8 +191,8 @@
         <jcodemodel.version>4.1.0</jcodemodel.version>
 
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
-        <node.version>v24.13.0</node.version>
-        <npm.version>11.7.0</npm.version>
+        <node.version>v24.14.0</node.version>
+        <npm.version>11.12.0</npm.version>
         <npm.test.skip>false</npm.test.skip>
 
         <!-- It needs to detect memory leaks. -->
@@ -575,6 +575,7 @@
                 <sonar.coverage.jacoco.xmlReportPaths>
                     ${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml
                 </sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
             </properties>
             <build>
                 <plugins>
