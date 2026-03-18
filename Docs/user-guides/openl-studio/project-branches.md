@@ -118,5 +118,5 @@ Wildcards can be used to specify a group of branches, such as release-\*, so all
 
 By default, branches are not protected.
 
-Branches can also be defined as protected in OpenL Studio administrative tab as described in [Setting Up a Connection to a Git Repository](#setting-up-a-connection-to-a-git-repository).
+Branches can also be defined as protected in the OpenL Studio administration navigation menu as described in [Setting Up a Connection to a Git Repository](#setting-up-a-connection-to-a-git-repository).
 

@@ -234,7 +234,7 @@ The following table describes the Rules Editor toolbar controls:
 
 OpenL Studio provides different modes for displaying rule elements. In this guide, modes are contingently divided into a **simple view** and **extended view**.
 
-To switch between views, in the top right corner, select **User settings** and use the **Show Header** and **Show Formula** options. 
+To switch between views, in the top right corner, select **My Settings** and use the **Show Header** and **Show Formula** options.
 
 When a table is opened in a simple view, OpenL Studio hides various technical table details, such as table header and MS Excel formulas. An example of a table opened in a simple view is as follows.
 
