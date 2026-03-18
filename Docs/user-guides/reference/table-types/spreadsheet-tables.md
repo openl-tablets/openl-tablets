@@ -132,6 +132,13 @@ The data type for each cell can be determined by OpenL Tablets automatically or 
 
 **Note:** If both column and row of the cell have a data type specified, the data type of the column is taken.
 
+<a name="spr_column_description"></a>
+Descriptions for spreadsheet columns can be provided by adding a dedicated **description column** with a header in the format //\<ColumnName>\. The name following // must exactly match the header of the column being described. Description columns allow spaces in their headers.
+
+![](../../../assets/images/reference/SpreadsheetDesriptionColumn.png)
+
+*Value column description*
+
 In OpenL Rule Services, spreadsheet output can be customized by adding or removing rows and columns to display as described in [Spreadsheet Result Output Customization](#spreadsheet-result-output-customization).
 
 The following topics are included in this section:
@@ -176,7 +183,7 @@ or
 
 `$<column name>$<row name>(<spreadsheet result variable>)`
 
-If a spreadsheet has one column only, besides the column holding step names, spreadsheet cells can be referenced by row names. If there is one row and multiple columns, a cell can be referenced by the column name.
+If a spreadsheet has one column only, besides the column holding step names and any description columns marked with //, spreadsheet cells can be referenced by row names. If there is one row and multiple columns, a cell can be referenced by the column name.
 
 ![](../../../assets/images/reference/bc3aae72a1f92cc0e10c330b39aada46.png)
 

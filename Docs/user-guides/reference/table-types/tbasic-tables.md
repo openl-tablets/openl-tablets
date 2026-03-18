@@ -3,7 +3,23 @@
   "Limit": 5000
 }
 ```
-  
+
+If the [description column](#spr_column_description) is marked with // it is dispalyed as field property in the JSON structure. However, the steps listed in this column are excluded from the schema tree representation.
+
+![](../../../assets/images/reference/SpreadsheetWith::Value.png)
+
+![](../../../assets/images/reference/StepsDescriptionInSchema.png)
+
+*Step descriptions added via //\<ColumnName\> column*
+
+**Note:** Rule descriptions included in API-exposed rules will appear in the OpenL Tablets Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
+
+![](../../../assets/images/reference/SRDescriptionInOpenLStudio.png)
+
+![](../../../assets/images/reference/SpreadsheetDescriptionInRuleServices.png)
+
+*Rule description displayed in OpenL Rule Services*
+
 **Note:** If the Maven plugin is used for generating a spreadsheet result output model, system integration can be based on generated classes. A default Java package for generated Java beans for particular spreadsheet tables is set using the spreadsheetResultPackage table property. Nevertheless, it is recommended to avoid any integration based on generated classes.
 
 ##### Testing Spreadsheet Result

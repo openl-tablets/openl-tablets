@@ -16,23 +16,32 @@ During execution, the system takes default values from FinancialData data type.
 
 **Note:** For array types \_DEFAULT_creates an empty array.
 
-**Note:** It is strongly recommended to leave an empty column right after the third column with default values if such column is used. Otherwise, in case the data type has 3 or less attributes, errors occur due to transposed tables support in OpenL Tablets.
-
-![](../../../assets/images/reference/2d34aa03d4b3b8567eabc55f03dbca18.png)
-
-*Datatype table with comments nearby*
-
 **Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
 
 For more information on using runtime context properties in Datatype tables, see [Runtime Context Properties in Datatype Tables](#runtime-context-properties-in-datatype-tables).
 
 Datatype table output results can be customized the same way as spreadsheets as described in [Spreadsheet Result Output Customization](#spreadsheet-result-output-customization).
-  
+
 If a spreadsheet returns a data type rather than SpreadsheetResult and the attributes of this data type must be filtered, that is, included or excluded from the final output structure, attributes of this data type must be marked with ~ or *. An example is available in [Introducing Datatype Tables](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-datatype-tables).
-  
+
 ![](../../../assets/images/reference/EPBDS-10058_3.png)
 
 *Filtering data type attributes for the output structure*
+
+If a datatype is used as an input or output in a rule exposed as an API endpoint, its optional fields — if provided — are shown in the API specification.
+
+![](../../../assets/images/reference/DatatypeVehicleWithAdditionalColumns.png)
+
+<img src="../../../assets/images/reference/DatatatypeVehicleSchemaExample.png" alt="DatatatypeVehicleSchemaExample" width="300"/>
+
+<img src="../../../assets/images/reference/DatatypeVehicleSchema.png" alt="DatatypeVehicleSchema" width="600"/>
+
+*Example of how values from a Datatype table are displayed in the API schema.*
+
+- Example values are retrieved from the Example column and used to illustrate the expected data format for each attribute.
+- Descriptions are extracted from the Description column, as shown in the Schema screenshot. These are displayed in the API schema to provide additional context for each field.
+- Default value, along with a list of Allowed values (when applicable), is presented within a collapsible section under an expandable arrow icon.
+- Fields marked as Mandatory are indicated with an asterisk (*) in the schema view, helping users identify required fields at a glance.
 
 ##### Inheritance in Data Types
 

@@ -90,20 +90,42 @@ For more information on creating vocabulary for data elements, see [Vocabulary D
 
 A Datatype table has the following structure:
 
-1.  The first row is the header containing the **Datatype** keyword followed by the name of the data type.
-2.  Every row, starting with the second one, represents one attribute of the data type.
-    
-    The first column contains attribute types, and the second column contains corresponding attribute names.
-    
-    **Note:** While there are no special restrictions, usually an attribute type starts with a capital letter and attribute name starts with a small letter.
-    
-1.  The third column is optional and defines default values for fields.
+1. The first row is the header containing the **Datatype** keyword followed by the name of the data type.
+2. After the first row, the remaining part of the table defines the attributes of that datatype. Each row represents a single attribute of the datatype. Each column provides a specific piece of information about that attribute.
+
+ 	**Required columns:**
+	* **Type**: Data type of the attribute.
+	* **Name**: Name of the attribute.
+
+   	**Note**: While there are no special restrictions, usually an attribute type starts with a capital letter and attribute name starts with a small letter.
+
+	**Optional Columns:**
+
+	* **Default**: Specifies a default value for the attribute.
+	* **Description**: Provides context, purpose, or usage information.
+	* **Example**: Gives a sample value to illustrate typical input.
+	* **Mandatory**: Indicates whether the attribute is required. It does not perform any validation and is inteded for informational purposes only. This field accepts Boolean values exclusively.
+
+	The presence of column headers in datatype table depends on the number and type of columns used for attributes.
+
+	|  Columns Used                                                  | Column Headers Required |
+	| -------------------------------------------------------------- | ----------------------- |
+	| Type, Name                                                     | No                      |
+	| Type, Name, Default                                            | No                      |
+	| Any additional columns (e.g., Description, Example, Mandatory) | Yes                     |
+
+
+	**Note:** When column headers are present, all columns in a Datatype table may appear in any order. Optional columns can be included in any combination.
 
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person’s** data elements, such as name, social security number, date of birth, gender, and address.
 
 ![](../../../assets/images/reference/ad45a4a8dffb2ceaaa9bb4bad359eed3.png)
 
 *Datatype table Person*
+
+<img src="../../../assets/images/reference/DatatypeTablePersonWithOptionalColumns.png" alt="SchemaExample_DatatypeWithOptionalColumns" width="500"/>
+
+*Datatype table Person with column headers*
 
 Note that data attribute, or element, address of **Person** has, by-turn, custom data type **Address** and consists of zip code, city, and street attributes.
 
