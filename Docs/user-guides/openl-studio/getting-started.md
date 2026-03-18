@@ -107,7 +107,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![](images/user-settings-form.jpeg)
+    ![](images/user-settings-form.png)
 
     *My Settings page*
 
