@@ -34,6 +34,7 @@ OpenL Studio provides a navigation panel accessible from the top-right corner of
 
 -   **My Profile** — update account details, name, and password
 -   **My Settings** — configure display and testing preferences
+-   **Personal Access Tokens** — manage API authentication tokens (visible only when SSO: OIDC (OAuth2) or SSO: SAML authentication mode is configured)
 -   **Help** — open the OpenL Studio help
 -   **Sign Out** — end the current session
 
