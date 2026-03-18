@@ -141,7 +141,17 @@ To create a personal access token, proceed as follows:
 
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **Personal Access Tokens**.
+
+    ![](images/personal-access-tokens-view.png)
+
+    *Personal Access Tokens page*
+
 3.  Click **+ Create Token**.
+
+    ![](images/create-token.png)
+
+    *Create Token drawer*
+
 4.  In the **Create Token** drawer, enter a **Token Name** that identifies the token's purpose, such as `CI/CD Pipeline` or `MCP Client`.
 5.  Select an **Expiration** period: 7 days, 30 days, 60 days, 90 days, a custom date, or no expiration.
 6.  Click **Create**.
