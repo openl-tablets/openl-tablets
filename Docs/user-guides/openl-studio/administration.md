@@ -129,7 +129,7 @@ When **Git** is selected as the repository type, define values for the following
 | **Login**                          | Username for accessing a remote Git repository. Ignored for local repositories.                                                                                                                              |
 | **Password**                       | Password for accessing a remote Git repository. Ignored for local repositories.                                                                                                                              |
 | **Branch**                         | Project branch that is used by default.                                                                                                                                                                      |
-| **Protected branches**             | Branches that can be set as protected from any modifications. For more information on protected branches, see [Using Protected Branches](#using-protected-branches).                                          |
+| **Protected branches**             | Branches that can be set as protected from any modifications. For more information on protected branches, see [Using Protected Branches](project-branches.md#using-protected-branches).                                          |
 | **Changes check interval**         | Repository changes check interval in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                              |
 | **Connection timeout**             | Repository connection timeout in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                                  |
 
@@ -441,7 +441,7 @@ any other group. This means that if the Default Group has access to a resource, 
 access regardless of their individual group assignments.
 
 To change the Default Group, go to **Security → Default Group** in the administration settings as described
-in [Configuring Default Group](#configuring-default-group).
+in [Understanding the Default Group](#understanding-the-default-group).
 
 ##### Viewing a List of Groups
 
@@ -731,7 +731,7 @@ To create project tags, proceed as follows:
 
 7.  To delete a tag value, click the delete icon next to the tag name.
 
-All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
+All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](repository-editor.md#creating-projects-in-design-repository).
 
 Tag values can be derived from project names. Proceed as follows:
 
