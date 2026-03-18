@@ -21,7 +21,6 @@ The following topics are included:
 -   [Managing Notifications](#managing-notifications)
 -   [Managing Tags](#managing-tags)
 -   [Managing Email Server Configuration](#managing-email-server-configuration)
--   [Managing Personal Settings](#managing-personal-settings)
 
 ### Managing Repository Settings
 
@@ -786,35 +785,32 @@ To manage email server configuration, proceed as follows:
    When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified
    mailboxes manually defined by a user.
 
-   ![](images/verification-email-sender.png "Defining verification emails sender")
+   ![](images/verification-email-sender.png)
 
    *Defining verification emails sender*
 
    If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
 
-   ![](images/user-unverified-email.png "A user with unverified email")
+   ![](images/user-unverified-email.png)
 
    *A user with unverified email*
 
 5. If the verification email is not received for some reason, to resend it, in the **Users** tab, open the user record
    and click **Resend**.
 
-![](images/resend-verification-email-admin.png "Resending a verification email")
+![](images/resend-verification-email-admin.png)
 
 *Resending a verification email*
 
 A user can resend the verification email on his or her own by clicking the username in the top right corner, selecting
 **User Details**, and clicking **Resend**.
 
-![](images/user-resend-verification-email.png "A user initiating verification email resending")
+![](images/user-resend-verification-email.png)
 
 *A user initiating verification email resending*
 
 The verification email resembles the following:
 
-![](images/verification-email-example.png "Verification email example")
+![](images/verification-email-example.png)
 
 *Verification email example*
-
-### Managing Personal Settings
-
