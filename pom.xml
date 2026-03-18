@@ -1410,7 +1410,7 @@
             <dependency>
                 <groupId>io.opentelemetry.javaagent</groupId>
                 <artifactId>opentelemetry-javaagent-extension-api</artifactId>
-                <version>${opentelemetry.version}</version>
+                <version>${opentelemetry.version}-alfa</version>
             </dependency>
             <!-- Javaagent for ITEST -->
             <dependency>
