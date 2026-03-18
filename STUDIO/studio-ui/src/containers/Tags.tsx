@@ -1,4 +1,4 @@
-import { Input, Divider, Button, Row, Typography } from 'antd'
+import { Input, Divider, Button, Row, Typography, notification } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -11,12 +11,27 @@ export const Tags: React.FC = () => {
     const [tagTypes, setTagTypes] = useState<TagType[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [newTagTypeName, setNewTagTypeName] = useState('')
+    const [templates, setTemplates] = useState('')
+    const [isSavingTemplates, setIsSavingTemplates] = useState(false)
+    const [isFillingTags, setIsFillingTags] = useState(false)
 
     const fetchTagTypes = async () => {
         setIsLoading(true)
-        const response = await apiCall('/admin/tag-config/types')
-        setTagTypes(response)
-        setIsLoading(false)
+        try {
+            const response = await apiCall('/admin/tag-config/types')
+            if (Array.isArray(response)) {
+                setTagTypes(response)
+            }
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const fetchTemplates = async () => {
+        const response = await apiCall('/admin/tag-config/templates')
+        if (Array.isArray(response)) {
+            setTemplates(response.join('\n'))
+        }
     }
 
     const createTagType = async (tagTypeName: string) => {
@@ -118,8 +133,48 @@ export const Tags: React.FC = () => {
         await fetchTagTypes()
     }
 
+    const saveTemplatesRequest = async () => {
+        const templateList = templates.split('\n').filter(line => line.trim() !== '')
+        const headers = new Headers()
+        headers.append('Content-Type', 'application/json')
+        await apiCall('/admin/tag-config/templates', {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(templateList),
+        }, { throwError: true })
+    }
+
+    const onSaveTemplates = async () => {
+        setIsSavingTemplates(true)
+        try {
+            await saveTemplatesRequest()
+            notification.success({ message: t('tags:templates_saved') })
+        } catch (e) {
+            notification.error({ message: e instanceof Error ? e.message : t('tags:templates_save_error') })
+        } finally {
+            setIsSavingTemplates(false)
+        }
+    }
+
+    const onFillTagsForProject = async () => {
+        setIsFillingTags(true)
+        try {
+            await saveTemplatesRequest()
+            const result = await apiCall('/admin/tag-config/fill', {
+                method: 'POST',
+            }, { throwError: true }) as { updated: number; skipped: number } | undefined
+            const updated = result?.updated ?? 0
+            notification.success({ message: t('tags:fill_tags_success', { count: updated }) })
+        } catch (e) {
+            notification.error({ message: e instanceof Error ? e.message : t('tags:fill_tags_error') })
+        } finally {
+            setIsFillingTags(false)
+        }
+    }
+
     useEffect(() => {
         fetchTagTypes()
+        fetchTemplates()
     }, [])
 
     return (
@@ -200,11 +255,27 @@ export const Tags: React.FC = () => {
                 {t('tags:project_name_templates') + ':'}
             </p>
             <Row>
-                <TextArea style={{ width: 400, height: 100 }} />
+                <TextArea
+                    onChange={(e) => setTemplates(e.target.value)}
+                    style={{ width: 400, height: 100 }}
+                    value={templates}
+                />
             </Row>
             <Row justify="end">
-                <Button style={{ marginTop: 20, marginRight: 15 }}>{t('tags:save_templates')}</Button>
-                <Button style={{ marginTop: 20, marginRight: 15 }}>{t('tags:fill_tags_for_project')}</Button>
+                <Button
+                    loading={isSavingTemplates}
+                    onClick={onSaveTemplates}
+                    style={{ marginTop: 20, marginRight: 15 }}
+                >
+                    {t('tags:save_templates')}
+                </Button>
+                <Button
+                    loading={isFillingTags}
+                    onClick={onFillTagsForProject}
+                    style={{ marginTop: 20, marginRight: 15 }}
+                >
+                    {t('tags:fill_tags_for_project')}
+                </Button>
             </Row>
         </>
     )
