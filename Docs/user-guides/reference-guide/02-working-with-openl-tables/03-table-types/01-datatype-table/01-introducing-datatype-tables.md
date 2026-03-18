@@ -38,6 +38,23 @@ A Datatype table has the following structure:
     -   If the table contains only the Type and Name columns, or Type, Name, and Default, column headers are not required.
     -   If the table includes any other columns (such as Description, Example, Mandatory, etc.), then column headers are required to clearly identify each column.
 
+If a datatype is used as an input or output in a rule exposed as an API endpoint, its optional fields — if provided — are shown in the API specification.
+
+![](../../../ref-guide-images/datatypeTableVehicleOptionalColumns.png)
+
+*Datatype Vehicle table with optional columns*
+
+![](../../../ref-guide-images/datatypeTableApiSchemaExample.png)
+
+![](../../../ref-guide-images/datatypeTableApiSchemaSchema.png)
+
+*Example of how values from a Datatype table are displayed in the API schema*
+
+-   **Example** values are retrieved from the Example column and used to illustrate the expected data format for each attribute.
+-   **Description** values are extracted from the Description column and displayed in the API schema to provide additional context for each field.
+-   **Default** value, along with a list of allowed values when applicable, is presented within a collapsible section under an expandable arrow icon.
+-   Fields marked as **Mandatory** are indicated with an asterisk (\*) in the schema view, helping users identify required fields at a glance.
+
 Consider the case when a hierarchical logical data structure must be created. The following example of a Datatype table defines a custom data type called **Person**. The table represents a structure of the **Person** data object and combines **Person’s** data elements, such as name, social security number, date of birth, gender, and address.
 
 ![](../../../ref-guide-images/datatypeTablePerson.png)
