@@ -225,7 +225,7 @@ This section includes the following topics:
 -   [Configuring Multi-User Mode](#configuring-multi-user-mode)
 -   [Configuring Active Directory / LDAP Mode](#configuring-active-directory--ldap-mode)
 -   [Configuring SSO: SAML Mode](#configuring-sso-saml-mode)
--   [Configuring SSO: OAuth2 Mode](#configuring-sso-oauth2-mode)
+-   [Configuring SSO: OIDC (OAuth2) Mode](#configuring-sso-oidc-oauth2-mode)
 -   [Configuring Initial Users](#configuring-initial-users)
 
 #### Selecting an Authentication Mode
@@ -238,7 +238,7 @@ OpenL Studio supports the following authentication modes:
 | **Multi-User**              | Multiple users can run OpenL Studio using unique usernames. User credentials are managed directly in OpenL Studio. Suitable for teams without an external identity provider. |
 | **Active Directory / LDAP** | Multiple users authenticate against a corporate Active Directory or LDAP server. User credentials are managed by the directory service. External users are created and synchronized from the directory at login. |
 | **SSO: SAML**               | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services.                         |
-| **SSO: OAuth2**             | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                               |
+| **SSO: OIDC (OAuth2)**      | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                               |
 
 **Note:** CAS authentication is no longer supported starting with OpenL Tablets 6.0.
 
@@ -291,9 +291,9 @@ When **SSO: SAML** is selected, configure the connection to the SAML identity pr
 
 Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
 
-#### Configuring SSO: OAuth2 Mode
+#### Configuring SSO: OIDC (OAuth2) Mode
 
-When **SSO: OAuth2** is selected, configure the connection to the OAuth2 / OpenID Connect identity provider:
+When **SSO: OIDC (OAuth2)** is selected, configure the connection to the OAuth2 / OpenID Connect identity provider:
 
 | Field                          | Description                                                                                          |
 |--------------------------------|------------------------------------------------------------------------------------------------------|
@@ -522,8 +522,6 @@ without external user management, access is managed directly per user in the **U
 with an external user management system, access can additionally be managed at the group level through the **Groups**
 tab.
 
-**Note:** Demo mode includes a set of pre-configured users with sample access rights for evaluation purposes. These
-users are not intended for production use.
 
 The initial administrator account is configured through the `security.administrators` property in the application
 configuration. The administrator can then create and manage additional users through the **Administration** panel.

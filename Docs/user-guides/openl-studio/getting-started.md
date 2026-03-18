@@ -135,7 +135,7 @@ To manage personal settings, proceed as follows:
 
 Personal access tokens allow you to authenticate with OpenL Studio APIs without using your password. They are useful for scripts, integrations, and automated tools.
 
-Personal access tokens are available only when **SSO: OAuth2** or **SSO: SAML** authentication mode is configured. The **Personal Access Tokens** item is not displayed in other authentication modes.
+Personal access tokens are available only when **SSO: OIDC (OAuth2)** or **SSO: SAML** authentication mode is configured. The **Personal Access Tokens** item is not displayed in other authentication modes.
 
 To create a personal access token, proceed as follows:
 

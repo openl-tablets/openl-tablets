@@ -114,10 +114,9 @@ The installation wizard guides you through:
 
 Choose one of the following modes:
 
-- **Demo Mode**: Quick setup with examples, single user
-- **Single-user Mode**: Local development, no authentication
-- **Multi-user Mode**: Database-backed, with user management
-- **SSO Options**: Active Directory, SAML, OAuth2, CAS
+- **Single-User**: Local development, no authentication
+- **Multi-User**: Database-backed, with user management
+- **SSO Options**: Active Directory, SSO: SAML, SSO: OIDC (OAuth2)
 
 #### Step 2: Repository Configuration
 
