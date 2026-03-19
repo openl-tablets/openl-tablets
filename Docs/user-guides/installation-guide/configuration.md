@@ -41,10 +41,6 @@
 - Support for Google, GitHub, etc.
 - Token-based
 
-#### CAS
-- Central Authentication Service
-- University and enterprise SSO
-
 ---
 
 ## Cluster Mode Configuration

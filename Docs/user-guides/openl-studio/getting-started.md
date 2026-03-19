@@ -30,35 +30,45 @@ For more information on OpenL Studio UI, see [Introducing Rules Editor](#introdu
 
 ### Modifying User Profile
 
-OpenL Studio provides a drop-down dialog located in the top-right corner of the application, under the user name, for updating user profile information, changing the password, and editing user settings. All data is stored in the user profile and includes **User details** and **User settings** sections.
+OpenL Studio provides a navigation panel accessible from the top-right corner of the application for updating profile information and editing personal settings. To open it, click the user icon in the top-right corner. The panel displays the current username and email address, and provides access to the following items:
+
+-   **My Profile** — update account details, name, and password
+-   **My Settings** — configure display and testing preferences
+-   **Personal Access Tokens** — manage API authentication tokens (visible only when SSO: OIDC (OAuth2) or SSO: SAML authentication mode is configured)
+-   **Help** — open the OpenL Studio help
+-   **Sign Out** — end the current session
 
 ![](images/user-profile-dropdown.png)
 
-*Opening the user profile window*
+*Opening the user profile panel*
 
 This section describes how to modify user profile information and includes the following topics:
 
--   [Modifying User Details](#modifying-user-details)
+-   [Modifying My Profile](#modifying-my-profile)
 -   [Synchronizing with a Third Party Service](#synchronizing-with-a-third-party-service)
--   [Modifying User Settings](#modifying-user-settings)
+-   [Modifying My Settings](#modifying-my-settings)
+-   [Managing Personal Access Tokens](#managing-personal-access-tokens)
 
-#### Modifying User Details
+#### Modifying My Profile
 
-To manage user details, proceed as follows:
+To manage profile details, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner of the window, click an arrow icon next to the username.
-2.  In the actions list, click **User Details**.
-       
+1.  In OpenL Studio, in the top-right corner, click the user icon.
+2.  In the panel, click **My Profile**.
+
     ![](images/user-details-form.png)
-    
-    *Viewing user details*
-    
-1.  To update user’s first or last name, display name, or email, modify values as required.
-    
-    If user data is retrieved from a third party system, such as Active Directory, these fields cannot be edited.
-    
-1.  To update the password, in the **Change Password** section, enter the current and new password values.
-2.  Click **Save.**
+
+    *My Profile page*
+
+3.  In the **Account** section, update the **Email** field as needed. The **Username** field is read-only.
+4.  In the **Name** section, update **First Name**, **Last Name**, and **Display Name** as needed.
+
+    If user data is synchronized from an external system such as Active Directory, the first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
+
+    The **Display Name** field includes a format selector to choose how the name is displayed, with a preview shown alongside.
+
+5.  To change the password, in the **Change Password** section, enter the **Current Password**, **New Password**, and **Confirm Password** values.
+6.  Click **Save**.
 
 #### Synchronizing with a Third Party Service
 
@@ -91,34 +101,81 @@ An exception is the situation when the first or last name was changed.
 
 If this user was not created as a local user previously but instead, created upon the external user logon, the display name value stays empty.
 
-#### Modifying User Settings
+#### Modifying My Settings
 
-To manage user settings, proceed as follows:
+To manage personal settings, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner of the window, click an arrow icon next to the username.
-2.  In the actions list, click **User settings**.
-    
-    ![](images/user-settings-form.jpeg)
-    
-    *Viewing user settings*
-    
-1.  In the **Table Settings** section, identify whether table header and MS Excel formulas must be displayed.
-2.  In the **Testing settings**, select values for displaying rule test results.
-    
-    By default, all test results are displayed with five test tables, or unit tests, and compound result is not displayed. For more information on testing settings, see [Running Unit Tests](#running-unit-tests).
-    
-1.  In the **Trace Settings,** specify whether numbers must be displayed without formatting.
+1.  In OpenL Studio, in the top-right corner, click the user icon.
+2.  In the panel, click **My Settings**.
+
+    ![](images/user-settings-form.png)
+
+    *My Settings page*
+
+3.  In the **Table Settings** section, configure the following options:
+
+    -   **Show Header** — display the table header row.
+    -   **Show Formulas** — display MS Excel formulas in table cells.
+    -   **Default Order** — set the default sort order for tables.
+
+4.  In the **Testing Settings** section, configure the following options:
+
+    -   **Tests Per Page** — number of test results displayed per page. Default is 5.
+    -   **Failures Only** — show only failed test cases in the results.
+    -   **Compound Result** — display compound test results.
+
+    For more information on testing settings, see [Running Unit Tests](editing-testing.md#running-unit-tests).
+
+5.  In the **Trace Settings** section, configure the following option:
+
+    -   **Show Numbers Without Formatting** — display numeric values without locale-based formatting in the trace view.
+
+6.  Click **Save**.
+
+#### Managing Personal Access Tokens
+
+Personal access tokens allow you to authenticate with OpenL Studio APIs without using your password. They are useful for scripts, integrations, and automated tools.
+
+Personal access tokens are available only when **SSO: OIDC (OAuth2)** or **SSO: SAML** authentication mode is configured. The **Personal Access Tokens** item is not displayed in other authentication modes.
+
+To create a personal access token, proceed as follows:
+
+1.  In OpenL Studio, in the top-right corner, click the user icon.
+2.  In the panel, click **Personal Access Tokens**.
+
+    ![](images/personal-access-tokens-view.png)
+
+    *Personal Access Tokens page*
+
+3.  Click **+ Create Token**.
+
+    ![](images/create-token.png)
+
+    *Create Token drawer*
+
+4.  In the **Create Token** drawer, enter a **Token Name** that identifies the token's purpose, such as `CI/CD Pipeline` or `MCP Client`.
+5.  Select an **Expiration** period: 7 days, 30 days, 60 days, 90 days, a custom date, or no expiration.
+6.  Click **Create**.
+7.  Copy the generated token value immediately.
+
+    The token is displayed only once and cannot be retrieved after closing the drawer.
+
+    The token can be used in API requests with the following header:
+
+    `Authorization: Token <value>`
+
+To delete a token, in the tokens list, click the delete icon next to the token and confirm the deletion.
 
 ### Displaying the OpenL Studio Help
 
-To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner of the window, click an arrow icon next to the username and select **Help**.
+To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner, click the user icon and select **Help**.
 
 ### Signing Out of OpenL Studio
 
 To sign out of OpenL Studio, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner of the window, click an arrow icon next to the username.
-2.  In the actions list, click **Sign out**.
+1.  In OpenL Studio, in the top-right corner, click the user icon.
+2.  In the panel, click **Sign Out**.
 
 ### Introducing Rules Editor
 
@@ -178,7 +235,7 @@ The following table describes the Rules Editor toolbar controls:
 
 OpenL Studio provides different modes for displaying rule elements. In this guide, modes are contingently divided into a **simple view** and **extended view**.
 
-To switch between views, in the top right corner, select **User settings** and use the **Show Header** and **Show Formula** options. 
+To switch between views, in the top right corner, select **My Settings** and use the **Show Header** and **Show Formula** options.
 
 When a table is opened in a simple view, OpenL Studio hides various technical table details, such as table header and MS Excel formulas. An example of a table opened in a simple view is as follows.
 
