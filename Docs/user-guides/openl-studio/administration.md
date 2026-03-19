@@ -2,64 +2,40 @@
 
 This section explains how to view and control OpenL Studio system settings and manage user information in the system.
 
-To perform administration tasks, in the top line menu, click **ADMIN**.
+To access administration tools, click the user icon in the top-right corner and select **Administration** from the menu.
 
-By default, the **Common** tab is displayed. The system settings are organized into the **Common**, **Repository**,
-**System**, **Security**, **Groups & Users**, and **Notification** groups. To open the group, click the corresponding tab
-on the left.
+The administration area is organized as a left-side navigation menu. The available items depend on the user's permissions: all users can access their personal settings, while administration sections are visible only to users with administration privileges.
 
-![](images/admin-overview.jpeg "OpenL Studio administration")
+![](images/admin-overview.png)
 
 *OpenL Studio administration*
 
-Normally, the default settings are recommended, but users with appropriate permissions can change them as required.
-After making changes, click **Apply All and Restart** and refresh the page. To restore the original settings, in the 
-**System** tab, click the **Restore Defaults and Restart** button.
+Normally, the default settings are recommended, but users with appropriate permissions can change them as required. After making changes in a section, click **Apply** to save and reload the page. To restore all settings to their original values, in the **System** section, click the **Restore Defaults and Restart** button.
 
 The following topics are included:
 
-- [Managing Common Settings](#managing-common-settings)
-- [Managing Repository Settings](#managing-repository-settings)
-- [Managing System Settings](#managing-system-settings)
-- [Managing Security Settings](#managing-security-settings)
-- [Managing User Information](#managing-user-information)
-- [Managing Notifications](#managing-notifications)
-- [Managing Tags](#managing-tags)
-- [Managing Email Server Configuration](#managing-email-server-configuration)
-
-### Managing Common Settings
-
-The **Common** tab defines the following general OpenL Studio settings:
-
-- [Managing User Workspace Settings](#managing-user-workspace-settings)
-- [Managing History Settings](#managing-history-settings)
-- [Managing Other OpenL Studio Settings](#managing-other-openl-studio-settings)
-
-#### Managing User Workspace Settings
-
-The **User Workspace** section is used to define the workspaces directory where user projects are located.
-
-#### Managing History Settings
-
-To manage history settings, proceed as follows:
-
-1. In **The maximum count of saved changes for each project per user** field, enter the required number.
-
-   By default, this field value is set to 100. If no value is provided, the number of records in history is unlimited.
-
-2. To clean all history files for the project, click the **Clear all history** button and confirm deletion.
-
-#### Managing Other OpenL Studio Settings
-
-The following table describes other general OpenL Studio settings:
-
-| Option                      | Description                                                                                                                                                                                                                                                                                                                    |
-|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Update table properties** | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties. |
-| **Date Format**             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                                       |
-| **Time Format**             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                                       |
+-   [Managing Repository Settings](#managing-repository-settings)
+-   [Managing System Settings](#managing-system-settings)
+-   [Managing Security Settings](#managing-security-settings)
+-   [Managing User Information](#managing-user-information)
+-   [Managing Notifications](#managing-notifications)
+-   [Managing Tags](#managing-tags)
+-   [Managing Email Server Configuration](#managing-email-server-configuration)
 
 ### Managing Repository Settings
+
+The **Repositories** section manages connection settings for design and deployment repositories. In the navigation menu, click **Repositories** to open it.
+
+The page has two tabs at the top:
+
+-   **Design Repositories** — repositories used to store and version project source files.
+-   **Deployment Repositories** — repositories used to publish compiled rule packages.
+
+Within each tab, configured repositories are listed as vertical tabs on the left side. Selecting a repository name opens its settings form on the right.
+
+![](images/repositories-overview.png)
+
+*OpenL Studio repository settings*
 
 This section describes repository settings management and includes the following topics:
 
@@ -68,69 +44,69 @@ This section describes repository settings management and includes the following
 
 #### Managing General Repository Settings
 
-The **Repository** section contains connection settings of design and deployment repositories. To modify the repository
-settings, proceed as follows:
+To add a repository, proceed as follows:
 
-1. In the **Name** field, enter the repository name to be displayed in repository editor.
-2. Select the connection type and enter corresponding location of the repository to be used as a data source:
+1.  In the **Repositories** section, click the **Design Repositories** or **Deployment Repositories** tab as needed.
+2.  Click the **Add Design Repository** or **Add Deployment Repository** button in the top-right corner.
 
-    - **Git** — The repository can be configured on the local or remote machine.
-    - **Database** — The repository is located in a local or remote database. **Repository URL** field displays URL for
-      access to the database. A user can create connection to different databases, such as MySQL, MS SQL, Oracle etc.
-      For more information on supported versions, see <https://openl-tablets.org/supported-platforms>.
-    - **AWS S3** — The repository is located in Amazon Simple Storage Service (AWS S3). A “bucket” is a logical unit of
-      storage in AWS S3 and it is globally unique. Choose a region for storage to reduce latency, costs, and so on. An
-      Access key and a Secret key are needed to access storage. If empty, the system retrieves it from one of the known
-      locations as described
-      in [AWS Documentation. Best Practices for Managing AWS Access Keys](http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html).
-      The Listener period is the interval in which to check repository changes, in seconds.
+    A new repository form opens with default Git settings pre-filled.
 
-   For more information on repository settings,
-   see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#configuring-a-data-source).
+3.  In the **Name** field, enter the repository name to be displayed in the repository editor.
+4.  In the **Type** field, select the connection type.
 
-3. Provide the URL value.
+    | Type                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+    |------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **Git**                | The repository is located on a local or remote machine. See [Managing Git Repository Settings](#managing-git-repository-settings) for Git-specific parameters.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+    | **Database JDBC**      | The repository is located in a local or remote database accessed via a JDBC URL. Supported databases include MySQL, MariaDB, PostgreSQL, MS SQL, and Oracle. <br/>For more information on supported versions, see <https://openl-tablets.org/supported-platforms>.                                                                                                                                                                                                                                                                                                                                     |
+    | **Database JNDI**      | The repository is located in a database accessed via a JNDI data source.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+    | **AWS S3**             | The repository is located in Amazon Simple Storage Service (AWS S3). <br/>A “bucket” is a logical unit of storage in AWS S3 and is globally unique. <br/>Choose a region for storage to reduce latency and costs. An Access key and a Secret key are required to access storage. <br/>If left empty, the system retrieves credentials from one of the known locations as described in [AWS Documentation. Best Practices for Managing AWS Access Keys](http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html). <br/>The Listener period is the interval in which to check for repository changes, in seconds. |
+    | **Azure Blob Storage** | The repository is located in Microsoft Azure Blob Storage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
-   The following table provides examples of deployment repository URL values for different databases.
+    For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#configuring-a-data-source).
 
-   | Database           | URL value sample                                                                                              |
-   |--------------------|---------------------------------------------------------------------------------------------------------------|
-   | **MySQL, MariaDB** | jdbc:mysql://localhost:3306/prodRepository, jdbc:mariadb://localhost:3306/prodRepository (for MariaDB driver) |
-   | **PostgreSQL**     | jdbc:postgresql://localhost:5432/ prodRepository                                                              |
-   | **MS SQL**         | jdbc:sqlserver://localhost:1433;databaseName=prodRepository;integratedSecurity=false                          |
-   | **Oracle**         | jdbc:oracle:thin:@localhost:1521:prodRepository                                                               |
+5.  Provide the URL value.
 
-4. To set up a secure connection for connecting to remote or database-located repositories, select the **Secure
-   connection** check box and fill in the login and password fields.
+    The following table provides examples of JDBC URL values for different databases.
 
-   For more information on repository security,
-   see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
+    | Database           | URL value sample                                                                                               |
+    |--------------------|----------------------------------------------------------------------------------------------------------------|
+    | **MySQL, MariaDB** | jdbc:mysql://localhost:3306/prodRepository, jdbc:mariadb://localhost:3306/ prodRepository (for MariaDB driver) |
+    | **PostgreSQL**     | jdbc:postgresql://localhost:5432/ prodRepository                                                               |
+    | **MS SQL**         | jdbc:sqlserver://localhost:1433;databaseName=prodRepository;integratedSecurity=false                           |
+    | **Oracle**         | jdbc:oracle:thin:@localhost:1521:prodRepository                                                                |
 
-   ![](images/configure-deployment-repository.jpeg "Configuring deployment repository settings")
+6.  For **Database JDBC** and **Database JNDI** types, to set up a secure connection, select the **Secure connection** check box and fill in the **Login** and **Password** fields.
 
-   *Configuring deployment repository settings*
+    For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
 
-   Connection to a local deployment repository is configured by default.
+    ![](images/configure-deployment-repository.png)
 
-5. To add design or deployment repositories, click **Add** **Repository** and enter required information.
+    *Configuring deployment repository settings*
 
-   ![](images/add-repository-dialog.jpeg "Adding a repository")
+    Connection to a local deployment repository is configured by default.
 
-   *Adding a repository*
+7.  For **Deployment Repositories**, select the **Deployment branch** option:
 
-6. When finished, click **Apply All and Restart** to save the changes and refresh the page.
+    | Option               | Description                                                       |
+    |----------------------|-------------------------------------------------------------------|
+    | **Any branch**       | Projects can be deployed to any branch.                           |
+    | **Main branch only** | Projects can only be deployed to the repository's default branch. |
+
+8.  When finished, click **Apply Changes** to save the settings.
+
+To delete a repository, click the **×** button on the repository's tab and confirm the deletion.
 
 To enable storing large files in a Git repository, Git Large File Support (LFS) can be used.
 
-- To enable the Git repository use LFS before it is cloned by OpenL Studio, perform the necessary configuration as
-  described in <https://git-lfs.github.com/>.
-- If the Git repository is already cloned by OpenL Studio, to enable using Git LFS, proceed as follows:
-    1. Close all projects in the workspace.
-    2. Delete all deployment configuration settings.
-    3. Stop OpenL Studio.
-    4. Drop the local folder with the Git repository to the OpenL Studio home directory.
-    5. Start OpenL Studio.
-       OpenL Studio will re-clone the directory.
-    6. Recreate the required deployment configuration settings that were deleted previously.
+-   To enable the Git repository use LFS before it is cloned by OpenL Studio, perform the necessary configuration as described in <https://git-lfs.github.com/>.
+-   If the Git repository is already cloned by OpenL Studio, to enable using Git LFS, proceed as follows:
+    1.  Close all projects in the workspace.
+    2.  Delete all deployment configuration settings.
+    3.  Stop OpenL Studio.
+    4.  Drop the local folder with the Git repository to the OpenL Studio home directory.
+    5.  Start OpenL Studio.
+    OpenL Studio will re-clone the directory.
+    6.  Recreate the required deployment configuration settings that were deleted previously.
 
 #### Managing Git Repository Settings
 
@@ -145,48 +121,25 @@ conflicts when modifying the same version of the project.
 
 ##### Setting Up a Connection to a Git Repository
 
-In the **ADMIN** tab, in the **Repository** section, define values for the following connection properties:
+When **Git** is selected as the repository type, define values for the following connection properties:
 
-- **Name** — Repository name. This value cannot be modified.
-- **Type** — Type of the repository. The value must be set to **Git.**
-- **URL** — URL for the remotely located Git repository or file path to the repository stored locally.
-- **Login** — Username for accessing a remote Git repository. Ignored for local repositories.
-- **Password** — Password for accessing a remote Git repository. Ignored for local repositories.
-- **Branch** — Project branch that is used by default.
-- **Protected branches** — Branches that can be set as protected from any modifications. For more information on
-  protected branches, see [Using Protected Branches](#using-protected-branches).
-- **Changes check interval** — Repository changes check interval in seconds. The value must be greater than 0. Ignored
-  for local repositories.
-- **Connection timeout** — Repository connection timeout in seconds. The value must be greater than 0. Ignored for local
-  repositories.
-- **Default branch name** — Pattern for a default branch name. The default value is OpenL
-  Studio/{project-name}/{username}/{current-date}.
-- **Branch name pattern** — Additional regular expression to be used for validation of the new branch name.
-- **Invalid branch name message hint** — Error message displayed when trying to create a branch with a name that does
-  not match the additional regular expression.
-- **Customize comments** — Custom comment message template for Git commits.
+| Parameter                          | Description                                                                                                                                                                                                  |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL**                            | URL for the remotely located Git repository or file path to the repository stored locally. If a valid Git URL is provided, the repository is treated as **remote**; if a local path is provided, it is treated as **local**. |
+| **Login**                          | Username for accessing a remote Git repository. Ignored for local repositories.                                                                                                                              |
+| **Password**                       | Password for accessing a remote Git repository. Ignored for local repositories.                                                                                                                              |
+| **Branch**                         | Project branch that is used by default.                                                                                                                                                                      |
+| **Protected branches**             | Branches that can be set as protected from any modifications. For more information on protected branches, see [Using Protected Branches](project-branches.md#using-protected-branches).                                          |
+| **Changes check interval**         | Repository changes check interval in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                              |
+| **Connection timeout**             | Repository connection timeout in seconds. The value must be greater than 0. Ignored for local repositories.                                                                                                  |
 
-  Comments can be customized using the following placeholders:
+The following additional parameters are available for **Design Repositories** only, in the **New Branch** section:
 
-    - **{user-message}** — represents a user defined commit message. It is also used as a commit message in OpenL Studio.
-    - **{commit-type}** — is used by commits to recognize the commit type of the message.
-    - **{project-name}** — is replaced by the current project in the message and used for user message templates for **Create project**, **Save project**, **Archive project**, **Restore project**, **Erase project**, and **Copy project**.
-    - **{revision}** — represents a project revision used for commit.
-
-  By default, all commits are submitted to Git with a message in the following format: `{user-message} Type: {commit-type}`
-
-  The following placeholders can be used for the **Restore from old version** user message templates:
-
-    - **{revision}** — is replaced by the old revision number.
-    - **{author}** — is replaced by the author of the old project version.
-    - **{datetime}** — is replaced by the date of the old project version.
-
-  An additional validation rule can be set up for user message templates in the **User message pattern** field, in the form of a regular expression. If the validation according to the pattern fails, an error text set in the **Invalid user message hint** field is displayed to a user.
-
-The URL field determines whether a repository is local or remote.
-
-- If the URL is a valid Git URL, the repository is treated as **remote**.
-- If the URL points to a local path, the repository is considered **local**.
+| Parameter                            | Description                                                                                               |
+|--------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| **Default branch name**              | Pattern for a default branch name. The default value is `OpenL Studio/{project-name}/{username}/{current-date}`. |
+| **Branch name pattern**              | Additional regular expression used to validate new branch names.                                          |
+| **Invalid branch name message hint** | Error message displayed when a branch name does not match the additional regular expression.              |
 
 The location where remote repositories are cloned is controlled by the following property:
 
@@ -205,56 +158,174 @@ the properties file to configure this behavior:
 | repo-git.failed-authentication-seconds | Time to wait after a failed authentication attempt before the next attempt. <br/>It is used to prevent a user account from blocking. The default value is 300 seconds.                                                                                                                                                        |
 | repo-git.max-authentication-attempts   | Maximum number of authentication attempts. <br/>After that, a user can be authorized only after resetting the settings or restarting OpenL Studio. <br/>No value means unlimited number of attempts. <br/>If the value is set to 1, after the first unsuccessful authentication attempt, all subsequent attempts are blocked. |
 
+##### Customizing Git Commit Comments
+
+For **Design Repositories**, a **Comments** section allows configuring the format of Git commit messages.
+
+To enable custom commit messages, select the **Customize comments** check box. The following fields become available:
+
+| Field                         | Description                                                                                                                                                                                                                                                                                                                                                                                                           |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Message template**          | Template for all Git commit messages. Supports the following placeholders: <br/>**{user-message}** — the user-defined commit message, also shown in OpenL Studio history. <br/>**{commit-type}** — identifies the type of operation. <br/>**{project-name}** — replaced by the current project name. <br/>**{revision}** — replaced by the project revision. <br/>Default format: `{user-message} Type: {commit-type}` |
+| **User message pattern**      | Optional regular expression for validating user-entered commit messages.                                                                                                                                                                                                                                                                                                                                              |
+| **Invalid user message hint** | Error message displayed when the user message does not match the validation pattern.                                                                                                                                                                                                                                                                                                                                  |
+
+The following user message templates can be customized for individual operations.
+
+For the **Restore from old version** template, the following additional placeholders are available:
+
+-   **{revision}** is replaced by the old revision number.
+-   **{author}** is replaced by the author of the old project version.
+-   **{datetime}** is replaced by the date of the old project version.
+
+| Template                     | Operation                                       |
+|------------------------------|-------------------------------------------------|
+| **Save project**             | Committing changes to an existing project.      |
+| **Create project**           | Creating a new project.                         |
+| **Archive project**          | Archiving a project.                            |
+| **Restore project**          | Restoring an archived project.                  |
+| **Erase project**            | Permanently deleting a project.                 |
+| **Copy project**             | Copying a project.                              |
+| **Restore from old version** | Restoring a project to a previous revision.     |
+
 ### Managing System Settings
 
-The System tab enables modifying core, project, and testing options and includes the following topics:
+The **System** section enables modifying core, testing, history, and general OpenL Studio settings. In the navigation menu, click **System** to open it.
 
-| Section | Property                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|---------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Core    | **Dispatching <br/>Validation**       | Setting turns on/off the mechanism of dispatching for a rule table where the only one version of this rule table exists. <br/>By default, the **dispatching.validation** value is set to **true** in OpenL Studio. <br/>For more information on dispatching validation, see <br/>[OpenL Tablets Rule Services Usage and Customization Guide>Table Dispatching Validation Mode](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#table-dispatching-validation-mode). |
-|         | **Verify on Edit**                    | Allows turning on/off checking of rules consistency and validity on each edit in Rules Editor. <br/>By default, the check box is selected. Automatic checks are executed after each edit. <br/>If this option is cleared, the verification process does not launch automatically when the **Save** button is clicked. <br/>Instead, a **Verify** button appears in Rules Editor, and the user must verify manually by clicking this button.                                                                                     |
-| Testing | **Thread number <br/>for tests**      | Indicates the number of test cases executed simultaneously.By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                                                  |
-|         | **Restore Defaults <br/>and Restart** | Restores all settings to default values. All user defined values, such as repository settings, will be lost.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+After making changes, click **Apply** to save.
+
+| Section                    | Property                                                    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|----------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Core**                   | **Dispatching Validation**                                  | Turns on or off the dispatching mechanism for a rule table where only one version of the rule table exists. <br/>By default, this option is enabled. <br/>For more information on dispatching validation, see [OpenL Tablets Rule Services Usage and Customization Guide > Table Dispatching Validation Mode](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#table-dispatching-validation-mode). |
+|                            | **Verify on Edit**                                          | Turns on or off automatic checking of rules consistency and validity on each edit in Rules Editor. <br/>By default, this option is enabled. Automatic checks are executed after each edit. <br/>If this option is cleared, the verification process does not launch automatically when the **Save** button is clicked. <br/>Instead, a **Verify** button appears in Rules Editor, and the user must verify manually by clicking this button.                                                          |
+| **Testing**                | **Thread Number for Tests**                                 | Indicates the number of test cases executed simultaneously. By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                     |
+| **History**                | **Maximum count of saved changes per user**                 | Maximum number of history records kept per project per user. By default, set to 100. If no value is provided, the number of records is unlimited.                                                                                                                                                                                                                                                                                                                                                  |
+| **Other**                  | **Update table properties**                                 | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties.                                                                                                                                                                      |
+|                            | **Date Format**                                             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|                            | **Time Format**                                             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Database Configuration** | **Database URL**                                            | JDBC URL of the database used to store OpenL Studio user data. Contact your System Administrator for this information if necessary.                                                                                                                                                                                                                                                                                                                                                                |
+|                            | **Login**                                                   | Database user login.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                            | **Password**                                                | Database user password. Leave blank to keep the current value.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                            | **Maximum Pool Size**                                       | Maximum number of database connections in the connection pool.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+To clear all history files for all projects, click the **Clear All History** button and confirm deletion.
+
+> **WARNING!** To restore all settings to their default values, in the **Reset Settings** group, click **Restore Defaults and Restart**. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
 
 ### Managing Security Settings
 
-The **Security** tab contains settings for user authentication and access control. It includes the following topics:
+The **Security** section contains settings for user authentication and access control. In the navigation menu, click **Security** to open it.
 
-- [Configuring Authentication Mode](#configuring-authentication-mode)
-- [Configuring Default Group](#configuring-default-group)
+To configure security, select the authentication mode, fill in the required settings, and click **Apply**.
 
-#### Configuring Authentication Mode
+This section includes the following topics:
 
-OpenL Studio supports multiple user authentication modes. The active mode can be changed in the **Security** tab of the
-**Administration** panel.
+-   [Selecting an Authentication Mode](#selecting-an-authentication-mode)
+-   [Configuring Single-User Mode](#configuring-single-user-mode)
+-   [Configuring Multi-User Mode](#configuring-multi-user-mode)
+-   [Configuring Active Directory / LDAP Mode](#configuring-active-directory--ldap-mode)
+-   [Configuring SSO: SAML Mode](#configuring-sso-saml-mode)
+-   [Configuring SSO: OIDC (OAuth2) Mode](#configuring-sso-oidc-oauth2-mode)
+-   [Configuring Initial Users](#configuring-initial-users)
 
-The following authentication modes are available:
+#### Selecting an Authentication Mode
 
-| Mode                        | Description                                                                                                                                  |
-|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| **Single-user**             | No login required. All users share a single session. Suitable for development and local evaluation only.                                     |
-| **Multi-user**              | Built-in user management with local credentials stored in OpenL Studio. Suitable for teams without an external identity provider.            |
-| **Active Directory / LDAP** | Authentication against a corporate Active Directory or LDAP server. External users are created and synchronized from the directory at login. |
-| **SSO: SAML**               | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services.                      |
-| **SSO: OAuth2**             | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                            |
+OpenL Studio supports the following authentication modes:
+
+| Mode                        | Description                                                                                                                                     |
+|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Single-User**             | Only one user can run OpenL Studio. No login is required. Suitable for development and local evaluation only.                                   |
+| **Multi-User**              | Multiple users can run OpenL Studio using unique usernames. User credentials are managed directly in OpenL Studio. Suitable for teams without an external identity provider. |
+| **Active Directory / LDAP** | Multiple users authenticate against a corporate Active Directory or LDAP server. User credentials are managed by the directory service. External users are created and synchronized from the directory at login. |
+| **SSO: SAML**               | Single Sign-On using the SAML 2.0 protocol. Works with identity providers such as Okta, Azure AD, and similar services.                         |
+| **SSO: OIDC (OAuth2)**      | Single Sign-On using the OAuth2 / OpenID Connect protocol. Supports providers such as Google, GitHub, and others.                               |
 
 **Note:** CAS authentication is no longer supported starting with OpenL Tablets 6.0.
 
-To change the authentication mode, in the **Security** tab, select the desired mode, configure the required settings,
-and click **Apply**.
+#### Configuring Single-User Mode
 
-#### Configuring Default Group
+When **Single-User** is selected, configure the single user account that will be used to run OpenL Studio:
 
-The Default Group is automatically applied to every user in the system, including users with no explicit group or role
-assignments. Its permissions act as a baseline that all users inherit regardless of their individual access
-configuration.
+| Field            | Description                                           |
+|------------------|-------------------------------------------------------|
+| **Username**     | Login name used to identify the single user in OpenL Studio. |
+| **Email**        | Email address of the user. Used for Git commits and email verification. |
+| **First Name**   | User's first name. Used to form the display name and included in Git commit metadata. |
+| **Last Name**    | User's last name. Used to form the display name and included in Git commit metadata. |
+| **Display Name** | Full name shown in the OpenL Studio UI and recorded in Git commits. |
+
+#### Configuring Multi-User Mode
+
+When **Multi-User** is selected, no additional configuration parameters are required in this section. User accounts are created and managed in the **Users** tab of the administration panel as described in [Managing Users](#managing-users).
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring Active Directory / LDAP Mode
+
+When **Active Directory / LDAP** is selected, configure the connection to the directory service:
+
+| Field           | Description                                                                                                                                                                                                     |
+|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Domain**      | The Active Directory domain name used for user authentication, for example, `example.com`. Appended to the username to form the `login@domain` format passed to the directory service.               |
+| **Server URL**  | URL of the Active Directory or LDAP server, for example, `ldap://ad.example.com:389`.                                                                                                                |
+| **User Filter** | LDAP filter string used to search for the authenticating user. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only.                                                  |
+| **Group Filter** | LDAP filter string used to search for the groups the user belongs to. <br/>`{0}` is replaced with `login@domain`. <br/>`{1}` is replaced with `login` only. <br/>`{2}` is replaced with the DN of the found user. |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring SSO: SAML Mode
+
+When **SSO: SAML** is selected, configure the connection to the SAML identity provider:
+
+| Field                          | Description                                                                                          |
+|--------------------------------|------------------------------------------------------------------------------------------------------|
+| **Entity ID**                  | A globally unique identifier that represents OpenL Studio as a SAML service provider. This value must be registered with the identity provider.  |
+| **Server Metadata URL**        | URL to the identity provider's SAML metadata document, used to automatically configure the trust relationship between OpenL Studio and the identity provider. |
+| **Remote Server Certificate**  | The identity provider's public X.509 certificate, used to verify the signature of SAML responses. Required when the metadata URL is not publicly accessible or does not include the certificate. |
+| **Attribute for Username**     | Name of the SAML attribute that contains the username.                                     |
+| **Attribute for First Name**   | Name of the SAML attribute that contains the user's first name.                            |
+| **Attribute for Last Name**    | Name of the SAML attribute that contains the user's last name.                             |
+| **Attribute for Display Name** | Name of the SAML attribute that contains the display name.                                 |
+| **Attribute for Email**        | Name of the SAML attribute that contains the user's email address.                         |
+| **Attribute for Groups**       | Name of the SAML attribute that contains the user's group memberships.                     |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring SSO: OIDC (OAuth2) Mode
+
+When **SSO: OIDC (OAuth2)** is selected, configure the connection to the OAuth2 / OpenID Connect identity provider:
+
+| Field                          | Description                                                                                          |
+|--------------------------------|------------------------------------------------------------------------------------------------------|
+| **Client ID**                  | A public identifier for OpenL Studio as a registered application in the identity provider. Obtained when registering the application with the identity provider. |
+| **Issuer URI**                 | The base URL of the identity provider's OpenID Connect discovery endpoint, for example, `https://accounts.google.com`. Used to automatically retrieve provider configuration. |
+| **Client Secret**              | A confidential credential issued by the identity provider to authenticate OpenL Studio as a registered application. Must be kept secure and never shared publicly. |
+| **Scope**                      | Space-separated list of OAuth2 scopes that define what user information OpenL Studio requests from the identity provider, for example, `openid profile email`. |
+| **Attribute for Username**     | Name of the token claim that contains the username.                                        |
+| **Attribute for First Name**   | Name of the token claim that contains the user's first name.                               |
+| **Attribute for Last Name**    | Name of the token claim that contains the user's last name.                                |
+| **Attribute for Display Name** | Name of the token claim that contains the display name.                                    |
+| **Attribute for Email**        | Name of the token claim that contains the user's email address.                            |
+| **Attribute for Groups**       | Name of the token claim that contains the user's group memberships.                        |
+
+Proceed to [Configuring Initial Users](#configuring-initial-users) to set up the administrator account and the default group.
+
+#### Configuring Initial Users
+
+The **Initial Users** section is displayed for all modes except **Single-User**. It defines the administrator account and the default group applied to all users.
+
+| Field              | Description                                                                                                                                                                                             |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Administrators** | Comma-separated list of usernames that are granted administrator privileges in OpenL Studio. These users always have administrator access, which cannot be revoked from the administration UI. |
+| **Default Group**  | Group automatically assigned to every user in the system, including users with no explicit group assignments. Select **None** to disable automatic default access.                                       |
+
+The Default Group acts as a permission baseline automatically applied to every user, including users with no explicit group or role assignments. All users inherit its permissions regardless of their individual access configuration.
 
 To configure the Default Group, proceed as follows:
 
-1. In the **Administration** panel, click the **Security** tab, then scroll down to **Configure Initial Users** section.
-2. In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access
-   for all users.
-3. Click **Apply** to apply the changes.
+1.  In the navigation menu, click **Security** and scroll down to the **Initial Users** section.
+2.  In the **Default Group** field, select a group from the list, or select **None** to disable automatic default access for all users.
+3.  Click **Apply** to apply the changes.
 
 ![](images/security-default-group.png "Default Group configuration in the Security tab")
 
@@ -262,14 +333,15 @@ To configure the Default Group, proceed as follows:
 
 **Note:** The Default Group setting is not available in Single-User mode.
 
+The **Permit creating and deleting projects** check box controls whether users are allowed to create and delete projects in OpenL Studio. When this option is disabled, users cannot create or delete projects regardless of their assigned role. For more information on roles, see [Understanding Roles](#understanding-roles).
+
 ### Managing User Information
 
 This section describes how to control user access in the OpenL Studio application. Access is controlled using a
 role-based Access Control List (ACL). Roles are assigned to users or groups on specific resources, such as repositories
 or individual projects.
 
-Users and groups are managed in the **Groups** and **Users** tabs of the **Administration** panel. Only members of the *
-*Administrators** group have rights to manage users and groups in OpenL Studio.
+Users and groups are managed in the **Groups** and **Users** tabs of the **Administration** panel. Only members of the **Administrators** group have rights to manage users and groups in OpenL Studio.
 
 **Note:** **Groups** and **Users** tabs are not shown in Single-User mode.
 
@@ -322,8 +394,7 @@ Where the individual permissions that make up each role:
   from that repository, but does not affect the repository itself.
 - **Manage** — Allows assigning roles to users and groups on the resources the user manages.
 
-**Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects
-** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects
+**Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects
 regardless of their assigned role.
 
 **Note:** The **Administrator** designation is separate from the above ACL roles and grants system-wide administrative
@@ -370,7 +441,7 @@ any other group. This means that if the Default Group has access to a resource, 
 access regardless of their individual group assignments.
 
 To change the Default Group, go to **Security → Default Group** in the administration settings as described
-in [Configuring Default Group](#configuring-default-group).
+in [Understanding the Default Group](#understanding-the-default-group).
 
 ##### Viewing a List of Groups
 
@@ -415,9 +486,9 @@ To invite a group, proceed as follows:
 5. In the **Access Rights** section, configure the group's access to repositories and projects:
 
    | Field        | Description                                                                                                                                |
-            |--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-   | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. Mandatory. |
-   | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**. Mandatory.                                      |
+   |--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+   | **Resource** | The repository or project to which access is granted. Select from the available repositories and projects listed in the system. |
+   | **Role**     | The role to assign for the selected resource: **Viewer**, **Contributor**, or **Manager**.                                      |
 
    ![](images/invite-group-access-management.png "Access Management section of the Invite Group dialog")
 
@@ -451,8 +522,6 @@ without external user management, access is managed directly per user in the **U
 with an external user management system, access can additionally be managed at the group level through the **Groups**
 tab.
 
-**Note:** Demo mode includes a set of pre-configured users with sample access rights for evaluation purposes. These
-users are not intended for production use.
 
 The initial administrator account is configured through the `security.administrators` property in the application
 configuration. The administrator can then create and manage additional users through the **Administration** panel.
@@ -608,69 +677,82 @@ directly on a user.
 
 ### Managing Notifications
 
-In the **ADMIN \> Notification** section, users with the administrator privileges can send text messages to all OpenL
-Studio instances and users that are currently online or remove previously sent notifications.
+In the navigation menu, click **Notification** to open the notification management page. Users with administrator privileges can send a text message to all currently active OpenL Studio users and instances, or clear a previously sent notification.
 
-When a notification is sent by clicking **Post**, a red bar with notification text appears for all users and OpenL
-Studio instances. To remove the message for all users and OpenL Studio instances, click **Remove**.
+To send a notification, enter the message text in the **Message** field and click **Notify**. A red bar with the notification text appears for all active users and OpenL Studio instances.
 
-![](images/notification-red-bar.jpeg "Red bar identifying a notification sent to all active users and instances")
+To remove the notification for all users and instances, click **Clear**.
+
+![](images/notification-red-bar.png "Red bar identifying a notification sent to all active users and instances")
 
 *Red bar identifying a notification sent to all active users and instances*
 
 ### Managing Tags
 
-In OpenL Tablets, tags can be assigned to a project. A **tag type** is a category holding tag values of the same group.
-An example is the **Product** tag that includes tags **Auto**, **Life**, and **Home**.
+In OpenL Tablets, tags can be assigned to a project. A **tag type** is a category holding tag values of the same group. An example is the **Product** tag that includes tags **Auto**, **Life**, and **Home**.
 
-**Note:** Starting with OpenL Tablets 6.0, project tags are stored inside the project structure rather than in a
-separate configuration. As a result, tag changes are version-controlled and visible in the project's Git history.
+**Note:** Starting with OpenL Tablets 6.0, project tags are stored inside the project structure rather than in a separate configuration. As a result, tag changes are version-controlled and visible in the project's Git history.
 
-If a tag type is defined as optional, its value definition can be skipped when creating a project. Otherwise, tag
-definition is mandatory.
+In the navigation menu, click **Tags** to open the tag management page.
 
-For extensible tag types, any user can create new tag values. For other tag types, values are configured by an
-administrator only.
+The page consists of two sections:
+
+-   **Tag Types and Values** — where tag types and their values are created and managed.
+-   **Tags from a Project Name** — where templates for deriving tag values from project names are defined.
+
+Tag types and values are saved automatically. No additional save action is required.
 
 To create project tags, proceed as follows:
 
-1.  In the **ADMIN** tab, click **Tags** on the left.
+1.  To add a tag type, in the input field at the bottom of the tag table, enter the tag type name and press **Enter** or click outside the field.
 
-    ![](images/select-tags-admin.jpeg "Selecting tags")
+    ![](images/select-tags-admin.png "Selecting tags")
 
     *Selecting tags*
 
-2.  To add a tag type, in the **New Tag Type** field, enter the tag type name and press **Enter** or Tab.
+2.  To edit a tag type name, click the tag type name cell in the table, modify the value, and press **Enter** or click outside the field.
 
-    When at least one tag type is added, a field for adding tag values appears.
+3.  To configure a tag type, use the following checkboxes in the tag type row:
 
-    ![](images/add-tag-values.jpeg "Adding tag values")
+    | Column         | Description                                                                                                                            |
+    |----------------|----------------------------------------------------------------------------------------------------------------------------------------|
+    | **Extensible** | When selected, any user can create new tag values for this tag type. When cleared, only an administrator can add values.               |
+    | **Nullable**   | When selected, assigning a value for this tag type is optional when creating a project. When cleared, a value must always be selected. |
+
+4.  To delete a tag type, click the **Delete** icon in the **Actions** column of the tag type row and confirm the deletion.
+
+5.  To add a tag value, in the **Tags** column of the tag type row, click **+ Add Tag**, enter the tag name, and press **Enter** or click outside the field.
+
+    ![](images/add-tag-values.png "Adding tag values")
 
     *Adding tag values*
 
-3.  To edit a tag type, click the tag type name field and make the necessary changes.
-4.  To delete a tag type, click the red cross icon for the appropriate tag.
-5.  To add a tag value, in the **New Tag** field, enter the tag name and press **Enter.**
-6.  To edit a tag, click the menu icon ![](images/tag-menu-icon.png), select **Edit,** modify the tag, and press **Enter
-    ** or click outside the field.
-7.  To delete a tag, click the menu icon ![](images/tag-menu-icon.png) and select **Delete.**
+6.  To edit a tag value, double-click the tag, modify the value, and press **Enter** or click outside the field.
 
-    All created tag types and values are saved automatically. These values are now available for selection when assigning
-    tags to projects as described in [Creating Projects in Design Repository](#creating-projects-in-design-repository).
+7.  To delete a tag value, click the delete icon next to the tag name.
 
-    Tag values can be derived from project names. Proceed as follows:
+All created tag types and values are saved automatically. These values are now available for selection when assigning tags to projects as described in [Creating Projects in Design Repository](repository-editor.md#creating-projects-in-design-repository).
 
-8.  To define project name templates to be used for deriving tags, in the **Tags from a Project Name** section, enter the
-    template value.
-9.  To save project name templates, click **Save Templates** or simply click outside the field.
-10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click
-    **Fill tags for projects.**
+Tag values can be derived from project names. Proceed as follows:
 
-The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple
-tag types, or do not have tags defined at all, and which name matches the project name template.
+8.  To define project name templates, in the **Tags from a Project Name** section, enter the templates in the **Project Name Templates** text area.
 
-Please note that only projects currently opened by the user can be modified. If a project exists in the repository but
-is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
+    Templates use the following syntax:
+
+    -   Tag type names are wrapped with the `%` symbol, for example, `%Domain%`.
+    -   `?` stands for any single symbol.
+    -   `*` stands for any text of any length.
+    -   Each template must be defined on its own line. Templates are evaluated in order: the first template has the highest priority, the last has the lowest.
+
+    **Example:** For the `%Domain%-%LOB%-*` template, the project named `Policy-L&A-rules` receives the tag **Policy** for the **Domain** tag type and **L&A** for **LOB**.
+
+9.  To save project name templates, click **Save Templates**.
+
+10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill Tags for Project**.
+
+The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple tag types, or do not have tags defined at all, and which name matches the project name template.
+
+Please note that only projects currently opened by the user can be modified. If a project exists in the repository but is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
 
 ![](images/apply-tags-window.png "Applying tags for projects matching project name templates")
 
@@ -679,22 +761,13 @@ is not opened for the current user, it will appear in the pop-up but will be gra
 In this window, tags are marked with colors as follows:
 
 - **White** — A tag exists in the list of tags and will be assigned to a project.
-- **Green** — A tag does not exist in the list of tags, but the tag type is defined as extensible, so the tag will be
-  created and assigned to the project.
-- **Red** — A tag does not exist in the list of tags, and the tag type is not defined as extensible, so the tag will not
-  be created, neither it will be assigned to the project. The tag for a project will remain **None.**
-- **Grey** — A tag is already assigned to the project. The project still appears on the list because it has other tag
-  types with the **None** values. If the tag is already assigned, but a different tag value is derived from the project
-  name according to the template, the existing value will be replaced with the derived value. The replacement is
-  identified with the arrow. The derived value can be created if the tag type is extensible. In this case, a new value
-  will be marked green. If the derived tag value does not exist and the tag type is not extensible, no replacement
-  happens, and the old value appears in grey with no arrow.
+- **Green** — A tag does not exist in the list of tags, but the tag type is defined as extensible, so the tag will be created and assigned to the project.
+- **Red** — A tag does not exist in the list of tags, and the tag type is not defined as extensible, so the tag will not be created, neither it will be assigned to the project. The tag for a project will remain **None.**
+- **Grey** — A tag is already assigned to the project. The project still appears on the list because it has other tag types with the **None** values. If the tag is already assigned, but a different tag value is derived from the project name according to the template, the existing value will be replaced with the derived value. The replacement is identified with the arrow. The derived value can be created if the tag type is extensible. In this case, a new value will be marked green. If the derived tag value does not exist and the tag type is not extensible, no replacement happens, and the old value appears in grey with no arrow.
 
 This logic is explained in the tooltips for each tag color type.
 
-Note that if project tags are successfully modified, the project status changes to **In Editing**, unless it is already
-in this status. Because tags are stored within the project, they must be saved (committed) before the changes become
-visible to other users. The tag changes are then included in the project's version history.
+Note that if project tags are successfully modified, the project status changes to **In Editing**, unless it is already in this status. Because tags are stored within the project, they must be saved (committed) before the changes become visible to other users. The tag changes are then included in the project's version history.
 
 ### Managing Email Server Configuration
 
@@ -726,7 +799,11 @@ A user can resend the verification email on his or her own by clicking the usern
 
 ![A user initiating verification email resending](images/user-resend-verification-email.png "A user initiating verification email resending")
 
+*A user initiating verification email resending*
+
 The verification email resembles the following:
 
 ![Verification email example](images/verification-email-example.png "Verification email example")
+
+*Verification email example*
 

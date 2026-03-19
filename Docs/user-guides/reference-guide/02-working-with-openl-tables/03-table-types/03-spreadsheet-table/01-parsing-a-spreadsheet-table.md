@@ -62,6 +62,12 @@ The data type for each cell can be determined by OpenL Tablets automatically or 
 
 **Note:** If both column and row of the cell have a data type specified, the data type of the column is taken.
 
+Descriptions for spreadsheet columns can be provided by adding a dedicated **description column** with a header in the format `//<ColumnName>`. The name following `//` must exactly match the header of the column being described. Description columns allow spaces in their headers.
+
+![](../../../ref-guide-images/SpreadsheetDesriptionColumn.png)
+
+*Value column description*
+
 In OpenL Rule Services, spreadsheet output can be customized by adding or removing rows and columns to display as described in [Spreadsheet Result Output Customization](06-spreadsheet-result-output-customization.md#spreadsheet-result-output-customization).
 
 The following topics are included in this section:

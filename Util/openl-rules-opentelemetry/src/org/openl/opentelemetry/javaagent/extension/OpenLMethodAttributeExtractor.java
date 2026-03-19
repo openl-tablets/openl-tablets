@@ -6,7 +6,6 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.instrumenter.AttributesExtractor;
-import io.opentelemetry.instrumentation.api.internal.AttributesExtractorUtil;
 
 import org.openl.rules.method.ExecutableRulesMethod;
 
@@ -23,9 +22,9 @@ public class OpenLMethodAttributeExtractor implements AttributesExtractor<Execut
 
     @Override
     public void onStart(AttributesBuilder attributes, Context parentContext, ExecutableRulesMethod request) {
-        AttributesExtractorUtil.internalSet(attributes, CODE_FUNCTION, request.getName());
-        AttributesExtractorUtil.internalSet(attributes, CODE_NAMESPACE, request.getModuleName());
-        AttributesExtractorUtil.internalSet(attributes, OPENL_TABLE_TYPE, request.getClass().getSimpleName());
+        attributes.put(CODE_FUNCTION, request.getName());
+        attributes.put(CODE_NAMESPACE, request.getModuleName());
+        attributes.put(OPENL_TABLE_TYPE, request.getClass().getSimpleName());
     }
 
     @Override

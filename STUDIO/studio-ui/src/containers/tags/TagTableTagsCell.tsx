@@ -87,7 +87,7 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
     }
 
     return (
-        <Space wrap size={[0, 8]}>
+        <Space wrap size={[4, 8]}>
             {tags.map((tag, index) => {
                 if (editInputIndex === index) {
                     return (

@@ -96,14 +96,14 @@
         <kafka.version>4.2.0</kafka.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.25.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.26.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
 
         <!-- REST -->
         <jackson.version>2.21.1</jackson.version>
         <cxf.version>4.1.5</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.79.0</grpc.version>
+        <grpc.version>1.80.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.43</swagger.core.version>
@@ -169,7 +169,7 @@
         <greenmail.version>2.1.8</greenmail.version>
 
         <!-- XML -->
-        <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
 
         <!-- Commons and utils -->
         <commons-codec.version>1.21.0</commons-codec.version>
@@ -191,8 +191,8 @@
         <jcodemodel.version>4.1.0</jcodemodel.version>
 
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
-        <node.version>v24.13.0</node.version>
-        <npm.version>11.7.0</npm.version>
+        <node.version>v24.14.0</node.version>
+        <npm.version>11.12.0</npm.version>
         <npm.test.skip>false</npm.test.skip>
 
         <!-- It needs to detect memory leaks. -->
@@ -575,6 +575,7 @@
                 <sonar.coverage.jacoco.xmlReportPaths>
                     ${maven.multiModuleProjectDirectory}/jacoco-report/target/site/jacoco-aggregate/jacoco.xml
                 </sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
             </properties>
             <build>
                 <plugins>
