@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
+import org.openl.studio.projects.service.run.RunExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.trace.TraceExecutionStatus;
 
@@ -22,6 +23,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TESTS = "/topic/projects/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TESTS = "/topic/projects/%s/tables/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TRACE = "/topic/projects/%s/tables/%s/trace";
+    private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -108,6 +110,34 @@ public class ProjectSocketNotificationService {
     public void notifyTraceExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                java.util.Map.of("status", "ERROR", "message", errorMessage));
+    }
+
+    /**
+     * Notifies user about run execution status change for a specific table.
+     *
+     * @param user      user to notify
+     * @param projectId project id
+     * @param tableId   table id
+     * @param status    new run execution status
+     */
+    public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, RunExecutionStatus status) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                status.name());
+    }
+
+    /**
+     * Notifies user about run execution error for a specific table.
+     *
+     * @param user         user to notify
+     * @param projectId    project id
+     * @param tableId      table id
+     * @param errorMessage error message
+     */
+    public void notifyRunExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
                 java.util.Map.of("status", "ERROR", "message", errorMessage));
     }
 
