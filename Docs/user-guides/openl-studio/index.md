@@ -28,6 +28,7 @@ This guide is organized into the following sections:
 - [Appendix A: ZIP Project Structure](appendices/zip-structure.md) - Understanding project file structure
 - [Appendix B: OpenAPI Project Generation Algorithm](appendices/openapi-generation.md) - How OpenAPI projects are generated
 - [Appendix C: Access to OpenL Studio for Experienced Users](appendices/experienced-users.md) - Advanced user access information
+- [Appendix D: Error Pages](appendices/error-pages.md) - Error pages displayed when access or system issues occur
 
 ## Additional Resources
 
