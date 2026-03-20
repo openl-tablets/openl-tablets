@@ -1,0 +1,4 @@
+POST /rest/projects/{PROJECT_ID}/run?tableId=c8404f1b4595e81436c81daa741ed3a1 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+

@@ -1,0 +1,160 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Virtual test suite",
+  "tableId": "8fcce0713a8f382c1ca4c377e460a9db",
+  "executionTimeMs": "##.##",
+  "result": {
+    "Description_CapitalAdequacy": "Calculate Capital Adequacy (%)",
+    "Value_CapitalAdequacy": 5.4,
+    "Description_CapitalAdequacyScore": "Score Q1",
+    "Value_CapitalAdequacyScore": 0.8,
+    "Description_ClaimsOnCustomerRatio": "Calculate Claims on  Customer Ratio in Assets (%)",
+    "Value_ClaimsOnCustomerRatio": 44.7,
+    "Description_ClaimsOnCustomerRatioScore": "Score Q2",
+    "Value_ClaimsOnCustomerRatioScore": 1.0,
+    "Description_CreditPortfolioQuality": "Calculate Quality of Credit Portfolio (%)",
+    "Value_CreditPortfolioQuality": 2.7,
+    "Description_CreditPortfolioQualityScore": "Score Q3",
+    "Value_CreditPortfolioQualityScore": 1.0,
+    "Description_SecuredByPropertyChargesClaimsRatio": "Calculate Secured by Property Charges Claims Ratio (%)",
+    "Value_SecuredByPropertyChargesClaimsRatio": 39.9,
+    "Description_SecuredByPropertyChargesClaimsRatioScore": "Score Q4",
+    "Value_SecuredByPropertyChargesClaimsRatioScore": 0.95,
+    "Description_QuickRatio": "Calculate Quick Ratio (%)",
+    "Value_QuickRatio": 38.4,
+    "Description_QuickRatioScore": "Score Q5",
+    "Value_QuickRatioScore": 0.95,
+    "Description_LiquidityRatio": "Calculate Liquidity Ratio (%)",
+    "Value_LiquidityRatio": 24.8,
+    "Description_LiquidityRatioScore": "Score Q6",
+    "Value_LiquidityRatioScore": 0.9,
+    "Description_HighLiquidityRatio": "Calculate High Liquidity Ratio (%)",
+    "Value_HighLiquidityRatio": 9.9,
+    "Description_HighLiquidityRatioScore": "Score Q7",
+    "Value_HighLiquidityRatioScore": 0.8,
+    "Description_NetMoneyMarketLiabilities": "Calculate Net Liabilities at Money Market (%)",
+    "Value_NetMoneyMarketLiabilities": 3.5,
+    "Description_NetMoneyMarketLiabilitiesScore": "Score Q8",
+    "Value_NetMoneyMarketLiabilitiesScore": 1.0,
+    "Description_LiabilitiesToCustomersOnDemandRatio": "Calculate Liabilities to Customers on Demand Ratio (%)",
+    "Value_LiabilitiesToCustomersOnDemandRatio": 19.8,
+    "Description_LiabilitiesToCustomersOnDemandRatioScore": "Score Q9",
+    "Value_LiabilitiesToCustomersOnDemandRatioScore": 0.95,
+    "Description_OtherAssetsRatio": "Calculate Other Assets Ratio (%)",
+    "Value_OtherAssetsRatio": 1.0,
+    "Description_OtherAssetsRatioScore": "Score Q10",
+    "Value_OtherAssetsRatioScore": 1.0,
+    "Description_BalanceQualityIndex": "Balance Quality Index \nB = Q1 x Q2 x Q3 x Q4 x Q5 x Q6 x Q7 x x Q8 x Q9 x Q10",
+    "Value_BalanceQualityIndex": 0.49
+  },
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "columnNames": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "rowNames": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": [
+    {
+      "name": "currentFinancialData",
+      "description": "currentFinancialData",
+      "value": {
+        "reportDate": "2010-01-01T00:00:00.000",
+        "totalAssets": 754299.0,
+        "claimsOnDemand": 74502.0,
+        "claimsUpTo3Months": 179938.0,
+        "claimsSecuredByPropertyCharges": 134321.0,
+        "claimsOnBanks": 110956.0,
+        "claimsOnCustomers": 336872.0,
+        "loanLossProvisionsForClaimsOnCustomers": 9117.0,
+        "otherAssets": 7349.0,
+        "capital": 40857.0,
+        "equity": 28658.0,
+        "liabilities": 725641.0,
+        "liabilitiesToBanks": 137626.0,
+        "liabilitiesToCustomers": 262827.0,
+        "liabilitiesOnDemand": 193986.0,
+        "liabilitiesToCustomersOnDemand": 143807.0,
+        "consolidatedProfit": 1489.0
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "capital": {
+            "type": "number"
+          },
+          "claimsOnBanks": {
+            "type": "number"
+          },
+          "claimsOnCustomers": {
+            "type": "number"
+          },
+          "claimsOnDemand": {
+            "type": "number"
+          },
+          "claimsSecuredByPropertyCharges": {
+            "type": "number"
+          },
+          "claimsUpTo3Months": {
+            "type": "number"
+          },
+          "consolidatedProfit": {
+            "type": "number"
+          },
+          "equity": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "liabilitiesOnDemand": {
+            "type": "number"
+          },
+          "liabilitiesToBanks": {
+            "type": "number"
+          },
+          "liabilitiesToCustomers": {
+            "type": "number"
+          },
+          "liabilitiesToCustomersOnDemand": {
+            "type": "number"
+          },
+          "loanLossProvisionsForClaimsOnCustomers": {
+            "type": "number"
+          },
+          "otherAssets": {
+            "type": "number"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAssets": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  ]
+}
