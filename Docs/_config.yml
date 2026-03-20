@@ -52,7 +52,7 @@ lunr:
   search_within_pages: true
 
 # ── Permalinks ─────────────────────────────────────────────────────────────────
-permalink: pretty
+permalink: /:categories/:title
 
 # ── Default layouts ─────────────────────────────────────────────────────────────
 defaults:
