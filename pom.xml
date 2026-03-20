@@ -79,7 +79,7 @@
         <!-- Spring -->
         <spring.framework.version>6.2.17</spring.framework.version>
         <spring.boot.version>3.5.12</spring.boot.version>
-        <spring.integration.version>6.5.7</spring.integration.version>
+        <spring.integration.version>6.5.8</spring.integration.version>
 
         <!-- Security -->
         <spring.security.version>6.5.9</spring.security.version>
