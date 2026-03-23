@@ -1,12 +1,12 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react'
-import {Alert, Button, Form, Space, Spin, Tooltip, Typography} from 'antd'
-import {BranchesOutlined, DownloadOutlined, UploadOutlined} from '@ant-design/icons'
-import {useTranslation} from 'react-i18next'
-import {Select} from '../../components/form'
-import type {ApiCallOptions} from '../../services'
-import {apiCall, isApiHttpError} from '../../services'
-import {WIDTH_OF_FORM_LABEL_MODAL} from '../../constants'
-import {BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse} from './types'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Alert, Button, Form, Space, Spin, Tooltip, Typography } from 'antd'
+import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
+import { Select } from '../../components/form'
+import type { ApiCallOptions } from '../../services'
+import { apiCall, isApiHttpError } from '../../services'
+import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
+import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
 
 const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
