@@ -49,7 +49,7 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
 import org.openl.studio.projects.service.trace.TableInputParserService;
-import org.openl.studio.projects.service.trace.TraceExecutionStatus;
+import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.trace.TraceExecutorService;
 import org.openl.studio.projects.service.trace.TraceExportService;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
@@ -125,7 +125,7 @@ public class ProjectsTraceController {
         }
 
         var listener = listenerFactory.create(user, projectId, tableId);
-        listener.onStatusChanged(TraceExecutionStatus.PENDING);
+        listener.onStatusChanged(ExecutionStatus.PENDING);
 
         // Create a new TraceHelper for this trace session
         var traceHelper = new TraceHelper();

@@ -10,9 +10,8 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
-import org.openl.studio.projects.service.run.RunExecutionStatus;
+import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
-import org.openl.studio.projects.service.trace.TraceExecutionStatus;
 
 @Component
 @ParametersAreNonnullByDefault
@@ -93,7 +92,7 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new trace execution status
      */
-    public void notifyTraceExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, TraceExecutionStatus status) {
+    public void notifyTraceExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
                 status.name());
@@ -121,7 +120,7 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new run execution status
      */
-    public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, RunExecutionStatus status) {
+    public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
                 status.name());

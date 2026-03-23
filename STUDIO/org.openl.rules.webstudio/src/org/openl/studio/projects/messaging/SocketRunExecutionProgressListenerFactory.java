@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.run.RunExecutionProgressListener;
-import org.openl.studio.projects.service.run.RunExecutionStatus;
+import org.openl.studio.projects.service.ExecutionProgressListener;
+import org.openl.studio.projects.service.ExecutionStatus;
 
 /**
  * Factory for creating run execution progress listeners that notify users via WebSocket.
@@ -20,17 +20,17 @@ public class SocketRunExecutionProgressListenerFactory {
     }
 
     /**
-     * Creates a RunExecutionProgressListener that notifies the user via WebSocket about run execution progress.
+     * Creates an ExecutionProgressListener that notifies the user via WebSocket about run execution progress.
      *
      * @param user      the user to notify
      * @param projectId the project ID
      * @param tableId   the table ID
-     * @return a RunExecutionProgressListener instance
+     * @return an ExecutionProgressListener instance
      */
-    public RunExecutionProgressListener create(CommonUser user, ProjectIdModel projectId, String tableId) {
-        return new RunExecutionProgressListener() {
+    public ExecutionProgressListener create(CommonUser user, ProjectIdModel projectId, String tableId) {
+        return new ExecutionProgressListener() {
             @Override
-            public void onStatusChanged(RunExecutionStatus status) {
+            public void onStatusChanged(ExecutionStatus status) {
                 socketNotificationService.notifyRunExecutionStatus(user, projectId, tableId, status);
             }
 

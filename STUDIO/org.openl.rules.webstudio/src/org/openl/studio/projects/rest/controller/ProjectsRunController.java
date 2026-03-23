@@ -45,8 +45,8 @@ import org.openl.studio.projects.model.run.RunExecutionResult;
 import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
-import org.openl.studio.projects.service.run.RunExecutionStatus;
 import org.openl.studio.projects.service.run.RunExecutorService;
 import org.openl.studio.projects.service.trace.TableInputParserService;
 
@@ -124,7 +124,7 @@ public class ProjectsRunController {
         }
 
         var listener = listenerFactory.create(user, projectId, tableId);
-        listener.onStatusChanged(RunExecutionStatus.PENDING);
+        listener.onStatusChanged(ExecutionStatus.PENDING);
 
         var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
 

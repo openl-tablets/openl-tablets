@@ -8,6 +8,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.studio.projects.service.ExecutionProgressListener;
 
 /**
  * Service for executing rule tracing asynchronously.
@@ -34,7 +35,7 @@ public interface TraceExecutorService {
      * @param traceHelper         trace helper for caching results (must not be null)
      * @return a future that completes with the root trace object
      */
-    CompletableFuture<ITracerObject> traceTestSuite(@NotNull TraceExecutionProgressListener listener,
+    CompletableFuture<ITracerObject> traceTestSuite(@NotNull ExecutionProgressListener listener,
                                                     @NotNull ProjectModel projectModel,
                                                     @NotNull IOpenLTable table,
                                                     String testRanges,
@@ -53,7 +54,7 @@ public interface TraceExecutorService {
      * @param traceHelper         trace helper for caching results (must not be null)
      * @return a future that completes with the root trace object
      */
-    CompletableFuture<ITracerObject> traceMethod(@NotNull TraceExecutionProgressListener listener,
+    CompletableFuture<ITracerObject> traceMethod(@NotNull ExecutionProgressListener listener,
                                                  @NotNull ProjectModel projectModel,
                                                  @NotNull IOpenLTable table,
                                                  Object[] params,

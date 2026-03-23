@@ -2,8 +2,6 @@ package org.openl.studio.projects.service.trace;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -12,7 +10,7 @@ import org.springframework.web.context.annotation.SessionScope;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
 
 /**
  * Session-scoped registry for managing trace execution tasks.
@@ -22,30 +20,15 @@ import org.openl.util.RuntimeExceptionWrapper;
  * cancelled to prevent resource exhaustion.
  * </p>
  * <p>
- * The registry stores:
- * <ul>
- *   <li>The {@link CompletableFuture} representing the asynchronous trace task</li>
- *   <li>The {@link TraceHelper} containing cached trace results for lazy loading</li>
- *   <li>Project and table identifiers for validation</li>
- * </ul>
+ * In addition to the execution future, this registry stores the {@link TraceHelper}
+ * containing cached trace results for lazy loading.
  * </p>
- * <p>
- * Uses {@link ScopedProxyMode#TARGET_CLASS} to allow injection into singleton
- * beans while maintaining session-scope semantics.
- * </p>
- *
  */
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class ExecutionTraceResultRegistry {
+public class ExecutionTraceResultRegistry extends AbstractExecutionResultRegistry<ITracerObject> {
 
-    private record Entry(ProjectIdModel projectId,
-                         String tableId,
-                         CompletableFuture<ITracerObject> task,
-                         TraceHelper traceHelper) {
-    }
-
-    private final AtomicReference<Entry> ref = new AtomicReference<>();
+    private volatile TraceHelper traceHelper;
 
     /**
      * Register a new trace task; cancels previous one if running.
@@ -59,58 +42,16 @@ public class ExecutionTraceResultRegistry {
                         String tableId,
                         CompletableFuture<ITracerObject> task,
                         TraceHelper traceHelper) {
-        Objects.requireNonNull(projectId, "projectId");
         Objects.requireNonNull(tableId, "tableId");
-        Objects.requireNonNull(task, "task");
         Objects.requireNonNull(traceHelper, "traceHelper");
-
-        Entry previous = ref.getAndSet(new Entry(projectId, tableId, task, traceHelper));
-        if (previous != null && !previous.task.isDone()) {
-            previous.task.cancel(true);
-        }
+        this.traceHelper = traceHelper;
+        registerTask(projectId, tableId, task);
     }
 
-    /**
-     * Stop current task if running.
-     */
-    public void cancelIfAny() {
-        Entry e = ref.get();
-        if (e != null) {
-            e.task().cancel(true);
-        }
-    }
-
-    /**
-     * Clear the registry, releasing the trace data from memory.
-     * Cancels the task if it's still running.
-     */
+    @Override
     public void clear() {
-        Entry e = ref.getAndSet(null);
-        if (e != null && !e.task().isDone()) {
-            e.task().cancel(true);
-        }
-    }
-
-    /**
-     * Check if the current task for the given project exists.
-     *
-     * @param projectId the project identifier
-     * @return true if a task exists for this project
-     */
-    public boolean hasTask(ProjectIdModel projectId) {
-        Entry e = ref.get();
-        return e != null && e.projectId().equals(projectId);
-    }
-
-    /**
-     * Check if the task for the given project is completed.
-     *
-     * @param projectId the project identifier
-     * @return true if the task is completed
-     */
-    public boolean isDone(ProjectIdModel projectId) {
-        Entry e = ref.get();
-        return e != null && e.projectId().equals(projectId) && e.task().isDone();
+        this.traceHelper = null;
+        super.clear();
     }
 
     /**
@@ -121,24 +62,7 @@ public class ExecutionTraceResultRegistry {
      * @return the trace helper with cached results, or null
      */
     public TraceHelper getTraceHelperIfDone(ProjectIdModel projectId) {
-        Entry e = ref.get();
-        if (e == null || !e.projectId().equals(projectId)) {
-            return null;
-        }
-
-        CompletableFuture<ITracerObject> future = e.task();
-        if (!future.isDone() || future.isCancelled()) {
-            return null;
-        }
-
-        try {
-            future.get(); // Ensure task completed successfully
-            return e.traceHelper();
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            return null;
-        } catch (ExecutionException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
+        var result = getResultIfDone(projectId);
+        return result != null ? traceHelper : null;
     }
 }

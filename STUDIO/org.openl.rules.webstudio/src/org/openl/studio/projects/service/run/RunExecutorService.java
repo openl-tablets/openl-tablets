@@ -7,6 +7,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.projects.service.ExecutionProgressListener;
 
 /**
  * Service for executing regular (non-test) methods asynchronously.
@@ -31,7 +32,7 @@ public interface RunExecutorService {
      * @param currentOpenedModule if true, use currently opened module; otherwise, use full project
      * @return a future that completes with the test results
      */
-    CompletableFuture<TestUnitsResults> runMethod(@NotNull RunExecutionProgressListener listener,
+    CompletableFuture<TestUnitsResults> runMethod(@NotNull ExecutionProgressListener listener,
                                                   @NotNull ProjectModel projectModel,
                                                   @NotNull IOpenLTable table,
                                                   Object[] params,
