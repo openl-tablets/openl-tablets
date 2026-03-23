@@ -53,6 +53,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         validateMerge(project, otherBranch);
         var repository = getBranchRepository(project);
         var branchPair = getBranchPair(project, otherBranch, mode);
+        validateTargetBranchNotProtected(project, branchPair.target());
         validateProjectLock(project, branchPair.target());
         boolean merged = repository.isMergedInto(branchPair.source(), branchPair.target());
         return CheckMergeResult.builder()
@@ -96,13 +97,20 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         return false;
     }
 
+    private void validateTargetBranchNotProtected(RulesProject project, String targetBranch) {
+        var repository = getBranchRepository(project);
+        if (repository.isBranchProtected(targetBranch)) {
+            throw new ConflictException("project.merge.branch.protected.message", targetBranch);
+        }
+    }
+
     private void validateProjectLock(RulesProject project, String targetBranch) {
         var userWorkspace = getUserWorkspace();
         var repository = getBranchRepository(project);
         LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
         LockInfo lockInfo = projectsLockEngine.getLockInfo(repository.getId(), targetBranch, project.getRealPath());
         if (lockInfo.isLocked()) {
-            throw new ConflictException("project.merge.branch.locked", targetBranch);
+            throw new ConflictException("project.merge.branch.locked.message", targetBranch);
         }
     }
 
@@ -118,6 +126,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     public MergeResult merge(RulesProject project, String otherBranch, MergeOpMode mode) throws IOException {
         validateMerge(project, otherBranch);
         var branchPair = getBranchPair(project, otherBranch, mode);
+        validateTargetBranchNotProtected(project, branchPair.target());
         validateProjectLock(project, branchPair.target());
         var branchRepository = getBranchRepository(project);
         var currentUser = getUserWorkspace().getUser();

@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sourceBranch": "release-EPBDS-15753",
+  "targetBranch": "EPBDS-15753_dev",
+  "status": "up-to-date"
+}

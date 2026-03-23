@@ -15,7 +15,7 @@ For current dependency versions, read `package.json`.
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
 - **Webpack** + Babel, `tsconfig-paths-webpack-plugin`
 - **ESLint** (flat config: `eslint.config.js`) + **Stylelint** + **Husky** pre-commit hooks
-- **Jest** + React Testing Library configured (`jest.config.js`, `ts-jest`, `jsdom`), but `npm test` is a placeholder
+- **Jest** + React Testing Library configured (`jest.config.js`, `ts-jest`, `jsdom`)
 
 ## Project Structure
 
@@ -73,6 +73,15 @@ npm run serve                  # Serve built bundle locally
 Docker dev: set `_REACT_UI_ROOT_: http://localhost:3100` in root `compose.override.yaml` under `studio` service.
 
 Maven: `mvn clean install` runs `npm install` + `npm run build` + `npm run test`  via `frontend-maven-plugin`. Bundled UI published under `/web/` relative to `CONFIG.CONTEXT`.
+
+## Testing
+
+Tests live in `test/` (not co-located). Run all with `npm test`, or a specific file with `npm test -- <path>`.
+
+- Mock `services` module for API calls, `react-i18next` for translations
+- `setupTests.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia` for jsdom — but the `MessageChannel` polyfill is a no-op stub, which breaks `Form.useWatch` value propagation
+- **`Form.useWatch` does not work in tests** — the Ant Design form state synchronization relies on `MessageChannel` internally, and the jsdom polyfill does not deliver messages. Do not use `Form.useWatch` to drive component logic that needs testing. Instead, use local `useState` set from the field's `onChange` callback, and mock `components/form` in the test to render a native `<select>`/`<input>` that triggers the same `onChange` prop
+- When component state is updated from async callbacks (e.g., API results inside `onChange`), wrap the triggering interaction in `act()` so React flushes the state updates
 
 ## Quality Rules
 
