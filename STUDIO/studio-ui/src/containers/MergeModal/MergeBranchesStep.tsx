@@ -154,7 +154,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const isSendUpToDate = checkResultSend?.status === 'up-to-date'
 
     return (
-        <Space direction="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
+        <Space orientation="vertical" size="large" style={{ width: '100%', paddingTop: 16 }}>
             <Form
                 labelWrap
                 form={form}
@@ -195,7 +195,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 </div>
             )}
             {!isChecking && selectedBranch && (
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
                     {receiveError && (
                         <Alert
                             showIcon
