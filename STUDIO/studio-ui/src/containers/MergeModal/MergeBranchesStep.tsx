@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Alert, Button, Form, Space, Spin, Tooltip, Typography } from 'antd'
 import { BranchesOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -33,7 +33,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
 }) => {
     const { t } = useTranslation()
     const [form] = Form.useForm()
-    const selectedBranch = Form.useWatch('targetBranch', form)
+    const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
 
     const [isChecking, setIsChecking] = useState(false)
     const [isMerging, setIsMerging] = useState(false)
@@ -55,10 +55,10 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             }))
     }, [branches, currentBranch])
 
-    const checkMergeStatus = useCallback(async () => {
-        if (!selectedBranch) return
-
+    const checkMergeStatus = useCallback(async (branch: string) => {
         setIsChecking(true)
+        setCheckResultReceive(null)
+        setCheckResultSend(null)
         setReceiveError(null)
         setSendError(null)
         setMergeError(null)
@@ -72,7 +72,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         mode: 'receive',
-                        otherBranch: selectedBranch,
+                        otherBranch: branch,
                     }),
                 },
                 MERGE_API_OPTIONS
@@ -92,7 +92,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         mode: 'send',
-                        otherBranch: selectedBranch,
+                        otherBranch: branch,
                     }),
                 },
                 MERGE_API_OPTIONS
@@ -104,20 +104,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         }
 
         setIsChecking(false)
-    }, [projectId, selectedBranch, t])
-
-    // Check merge status when branch is selected
-    useEffect(() => {
-        if (selectedBranch) {
-            checkMergeStatus()
-        } else {
-            setCheckResultReceive(null)
-            setCheckResultSend(null)
-            setReceiveError(null)
-            setSendError(null)
-            setMergeError(null)
-        }
-    }, [selectedBranch, checkMergeStatus])
+    }, [projectId, t])
 
     const handleMerge = async (mode: MergeMode) => {
         if (!selectedBranch) return
@@ -188,6 +175,11 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     options={branchOptions}
                     placeholder={t('merge:branches.select_placeholder')}
                     suffixIcon={<BranchesOutlined />}
+                    onChange={(value) => {
+                        const branch = value as string
+                        setSelectedBranch(branch)
+                        checkMergeStatus(branch)
+                    }}
                 />
             </Form>
             {mergeError && (
