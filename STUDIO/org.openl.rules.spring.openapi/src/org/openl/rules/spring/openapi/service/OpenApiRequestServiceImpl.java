@@ -157,8 +157,9 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 if (StringUtils.isNotBlank(apiParameter.description())) {
                     schema.setDescription(propertyResolver.resolve(apiParameter.description()));
                 }
-                if (apiParameter.schema() != null && StringUtils.isNotBlank(apiParameter.schema().defaultValue())) {
-                    schema.setDefault(apiParameter.schema().defaultValue());
+                var apiParameterSchema = apiParameter.schema();
+                if (apiParameterSchema != null && !Schema.DEFAULT_SENTINEL.equals(apiParameterSchema.defaultValue())) {
+                    schema.setDefault(apiParameterSchema.defaultValue());
                 }
                 for (var content : apiParameter.content()) {
                     Stream.of(content.encoding()).map(apiEncoding -> {
@@ -405,12 +406,13 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                     addRequiredItemIfAbsent(objectSchema, fieldName);
                 }
                 // Apply parameter schema properties
-                if (parameterAnnotation.schema() != null) {
-                    if (StringUtils.isNotBlank(parameterAnnotation.schema().defaultValue())) {
-                        schema.setDefault(parameterAnnotation.schema().defaultValue());
+                var parameterSchema = parameterAnnotation.schema();
+                if (parameterSchema != null) {
+                    if (!Schema.DEFAULT_SENTINEL.equals(parameterSchema.defaultValue())) {
+                        schema.setDefault(parameterSchema.defaultValue());
                     }
-                    if (StringUtils.isNotBlank(parameterAnnotation.schema().example())) {
-                        schema.setExample(parameterAnnotation.schema().example());
+                    if (StringUtils.isNotBlank(parameterSchema.example())) {
+                        schema.setExample(parameterSchema.example());
                     }
                 }
             }
@@ -422,7 +424,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 if (StringUtils.isNotBlank(schemaAnnotation.example())) {
                     schema.setExample(schemaAnnotation.example());
                 }
-                if (StringUtils.isNotBlank(schemaAnnotation.defaultValue())) {
+                if (!Schema.DEFAULT_SENTINEL.equals(schemaAnnotation.defaultValue())) {
                     schema.setDefault(schemaAnnotation.defaultValue());
                 }
 
