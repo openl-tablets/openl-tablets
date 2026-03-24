@@ -2,14 +2,14 @@
 # URLs use pretty permalinks (permalink: pretty in _config.yml).
 main:
   - title: "About"
-    url: /what-is-openl-tablets/
+    url: /what-is-openl-tablets
   - title: "Features"
-    url: /features/
+    url: /features
   - title: "User Guides"
-    url: /user-guides/
+    url: /user-guides
   - title: "Release Notes"
-    url: /release-notes/
+    url: /release-notes
   - title: "Supported Platforms"
-    url: /supported-platforms/
+    url: /supported-platforms
   - title: "Apologia"
-    url: /apologia/
+    url: /apologia
