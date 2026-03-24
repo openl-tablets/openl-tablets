@@ -5,13 +5,31 @@ description: Supported platforms, application servers, databases, browsers, Java
 
 ## Supported Environments
 
-| Component              | Version                                                                               |
-|------------------------|---------------------------------------------------------------------------------------|
-| Application/Web Server | Eclipse Jetty 12.0<br/> Apache Tomcat 10.1                                            |
-| Operating System       | Ubuntu 24.04 LTS<br/> macOS 15<br/> Windows 11<br/> Windows Server 2022               |
-| Container OS/ARCH      | linux/amd64<br/> linux/arm64                                                          |
-| Browser                | Firefox 140 ESR<br/> Chrome 145<br/> Edge 145                                         |
-| Database               | PostgreSQL 16.1<br/> MariaDB 10.6<br/> SQL Server 2019<br/> MySQL 8.0<br/> Oracle 19c |
+#### Application/Web Server
+* Eclipse Jetty 12.0
+* Apache Tomcat 10.1
+
+#### Operating System
+* Ubuntu 24.04 LTS
+* macOS 15
+* Windows 11
+* Windows Server 2022
+
+#### Container OS/ARCH
+* linux/amd64
+* linux/arm64
+
+#### Web Browser
+* Firefox 140 ESR
+* Chrome 145
+* Edge 145
+
+#### Database
+* PostgreSQL 16.1
+* MariaDB 10.6
+* SQL Server 2019
+* MySQL 8.0
+* Oracle 19c
 
 ## Requirements
 
