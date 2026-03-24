@@ -1,0 +1,47 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU3MDE6MGI5NGE2YWMxZWNlMGZkMzZhNDBlMTgyZjJiYzE2ZDZmY2M3YzZkNmIyZjc1NTMwMGNiMTk5MTYyODBkYzcxYw==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "SimpleLookup",
+    "collect": true,
+    "kind": "Rules",
+    "name": "collectLookup",
+    "returnType": "Double[]",
+    "args": [
+      {
+        "name": "code",
+        "type": "String"
+      },
+      {
+        "name": "flag",
+        "type": "Boolean"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Code/Flag"
+      },
+      {
+        "title": "yes"
+      },
+      {
+        "title": "no"
+      }
+    ],
+    "rows": [
+      {
+        "Code/Flag": "A",
+        "yes": 1.0,
+        "no": 2.0
+      },
+      {
+        "Code/Flag": "B",
+        "yes": 3.0,
+        "no": 4.0
+      }
+    ]
+  }
+}

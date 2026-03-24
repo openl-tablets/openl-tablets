@@ -1,0 +1,75 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU3MDE6MGI5NGE2YWMxZWNlMGZkMzZhNDBlMTgyZjJiYzE2ZDZmY2M3YzZkNmIyZjc1NTMwMGNiMTk5MTYyODBkYzcxYw==/tables HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "table": {
+    "tableType": "SmartLookup",
+    "collect": true,
+    "kind": "Rules",
+    "name": "collectSmartLookup",
+    "returnType": "Integer[]",
+    "args": [
+      {
+        "name": "region",
+        "type": "String"
+      },
+      {
+        "name": "category",
+        "type": "String"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Region"
+      },
+      {
+        "title": "Small",
+        "children": [
+          {
+            "title": "A"
+          },
+          {
+            "title": "B"
+          }
+        ]
+      },
+      {
+        "title": "Large",
+        "children": [
+          {
+            "title": "A"
+          },
+          {
+            "title": "B"
+          }
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "Region": "North",
+        "Small": {
+          "A": 10,
+          "B": 20
+        },
+        "Large": {
+          "A": 30,
+          "B": 40
+        }
+      },
+      {
+        "Region": "South",
+        "Small": {
+          "A": 50,
+          "B": 60
+        },
+        "Large": {
+          "A": 70,
+          "B": 80
+        }
+      }
+    ]
+  }
+}

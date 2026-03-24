@@ -1,0 +1,44 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "624817629067f3372cb287279cd59831",
+  "tableType": "SimpleLookup",
+  "kind": "Rules",
+  "name": "collectLookup",
+  "returnType": "Double[]",
+  "args": [
+    {
+      "name": "code",
+      "type": "String"
+    },
+    {
+      "name": "flag",
+      "type": "Boolean"
+    }
+  ],
+  "collect": true,
+  "headers": [
+    {
+      "title": "Code/Flag"
+    },
+    {
+      "title": "yes"
+    },
+    {
+      "title": "no"
+    }
+  ],
+  "rows": [
+    {
+      "Code/Flag": "A",
+      "yes": 1,
+      "no": 2
+    },
+    {
+      "Code/Flag": "B",
+      "yes": 3,
+      "no": 4
+    }
+  ]
+}

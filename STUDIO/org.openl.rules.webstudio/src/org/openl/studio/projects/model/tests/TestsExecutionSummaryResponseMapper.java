@@ -117,7 +117,7 @@ public class TestsExecutionSummaryResponseMapper {
 
         testUnit.getErrors().stream()
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                .sorted(Comparator.comparing(MessageDescription::getSeverity).thenComparing(MessageDescription::getId))
+                .sorted(Comparator.comparing(MessageDescription::severity).thenComparing(MessageDescription::id))
                 .forEach(builder::putErrorMessage);
 
         return builder.build();
