@@ -1,7 +1,7 @@
 package org.openl.studio.security;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -32,7 +32,7 @@ public class CommitInfoInterceptor implements MethodInterceptor {
 
     @Nullable
     @Override
-    public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
+    public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
         var username = currentUserInfo.getUserName();
         if (username != null) {
             var user = userManagementService.getUser(username);

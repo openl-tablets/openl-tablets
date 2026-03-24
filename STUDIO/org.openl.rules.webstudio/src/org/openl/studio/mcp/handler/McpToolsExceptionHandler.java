@@ -1,7 +1,7 @@
 package org.openl.studio.mcp.handler;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -28,7 +28,7 @@ public class McpToolsExceptionHandler implements MethodInterceptor {
 
     @Nullable
     @Override
-    public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
+    public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
         try {
             return invocation.proceed();
         } catch (Exception ex) {

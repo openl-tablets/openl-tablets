@@ -13,7 +13,7 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import org.openl.util.HashingUtils;
 
