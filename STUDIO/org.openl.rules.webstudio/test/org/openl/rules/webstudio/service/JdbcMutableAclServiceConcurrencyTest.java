@@ -9,6 +9,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
@@ -60,15 +61,17 @@ class JdbcMutableAclServiceConcurrencyTest {
         Sid sid = new PrincipalSid("newUser");
         CyclicBarrier barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         try {
             List<Future<?>> futures = new ArrayList<>();
             for (int i = 0; i < threadCount; i++) {
                 final String projectId = "project-" + i;
                 futures.add(executor.submit(() -> {
-                    // Propagate security context to child thread
-                    SecurityContextHolder.setContext(securityContext);
+                    // Propagate security context to child thread (each thread gets its own instance)
+                    var ctx = SecurityContextHolder.createEmptyContext();
+                    ctx.setAuthentication(authentication);
+                    SecurityContextHolder.setContext(ctx);
                     try {
                         // Wait until all threads are ready to maximize contention
                         assertDoesNotThrow(() -> barrier.await());
@@ -90,7 +93,7 @@ class JdbcMutableAclServiceConcurrencyTest {
 
             // Collect results — any DuplicateKeyException would surface here
             for (Future<?> future : futures) {
-                assertDoesNotThrow(() -> future.get());
+                assertDoesNotThrow(() -> future.get(30, TimeUnit.SECONDS));
             }
         } finally {
             executor.shutdownNow();
@@ -116,14 +119,16 @@ class JdbcMutableAclServiceConcurrencyTest {
         int threadCount = 8;
         CyclicBarrier barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         try {
             List<Future<?>> futures = new ArrayList<>();
             for (int i = 0; i < threadCount; i++) {
                 final String projectId = "multi-project-" + i;
                 futures.add(executor.submit(() -> {
-                    SecurityContextHolder.setContext(securityContext);
+                    var ctx = SecurityContextHolder.createEmptyContext();
+                    ctx.setAuthentication(authentication);
+                    SecurityContextHolder.setContext(ctx);
                     try {
                         assertDoesNotThrow(() -> barrier.await());
 
@@ -144,7 +149,7 @@ class JdbcMutableAclServiceConcurrencyTest {
             }
 
             for (Future<?> future : futures) {
-                assertDoesNotThrow(() -> future.get());
+                assertDoesNotThrow(() -> future.get(30, TimeUnit.SECONDS));
             }
         } finally {
             executor.shutdownNow();
