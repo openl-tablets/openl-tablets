@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,7 +59,8 @@ class JdbcMutableAclServiceConcurrencyTest {
     @WithMockUser(value = "admin", authorities = "Administrators")
     void concurrentGrantPermissionsForSameSid() throws Exception {
         int threadCount = 5;
-        Sid sid = new PrincipalSid("newUser");
+        String runId = UUID.randomUUID().toString();
+        Sid sid = new PrincipalSid("newUser-" + runId);
         CyclicBarrier barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,7 +68,7 @@ class JdbcMutableAclServiceConcurrencyTest {
         try {
             List<Future<?>> futures = new ArrayList<>();
             for (int i = 0; i < threadCount; i++) {
-                final String projectId = "project-" + i;
+                final String projectId = "project-" + runId + "-" + i;
                 futures.add(executor.submit(() -> {
                     // Propagate security context to child thread (each thread gets its own instance)
                     var ctx = SecurityContextHolder.createEmptyContext();
@@ -101,7 +103,7 @@ class JdbcMutableAclServiceConcurrencyTest {
 
         // Verify all ACLs were created successfully
         for (int i = 0; i < threadCount; i++) {
-            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "project-" + i);
+            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "project-" + runId + "-" + i);
             TransactionTemplate tx = new TransactionTemplate(txManager);
             tx.setReadOnly(true);
             MutableAcl acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
@@ -117,6 +119,7 @@ class JdbcMutableAclServiceConcurrencyTest {
     @WithMockUser(value = "admin", authorities = "Administrators")
     void concurrentGrantPermissionsForMultipleSids() throws Exception {
         int threadCount = 8;
+        String runId = UUID.randomUUID().toString();
         CyclicBarrier barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -124,7 +127,7 @@ class JdbcMutableAclServiceConcurrencyTest {
         try {
             List<Future<?>> futures = new ArrayList<>();
             for (int i = 0; i < threadCount; i++) {
-                final String projectId = "multi-project-" + i;
+                final String projectId = "multi-project-" + runId + "-" + i;
                 futures.add(executor.submit(() -> {
                     var ctx = SecurityContextHolder.createEmptyContext();
                     ctx.setAuthentication(authentication);
@@ -136,7 +139,7 @@ class JdbcMutableAclServiceConcurrencyTest {
                         tx.execute(status -> {
                             ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, projectId);
                             MutableAcl acl = aclService.createAcl(oi);
-                            Sid sid = new PrincipalSid("sharedUser");
+                            Sid sid = new PrincipalSid("sharedUser-" + runId);
                             acl.insertAce(0, BasePermission.WRITE, sid, true);
                             aclService.updateAcl(acl);
                             return null;
@@ -157,7 +160,7 @@ class JdbcMutableAclServiceConcurrencyTest {
 
         // Verify all ACLs have the correct entry
         for (int i = 0; i < threadCount; i++) {
-            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "multi-project-" + i);
+            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "multi-project-" + runId + "-" + i);
             TransactionTemplate tx = new TransactionTemplate(txManager);
             tx.setReadOnly(true);
             MutableAcl acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
