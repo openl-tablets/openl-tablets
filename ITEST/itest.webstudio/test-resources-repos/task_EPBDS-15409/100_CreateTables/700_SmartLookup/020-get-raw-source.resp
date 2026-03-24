@@ -8,12 +8,12 @@ Content-Type: application/json
   "name": "CoverageRate",
   "messages": [
     {
-      "id": 28,
+      "id": "*",
       "summary": "Smart table has unmatched title 'Limit'.",
       "severity": "ERROR"
     },
     {
-      "id": 29,
+      "id": "*",
       "summary": "Type 'CoverageForm' is not found.",
       "severity": "ERROR"
     }

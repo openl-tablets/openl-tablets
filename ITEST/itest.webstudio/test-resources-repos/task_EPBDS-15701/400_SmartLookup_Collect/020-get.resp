@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "collectSmartLookup",
   "messages": [
     {
-      "id": 58,
+      "id": "*",
       "summary": "No input parameter found for horizontal condition.",
       "severity": "ERROR"
     }

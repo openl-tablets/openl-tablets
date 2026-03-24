@@ -1248,6 +1248,157 @@ Content-Type: application/json
           }
         }
       },
+      "ModuleView": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "methodFilter": {
+            "$ref": "#/components/schemas/MethodFilterView"
+          },
+          "name": {
+            "type": "string",
+            "description": "*"
+          },
+          "path": {
+            "type": "string",
+            "description": "*"
+          }
+        }
+      },
+      "EditModuleRequest": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "compileThisModuleOnly": {
+            "type": "boolean",
+            "description": "*"
+          },
+          "createFile": {
+            "type": "boolean",
+            "description": "*"
+          },
+          "excludes": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "*"
+          },
+          "path": {
+            "type": "string",
+            "description": "*",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "WildcardModuleView": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "matchedModules": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "$ref": "#/components/schemas/BaseModuleView"
+            }
+          },
+          "methodFilter": {
+            "$ref": "#/components/schemas/MethodFilterView"
+          },
+          "name": {
+            "type": "string",
+            "description": "*"
+          },
+          "path": {
+            "type": "string",
+            "description": "*"
+          }
+        }
+      },
+      "BaseModuleView": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "*"
+          },
+          "path": {
+            "type": "string",
+            "description": "*"
+          }
+        }
+      },
+      "MethodFilterView": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "excludes": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "description": "*",
+            "items": {
+              "type": "string",
+              "description": "*"
+            }
+          }
+        }
+      },
+      "CopyModuleRequest": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "newModuleName": {
+            "type": "string",
+            "description": "*"
+          },
+          "newPath": {
+            "type": "string",
+            "description": "*"
+          }
+        }
+      },
+      "CopyModuleResponse": {
+        "type": "object",
+        "description": "*",
+        "properties": {
+          "moduleName": {
+            "type": "string",
+            "description": "*"
+          },
+          "path": {
+            "type": "string",
+            "description": "*"
+          },
+          "wildcardCovered": {
+            "type": "boolean",
+            "description": "*"
+          }
+        }
+      },
       "RepositoriesBatchModel": {
         "type": "object",
         "properties": {
@@ -13515,6 +13666,553 @@ Content-Type: application/json
         }
       }
     },
+    "/projects/{projectId}/modules": {
+      "get": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/ModuleView"
+                      },
+                      {
+                        "$ref": "#/components/schemas/WildcardModuleView"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Modules (BETA)"
+        ]
+      },
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditModuleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuleView"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Modules (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/modules/{moduleName}/copy": {
+      "post": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "force",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyModuleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopyModuleResponse"
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Modules (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/modules/{moduleName}": {
+      "delete": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "query",
+            "name": "keepFile",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "204": {
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Modules (BETA)"
+        ]
+      },
+      "put": {
+        "description": "*",
+        "operationId": "*",
+        "parameters": [
+          {
+            "description": "*",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "*",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditModuleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "*"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ModuleView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/WildcardModuleView"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "*"
+          }
+        },
+        "summary": "*",
+        "tags": [
+          "Projects: Modules (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tests/run": {
       "post": {
         "operationId": "***",
@@ -17761,6 +18459,10 @@ Content-Type: application/json
     {
       "description": "***",
       "name": "Projects: Merge (BETA)"
+    },
+    {
+      "description" : "*",
+      "name" : "Projects: Modules (BETA)"
     },
     {
       "description": "***",

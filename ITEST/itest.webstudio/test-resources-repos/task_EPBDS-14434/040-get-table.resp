@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "FicaTaxRates",
   "messages": [
     {
-      "id": 20,
+      "id": "*",
       "summary": "Type 'PaymentToolsFicaDetails' is not found.",
       "severity": "ERROR"
     }

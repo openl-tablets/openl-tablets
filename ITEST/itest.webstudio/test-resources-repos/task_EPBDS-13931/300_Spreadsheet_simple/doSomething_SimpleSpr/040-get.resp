@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "doSomething_SimpleSpr",
   "messages": [
     {
-      "id": 6,
+      "id": "*",
       "summary": "DEPRECATED 'java.lang.Integer' constructor will be removed in the next version.",
       "severity": "WARN"
     }
