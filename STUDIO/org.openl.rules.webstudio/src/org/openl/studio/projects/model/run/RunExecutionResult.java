@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.rest.compile.MessageDescription;
+import org.openl.studio.projects.model.ParameterValue;
 
 @Schema(description = "Run execution result containing method output, parameters, and metadata")
 public record RunExecutionResult(
@@ -27,10 +28,10 @@ public record RunExecutionResult(
         ObjectNode resultSchema,
 
         @Parameter(description = "Input parameters")
-        List<RunParameterValue> parameters,
+        List<ParameterValue> parameters,
 
         @Parameter(description = "Runtime context parameters")
-        List<RunParameterValue> contextParameters,
+        List<ParameterValue> contextParameters,
 
         @Parameter(description = "Execution errors")
         List<MessageDescription> errors

@@ -17,6 +17,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.studio.projects.model.ParameterValue;
 
 public class RunExecutionResultMapper {
 
@@ -71,7 +72,7 @@ public class RunExecutionResultMapper {
         var executionParamNames = results.getTestDataColumnDisplayNames();
         var parameters = IntStream.range(0, executionParams.length).mapToObj(i -> {
             var param = executionParams[i];
-            return RunParameterValue.builder()
+            return ParameterValue.builder()
                     .name(param.getName())
                     .value(objectMapper.valueToTree(param.getValue()))
                     .schema(schemaGenerator.generateSchema(param.getType().getInstanceClass()))
@@ -84,7 +85,7 @@ public class RunExecutionResultMapper {
         var contextParamNames = results.getContextColumnDisplayNames();
         var contextParameters = IntStream.range(0, contextParams.length).mapToObj(i -> {
             var param = contextParams[i];
-            return RunParameterValue.builder()
+            return ParameterValue.builder()
                     .name(param.getName())
                     .value(objectMapper.valueToTree(param.getValue()))
                     .description(contextParamNames[i])

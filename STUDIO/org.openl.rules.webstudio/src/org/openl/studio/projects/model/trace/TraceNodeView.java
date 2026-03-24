@@ -8,6 +8,7 @@ import lombok.Builder;
 
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.studio.common.model.GenericView;
+import org.openl.studio.projects.model.ParameterValue;
 
 /**
  * Representation of a trace node for JSON response.
@@ -45,15 +46,15 @@ public record TraceNodeView(
 
         @Schema(description = "trace.field.node.parameters.desc")
         @JsonView(GenericView.Full.class)
-        List<TraceParameterValue> parameters,
+        List<ParameterValue> parameters,
 
         @Schema(description = "trace.field.node.context.desc")
         @JsonView(GenericView.Full.class)
-        TraceParameterValue context,
+        ParameterValue context,
 
         @Schema(description = "trace.field.node.result.desc")
         @JsonView(GenericView.Full.class)
-        TraceParameterValue result,
+        ParameterValue result,
 
         @Schema(description = "trace.field.node.errors.desc")
         @JsonView(GenericView.Full.class)

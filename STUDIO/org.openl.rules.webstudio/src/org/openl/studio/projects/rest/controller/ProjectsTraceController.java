@@ -44,7 +44,7 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketTraceExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.trace.TraceNodeView;
 import org.openl.studio.projects.model.trace.TraceNodeViewMapper;
-import org.openl.studio.projects.model.trace.TraceParameterValue;
+import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.trace.ExecutionTraceResultRegistry;
@@ -200,7 +200,8 @@ public class ProjectsTraceController {
     @Operation(summary = "trace.get-parameter.summary", description = "trace.get-parameter.desc")
     @ApiResponse(responseCode = "200", description = "trace.get-parameter.200.desc")
     @GetMapping("/parameters/{parameterId}")
-    public TraceParameterValue getParameterValue(
+    @JsonView(GenericView.Full.class)
+    public ParameterValue getParameterValue(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("parameterId") @Parameter(description = "trace.param.parameter-id.desc") int parameterId) {
 

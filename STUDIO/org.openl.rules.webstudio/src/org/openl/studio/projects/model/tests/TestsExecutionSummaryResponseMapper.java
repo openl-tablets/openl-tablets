@@ -14,6 +14,7 @@ import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.studio.projects.model.ParameterValue;
 
 public class TestsExecutionSummaryResponseMapper {
 
@@ -93,7 +94,7 @@ public class TestsExecutionSummaryResponseMapper {
         var executionParamNames = testCase.getTestDataColumnDisplayNames();
         IntStream.range(0, executionParams.length).mapToObj(i -> {
             var executionParam = executionParams[i];
-            return TestParameterValue.builder()
+            return ParameterValue.builder()
                     .name(executionParam.getName())
                     .value(objectMapper.valueToTree(executionParam.getValue()))
                     .schema(schemaGenerator.generateSchema(executionParam.getType().getInstanceClass()))
@@ -106,7 +107,7 @@ public class TestsExecutionSummaryResponseMapper {
         var contextParamNames = testCase.getContextColumnDisplayNames();
         IntStream.range(0, contextParams.length).mapToObj(i -> {
             var contextParam = contextParams[i];
-            return TestParameterValue.builder()
+            return ParameterValue.builder()
                     .name(contextParam.getName())
                     .value(objectMapper.valueToTree(contextParam.getValue()))
                     .description(contextParamNames[i])
