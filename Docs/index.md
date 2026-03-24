@@ -56,7 +56,7 @@ docker run -p 8080:8080 openltablets/openl-tablets
 
 Open [http://localhost:8080](http://localhost:8080){:target="_blank"} in your browser to access OpenL Studio.
 
-For a full setup with sample rules and data, see the [Demo Package Guide](user-guides/demo-package/).
+For a full setup with sample rules and data, see the [Demo Package Guide](user-guides/getting-started/demo-package/).
 
 ---
 
