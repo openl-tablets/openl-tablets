@@ -54,7 +54,7 @@
     "stylelint-config-standard": "^40.0.0",
     "ts-jest": "^29.4.6",
     "tsconfig-paths-webpack-plugin": "4.2.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "web-vitals": "^5.1.0",
     "webpack": "^5.105.4",
     "webpack-cli": "6.0.1",
