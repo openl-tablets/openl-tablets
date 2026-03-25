@@ -1,54 +1,49 @@
 package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import io.minio.BucketExistsArgs;
-import io.minio.GetBucketVersioningArgs;
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.messages.VersioningConfiguration;
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 
 public class AbstractMinioTest {
 
-    private static final MinIOContainer MINIO_CONTAINER = new MinIOContainer("minio/minio") {
-        @Override
-        public void configure() {
-            super.configure();
-            waitingFor(Wait.defaultWaitStrategy());
-        }
-    };
+    private static final S3MockContainer S3_CONTAINER = new S3MockContainer("latest");
 
-    protected static MinioClient minioClient;
+    protected static S3Client s3Client;
 
     protected Map<String, String> config;
     protected String bucketName;
 
     @BeforeAll
     public static void initialize() {
-        MINIO_CONTAINER.start();
+        S3_CONTAINER.start();
 
-        minioClient = MinioClient.builder()
-                .endpoint(MINIO_CONTAINER.getS3URL())
-                .credentials(MINIO_CONTAINER.getUserName(), MINIO_CONTAINER.getPassword())
+        s3Client = S3Client.builder()
+                .endpointOverride(URI.create(S3_CONTAINER.getHttpEndpoint()))
+                .region(Region.US_EAST_1)
+                .forcePathStyle(true)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create("access key", "secret key")
+                ))
                 .build();
 
     }
 
     @AfterAll
     public static void destroy() {
-        MINIO_CONTAINER.stop();
+        S3_CONTAINER.stop();
     }
 
     @BeforeEach
@@ -58,28 +53,15 @@ public class AbstractMinioTest {
         config.put("production-repository.factory", "repo-aws-s3");
         config.put("production-repository.region-name", "us-east-1");
         config.put("production-repository.bucket-name", bucketName);
-        config.put("production-repository.service-endpoint", MINIO_CONTAINER.getS3URL());
-        config.put("production-repository.access-key", MINIO_CONTAINER.getUserName());
-        config.put("production-repository.secret-key", MINIO_CONTAINER.getPassword());
+        config.put("production-repository.service-endpoint", S3_CONTAINER.getHttpEndpoint());
+        config.put("production-repository.access-key", "access key");
+        config.put("production-repository.secret-key", "secret key");
         config.put("production-repository.base.path", "deploy/");
     }
 
     protected void verifyS3Repository() throws Exception {
-        assertTrue(minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build()));
-        assertEquals(VersioningConfiguration.Status.ENABLED,
-                minioClient.getBucketVersioning(GetBucketVersioningArgs.builder().bucket(bucketName).build()).status());
-    }
-
-    protected void assertDeployedServices(String... services) throws Exception {
-        var objects = minioClient
-                .listObjects(ListObjectsArgs.builder().bucket(bucketName).prefix("deploy").recursive(true).build())
-                .iterator();
-        var actualObjects = new ArrayList<String>();
-        while (objects.hasNext()) {
-            var object = objects.next().get();
-            actualObjects.add(object.objectName());
-        }
-        assertEquals(Set.of(services), new HashSet<>(actualObjects));
+        assertNotNull(s3Client.headBucket(it -> it.bucket(bucketName))); // Check that bucket exists
+        assertEquals(BucketVersioningStatus.ENABLED, s3Client.getBucketVersioning(it -> it.bucket(bucketName)).status());
     }
 
 }

@@ -1,11 +1,9 @@
 package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.minio.MakeBucketArgs;
-import io.minio.StatObjectArgs;
-import okio.Path;
+import java.nio.file.Paths;
+
 import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
@@ -15,19 +13,12 @@ public class RunMinioDeployIfAbsentTest extends AbstractMinioTest {
 
     @Test
     public void testWhenDeployJarsIfAbsent() throws Exception {
-        minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         try (var deployer = new RulesDeployerService(config::get)) {
-            deployer.deploy(Path.get("test-resources/openl/multiple-deployment-datasource.zip").toFile(), false);
+            deployer.deploy(Paths.get("test-resources/openl/multiple-deployment-datasource.zip").toFile(), false);
         }
         verifyS3Repository();
-        final var beforeStartProject1 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project1")
-                .build());
-        final var beforeStartProject2 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project2")
-                .build());
+        final var beforeStartProject1 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project1"));
+        final var beforeStartProject2 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project2"));
 
         try (var client = JettyServer.get()
                 .withInitParam(config)
@@ -36,18 +27,12 @@ public class RunMinioDeployIfAbsentTest extends AbstractMinioTest {
             client.test("test-resources-smoke/stage1");
 
             // verify that projects are not redeployed
-            var actualProject1 = minioClient.statObject(StatObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object("deploy/multiple-deployment-datasource/project1")
-                    .build());
-            assertTrue(beforeStartProject1.lastModified().isEqual(actualProject1.lastModified()));
+            final var actualProject1 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project1"));
+            assertEquals(beforeStartProject1.lastModified(), actualProject1.lastModified());
             assertEquals(beforeStartProject1.versionId(), actualProject1.versionId());
 
-            var actualProject2 = minioClient.statObject(StatObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object("deploy/multiple-deployment-datasource/project2")
-                    .build());
-            assertTrue(beforeStartProject2.lastModified().isEqual(actualProject2.lastModified()));
+            final var actualProject2 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project2"));
+            assertEquals(beforeStartProject2.lastModified(), actualProject2.lastModified());
             assertEquals(beforeStartProject2.versionId(), actualProject2.versionId());
         }
     }

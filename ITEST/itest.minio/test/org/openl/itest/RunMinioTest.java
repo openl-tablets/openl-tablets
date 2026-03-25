@@ -1,7 +1,13 @@
 package org.openl.itest;
 
-import okio.Path;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
@@ -20,7 +26,7 @@ public class RunMinioTest extends AbstractMinioTest {
             client.test("test-resources-smoke/stage1");
 
             try (var deployer = new RulesDeployerService(config::get)) {
-                deployer.deploy(Path.get("test-resources-smoke/stage2/rules-to-deploy-datasource.zip").toFile(), true);
+                deployer.deploy(Paths.get("test-resources-smoke/stage2/rules-to-deploy-datasource.zip").toFile(), true);
             }
 
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",
@@ -31,6 +37,12 @@ public class RunMinioTest extends AbstractMinioTest {
 
             client.test("test-resources-smoke/stage3");
         }
+    }
+
+    private void assertDeployedServices(String... services) throws Exception {
+        var response = s3Client.listObjectsV2(it -> it.bucket(bucketName).prefix("deploy"));
+        var actualObjects = response.contents().stream().map(S3Object::key).collect(Collectors.toSet());
+        assertEquals(Set.of(services), actualObjects);
     }
 
 }
