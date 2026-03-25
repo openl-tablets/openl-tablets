@@ -29,10 +29,12 @@ public class DataModel implements MethodModel {
         return name;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
+    @Override
     public PathInfo getPathInfo() {
         return pathInfo;
     }

@@ -13,6 +13,7 @@ public class DatatypeModel implements Model {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }

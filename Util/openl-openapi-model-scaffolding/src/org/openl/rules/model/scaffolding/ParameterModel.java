@@ -21,18 +21,22 @@ public class ParameterModel implements InputParameter {
         this.originalName = originalName;
     }
 
+    @Override
     public TypeInfo getType() {
         return type;
     }
 
+    @Override
     public String getFormattedName() {
         return formattedName;
     }
 
+    @Override
     public String getOriginalName() {
         return originalName;
     }
 
+    @Override
     public In getIn() {
         return in;
     }
