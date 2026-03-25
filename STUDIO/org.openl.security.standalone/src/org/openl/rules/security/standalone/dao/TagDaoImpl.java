@@ -1,6 +1,7 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Locale;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -30,7 +31,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         // Case insensitive
         criteria.select(u)
                 .where(builder.and(builder.equal(u.get("type").get("id"), tagTypeId),
-                        builder.equal(builder.lower(u.get("name")), name.toLowerCase())))
+                        builder.equal(builder.lower(u.get("name")), name.toLowerCase(Locale.ROOT))))
                 .distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
@@ -67,8 +68,8 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-                .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase()),
-                        builder.equal(builder.lower(root.get("name")), tagName.toLowerCase())));
+                .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase(Locale.ROOT)),
+                        builder.equal(builder.lower(root.get("name")), tagName.toLowerCase(Locale.ROOT))));
         final List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }

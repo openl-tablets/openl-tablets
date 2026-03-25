@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.sql.DataSource;
@@ -24,7 +25,7 @@ public class DBMigrationBean {
         String databaseCode;
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+            databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
         }
 
         String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};

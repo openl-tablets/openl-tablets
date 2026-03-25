@@ -1,6 +1,7 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
+import java.util.Locale;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -27,7 +28,7 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
         CriteriaQuery<TagType> criteria = builder.createQuery(TagType.class);
         Root<TagType> u = criteria.from(TagType.class);
         // Case insensitive
-        criteria.select(u).where(builder.equal(builder.lower(u.get("name")), name.toLowerCase())).distinct(true);
+        criteria.select(u).where(builder.equal(builder.lower(u.get("name")), name.toLowerCase(Locale.ROOT))).distinct(true);
         List<TagType> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }

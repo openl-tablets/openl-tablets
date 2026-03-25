@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -590,7 +591,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             connection = createConnection();
             DatabaseMetaData metaData = connection.getMetaData();
-            String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+            String databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
             int majorVersion = metaData.getDatabaseMajorVersion();
             int minorVersion = metaData.getDatabaseMinorVersion();
 
