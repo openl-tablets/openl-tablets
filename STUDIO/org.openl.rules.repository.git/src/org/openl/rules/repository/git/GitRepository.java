@@ -1202,7 +1202,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
-                case FAST_FORWARD:
+                case FAST_FORWARD -> {
                     if (!isEmpty()) {
                         checkoutForced(refUpdate.getRemoteName());
                     }
@@ -1216,11 +1216,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             .include(refUpdate.getNewObjectId())
                             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
                             .call();
-                    break;
-                case REJECTED_CURRENT_BRANCH:
-                    checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
-                    break;
-                case FORCED:
+                }
+                case REJECTED_CURRENT_BRANCH -> checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
+                case FORCED -> {
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
@@ -1240,8 +1238,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case NEW:
+                }
+                case NEW -> {
                     if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
@@ -1249,8 +1247,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case REJECTED:
+                }
+                case REJECTED -> {
                     if (refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
                         // Force update for branch
                         git.fetch()
@@ -1269,13 +1267,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                             branchesChanged = true;
                         }
                     }
-                    break;
-                case NO_CHANGE:
-                    // Do nothing
-                    break;
-                default:
-                    log.warn("Unsupported type of fetch result type: {}", result);
-                    break;
+                }
+                case NO_CHANGE -> { /* Do nothing */ }
+                default -> log.warn("Unsupported type of fetch result type: {}", result);
             }
         }
 
@@ -1665,34 +1659,26 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
                 RemoteRefUpdate.Status status = remoteUpdate.getStatus();
                 switch (status) {
-                    case OK:
-                    case UP_TO_DATE:
-                    case NON_EXISTING:
-                        // Successful operation. Continue.
-                        break;
-                    case REJECTED_NONFASTFORWARD:
-                        throw new IOException(
-                                "Remote ref update was rejected, as it would cause non fast-forward update.");
-                    case REJECTED_NODELETE:
-                        throw new IOException(
-                                "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
-                    case REJECTED_REMOTE_CHANGED:
-                        throw new IOException(
-                                "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
-                    case REJECTED_OTHER_REASON:
+                    case OK, UP_TO_DATE, NON_EXISTING -> { /* Successful operation. Continue. */ }
+                    case REJECTED_NONFASTFORWARD -> throw new IOException(
+                            "Remote ref update was rejected, as it would cause non fast-forward update.");
+                    case REJECTED_NODELETE -> throw new IOException(
+                            "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
+                    case REJECTED_REMOTE_CHANGED -> throw new IOException(
+                            "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
+                    case REJECTED_OTHER_REASON -> {
                         String message = remoteUpdate.getMessage();
                         if ("pre-receive hook declined".equals(message)) {
                             message = "Remote git server rejected your commit because of pre-receive hook. Details:\n" + result
                                     .getMessages();
                         }
                         throw new IOException(message);
-                    case AWAITING_REPORT:
-                        throw new IOException(
-                                "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
-                    default:
-                        throw new IOException(
-                                "Push process returned with status " + status + " and message " + remoteUpdate
-                                        .getMessage());
+                    }
+                    case AWAITING_REPORT -> throw new IOException(
+                            "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
+                    default -> throw new IOException(
+                            "Push process returned with status " + status + " and message " + remoteUpdate
+                                    .getMessage());
                 }
             }
         }

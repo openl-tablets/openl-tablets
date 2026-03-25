@@ -316,27 +316,21 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Returns an expression for the sum of all expressions in this array.
      */
     public IntExp sum() {
-        switch (size()) {
-            case 0:
+        return switch (size()) {
+            case 0 ->
                 // return new IntExpConst(constrainer(),0);
-                return (IntExp) _constrainer.expressionFactory()
+                (IntExp) _constrainer.expressionFactory()
                         .getExpression(IntExpConst.class, new Object[]{_constrainer, 0});
-
-            case 1:
-                return _data[0];
-
-            case 2:
-                return _data[0].add(_data[1]);
-
-            default:
+            case 1 -> _data[0];
+            case 2 -> _data[0].add(_data[1]);
+            default ->
                 // return new IntExpAddArray(_constrainer, this);
-                return (IntExp) _constrainer.expressionFactory()
+                (IntExp) _constrainer.expressionFactory()
                         .getExpression(
                                 // IntExpAddArray.class,
                                 IntExpAddArray1.class,
                                 new Object[]{_constrainer, this});
-
-        }
+        };
     }
 
     /**

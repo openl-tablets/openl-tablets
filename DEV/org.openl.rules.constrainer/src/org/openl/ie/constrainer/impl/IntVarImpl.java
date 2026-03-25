@@ -78,16 +78,10 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         int size = max - min + 1;
 
         switch (domain_type) {
-            case DOMAIN_PLAIN:
-                _domain = new DomainImpl(this, min, max);
-                break;
-            case DOMAIN_BIT_FAST:
-                _domain = new DomainBits(this, min, max);
-                break;
-            case DOMAIN_BIT_SMALL:
-                _domain = new DomainBits2(this, min, max);
-                break;
-            case DOMAIN_DEFAULT:
+            case DOMAIN_PLAIN -> _domain = new DomainImpl(this, min, max);
+            case DOMAIN_BIT_FAST -> _domain = new DomainBits(this, min, max);
+            case DOMAIN_BIT_SMALL -> _domain = new DomainBits2(this, min, max);
+            case DOMAIN_DEFAULT -> {
                 if (size < 16) {
                     _domain = new DomainBits(this, min, max);
                 } else if (size < 128) {
@@ -95,7 +89,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
                 } else {
                     _domain = new DomainImpl(this, min, max);
                 }
-                break;
+            }
         }
 
         _history = new IntDomainHistory(this);

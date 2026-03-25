@@ -72,27 +72,27 @@ class CommitMessageParser {
                         builder.append(':');
                     }
                     switch (token) {
-                        case COMMIT_TYPE_TOKEN:
+                        case COMMIT_TYPE_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<commitType>");
                             }
                             builder.append(COMMIT_TYPES);
-                            break;
-                        case USER_MESSAGE_TOKEN:
+                        }
+                        case USER_MESSAGE_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<message>");
                             }
                             builder.append(".*");
-                            break;
-                        case USERNAME_TOKEN:
+                        }
+                        case USERNAME_TOKEN -> {
                             if (firstTokenOccurrence) {
                                 // set group name
                                 builder.append("<author>");
                             }
                             builder.append(".+");
-                            break;
+                        }
                     }
                     // close group
                     builder.append(')');

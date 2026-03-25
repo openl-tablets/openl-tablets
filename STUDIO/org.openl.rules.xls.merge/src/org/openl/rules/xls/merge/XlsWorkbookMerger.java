@@ -224,26 +224,21 @@ public class XlsWorkbookMerger implements Closeable {
                 List<Cell> formulas = new ArrayList<>();
                 for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
                     switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
-                        case UPDATED:
-                            XlsSheetCopier.copy(theirBook,
-                                    theirBook.getSheet(sheetName),
-                                    ourBook,
-                                    ourBook.getSheet(sheetName),
-                                    formulas);
-                            break;
-                        case CREATED:
-                            XlsSheetCopier.copy(theirBook,
-                                    theirBook.getSheet(sheetName),
-                                    ourBook,
-                                    ourBook.createSheet(sheetName),
-                                    formulas);
-                            break;
-                        case REMOVED:
+                        case UPDATED -> XlsSheetCopier.copy(theirBook,
+                                theirBook.getSheet(sheetName),
+                                ourBook,
+                                ourBook.getSheet(sheetName),
+                                formulas);
+                        case CREATED -> XlsSheetCopier.copy(theirBook,
+                                theirBook.getSheet(sheetName),
+                                ourBook,
+                                ourBook.createSheet(sheetName),
+                                formulas);
+                        case REMOVED -> {
                             int sheetIdx = ourBook.getSheetIndex(sheetName);
                             ourBook.removeSheetAt(sheetIdx);
-                            break;
-                        default:
-                            throw new IllegalStateException("Failed to merge.");
+                        }
+                        default -> throw new IllegalStateException("Failed to merge.");
                     }
                 }
                 // evaluate all formula cells in the end

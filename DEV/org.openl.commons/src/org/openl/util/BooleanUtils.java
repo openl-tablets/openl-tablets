@@ -111,7 +111,7 @@ public final class BooleanUtils {
             return null;
         }
         switch (str.length()) {
-            case 1: {
+            case 1 -> {
                 final char ch0 = str.charAt(0);
                 if (ch0 == 'y' || ch0 == 'Y' || ch0 == 't' || ch0 == 'T') {
                     return Boolean.TRUE;
@@ -119,9 +119,8 @@ public final class BooleanUtils {
                 if (ch0 == 'n' || ch0 == 'N' || ch0 == 'f' || ch0 == 'F') {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            case 2: {
+            case 2 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 if ((ch0 == 'o' || ch0 == 'O') && (ch1 == 'n' || ch1 == 'N')) {
@@ -130,9 +129,8 @@ public final class BooleanUtils {
                 if ((ch0 == 'n' || ch0 == 'N') && (ch1 == 'o' || ch1 == 'O')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            case 3: {
+            case 3 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -142,9 +140,8 @@ public final class BooleanUtils {
                 if ((ch0 == 'o' || ch0 == 'O') && (ch1 == 'f' || ch1 == 'F') && (ch2 == 'f' || ch2 == 'F')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            case 4: {
+            case 4 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -155,9 +152,8 @@ public final class BooleanUtils {
                         && (ch3 == 'e' || ch3 == 'E')) {
                     return Boolean.TRUE;
                 }
-                break;
             }
-            case 5: {
+            case 5 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -170,10 +166,8 @@ public final class BooleanUtils {
                         && (ch4 == 'e' || ch4 == 'E')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            default:
-                break;
+            default -> { /* no match */ }
         }
 
         return null;

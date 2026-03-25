@@ -143,27 +143,16 @@ public final class XlsSheetCopier {
         dest.sheet.setColumnWidth(dest.cell.getColumnIndex(), src.sheet.getColumnWidth(src.cell.getColumnIndex()));
         copyStyles(src, dest);
         switch (src.cell.getCellType()) {
-            case BLANK:
-                dest.cell.setBlank();
-                break;
-            case STRING:
-                dest.cell.setCellValue(src.cell.getRichStringCellValue());
-                break;
-            case ERROR:
-                dest.cell.setCellErrorValue(src.cell.getErrorCellValue());
-                break;
-            case BOOLEAN:
-                dest.cell.setCellValue(src.cell.getBooleanCellValue());
-                break;
-            case NUMERIC:
-                dest.cell.setCellValue(src.cell.getNumericCellValue());
-                break;
-            case FORMULA:
+            case BLANK -> dest.cell.setBlank();
+            case STRING -> dest.cell.setCellValue(src.cell.getRichStringCellValue());
+            case ERROR -> dest.cell.setCellErrorValue(src.cell.getErrorCellValue());
+            case BOOLEAN -> dest.cell.setCellValue(src.cell.getBooleanCellValue());
+            case NUMERIC -> dest.cell.setCellValue(src.cell.getNumericCellValue());
+            case FORMULA -> {
                 dest.cell.setCellFormula(src.cell.getCellFormula());
                 dest.addFormulaCell(dest.cell);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
+            }
+            default -> throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
         }
 
         src.comment = src.cell.getCellComment();

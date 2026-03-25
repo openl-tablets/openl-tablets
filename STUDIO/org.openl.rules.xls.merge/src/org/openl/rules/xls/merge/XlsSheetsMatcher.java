@@ -287,9 +287,7 @@ public class XlsSheetsMatcher {
 
         final CellType baseCellType = baseCursor.cell.getCellType();
         switch (baseCellType) {
-            case BLANK:
-            case STRING:
-            case ERROR:
+            case BLANK, STRING, ERROR -> {
                 if (!baseCursor.cell.toString().equals(cursor.cell.toString())) {
                     log.debug("Base sheet={}&cell={} string content='{}', but second string content='{}'",
                             baseCursor.sheet.getSheetName(),
@@ -298,8 +296,8 @@ public class XlsSheetsMatcher {
                             cursor.cell.toString());
                     return false;
                 }
-                break;
-            case BOOLEAN:
+            }
+            case BOOLEAN -> {
                 if (baseCursor.cell.getBooleanCellValue() != cursor.cell.getBooleanCellValue()) {
                     log.debug("Base sheet={}&cell={} boolean content='{}', but another boolean content='{}'",
                             baseCursor.sheet.getSheetName(),
@@ -308,8 +306,8 @@ public class XlsSheetsMatcher {
                             cursor.cell.getBooleanCellValue());
                     return false;
                 }
-                break;
-            case NUMERIC:
+            }
+            case NUMERIC -> {
                 if (DateUtil.isCellDateFormatted(baseCursor.cell)) {
                     if (!DateUtil.isCellDateFormatted(cursor.cell)) {
                         log.debug("Base sheet={}&cell={} cell is date formatted, but another cell is not",
@@ -339,8 +337,8 @@ public class XlsSheetsMatcher {
                         return false;
                     }
                 }
-                break;
-            case FORMULA:
+            }
+            case FORMULA -> {
                 // Trim leading/trailing spaces from formulas
                 // For some unknown reason Apache POI org.apache.poi.ss.usermodel.Cell#setCellFormula trims spaces
                 // automatically.As a result formula cell will not be equals if the same value is set via
@@ -355,9 +353,8 @@ public class XlsSheetsMatcher {
                             formula2);
                     return false;
                 }
-                break;
-            default:
-                throw new IllegalStateException("Unexpected cell type: " + baseCellType);
+            }
+            default -> throw new IllegalStateException("Unexpected cell type: " + baseCellType);
         }
 
         baseCursor.comment = baseCursor.cell.getCellComment();

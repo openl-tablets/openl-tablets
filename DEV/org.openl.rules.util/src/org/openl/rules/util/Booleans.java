@@ -241,15 +241,11 @@ public final class Booleans {
     }
 
     public static Boolean toBoolean(byte b) {
-        switch (b) {
-            case 0:
-                return Boolean.FALSE;
-            case 1:
-                return Boolean.TRUE;
-            default:
-                break;
-        }
-        return null;
+        return switch (b) {
+            case 0 -> Boolean.FALSE;
+            case 1 -> Boolean.TRUE;
+            default -> null;
+        };
     }
 
     /**
@@ -279,15 +275,11 @@ public final class Booleans {
     }
 
     public static Boolean toBoolean(short s) {
-        switch (s) {
-            case 0:
-                return Boolean.FALSE;
-            case 1:
-                return Boolean.TRUE;
-            default:
-                break;
-        }
-        return null;
+        return switch (s) {
+            case 0 -> Boolean.FALSE;
+            case 1 -> Boolean.TRUE;
+            default -> null;
+        };
     }
 
     /**
@@ -317,15 +309,11 @@ public final class Booleans {
     }
 
     public static Boolean toBoolean(int i) {
-        switch (i) {
-            case 0:
-                return Boolean.FALSE;
-            case 1:
-                return Boolean.TRUE;
-            default:
-                break;
-        }
-        return null;
+        return switch (i) {
+            case 0 -> Boolean.FALSE;
+            case 1 -> Boolean.TRUE;
+            default -> null;
+        };
     }
 
     /**
@@ -406,10 +394,10 @@ public final class Booleans {
             return null;
         }
         switch (str.length()) {
-            case 1: {
+            case 1 -> {
                 return toBoolean(str.charAt(0));
             }
-            case 2: {
+            case 2 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 if ((ch0 == 'o' || ch0 == 'O')
@@ -420,9 +408,8 @@ public final class Booleans {
                         && (ch1 == 'o' || ch1 == 'O')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            case 3: {
+            case 3 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -436,9 +423,8 @@ public final class Booleans {
                         && (ch2 == 'f' || ch2 == 'F')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            case 4: {
+            case 4 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -449,9 +435,8 @@ public final class Booleans {
                         && (ch3 == 'e' || ch3 == 'E')) {
                     return Boolean.TRUE;
                 }
-                break;
             }
-            case 5: {
+            case 5 -> {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 final char ch2 = str.charAt(2);
@@ -464,10 +449,8 @@ public final class Booleans {
                         && (ch4 == 'e' || ch4 == 'E')) {
                     return Boolean.FALSE;
                 }
-                break;
             }
-            default:
-                break;
+            default -> { /* no match */ }
         }
         return null;
     }
