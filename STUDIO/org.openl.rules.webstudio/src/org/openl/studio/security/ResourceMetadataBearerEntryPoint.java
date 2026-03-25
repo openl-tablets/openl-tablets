@@ -5,8 +5,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import net.shibboleth.shared.primitive.LoggerFactory;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -39,9 +38,9 @@ import org.openl.rules.spring.openapi.RequestPathUtils;
  *
  * @author Aliaksei Tsymbalist
  */
+@Slf4j
 public class ResourceMetadataBearerEntryPoint implements AuthenticationEntryPoint {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceMetadataBearerEntryPoint.class);
 
     private static final String RESOURCE_METADATA_PATH = "/.well-known/oauth-protected-resource";
 
@@ -50,7 +49,7 @@ public class ResourceMetadataBearerEntryPoint implements AuthenticationEntryPoin
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) {
-        LOG.debug("Authentication failed: {}", authException.getMessage());
+        log.debug("Authentication failed: {}", authException.getMessage());
 
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         Map<String, String> parameters = new LinkedHashMap<>();

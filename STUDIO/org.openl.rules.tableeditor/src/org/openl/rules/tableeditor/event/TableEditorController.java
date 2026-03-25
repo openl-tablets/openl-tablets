@@ -10,10 +10,9 @@ import jakarta.inject.Named;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.service.TableServiceException;
@@ -44,9 +43,9 @@ import org.openl.util.formatters.IFormatter;
  */
 @Named("_tableEditorController")
 @RequestScoped
+@Slf4j
 public class TableEditorController extends BaseTableEditorController {
 
-    private final Logger log = LoggerFactory.getLogger(TableEditorController.class);
 
     private static final String SERVER_ERROR = "Internal server error.";
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";

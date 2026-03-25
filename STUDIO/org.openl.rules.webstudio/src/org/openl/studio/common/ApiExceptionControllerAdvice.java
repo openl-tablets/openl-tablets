@@ -3,8 +3,7 @@ package org.openl.studio.common;
 import java.util.Optional;
 import jakarta.validation.ConstraintViolationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionFailedException;
@@ -33,9 +32,9 @@ import org.openl.util.StringUtils;
  */
 @ControllerAdvice
 @SuppressWarnings("NullableProblems")
+@Slf4j
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionControllerAdvice.class);
 
     private final ExceptionMappingService exceptionMappingService;
 
@@ -76,7 +75,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                     request);
         } else {
             HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return _handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
         }
     }
@@ -90,7 +89,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             SecurityException.class
     })
     public ResponseEntity<Object> handleSecurityErrors(Exception e, WebRequest request) {
-        LOG.debug(e.getMessage(), e);
+        log.debug(e.getMessage(), e);
         var code = HttpStatus.FORBIDDEN;
         return handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
     }
@@ -101,9 +100,9 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                 .map(ResponseStatus::code)
                 .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
         if (code == HttpStatus.INTERNAL_SERVER_ERROR) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } else {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
         }
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), code, request);
     }

@@ -16,8 +16,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -32,8 +31,8 @@ import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
-    private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
     private final UserDetailsContextMapper delegate;
     private final Consumer<SimpleUser> syncUserData;
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;

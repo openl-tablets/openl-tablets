@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -16,9 +15,9 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 /**
  * @author nsamatov.
  */
+@Slf4j
 public class CustomTemplatesResolver extends TemplatesResolver {
     public static final String PROJECT_TEMPLATES_FOLDER = "project-templates";
-    private static final Logger LOG = LoggerFactory.getLogger(CustomTemplatesResolver.class);
 
     private final String templatesPath;
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
@@ -63,7 +62,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed to get project template: {}", baseUrl, e);
+            log.error("Failed to get project template: {}", baseUrl, e);
         }
         return templateFiles;
     }
@@ -77,7 +76,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
                 }
             }
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return folderNames;

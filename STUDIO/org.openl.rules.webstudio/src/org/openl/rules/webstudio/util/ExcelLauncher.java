@@ -9,18 +9,18 @@ package org.openl.rules.webstudio.util;
 import java.awt.Desktop;
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * MS Excel launcher.
  *
  * @author sam
  */
+@Slf4j
 public class ExcelLauncher {
     private static final int LOCK_DETECT_TIMEOUT = 20000;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExcelLauncher.class);
 
     private final String scriptPath;
 
@@ -107,7 +107,7 @@ public class ExcelLauncher {
                 try {
                     excelLaunchProcess.exitValue();
                 } catch (IllegalThreadStateException e) {
-                    LOG.error("ExcelLauncher is locked. Allow GUI interaction for service.");
+                    log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
                     excelLaunchProcess.destroy();
                 }
             } catch (InterruptedException e) {

@@ -28,8 +28,7 @@ import jakarta.xml.bind.JAXBException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -94,6 +93,7 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 
 @Service
 @RequestScope
+@Slf4j
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String CANNOT_BE_EMPTY_MESSAGE = "Cannot be empty";
@@ -106,7 +106,6 @@ public class ProjectBean {
 
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
-    private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
 
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -16,11 +17,9 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCols;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRow;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetData;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public final class XSSFOptimizer {
-    private static final Logger LOG = LoggerFactory.getLogger(XSSFOptimizer.class);
 
     /**
      * Keeps original behavior: only compacts styleXfs (cellStyleXfs) and related named styles (cellStyles).
@@ -42,12 +41,12 @@ public final class XSSFOptimizer {
         long startedAtNs = System.nanoTime();
         int sheets = workbook.getNumberOfSheets();
 
-        LOG.info("Starting style optimization... (removeUnusedCellXfs={}, sheets={})", removeUnusedCellXfs, sheets);
+        log.info("Starting style optimization... (removeUnusedCellXfs={}, sheets={})", removeUnusedCellXfs, sheets);
 
         try {
             StylesTable stylesSource = workbook.getStylesSource();
             if (stylesSource == null || stylesSource.getCTStylesheet() == null) {
-                LOG.info("No styles table found. Skipping optimization.");
+                log.info("No styles table found. Skipping optimization.");
                 return;
             }
 
@@ -58,7 +57,7 @@ public final class XSSFOptimizer {
             List<CTXf> styleXfs = (List<CTXf>) FieldUtils.readDeclaredField(stylesSource, "styleXfs", true);  // <cellStyleXfs>
 
             if (cellXfs == null || styleXfs == null) {
-                LOG.info("Styles lists are not accessible. Skipping optimization.");
+                log.info("Styles lists are not accessible. Skipping optimization.");
                 return;
             }
 
@@ -72,27 +71,27 @@ public final class XSSFOptimizer {
 
             List<CTCellStyle> existingNamedStyles = new ArrayList<>(cellStyles.getCellStyleList());
 
-            LOG.info("Exists: cellXfs={}, styleXfs={}, namedStyles={}",
+            log.info("Exists: cellXfs={}, styleXfs={}, namedStyles={}",
                     cellXfs.size(), styleXfs.size(), existingNamedStyles.size());
 
             // 1) Optionally compact <cellXfs> (cell formats) by usage from sheets and rewrite all references.
             if (removeUnusedCellXfs && !cellXfs.isEmpty()) {
                 compactCellXfsAndRewriteReferences(workbook, cellXfs);
-                LOG.info("After cellXfs compaction: cellXfs={}", cellXfs.size());
+                log.info("After cellXfs compaction: cellXfs={}", cellXfs.size());
             }
 
             // 2) Compact <cellStyleXfs> (styleXfs) based on xfId references from remaining <cellXfs>.
             compactStyleXfsAndNamedStyles(cellXfs, styleXfs, cellStyles, existingNamedStyles);
 
-            LOG.info("Finished style optimization. Result: cellXfs={}, styleXfs={}, namedStyles={}",
+            log.info("Finished style optimization. Result: cellXfs={}, styleXfs={}, namedStyles={}",
                     cellXfs.size(), styleXfs.size(), cellStyles.sizeOfCellStyleArray());
 
         } catch (ReflectiveOperationException | RuntimeException e) {
             // POI internals may change. In that case: do not partially modify the workbook further.
-            LOG.error("Style optimization failed: {}", e.getMessage(), e);
+            log.error("Style optimization failed: {}", e.getMessage(), e);
         } finally {
             long elapsedNs = System.nanoTime() - startedAtNs;
-            LOG.info("Style optimization time: {} ms", TimeUnit.NANOSECONDS.toMillis(elapsedNs));
+            log.info("Style optimization time: {} ms", TimeUnit.NANOSECONDS.toMillis(elapsedNs));
         }
     }
 
@@ -270,7 +269,7 @@ public final class XSSFOptimizer {
         cellStyles.setCount(newNamedStyles.size());
         cellStyles.setCellStyleArray(newNamedStyles.toArray(new CTCellStyle[0]));
 
-        LOG.info("Used: styleXfs={}, namedStyles={}", newStyleXfs.size(), newNamedStyles.size());
+        log.info("Used: styleXfs={}, namedStyles={}", newStyleXfs.size(), newNamedStyles.size());
     }
 
     private static void markUsedIndex(boolean[] used, int index) {

@@ -5,14 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
+@Slf4j
 public final class ExportFile {
     private ExportFile() {
     }
@@ -36,7 +36,6 @@ public final class ExportFile {
             input.transferTo(res.getOutputStream());
         } catch (final IOException e) {
             String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response.";
-            final Logger log = LoggerFactory.getLogger(ExportFile.class);
             log.error(msg, e);
             WebStudioUtils.addErrorMessage(msg, e.getMessage());
         } finally {

@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 
+@Slf4j
 class PropertiesEngine {
-    private final Logger log = LoggerFactory.getLogger(PropertiesEngine.class);
     private final File root;
 
     PropertiesEngine(File root) {

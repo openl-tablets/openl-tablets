@@ -7,12 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.model.SharedStrings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -23,10 +22,10 @@ import org.openl.excel.parser.ParserDateUtil;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class SheetHandler extends DefaultHandler {
     private static final int MAX_ESTIMATED_CELLS_COUNT = 10_000 * 256;
 
-    private final Logger log = LoggerFactory.getLogger(SheetHandler.class);
 
     private final SharedStrings sharedStringsTable;
     private final ParserDateUtil parserDateUtil;

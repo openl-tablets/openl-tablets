@@ -6,8 +6,7 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,9 @@ import org.openl.studio.projects.validator.ProjectStateValidator;
 
 @Validated
 @Service
+@Slf4j
 public class ProjectsMergeServiceImpl implements ProjectsMergeService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectsMergeServiceImpl.class);
 
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
@@ -134,7 +133,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         try {
             branchRepository.forBranch(branchPair.target()).merge(branchPair.source(), currentUser.getUserInfo(), null);
         } catch (MergeConflictException conflictEx) {
-            LOG.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
+            log.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
                     branchPair.source(),
                     branchPair.target(),
                     project.getName());

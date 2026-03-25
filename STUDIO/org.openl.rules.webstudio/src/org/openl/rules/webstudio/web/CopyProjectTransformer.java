@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -26,8 +25,8 @@ import org.openl.util.IOUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class CopyProjectTransformer implements ResourceTransformer {
-    private final Logger log = LoggerFactory.getLogger(CopyProjectTransformer.class);
     private final String newProjectName;
     private final Map<String, String> tags;
 

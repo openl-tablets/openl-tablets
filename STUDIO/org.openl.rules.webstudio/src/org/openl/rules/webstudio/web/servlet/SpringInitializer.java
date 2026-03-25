@@ -17,8 +17,7 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -35,9 +34,9 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
 
 @WebListener
+@Slf4j
 public final class SpringInitializer implements Runnable, ServletContextListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SpringInitializer.class);
     private static final String THIS = SpringInitializer.class.getName();
     private static final int PERIOD = 10;
 
@@ -171,7 +170,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
                 refreshContext();
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -188,13 +187,13 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     private void refreshContext() {
         write.lock();
         try {
-            LOG.info("Refreshing Spring context to reload application configuration...");
+            log.info("Refreshing Spring context to reload application configuration...");
             applicationContext.refresh();
-            LOG.info("Cleaning up HTTP Sessions...");
+            log.info("Cleaning up HTTP Sessions...");
             for (HttpSession session : new ArrayList<>(cache.values())) {
                 session.invalidate();
             }
-            LOG.info("OpenL Studio has been reloaded.");
+            log.info("OpenL Studio has been reloaded.");
         } finally {
             write.unlock();
         }

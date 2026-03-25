@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -32,11 +31,11 @@ import org.openl.types.StaticOpenClass;
 /**
  * @author snshor
  */
+@Slf4j
 public abstract class AOpenClass implements IOpenClass {
 
     private volatile StaticOpenClass staticOpenClass;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
     protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
     private IOpenField indexField;
@@ -124,7 +123,7 @@ public abstract class AOpenClass implements IOpenClass {
         try {
             return getField(fname, true);
         } catch (AmbiguousFieldException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return null;
         }
     }

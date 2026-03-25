@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
@@ -30,8 +31,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
@@ -40,8 +39,8 @@ import org.openl.excel.parser.SheetDescriptor;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class WorkbookListener implements HSSFListener {
-    private static final Logger LOG = LoggerFactory.getLogger(WorkbookListener.class);
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
@@ -102,7 +101,7 @@ public class WorkbookListener implements HSSFListener {
 
                 int rowsCount = dr.getLastRow() - dr.getFirstRow();
                 int colsCount = dr.getLastCol() - dr.getFirstCol();
-                LOG.debug("Array size: {}:{}", rowsCount, colsCount);
+                log.debug("Array size: {}:{}", rowsCount, colsCount);
                 Object[][] cells = new Object[rowsCount][colsCount];
                 cellsMap.put(getSheet().getName(), cells);
                 break;
@@ -281,7 +280,7 @@ public class WorkbookListener implements HSSFListener {
 
         if (maxRows > cells.length || maxCols > columnCount) {
             // Can occur when merged region is greater than last row and column
-            LOG.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
+            log.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
             Object[][] copy = new Object[maxRows][maxCols];
 
             arrayCopy(cells, copy);

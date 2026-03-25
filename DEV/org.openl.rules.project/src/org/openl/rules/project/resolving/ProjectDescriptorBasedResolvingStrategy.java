@@ -9,8 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -20,20 +19,20 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
 
+@Slf4j
 public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
 
     public static final String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectDescriptorBasedResolvingStrategy.class);
 
     @Override
     public boolean isRulesProject(Path folder) {
         Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
         if (Files.exists(descriptorFile)) {
-            LOG.debug("Project in folder '{}' has been resolved as project descriptor based project.",
+            log.debug("Project in folder '{}' has been resolved as project descriptor based project.",
                     descriptorFile);
             return true;
         } else {
-            LOG.debug(
+            log.debug(
                     "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
                     descriptorFile,
                     PROJECT_DESCRIPTOR_FILE_NAME);

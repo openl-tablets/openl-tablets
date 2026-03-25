@@ -4,14 +4,13 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.ClassUtils;
 
+@Slf4j
 final class ClasspathLogger extends OpenLLogger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClasspathLogger.class);
 
     @Override
     protected String getName() {
@@ -53,7 +52,7 @@ final class ClasspathLogger extends OpenLLogger {
                 name += "  Name: " + getNameStr.toString();
             }
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             // Ignore
         }
         return name;

@@ -5,13 +5,12 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.FileItem;
 
+@Slf4j
 public class FileChangesFromZip implements Iterable<FileItem> {
-    private static final Logger LOG = LoggerFactory.getLogger(FileChangesFromZip.class);
     private final ZipInputStream stream;
     private final String folderTo;
 
@@ -32,7 +31,7 @@ public class FileChangesFromZip implements Iterable<FileItem> {
                         entry = stream.getNextEntry();
                     } while (entry != null && entry.isDirectory());
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     entry = null;
                 }
 

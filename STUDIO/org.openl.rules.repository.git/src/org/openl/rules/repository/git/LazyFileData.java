@@ -3,6 +3,7 @@ package org.openl.rules.repository.git;
 import java.io.IOException;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -11,15 +12,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
 
+@Slf4j
 class LazyFileData extends FileData {
-    private final Logger log = LoggerFactory.getLogger(LazyFileData.class);
 
     private final String fullPath;
     private final GitRepository gitRepo;

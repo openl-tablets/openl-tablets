@@ -8,12 +8,11 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,10 +37,10 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
  *
  * @author Nail Samatov, Marat Kamalov
  */
+@Slf4j
 public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public static final String REST_PREFIX = "REST/";
 
-    private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
 

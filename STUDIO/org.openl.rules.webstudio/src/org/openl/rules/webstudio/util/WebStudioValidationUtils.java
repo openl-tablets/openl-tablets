@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class WebStudioValidationUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(WebStudioValidationUtils.class);
 
     /**
      * Validates directory for write access. If specified folder is not writable the validation error will appears

@@ -24,10 +24,9 @@ import jakarta.faces.model.SelectItem;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -55,8 +54,8 @@ import org.openl.vm.SimpleVM;
 
 @Service
 @ViewScope
+@Slf4j
 public class InputArgsBean {
-    private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
 
     @Autowired
     private Environment environment;

@@ -40,9 +40,8 @@ import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -136,6 +135,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @ViewScope
+@Slf4j
 public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
@@ -144,7 +144,6 @@ public class RepositoryTreeController {
     public static final String OPENAPI_DEFAULT_DATA_MODULE_PATH = "openapi.default.data.module.path";
     public static final String OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH = "openapi.default.algorithm.module.path";
 
-    private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
     @Autowired
     private RepositoryTreeState repositoryTreeState;

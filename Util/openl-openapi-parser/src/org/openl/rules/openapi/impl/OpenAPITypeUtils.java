@@ -16,8 +16,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -26,9 +25,9 @@ import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class OpenAPITypeUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
 
     protected static final Map<String, TypeInfo> PRIMITIVE_CLASSES = initPrimitiveMap();
     protected static final Map<String, TypeInfo> WRAPPER_CLASSES = initWrapperMap();
@@ -280,7 +279,7 @@ public class OpenAPITypeUtils {
                     String parentName = OpenAPITypeUtils.getSimpleName(schema.get$ref());
                     Schema<?> s = allSchemas.get(parentName);
                     if (s == null) {
-                        LOGGER.error("Failed to obtain schema from {}", parentName);
+                        log.error("Failed to obtain schema from {}", parentName);
                         return "UNKNOWN_PARENT_NAME";
                     } else if (hasOrInheritsDiscriminator(s, allSchemas)) {
                         // discriminator.propertyName is used
@@ -310,7 +309,7 @@ public class OpenAPITypeUtils {
             if (s != null) {
                 return hasOrInheritsDiscriminator(s, allSchemas);
             } else {
-                LOGGER.error("Failed to obtain schema from {}", parentName);
+                log.error("Failed to obtain schema from {}", parentName);
             }
         } else if (schema instanceof ComposedSchema) {
             final ComposedSchema composed = (ComposedSchema) schema;

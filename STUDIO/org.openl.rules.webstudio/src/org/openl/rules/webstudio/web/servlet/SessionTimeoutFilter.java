@@ -11,11 +11,11 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 public class SessionTimeoutFilter implements Filter {
-    private final Logger log = LoggerFactory.getLogger(SessionTimeoutFilter.class);
 
     private static final int REDIRECT_ERROR_CODE = 399;
 

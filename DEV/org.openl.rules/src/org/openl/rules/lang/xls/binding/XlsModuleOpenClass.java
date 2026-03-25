@@ -18,8 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -76,9 +75,9 @@ import org.openl.util.StringUtils;
 /**
  * @author snshor
  */
+@Slf4j
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private final IDataBase dataBase;
 
@@ -464,7 +463,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         addMethod(dependencyMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
-                    LOG.debug("An exception occurred during adding the method '{}'.",
+                    log.debug("An exception occurred during adding the method '{}'.",
                             MethodUtil.printMethod(dependencyMethod.getName(),
                                     dependencyMethod.getSignature().getParameterTypes()),
                             e);

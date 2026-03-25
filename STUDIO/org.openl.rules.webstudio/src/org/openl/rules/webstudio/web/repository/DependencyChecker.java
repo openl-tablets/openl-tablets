@@ -4,9 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -15,9 +14,9 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 /**
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class DependencyChecker {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DependencyChecker.class);
     /**
      * project-name -> project-version
      * <p/>
@@ -42,7 +41,7 @@ public class DependencyChecker {
             projectDependencies.put(projectName, projectDescriptorArtefactResolver.getDependencies(project));
             projectVersions.put(projectName, project.getVersion());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             projectVersions.put(projectName, null);
         }
     }

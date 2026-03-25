@@ -4,17 +4,16 @@ import jakarta.mail.Transport;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class MailVerificationServerSettingsConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailVerificationServerSettings> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MailVerificationServerSettingsConstraintValidator.class);
 
     @Autowired
     private MailSender mailSender;
@@ -42,7 +41,7 @@ public class MailVerificationServerSettingsConstraintValidator implements Constr
         try (Transport transport = mailSender.getTransport(value.getUrl(), value.getUsername(), value.getPassword())) {
             return transport.isConnected();
         } catch (Exception e) {
-            LOGGER.warn("Error on changing email server configuration: ", e);
+            log.warn("Error on changing email server configuration: ", e);
             context.unwrap(HibernateConstraintValidatorContext.class)
                     .addMessageParameter("error", e.getMessage())
                     .buildConstraintViolationWithTemplate("{openl.constraints.mail.config.wrong.message}")

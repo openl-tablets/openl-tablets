@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -54,8 +53,8 @@ import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class S3Repository implements Repository, Closeable {
-    private final Logger log = LoggerFactory.getLogger(S3Repository.class);
 
     private static final String MODIFICATION_FILE = ".openl-settings/.modification";
 

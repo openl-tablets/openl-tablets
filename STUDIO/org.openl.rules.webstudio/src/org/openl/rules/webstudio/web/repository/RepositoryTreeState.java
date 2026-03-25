@@ -14,12 +14,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
@@ -63,6 +62,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @SessionScope
+@Slf4j
 public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private static final String ROOT_TYPE = "root";
 
@@ -96,7 +96,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private SecureDeploymentRepositoryService deploymentRepositoryService;
 
     private static final String DEFAULT_TAB = "Properties";
-    private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
     private RepositorySelectNodeStateHolder.SelectionHolder selectionHolder;

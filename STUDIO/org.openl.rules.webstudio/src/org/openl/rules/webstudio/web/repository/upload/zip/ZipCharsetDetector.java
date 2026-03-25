@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
@@ -32,8 +31,8 @@ import org.openl.rules.workspace.filter.PathFilter;
  * correctness of chosen encoding. If rules.xml is absent it compares file paths in the zip with existing project files
  * (when updating existing project with zip).
  */
+@Slf4j
 public class ZipCharsetDetector {
-    private final Logger log = LoggerFactory.getLogger(ZipCharsetDetector.class);
     private final Charset[] charsets;
     private final PathFilter zipFilter;
     private IProjectDescriptorSerializer projectDescriptorSerializer;

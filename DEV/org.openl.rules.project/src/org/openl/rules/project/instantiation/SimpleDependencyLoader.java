@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -22,9 +21,9 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IDependency;
 import org.openl.validation.ValidationManager;
 
+@Slf4j
 public class SimpleDependencyLoader implements IDependencyLoader {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleDependencyLoader.class);
 
     private final AbstractDependencyManager dependencyManager;
     private final ResolvedDependency dependency;

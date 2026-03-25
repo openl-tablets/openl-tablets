@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
@@ -27,8 +26,8 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class AlgorithmBuilder {
-    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmBuilder.class);
 
     private static final String LABEL = "label";
     private static final String DESCRIPTION = "description";
@@ -74,7 +73,7 @@ public class AlgorithmBuilder {
                             null),
                     false);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
     }

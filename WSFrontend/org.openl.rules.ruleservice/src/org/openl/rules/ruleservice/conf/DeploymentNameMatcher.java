@@ -2,8 +2,7 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.StringUtils;
 
@@ -13,9 +12,9 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  * @since 5.21.4
  */
+@Slf4j
 final class DeploymentNameMatcher {
 
-    private final Logger log = LoggerFactory.getLogger(DeploymentNameMatcher.class);
     private static final Pattern WILDCARD_REDUNDANT_OCCUR = Pattern.compile("\\*{2,}");
     public static final DeploymentNameMatcher DEFAULT = new DeploymentNameMatcher();
 

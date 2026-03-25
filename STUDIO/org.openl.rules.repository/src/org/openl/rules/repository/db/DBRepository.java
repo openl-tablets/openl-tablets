@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -31,8 +30,8 @@ import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.StringUtils;
 import org.openl.util.db.SqlDBUtils;
 
+@Slf4j
 abstract class DBRepository implements Repository, Closeable {
-    private static final Logger LOG = LoggerFactory.getLogger(DBRepository.class);
 
     private String id;
     private String name;
@@ -401,7 +400,7 @@ abstract class DBRepository implements Repository, Closeable {
     @Override
     public void validateConnection() throws IOException {
         try (Connection ignored = getConnection()) {
-            LOG.info("Repository '{}' is successfully connected to the database.", name);
+            log.info("Repository '{}' is successfully connected to the database.", name);
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -582,7 +581,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             initializeDatabase();
         } catch (Exception e) {
-            LOG.warn("Cannot initialize database during Repository instantiation.", e);
+            log.warn("Cannot initialize database during Repository instantiation.", e);
         }
     }
 
@@ -595,11 +594,11 @@ abstract class DBRepository implements Repository, Closeable {
             int majorVersion = metaData.getDatabaseMajorVersion();
             int minorVersion = metaData.getDatabaseMinorVersion();
 
-            LOG.info("Driver name      : {}", metaData.getDriverName());
-            LOG.info("Driver version   : {}", metaData.getDriverVersion());
-            LOG.info("Database name    : {}", metaData.getDatabaseProductName());
-            LOG.info("Database version : {}", metaData.getDatabaseProductVersion());
-            LOG.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
+            log.info("Driver name      : {}", metaData.getDriverName());
+            log.info("Driver version   : {}", metaData.getDriverVersion());
+            log.info("Database name    : {}", metaData.getDatabaseProductName());
+            log.info("Database version : {}", metaData.getDatabaseProductVersion());
+            log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
             settings = new Settings(databaseCode, majorVersion, minorVersion);
         } finally {
             SqlDBUtils.safeClose(connection);
@@ -623,12 +622,12 @@ abstract class DBRepository implements Repository, Closeable {
 
             Object revision = checkRepository();
             if (!(revision instanceof Throwable)) {
-                LOG.info("SQL result: {}. The repository is already initialized.", revision);
+                log.info("SQL result: {}. The repository is already initialized.", revision);
                 initialized = true;
                 return;
             }
-            LOG.info("SQL error: {}", ((Throwable) revision).getMessage());
-            LOG.info("Initializing the repository in the DB...");
+            log.info("SQL error: {}", ((Throwable) revision).getMessage());
+            log.info("Initializing the repository in the DB...");
             Connection connection = null;
             Statement statement = null;
             Boolean autoCommit = null;
@@ -645,7 +644,7 @@ abstract class DBRepository implements Repository, Closeable {
                 }
                 connection.commit();
                 initialized = true;
-                LOG.info("The repository is initialized.");
+                log.info("The repository is initialized.");
             } catch (Exception e) {
                 if (connection != null) {
                     connection.rollback();
@@ -668,11 +667,11 @@ abstract class DBRepository implements Repository, Closeable {
             try {
                 initializeDatabase();
             } catch (Exception e) {
-                LOG.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
             }
             Object revision = checkRepository();
             if (revision instanceof Throwable) {
-                LOG.warn("Cannot check revision of the repository.", (Throwable) revision);
+                log.warn("Cannot check revision of the repository.", (Throwable) revision);
                 return null;
             }
             return revision;

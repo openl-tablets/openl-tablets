@@ -15,8 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -42,6 +41,7 @@ import org.openl.util.OpenClassUtils;
  *
  * @author snshor, Yury Molchan, Marat Kamalov
  */
+@Slf4j
 public class CastFactory implements ICastFactory {
 
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Set
@@ -52,7 +52,6 @@ public class CastFactory implements ICastFactory {
             .contains(e.getInstanceClass()) && e.getInstanceClass().getPackage() != null && !Objects
             .equals(e.getInstanceClass().getPackage().getName(), "java.lang.constant");
 
-    private static final Logger LOG = LoggerFactory.getLogger(CastFactory.class);
 
     public static final int NO_CAST_DISTANCE = 1;
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 1;
@@ -1066,7 +1065,7 @@ public class CastFactory implements ICastFactory {
                         new IOpenClass[]{openClassFrom, openClassTo});
             }
         } catch (AmbiguousMethodException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -1110,7 +1109,7 @@ public class CastFactory implements ICastFactory {
                 }
 
             } catch (AmbiguousMethodException e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
         }
 
@@ -1124,7 +1123,7 @@ public class CastFactory implements ICastFactory {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
                     new IOpenClass[]{fromOpenClass, toOpenClass});
         } catch (AmbiguousMethodException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
         }
 
         if (distanceCaller != null) {

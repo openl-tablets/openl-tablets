@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -26,8 +25,8 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
 
+@Slf4j
 public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
-    private static final Logger LOG = LoggerFactory.getLogger(AProjectFolder.class);
 
     private Map<String, AProjectArtefact> artefacts;
     private ResourceTransformer resourceTransformer;
@@ -356,7 +355,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 }
             }
         } catch (IOException ex) {
-            LOG.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
         }
         return internalArtefacts;
     }

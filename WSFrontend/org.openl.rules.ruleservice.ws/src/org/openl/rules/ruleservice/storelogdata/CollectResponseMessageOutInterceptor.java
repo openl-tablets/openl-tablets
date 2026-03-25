@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingMessage;
@@ -17,8 +18,6 @@ import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
@@ -26,8 +25,8 @@ import org.slf4j.LoggerFactory;
  * @author Marat Kamalov
  */
 @NoJSR250Annotations
+@Slf4j
 public class CollectResponseMessageOutInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
     private final StoreLogDataManager storeLoggingManager;
 
@@ -168,7 +167,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                     builder.append(buffer1);
                 }
             } catch (Exception e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
             String id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
             LoggingMessage loggingMessage = new LoggingMessage(null, id);
@@ -227,7 +226,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
 
                 cos.writeCacheTo(buffer.getPayload(), Objects.requireNonNullElseGet(encoding, StandardCharsets.UTF_8::name));
             } catch (Exception e) {
-                LOG.debug("Error occurred: ", e);
+                log.debug("Error occurred: ", e);
             }
             Fault fault = null;
             try {
@@ -240,7 +239,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                 cos.lockOutputStream();
                 cos.resetOut(null, false);
             } catch (Exception e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
             message.setContent(OutputStream.class, origStream);
             if (fault != null) {
@@ -250,7 +249,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                     try {
                         ((CacheAndWriteOutputStream) cos).copyCacheToFlowThroughStream();
                     } catch (Exception e) {
-                        LOG.debug("Ignored error: ", e);
+                        log.debug("Ignored error: ", e);
                     }
                 }
             }

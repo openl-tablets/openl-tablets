@@ -8,9 +8,8 @@ import java.util.Map;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UIRepeat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -53,9 +52,9 @@ import org.openl.util.conf.Version;
  * @author Andrei Astrouski.
  */
 @GroupSequence({TableCopier.class, StringPresentedGroup.class, StringValidGroup.class})
+@Slf4j
 public class TableCopier extends TableCreationWizard {
 
-    private final Logger log = LoggerFactory.getLogger(TableCopier.class);
 
     public static final String INIT_VERSION = "0.0.1";
 

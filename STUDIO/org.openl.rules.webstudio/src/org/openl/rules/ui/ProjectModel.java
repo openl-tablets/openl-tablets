@@ -22,9 +22,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.CompiledOpenClass;
@@ -104,9 +103,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 
+@Slf4j
 public class ProjectModel {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
     private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
             node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),

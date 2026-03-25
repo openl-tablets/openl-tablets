@@ -3,8 +3,7 @@ package org.openl.rules.table.formatters;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.helpers.ArraySplitter;
 import org.openl.util.ArrayTool;
@@ -17,9 +16,9 @@ import org.openl.util.formatters.IFormatter;
  * Also it provides the back convertion from specified type to a <code>{@link String}</code>, in outcome result elements
  * will be separated by comma (method <code>{@link #format(Object)}</code>).
  */
+@Slf4j
 public class ArrayFormatter implements IFormatter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ArrayFormatter.class);
 
     private final IFormatter elementFormat;
 
@@ -46,7 +45,7 @@ public class ArrayFormatter implements IFormatter {
         String result = null;
         if (value != null) {
             if (!value.getClass().isArray()) {
-                LOG.debug("Should be an array: {}", value);
+                log.debug("Should be an array: {}", value);
                 return null;
             }
 

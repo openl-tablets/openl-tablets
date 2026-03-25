@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -39,11 +38,11 @@ import org.openl.xls.RulesCompileContext;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Slf4j
 public class RulesEngineFactory<T> {
 
 
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
-    private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private final IOpenSourceCodeModule sourceCode;
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();

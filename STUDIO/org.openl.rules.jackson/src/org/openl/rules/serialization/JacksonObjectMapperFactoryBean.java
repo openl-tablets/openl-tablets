@@ -31,10 +31,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import groovy.lang.GroovyObject;
+import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -45,13 +44,13 @@ import org.openl.rules.serialization.jackson.SubtypeMixin;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
+@Slf4j
 public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     private static final AtomicLong incrementer = new AtomicLong();
 
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
-    private final Logger log = LoggerFactory.getLogger(JacksonObjectMapperFactoryBean.class);
 
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 

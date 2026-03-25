@@ -17,8 +17,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.common.ProjectException;
@@ -44,8 +43,8 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 
+@Slf4j
 public class UserWorkspaceImpl implements UserWorkspace {
-    private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator
             .comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER)

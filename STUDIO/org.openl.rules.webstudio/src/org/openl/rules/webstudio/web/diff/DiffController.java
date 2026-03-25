@@ -15,8 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,8 +33,8 @@ import org.openl.util.FileUtils;
 @RestController
 @RequestMapping("/public/compare")
 @Tag(name = "Compare")
+@Slf4j
 public class DiffController {
-    private static final Logger LOG = LoggerFactory.getLogger(DiffController.class);
 
     private final DiffManager diffManager;
 
@@ -70,7 +69,7 @@ public class DiffController {
                     .location(new URI(root + "/faces/pages/public/showDiff.xhtml?id=" + requestId))
                     .build();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }

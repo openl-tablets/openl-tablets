@@ -3,8 +3,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -12,8 +11,8 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptorFind
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.workspace.filter.PathFilter;
 
+@Slf4j
 public final class ZipProjectDescriptorExtractor {
-    private static final Logger log = LoggerFactory.getLogger(ZipProjectDescriptorExtractor.class);
 
     private ZipProjectDescriptorExtractor() {
     }

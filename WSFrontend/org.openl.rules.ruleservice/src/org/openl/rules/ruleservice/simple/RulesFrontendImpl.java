@@ -9,8 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -24,8 +23,8 @@ import org.openl.util.ClassUtils;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class RulesFrontendImpl implements RulesFrontend {
-    private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
     private final Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();
 

@@ -15,8 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,9 +44,9 @@ import org.openl.util.StringUtils;
 @RequestMapping("/test")
 @Tag(name = "Test")
 @Deprecated(forRemoval = true)
+@Slf4j
 public class TestDownloadController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestDownloadController.class);
 
     private final Environment environment;
 
@@ -94,7 +93,7 @@ public class TestDownloadController {
                     .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to export results.";
-            LOG.error(message, e);
+            log.error(message, e);
             response.addCookie(newCookie(cookieName, message, request.getContextPath()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

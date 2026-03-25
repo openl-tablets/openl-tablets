@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -18,9 +17,9 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 
+@Slf4j
 public abstract class AProjectCreator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AProjectCreator.class);
 
     private final String projectName;
     private final String projectFolder;
@@ -62,7 +61,7 @@ public abstract class AProjectCreator {
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
-                LOG.debug("Failed to save the project because of merge conflict.", cause);
+                log.debug("Failed to save the project because of merge conflict.", cause);
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
                 try {
                     projectBuilder.save();
@@ -128,7 +127,7 @@ public abstract class AProjectCreator {
                 projectDescriptor.setName(getProjectName());
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
             } catch (Exception e) {
-                LOG.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
                 copy.reset();
                 return copy;
             }

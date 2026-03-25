@@ -10,8 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -30,9 +29,9 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.MutableAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
+@Slf4j
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleRepositoryAclServiceImpl.class);
 
     protected final MutableAclService aclService;
     private final Sid relevantSystemWideSid;
@@ -491,7 +490,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             var acl = aclService.readAclById(oi);
             return acl.getOwner();
         } catch (NotFoundException e) {
-            LOG.debug("No ACL found for {}", oi, e);
+            log.debug("No ACL found for {}", oi, e);
             return null;
         }
     }

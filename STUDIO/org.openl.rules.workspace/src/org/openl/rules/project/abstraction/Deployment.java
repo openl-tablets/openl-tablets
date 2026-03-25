@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -24,8 +23,8 @@ import org.openl.rules.repository.api.Repository;
  *
  * @author PUdalau
  */
+@Slf4j
 public class Deployment extends AProjectFolder implements IDeployment {
-    private static final Logger LOG = LoggerFactory.getLogger(Deployment.class);
     private Map<String, IProject> projects;
 
     private final String deploymentName;
@@ -105,7 +104,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
                     fileDataList = repository.list(folderPath);
                 }
             } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 return Collections.emptyMap();
             }
 

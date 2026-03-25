@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.instantiation.ReloadType;
@@ -36,9 +35,9 @@ import org.openl.studio.projects.model.history.ProjectHistoryItem;
 import org.openl.util.FileUtils;
 
 @Service
+@Slf4j
 public class ProjectHistoryService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectHistoryService.class);
     private static final String CURRENT_VERSION = "_current";
     private static final String REVISION_VERSION = "Revision Version";
 
@@ -107,7 +106,7 @@ public class ProjectHistoryService {
         try {
             FileUtils.copy(source, new File(storagePath, REVISION_VERSION + CURRENT_VERSION));
         } catch (Exception e) {
-            LOG.error("Cannot add file", e);
+            log.error("Cannot add file", e);
         }
     }
 
@@ -138,7 +137,7 @@ public class ProjectHistoryService {
                     deleteHistoryOverLimit(storagePath);
                 }
             } catch (IOException e) {
-                LOG.error("Cannot add file", e);
+                log.error("Cannot add file", e);
             }
         }
     }
@@ -179,7 +178,7 @@ public class ProjectHistoryService {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Cannot delete history", e);
+            log.error("Cannot delete history", e);
         }
     }
 

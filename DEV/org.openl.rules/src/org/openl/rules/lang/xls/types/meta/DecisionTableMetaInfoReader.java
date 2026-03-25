@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -45,8 +44,8 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionTableBoundNode> {
-    private final Logger log = LoggerFactory.getLogger(DecisionTableMetaInfoReader.class);
     private final DecisionTable decisionTable;
     private Map<CellKey, CellMetaInfo> preparedMetaInfos;
     private final Deque<MetaInfoHolder> stack;

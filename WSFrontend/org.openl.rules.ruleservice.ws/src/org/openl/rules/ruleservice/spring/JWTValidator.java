@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwk.HttpsJwks;
 import org.jose4j.jwk.JsonWebKeySet;
@@ -15,8 +16,6 @@ import org.jose4j.keys.resolvers.HttpsJwksVerificationKeyResolver;
 import org.jose4j.keys.resolvers.JwksVerificationKeyResolver;
 import org.jose4j.keys.resolvers.VerificationKeyResolver;
 import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -33,11 +32,11 @@ import org.openl.util.StringUtils;
  */
 @Component
 @ConditionalOnEnable("ruleservice.authentication.enabled")
+@Slf4j
 public class JWTValidator implements AuthorizationChecker {
 
     private static final String BEARER = "Bearer ";
 
-    private final Logger log = LoggerFactory.getLogger(JWTValidator.class);
 
     private final JwtConsumer jwtConsumer;
 

@@ -24,12 +24,11 @@ import java.util.stream.Stream;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -57,6 +56,7 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class Migrator {
 
     private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
@@ -67,7 +67,6 @@ public class Migrator {
     private Migrator() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(Migrator.class);
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
@@ -108,7 +107,7 @@ public class Migrator {
             settings.save(props);
             settings.reloadIfModified();
         } catch (IOException e) {
-            LOG.error("Migration of properties failed.", e);
+            log.error("Migration of properties failed.", e);
         }
     }
 
@@ -148,10 +147,10 @@ public class Migrator {
         try (Stream<Path> paths = Files.find(locksPath, Integer.MAX_VALUE, matcher)) {
             paths.forEach(FileUtils::deleteQuietly);
         } catch (IOException e) {
-            LOG.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
+            log.error("Error while removing openl-projects.yaml files from locks folder: {}", locksPath, e);
         }
     }
-    
+
     private static void migrateLocalRepositoryPath(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX)
@@ -159,7 +158,7 @@ public class Migrator {
                 .forEach(localRepositoryPathProperty -> {
                     int start = REPOSITORY_PREFIX.length();
                     int end = localRepositoryPathProperty.length() - LOCAL_REPO_PATH_SUFFIX.length();
-                    String repositoryId = localRepositoryPathProperty.substring(start, end);                    
+                    String repositoryId = localRepositoryPathProperty.substring(start, end);
                     String uriPropName = REPOSITORY_PREFIX + repositoryId + ".uri";
                     var uri = settings.getProperty(uriPropName);
                     if (StringUtils.isEmpty(uri)) {
@@ -281,7 +280,7 @@ public class Migrator {
                 .distinct()
                 .forEach(uri -> {
                     if (uri != null && uri.startsWith("jdbc:h2:")) {
-                        LOG.warn(
+                        log.warn(
                                 "You have h2 database with uri '{}'. Make sure that it's migrated to v2 or newer version. You need to migrate it yourself. See https://www.h2database.com/html/migration-to-v2.html for details.",
                                 uri);
                     }
@@ -321,7 +320,7 @@ public class Migrator {
                     projectPathMap.put(name, path);
                 }
             } catch (IOException e) {
-                LOG.error("Loading of openl-projects.properties has been failed.", e);
+                log.error("Loading of openl-projects.properties has been failed.", e);
             }
         }
         return projectPathMap;
@@ -405,7 +404,7 @@ public class Migrator {
                 }
             });
         } catch (IOException e) {
-            LOG.error("Migration of locks failed.", e);
+            log.error("Migration of locks failed.", e);
         }
     }
 
@@ -434,7 +433,7 @@ public class Migrator {
                     createYaml(branches, config);
                 }
             } catch (IOException e) {
-                LOG.error("Migration of branches.properties has been failed.", e);
+                log.error("Migration of branches.properties has been failed.", e);
             }
         }
     }
@@ -460,7 +459,7 @@ public class Migrator {
             Files.createDirectories(filePath.getParent());
             Files.write(filePath, YamlMapperFactory.getYamlMapper().writeValueAsBytes(data));
         } catch (IOException e) {
-            LOG.error("Writing to file has been failed.", e);
+            log.error("Writing to file has been failed.", e);
         }
     }
 
@@ -492,7 +491,7 @@ public class Migrator {
                     }
                 });
             } catch (IOException e) {
-                LOG.error("Migration of locks failed.", e);
+                log.error("Migration of locks failed.", e);
             }
         }
     }
@@ -515,13 +514,13 @@ public class Migrator {
             var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
             var migrator = new ProjectTagsMigrator(designTimeRepository);
             allOpenLProjects.forEach(openLProject -> {
-                LOG.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                log.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
                 try {
                     migrator.migrate(openLProject.repositoryId, openLProject.projectPath, openLProject.tags, migrationUserInfo);
                     runInSession(sessionFactory, session -> deleteProjectTagsInDB(session, openLProject.id));
-                    LOG.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
+                    log.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
                 } catch (IOException | ProjectException e) {
-                    LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.projectPath, openLProject.repositoryId), e);
+                    log.error(String.format("Migration of project %s with repository id %s has failed", openLProject.projectPath, openLProject.repositoryId), e);
                 }
             });
         }

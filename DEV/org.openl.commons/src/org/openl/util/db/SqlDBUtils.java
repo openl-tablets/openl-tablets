@@ -4,12 +4,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SqlDBUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(SqlDBUtils.class);
 
     public static void safeClose(ResultSet rs) {
         if (rs != null) {

@@ -8,8 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -34,9 +33,9 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
+@Slf4j
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
-    private final Logger log = LoggerFactory.getLogger(DecisionTableValidatedObject.class);
 
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;

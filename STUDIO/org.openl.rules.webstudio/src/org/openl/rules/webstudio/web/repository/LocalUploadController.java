@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.PropertyResolver;
@@ -44,6 +43,7 @@ import org.openl.util.StringUtils;
 
 @Service("localUpload")
 @ViewScope
+@Slf4j
 public class LocalUploadController {
     public static class UploadBean {
         private final String projectName;
@@ -67,7 +67,6 @@ public class LocalUploadController {
         }
     }
 
-    private final Logger log = LoggerFactory.getLogger(LocalUploadController.class);
 
     private List<UploadBean> uploadBeans;
 
@@ -217,7 +216,7 @@ public class LocalUploadController {
                         }
                         File tagsFile = new File(baseFolder, RulesProjectTags.TAGS_FILE_NAME);
                         PropertiesUtils.store(tagsFile.toPath(), projectTagsBean.saveTagsTypesAndGetTags().entrySet());
-                        
+
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
                                 .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService

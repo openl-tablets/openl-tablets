@@ -3,15 +3,14 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFault;
 
+@Slf4j
 public final class SimpleStoreLogDataManager implements StoreLogDataManager {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleStoreLogDataManager.class);
     private final Collection<StoreLogDataService> storeLogDataServices;
 
     private final boolean enabled;

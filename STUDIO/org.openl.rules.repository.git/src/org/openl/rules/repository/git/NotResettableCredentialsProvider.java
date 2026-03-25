@@ -5,13 +5,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class NotResettableCredentialsProvider extends UsernamePasswordCredentialsProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(NotResettableCredentialsProvider.class);
 
     private static final String FAIL_MESSAGE = "Problem communicating with '%s' Git server, will retry automatically in %s";
     private static final String BLOCK_MESSAGE = "Problem communicating with '%s' Git server, please contact admin.";
@@ -43,7 +42,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     public void reset(URIish uri) {
         // This method is called when authentication attempt was unsuccessful and need to provide correct credentials.
         // Our application works in non-interactive mode so we just throw exception.
-        LOG.info("Reset the credentials provider for the URI: {}", uri);
+        log.info("Reset the credentials provider for the URI: {}", uri);
         synchronized (this) {
             failedActions.addAll(currentActions);
         }
@@ -120,6 +119,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     @Override
     public void clear() {
         // Do nothing to ensure that username and password is not cleared.
-        LOG.warn("clear() method should never be invoked.");
+        log.warn("clear() method should never be invoked.");
     }
 }

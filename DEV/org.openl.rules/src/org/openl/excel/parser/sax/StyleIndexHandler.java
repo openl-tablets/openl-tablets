@@ -3,6 +3,7 @@ package org.openl.excel.parser.sax;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaRenderer;
@@ -11,15 +12,13 @@ import org.apache.poi.ss.formula.SharedFormula;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.openl.rules.table.IGridRegion;
 
+@Slf4j
 public class StyleIndexHandler extends DefaultHandler {
-    private final Logger log = LoggerFactory.getLogger(StyleIndexHandler.class);
 
     private final IGridRegion tableRegion;
     private final int[][] cellIndexes;

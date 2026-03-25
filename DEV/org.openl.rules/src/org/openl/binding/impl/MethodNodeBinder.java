@@ -3,8 +3,7 @@ package org.openl.binding.impl;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -32,9 +31,9 @@ import org.openl.types.IOpenMethod;
 /**
  * @author snshor, Yury Molchan
  */
+@Slf4j
 public class MethodNodeBinder extends ANodeBinder {
 
-    private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
     protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
         if (methodCaller instanceof MultiCallOpenMethod multiCall && isParallel(multiCall.getSourceMethod())) {

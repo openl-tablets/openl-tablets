@@ -10,8 +10,7 @@ import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
@@ -35,9 +34,9 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class OpenApiGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenApiGenerator.class);
 
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
@@ -91,7 +90,7 @@ public class OpenApiGenerator {
             try (var stream = Files.newInputStream(deployXmlPath)){
                 return RULES_DEPLOY_XML_SERIALIZER.deserialize(stream);
             } catch (IOException | JAXBException e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
         }
         return null;

@@ -6,8 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link NicePrinterAdaptor} for the beans. It will prints the bean by "toString()" method if it specified and will
@@ -15,8 +14,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau
  */
+@Slf4j
 public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
-    private static final Logger LOG = LoggerFactory.getLogger(BeanNicePrinterAdaptor.class);
     private static final Object[] EMPTY = new Object[0];
 
     @Override
@@ -35,7 +34,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
         try {
             propertyDescriptors = Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors();
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return Collections.emptyMap();
         }
         Map<String, Object> fieldMap = new HashMap<>();
@@ -47,7 +46,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
                     fieldMap.put(propertyName, propertyValue);
                 }
             } catch (Exception e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
         }
         return fieldMap;

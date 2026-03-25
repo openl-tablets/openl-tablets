@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,9 @@ import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolve
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Service
+@Slf4j
 public class ProjectDependencyResolverImpl implements ProjectDependencyResolver {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectDependencyResolverImpl.class);
 
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
 

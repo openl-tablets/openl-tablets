@@ -7,8 +7,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.IDomain;
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -20,8 +19,8 @@ import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
-    private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
 
     public SimpleParameterTreeNode(String fieldName,
                                    Object value,

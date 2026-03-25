@@ -28,8 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -51,9 +50,9 @@ import org.openl.util.ZipUtils;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class RulesDeployerService implements Closeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RulesDeployerService.class);
 
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
@@ -133,7 +132,7 @@ public class RulesDeployerService implements Closeable {
             deployRepo.validateConnection();
             return true;
         } catch (Exception e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
             return false;
         }
     }
@@ -272,7 +271,7 @@ public class RulesDeployerService implements Closeable {
 
         if (deployRepo.supports().folders()) {
             if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
-                LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+                log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
                 return;
             }
             BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);
@@ -346,7 +345,7 @@ public class RulesDeployerService implements Closeable {
             try (InputStream in = Files.newInputStream(f)) {
                 return DeploymentUtils.getProjectName(in);
             } catch (IOException e) {
-                LOG.debug(e.getMessage(), e);
+                log.debug(e.getMessage(), e);
                 return null;
             }
         }).orElse(null);
@@ -385,7 +384,7 @@ public class RulesDeployerService implements Closeable {
                         .filter(StringUtils::isNotBlank)
                         .orElse(null);
             } catch (IOException e) {
-                LOG.debug(e.getMessage(), e);
+                log.debug(e.getMessage(), e);
                 return null;
             }
         }
@@ -402,7 +401,7 @@ public class RulesDeployerService implements Closeable {
                     try (InputStream in = Files.newInputStream(f)) {
                         return DeploymentUtils.getApiVersion(in);
                     } catch (IOException e) {
-                        LOG.debug(e.getMessage(), e);
+                        log.debug(e.getMessage(), e);
                         return null;
                     }
                 })
@@ -413,7 +412,7 @@ public class RulesDeployerService implements Closeable {
         }
 
         if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
-            LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+            log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
             return Optional.empty();
         }
         FileData dest = new FileData();
@@ -453,7 +452,7 @@ public class RulesDeployerService implements Closeable {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
         }
     }
 
@@ -468,12 +467,12 @@ public class RulesDeployerService implements Closeable {
                         return Files.isRegularFile(file) && FileTypeHelper.isExcelFile(file.getFileName().toString());
                     }
                 } catch (IOException e) {
-                    LOG.debug(e.getMessage(), e);
+                    log.debug(e.getMessage(), e);
                 }
                 return false;
             });
         } catch (IOException e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
             return false;
         }
     }

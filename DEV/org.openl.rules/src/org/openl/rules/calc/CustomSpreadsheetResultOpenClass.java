@@ -22,9 +22,8 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -49,8 +48,8 @@ import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
+@Slf4j
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleSpecificType {
-    private final Logger log = LoggerFactory.getLogger(CustomSpreadsheetResultOpenClass.class);
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
     private static final String[][] EMPTY_DESCRIPTIONS_ARRAY = new String[][]{};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
