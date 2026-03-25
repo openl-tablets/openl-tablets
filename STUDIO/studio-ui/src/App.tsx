@@ -28,7 +28,7 @@ function App() {
             // Initialize WebSocket connection for real-time notifications
             initializeWebSocket()
         }
-        
+
         return () => {
             // Clean up WebSocket connection when component unmounts or user logs out
             cleanupWebSocket()

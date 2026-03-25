@@ -38,7 +38,7 @@ export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps>
             ...options,
         ]
     }, [allSseAlgorithms, t])
-    
+
     return (
         <>
             <Input label={t('repository:service_endpoint')} name={['settings', 'serviceEndpoint']} />
