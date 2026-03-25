@@ -20,8 +20,7 @@ import jakarta.xml.bind.JAXBException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -69,11 +68,10 @@ import org.openl.util.StringUtils;
  *
  * <p>Replaces legacy module management logic from {@code ProjectBean} with a REST-friendly service layer.</p>
  */
+@Slf4j
 @Validated
 @Service
 public class ProjectModulesServiceImpl implements ProjectModulesService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectModulesServiceImpl.class);
 
     private final RepositoryAclService designRepositoryAclService;
     private final AclProjectsHelper aclProjectsHelper;
@@ -98,20 +96,21 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         return originalDescriptor.getModules().stream()
                 .map(originalModule -> {
                     if (projectDescriptorManager.isModuleWithWildcard(originalModule)) {
-                        var builder = mapModuleFields(new WildcardModuleView.Builder(), originalModule);
+                        var builder = WildcardModuleView.builder();
+                        applyModuleFields(builder, originalModule);
                         try {
                             var matchedModules = projectDescriptorManager.getAllModulesMatchingPathPattern(
                                     resolvedDescriptor, originalModule, originalModule.getRulesRootPath().getPath());
                             for (Module matched : matchedModules) {
-                                builder.addMatchedModule(mapBaseFields(new BaseModuleView.Builder(), matched).build());
+                                builder.matchedModule(toBaseModuleView(matched));
                             }
                         } catch (IOException e) {
-                            LOG.error("Failed to expand wildcard module pattern '{}'",
+                            log.error("Failed to expand wildcard module pattern '{}'",
                                     originalModule.getRulesRootPath().getPath(), e);
                         }
                         return builder.build();
                     } else {
-                        return mapModuleFields(new ModuleView.Builder(), originalModule).build();
+                        return toModuleView(originalModule);
                     }
                 })
                 .sorted(Comparator.comparing(ModuleView::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
@@ -195,7 +194,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         cleanDescriptor(newDescriptor);
         saveDescriptor(project, newDescriptor);
 
-        return mapModuleFields(new ModuleView.Builder(), module).build();
+        return toModuleView(module);
     }
 
     @Override
@@ -231,7 +230,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         cleanDescriptor(newDescriptor);
         saveDescriptor(project, newDescriptor);
 
-        return mapModuleFields(new ModuleView.Builder(), module).build();
+        return toModuleView(module);
     }
 
     @Override
@@ -308,37 +307,27 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         return matched;
     }
 
-    /**
-     * Maps base module fields (name, path) from a domain {@link Module} to the given builder.
-     *
-     * @param builder the target builder
-     * @param module  the source domain module
-     * @param <T>     the builder type
-     * @return the same builder with base fields populated
-     */
-    private <T extends BaseModuleView.ABuilder<T>> T mapBaseFields(T builder, Module module) {
+    private BaseModuleView toBaseModuleView(Module module) {
         String path = module.getRulesRootPath() != null ? module.getRulesRootPath().getPath() : null;
-        return builder.name(module.getName()).path(path);
+        return BaseModuleView.builder().name(module.getName()).path(path).build();
     }
 
-    /**
-     * Maps module definition fields (name, path, methodFilter) from a domain {@link Module}
-     * to the given builder.
-     *
-     * @param builder the target builder (either {@link ModuleView.Builder} or {@link WildcardModuleView.Builder})
-     * @param module  the source domain module
-     * @param <T>     the builder type
-     * @return the same builder with fields populated
-     */
-    private <T extends ModuleView.ABuilder<T>> T mapModuleFields(T builder, Module module) {
-        mapBaseFields(builder, module);
+    private ModuleView toModuleView(Module module) {
+        var builder = ModuleView.builder();
+        applyModuleFields(builder, module);
+        return builder.build();
+    }
+
+    private void applyModuleFields(ModuleView.ModuleViewBuilder<?, ?> builder, Module module) {
+        String path = module.getRulesRootPath() != null ? module.getRulesRootPath().getPath() : null;
+        builder.name(module.getName()).path(path);
         if (module.getMethodFilter() != null) {
+            var filter = module.getMethodFilter();
             builder.methodFilter(MethodFilterView.builder()
-                    .includes(module.getMethodFilter().getIncludes())
-                    .excludes(module.getMethodFilter().getExcludes())
+                    .includes(filter.getIncludes() != null ? List.copyOf(filter.getIncludes()) : null)
+                    .excludes(filter.getExcludes() != null ? List.copyOf(filter.getExcludes()) : null)
                     .build());
         }
-        return builder;
     }
 
     /**
@@ -779,7 +768,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         } catch (FileNotFoundException ignored) {
             return descriptor;
         } catch (IOException | ValidationException | JAXBException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return descriptor;
         }
     }
