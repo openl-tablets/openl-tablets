@@ -59,18 +59,18 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const checkHasUnsavedChanges = (): boolean => {
         // If editing a new repository, always consider it as having unsaved changes
         if (isEditingNewRepository) return true
-        
+
         // If no active repository or still loading configuration, no changes to track
         if (!activeRepository || isConfigurationLoading) return false
-        
+
         // Get current form values
         const current = form.getFieldsValue(true) as Record<string, unknown>
-        
+
         // If form is empty (not yet initialized), don't consider it as having changes
         if (!current || Object.keys(current).length === 0) {
             return false
         }
-        
+
         // Critical check: verify that form ID matches activeRepository ID
         // This prevents false positives when switching between repositories where form
         // may still have values from previous repository before syncing with new one
@@ -81,31 +81,31 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             // This means we're in the middle of switching repositories
             return false
         }
-        
+
         // If form is not initialized yet, don't consider it as having changes
         // This prevents false positives when switching between repositories or tabs
         // The form may still be syncing with the new repository data
         if (!isFormInitialized) {
             return false
         }
-        
+
         // Use the last synced repository ref for comparison if available
         // This prevents false positives when switching between repositories
         const repositoryToCompare = lastSyncedRepositoryRef.current || activeRepository
-        
+
         // Verify that we're comparing the same repository
         if (repositoryToCompare.id !== activeRepository.id) {
             // We're comparing different repositories, don't consider it as having changes
             return false
         }
-        
+
         // Critical check: verify form is actually synced with repository
         // This is the key check to prevent false positives when switching tabs
         // For Deployment repositories, this is especially important due to mainBranchOnly field
         // For sensitive fields like settings.password, isFormValuesEqual handles automatic
         // changes from InputPassword component (undefined vs saved encrypted value)
         const isFormSynced = isFormValuesEqual(current, repositoryToCompare as unknown as Record<string, unknown>)
-        
+
         if (isFormSynced) {
             // Form is synced with repository, no changes
             // Update last synced repository ref if needed
@@ -114,7 +114,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             }
             return false
         }
-        
+
         // Form values differ from repository AND form is initialized AND IDs match
         // This means user has actually made changes
         return true
@@ -135,7 +135,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         })
         // Set the repository values
         form.setFieldsValue(selectedRepository)
-        
+
         // Mark form as initialized after verifying form is synced with repository
         // Use double requestAnimationFrame to ensure form values are fully set
         const rafId1 = requestAnimationFrame(() => {
@@ -208,10 +208,10 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         // Cancel any pending RAFs before scheduling new ones
         rafIdsRef.current.forEach(id => cancelAnimationFrame(id))
         rafIdsRef.current = []
-        
+
         // Reset initialization flag when configuration changes (component remounts or config updates)
         setIsFormInitialized(false)
-        
+
         if (initialConfiguration && Array.isArray(initialConfiguration) && initialConfiguration.length > 0) {
             let selectedRepository
             if (activeKey) {
@@ -232,7 +232,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             setIsEditingNewRepository(false)
             onEditingStateChange?.(false)
         }
-        
+
         // Cleanup: cancel all pending RAFs on unmount or when dependencies change
         return () => {
             rafIdsRef.current.forEach(id => cancelAnimationFrame(id))
@@ -313,7 +313,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         // Cancel any pending RAFs before scheduling new ones
         rafIdsRef.current.forEach(id => cancelAnimationFrame(id))
         rafIdsRef.current = []
-        
+
         setActiveKey(key)
         const selectedRepository = configuration.find(repo => repo.id === key)
         if (!selectedRepository) {
@@ -343,7 +343,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         // Cancel any pending RAFs before scheduling new ones
         rafIdsRef.current.forEach(id => cancelAnimationFrame(id))
         rafIdsRef.current = []
-        
+
         setIsLoadingForm(true)
         // Allow React to render the spinner
         const rafId = requestAnimationFrame(() => {
@@ -359,19 +359,19 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     const onChangeTab = (key: string) => {
         // Only check for changes if we're actually switching to a different repository
         const isSwitchingRepository = key !== activeKey
-        
+
         if (!isSwitchingRepository) {
             // Same repository, no need to check
             return
         }
-        
+
         // Check for unsaved changes using shared logic
         // This will return false if:
         // - Form is not initialized yet
         // - Form ID doesn't match activeRepository ID
         // - Form is synced with repository (including handling of sensitive fields like settings.password)
         const hasChanges = checkHasUnsavedChanges()
-        
+
         if (hasChanges || tabType === 'card') {
             Modal.confirm({
                 title: t('repository:confirm_leave_without_saving'),

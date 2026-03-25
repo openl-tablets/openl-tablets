@@ -55,7 +55,7 @@ export const Header = () => {
     const Notify = useMemo(() => {
         // Show WebSocket message if available, otherwise show store notification
         const messageToShow = lastWsMessage || notification
-        
+
         if (messageToShow) {
             return (<Alert
                 key={messageToShow}

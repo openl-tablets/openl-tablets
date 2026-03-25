@@ -24,7 +24,7 @@ export const isEqual = (value1: any, value2: any): boolean => {
     if (value1 === value2) return true
     if (value1 == null && value2 == null) return true
     if (value1 == null || value2 == null) return false
-    
+
     // Handle arrays
     if (Array.isArray(value1) && Array.isArray(value2)) {
         if (value1.length !== value2.length) return false
@@ -35,25 +35,25 @@ export const isEqual = (value1: any, value2: any): boolean => {
         }
         return true
     }
-    
+
     // Handle objects (non-arrays)
     if (typeof value1 === 'object' && typeof value2 === 'object') {
         const keys1 = Object.keys(value1)
         const keys2 = Object.keys(value2)
-        
+
         // Get all unique keys from both objects
         const allKeys = new Set([...keys1, ...keys2])
-        
+
         // Compare each key
         for (const key of allKeys) {
             if (!isEqual(value1[key], value2[key])) {
                 return false
             }
         }
-        
+
         return true
     }
-    
+
     return false
 }
 
@@ -69,15 +69,15 @@ export const useIsFormChanged = ({ form, initialValues }: UseIsFormChangedProps)
 
         // Get current values
         const currentValues = form.getFieldsValue()
-        
+
         // Check each field that exists in initial values
         const hasChanges = Object.keys(initialValues).some(fieldKey => {
             const currentValue = currentValues[fieldKey]
             const initialValue = initialValues[fieldKey]
-            
+
             return !isEqual(currentValue, initialValue)
         })
-        
+
         // Also check if any new fields (like password) have actual values
         const newFieldChanges = Object.keys(currentValues).some(fieldKey => {
             if (!(fieldKey in initialValues)) {

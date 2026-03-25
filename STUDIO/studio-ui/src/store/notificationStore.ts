@@ -26,7 +26,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     },
     initializeWebSocket: () => {
         const { isWebSocketConnected } = get()
-        
+
         if (isWebSocketConnected) {
             return // Already initialized
         }
@@ -54,7 +54,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     },
     cleanupWebSocket: () => {
         const { isWebSocketConnected } = get()
-        
+
         if (isWebSocketConnected) {
             // Unsubscribe from all notification topics
             const subscriptions = webSocketService.getSubscriptions()
@@ -63,7 +63,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
                     webSocketService.unsubscribe(sub.id)
                 }
             })
-            
+
             set({ isWebSocketConnected: false })
         }
     }
