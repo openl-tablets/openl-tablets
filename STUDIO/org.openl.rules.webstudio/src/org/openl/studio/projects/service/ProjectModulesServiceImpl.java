@@ -114,7 +114,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                         return mapModuleFields(new ModuleView.Builder(), originalModule).build();
                     }
                 })
-                .sorted(Comparator.comparing(ModuleView::getName, String.CASE_INSENSITIVE_ORDER))
+                .sorted(Comparator.comparing(ModuleView::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .toList();
     }
 
@@ -584,31 +584,40 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             throw new BadRequestException("cannot.be.empty.message");
         }
 
-        // For non-wildcard paths, the file must exist (unless createFile is requested)
-        if (!(path.contains("*") || path.contains("?"))) {
-            Path moduleFile = resolvedDescriptor.getProjectFolder().resolve(path);
-            if (createFile) {
-                if (Files.exists(moduleFile)) {
-                    throw new ConflictException("module.file.exists.message");
-                }
-            } else if (!Files.exists(moduleFile)) {
-                throw new NotFoundException("module.file.not.found.message");
-            }
-        }
+        validateFileExistence(path, resolvedDescriptor.getProjectFolder(), createFile);
 
         String relativePath = path.replace("\\", "/");
+        checkPathConflicts(relativePath, resolvedDescriptor, selfModuleName);
+    }
 
+    private static void validateFileExistence(String path, Path projectFolder, boolean createFile) {
+        if (path.contains("*") || path.contains("?")) {
+            return;
+        }
+        Path moduleFile = projectFolder.resolve(path);
+        if (createFile && Files.exists(moduleFile)) {
+            throw new ConflictException("module.file.exists.message");
+        }
+        if (!createFile && !Files.exists(moduleFile)) {
+            throw new NotFoundException("module.file.not.found.message");
+        }
+    }
+
+    private void checkPathConflicts(String relativePath,
+                                    ProjectDescriptor resolvedDescriptor,
+                                    String selfModuleName) {
         for (Module m : resolvedDescriptor.getModules()) {
             String existingPath = m.getRulesRootPath() != null ? m.getRulesRootPath().getPath() : null;
             boolean isSelf = selfModuleName != null && Objects.equals(selfModuleName, m.getName());
-            if (!isSelf && existingPath != null) {
-                // Exact path match or wildcard overlap
-                if (Objects.equals(existingPath, relativePath)
-                        || projectDescriptorManager.isModuleWithWildcard(m) && FileUtils.pathMatches(existingPath, relativePath)) {
-                    throw new ConflictException("module.path.conflict.message");
-                }
+            if (!isSelf && existingPath != null && isPathConflict(existingPath, relativePath, m)) {
+                throw new ConflictException("module.path.conflict.message");
             }
         }
+    }
+
+    private boolean isPathConflict(String existingPath, String relativePath, Module module) {
+        return Objects.equals(existingPath, relativePath)
+                || projectDescriptorManager.isModuleWithWildcard(module) && FileUtils.pathMatches(existingPath, relativePath);
     }
 
     /**
@@ -869,9 +878,9 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
             }
         } catch (ValidationException e) {
-            throw new BadRequestException("module.copy.failed.message");
+            throw new BadRequestException("module.save.validation.failed.message");
         } catch (Exception e) {
-            throw new ConflictException("module.copy.failed.message");
+            throw new ConflictException("module.save.failed.message");
         }
     }
 }

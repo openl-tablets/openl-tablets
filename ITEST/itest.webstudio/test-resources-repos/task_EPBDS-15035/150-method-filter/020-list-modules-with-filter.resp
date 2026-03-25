@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Main",
+    "path": "Main.xlsx",
+    "methodFilter": {
+      "includes": ["Hello*"],
+      "excludes": ["HelloInternal*"]
+    }
+  },
+  {
+    "name": "MainTests",
+    "path": "MainTests.xlsx"
+  }
+]

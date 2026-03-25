@@ -1,0 +1,6 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "path": "rules/*.xlsx"
+}

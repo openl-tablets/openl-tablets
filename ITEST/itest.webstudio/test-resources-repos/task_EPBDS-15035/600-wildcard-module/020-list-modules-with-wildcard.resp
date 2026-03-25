@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Main-CW",
+    "path": "Main.xlsx"
+  },
+  {
+    "name": "MainTests",
+    "path": "MainTests.xlsx"
+  },
+  {
+    "path": "rules/*.xlsx",
+    "matchedModules": []
+  }
+]
