@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 
 /**
  * Response DTO containing detailed information about merge conflicts.
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @param baseRevision revision details for common ancestor (base)
  * @param defaultMessage default merge commit message
  */
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ConflictDetailsResponse(
         List<ConflictGroup> conflictGroups,
@@ -24,56 +26,6 @@ public record ConflictDetailsResponse(
         RevisionDetails baseRevision,
         String defaultMessage
 ) {
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private List<ConflictGroup> conflictGroups;
-        private RevisionDetails oursRevision;
-        private RevisionDetails theirsRevision;
-        private RevisionDetails baseRevision;
-        private String defaultMessage;
-
-        private Builder() {
-        }
-
-        public Builder conflictGroups(List<ConflictGroup> conflictGroups) {
-            this.conflictGroups = conflictGroups;
-            return this;
-        }
-
-        public Builder oursRevision(RevisionDetails oursRevision) {
-            this.oursRevision = oursRevision;
-            return this;
-        }
-
-        public Builder theirsRevision(RevisionDetails theirsRevision) {
-            this.theirsRevision = theirsRevision;
-            return this;
-        }
-
-        public Builder baseRevision(RevisionDetails baseRevision) {
-            this.baseRevision = baseRevision;
-            return this;
-        }
-
-        public Builder defaultMessage(String defaultMessage) {
-            this.defaultMessage = defaultMessage;
-            return this;
-        }
-
-        public ConflictDetailsResponse build() {
-            return new ConflictDetailsResponse(
-                    conflictGroups,
-                    oursRevision,
-                    theirsRevision,
-                    baseRevision,
-                    defaultMessage
-            );
-        }
-    }
 
     /**
      * Details about a specific revision/commit.
@@ -84,6 +36,7 @@ public record ConflictDetailsResponse(
      * @param modifiedAt modification timestamp
      * @param exists whether this revision exists (file may not exist in all revisions)
      */
+    @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RevisionDetails(
             String commit,
@@ -92,50 +45,6 @@ public record ConflictDetailsResponse(
             Instant modifiedAt,
             boolean exists
     ) {
-
-        public static RevisionBuilder builder() {
-            return new RevisionBuilder();
-        }
-
-        public static class RevisionBuilder {
-            private String commit;
-            private String branch;
-            private String author;
-            private Instant modifiedAt;
-            private boolean exists = true;
-
-            private RevisionBuilder() {
-            }
-
-            public RevisionBuilder commit(String commit) {
-                this.commit = commit;
-                return this;
-            }
-
-            public RevisionBuilder branch(String branch) {
-                this.branch = branch;
-                return this;
-            }
-
-            public RevisionBuilder author(String author) {
-                this.author = author;
-                return this;
-            }
-
-            public RevisionBuilder modifiedAt(Instant modifiedAt) {
-                this.modifiedAt = modifiedAt;
-                return this;
-            }
-
-            public RevisionBuilder exists(boolean exists) {
-                this.exists = exists;
-                return this;
-            }
-
-            public RevisionDetails build() {
-                return new RevisionDetails(commit, branch, author, modifiedAt, exists);
-            }
-        }
 
         /**
          * Creates a RevisionDetails for a non-existent revision.

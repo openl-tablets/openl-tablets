@@ -1,12 +1,10 @@
 package org.openl.studio.projects.service;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Singular;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -16,7 +14,7 @@ import org.openl.studio.projects.model.ProjectIdModel;
  *
  * @author Vladyslav Pikus
  */
-@JsonDeserialize(builder = ProjectCriteriaQuery.Builder.class)
+@Builder
 public record ProjectCriteriaQuery(
         @Schema(description = "Identifier of the repository to filter projects by.")
         String repositoryId,
@@ -28,64 +26,14 @@ public record ProjectCriteriaQuery(
         ProjectIdModel dependsOn,
 
         @Schema(description = "Set of tags to filter projects by.")
+        @Singular
         Map<String, String> tags,
 
         @Schema(description = "Project name to filter by (partial match, case-insensitive).")
         String name
 ) {
 
-    private ProjectCriteriaQuery(Builder builder) {
-        this(builder.repositoryId,
-                builder.status,
-                builder.dependsOn,
-                Map.copyOf(builder.tags),
-                builder.name);
-    }
-
-    @JsonCreator
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder {
-
-        private String repositoryId;
-        private ProjectStatus status;
-        private ProjectIdModel dependsOn;
-        private final Map<String, String> tags = new HashMap<>();
-        private String name;
-
-        private Builder() {
-        }
-
-        public Builder repositoryId(String repositoryId) {
-            this.repositoryId = repositoryId;
-            return this;
-        }
-
-        public Builder status(ProjectStatus status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder dependsOn(ProjectIdModel dependsOn) {
-            this.dependsOn = dependsOn;
-            return this;
-        }
-
-        public Builder tag(String type, String name) {
-            tags.put(type, name);
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public ProjectCriteriaQuery build() {
-            return new ProjectCriteriaQuery(this);
-        }
+    public ProjectCriteriaQuery {
+        tags = tags != null ? Map.copyOf(tags) : Map.of();
     }
 }

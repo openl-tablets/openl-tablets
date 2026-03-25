@@ -125,7 +125,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
                 if (colspan > 1 || rowspan > 1) {
                     // This is a merged cell origin with explicit colspan/rowspan
-                    rawCell = RawTableCell.withSpan(value, colspan, rowspan);
+                    rawCell = new RawTableCell(value, colspan, rowspan);
 
                     // Mark spanned cells as covered
                     for (int r = row; r < row + rowspan && r < height; r++) {
@@ -137,7 +137,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                     }
                 } else {
                     // Simple cell without merging
-                    rawCell = RawTableCell.simple(value);
+                    rawCell = new RawTableCell(value);
                 }
                 rowCells.add(rawCell);
             }

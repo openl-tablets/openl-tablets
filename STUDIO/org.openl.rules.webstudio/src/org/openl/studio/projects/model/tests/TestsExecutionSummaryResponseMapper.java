@@ -68,7 +68,7 @@ public class TestsExecutionSummaryResponseMapper {
 
         testCase.getFilteredTestUnits(query.failedOnly(), query.failures()).stream()
                 .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit))
-                .forEach(builder::putTestUnit);
+                .forEach(builder::testUnit);
         return builder.build();
     }
 
@@ -85,10 +85,8 @@ public class TestsExecutionSummaryResponseMapper {
                 ? testCase.getTestErrorColumnDisplayNames()
                 : testCase.getTestResultColumnDisplayNames();
         IntStream.range(0, results.size())
-                .mapToObj(i -> mapToTestAssertionResult(results.get(i))
-                        .description(resultColumnNames[i])
-                        .build())
-                .forEach(builder::putTestAssertion);
+                .mapToObj(i -> mapToTestAssertionResult(results.get(i), resultColumnNames[i]))
+                .forEach(builder::testAssertion);
 
         // Map execution parameters
         var executionParams = testUnit.getTest().getExecutionParams();
@@ -101,7 +99,7 @@ public class TestsExecutionSummaryResponseMapper {
                     .schema(schemaGenerator.generateSchema(executionParam.getType().getInstanceClass()))
                     .description(executionParamNames[i])
                     .build();
-        }).forEach(builder::putParameter);
+        }).forEach(builder::parameter);
 
         // Map context parameters
         var contextParams = testUnit.getContextParams(testCase);
@@ -113,20 +111,22 @@ public class TestsExecutionSummaryResponseMapper {
                     .value(objectMapper.valueToTree(contextParam.getValue()))
                     .description(contextParamNames[i])
                     .build();
-        }).forEach(builder::putContextParameter);
+        }).forEach(builder::contextParameter);
 
         testUnit.getErrors().stream()
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
                 .sorted(Comparator.comparing(MessageDescription::severity).thenComparing(MessageDescription::id))
-                .forEach(builder::putErrorMessage);
+                .forEach(builder::error);
 
         return builder.build();
     }
 
-    private TestAssertionExecutionResult.Builder mapToTestAssertionResult(ComparedResult assertion) {
+    private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion, String description) {
         return TestAssertionExecutionResult.builder()
                 .status(assertion.getStatus())
                 .actualValue(objectMapper.valueToTree(assertion.getActualValue()))
-                .expectedValue(objectMapper.valueToTree(assertion.getExpectedValue()));
+                .expectedValue(objectMapper.valueToTree(assertion.getExpectedValue()))
+                .description(description)
+                .build();
     }
 }
