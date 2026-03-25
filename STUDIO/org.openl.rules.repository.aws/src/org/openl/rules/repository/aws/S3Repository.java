@@ -22,24 +22,12 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
-import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteMarkerEntry;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
-import software.amazon.awssdk.services.s3.model.GetBucketVersioningRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.ObjectVersion;
-import software.amazon.awssdk.services.s3.model.PutBucketVersioningRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.VersioningConfiguration;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -135,21 +123,18 @@ public class S3Repository implements Repository, Closeable {
 
         try {
             try {
-                s3.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+                s3.headBucket(it -> it.bucket(bucketName));
             } catch (NoSuchBucketException e) {
                 log.debug(e.getMessage(), e);
                 // If the bucket does not exist, create it
-                s3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+                s3.createBucket(it -> it.bucket(bucketName));
             }
             try {
-                var verResp = s3.getBucketVersioning(GetBucketVersioningRequest.builder().bucket(bucketName).build());
+                var verResp = s3.getBucketVersioning(it -> it.bucket(bucketName));
                 if (BucketVersioningStatus.ENABLED != verResp.status()) {
                     try {
-                        s3.putBucketVersioning(PutBucketVersioningRequest.builder()
-                                .bucket(bucketName)
-                                .versioningConfiguration(
-                                        VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
-                                .build());
+                        s3.putBucketVersioning(it -> it.bucket(bucketName)
+                                .versioningConfiguration(s -> s.status(BucketVersioningStatus.ENABLED)));
                     } catch (S3Exception | SdkClientException e) {
                         // Possibly don't have permission
                         log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
@@ -172,12 +157,12 @@ public class S3Repository implements Repository, Closeable {
     public void validateConnection() throws IOException {
         try {
             // Check the connection
-            s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucketName).build());
+            s3.listObjectsV2(it -> it.bucket(bucketName));
         } catch (Exception e) {
             throw new IOException(e);
         }
         try {
-            var verResp = s3.getBucketVersioning(GetBucketVersioningRequest.builder().bucket(bucketName).build());
+            var verResp = s3.getBucketVersioning(it -> it.bucket(bucketName));
             if (!BucketVersioningStatus.ENABLED.equals(verResp.status())) {
                 throw new IOException("Versioning for the bucket is not enabled");
             }
@@ -301,8 +286,7 @@ public class S3Repository implements Repository, Closeable {
     }
 
     private InputStream doRead(String name, String versionId) {
-        var request = GetObjectRequest.builder().bucket(bucketName).key(name).versionId(versionId).build();
-        return s3.getObject(request);
+        return s3.getObject(it -> it.bucket(bucketName).key(name).versionId(versionId));
     }
 
     @Override
@@ -317,13 +301,9 @@ public class S3Repository implements Repository, Closeable {
     }
 
     private void doSave(FileData data, InputStream stream) {
-        var request = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(data.getName())
-                .metadata(createInsertFileMetadata(data))
-                .build();
 
-        s3.putObject(request, RequestBody.fromInputStream(stream, data.getSize()));
+        s3.putObject(it -> it.bucket(bucketName).key(data.getName()).metadata(createInsertFileMetadata(data)),
+                RequestBody.fromInputStream(stream, data.getSize()));
     }
 
     private Map<String, String> createInsertFileMetadata(FileData data) {
@@ -367,8 +347,7 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public boolean delete(FileData data) throws IOException {
         try {
-            var request = DeleteObjectRequest.builder().bucket(bucketName).key(data.getName()).build();
-            s3.deleteObject(request);
+            s3.deleteObject(it -> it.bucket(bucketName).key(data.getName()));
             onModified();
             return true;
         } catch (SdkClientException e) {
@@ -384,8 +363,7 @@ public class S3Repository implements Repository, Closeable {
         }
         for (FileData f : data) {
             try {
-                var request = DeleteObjectRequest.builder().bucket(bucketName).key(f.getName()).build();
-                s3.deleteObject(request);
+                s3.deleteObject(it -> it.bucket(bucketName).key(f.getName()));
             } catch (SdkClientException e) {
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
@@ -523,8 +501,7 @@ public class S3Repository implements Repository, Closeable {
             if (version == null) {
                 deleteAllVersions(name);
             } else {
-                var request = DeleteObjectRequest.builder().bucket(bucketName).key(name).versionId(version).build();
-                s3.deleteObject(request);
+                s3.deleteObject(it -> it.bucket(bucketName).key(name).versionId(version));
             }
             onModified();
             return true;
@@ -537,15 +514,12 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
-            var request = CopyObjectRequest.builder()
-                    .sourceBucket(bucketName)
+
+            var response = s3.copyObject(it -> it.sourceBucket(bucketName)
                     .sourceKey(srcName)
                     .sourceVersionId(version)
                     .destinationBucket(bucketName)
-                    .destinationKey(destData.getName())
-                    .build();
-
-            var response = s3.copyObject(request);
+                    .destinationKey(destData.getName()));
             onModified();
             return checkHistory(destData.getName(), response.versionId());
         } catch (SdkClientException e) {
@@ -583,12 +557,7 @@ public class S3Repository implements Repository, Closeable {
             metadataMap.put("sseAlgorithm", sseAlgorithm);
         }
 
-        var request = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(MODIFICATION_FILE)
-                .metadata(metadataMap)
-                .build();
-        s3.putObject(request, RequestBody.empty());
+        s3.putObject(it -> it.bucket(bucketName).key(MODIFICATION_FILE).metadata(metadataMap), RequestBody.empty());
 
         // Invoke listener if exist
         if (monitor != null) {
@@ -613,11 +582,7 @@ public class S3Repository implements Repository, Closeable {
                 }
             }
             if (!versions.isEmpty()) {
-                var batchDeleteRequest = DeleteObjectsRequest.builder()
-                        .bucket(bucketName)
-                        .delete(Delete.builder().objects(versions).build())
-                        .build();
-                s3.deleteObjects(batchDeleteRequest);
+                s3.deleteObjects(it -> it.bucket(bucketName).delete(d -> d.objects(versions)));
             }
 
             if (response.isTruncated()) {
