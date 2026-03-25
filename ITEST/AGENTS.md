@@ -10,7 +10,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.security** — Authentication/authorization tests
 - **itest.webstudio** — OpenL Studio E2E tests
 - **itest.kafka.smoke** — Kafka integration
-- **itest.minio** — S3/MinIO storage
+- **itest.s3** — S3 storage
 - **itest.tracing** — OpenTelemetry
 - **itest.storelogdata** — Audit logging
 - **itest.healthchecks** — Health check endpoints

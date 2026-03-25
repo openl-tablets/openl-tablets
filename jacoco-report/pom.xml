@@ -381,7 +381,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.itest</groupId>
-            <artifactId>itest.minio</artifactId>
+            <artifactId>itest.s3</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>

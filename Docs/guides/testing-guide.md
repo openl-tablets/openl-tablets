@@ -128,20 +128,20 @@ org.openl.rules.example/
 
 OpenL Tablets has dedicated integration test modules in `/ITEST/`:
 
-| Module | Purpose |
-|--------|---------|
-| `itest.smoke` | Basic functionality smoke tests |
-| `itest.webstudio` | OpenL Studio integration tests |
-| `itest.security` | Security and authentication tests |
-| `itest.security` | authentication tests |
-| `itest.webservice` | REST API tests |
-| `itest.spring-boot` | Spring Boot integration tests |
-| `itest.kafka.smoke` | Kafka integration tests |
-| `itest.minio` | MinIO storage tests |
-| `itest.healthchecks` | Health check endpoint tests |
-| `itest.tracing` | OpenTelemetry tracing tests |
-| `itest.storelogdata` | Log storage tests |
-| `itest.deployment-filters` | Deployment filter tests |
+| Module                     | Purpose                           |
+|----------------------------|-----------------------------------|
+| `itest.smoke`              | Basic functionality smoke tests   |
+| `itest.webstudio`          | OpenL Studio integration tests    |
+| `itest.security`           | Security and authentication tests |
+| `itest.security`           | authentication tests              |
+| `itest.webservice`         | REST API tests                    |
+| `itest.spring-boot`        | Spring Boot integration tests     |
+| `itest.kafka.smoke`        | Kafka integration tests           |
+| `itest.s3`                 | S3 storage tests                  |
+| `itest.healthchecks`       | Health check endpoint tests       |
+| `itest.tracing`            | OpenTelemetry tracing tests       |
+| `itest.storelogdata`       | Log storage tests                 |
+| `itest.deployment-filters` | Deployment filter tests           |
 
 ### Test Naming Conventions
 

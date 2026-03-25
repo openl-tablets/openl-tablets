@@ -281,7 +281,7 @@ constrainer, annotations, util, gen, test
 - Security tests (SAML, CAS, JWT)
 - OpenL Studio tests
 - Kafka integration
-- Cloud storage (MinIO)
+- Cloud storage (S3)
 - Spring Boot integration
 - Health checks
 - Performance tests

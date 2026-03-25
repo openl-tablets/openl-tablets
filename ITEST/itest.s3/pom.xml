@@ -9,9 +9,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.minio</artifactId>
+    <artifactId>itest.s3</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - Minio</name>
+    <name>ITEST - S3</name>
     <url>https://openl-tablets.org</url>
 
     <properties>

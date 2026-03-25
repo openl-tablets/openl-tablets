@@ -37,7 +37,7 @@
         <module>itest.kafka.smoke</module>
         <module>itest.tracing</module>
         <module>itest.storelogdata</module>
-        <module>itest.minio</module>
+        <module>itest.s3</module>
     </modules>
 
     <dependencyManagement>

@@ -17,7 +17,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 
-public class AbstractMinioTest {
+public class AbstractS3Test {
 
     private static final S3MockContainer S3_CONTAINER = new S3MockContainer("latest");
 
