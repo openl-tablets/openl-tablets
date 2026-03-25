@@ -1,15 +1,5 @@
 package org.openl.ie.constrainer.consistencyChecking;
 
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- *
- * @author unascribed
- * @version 1.0
- */
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +16,15 @@ import org.openl.ie.constrainer.IntBoolExpConst;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;
 
+/**
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ *
+ * @author unascribed
+ * @version 1.0
+ */
 public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
         private final IntBoolExp[] _rules;

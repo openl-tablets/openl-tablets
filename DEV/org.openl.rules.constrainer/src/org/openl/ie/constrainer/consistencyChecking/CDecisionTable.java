@@ -1,5 +1,9 @@
 package org.openl.ie.constrainer.consistencyChecking;
 
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
+
 /**
  * <p>Title: </p>
  * <p>Description: Interface for gaining access to the data of the Decision Table.</p>
@@ -16,15 +20,10 @@ package org.openl.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntVar;
-
 public interface CDecisionTable {
 
     /**
-     * @param The number of rule to be returned (actually it is the number of the appropriate row from the data matrix).
+     * @param i the number of rule to be returned (actually it is the number of the appropriate row from the data matrix).
      *
      * @return the conjunction of all the constraints from the i'th row. Note: it should return not
      *         <b><code>null</code></b> for all decision table rows.
@@ -38,7 +37,7 @@ public interface CDecisionTable {
     IntBoolExp[] getRules();
 
     /**
-     * @param The number of variable to be returned.
+     * @param i the number of variable to be returned.
      *
      * @return the i'th variable.
      */
