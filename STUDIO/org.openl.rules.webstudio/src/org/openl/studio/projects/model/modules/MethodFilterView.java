@@ -34,6 +34,7 @@ public class MethodFilterView {
         private Collection<String> excludes;
 
         private Builder() {
+            // Created via MethodFilterView.builder()
         }
 
         public Builder includes(Collection<String> includes) {

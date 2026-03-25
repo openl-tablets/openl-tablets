@@ -46,6 +46,7 @@ public class BaseModuleView {
         private String path;
 
         protected ABuilder() {
+            // Created via concrete builder subclass
         }
 
         public T name(String name) {
@@ -67,6 +68,7 @@ public class BaseModuleView {
     public static class Builder extends ABuilder<Builder> {
 
         public Builder() {
+            // No fields to initialize; all set via fluent methods
         }
 
         @Override

@@ -1329,7 +1329,10 @@ Content-Type: application/json
             "type": "string",
             "description": "*"
           }
-        }
+        },
+        "required": [
+          "matchedModules"
+        ]
       },
       "BaseModuleView": {
         "type": "object",

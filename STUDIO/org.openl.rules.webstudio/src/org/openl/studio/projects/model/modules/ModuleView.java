@@ -37,6 +37,7 @@ public class ModuleView extends BaseModuleView {
         private MethodFilterView methodFilter;
 
         protected ABuilder() {
+            // Created via concrete builder subclass
         }
 
         public T methodFilter(MethodFilterView methodFilter) {
@@ -51,6 +52,7 @@ public class ModuleView extends BaseModuleView {
     public static class Builder extends ABuilder<Builder> {
 
         public Builder() {
+            // No fields to initialize; all set via fluent methods
         }
 
         @Override

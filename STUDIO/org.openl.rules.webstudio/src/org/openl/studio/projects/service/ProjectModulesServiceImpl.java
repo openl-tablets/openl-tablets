@@ -35,6 +35,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
@@ -246,49 +247,65 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         validateDescriptorPermissions(project, false);
 
         ProjectDescriptor newDescriptor = Cloner.clone(originalDescriptor);
-        List<Module> modules = newDescriptor.getModules();
-
-        Module removed = null;
-        for (int i = 0; i < modules.size(); i++) {
-            Module m = modules.get(i);
-            if (m.getName() != null && m.getName().equals(moduleName)) {
-                removed = modules.remove(i);
-                break;
-            }
-        }
+        Module removed = removeModuleByName(newDescriptor.getModules(), moduleName);
         if (removed == null) {
             throw new NotFoundException("module.not.found.message", moduleName);
         }
 
-        if (!keepFile) {
-            List<Module> modulesForRemoving = new ArrayList<>();
-            if (projectDescriptorManager.isModuleWithWildcard(removed)) {
-                for (Module m : resolvedDescriptor.getModules()) {
-                    if (m.getWildcardRulesRootPath() == null) {
-                        continue;
-                    }
-                    if (m.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
-                        validateDeletePermission(project, m);
-                        modulesForRemoving.add(m);
-                    }
-                }
-            } else {
-                validateDeletePermission(project, removed);
-                modulesForRemoving.add(removed);
-            }
-            modulesForRemoving.forEach(m -> deleteModuleFile(project, m));
-
-            if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                clearOpenApiReferencesOnRemove(newDescriptor, removed.getName());
-                cleanDescriptor(newDescriptor);
-                saveDescriptor(project, newDescriptor);
-            } else {
-                project.setModified();
-            }
-        } else {
+        if (keepFile) {
             cleanDescriptor(newDescriptor);
             saveDescriptor(project, newDescriptor);
+            return;
         }
+
+        deleteModuleFiles(project, resolvedDescriptor, removed);
+
+        if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            clearOpenApiReferencesOnRemove(newDescriptor, removed.getName());
+            cleanDescriptor(newDescriptor);
+            saveDescriptor(project, newDescriptor);
+        } else {
+            project.setModified();
+        }
+    }
+
+    private Module removeModuleByName(List<Module> modules, String moduleName) {
+        var it = modules.iterator();
+        while (it.hasNext()) {
+            Module m = it.next();
+            if (moduleName.equals(m.getName())) {
+                it.remove();
+                return m;
+            }
+        }
+        return null;
+    }
+
+    private void deleteModuleFiles(RulesProject project,
+                                   ProjectDescriptor resolvedDescriptor,
+                                   Module removed) {
+        List<Module> modulesForRemoving;
+        if (projectDescriptorManager.isModuleWithWildcard(removed)) {
+            modulesForRemoving = collectWildcardMatchedModules(project, resolvedDescriptor, removed);
+        } else {
+            validateDeletePermission(project, removed);
+            modulesForRemoving = List.of(removed);
+        }
+        modulesForRemoving.forEach(m -> deleteModuleFile(project, m));
+    }
+
+    private List<Module> collectWildcardMatchedModules(RulesProject project,
+                                                       ProjectDescriptor resolvedDescriptor,
+                                                       Module wildcardModule) {
+        String wildcardPath = wildcardModule.getRulesRootPath().getPath();
+        List<Module> matched = new ArrayList<>();
+        for (Module m : resolvedDescriptor.getModules()) {
+            if (wildcardPath.equals(m.getWildcardRulesRootPath())) {
+                validateDeletePermission(project, m);
+                matched.add(m);
+            }
+        }
+        return matched;
     }
 
     /**
@@ -477,9 +494,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             var out = new ByteArrayOutputStream();
             workbook.write(out);
             project.addResource(path, new ByteArrayInputStream(out.toByteArray()));
-        } catch (ProjectException e) {
-            throw new ConflictException("module.create.file.failed.message");
-        } catch (IOException e) {
+        } catch (ProjectException | IOException e) {
             throw new ConflictException("module.create.file.failed.message");
         }
     }
@@ -524,10 +539,8 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         toCheck.setRulesRootPath(new PathEntry(path));
         boolean withWildcard = projectDescriptorManager.isModuleWithWildcard(toCheck);
 
-        if (!withWildcard) {
-            if (StringUtils.isBlank(newName)) {
-                throw new BadRequestException("cannot.be.empty.message");
-            }
+        if (!withWildcard && StringUtils.isBlank(newName)) {
+            throw new BadRequestException("cannot.be.empty.message");
         }
 
         // If name unchanged in edit mode, skip further validation
@@ -586,23 +599,14 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         String relativePath = path.replace("\\", "/");
 
         for (Module m : resolvedDescriptor.getModules()) {
-            // Skip self in edit mode
-            if (selfModuleName != null && Objects.equals(selfModuleName, m.getName())) {
-                continue;
-            }
-
             String existingPath = m.getRulesRootPath() != null ? m.getRulesRootPath().getPath() : null;
-            if (existingPath == null) {
-                continue;
-            }
-
-            // Exact path match
-            if (Objects.equals(existingPath, relativePath)) {
-                throw new ConflictException("module.path.conflict.message");
-            }
-            // Wildcard overlap: existing module is wildcard AND new path matches the pattern
-            if (projectDescriptorManager.isModuleWithWildcard(m) && FileUtils.pathMatches(existingPath, relativePath)) {
-                throw new ConflictException("module.path.conflict.message");
+            boolean isSelf = selfModuleName != null && Objects.equals(selfModuleName, m.getName());
+            if (!isSelf && existingPath != null) {
+                // Exact path match or wildcard overlap
+                if (Objects.equals(existingPath, relativePath)
+                        || projectDescriptorManager.isModuleWithWildcard(m) && FileUtils.pathMatches(existingPath, relativePath)) {
+                    throw new ConflictException("module.path.conflict.message");
+                }
             }
         }
     }
@@ -789,18 +793,7 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
             descriptor.setDependencies(null);
         }
 
-        var openapi = descriptor.getOpenapi();
-        if (openapi != null) {
-            if (StringUtils.isBlank(openapi.getPath())) {
-                openapi.setPath(null);
-            }
-            if (StringUtils.isBlank(openapi.getAlgorithmModuleName())) {
-                openapi.setAlgorithmModuleName(null);
-            }
-            if (StringUtils.isBlank(openapi.getModelModuleName())) {
-                openapi.setModelModuleName(null);
-            }
-        }
+        cleanOpenApi(descriptor.getOpenapi());
 
         List<Module> modules = descriptor.getModules();
         if (CollectionUtils.isEmpty(modules)) {
@@ -809,29 +802,54 @@ public class ProjectModulesServiceImpl implements ProjectModulesService {
         }
 
         for (Module module : modules) {
-            PathEntry rulesRootPath = module.getRulesRootPath();
-            if (rulesRootPath != null) {
-                if (StringUtils.isNotBlank(rulesRootPath.getPath())) {
-                    rulesRootPath.setPath(rulesRootPath.getPath().replace("\\", "/"));
-                } else {
-                    module.setRulesRootPath(null);
-                }
-            }
-
-            var methodFilter = module.getMethodFilter();
-            if (methodFilter != null) {
-                if (CollectionUtils.isEmpty(methodFilter.getIncludes()) && CollectionUtils
-                        .isEmpty(methodFilter.getExcludes())) {
-                    module.setMethodFilter(null);
-                } else if (CollectionUtils.isEmpty(methodFilter.getIncludes())) {
-                    methodFilter.setIncludes(null);
-                } else if (CollectionUtils.isEmpty(methodFilter.getExcludes())) {
-                    methodFilter.setExcludes(null);
-                }
-            }
+            cleanModuleRulesPath(module);
+            cleanModuleMethodFilter(module);
         }
 
         descriptor.setProjectFolder(null);
+    }
+
+    private static void cleanOpenApi(OpenAPI openapi) {
+        if (openapi == null) {
+            return;
+        }
+        if (StringUtils.isBlank(openapi.getPath())) {
+            openapi.setPath(null);
+        }
+        if (StringUtils.isBlank(openapi.getAlgorithmModuleName())) {
+            openapi.setAlgorithmModuleName(null);
+        }
+        if (StringUtils.isBlank(openapi.getModelModuleName())) {
+            openapi.setModelModuleName(null);
+        }
+    }
+
+    private static void cleanModuleRulesPath(Module module) {
+        PathEntry rulesRootPath = module.getRulesRootPath();
+        if (rulesRootPath == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(rulesRootPath.getPath())) {
+            rulesRootPath.setPath(rulesRootPath.getPath().replace("\\", "/"));
+        } else {
+            module.setRulesRootPath(null);
+        }
+    }
+
+    private static void cleanModuleMethodFilter(Module module) {
+        var methodFilter = module.getMethodFilter();
+        if (methodFilter == null) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(methodFilter.getIncludes())) {
+            methodFilter.setIncludes(null);
+        }
+        if (CollectionUtils.isEmpty(methodFilter.getExcludes())) {
+            methodFilter.setExcludes(null);
+        }
+        if (methodFilter.getIncludes() == null && methodFilter.getExcludes() == null) {
+            module.setMethodFilter(null);
+        }
     }
 
     /**

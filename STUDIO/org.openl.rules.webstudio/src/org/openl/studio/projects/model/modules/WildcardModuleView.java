@@ -3,6 +3,8 @@ package org.openl.studio.projects.model.modules;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -21,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class WildcardModuleView extends ModuleView {
 
     @Schema(description = "Concrete modules matching the wildcard path pattern")
+    @NotNull
     public final List<BaseModuleView> matchedModules;
 
     private WildcardModuleView(Builder builder) {
@@ -36,6 +39,7 @@ public class WildcardModuleView extends ModuleView {
         private List<BaseModuleView> matchedModules;
 
         public Builder() {
+            // No fields to initialize; all set via fluent methods
         }
 
         public Builder addMatchedModule(BaseModuleView module) {
