@@ -15,7 +15,6 @@ public interface IDomain<T> extends Iterable<T> {
     IType getElementType();
 
     /**
-     * @param obj
      * @return true if object belongs to this domain
      */
     boolean selectObject(T obj);

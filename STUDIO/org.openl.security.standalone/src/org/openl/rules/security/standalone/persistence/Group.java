@@ -50,8 +50,6 @@ public class Group implements Serializable {
 
     /**
      * Group name.
-     *
-     * @return
      */
     @Column(length = 65, name = "groupName", unique = true, nullable = false)
     public String getName() {
@@ -60,8 +58,6 @@ public class Group implements Serializable {
 
     /**
      * Comma separated list of user's privileges.
-     *
-     * @return
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "OpenL_Group_Authorities", joinColumns = @JoinColumn(name = "groupID"))

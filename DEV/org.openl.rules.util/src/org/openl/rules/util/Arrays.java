@@ -175,7 +175,6 @@ public final class Arrays {
      * </code>
      *
      * @param array    the array to remove the element from, may be null
-     * @param elements
      * @return the element to be removed
      */
     public static <T, E extends T> T[] removeElement(T[] array, E... elements) {

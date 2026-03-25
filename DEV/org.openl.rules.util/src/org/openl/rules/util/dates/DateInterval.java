@@ -86,7 +86,6 @@ public abstract class DateInterval {
      *
      * @param start start date
      * @param end   end date
-     * @return
      */
     public static DateInterval between(Date start, Date end) {
         if (start == null || end == null) {
@@ -100,7 +99,6 @@ public abstract class DateInterval {
      *
      * @param start start date
      * @param end   end date
-     * @return
      */
     public static DateInterval between(Calendar start, Calendar end) {
         if (start == null || end == null) {

@@ -20,20 +20,16 @@ public interface IType extends INamedThing {
 
     /**
      * Provides type validation(usually by constraining type)
-     *
-     * @return
      */
     IDomain<?> getDomain();
 
     /**
-     * @param type
      * @return true if a type is specialization of more general this type if (T1.isAssignableFrom(T2) AND
      * T2.isInstance(x)) -> T1.isInstance(x)
      */
     boolean isAssignableFrom(IType type);
 
     /**
-     * @param obj
      * @return true if the object belongs to this type
      * <p>
      * Please note how it is similar to selector or domain methods

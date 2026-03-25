@@ -558,7 +558,6 @@ public final class Constrainer implements Serializable {
      * Throws Failure exception.
      *
      * @param s The diagnostic message.
-     * @throws Failure
      */
     public void fail(String s) throws Failure {
         _number_of_failures++;
