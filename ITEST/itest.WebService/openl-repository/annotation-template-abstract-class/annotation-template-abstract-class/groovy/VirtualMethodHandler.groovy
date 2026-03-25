@@ -1,8 +1,9 @@
-import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
+import java.lang.reflect.Method
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.lang.reflect.Method
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
 
 class VirtualMethodHandler implements ServiceExtraMethodHandler<Double> {
 

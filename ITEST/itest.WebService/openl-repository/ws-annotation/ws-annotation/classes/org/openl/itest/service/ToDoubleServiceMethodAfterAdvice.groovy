@@ -1,8 +1,8 @@
-package org.openl.itest.service;
+package org.openl.itest.service
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
+import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice
 
 class ToDoubleServiceMethodAfterAdvice extends AbstractServiceMethodAfterReturningAdvice<Double> {
     @Override

@@ -1,7 +1,7 @@
-import jakarta.ws.rs.core.HttpHeaders
 import java.lang.reflect.Method
+import jakarta.ws.rs.core.HttpHeaders
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice
 
 class BeforeInterceptor implements ServiceMethodBeforeAdvice {
 

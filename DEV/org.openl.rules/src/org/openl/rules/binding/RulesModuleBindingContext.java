@@ -34,7 +34,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -50,6 +49,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 /**
  * Binding context for xls rules.

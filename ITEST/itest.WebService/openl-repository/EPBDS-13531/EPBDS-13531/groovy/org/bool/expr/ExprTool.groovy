@@ -1,8 +1,12 @@
 package org.bool.expr
 
+import java.util.function.Supplier
+import java.util.stream.Collectors
+
 import com.bpodgursky.jbool_expressions.*
 import com.bpodgursky.jbool_expressions.rules.RuleSet
 import org.apache.commons.lang3.tuple.Triple
+
 import org.openl.binding.IBoundNode
 import org.openl.binding.impl.*
 import org.openl.rules.operator.*
@@ -13,9 +17,6 @@ import org.openl.types.IOpenClass
 import org.openl.types.IOpenMethod
 import org.openl.types.java.JavaOpenClass
 import org.openl.vm.SimpleRuntimeEnv
-
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
 /**
  *  Not covered cases:

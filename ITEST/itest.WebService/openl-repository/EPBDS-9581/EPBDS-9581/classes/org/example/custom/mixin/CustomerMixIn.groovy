@@ -1,14 +1,11 @@
-package org.example.custom.mixin;
+package org.example.custom.mixin
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
 
-import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.v3.oas.annotations.media.Schema;
+import org.openl.rules.ruleservice.databinding.annotation.MixInClass
 
 @MixInClass("org.openl.generated.beans.Customer")
 public abstract class CustomerMixIn {

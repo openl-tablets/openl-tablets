@@ -1,6 +1,6 @@
-import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice
-
 import java.lang.reflect.Method
+
+import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice
 
 class ToDoubleServiceMethodAfterAdvice extends AbstractServiceMethodAfterReturningAdvice<Double> {
     @Override

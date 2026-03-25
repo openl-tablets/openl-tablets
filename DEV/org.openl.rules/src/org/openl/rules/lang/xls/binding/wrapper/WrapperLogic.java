@@ -18,10 +18,9 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.runtime.IOpenLMethodHandler;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
+import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -31,6 +30,7 @@ import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 public final class WrapperLogic {
 

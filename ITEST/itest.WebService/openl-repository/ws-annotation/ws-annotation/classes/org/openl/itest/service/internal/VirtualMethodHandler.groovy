@@ -1,10 +1,11 @@
-package org.openl.itest.service.internal;
+package org.openl.itest.service.internal
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
 
 class VirtualMethodHandler implements ServiceExtraMethodHandler<Double> {
 

@@ -1,8 +1,8 @@
 package org.openl.rules.vm.ce;
 
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 public class SimpleRulesRuntimeEnvMT extends SimpleRuntimeEnv {
     private final SimpleRuntimeEnv delegate;

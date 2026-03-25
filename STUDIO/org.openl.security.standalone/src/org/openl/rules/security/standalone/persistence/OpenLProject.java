@@ -13,11 +13,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 /**
- * This class was used to store link between projects and associated tags in a database. After 5.27.8 associated tags 
+ * This class was used to store link between projects and associated tags in a database. After 5.27.8 associated tags
  * are stored in {@code tags.properties} file. This entity is still important to conduct migration to a new approach.
  * However, it should not be used outside of migration.
  * @deprecated Left for backward compatibility.

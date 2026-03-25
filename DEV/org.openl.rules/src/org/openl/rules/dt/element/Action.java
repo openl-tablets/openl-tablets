@@ -21,7 +21,6 @@ import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -38,6 +37,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
 

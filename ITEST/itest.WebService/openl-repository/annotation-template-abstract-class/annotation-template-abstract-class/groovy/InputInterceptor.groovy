@@ -1,6 +1,6 @@
 import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice
 
 class InputInterceptor implements ServiceMethodBeforeAdvice {
 

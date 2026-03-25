@@ -2,8 +2,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 abstract class AbstractContextPropertyInjector implements IContextPropertyInjection {
 

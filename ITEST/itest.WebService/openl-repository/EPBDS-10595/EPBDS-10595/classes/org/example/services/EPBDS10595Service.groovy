@@ -1,7 +1,7 @@
-package org.example.services;
+package org.example.services
 
-import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
-import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod
+import org.openl.rules.ruleservice.core.interceptors.RulesType
 
 public interface EPBDS10595Service {
     Double myRule(@RulesType("MyDatatype") Object inputParam);

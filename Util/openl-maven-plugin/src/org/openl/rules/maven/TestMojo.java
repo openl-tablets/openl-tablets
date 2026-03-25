@@ -43,7 +43,6 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.BaseTestUnit;

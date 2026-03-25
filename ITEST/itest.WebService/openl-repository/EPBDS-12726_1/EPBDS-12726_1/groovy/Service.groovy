@@ -1,10 +1,9 @@
-import org.openl.rules.calc.SpreadsheetResult
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.HttpHeaders
+
 import org.openl.rules.ruleservice.core.annotations.ExternalParam
 import org.openl.rules.ruleservice.core.annotations.Name
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor
-
-import jakarta.ws.rs.core.Context
-import jakarta.ws.rs.core.HttpHeaders
 
 interface Service {
     @ServiceCallBeforeInterceptor([BeforeInterceptor.class])

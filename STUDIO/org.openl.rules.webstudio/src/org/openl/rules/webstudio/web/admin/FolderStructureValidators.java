@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.IOException;
-
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 

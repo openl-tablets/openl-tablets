@@ -1,4 +1,4 @@
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
 import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice
 import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor

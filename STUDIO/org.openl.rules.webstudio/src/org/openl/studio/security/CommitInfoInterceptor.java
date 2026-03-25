@@ -1,10 +1,9 @@
 package org.openl.studio.security;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 

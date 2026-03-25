@@ -1,8 +1,8 @@
-package org.openl.itest.service.internal;
+package org.openl.itest.service.internal
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice
 
 class InputInterceptor implements ServiceMethodBeforeAdvice {
 

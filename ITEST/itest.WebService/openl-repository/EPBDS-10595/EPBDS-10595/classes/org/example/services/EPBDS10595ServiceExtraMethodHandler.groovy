@@ -1,8 +1,8 @@
-package org.example.services;
+package org.example.services
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
 
 public class EPBDS10595ServiceExtraMethodHandler implements ServiceExtraMethodHandler<Object> {
     @Override
