@@ -11,6 +11,7 @@ Content-Type: application/json
     "path": "MainTests.xlsx"
   },
   {
+    "name": "WildcardRules",
     "path": "rules/*.xlsx",
     "matchedModules": [
       {

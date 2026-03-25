@@ -3,5 +3,6 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
+  "name": "WildcardRules",
   "path": "rules/*.xlsx"
 }

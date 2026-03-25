@@ -9,10 +9,5 @@ Content-Type: application/json
   {
     "name": "MainTests",
     "path": "MainTests.xlsx"
-  },
-  {
-    "name": "WildcardRules",
-    "path": "rules/*.xlsx",
-    "matchedModules": []
   }
 ]

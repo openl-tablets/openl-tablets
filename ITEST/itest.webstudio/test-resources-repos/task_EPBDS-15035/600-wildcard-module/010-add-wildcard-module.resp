@@ -2,5 +2,6 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
+  "name": "WildcardRules",
   "path": "rules/*.xlsx"
 }
