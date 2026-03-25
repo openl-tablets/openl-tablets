@@ -96,7 +96,7 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
+                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
             }
         });
     }
@@ -122,7 +122,7 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
+                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
             }
         });
     }
@@ -205,7 +205,7 @@ public final class Var {
                 if (counter <= 1) {
                     return BigDecimal.ZERO;
                 }
-                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }
@@ -232,7 +232,7 @@ public final class Var {
                 if (counter <= 1) {
                     return BigDecimal.ZERO;
                 }
-                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }

@@ -93,9 +93,9 @@ public class Correl {
             return null;
         }
         BigDecimal covariance = sampleCovariance(inputStats);
-        BigDecimal deviationX = covariance == null || BigDecimal.ZERO.equals(covariance) ? null : stdevS(inputStats.x);
-        BigDecimal deviationY = deviationX == null || BigDecimal.ZERO.equals(deviationX) ? null : stdevS(inputStats.y);
-        return deviationY == null || BigDecimal.ZERO.equals(deviationY) ? null : covariance.divide(deviationX.multiply(deviationY), DECIMAL128);
+        BigDecimal deviationX = covariance == null || BigDecimal.ZERO.compareTo(covariance) == 0 ? null : stdevS(inputStats.x);
+        BigDecimal deviationY = deviationX == null || BigDecimal.ZERO.compareTo(deviationX) == 0 ? null : stdevS(inputStats.y);
+        return deviationY == null || BigDecimal.ZERO.compareTo(deviationY) == 0 ? null : covariance.divide(deviationX.multiply(deviationY), DECIMAL128);
     }
 
     /**
