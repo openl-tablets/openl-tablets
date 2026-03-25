@@ -215,7 +215,7 @@ An output result for this spreadsheet is as follows.
   
 If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsheet-table) is marked with `//` it is displayed as a field property in the JSON structure. However, the steps listed in this column are excluded from the schema tree representation.
 
-![](../../../ref-guide-images/SpreadsheetWith::Value.png)
+![](../../../ref-guide-images/SpreadsheetWithCommentedValue.png)
 
 ![](../../../ref-guide-images/StepsDescriptionInSchema.png)
 
