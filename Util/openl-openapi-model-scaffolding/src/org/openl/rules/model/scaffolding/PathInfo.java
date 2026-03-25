@@ -96,10 +96,9 @@ public class PathInfo {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof PathInfo pathInfo)) {
             return false;
         }
-        PathInfo pathInfo = (PathInfo) o;
         return Objects.equals(originalPath, pathInfo.originalPath)
                 && Objects.equals(formattedPath, pathInfo.formattedPath)
                 && Objects.equals(consumes, pathInfo.consumes)

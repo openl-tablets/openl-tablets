@@ -50,10 +50,9 @@ public class ParameterModel implements InputParameter {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ParameterModel that)) {
             return false;
         }
-        ParameterModel that = (ParameterModel) o;
         return Objects.equals(type, that.type) && Objects.equals(formattedName, that.formattedName) && Objects
                 .equals(originalName, that.originalName) && in == that.in;
     }

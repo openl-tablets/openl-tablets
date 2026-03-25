@@ -78,11 +78,9 @@ public class SpreadsheetModel implements MethodModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SpreadsheetModel that)) {
             return false;
         }
-
-        SpreadsheetModel that = (SpreadsheetModel) o;
 
         if (!Objects.equals(name, that.name)) {
             return false;

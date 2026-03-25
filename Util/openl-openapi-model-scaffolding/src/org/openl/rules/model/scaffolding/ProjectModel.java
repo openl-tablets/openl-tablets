@@ -86,11 +86,9 @@ public class ProjectModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ProjectModel that)) {
             return false;
         }
-
-        ProjectModel that = (ProjectModel) o;
 
         if (isRuntimeContextProvided != that.isRuntimeContextProvided) {
             return false;

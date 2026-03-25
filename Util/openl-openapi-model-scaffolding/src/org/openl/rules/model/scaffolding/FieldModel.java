@@ -36,11 +36,9 @@ public class FieldModel {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof FieldModel that)) {
             return false;
         }
-
-        FieldModel that = (FieldModel) o;
 
         if (!Objects.equals(name, that.name)) {
             return false;
