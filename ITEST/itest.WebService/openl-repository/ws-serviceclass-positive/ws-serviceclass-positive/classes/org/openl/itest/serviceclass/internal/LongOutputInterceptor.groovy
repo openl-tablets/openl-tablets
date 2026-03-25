@@ -1,8 +1,8 @@
 package org.openl.itest.serviceclass.internal
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice
-
 import java.lang.reflect.Method
+
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice
 
 class LongOutputInterceptor implements ServiceMethodAfterAdvice<Response> {
 

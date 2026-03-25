@@ -4,9 +4,9 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.vm.Tracer;
 
 public final class ServiceMT {

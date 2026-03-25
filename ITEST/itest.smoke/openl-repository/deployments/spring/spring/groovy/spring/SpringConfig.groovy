@@ -1,9 +1,10 @@
 package spring
 
-import org.openl.rules.project.model.ProjectDescriptor
-import org.openl.rules.project.model.RulesDeploy
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+
+import org.openl.rules.project.model.ProjectDescriptor
+import org.openl.rules.project.model.RulesDeploy
 
 /**
  * This is a Spring Configuration is loaded in the service context.

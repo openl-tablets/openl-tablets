@@ -44,7 +44,6 @@ import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
-import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.FileConflictResolution;

@@ -1,7 +1,7 @@
 package org.openl.rules.rest.acl.resolver;
 
-import jakarta.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import jakarta.annotation.Nullable;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;

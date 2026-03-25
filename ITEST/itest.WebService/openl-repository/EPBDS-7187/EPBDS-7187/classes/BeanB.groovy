@@ -1,6 +1,6 @@
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlElement
+import jakarta.xml.bind.annotation.XmlRootElement
+import jakarta.xml.bind.annotation.XmlType
 
 @XmlType(name = "BeanB", namespace = "xxx.yyy")
 @XmlRootElement(namespace = "xxx.yyy")

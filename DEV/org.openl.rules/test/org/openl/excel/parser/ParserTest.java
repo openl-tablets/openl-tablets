@@ -23,13 +23,13 @@ import org.openl.binding.impl.IntNodeBinder;
 import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.binding.impl.StringNodeBinder;
 import org.openl.conf.OpenLConfigurationException;
+import org.openl.rules.lang.xls.Parser;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.NaryNode;
-import org.openl.rules.lang.xls.Parser;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 

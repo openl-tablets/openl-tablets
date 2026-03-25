@@ -1,8 +1,13 @@
 package org.openl.rules.project.validation.openapi.test
 
-import org.openl.rules.ruleservice.core.interceptors.RulesType
 
-import jakarta.ws.rs.*
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+
+import org.openl.rules.ruleservice.core.interceptors.RulesType
 
 interface EPBDS10489Service {
     @RulesType(value = "Double")

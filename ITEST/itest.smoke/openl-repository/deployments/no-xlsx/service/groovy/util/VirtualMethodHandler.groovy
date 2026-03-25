@@ -1,8 +1,8 @@
 package util
 
-import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
-
 import java.lang.reflect.Method
+
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
 
 class VirtualMethodHandler implements ServiceExtraMethodHandler<String> {
 

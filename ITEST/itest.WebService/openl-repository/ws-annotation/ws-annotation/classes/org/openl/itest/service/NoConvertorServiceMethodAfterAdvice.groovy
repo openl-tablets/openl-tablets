@@ -1,9 +1,9 @@
-package org.openl.itest.service;
+package org.openl.itest.service
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
-import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
+import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice
+import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor
 
 @NotConvertor
 class NoConvertorServiceMethodAfterAdvice extends AbstractServiceMethodAfterReturningAdvice<Object> {
