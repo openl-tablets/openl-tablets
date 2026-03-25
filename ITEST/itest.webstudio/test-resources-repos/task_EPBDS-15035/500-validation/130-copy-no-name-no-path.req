@@ -1,0 +1,5 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUwMzU6YzdlZmM5OWRlYzAzOWY0NGQwN2Y1YWYwYjdhMzcyZDFlNzVmNWRiZTJkM2EyZmQzMWUxOTM3YThjYTE1MzNiYw==/modules/Main-CW/copy HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{}
