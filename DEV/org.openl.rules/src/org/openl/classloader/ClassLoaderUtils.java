@@ -2,14 +2,13 @@ package org.openl.classloader;
 
 import java.io.Closeable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Yury Molchan.
  */
+@Slf4j
 public final class ClassLoaderUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(ClassLoaderUtils.class);
 
     private ClassLoaderUtils() {
     }
@@ -22,10 +21,10 @@ public final class ClassLoaderUtils {
             try {
                 ((Closeable) classLoader).close();
             } catch (Exception e) {
-                LOG.error("Failed on close ClassLoader '{}'", classLoader, e);
+                log.error("Failed on close ClassLoader '{}'", classLoader, e);
             }
         } else {
-            LOG.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
+            log.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
                     classLoader);
         }
     }

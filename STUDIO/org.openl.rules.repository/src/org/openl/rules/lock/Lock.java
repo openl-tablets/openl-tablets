@@ -16,8 +16,7 @@ import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -28,9 +27,9 @@ import org.openl.util.PropertiesUtils;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class Lock {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Lock.class);
     private static final String READY_LOCK = "ready.lock";
 
     // lock info
@@ -59,7 +58,7 @@ public class Lock {
                 lockAcquired = finishLockCreating(prepareLock);
             }
         } catch (Exception e) {
-            LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
+            log.info("Failure to create a lock file '{}'. Because of {} : {}",
                     lockPath,
                     e.getClass().getName(),
                     e.getMessage());
@@ -102,7 +101,7 @@ public class Lock {
         if (!result && !Thread.currentThread().isInterrupted()) {
             LockInfo info = getInfo();
             String message = "Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.\n" + "Lock path: {}\n" + "Locked at: {}\n" + "Locked by: {}\n" + "Time to live: {} {}";
-            LOG.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
+            log.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
             forceUnlock();
             result = tryLock(lockedBy);
         }
@@ -159,14 +158,14 @@ public class Lock {
                 date = Instant.parse(stringDate);
             } catch (Exception e) {
                 date = Instant.ofEpochMilli(0);
-                LOG.warn("Failed to parse date '{}'.", stringDate, e);
+                log.warn("Failed to parse date '{}'.", stringDate, e);
             }
             return new LockInfo(date, userName);
         } catch (NoSuchFileException e) {
             // Lock can be deleted in another thread
             return LockInfo.NO_LOCK;
         } catch (IOException e) {
-            LOG.info("Impossible to read the lock file.", e);
+            log.info("Impossible to read the lock file.", e);
             // Lock file exists but failed to retrieve lock info.
             return new LockInfo(Instant.now(), null);
         }
@@ -186,7 +185,7 @@ public class Lock {
                 return null;
             } catch (Exception e) {
                 // Lock file is created but with error. So delete it.
-                LOG.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
+                log.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
                 deleteLockAndFolders(lock);
                 return null;
             }
@@ -228,7 +227,7 @@ public class Lock {
             }
             deleteEmptyParentFolders();
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
         }
     }
 }

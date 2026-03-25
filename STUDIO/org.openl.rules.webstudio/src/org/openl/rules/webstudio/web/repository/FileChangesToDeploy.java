@@ -14,8 +14,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.AProject;
@@ -29,8 +28,8 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
 
+@Slf4j
 class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
-    private static final Logger LOG = LoggerFactory.getLogger(FileChangesToDeploy.class);
     private final DesignTimeRepository designRepo;
     private final List<ProjectDescriptor> descriptors;
     private final String rulesPath;
@@ -92,7 +91,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                             technicalName = designProject.getName();
                         }
                     } catch (IOException e) {
-                        LOG.error(e.getMessage(), e);
+                        log.error(e.getMessage(), e);
                         return false;
                     }
                     projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
@@ -134,7 +133,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         srcProjectPath += "/";
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
-                            LOG.warn("Cannot find files in project {}", projectName);
+                            log.warn("Cannot find files in project {}", projectName);
                         }
                         //find and remove old manifest file from deployment
                         String srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
@@ -160,7 +159,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                     }
                 } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     return null;
                 }
             }
@@ -244,7 +243,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 openedStream = fileItem.getStream();
                 return new FileItem(fileTo, openedStream);
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 return null;
             }
 

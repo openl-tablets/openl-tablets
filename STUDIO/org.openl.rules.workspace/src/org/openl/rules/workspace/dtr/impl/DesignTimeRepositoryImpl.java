@@ -13,9 +13,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.common.CommonVersion;
@@ -43,8 +42,8 @@ import org.openl.util.StringUtils;
 /**
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
-    private static final Logger LOG = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
 
@@ -130,7 +129,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             return repo;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             // If exception is thrown, we must close repository in this method.
             // If no exception, repository will be closed later.
             if (repo != null) {
@@ -237,12 +236,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            LOG.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
+                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     project = new AProject(repository, projectPath, repoVersion);
                 }
             } else {
@@ -335,7 +334,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     fileDatas = repository.list(path);
                 }
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {

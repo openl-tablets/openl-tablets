@@ -29,8 +29,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.annotation.XmlTransient;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -78,6 +77,7 @@ import org.openl.util.TableNameChecker;
  *
  * @author snshor
  */
+@Slf4j
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private static final String COMMA_SEPARATED_COLUMN_TITLES = COLUMN_TITLES.stream()
@@ -93,7 +93,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
     public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
     public static final String TRANSIENT_FIELD_SUFFIX = "~";
-    private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private final TableSyntaxNode tableSyntaxNode;
     private final DatatypeOpenClass dataType;
@@ -204,21 +203,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 Class<?> beanClass = classLoader.loadClass(datatypeClassName);
                 byteCodeReadyToLoad = true;
                 validateDatatypeClass(beanClass, fields, bindingContext);
-                LOG.debug("Class '{}' is loaded from classloader.", datatypeClassName);
+                log.debug("Class '{}' is loaded from classloader.", datatypeClassName);
             } catch (ClassNotFoundException e) {
                 try {
                     final byte[] byteCode = buildByteCodeForDatatype(fields);
                     classLoader.addGeneratedClass(datatypeClassName, byteCode);
                     dataType.setBytecode(byteCode);
                     byteCodeReadyToLoad = true;
-                    LOG.debug("Class '{}' is generated and loaded to classloader.", datatypeClassName);
+                    log.debug("Class '{}' is generated and loaded to classloader.", datatypeClassName);
                 } catch (ByteCodeGenerationException e1) {
-                    LOG.debug("Error occurred: ", e1);
+                    log.debug("Error occurred: ", e1);
                     String errorMessage = String
                             .format("Failed to generate a class for datatype '%s'. %s", datatypeClassName, e1.getMessage());
                     BindHelper.processError(errorMessage, e1, tableSyntaxNode, bindingContext);
                 } catch (Exception e2) {
-                    LOG.debug("Error occurred: ", e2);
+                    log.debug("Error occurred: ", e2);
                     String errorMessage = String.format("Failed to generate a class for datatype '%s'.",
                             datatypeClassName);
                     BindHelper.processError(errorMessage, e2, tableSyntaxNode, bindingContext);
@@ -378,7 +377,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             instance = datatypeClass.getDeclaredConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
                  InvocationTargetException e) {
-            LOG.debug("Error occurred: ", e);
+            log.debug("Error occurred: ", e);
             String errorMessage = String.format(
                     "Default constructor is not found in class '%s' or the class is not instantiatable. " + "Please, update the class to be compatible with the datatype.",
                     datatypeClassName);
@@ -402,7 +401,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 }
             } catch (NoSuchFieldException e) {
-                LOG.debug("Error occurred: ", e);
+                log.debug("Error occurred: ", e);
                 String errorMessage = String.format(
                         "The '%s' %s is not found in the '%s' class. "
                                 + "Update the class so that it is compatible with the datatype.",
@@ -472,7 +471,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             }
                         }
                     } catch (ReflectiveOperationException | LinkageError e) {
-                        LOG.debug("Ignored error: ", e);
+                        log.debug("Ignored error: ", e);
                     }
                     if (f) {
                         String errorMessage = String.format(
@@ -532,7 +531,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                     }
                 } catch (NoSuchFieldException e) {
-                    LOG.debug("Ignored error: ", e);
+                    log.debug("Ignored error: ", e);
                 }
             }
             boolean g = false;
@@ -828,7 +827,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             dataType.setInstanceClass(datatypeClass);
             moduleOpenClass.addType(dataType);
         } catch (ClassNotFoundException | LinkageError e) {
-            LOG.debug("Error occurred: ", e);
+            log.debug("Error occurred: ", e);
             String errorMessage = String.format("Failed to load a class for datatype '%s'.", dataType.getJavaName());
             BindHelper.processError(errorMessage, e, tableSyntaxNode, bindingContext);
         } finally {

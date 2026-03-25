@@ -7,14 +7,13 @@ import java.util.LinkedHashMap;
 import java.util.ListIterator;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.model.TreeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.types.java.JavaOpenClass;
 
+@Slf4j
 public class MapParameterTreeNode extends CollectionParameterTreeNode {
-    private final Logger log = LoggerFactory.getLogger(MapParameterTreeNode.class);
 
     public MapParameterTreeNode(ParameterRenderConfig config) {
         super(config);

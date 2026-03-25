@@ -34,9 +34,8 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
@@ -45,9 +44,9 @@ import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class OpenLOpenAPIUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenLOpenAPIUtils.class);
     public static final String APPLICATION_JSON = "application/json";
     public static final String TEXT_PLAIN = "text/plain";
 
@@ -357,7 +356,7 @@ public class OpenLOpenAPIUtils {
                     }
                     visitContent(openAPIRefResolver, parameter.getContent(), visitor, visitedSchemas, visitInterfaces);
                 } else {
-                    LOGGER.warn("An unreferenced parameter(s) found.");
+                    log.warn("An unreferenced parameter(s) found.");
                 }
             }
         }

@@ -14,9 +14,8 @@ import jakarta.faces.validator.ValidatorException;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.extern.slf4j.Slf4j;
 import org.richfaces.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -36,11 +35,11 @@ import org.openl.util.StringUtils;
 import org.openl.util.TableNameChecker;
 
 @GroupSequence({SimpleRulesCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
+@Slf4j
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     private static final String TABLE_TYPE = "xls.dt";
     private static final String RESTORE_TABLE_FUNCTION = "tableModel.restoreTableFromJSONString";
 
-    private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
     @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
     @TableNameConstraint(groups = StringValidGroup.class)

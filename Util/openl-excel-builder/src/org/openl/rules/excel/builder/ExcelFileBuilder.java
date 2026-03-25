@@ -15,11 +15,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.excel.builder.export.DataTableExporter;
 import org.openl.rules.excel.builder.export.DatatypeTableExporter;
@@ -39,9 +38,9 @@ import org.openl.util.CollectionUtils;
 /**
  * Build the xlsx datatype spreadsheet from the given data type list
  */
+@Slf4j
 public class ExcelFileBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelFileBuilder.class);
 
     private ExcelFileBuilder() {
     }
@@ -57,7 +56,7 @@ public class ExcelFileBuilder {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             writeProject(projectModel, fos);
         } catch (IOException e) {
-            LOGGER.error("Error on saving the file occurred.", e);
+            log.error("Error on saving the file occurred.", e);
         }
     }
 
@@ -126,7 +125,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            LOGGER.error("Error on generating DataTypes workbook occurred.", e);
+            log.error("Error on generating DataTypes workbook occurred.", e);
         }
     }
 
@@ -142,7 +141,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            LOGGER.error("Error on generating Data tables workbook occurred.", e);
+            log.error("Error on generating Data tables workbook occurred.", e);
         }
     }
 
@@ -160,7 +159,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
+            log.error("Error on generating Spreadsheet workbook occurred.", e);
         }
     }
 
@@ -222,7 +221,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
-            LOGGER.error("Error on generating Spreadsheet workbook occurred.", e);
+            log.error("Error on generating Spreadsheet workbook occurred.", e);
         }
     }
 
@@ -272,7 +271,7 @@ public class ExcelFileBuilder {
             autoSizeSheets(workbook);
             workbook.write(fos);
         } catch (IOException e) {
-            LOGGER.error("Error on generating workbook occurred.", e);
+            log.error("Error on generating workbook occurred.", e);
         }
     }
 

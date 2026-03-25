@@ -15,8 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -48,8 +47,8 @@ import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
+@Slf4j
 public class ExportBean {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportBean.class);
 
     private static final String VIEWING_VERSION = "Viewing";
     private static final String IN_EDITING_VERSION = "In Editing";
@@ -117,7 +116,7 @@ public class ExportBean {
             } else {
                 message = "Failed to export the project. See logs for details.";
             }
-            LOG.error(message, e);
+            log.error(message, e);
             addCookie(cookieName, message, -1);
         } finally {
             FileUtils.deleteQuietly(file);
@@ -153,7 +152,7 @@ public class ExportBean {
             facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version. ";
-            LOG.error(msg, e);
+            log.error(msg, e);
             addCookie(cookieName, msg + e.getMessage(), -1);
         } finally {
             FileUtils.deleteQuietly(file);
@@ -178,7 +177,7 @@ public class ExportBean {
                 projectVersions.addAll(toSelectItems(versions));
             }
         } catch (ProjectException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return projectVersions;
     }
@@ -216,7 +215,7 @@ public class ExportBean {
         try {
             return getUserWorkspace().getProject(repositoryId, currentProjectName, false).getBusinessName();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return currentProjectName;

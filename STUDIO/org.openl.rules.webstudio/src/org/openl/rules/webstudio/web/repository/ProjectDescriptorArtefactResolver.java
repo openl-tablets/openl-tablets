@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -26,8 +25,8 @@ import org.openl.util.IOUtils;
 /**
  * Resolves specified OpenL project revision's dependencies.
  */
+@Slf4j
 public class ProjectDescriptorArtefactResolver {
-    private final Logger log = LoggerFactory.getLogger(ProjectDescriptorArtefactResolver.class);
     private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
 
     /**

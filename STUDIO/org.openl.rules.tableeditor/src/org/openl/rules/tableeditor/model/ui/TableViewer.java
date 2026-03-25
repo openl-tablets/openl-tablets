@@ -7,8 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -25,8 +24,8 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class TableViewer {
-    private final Logger log = LoggerFactory.getLogger(TableViewer.class);
 
     private final IGrid grid;
     private final IGridRegion reg;

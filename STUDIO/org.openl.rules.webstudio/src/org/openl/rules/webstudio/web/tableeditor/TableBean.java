@@ -7,10 +7,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -49,11 +48,11 @@ import org.openl.util.StringUtils;
  */
 @Service
 @RequestScope
+@Slf4j
 public class TableBean {
     private static final String REQUEST_ID_FORMAT = "request-id:%s;project-name:%s";
     private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
     private static final int MAX_PROBLEMS = 100;
-    private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
     private IOpenMethod method;
 
@@ -345,8 +344,7 @@ public class TableBean {
                     currentProject.releaseMyLock();
                 }
             } catch (Exception e) {
-                Logger logger = LoggerFactory.getLogger(TableBean.class);
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
     }

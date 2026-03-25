@@ -12,8 +12,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +41,11 @@ import org.openl.util.StringUtils;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Slf4j
 public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, InitializingBean {
 
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
 
     private IRulesDeploySerializer rulesDeploySerializer;
     private IProjectDescriptorSerializer projectDescriptorSerializer;

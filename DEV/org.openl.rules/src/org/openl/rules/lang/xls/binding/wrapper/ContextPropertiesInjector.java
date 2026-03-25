@@ -3,8 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.EnumToStringCast;
@@ -13,16 +12,16 @@ import org.openl.binding.impl.cast.StringToEnumCast;
 import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
+@Slf4j
 class ContextPropertiesInjector {
-    private static final Logger LOG = LoggerFactory.getLogger(ContextPropertiesInjector.class);
     private static final IContextPropertyInjection[] PROPERTY_INJECTIONS = new IContextPropertyInjection[0];
     private final IContextPropertyInjection[] contextPropertyInjections;
 
@@ -39,7 +38,7 @@ class ContextPropertiesInjector {
                         .forEach(field -> contextInjections.put(field.getContextProperty(),
                                 createFieldContextPropertyInjection(paramIndex, field, castFactory)));
             } catch (Exception | LinkageError e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
             if (methodSignature instanceof MethodSignature) {
                 String contextParameter = ((MethodSignature) methodSignature).getParameterDeclaration(i)

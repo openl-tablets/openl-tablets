@@ -15,8 +15,7 @@ import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
 import jakarta.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.PropertyResolver;
@@ -65,8 +64,8 @@ import org.openl.util.StringUtils;
  */
 @Service
 @SessionScope
+@Slf4j
 public class CopyBean {
-    private static final Logger LOG = LoggerFactory.getLogger(CopyBean.class);
 
     private final PropertyResolver propertyResolver;
 
@@ -131,7 +130,7 @@ public class CopyBean {
         try {
             return getUserWorkspace().getProject(repositoryId, currentProjectName, false).getBusinessName();
         } catch (ProjectException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return currentProjectName;
@@ -296,7 +295,7 @@ public class CopyBean {
                 designData.setComment(comment);
                 Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
                 designProject.setResourceTransformer(new CopyProjectTransformer(newProjectName, tags));
-                
+
                 designProject.update(localProject, user);
                 designProject.setResourceTransformer(null);
 
@@ -326,7 +325,7 @@ public class CopyBean {
             currentProjectName = null;
             WebStudioUtils.addInfoMessage("Project copied successfully.");
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             errorMessage = "Cannot copy the project: " + e.getMessage();
         }
     }
@@ -361,7 +360,7 @@ public class CopyBean {
             repositoryTreeState.refreshNode(node);
             studio.reset();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -410,7 +409,7 @@ public class CopyBean {
                         : "Branch name must match the following pattern: " + customRegex;
                 WebStudioUtils.validate(customRegexPattern.matcher(newBranchName).matches(), customRegexError);
             } catch (PatternSyntaxException patternSyntaxException) {
-                LOG.debug(patternSyntaxException.getMessage(), patternSyntaxException);
+                log.debug(patternSyntaxException.getMessage(), patternSyntaxException);
                 WebStudioUtils.throwValidationError("Invalid regex pattern for branch name.");
             }
         }
@@ -429,7 +428,7 @@ public class CopyBean {
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (IOException e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
         }
     }
 
@@ -510,7 +509,7 @@ public class CopyBean {
                 newBranchName = designRepoComments.newBranch(getBusinessName(), userName, date);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -581,7 +580,7 @@ public class CopyBean {
             }
             return designRepository.supports().mappedFolders();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return false;
         }
     }
@@ -599,7 +598,7 @@ public class CopyBean {
             }
             return rulesProject;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }

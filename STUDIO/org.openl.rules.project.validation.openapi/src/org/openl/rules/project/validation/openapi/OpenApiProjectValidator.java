@@ -56,9 +56,8 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.util.RefUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
@@ -93,13 +92,13 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 
+@Slf4j
 public class OpenApiProjectValidator {
 
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";
     private static final String OPENAPI_YML = "openapi.yml";
     public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI Reconciliation: ";
-    private static final Logger LOG = LoggerFactory.getLogger(OpenApiProjectValidator.class);
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
@@ -1221,7 +1220,7 @@ public class OpenApiProjectValidator {
             try {
                 return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
             } catch (FileNotFoundException | JAXBException e) {
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
                 return null;
             }
         }

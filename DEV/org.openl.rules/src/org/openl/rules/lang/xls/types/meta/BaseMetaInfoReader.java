@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.MethodUtil;
@@ -30,10 +29,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
+@Slf4j
 public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements MetaInfoReader {
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
 
-    private static final Logger LOG = LoggerFactory.getLogger(BaseMetaInfoReader.class);
     private final Map<CellKey, Boolean> constantsMap = new HashMap<>();
     private final Set<ConstantOpenField> constantOpenFields = new HashSet<>();
 
@@ -122,7 +121,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
             }
             return cellMetaInfo;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }

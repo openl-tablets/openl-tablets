@@ -6,8 +6,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.project.abstraction.LockEngine;
@@ -24,8 +23,8 @@ import org.openl.util.FileUtils;
  *
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
-    private final Logger log = LoggerFactory.getLogger(LocalWorkspaceManagerImpl.class);
 
     private String workspaceHome;
     private boolean enableLocks = true;

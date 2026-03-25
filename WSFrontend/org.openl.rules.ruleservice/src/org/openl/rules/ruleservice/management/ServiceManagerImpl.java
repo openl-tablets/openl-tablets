@@ -16,9 +16,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import jakarta.annotation.PreDestroy;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,8 @@ import org.openl.util.StringUtils;
  *
  * @author PUdalau
  */
+@Slf4j
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
-    private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;

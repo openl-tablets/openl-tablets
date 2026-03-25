@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
@@ -47,16 +48,14 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookDependentFormula;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
 import org.openl.rules.table.IGridRegion;
 
+@Slf4j
 public class TableStyleListener implements HSSFListener {
-    private final Logger log = LoggerFactory.getLogger(TableStyleListener.class);
 
     private final EventSheetDescriptor sheet;
     private final IGridRegion tableRegion;

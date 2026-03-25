@@ -3,8 +3,7 @@ package org.openl.rules.ruleservice.spring;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +17,8 @@ import org.openl.rules.ruleservice.api.AccessDeniedHandler;
  */
 @Order
 @Component
+@Slf4j
 public class BasicAccessDeniedHandler implements AccessDeniedHandler {
-    private final Logger log = LoggerFactory.getLogger(BasicAccessDeniedHandler.class);
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) {

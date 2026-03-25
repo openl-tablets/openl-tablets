@@ -7,8 +7,7 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionIdListener;
 import jakarta.servlet.http.HttpSessionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
@@ -20,9 +19,9 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+@Slf4j
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener, HttpSessionIdListener {
 
-    private final Logger log = LoggerFactory.getLogger(SessionListener.class);
 
     private static ApplicationContext getContext(ServletContext servletContext) {
         return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);

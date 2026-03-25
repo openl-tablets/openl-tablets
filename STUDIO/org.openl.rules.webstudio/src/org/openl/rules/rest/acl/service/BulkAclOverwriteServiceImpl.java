@@ -6,8 +6,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -25,9 +24,9 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
+@Slf4j
 public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BulkAclOverwriteServiceImpl.class);
 
     private static final String LOCK_NAME = "bulk-acl-overwrite-lock";
 
@@ -71,7 +70,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
             processInTransaction(request);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOG.error("Bulk ACL overwrite interrupted", e);
+            log.error("Bulk ACL overwrite interrupted", e);
         } finally {
             if (lockAcquired) {
                 lock.unlock();

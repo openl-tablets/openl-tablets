@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,9 +24,9 @@ import org.openl.rules.security.standalone.persistence.ExternalGroup;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExternalGroupServiceImpl.class);
 
     private final ExternalGroupDao externalGroupDao;
     private final LockRegistry lockRegistry;
@@ -64,7 +63,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             });
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOG.debug("Thread interrupted", e);
+            log.debug("Thread interrupted", e);
         } finally {
             if (lockAcquired) {
                 lock.unlock();

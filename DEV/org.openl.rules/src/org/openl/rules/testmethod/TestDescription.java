@@ -3,8 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -22,9 +21,9 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 
+@Slf4j
 public class TestDescription {
 
-    private final Logger log = LoggerFactory.getLogger(TestDescription.class);
 
     private final ParameterWithValueDeclaration[] executionParams;
     private final IOpenMethod testedMethod;

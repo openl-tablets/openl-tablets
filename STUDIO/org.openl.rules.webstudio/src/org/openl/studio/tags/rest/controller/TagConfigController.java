@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,10 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
@@ -52,9 +50,9 @@ import org.openl.util.StringUtils;
 @RestController
 @RequestMapping(value = "/admin/tag-config")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
+@Slf4j
 public class TagConfigController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TagConfigController.class);
 
     private final TagTypeService tagTypeService;
     private final TagService tagService;
@@ -285,7 +283,7 @@ public class TagConfigController {
                 project.saveTags(currentTags);
                 updated++;
             } catch (Exception e) {
-                LOG.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
+                log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
                 skipped++;
             }
         }

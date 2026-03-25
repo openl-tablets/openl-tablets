@@ -17,12 +17,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
@@ -36,9 +35,9 @@ import org.openl.util.IOUtils;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class XlsWorkbookMerger implements Closeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XlsWorkbookMerger.class);
 
     private final StreamWorkbook baseWorkbook;
     private final StreamWorkbook ourWorkbook;
@@ -128,7 +127,7 @@ public class XlsWorkbookMerger implements Closeable {
                     diffDecision = DiffStatus.CONFLICT;
                 }
             }
-            LOG.debug("{} resolution is chosen for '{}' sheet", diffDecision.name(), sheetName);
+            log.debug("{} resolution is chosen for '{}' sheet", diffDecision.name(), sheetName);
             diffResult.computeIfAbsent(diffDecision, initGroupValue).add(sheetName);
         }
         for (String sheetName : theirToBase.keySet()) {

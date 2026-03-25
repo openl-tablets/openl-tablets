@@ -8,8 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -37,6 +36,7 @@ import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 
+@Slf4j
 public class TraceFormatter {
 
     /**
@@ -255,7 +255,6 @@ public class TraceFormatter {
             try {
                 return FormattersManager.format(o);
             } catch (Throwable e) {
-                Logger log = LoggerFactory.getLogger(TraceFormatter.class);
                 log.debug(e.getMessage(), e);
                 return String.format(
                         "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",

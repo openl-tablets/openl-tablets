@@ -17,10 +17,9 @@ import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -46,10 +45,10 @@ import org.openl.util.StringUtils;
  * <p/>
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
+@Slf4j
 public abstract class TableCreationWizard extends BaseWizard {
     protected static final String INVALID_NAME_MESSAGE = "Invalid name: it can only have letters, digits, _, $ and should not start with a digit.";
 
-    private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
     private static final String SHEET_EXISTING = "existing";
     private static final String SHEET_NEW = "new";

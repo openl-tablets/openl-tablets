@@ -3,11 +3,11 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 public abstract class SimpleTracerObject implements ITracerObject {
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleTracerObject.class);
 
     private ITracerObject parent;
     private LinkedList<ITracerObject> children;
@@ -75,7 +75,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
             } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
                 clonedResult = result;
-                LOG.debug("Ignored error: ", e);
+                log.debug("Ignored error: ", e);
             }
             this.result = clonedResult;
         } else {

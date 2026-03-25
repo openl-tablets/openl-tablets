@@ -5,8 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -22,8 +21,8 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileUtils;
 
+@Slf4j
 public class RulesProjectBuilder {
-    private final Logger log = LoggerFactory.getLogger(RulesProjectBuilder.class);
     private final RulesProject project;
     private final UserWorkspace workspace;
     private final String comment;

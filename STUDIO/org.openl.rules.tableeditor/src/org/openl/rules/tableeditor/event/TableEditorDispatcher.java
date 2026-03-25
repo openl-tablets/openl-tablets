@@ -13,16 +13,15 @@ import jakarta.faces.event.PhaseListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.tableeditor.util.Constants;
 
+@Slf4j
 public class TableEditorDispatcher implements PhaseListener {
 
     private static final long serialVersionUID = 8617343432886373802L;
 
-    private final Logger log = LoggerFactory.getLogger(TableEditorDispatcher.class);
 
     private static final String AJAX_MATCH = "ajax/";
 

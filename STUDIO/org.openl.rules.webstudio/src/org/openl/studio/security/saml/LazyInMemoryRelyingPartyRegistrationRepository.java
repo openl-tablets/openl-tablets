@@ -12,9 +12,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Iterator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.opensaml.security.x509.X509Support;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
@@ -30,9 +29,9 @@ import org.openl.util.StringUtils;
  *
  * @author Eugene Biruk
  */
+@Slf4j
 public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPartyRegistrationRepository, Iterable<RelyingPartyRegistration> {
 
-    private static final Logger log = LoggerFactory.getLogger(LazyInMemoryRelyingPartyRegistrationRepository.class);
 
     private InMemoryRelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
     private PropertyResolver propertyResolver;

@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.util.PropertiesUtils;
 
+@Slf4j
 public class RulesProjectTags extends ProjectTags {
-    private final Logger log = LoggerFactory.getLogger(RulesProjectTags.class);
 
     public RulesProjectTags(AProject project) {
         super(project);

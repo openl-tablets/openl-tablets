@@ -9,8 +9,7 @@ import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,9 @@ import org.openl.util.StringUtils;
 
 @Service
 @ViewScope
+@Slf4j
 public class RepositoryProjectRulesDeployConfig {
     private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
-    private final Logger log = LoggerFactory.getLogger(RepositoryProjectRulesDeployConfig.class);
 
     private final RepositoryTreeState repositoryTreeState;
 

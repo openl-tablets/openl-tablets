@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +19,9 @@ import org.springframework.stereotype.Component;
  * substitutes context variables to create contextual guidance for AI assistants.
  */
 @Component
+@Slf4j
 public class PromptLoader {
 
-    private static final Logger logger = LoggerFactory.getLogger(PromptLoader.class);
     private static final String PROMPTS_LOCATION = "mcp/prompts/";
 
     /**
@@ -47,7 +46,7 @@ public class PromptLoader {
             String template = getPromptContent(templateName);
             return substitute(template, context);
         } catch (Exception e) {
-            logger.warn("Failed to load prompt '{}': {}", templateName, e.getMessage());
+            log.warn("Failed to load prompt '{}': {}", templateName, e.getMessage());
             return "Processing " + templateName + "...\n\nContext: " + context;
         }
     }

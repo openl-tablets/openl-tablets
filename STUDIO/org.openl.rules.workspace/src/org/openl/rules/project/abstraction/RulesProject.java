@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -28,8 +27,8 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 
+@Slf4j
 public class RulesProject extends UserWorkspaceProject {
-    private final Logger log = LoggerFactory.getLogger(RulesProject.class);
 
     private final LocalRepository localRepository;
     private String localFolderName;
@@ -638,7 +637,7 @@ public class RulesProject extends UserWorkspaceProject {
             throw new ProjectException("Failed to update branches for project", e);
         }
     }
-    
+
     public Map<String, String> getLocalTags() {
         return localTags.getTags();
     }
@@ -646,7 +645,7 @@ public class RulesProject extends UserWorkspaceProject {
     public void saveTags(Map<String, String> tags) throws ProjectException {
         localTags.saveTags(tags);
     }
-    
+
     public Map<String, String> getDesignTags() {
         return designTags.getTags();
     }

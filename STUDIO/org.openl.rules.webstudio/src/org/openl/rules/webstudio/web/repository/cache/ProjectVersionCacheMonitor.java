@@ -8,8 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,9 +24,9 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
-    private final Logger log = LoggerFactory.getLogger(ProjectVersionCacheMonitor.class);
 
     private ScheduledExecutorService scheduledPool;
     private ProjectVersionH2CacheDB projectVersionCacheDB;

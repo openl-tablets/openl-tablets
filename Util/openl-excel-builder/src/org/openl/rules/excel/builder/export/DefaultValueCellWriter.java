@@ -8,18 +8,17 @@ import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.Model;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class DefaultValueCellWriter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultValueCellWriter.class);
 
     protected DefaultValueCellWriter() {
     }
@@ -35,7 +34,7 @@ public class DefaultValueCellWriter {
             try {
                 setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
-                LOGGER
+                log
                         .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
             }
         }

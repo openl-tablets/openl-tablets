@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -31,9 +30,9 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author Aliaksandr Antonik.
  */
+@Slf4j
 public final class WizardUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WizardUtils.class);
 
     private WizardUtils() {
     }
@@ -133,7 +132,6 @@ public final class WizardUtils {
                     openType = JavaOpenClass.getOpenClass(type);
                 } catch (Exception e) {
                     // For example NoClassDefFoundError when the class for some of the fields is absent.
-                    final Logger log = LoggerFactory.getLogger(WizardUtils.class);
                     log.debug("Cannot load the class, skip it because it's not valid. Cause: {}", e.getMessage(), e);
                     continue;
                 }
@@ -182,7 +180,7 @@ public final class WizardUtils {
         try {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
-            LOG.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
             return Collections.emptySet();
         }
 
@@ -203,7 +201,7 @@ public final class WizardUtils {
                         loadFromJar(classes, packageName, classLoader, resource);
                         break;
                     default:
-                        LOG.warn("A ClassLocator for protocol '{}' is not found.", protocol);
+                        log.warn("A ClassLocator for protocol '{}' is not found.", protocol);
                 }
             }
         }
@@ -216,7 +214,7 @@ public final class WizardUtils {
         try {
             jar = new URL(jarPath);
         } catch (MalformedURLException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return;
         }
 
@@ -234,20 +232,20 @@ public final class WizardUtils {
                             try {
                                 classes.add(Class.forName(fullClassName, true, classLoader));
                             } catch (Exception | LinkageError e) {
-                                LOG.debug(e.getMessage(), e);
+                                log.debug(e.getMessage(), e);
                             }
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } finally {
             if (zip != null) {
                 try {
                     zip.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
             }
         }
@@ -259,7 +257,7 @@ public final class WizardUtils {
         try {
             directory = new File(pathURL.toURI());
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return;
         }
 
@@ -280,7 +278,7 @@ public final class WizardUtils {
                             Class<?> type = Class.forName(fullClassName, true, classLoader);
                             classes.add(type);
                         } catch (Exception | LinkageError e) {
-                            LOG.debug(e.getMessage(), e);
+                            log.debug(e.getMessage(), e);
                         }
                     }
                 }

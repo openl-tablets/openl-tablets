@@ -11,8 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
@@ -27,11 +26,11 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.util.FileTypeHelper;
 
 @WebServlet("/action/launch")
+@Slf4j
 public class LaunchFileServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private transient final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

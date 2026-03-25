@@ -1,16 +1,16 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.cloner.Cloner;
-import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
+@Slf4j
 public class LazyTracerNodeObject implements ITracerObject {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LazyTracerNodeObject.class);
 
     private ITracerObject parent;
 
@@ -118,7 +118,7 @@ public class LazyTracerNodeObject implements ITracerObject {
         try {
             return Cloner.clone(obj);
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return obj;
         }
     }

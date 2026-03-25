@@ -5,8 +5,7 @@ import java.util.UUID;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -29,6 +28,7 @@ import org.openl.util.StringUtils;
  */
 @Service
 @RequestScope
+@Slf4j
 public class MainBean {
 
     private final RepositoryTreeState repositoryTreeState;
@@ -37,7 +37,6 @@ public class MainBean {
 
     private String requestId;
 
-    private final Logger log = LoggerFactory.getLogger(MainBean.class);
 
     public MainBean(RepositoryTreeState repositoryTreeState, PropertyResolver propertyResolver) {
         if (WebContext.getContextPath() == null) {

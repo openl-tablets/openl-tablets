@@ -12,9 +12,8 @@ import jakarta.mail.URLName;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.mail.config.MailSenderProperties;
@@ -25,8 +24,8 @@ import org.openl.util.IOUtils;
 /**
  * The implementation of SMTP client, that allows to send mails to SMTP Server.
  */
+@Slf4j
 public class MailSender {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MailSender.class);
 
     private static final String MAIL_VERIFICATION_TEMPLATE = "/templates/email-verification.eml";
 
@@ -79,7 +78,7 @@ public class MailSender {
             }
 
         } catch (MessagingException | IOException e) {
-            LOGGER.error("Mail message preparation failed: ", e);
+            log.error("Mail message preparation failed: ", e);
         }
         return emailWasSent;
     }

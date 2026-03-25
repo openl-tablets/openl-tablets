@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -25,8 +26,6 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.DataTypeRowStyle;
@@ -37,8 +36,8 @@ import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyleImpl;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 
+@Slf4j
 public class ExcelTemplateUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ExcelTemplateUtils.class);
 
     public static final byte LEFT_MARGIN = 1;
     public static final byte TOP_MARGIN = 2;
@@ -71,7 +70,7 @@ public class ExcelTemplateUtils {
 
             Sheet dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
             if (dataTypeSheet == null) {
-                logger.error("Datatype sheet template wasn't found.");
+                log.error("Datatype sheet template wasn't found.");
             }
 
             TableStyle dataTypeStyle = extractDatatypeStyle(dataTypeSheet, targetWorkbook);
@@ -79,7 +78,7 @@ public class ExcelTemplateUtils {
 
             Sheet sprResultSheet = wb.getSheet(SPR_RESULT_SHEET);
             if (sprResultSheet == null) {
-                logger.error("SpreadSheetResults sheet template wasn't found.");
+                log.error("SpreadSheetResults sheet template wasn't found.");
             }
 
             TableStyle spreadSheetStyle = extractSpreadSheetResultStyle(sprResultSheet, targetWorkbook);
@@ -87,22 +86,22 @@ public class ExcelTemplateUtils {
 
             Sheet environmentSheet = wb.getSheet(ENV_SHEET);
             if (environmentSheet == null) {
-                logger.error("Environment sheet template wasn't found.");
+                log.error("Environment sheet template wasn't found.");
             }
             TableStyle envStyle = extractEnvStyle(environmentSheet, targetWorkbook);
             templateStyles.put(ENV_SHEET, envStyle);
 
             Sheet dataSheet = wb.getSheet(DATA_SHEET);
             if (dataSheet == null) {
-                logger.error("Data table template wasn't found.");
+                log.error("Data table template wasn't found.");
             }
             TableStyle dataStyle = extractDataTableStyle(dataSheet, targetWorkbook);
             templateStyles.put(DATA_SHEET, dataStyle);
 
         } catch (InvalidFormatException e) {
-            logger.error("Invalid format exception occurred.", e);
+            log.error("Invalid format exception occurred.", e);
         } catch (IOException e) {
-            logger.error("There was a problem with reading the template file.", e);
+            log.error("There was a problem with reading the template file.", e);
         }
 
         return templateStyles;

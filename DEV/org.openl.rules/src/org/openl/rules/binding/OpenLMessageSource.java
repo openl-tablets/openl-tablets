@@ -9,8 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
@@ -19,9 +18,9 @@ import org.openl.util.StringUtils;
 /**
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
  */
+@Slf4j
 public class OpenLMessageSource {
 
-    private final static Logger LOG = LoggerFactory.getLogger(OpenLMessageSource.class);
 
     private static final String DEFAULT_MSG_SRC = "i18n/message";
 
@@ -64,13 +63,13 @@ public class OpenLMessageSource {
             try {
                 PropertiesUtils.load(url, result::put);
             } catch (IOException ex) {
-                LOG.error("Failed to process resource '{}'", url, ex);
+                log.error("Failed to process resource '{}'", url, ex);
             }
             Enumeration<URL> urls = null;
             try {
                 urls = classLoader.getResources(propFileName);
             } catch (IOException ex) {
-                LOG.error("Failed to collect resources for '{}'", propFileName, ex);
+                log.error("Failed to collect resources for '{}'", propFileName, ex);
             }
             if (urls != null) {
                 while (urls.hasMoreElements()) {
@@ -78,7 +77,7 @@ public class OpenLMessageSource {
                     try {
                         PropertiesUtils.load(url1, result::putIfAbsent);
                     } catch (IOException ex) {
-                        LOG.error("Failed to process resource '{}'", url1, ex);
+                        log.error("Failed to process resource '{}'", url1, ex);
                     }
                 }
             }

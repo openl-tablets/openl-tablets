@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -29,6 +28,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class LocalRepository extends FileSystemRepository {
     /**
      * @deprecated Will be removed in the future.
@@ -52,7 +52,6 @@ public class LocalRepository extends FileSystemRepository {
     private static final String FILE_MODIFIED_PROPERTY = "modified";
     private static final String FILE_PROPERTIES_FOLDER = "file-properties";
 
-    private final Logger log = LoggerFactory.getLogger(LocalRepository.class);
     private final PropertiesEngine propertiesEngine;
 
     public LocalRepository(Path location) {

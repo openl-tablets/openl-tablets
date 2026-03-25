@@ -8,9 +8,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -48,12 +47,12 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
+@Slf4j
 public class DataTableBindHelper {
 
     private DataTableBindHelper() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(DataTableBindHelper.class);
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
@@ -613,7 +612,7 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                             Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
-                    LOG.debug("Error occurred: ", e);
+                    log.debug("Error occurred: ", e);
                     String message = String.format("Cannot parse field source '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
@@ -925,7 +924,7 @@ public class DataTableBindHelper {
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
-            LOG.debug("Ignored error: ", e);
+            log.debug("Ignored error: ", e);
             return null;
         }
     }
@@ -1101,7 +1100,7 @@ public class DataTableBindHelper {
                     bindingContext.addError(e);
                     return null;
                 } catch (Exception e) {
-                    LOG.debug("Error occurred: ", e);
+                    log.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
@@ -1116,7 +1115,7 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
-                    LOG.debug("Error occurred: ", e);
+                    log.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
@@ -1178,7 +1177,7 @@ public class DataTableBindHelper {
                                 .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
-                        LOG.debug("Error occurred: ", e);
+                        log.debug("Error occurred: ", e);
                         throw SyntaxNodeExceptionUtils.createError(
                                 String.format("Cannot convert a key value '%s' to type '%s'.", s, keyOpenClass.getName()),
                                 currentFieldNameNode);

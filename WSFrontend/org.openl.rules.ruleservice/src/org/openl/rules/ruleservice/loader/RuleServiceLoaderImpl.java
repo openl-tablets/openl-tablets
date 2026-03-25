@@ -20,8 +20,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import jakarta.annotation.PreDestroy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.FileSystemUtils;
 
 import org.openl.rules.common.CommonVersion;
@@ -53,9 +52,9 @@ import org.openl.util.ZipUtils;
  *
  * @author Marat Kamalov
  */
+@Slf4j
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private static final Pattern NOT_ALLOWED_SYMBOLS = Pattern.compile("[^[-.\\w]]");
-    private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
     private final ProjectResolver projectResolver;
     private final Repository repository;

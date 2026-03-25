@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.header.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
@@ -38,9 +37,9 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 import org.openl.util.ClassUtils;
 
+@Slf4j
 public class StoreLogDataMapper {
 
-    private final Logger log = LoggerFactory.getLogger(StoreLogDataMapper.class);
 
     private static final Set<Class<? extends Annotation>> CUSTOM_ANNOTATIONS;
     private static final Set<Class<? extends Annotation>> MAPPING_ANNOTATIONS;

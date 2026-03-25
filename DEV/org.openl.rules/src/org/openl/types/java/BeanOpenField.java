@@ -7,8 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.annotations.ContextProperty;
 import org.openl.types.IMemberMetaInfo;
@@ -23,8 +22,8 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
+@Slf4j
 public final class BeanOpenField implements IOpenField {
-    private static final Logger LOG = LoggerFactory.getLogger(BeanOpenField.class);
 
     private final PropertyDescriptor descriptor;
     private final Method readMethod;
@@ -55,7 +54,7 @@ public final class BeanOpenField implements IOpenField {
                         // Reset the name
                         fieldName = field.getName();
                         pd.setName(fieldName);
-                        LOG.debug("Error occurred: ", ex);
+                        log.debug("Error occurred: ", ex);
                     } catch (NoSuchFieldException e1) {
                         try {
                             // Special case for backward compatibility
@@ -66,9 +65,9 @@ public final class BeanOpenField implements IOpenField {
                             // Reset the name
                             fieldName = field.getName();
                             pd.setName(fieldName);
-                            LOG.debug("Error occurred: ", e1);
+                            log.debug("Error occurred: ", e1);
                         } catch (NoSuchFieldException e) {
-                            LOG.debug("Ignored error: ", e);
+                            log.debug("Ignored error: ", e);
                             // It is possible that there is no such field at all
                         }
                     }

@@ -18,8 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.config.InMemoryProperties;
@@ -32,8 +31,8 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
-    private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfiguration.class);
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
 
     private static final String REPOSITORY_NAME_SUFFIX = ".name";
@@ -338,7 +337,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
                             }
                         } catch (NumberFormatException e) {
                             // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
-                            LOG.debug("Ignored error while forming the config name: ", e);
+                            log.debug("Ignored error while forming the config name: ", e);
                         }
                     }
                 }

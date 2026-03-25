@@ -17,8 +17,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,8 +49,8 @@ import org.openl.util.StringUtils;
 @RequestMapping("/conflict")
 @Tag(name = "Conflict")
 @Deprecated(forRemoval = true)
+@Slf4j
 public class ConflictController {
-    private static final Logger LOG = LoggerFactory.getLogger(ConflictController.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
     private final UserManagementService userManagementService;
@@ -125,7 +124,7 @@ public class ConflictController {
                 }
                 throw new FileNotFoundException(String.format("File %s is not found.", name));
             } catch (ProjectException e) {
-                LOG.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             }
         };
@@ -174,7 +173,7 @@ public class ConflictController {
                     .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to download file.";
-            LOG.error(message, e);
+            log.error(message, e);
             response.addCookie(newCookie(cookieName, message, request.getContextPath()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

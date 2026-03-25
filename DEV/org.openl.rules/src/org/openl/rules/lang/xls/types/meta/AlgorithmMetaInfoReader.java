@@ -2,8 +2,7 @@ package org.openl.rules.lang.xls.types.meta;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeUsage;
 import org.openl.meta.StringValue;
@@ -22,8 +21,8 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 
+@Slf4j
 public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoundNode> {
-    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmMetaInfoReader.class);
 
     private int operationColumn = -1;
 
@@ -42,7 +41,7 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         ICell firstCell = getTableSyntaxNode().getTableBody().getCell(0, 2);
         if (operationColumn == -1) {
-            LOG.error("Operation column is not initialized");
+            log.error("Operation column is not initialized");
         } else {
             if (col == operationColumn) {
                 return firstCell.getAbsoluteRow() <= row ? AlgorithmBuilder.CELL_META_INFO : null;

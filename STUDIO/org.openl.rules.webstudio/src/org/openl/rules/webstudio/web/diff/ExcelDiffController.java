@@ -6,17 +6,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+@Slf4j
 public class ExcelDiffController extends AbstractDiffController {
     private static final String FORMATTING_OR_METADATA = "Content of excel file hasn't been changed, possibly differences are name, formatting or metadata.";
-    private static final Logger LOG = LoggerFactory.getLogger(ExcelDiffController.class);
 
     /**
      * Max files count to compare.
@@ -48,7 +47,7 @@ public class ExcelDiffController extends AbstractDiffController {
                 setDiffTree(diffTree);
                 defineChangesStatus(diffTree);
             } catch (Exception e) {
-                LOG.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
                 WebStudioUtils.addErrorMessage(e.getMessage());
             }
 

@@ -22,12 +22,11 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ValidationException;
 import jakarta.xml.bind.JAXBException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
@@ -107,9 +106,9 @@ import org.openl.util.StringUtils;
  *
  * @author snshor
  */
+@Slf4j
 public class WebStudio implements DesignTimeRepositoryListener {
 
-    private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
             String.CASE_INSENSITIVE_ORDER);

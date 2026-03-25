@@ -18,8 +18,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
@@ -93,9 +92,9 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 @Component
 @ParametersAreNonnullByDefault
+@Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkspaceProjectService.class);
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
     private static final Comparator<MessageDescription> MESSAGE_DESCRIPTION_COMPARATOR = Comparator.comparing(MessageDescription::severity)
@@ -160,7 +159,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 selectedBranches.sort(String.CASE_INSENSITIVE_ORDER);
                 builder.selectedBranches(selectedBranches);
             } catch (ProjectException e) {
-                LOG.warn("Failed to retrieve project branches", e);
+                log.warn("Failed to retrieve project branches", e);
             }
         }
         projectDependencyResolver.getProjectDependencies(src).stream()
@@ -301,8 +300,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             ProjectHistoryService.deleteHistory(project.getBusinessName());
         } catch (IOException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
             }
             throw new ProjectException("Failed to delete project history", e);
         }
@@ -387,8 +386,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var previousBranch = project.getBranch();
         if (Objects.equals(previousBranch, branchName)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Project '{}' is already opened in branch '{}'", project.getBusinessName(), branchName);
+            if (log.isDebugEnabled()) {
+                log.debug("Project '{}' is already opened in branch '{}'", project.getBusinessName(), branchName);
             }
             return;
         }
@@ -416,8 +415,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 try {
                     ProjectHistoryService.deleteHistory(previousBusinessName);
                 } catch (IOException e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(e.getMessage(), e);
+                    if (log.isDebugEnabled()) {
+                        log.debug(e.getMessage(), e);
                     }
                     throw new ProjectException("Failed to delete project history", e);
                 }

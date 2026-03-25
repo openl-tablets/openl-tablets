@@ -1,13 +1,13 @@
 package org.openl.util.formatters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.EnumUtils;
 
+@Slf4j
 public class EnumFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(EnumFormatter.class);
 
     private final Class<?> enumClass;
 

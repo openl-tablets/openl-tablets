@@ -15,8 +15,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -31,8 +30,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 public class ZipFileProjectCreator extends AProjectCreator {
-    private final Logger log = LoggerFactory.getLogger(ZipFileProjectCreator.class);
     private final ZipFile zipFile;
     private final PathFilter zipFilter;
     private final File uploadedFile;
@@ -48,7 +47,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  UserWorkspace userWorkspace,
                                  String comment,
                                  PathFilter zipFilter,
-                                 ZipCharsetDetector zipCharsetDetector, 
+                                 ZipCharsetDetector zipCharsetDetector,
                                  Map<String, String> tags) throws IOException {
         super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;

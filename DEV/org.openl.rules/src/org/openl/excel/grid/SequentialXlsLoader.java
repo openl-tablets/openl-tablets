@@ -9,8 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
@@ -49,8 +48,8 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 
+@Slf4j
 public class SequentialXlsLoader {
-    private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
     private final Collection<String> imports = new HashSet<>();
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();

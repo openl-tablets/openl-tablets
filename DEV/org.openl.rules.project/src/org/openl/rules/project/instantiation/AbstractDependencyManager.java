@@ -17,8 +17,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
@@ -37,13 +36,13 @@ import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 
+@Slf4j
 public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
     private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
 
-    private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
     private volatile CopyOnWriteArraySet<IDependencyLoader> dependencyLoaders;
     private final Object dependencyLoadersFlag = new Object();

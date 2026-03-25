@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
@@ -29,8 +30,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -49,6 +48,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
+@Slf4j
 public final class KafkaService implements Runnable {
 
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -58,7 +58,6 @@ public final class KafkaService implements Runnable {
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
-    private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
     private volatile boolean flag = true;
     private final OpenLService service;

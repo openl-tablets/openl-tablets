@@ -1,8 +1,7 @@
 package org.openl.excel.grid;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -13,8 +12,8 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
  * sheet name (it's needed when create Categories in OpenL Studio and when building sheet URI). To prevent it we get sheet
  * name from SheetDescriptor.
  */
+@Slf4j
 class SequentialXlsSheetSourceCodeModule extends XlsSheetSourceCodeModule {
-    private final Logger log = LoggerFactory.getLogger(SequentialXlsSheetSourceCodeModule.class);
     private final SheetDescriptor sheet;
 
     SequentialXlsSheetSourceCodeModule(XlsWorkbookSourceCodeModule module, SheetDescriptor sheet) {
