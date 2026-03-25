@@ -76,7 +76,7 @@ public class TraceNodeViewMapper {
         return mapSimpleNode(element, traceHelper, showRealNumbers).build();
     }
 
-    private TraceNodeView.Builder mapSimpleNode(ITracerObject element,
+    private TraceNodeView.TraceNodeViewBuilder mapSimpleNode(ITracerObject element,
                                           TraceHelper traceHelper,
                                           boolean showRealNumbers) {
         var type = getType(element);

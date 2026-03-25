@@ -3,6 +3,8 @@ package org.openl.studio.deployment.service;
 
 import java.util.function.Predicate;
 
+import lombok.Builder;
+
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.util.StringUtils;
 
@@ -12,6 +14,7 @@ import org.openl.util.StringUtils;
  * @param repository the repository ID to filter by (optional)
  * @param name       the deployment name to filter by (optional)
  */
+@Builder
 public record DeploymentCriteriaQuery(String repository, String name) {
 
     public Predicate<Deployment> getFilter() {
@@ -23,29 +26,6 @@ public record DeploymentCriteriaQuery(String repository, String name) {
             filter = filter.and(d -> d.getName().equalsIgnoreCase(name));
         }
         return filter;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String repository;
-        private String name;
-
-        public Builder repository(String repository) {
-            this.repository = repository;
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public DeploymentCriteriaQuery build() {
-            return new DeploymentCriteriaQuery(repository, name);
-        }
     }
 
 }

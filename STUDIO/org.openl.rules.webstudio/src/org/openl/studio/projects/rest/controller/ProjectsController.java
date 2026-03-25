@@ -400,10 +400,7 @@ public class ProjectsController {
             var objectMapper = configureObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator);
-            var query = TestExecutionSummaryQuery.builder()
-                    .failedOnly(failuresOnly)
-                    .failures(failures)
-                    .build();
+            var query = new TestExecutionSummaryQuery(failuresOnly, failures);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();

@@ -2,7 +2,8 @@ package org.openl.rules.repository.git;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
+
+import lombok.Builder;
 
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 
@@ -15,6 +16,7 @@ import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
  * @param baseCommit    The common ancestor commit hash.
  * @param toAutoResolve A map of file paths to their respective WorkbookDiffResult for files that can be auto-resolved.
  */
+@Builder
 public record MergeConflictDetails(
         Map<String, String> diffs,
         String yourCommit,
@@ -23,56 +25,13 @@ public record MergeConflictDetails(
         Map<String, WorkbookDiffResult> toAutoResolve
 ) {
 
+    public MergeConflictDetails {
+        if (toAutoResolve == null) {
+            toAutoResolve = Map.of();
+        }
+    }
+
     public Collection<String> getConflictedFiles() {
         return diffs.keySet();
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private Map<String, String> diffs;
-        private String yourCommit;
-        private String theirCommit;
-        private String baseCommit;
-        private Map<String, WorkbookDiffResult> toAutoResolve;
-
-        private Builder() {
-
-        }
-
-        public Builder diffs(Map<String, String> diffs) {
-            this.diffs = diffs;
-            return this;
-        }
-
-        public Builder yourCommit(String yourCommit) {
-            this.yourCommit = yourCommit;
-            return this;
-        }
-
-        public Builder theirCommit(String theirCommit) {
-            this.theirCommit = theirCommit;
-            return this;
-        }
-
-        public Builder baseCommit(String baseCommit) {
-            this.baseCommit = baseCommit;
-            return this;
-        }
-
-        public Builder toAutoResolve(Map<String, WorkbookDiffResult> toAutoResolve) {
-            this.toAutoResolve = toAutoResolve;
-            return this;
-        }
-
-        public MergeConflictDetails build() {
-            return new MergeConflictDetails(diffs,
-                    yourCommit,
-                    theirCommit,
-                    baseCommit,
-                    Optional.ofNullable(toAutoResolve).orElseGet(Map::of));
-        }
     }
 }
