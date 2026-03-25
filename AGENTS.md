@@ -11,6 +11,8 @@ OpenL Tablets is a business rules engine that compiles Excel spreadsheets into e
 - Never use deprecated APIs — migrate to alternatives
 - Run tests after changes
 - No HTML in Markdown when equivalents exist (see Markdown Rules below)
+- All new file names must be only in ASCII alphanumeric without spaces and any special characters, except for `-_.`
+- Existed file names contains spaces and `,+%$#` symbols for tests purposes and must not be renamed during refactoring.
 
 ## Repository Layout
 
