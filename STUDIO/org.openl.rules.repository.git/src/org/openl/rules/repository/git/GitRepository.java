@@ -699,9 +699,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         Lock writeLock = repositoryLock.writeLock();
+        writeLock.lock();
         try {
             log.debug("initialize(): lock");
-            writeLock.lock();
 
             if (git != null) {
                 return;
@@ -927,7 +927,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         if (e instanceof TransportException) {
             try {
-                if ((new URIish(uri)).getScheme() == null) {
+                if (new URIish(uri).getScheme() == null) {
                     throw new IllegalStateException("Incorrect URL.");
                 }
             } catch (URISyntaxException uriSyntaxException) {
@@ -1166,9 +1166,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             monitor.fireOnChange();
         }
 
+        readLock.lock();
         try {
             log.debug("getLastRevision(): lock");
-            readLock.lock();
             return git.getRepository().resolve(branch);
         } finally {
             readLock.unlock();
@@ -1314,8 +1314,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
 
         FetchResult fetchResult;
+        remoteRepoLock.lock();
         try {
-            remoteRepoLock.lock();
             fetchResult = fetchAll();
         } finally {
             remoteRepoLock.unlock();
@@ -1624,8 +1624,8 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return;
         }
 
+        remoteRepoLock.lock();
         try {
-            remoteRepoLock.lock();
             PushCommand push;
 
             if (git.getRepository().findRef(branch) != null) {
@@ -2720,9 +2720,9 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         initializeGit(true);
 
         Lock readLock = repositoryLock.readLock();
+        readLock.lock();
         try {
             log.debug("forBranch(): read: lock");
-            readLock.lock();
             initLfsCredentials();
 
             if (git.getRepository().findRef(branch) == null) {

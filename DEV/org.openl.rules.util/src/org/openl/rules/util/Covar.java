@@ -155,7 +155,7 @@ public final class Covar {
     }
 
     private static BigDecimal covariance(BigDecimal y, BigDecimal x, BigDecimal avgY, BigDecimal avgX, BigDecimal result) {
-        var tmp = (x.subtract(avgX)).multiply(y.subtract(avgY));
+        var tmp = x.subtract(avgX).multiply(y.subtract(avgY));
         return result == null ? tmp : result.add(tmp);
     }
 

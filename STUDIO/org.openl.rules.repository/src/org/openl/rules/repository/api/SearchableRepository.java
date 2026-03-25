@@ -15,7 +15,7 @@ public interface SearchableRepository extends Repository {
      *
      * @param name         Project name
      * @param globalFilter global filer allows regexp.
-     * @param page         page to display
+     * @param pageable     page to display
      * @return page log
      * @throws IOException error
      */
