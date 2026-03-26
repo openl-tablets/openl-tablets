@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -21,13 +23,11 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 public class JavaClassRuleServicePublisher implements RuleServicePublisher {
 
 
+    @Getter
+    @Setter
     private RulesFrontend frontend = new RulesFrontendImpl();
 
     private final Map<String, OpenLService> runningServices = new HashMap<>();
-
-    public RulesFrontend getFrontend() {
-        return frontend;
-    }
 
     /**
      * {@inheritDoc}
@@ -68,10 +68,6 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceUndeployException("Service '%s' has not been deployed.".formatted(deployPath));
         }
         log.info("Service '{}' has been undeployed successfully.", deployPath);
-    }
-
-    public void setFrontend(RulesFrontend frontend) {
-        this.frontend = Objects.requireNonNull(frontend, "frontend cannot be null");
     }
 
     @Override

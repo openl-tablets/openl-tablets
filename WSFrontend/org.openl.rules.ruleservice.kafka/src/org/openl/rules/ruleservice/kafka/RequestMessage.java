@@ -5,10 +5,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import lombok.Getter;
+
 public class RequestMessage {
     private Object[] parameters;
+    @Getter
     private Exception exception;
     private Method method;
+    @Getter
     private final byte[] rawData;
     private Charset encoding = StandardCharsets.UTF_8;
 
@@ -49,14 +53,6 @@ public class RequestMessage {
 
     public final boolean isSuccess() {
         return exception == null;
-    }
-
-    public final Exception getException() {
-        return exception;
-    }
-
-    public final byte[] getRawData() {
-        return rawData;
     }
 
     public final String asText() {

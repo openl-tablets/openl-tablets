@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.ObjectProvider;
@@ -40,12 +42,18 @@ import org.openl.types.IOpenClass;
 @Slf4j
 public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServiceInstantiationFactory {
 
+    @Getter
+    @Setter
     private RuleServiceLoader ruleServiceLoader;
 
+    @Getter
+    @Setter
     private Map<String, Object> externalParameters;
 
     private final Map<DeploymentDescription, RuleServiceDependencyManager> dependencyManagerMap = new HashMap<>();
 
+    @Getter
+    @Setter
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
     @Autowired
@@ -246,37 +254,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         });
     }
 
-    public RuleServiceLoader getRuleServiceLoader() {
-        return ruleServiceLoader;
-    }
-
-    public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
-        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader cannot be null");
-    }
-
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {
         if (getServiceInvocationAdviceListeners() != null) {
             return getServiceInvocationAdviceListeners().getIfAvailable();
         } else {
             return Collections.emptyList();
         }
-    }
-
-    public ObjectProvider<Collection<ServiceInvocationAdviceListener>> getServiceInvocationAdviceListeners() {
-        return serviceInvocationAdviceListeners;
-    }
-
-    public void setServiceInvocationAdviceListeners(
-            ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners) {
-        this.serviceInvocationAdviceListeners = serviceInvocationAdviceListeners;
-    }
-
-    public Map<String, Object> getExternalParameters() {
-        return externalParameters;
-    }
-
-    public void setExternalParameters(Map<String, Object> externalParameters) {
-        this.externalParameters = externalParameters;
     }
 
     @Override

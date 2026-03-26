@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -60,8 +61,10 @@ public final class KafkaService implements Runnable {
 
 
     private volatile boolean flag = true;
+    @Getter
     private final OpenLService service;
     private final String requestIdHeaderKey;
+    @Getter
     private final String inTopic;
     private final String outTopic;
     private final String dltTopic;
@@ -70,8 +73,10 @@ public final class KafkaService implements Runnable {
     private final KafkaProducer<String, byte[]> dltProducer;
     private final KafkaConsumer<String, RequestMessage> consumer;
     private Thread loopRunningThread;
+    @Getter
     private final ObjectSerializer objectSerializer;
     private final boolean storageEnabled;
+    @Getter
     private StoreLogDataManager storeLogDataManager;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
@@ -143,18 +148,6 @@ public final class KafkaService implements Runnable {
         return storageEnabled;
     }
 
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public OpenLService getService() {
-        return service;
-    }
-
-    public String getInTopic() {
-        return inTopic;
-    }
-
     public String getOutTopic(ConsumerRecord<?, ?> record) {
         Header header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
         if (header != null && header.value() != null) {
@@ -208,10 +201,6 @@ public final class KafkaService implements Runnable {
         } catch (Exception e) {
             throw new KafkaServiceException("Failed to start kafka service.", e);
         }
-    }
-
-    public ObjectSerializer getObjectSerializer() {
-        return objectSerializer;
     }
 
     @Override

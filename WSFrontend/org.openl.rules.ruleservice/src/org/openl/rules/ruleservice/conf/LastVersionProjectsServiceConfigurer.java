@@ -6,12 +6,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -47,9 +48,15 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
 
+    @Setter
     private IRulesDeploySerializer rulesDeploySerializer;
+    @Setter
     private IProjectDescriptorSerializer projectDescriptorSerializer;
+    @Getter
+    @Setter
     private boolean provideRuntimeContext = false;
+    @Getter
+    @Setter
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
     private Collection<String> defaultPublishers = Collections.emptyList();
@@ -251,37 +258,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         return rulesDeploySerializer;
     }
 
-    public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
-        this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer,
-                "rulesDeploySerializer cannot be null");
-    }
-
     public final IProjectDescriptorSerializer getProjectDescriptorSerializer() {
         if (projectDescriptorSerializer == null) {
             projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         }
         return projectDescriptorSerializer;
-    }
-
-    public final void setProjectDescriptorSerializer(IProjectDescriptorSerializer projectDescriptorSerializer) {
-        this.projectDescriptorSerializer = Objects.requireNonNull(projectDescriptorSerializer,
-                "projectDescriptorSerializer cannot be null");
-    }
-
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
-    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
-        this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public void setSupportedGroups(String supportedGroups) {
-        this.supportedGroups = supportedGroups;
-    }
-
-    public String getSupportedGroups() {
-        return supportedGroups;
     }
 
     public void setDatasourceDeploymentPatterns(String deploymentPatterns) {
@@ -300,12 +281,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     /**
      * For validation
      */
-    private Collection<RuleServicePublisher> supportedPublishers;
-
     @Autowired
-    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = supportedPublishers;
-    }
+    @Setter
+    private Collection<RuleServicePublisher> supportedPublishers;
 
     @Override
     public void afterPropertiesSet() throws Exception {

@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,30 +61,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private BaseKafkaConfig immutableKafkaDeploy;
 
     @Autowired
+    @Getter
+    @Setter
     private StoreLogDataManager storeLogDataManager;
 
     @Autowired
     private Environment env;
 
     @Autowired
+    @Getter
     @Qualifier("serviceDescriptionInProcess")
+    @Setter
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
-
-    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
-        this.storeLogDataManager = storeLogDataManager;
-    }
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
-        return serviceDescriptionObjectFactory;
-    }
-
-    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
-        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
 
     private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
@@ -501,30 +491,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private static final class ServiceDeployContext {
+        @Getter
         private KafkaProducer<String, Object> producer;
+        @Getter
+        @Setter
         private KafkaProducer<String, byte[]> dltProducer;
+        @Getter
         private ObjectSerializer objectSerializer;
-
-        public KafkaProducer<String, byte[]> getDltProducer() {
-            return dltProducer;
-        }
-
-        public void setDltProducer(KafkaProducer<String, byte[]> dltProducer) {
-            this.dltProducer = Objects.requireNonNull(dltProducer);
-        }
-
-        public KafkaProducer<String, Object> getProducer() {
-            return producer;
-        }
 
         public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
                                                    ObjectSerializer objectSerializer) {
             this.producer = Objects.requireNonNull(producer);
             this.objectSerializer = Objects.requireNonNull(objectSerializer);
-        }
-
-        public ObjectSerializer getObjectSerializer() {
-            return objectSerializer;
         }
 
     }

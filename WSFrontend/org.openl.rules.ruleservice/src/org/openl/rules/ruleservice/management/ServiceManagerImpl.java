@@ -16,6 +16,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import jakarta.annotation.PreDestroy;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -57,16 +59,23 @@ import org.openl.util.StringUtils;
  */
 @Slf4j
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
+    @Setter
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
+    @Setter
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
     private final Map<String, ServiceDescription> services = new ConcurrentHashMap<>();
     private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
     private final Map<String, Date> startDates = new ConcurrentHashMap<>();
 
+    @Autowired
+    @Setter
     private Collection<RuleServicePublisher> supportedPublishers;
+    @Autowired(required = false)
+    @Setter
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
+    @Getter
     private ServiceDescription serviceDescriptionInProcess;
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
@@ -77,25 +86,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         if (this.ruleServiceLoader != null) {
             this.ruleServiceLoader.setListener(this);
         }
-    }
-
-    public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
-        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
-                "ruleServiceInstantiationFactory cannot be null");
-    }
-
-    public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
-        this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer cannot be null");
-    }
-
-    @Autowired(required = false)
-    public void setListeners(Collection<RuleServicePublisherListener> listeners) {
-        this.listeners = listeners;
-    }
-
-    @Autowired
-    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = supportedPublishers;
     }
 
     /**
@@ -253,10 +243,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     public RulesDeploy getRulesDeployInProcess() {
         return serviceDescriptionInProcess != null ? serviceDescriptionInProcess.getRulesDeploy() : null;
-    }
-
-    public ServiceDescription getServiceDescriptionInProcess() {
-        return this.serviceDescriptionInProcess;
     }
 
     public ProjectDescriptor getProjectDescriptorInProcess() {

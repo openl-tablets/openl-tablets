@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import org.openl.CompiledOpenClass;
@@ -24,21 +27,37 @@ public final class OpenLService {
     /**
      * Unique for service.
      */
+    @Getter
     private final String name;
+    @Getter
     private final String url;
+    @Getter
     private final String deployPath;
+    @Setter(AccessLevel.PACKAGE)
     private String serviceClassName;
+    @Setter(AccessLevel.PACKAGE)
     private Class<?> serviceClass;
+    @Setter(AccessLevel.PACKAGE)
     private Object serviceBean;
+    @Getter
     private CompiledOpenClass compiledOpenClass;
+    @Getter
     private final boolean provideRuntimeContext;
     private final Collection<Module> modules;
     private final Set<String> publishers;
+    @Setter(AccessLevel.PACKAGE)
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
+    @Getter
+    @Setter
     private Throwable exception;
+    @Getter
+    @Setter
     private Map<String, String> urls = Collections.emptyMap();
+    @Getter
     private final DeploymentDescription deployment;
+    @Getter
+    @Setter
     private ConfigurableApplicationContext serviceContext;
 
     /**
@@ -106,33 +125,6 @@ public final class OpenLService {
     }
 
     /**
-     * Returns service name.
-     *
-     * @return service name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns service URL.
-     *
-     * @return service URL
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Returns servicePath.
-     *
-     * @return servicePath
-     */
-    public String getDeployPath() {
-        return deployPath;
-    }
-
-    /**
      * Returns service publishers.
      *
      * @return service publishers
@@ -170,20 +162,6 @@ public final class OpenLService {
         return serviceClassName;
     }
 
-    void setServiceClassName(String serviceClassName) {
-        this.serviceClassName = serviceClassName;
-    }
-
-    /**
-     * Return provideRuntimeContext value. This value is define that service methods first argument is
-     * IRulesRuntimeContext.
-     *
-     * @return isProvideRuntimeContext
-     */
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
     /**
      * Returns service class.
      *
@@ -194,25 +172,9 @@ public final class OpenLService {
         return serviceClass;
     }
 
-    void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    void setServiceClass(Class<?> serviceClass) {
-        this.serviceClass = serviceClass;
-    }
-
     public Object getServiceBean() throws RuleServiceInstantiationException {
         ensureInitialization();
         return serviceBean;
-    }
-
-    void setServiceBean(Object serviceBean) {
-        this.serviceBean = serviceBean;
-    }
-
-    public CompiledOpenClass getCompiledOpenClass() {
-        return compiledOpenClass;
     }
 
     void setCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
@@ -224,34 +186,6 @@ public final class OpenLService {
     public IOpenClass getOpenClass() throws RuleServiceInstantiationException {
         ensureInitialization();
         return compiledOpenClass != null ? compiledOpenClass.getOpenClass() : null;
-    }
-
-    public Throwable getException() {
-        return exception;
-    }
-
-    public void setException(Throwable exception) {
-        this.exception = exception;
-    }
-
-    public Map<String, String> getUrls() {
-        return urls;
-    }
-
-    public void setUrls(Map<String, String> urls) {
-        this.urls = urls;
-    }
-
-    public DeploymentDescription getDeployment() {
-        return deployment;
-    }
-
-    public ConfigurableApplicationContext getServiceContext() {
-        return serviceContext;
-    }
-
-    public void setServiceContext(ConfigurableApplicationContext serviceContext) {
-        this.serviceContext = serviceContext;
     }
 
     /**

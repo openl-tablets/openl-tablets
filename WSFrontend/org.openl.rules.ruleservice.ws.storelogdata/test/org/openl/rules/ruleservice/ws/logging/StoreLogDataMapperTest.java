@@ -7,6 +7,9 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.junit.jupiter.api.Test;
@@ -161,167 +164,63 @@ public class StoreLogDataMapperTest {
         }
     }
 
+    @NoArgsConstructor
     public static class TestEntity {
+        @Getter
+        @Setter(onMethod_ = {@Value(converter = SomeValueConvertor.class)})
         private String id;
+        @Getter
+        @Setter(onMethod_ = {@IncomingTime})
         private ZonedDateTime incomingTime;
+        @Getter
+        @Setter(onMethod_ = {@OutcomingTime})
         private ZonedDateTime outcomingTime;
+        @Getter(onMethod_ = {@Request})
+        @Setter
         private String request;
+        @Getter
+        @Setter(onMethod_ = {@Response})
         private String response;
+        @Getter(onMethod_ = {@ServiceName})
+        @Setter
         private String serviceName;
+        @Getter
+        @Setter
         @Url
         private String url;
+        @Getter
         @MethodName
+        @Setter
         private String methodName;
+        @Getter
+        @Setter(onMethod_ = {@Publisher})
         private String publisherType;
+        @Getter
+        @Setter(onMethod_ = {@Value("customString1")})
         private String stringValue1;
+        @Getter
+        @Setter(onMethod_ = {@Value("customString2")})
         private String stringValue2;
+        @Getter
+        @Setter(onMethod_ = {@Value("customString3")})
         private String stringValue3;
 
+        @Getter
         @Value(value = "customString1")
         @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE)
+        @Setter
         private String value1;
+        @Getter(onMethod_ = {@Value(value = "customString2"), @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL)})
+        @Setter
         private String value2;
+        @Getter
+        @Setter
         @Value(value = "customString1", converter = TrimConvertor.class)
         private String value3;
-
-        public TestEntity() {
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        @Value(converter = SomeValueConvertor.class)
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public ZonedDateTime getIncomingTime() {
-            return incomingTime;
-        }
-
-        @IncomingTime
-        public void setIncomingTime(ZonedDateTime incomingTime) {
-            this.incomingTime = incomingTime;
-        }
-
-        public ZonedDateTime getOutcomingTime() {
-            return outcomingTime;
-        }
-
-        @OutcomingTime
-        public void setOutcomingTime(ZonedDateTime outcomingTime) {
-            this.outcomingTime = outcomingTime;
-        }
-
-        @Request
-        public String getRequest() {
-            return request;
-        }
-
-        public void setRequest(String request) {
-            this.request = request;
-        }
-
-        public String getResponse() {
-            return response;
-        }
-
-        @Response
-        public void setResponse(String response) {
-            this.response = response;
-        }
-
-        @ServiceName
-        public String getServiceName() {
-            return serviceName;
-        }
-
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getMethodName() {
-            return methodName;
-        }
-
-        public void setMethodName(String inputName) {
-            this.methodName = inputName;
-        }
-
-        public String getPublisherType() {
-            return publisherType;
-        }
-
-        @Publisher
-        public void setPublisherType(String publisherType) {
-            this.publisherType = publisherType;
-        }
-
-        public String getStringValue1() {
-            return stringValue1;
-        }
-
-        @Value("customString1")
-        public void setStringValue1(String stringValue1) {
-            this.stringValue1 = stringValue1;
-        }
-
-        public String getStringValue2() {
-            return stringValue2;
-        }
-
-        @Value("customString2")
-        public void setStringValue2(String stringValue2) {
-            this.stringValue2 = stringValue2;
-        }
-
-        public String getStringValue3() {
-            return stringValue3;
-        }
-
-        @Value("customString3")
-        public void setStringValue3(String stringValue3) {
-            this.stringValue3 = stringValue3;
-        }
 
         @Override
         public String toString() {
             return "TestEntity [id=" + id + "]";
-        }
-
-        public String getValue1() {
-            return value1;
-        }
-
-        public void setValue1(String value1) {
-            this.value1 = value1;
-        }
-
-        @Value(value = "customString2")
-        @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL)
-        public String getValue2() {
-            return value2;
-        }
-
-        public void setValue2(String value2) {
-            this.value2 = value2;
-        }
-
-        public String getValue3() {
-            return value3;
-        }
-
-        public void setValue3(String value3) {
-            this.value3 = value3;
         }
 
     }

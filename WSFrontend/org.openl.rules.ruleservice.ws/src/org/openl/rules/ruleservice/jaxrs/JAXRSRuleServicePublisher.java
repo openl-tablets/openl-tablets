@@ -8,6 +8,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -48,10 +50,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean authenticationEnabled;
 
     @Autowired
+    @Getter
     @Qualifier("serviceDescriptionInProcess")
+    @Setter
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
     @Autowired
+    @Getter
+    @Setter
     private StoreLogDataManager storeLogDataManager;
 
     @Autowired
@@ -59,22 +65,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private List<Feature> features;
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
-        this.storeLogDataManager = storeLogDataManager;
-    }
-
-    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
-        return serviceDescriptionObjectFactory;
-    }
-
-    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
-        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})

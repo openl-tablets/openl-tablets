@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core;
 
 import java.io.Serial;
 
+import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
@@ -21,7 +22,9 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
     @Serial
     private static final long serialVersionUID = 3618613334261575918L;
 
+    @Getter
     private final Object body;
+    @Getter
     private final ExceptionType type;
 
     /**
@@ -68,19 +71,5 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
             }
         }
         return new RuleServiceWrapperException(body, type, message, ex);
-    }
-
-    /**
-     * Returns simple Message
-     */
-    public Object getBody() {
-        return body;
-    }
-
-    /**
-     * Returns error type
-     */
-    public ExceptionType getType() {
-        return type;
     }
 }

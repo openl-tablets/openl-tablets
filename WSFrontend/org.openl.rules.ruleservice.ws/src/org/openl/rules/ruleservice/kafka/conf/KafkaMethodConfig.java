@@ -1,27 +1,17 @@
 package org.openl.rules.ruleservice.kafka.conf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 public class KafkaMethodConfig extends KafkaServiceConfig {
+    @Getter
     @JsonProperty(value = "method.name", required = true)
+    @Setter
     private String methodName;
 
+    @Getter
     @JsonProperty(value = "method.parameters")
+    @Setter
     private String methodParameters;
-
-    public String getMethodParameters() {
-        return methodParameters;
-    }
-
-    public void setMethodParameters(String methodParameters) {
-        this.methodParameters = methodParameters;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
 }
