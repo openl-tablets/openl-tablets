@@ -302,6 +302,7 @@ public class StoreLogDataMapper {
                     }
                     return;
                 } catch (NoSuchMethodException ignored) {
+                    // no corresponding setter; fall back to direct method invocation below
                 }
             }
             method.invoke(target, value);

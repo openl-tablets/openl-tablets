@@ -66,6 +66,7 @@ class DrainableInputStream extends InputStream {
                 // make sure that stream was fully read
             }
         } catch (IOException ignored) {
+            // safe to ignore: stream will be closed in finally block regardless
         } finally {
             IOUtils.closeQuietly(delegate);
         }

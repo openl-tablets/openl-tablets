@@ -766,6 +766,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 try {
                     git.close();
                 } catch (Exception ignored) {
+                    // safe to ignore: close failure should not mask the original exception
                 }
                 git = null;
             }
@@ -2603,6 +2604,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             try {
                 git.branchDelete().setBranchNames(newBranch).call();
             } catch (Exception ignored) {
+                // safe to ignore: rollback best-effort; original exception is rethrown
             }
             throw e;
         } catch (Exception e) {
@@ -2610,6 +2612,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             try {
                 git.branchDelete().setBranchNames(newBranch).call();
             } catch (Exception ignored) {
+                // safe to ignore: rollback best-effort; original exception is rethrown
             }
             throw new IOException(e.getMessage(), e);
         } finally {
@@ -3048,6 +3051,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                     ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                     lfsApplied = new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
                 } catch (FileNotFoundException ignored) {
+                    // .gitattributes does not exist; LFS is not configured
                 }
             }
         }
@@ -3316,6 +3320,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     history.addAll(new ListCommand(commit).apply(repository, rootWalk, fullPath));
                 } catch (FileNotFoundException ignored) {
+                    // path does not exist in this commit tree; history remains empty
                 }
 
                 return true;

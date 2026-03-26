@@ -176,6 +176,7 @@ public class OpenLService {
             x.putPOJO("error", body);
             return mapper.writeValueAsString(x);
         } catch (Exception ignore) {
+            // JSON serialization failed; fall back to a manually built JSON string below
         }
         /*
         {"result":null,"error":{"message":"@","type":"$"}}

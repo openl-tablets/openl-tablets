@@ -217,6 +217,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             }
             aclService.updateAcl(acl);
         } catch (NotFoundException ignored) {
+            // no ACL entry exists for this object; nothing to remove
         }
     }
 
@@ -259,6 +260,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             }
             aclService.updateAcl(acl);
         } catch (NotFoundException ignored) {
+            // no ACL entry exists for this object; nothing to remove
         }
     }
 
@@ -291,6 +293,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             }
             aclService.updateAcl(acl);
         } catch (NotFoundException ignored) {
+            // no ACL entry exists for this object; nothing to remove
         }
     }
 

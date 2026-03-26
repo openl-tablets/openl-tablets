@@ -369,6 +369,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
                         parameterTypes);
             } catch (NoSuchMethodException ignored) {
+                // method not found on this candidate class; continue searching
             }
         }
         return Pair.of(null, null);

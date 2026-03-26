@@ -135,6 +135,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                             }
                         }
                     } catch (ClassNotFoundException ignored) {
+                        // bean class not resolvable at this point; skip this candidate
                     }
                 }
             }

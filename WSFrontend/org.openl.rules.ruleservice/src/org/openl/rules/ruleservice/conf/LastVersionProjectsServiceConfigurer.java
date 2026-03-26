@@ -141,6 +141,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                             }
                         }
                     } catch (ProjectException ignored) {
+                        // rules-deploy.xml is optional; proceed with defaults
                     }
                     serviceDescriptionBuilder.setManifest(readManifestFile(project));
                     serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
@@ -179,6 +180,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                 }
             }
         } catch (IOException | ProjectException ignored) {
+            // manifest is optional; return null so callers treat it as absent
         }
         return null;
     }

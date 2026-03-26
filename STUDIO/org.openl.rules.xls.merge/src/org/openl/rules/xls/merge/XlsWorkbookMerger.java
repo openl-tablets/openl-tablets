@@ -301,6 +301,7 @@ public class XlsWorkbookMerger implements Closeable {
             try {
                 closeable.close();
             } catch (IOException ignored) {
+                // safe to ignore: best-effort close
             }
         }
     }

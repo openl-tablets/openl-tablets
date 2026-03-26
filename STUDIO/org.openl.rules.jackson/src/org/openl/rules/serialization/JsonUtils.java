@@ -47,6 +47,7 @@ public final class JsonUtils {
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException ignored) {
+            // optional class not available; return null so caller can use a fallback mapper
         }
         return null;
     }
