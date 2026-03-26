@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -19,6 +20,7 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ParameterValue;
 
+@RequiredArgsConstructor
 public class RunExecutionResultMapper {
 
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
@@ -27,27 +29,17 @@ public class RunExecutionResultMapper {
     private final SchemaGenerator schemaGenerator;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy;
 
-    public RunExecutionResultMapper(ObjectMapper objectMapper,
-                                    SchemaGenerator schemaGenerator,
-                                    SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
-        this.objectMapper = objectMapper;
-        this.schemaGenerator = schemaGenerator;
-        this.sprNamingStrategy = sprNamingStrategy;
-    }
-
     public RunExecutionResult mapResult(TestUnitsResults results) {
         var testUnits = results.getTestUnits();
         if (testUnits.isEmpty()) {
-            return new RunExecutionResult(
-                    results.getName(),
-                    TableUtils.makeTableId(results.getTestSuite().getUri()),
-                    results.getExecutionTime() / NANOS_IN_MILLISECOND,
-                    null,
-                    null,
-                    List.of(),
-                    List.of(),
-                    List.of()
-            );
+            return RunExecutionResult.builder()
+                    .tableName(results.getName())
+                    .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
+                    .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND)
+                    .parameters(List.of())
+                    .contextParameters(List.of())
+                    .errors(List.of())
+                    .build();
         }
 
         ITestUnit firstUnit = testUnits.getFirst();
@@ -96,22 +88,22 @@ public class RunExecutionResultMapper {
         List<MessageDescription> errors = new ArrayList<>();
         firstUnit.getErrors().stream()
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                .sorted(Comparator.comparing(MessageDescription::getSeverity).thenComparing(MessageDescription::getId))
+                .sorted(Comparator.comparing(MessageDescription::severity).thenComparing(MessageDescription::id))
                 .forEach(errors::add);
 
         String tableName = results.getTestSuite().getTestSuiteMethod() != null
                 ? TableSyntaxNodeUtils.getTestName(results.getTestSuite().getTestSuiteMethod())
                 : results.getName();
 
-        return new RunExecutionResult(
-                tableName,
-                TableUtils.makeTableId(results.getTestSuite().getUri()),
-                results.getExecutionTime() / NANOS_IN_MILLISECOND,
-                resultValue,
-                resultSchema,
-                parameters,
-                contextParameters,
-                errors
-        );
+        return RunExecutionResult.builder()
+                .tableName(tableName)
+                .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
+                .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND)
+                .result(resultValue)
+                .resultSchema(resultSchema)
+                .parameters(parameters)
+                .contextParameters(contextParameters)
+                .errors(errors)
+                .build();
     }
 }

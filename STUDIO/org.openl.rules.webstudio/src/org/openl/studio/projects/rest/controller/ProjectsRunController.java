@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -44,8 +45,8 @@ import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFac
 import org.openl.studio.projects.model.run.RunExecutionResult;
 import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
-import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.ExecutionStatus;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
 import org.openl.studio.projects.service.trace.TableInputParserService;
@@ -56,6 +57,7 @@ import org.openl.studio.projects.service.trace.TableInputParserService;
  * For test table execution, use the Tests API ({@code ProjectsController}) instead.
  * </p>
  */
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/projects/{projectId}/run", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Run (BETA)", description = "Experimental run execution API")
@@ -70,20 +72,6 @@ public class ProjectsRunController {
     private final SocketRunExecutionProgressListenerFactory listenerFactory;
     private final TableInputParserService inputParserService;
     private final Environment environment;
-
-    public ProjectsRunController(WorkspaceProjectService projectService,
-                                 RunExecutorService runExecutorService,
-                                 ExecutionRunResultRegistry runResultRegistry,
-                                 SocketRunExecutionProgressListenerFactory listenerFactory,
-                                 TableInputParserService inputParserService,
-                                 Environment environment) {
-        this.projectService = projectService;
-        this.runExecutorService = runExecutorService;
-        this.runResultRegistry = runResultRegistry;
-        this.listenerFactory = listenerFactory;
-        this.inputParserService = inputParserService;
-        this.environment = environment;
-    }
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {

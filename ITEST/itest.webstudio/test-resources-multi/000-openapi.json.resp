@@ -9,7 +9,7 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "context": {
-            "$ref": "#/components/schemas/TraceParameterValue_Full"
+            "$ref": "#/components/schemas/ParameterValue_Full"
           },
           "error": {
             "type": "boolean",
@@ -39,11 +39,11 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/TraceParameterValue_Full"
+              "$ref": "#/components/schemas/ParameterValue_Full"
             }
           },
           "result": {
-            "$ref": "#/components/schemas/TraceParameterValue_Full"
+            "$ref": "#/components/schemas/ParameterValue_Full"
           },
           "title": {
             "type": "string",
@@ -59,7 +59,7 @@ Content-Type: application/json
           }
         }
       },
-      "TraceParameterValue_Full": {
+      "ParameterValue_Full": {
         "type": "object",
         "description": "***",
         "properties": {
@@ -146,7 +146,7 @@ Content-Type: application/json
           }
         }
       },
-      "TraceParameterValue": {
+      "ParameterValue": {
         "type": "object",
         "description": "***",
         "properties": {
@@ -277,6 +277,37 @@ Content-Type: application/json
           "mode",
           "otherBranch"
         ]
+      },
+      "ParameterValue_Full": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameterId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "schema": {
+            "type": "object",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
       },
       "CheckMergeResult": {
         "type": "object",
@@ -564,7 +595,7 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/TestParameterValue"
+              "$ref": "#/components/schemas/ParameterValue"
             }
           },
           "description": {
@@ -591,7 +622,7 @@ Content-Type: application/json
             "type": "array",
             "description": "***",
             "items": {
-              "$ref": "#/components/schemas/TestParameterValue"
+              "$ref": "#/components/schemas/ParameterValue"
             }
           },
           "status": {
@@ -612,7 +643,7 @@ Content-Type: application/json
           }
         }
       },
-      "TestParameterValue": {
+      "ParameterValue": {
         "type": "object",
         "properties": {
           "description": {
@@ -3112,6 +3143,85 @@ Content-Type: application/json
           "username"
         ],
         "type": "object"
+      },
+      "ParameterValue": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "lazy": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameterId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "schema": {
+            "type": "object",
+            "description": "***"
+          },
+          "value": {
+            "type": "object",
+            "description": "***"
+          }
+        }
+      },
+      "RunExecutionResult": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "contextParameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/MessageDescription"
+            }
+          },
+          "executionTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "result": {
+            "type": "object",
+            "description": "***"
+          },
+          "resultSchema": {
+            "type": "object",
+            "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "tableName": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "UserEditModel": {
         "properties": {
@@ -8476,6 +8586,115 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings: Production Repository"
+        ]
+      }
+    },
+    "/projects/{projectId}/run/result": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application/json",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "406": {
+            "description": "***"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExecutionResult"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "***",
+            "headers": {
+              "Content-Disposition": {
+                "description": "***",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Run (BETA)"
         ]
       }
     },
@@ -15903,7 +16122,7 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TraceParameterValue"
+                  "$ref": "#/components/schemas/ParameterValue_Full"
                 }
               }
             },
@@ -19302,6 +19521,202 @@ Content-Type: application/json
           "Users"
         ]
       }
+    },
+    "/projects/{projectId}/run": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "204": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Run (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Run (BETA)"
+        ]
+      }
     }
   },
   "security": [
@@ -19386,6 +19801,10 @@ Content-Type: application/json
     {
       "description": "***",
       "name": "Projects: Resources (BETA)"
+    },
+    {
+      "description": "***",
+      "name": "Projects: Run (BETA)"
     },
     {
       "description": "***",
