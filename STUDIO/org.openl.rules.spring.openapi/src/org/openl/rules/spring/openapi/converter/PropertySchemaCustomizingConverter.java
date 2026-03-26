@@ -160,24 +160,37 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
         }
         var mapping = needsMapping ? new LinkedHashMap<String, String>() : null;
         for (var subType : subTypes.value()) {
-            var subSchema = context.resolve(new AnnotatedType(subType.value()));
-            if (subSchema != null && subSchema.getName() != null) {
-                String ref = RefUtils.constructRef(subSchema.getName());
-                if (mapping != null) {
-                    for (String name : subType.names()) {
-                        mapping.put(name, ref);
-                    }
-                    if (subType.name() != null && !subType.name().isEmpty()) {
-                        mapping.put(subType.name(), ref);
-                    }
-                }
-                if (needsOneOf) {
-                    definedSchema.addOneOfItem(new Schema<>().$ref(ref));
-                }
+            String ref = resolveSubTypeRef(subType, context);
+            if (ref == null) {
+                continue;
+            }
+            if (mapping != null) {
+                collectSubTypeNames(subType, ref, mapping);
+            }
+            if (needsOneOf) {
+                definedSchema.addOneOfItem(new Schema<>().$ref(ref));
             }
         }
         if (mapping != null) {
             discriminator.setMapping(mapping);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private String resolveSubTypeRef(JsonSubTypes.Type subType, ModelConverterContext context) {
+        var subSchema = context.resolve(new AnnotatedType(subType.value()));
+        if (subSchema != null && subSchema.getName() != null) {
+            return RefUtils.constructRef(subSchema.getName());
+        }
+        return null;
+    }
+
+    private void collectSubTypeNames(JsonSubTypes.Type subType, String ref, LinkedHashMap<String, String> mapping) {
+        for (String name : subType.names()) {
+            mapping.put(name, ref);
+        }
+        if (subType.name() != null && !subType.name().isEmpty()) {
+            mapping.put(subType.name(), ref);
         }
     }
 

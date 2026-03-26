@@ -20,6 +20,9 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
     private static final int MAX_NAME_PATTERN_LENGTH = 255;
     private static final int MAX_EXTENSION_LENGTH = 20;
+    private static final String BASE_PATH_FIELD = "basePath";
+    private static final String BASE_PATH_INVALID = "resource.base-path.invalid.message";
+    private static final String EXTENSIONS_FIELD = "extensions";
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -46,13 +49,13 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
         // Null byte injection check
         if (basePath.contains("\0")) {
-            errors.rejectValue("basePath", "resource.base-path.invalid.message", new Object[]{basePath}, null);
+            errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
             return;
         }
 
         // Quick check for obvious attacks
         if (basePath.startsWith("/") || basePath.startsWith("\\") || basePath.contains("..")) {
-            errors.rejectValue("basePath", "resource.base-path.invalid.message", new Object[]{basePath}, null);
+            errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
             return;
         }
 
@@ -64,16 +67,16 @@ public class ResourceCriteriaQueryValidator implements Validator {
             String normalizedStr = normalized.toString().replace('\\', '/');
             String originalNormalized = basePath.replace('\\', '/');
             if (!originalNormalized.equals(normalizedStr)) {
-                errors.rejectValue("basePath", "resource.base-path.invalid.message", new Object[]{basePath}, null);
+                errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
                 return;
             }
 
             // Verify it's not absolute
             if (normalized.isAbsolute()) {
-                errors.rejectValue("basePath", "resource.base-path.invalid.message", new Object[]{basePath}, null);
+                errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
             }
         } catch (IllegalArgumentException e) {
-            errors.rejectValue("basePath", "resource.base-path.invalid.message", new Object[]{basePath}, null);
+            errors.rejectValue(BASE_PATH_FIELD, BASE_PATH_INVALID, new Object[]{basePath}, null);
         }
     }
 
@@ -99,7 +102,7 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
         for (String ext : extensions) {
             if (ext == null || ext.length() > MAX_EXTENSION_LENGTH || !ext.matches("^[a-zA-Z0-9]+$")) {
-                errors.rejectValue("extensions", "resource.extension.invalid.message", new Object[]{ext}, null);
+                errors.rejectValue(EXTENSIONS_FIELD, "resource.extension.invalid.message", new Object[]{ext}, null);
                 return;
             }
         }
@@ -107,7 +110,7 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
     private void validateConflictingFilters(ResourceCriteriaQuery query, Errors errors) {
         if (query.foldersOnly() && query.extensions() != null && !query.extensions().isEmpty()) {
-            errors.rejectValue("extensions", "resource.filters.conflict.message");
+            errors.rejectValue(EXTENSIONS_FIELD, "resource.filters.conflict.message");
         }
     }
 }

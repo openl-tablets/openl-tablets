@@ -4,12 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -31,14 +27,12 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.resources.FileResource;
 import org.openl.studio.projects.model.resources.FolderResource;
 import org.openl.studio.projects.model.resources.Resource;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -57,12 +51,9 @@ import org.openl.util.StringUtils;
 @Validated
 public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
-    private static final Comparator<Resource> RESOURCE_COMPARATOR = Comparator
-            .comparing((Resource r) -> r instanceof FileResource)
-            .thenComparing(Resource::getName, String.CASE_INSENSITIVE_ORDER);
-
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStateValidator projectStateValidator;
+    private final ResourceMapper resourceMapper;
 
     @Override
     public List<Resource> getResources(@NotNull RulesProject project,
@@ -162,17 +153,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             try (var content = source.getContent()) {
                 targetFolder.addResource(fileName, content);
             }
-            try {
-                source.delete();
-            } catch (ProjectException deleteEx) {
-                // Rollback: remove the copied resource to avoid duplication
-                try {
-                    targetFolder.getArtefact(fileName).delete();
-                } catch (ProjectException rollbackEx) {
-                    log.error("Failed to rollback copied resource '{}' after move failure", destinationPath, rollbackEx);
-                }
-                throw deleteEx;
-            }
+            deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("resource.move.failed.message");
         }
@@ -205,6 +186,25 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             throw new ConflictException("project.status.update.failed.message");
         }
         requirePermission(project, BasePermission.WRITE);
+    }
+
+    /**
+     * Deletes the source artefact. If deletion fails, rolls back by removing the already-copied resource.
+     */
+    private void deleteSourceOrRollback(AProjectArtefact source,
+                                        AProjectFolder targetFolder,
+                                        String fileName,
+                                        String destinationPath) throws ProjectException {
+        try {
+            source.delete();
+        } catch (ProjectException deleteEx) {
+            try {
+                targetFolder.getArtefact(fileName).delete();
+            } catch (ProjectException rollbackEx) {
+                log.error("Failed to rollback copied resource '{}' after move failure", destinationPath, rollbackEx);
+            }
+            throw deleteEx;
+        }
     }
 
     /**
@@ -341,10 +341,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
     private List<Resource> buildNested(AProjectFolder rootFolder,
                                        Predicate<AProjectArtefact> filter) {
-
-        // folder -> built children list
         var builtChildren = new IdentityHashMap<AProjectFolder, List<Resource>>();
-        // stack frames for post-order traversal
         record Frame(AProjectFolder folder, boolean expanded) {}
 
         Deque<Frame> stack = new ArrayDeque<>();
@@ -355,54 +352,46 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             var folder = frame.folder();
 
             if (!frame.expanded()) {
-                // 1) push marker to process after children
                 stack.push(new Frame(folder, true));
-
-                // 2) push child folders to process first
                 for (var artefact : folder.getArtefacts()) {
                     if (artefact.isFolder()) {
                         stack.push(new Frame((AProjectFolder) artefact, false));
                     }
                 }
-                continue;
+            } else {
+                var children = buildNestedChildren(folder, filter, builtChildren);
+                children.sort(ResourceMapper.RESOURCE_COMPARATOR);
+                builtChildren.put(folder, children);
             }
-
-            // Children are already processed -> build this folder children list
-            List<Resource> out = new ArrayList<>();
-
-            for (var artefact : folder.getArtefacts()) {
-                if (!artefact.isFolder()) {
-                    if (filter.test(artefact)) {
-                        out.add(mapArtefact(artefact));
-                    }
-                    continue;
-                }
-
-                var childFolder = (AProjectFolder) artefact;
-                var childChildren = builtChildren.getOrDefault(childFolder, List.of());
-
-                boolean includeFolder = filter.test(artefact) || !childChildren.isEmpty();
-                if (!includeFolder) {
-                    continue;
-                }
-
-                Resource mapped = mapArtefact(artefact);
-
-                if (mapped instanceof FolderResource fr && !childChildren.isEmpty()) {
-                    var sortedChildren = childChildren.stream()
-                            .sorted(RESOURCE_COMPARATOR)
-                            .toList();
-                    mapped = fr.withChildren(sortedChildren);
-                }
-
-                out.add(mapped);
-            }
-
-            out.sort(RESOURCE_COMPARATOR);
-            builtChildren.put(folder, out);
         }
 
         return builtChildren.getOrDefault(rootFolder, List.of());
+    }
+
+    private List<Resource> buildNestedChildren(AProjectFolder folder,
+                                               Predicate<AProjectArtefact> filter,
+                                               IdentityHashMap<AProjectFolder, List<Resource>> builtChildren) {
+        List<Resource> out = new ArrayList<>();
+        for (var artefact : folder.getArtefacts()) {
+            if (!artefact.isFolder()) {
+                if (filter.test(artefact)) {
+                    out.add(resourceMapper.map(artefact));
+                }
+                continue;
+            }
+            var childChildren = builtChildren.getOrDefault((AProjectFolder) artefact, List.of());
+            if (!filter.test(artefact) && childChildren.isEmpty()) {
+                continue;
+            }
+            Resource mapped = resourceMapper.map(artefact);
+            if (mapped instanceof FolderResource fr && !childChildren.isEmpty()) {
+                mapped = fr.withChildren(childChildren.stream()
+                        .sorted(ResourceMapper.RESOURCE_COMPARATOR)
+                        .toList());
+            }
+            out.add(mapped);
+        }
+        return out;
     }
 
 
@@ -490,7 +479,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             AProjectFolder folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
                 if (filter.test(artefact)) {
-                    result.add(mapArtefact(artefact));
+                    result.add(resourceMapper.map(artefact));
                 }
 
                 if (recursive && artefact.isFolder()) {
@@ -499,67 +488,9 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
             }
         }
 
-        result.sort(RESOURCE_COMPARATOR);
+        result.sort(ResourceMapper.RESOURCE_COMPARATOR);
         return result;
     }
 
-    /**
-     * Extracts parent path from a full path.
-     * Returns empty string for root-level items (no slash in path).
-     * Returns null only for null or empty input.
-     */
-    private String getParentPath(String path) {
-        if (path == null || path.isEmpty()) {
-            return null;
-        }
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash < 0) {
-            // No slash means root level, parent is empty string (project root)
-            return "";
-        }
-        return lastSlash == 0 ? "" : path.substring(0, lastSlash);
-    }
-
-    /**
-     * Maps an artefact to a Resource DTO.
-     * The basePath is calculated from the artefact's internal path.
-     */
-    private Resource mapArtefact(AProjectArtefact artefact) {
-        String path = artefact.getInternalPath();
-        String name = artefact.getName();
-        String basePath = getParentPath(path);
-
-        if (artefact.isFolder()) {
-            return FolderResource.builder()
-                    .path(path)
-                    .name(name)
-                    .basePath(basePath)
-                    .build();
-        } else {
-            var builder = FileResource.builder()
-                    .path(path)
-                    .name(name)
-                    .basePath(basePath)
-                    .extension(FileUtils.getExtension(name));
-
-            FileData fileData = artefact.getFileData();
-            if (fileData != null) {
-                builder.size(fileData.getSize());
-                builder.lastModified(toZonedDateTime(fileData.getModifiedAt()));
-            }
-
-            return builder.build();
-        }
-    }
-
-    /**
-     * Converts Date to ZonedDateTime safely.
-     */
-    private ZonedDateTime toZonedDateTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return date.toInstant().atZone(ZoneOffset.UTC);
-    }
 
 }

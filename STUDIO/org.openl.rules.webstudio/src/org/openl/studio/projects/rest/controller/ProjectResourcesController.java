@@ -56,6 +56,8 @@ import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidat
 @Validated
 public class ProjectResourcesController {
 
+    private static final String PATH_SEPARATOR = "/";
+
     private final ProjectResourcesService resourcesService;
     private final BeanValidationProvider validationProvider;
     private final ResourceCriteriaQueryValidator queryValidator;
@@ -68,8 +70,7 @@ public class ProjectResourcesController {
     @GetMapping("/list/{*path}")
     @Operation(summary = "projects.resources.get.summary", description = "projects.resources.get.desc")
     public List<Resource> getResources(@ProjectId @PathVariable("projectId") RulesProject project,
-                                       @Parameter(description = "projects.resources.param.base-path.desc")
-                                       @PathVariable("path") String path,
+                                       @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
                                        @RequestParam(value = "extensions", required = false)
                                        @Parameter(description = "projects.resources.param.extensions.desc")
                                        Set<String> extensions,
@@ -106,11 +107,10 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.create.summary", description = "projects.resources.create.desc")
     public void createResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.base-path.desc")
-            @PathVariable("path") String path,
+            @PathVariable @Parameter(description = "projects.resources.param.base-path.desc") String path,
             @ModelAttribute @Valid CreateResourceRequest request) throws IOException {
         var basePath = stripLeadingSlash(path);
-        var fullPath = basePath.isEmpty() ? request.relativePath() : basePath + "/" + request.relativePath();
+        var fullPath = basePath.isEmpty() ? request.relativePath() : String.join(PATH_SEPARATOR, basePath, request.relativePath());
         try {
             resourcesService.createResource(project, fullPath, request.file().getInputStream(),
                     request.createFolders());
@@ -123,8 +123,7 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.download.summary", description = "projects.resources.download.desc")
     public ResponseEntity<byte[]> downloadResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.path.desc")
-            @PathVariable("path") String path) throws ProjectException, IOException {
+            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path) throws ProjectException, IOException {
         var resource = resourcesService.getResource(project, stripLeadingSlash(path));
         var output = new ByteArrayOutputStream();
         try (var stream = resource.getContent()) {
@@ -142,8 +141,7 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.update.summary", description = "projects.resources.update.desc")
     public void updateResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.path.desc")
-            @PathVariable("path") String path,
+            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
             @ModelAttribute @Valid UpdateResourceRequest request) throws IOException {
         try {
             resourcesService.updateResource(project, stripLeadingSlash(path), request.file().getInputStream());
@@ -157,8 +155,7 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.copy.summary", description = "projects.resources.copy.desc")
     public void copyResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.path.desc")
-            @PathVariable("path") String path,
+            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
             @RequestBody @Valid CopyResourceRequest request) {
         try {
             resourcesService.copyResource(project, stripLeadingSlash(path), request.destinationPath());
@@ -172,8 +169,7 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.move.summary", description = "projects.resources.move.desc")
     public void moveResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.path.desc")
-            @PathVariable("path") String path,
+            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path,
             @RequestBody @Valid MoveResourceRequest request) {
         try {
             resourcesService.moveResource(project, stripLeadingSlash(path), request.destinationPath());
@@ -187,8 +183,7 @@ public class ProjectResourcesController {
     @Operation(summary = "projects.resources.delete.summary", description = "projects.resources.delete.desc")
     public void deleteResource(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(description = "projects.resources.param.path.desc")
-            @PathVariable("path") String path) {
+            @PathVariable @Parameter(description = "projects.resources.param.path.desc") String path) {
         try {
             resourcesService.deleteResource(project, stripLeadingSlash(path));
         } finally {
