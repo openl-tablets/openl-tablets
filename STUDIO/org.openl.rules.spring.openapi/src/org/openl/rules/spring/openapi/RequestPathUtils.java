@@ -32,7 +32,7 @@ public class RequestPathUtils {
         final var port = request.getServerPort();
         final var url = new StringBuilder(scheme).append("://").append(request.getServerName());
 
-        if ("http".equals(scheme) && port != 80 || "https".equals(scheme) && port != 443) {
+        if (("http".equals(scheme) && port != 80) || ("https".equals(scheme) && port != 443)) {
             url.append(':').append(port);
         }
 

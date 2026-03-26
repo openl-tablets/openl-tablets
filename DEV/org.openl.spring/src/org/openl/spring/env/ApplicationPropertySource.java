@@ -1,11 +1,11 @@
 package org.openl.spring.env;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -93,7 +93,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private final Map<String, String> profiledSource = new HashMap<>();
 
     ApplicationPropertySource(PropertyResolver resolver, String appName, String... profiles) {
-        super(PROPS_NAME, new LinkedList<>());
+        super(PROPS_NAME, new ArrayDeque<>());
         this.resolver = resolver;
         this.appName = appName;
         this.profiles = profiles;

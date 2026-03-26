@@ -58,7 +58,7 @@ final class SpreadsheetMethodResolver {
         IOpenField openFieldInSpr = null;
         for (IOpenField f : sprFields) {
             IOpenField g = spreadsheet.getSpreadsheetType().getField(f.getName());
-            if (openFieldInSpr == null || g != null && openFieldInSpr.getName().length() > g.getName().length()) {
+            if (openFieldInSpr == null || (g != null && openFieldInSpr.getName().length() > g.getName().length())) {
                 openFieldInSpr = g;
             }
         }

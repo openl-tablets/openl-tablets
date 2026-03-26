@@ -86,7 +86,7 @@ public final class OpenApiUtils {
 
     public static boolean isHiddenApiMethod(Method method) {
         var anno = AnnotationUtils.findAnnotation(method, Operation.class);
-        return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
+        return (anno != null && anno.hidden()) || AnnotationUtils.findAnnotation(method,
                 Hidden.class) != null || isHidden(method.getDeclaringClass());
     }
 

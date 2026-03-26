@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -48,7 +49,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, RulesDeploy.PublisherType> {
         @Override
         public RulesDeploy.PublisherType unmarshal(String name) {
-            return RulesDeploy.PublisherType.valueOf(name.toUpperCase());
+            return RulesDeploy.PublisherType.valueOf(name.toUpperCase(Locale.ENGLISH));
         }
 
         @Override

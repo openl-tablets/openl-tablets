@@ -396,7 +396,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             PathItem pathItem = null;
             io.swagger.v3.oas.models.Operation operation = null;
 
-            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !isHttpMethodTypeAnnotationPresented(originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
+            if ((numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !isHttpMethodTypeAnnotationPresented(originalMethod)) || originalMethod.isAnnotationPresent(GET.class)) {
                 StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 String[] parameterNames = resolveParameterNames(openMember, originalMethod);

@@ -1,8 +1,8 @@
 package org.openl.rules.common.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.rules.common.ArtefactPath;
@@ -15,7 +15,7 @@ import org.openl.rules.common.ArtefactPath;
 public class ArtefactPathImpl implements ArtefactPath {
     public static final char SEGMENT_DELIMITER = '/';
     private String stringValue;
-    private final List<String> segments = new LinkedList<>();
+    private final List<String> segments = new ArrayList<>();
 
     public ArtefactPathImpl(ArtefactPath artefactPath) {
         segments.addAll(artefactPath.getSegments());
@@ -161,7 +161,7 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public ArtefactPath withoutFirstSegment() {
-        LinkedList<String> relativeSegments = new LinkedList<>();
+        ArrayList<String> relativeSegments = new ArrayList<>();
         boolean isFisrt = true;
         for (String s : segments) {
             if (isFisrt) {
@@ -177,7 +177,7 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public ArtefactPath withoutSegment(int segmentIndex) {
-        LinkedList<String> relativeSegments = new LinkedList<>();
+        ArrayList<String> relativeSegments = new ArrayList<>();
         Iterator<String> segmentIterator = segments.iterator();
         for (int i = 0; segmentIterator.hasNext(); i++) {
             if (i != segmentIndex) {

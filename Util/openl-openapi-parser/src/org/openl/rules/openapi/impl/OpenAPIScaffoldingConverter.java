@@ -9,14 +9,15 @@ import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.resolve;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -281,7 +282,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {
         Set<String> allFieldsRefs = new HashSet<>();
-        Queue<String> queue = new LinkedList<>(datatypeRefs);
+        Queue<String> queue = new ArrayDeque<>(datatypeRefs);
         while (!queue.isEmpty()) {
             final String dtRef = queue.poll();
             refsWithFields.getOrDefault(dtRef, Collections.emptySet())
@@ -530,7 +531,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         final Set<String> datatypeNames = Stream.concat(datatypeRefs.stream(), fixedDataTypes.stream())
                 .collect(Collectors.toSet())
                 .stream()
-                .map(ref -> OpenAPITypeUtils.getSimpleName(ref).toLowerCase())
+                .map(ref -> OpenAPITypeUtils.getSimpleName(ref).toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
 
         Set<String> reservedWords = new HashSet<>(datatypeNames);
@@ -546,7 +547,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             String returnRef = model.getReturnRef();
             final String spreadsheetName = spreadsheetModel.getName();
             PathInfo pathInfo = spreadsheetModel.getPathInfo();
-            final String lowerCasedSpreadsheetName = spreadsheetName.toLowerCase();
+            final String lowerCasedSpreadsheetName = spreadsheetName.toLowerCase(Locale.ROOT);
             boolean spreadsheetWithSameNameAndParametersExists = spreadsheetWithParameterNames
                     .containsKey(lowerCasedSpreadsheetName) && spreadsheetWithParameterNames.get(lowerCasedSpreadsheetName)
                     .equals(parameterNames);
@@ -566,8 +567,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 }
                 sprResultNames.add(Pair.of(returnType.getSimpleName(), spreadsheetModel.getName()));
             }
-            spreadsheetWithParameterNames.put(spreadsheetModel.getName().toLowerCase(), parameterNames);
-            reservedWords.add(spreadsheetModel.getName().toLowerCase());
+            spreadsheetWithParameterNames.put(spreadsheetModel.getName().toLowerCase(Locale.ROOT), parameterNames);
+            reservedWords.add(spreadsheetModel.getName().toLowerCase(Locale.ROOT));
         }
         for (SpreadsheetParserModel parserModel : models) {
             SpreadsheetModel spreadsheetModel = parserModel.getModel();
@@ -644,7 +645,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private String makeName(String candidate, final Set<String> reservedWords) {
-        if (CollectionUtils.isNotEmpty(reservedWords) && reservedWords.contains(candidate.toLowerCase())) {
+        if (CollectionUtils.isNotEmpty(reservedWords) && reservedWords.contains(candidate.toLowerCase(Locale.ROOT))) {
             candidate = candidate + "1";
             return makeName(candidate, reservedWords);
         }

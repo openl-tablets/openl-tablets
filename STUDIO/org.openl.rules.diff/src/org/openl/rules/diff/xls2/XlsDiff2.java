@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class XlsDiff2 {
     }
 
     private void add(String guess, DiffPair r) {
-        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new LinkedList<>());
+        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new ArrayList<>());
         list.add(r);
     }
 
