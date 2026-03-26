@@ -1,0 +1,104 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "folder",
+    "path": "groovy",
+    "name": "groovy",
+    "children": [
+      {
+        "type": "file",
+        "path": "groovy/Service.groovy",
+        "name": "Service.groovy",
+        "basePath": "groovy",
+        "extension": "groovy",
+        "size": "*",
+        "lastModified": "*"
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "path": "i18n",
+    "name": "i18n",
+    "children": [
+      {
+        "type": "file",
+        "path": "i18n/messages.properties",
+        "name": "messages.properties",
+        "basePath": "i18n",
+        "extension": "properties",
+        "size": "*",
+        "lastModified": "*"
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "path": "rules",
+    "name": "rules",
+    "children": [
+      {
+        "type": "folder",
+        "path": "rules/UK",
+        "name": "UK",
+        "basePath": "rules",
+        "children": [
+          {
+            "type": "file",
+            "path": "rules/UK/Algorithm-renamed.xlsx",
+            "name": "Algorithm-renamed.xlsx",
+            "basePath": "rules/UK",
+            "extension": "xlsx",
+            "size": "*",
+            "lastModified": "*"
+          },
+          {
+            "type": "file",
+            "path": "rules/UK/Model-copy.xlsx",
+            "name": "Model-copy.xlsx",
+            "basePath": "rules/UK",
+            "extension": "xlsx",
+            "size": "*",
+            "lastModified": "*"
+          },
+          {
+            "type": "file",
+            "path": "rules/UK/Rating.xlsx",
+            "name": "Rating.xlsx",
+            "basePath": "rules/UK",
+            "extension": "xlsx",
+            "size": "*",
+            "lastModified": "*"
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "path": "rules/Model.xlsx",
+        "name": "Model.xlsx",
+        "basePath": "rules",
+        "extension": "xlsx",
+        "size": "*",
+        "lastModified": "*"
+      }
+    ]
+  },
+  {
+    "type": "file",
+    "path": "rules-deploy.xml",
+    "name": "rules-deploy.xml",
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
+  },
+  {
+    "type": "file",
+    "path": "rules.xml",
+    "name": "rules.xml",
+    "extension": "xml",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

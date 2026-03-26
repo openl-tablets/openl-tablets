@@ -123,6 +123,10 @@ public class ExportBean {
         }
     }
 
+    /**
+     * @deprecated Should be removed after migration to the React UI
+     */
+    @Deprecated(forRemoval = true)
     public void exportFileVersion() {
         File file = null;
         String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;

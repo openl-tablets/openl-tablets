@@ -103,10 +103,20 @@ Cookies persist **within each subdirectory** and reset when entering a new subdi
 
 - **Status code**: exact match
 - **Headers**: case-insensitive (Content-Type, etc.)
-- **JSON body**: flexible matching (whitespace ignored)
+- **JSON body**: structural comparison with wildcard support (whitespace ignored)
 - **XML**: normalized comparison
-- **Plain text**: exact match
+- **Plain text**: regex-based matching
 - **Binary**: byte array comparison
+
+### Wildcard Patterns in Response Files
+
+The `Comparators` class supports wildcard patterns in expected `.resp` files:
+
+- `***` — matches any string (`[^\uFFFF]*` regex)
+- `###` — matches digits (`[#\d]+` regex)
+- `@@@` — matches word characters (`[@\w]+` regex)
+
+These work in both plain text and JSON responses. In JSON, wildcards are matched per-value — the structural comparison walks expected and actual JSON trees node by node, applying pattern matching only on leaf text values.
 
 ### Naming Conventions
 
@@ -118,4 +128,27 @@ Cookies persist **within each subdirectory** and reset when entering a new subdi
 
 ### Debugging Failed Tests
 
-Compare `target/responses/EPBDS-XXXXX/*.resp` (actual) with `test-resources/EPBDS-XXXXX/*.resp` (expected).
+When a test fails, the framework saves the actual response body to `target/responses/` mirroring the `test-resources` directory structure. Each failed request produces a `.req.body` file containing the actual response body.
+
+Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresponding `test-resources/<path>/<name>.resp` (expected response with headers).
+
+### Updating Expected OpenAPI Responses
+
+When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` files need updating. Key files:
+
+- `itest.webstudio/test-resources-simple/openapi.json.resp`
+- `itest.webstudio/test-resources-multi/000-openapi.json.resp`
+
+**Procedure:**
+
+1. Run the failing tests to capture actual responses in `target/responses/`
+2. Compare expected vs actual JSON to identify structural differences (missing schemas, paths, tags)
+3. Insert **only** the missing entries at correct positions — do not regenerate the entire file (keeps git history clean)
+4. These files use wildcard `***` for `description`, `example`, `operationId`, and `summary` values
+5. Keys are NOT alphabetically sorted — they follow the server's declaration order. Find insertion points by checking the actual response key order.
+
+**Pitfalls:**
+
+- Files use CRLF — read/write as binary with `\r\n` splits
+- JSON keys like `/projects/{projectId}` contain literal `{}` — when counting braces to find block boundaries, skip characters inside quoted strings
+- Verify the resulting JSON is valid before running tests

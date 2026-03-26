@@ -17,6 +17,14 @@ public interface ProjectStateValidator {
     boolean canSave(UserWorkspaceProject project);
 
     /**
+     * Check if project can be modified
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canModify(UserWorkspaceProject project);
+
+    /**
      * Check if project can be closed
      *
      * @param project project
@@ -58,6 +66,7 @@ public interface ProjectStateValidator {
 
     /**
      * Check if project can be merged
+     *
      * @param project project
      * @return true or false
      */

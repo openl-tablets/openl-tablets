@@ -36,6 +36,11 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
     }
 
     @Override
+    public boolean canModify(UserWorkspaceProject project) {
+        return project != null && isEditableProject(project);
+    }
+
+    @Override
     public boolean canClose(UserWorkspaceProject project) {
         if (project == null || project.isDeleted()) {
             return false;

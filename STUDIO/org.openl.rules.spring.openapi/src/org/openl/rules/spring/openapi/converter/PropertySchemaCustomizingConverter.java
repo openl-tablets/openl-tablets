@@ -3,9 +3,12 @@ package org.openl.rules.spring.openapi.converter;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +17,9 @@ import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.util.ObjectMapperFactory;
+import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -104,6 +109,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                         }
                     }
                 }
+                applyDiscriminatorMapping(javaType, definedSchema, context);
             }
             if (StringUtils.isNotBlank(resolvedSchema.getDescription())) {
                 resolvedSchema.setDescription(apiPropertyResolver.resolve(resolvedSchema.getDescription()));
@@ -128,6 +134,64 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             }
         }
         return propSchema;
+    }
+
+    /**
+     * Generates discriminator with mapping and oneOf from Jackson's {@link JsonTypeInfo} and
+     * {@link JsonSubTypes} annotations.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void applyDiscriminatorMapping(JavaType javaType, Schema definedSchema, ModelConverterContext context) {
+        Class<?> rawClass = javaType.getRawClass();
+        var typeInfo = rawClass.getAnnotation(JsonTypeInfo.class);
+        var subTypes = rawClass.getAnnotation(JsonSubTypes.class);
+        if (typeInfo == null || subTypes == null || typeInfo.use() != JsonTypeInfo.Id.NAME) {
+            return;
+        }
+        var discriminator = definedSchema.getDiscriminator();
+        if (discriminator == null) {
+            discriminator = new Discriminator().propertyName(typeInfo.property());
+            definedSchema.setDiscriminator(discriminator);
+        }
+        boolean needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
+        boolean needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
+        if (!needsMapping && !needsOneOf) {
+            return;
+        }
+        var mapping = needsMapping ? new LinkedHashMap<String, String>() : null;
+        for (var subType : subTypes.value()) {
+            String ref = resolveSubTypeRef(subType, context);
+            if (ref == null) {
+                continue;
+            }
+            if (mapping != null) {
+                collectSubTypeNames(subType, ref, mapping);
+            }
+            if (needsOneOf) {
+                definedSchema.addOneOfItem(new Schema<>().$ref(ref));
+            }
+        }
+        if (mapping != null) {
+            discriminator.setMapping(mapping);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private String resolveSubTypeRef(JsonSubTypes.Type subType, ModelConverterContext context) {
+        var subSchema = context.resolve(new AnnotatedType(subType.value()));
+        if (subSchema != null && subSchema.getName() != null) {
+            return RefUtils.constructRef(subSchema.getName());
+        }
+        return null;
+    }
+
+    private void collectSubTypeNames(JsonSubTypes.Type subType, String ref, LinkedHashMap<String, String> mapping) {
+        for (String name : subType.names()) {
+            mapping.put(name, ref);
+        }
+        if (subType.name() != null && !subType.name().isEmpty()) {
+            mapping.put(subType.name(), ref);
+        }
     }
 
     private  <A extends Annotation> A findAnnotation(BeanPropertyDefinition propertyDefinition, Class<A> annotation) {
