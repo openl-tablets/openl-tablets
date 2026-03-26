@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.utils.WebTool;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.resources.CopyResourceRequest;
 import org.openl.studio.projects.model.resources.CreateResourceRequest;
 import org.openl.studio.projects.model.resources.MoveResourceRequest;
@@ -41,11 +43,13 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.resources.ProjectResourcesService;
 import org.openl.studio.projects.service.resources.ResourceCriteriaQuery;
 import org.openl.studio.projects.service.resources.ResourceViewMode;
+import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidator;
 
 /**
  * REST controller for project resources (files and folders).
  *
  */
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/projects/{projectId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Projects: Resources (BETA)", description = "APIs for managing project resources")
@@ -53,10 +57,8 @@ import org.openl.studio.projects.service.resources.ResourceViewMode;
 public class ProjectResourcesController {
 
     private final ProjectResourcesService resourcesService;
-
-    public ProjectResourcesController(ProjectResourcesService resourcesService) {
-        this.resourcesService = resourcesService;
-    }
+    private final BeanValidationProvider validationProvider;
+    private final ResourceCriteriaQueryValidator queryValidator;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -86,12 +88,15 @@ public class ProjectResourcesController {
     ) {
         var basePath = stripLeadingSlash(path);
 
-        var query = ResourceCriteriaQuery.builder()
+        var queryBuilder = ResourceCriteriaQuery.builder()
                 .basePath(basePath.isEmpty() ? null : basePath)
-                .extensions(extensions)
                 .namePattern(namePattern)
-                .foldersOnly(foldersOnly)
-                .build();
+                .foldersOnly(foldersOnly);
+        if (extensions != null) {
+            queryBuilder.extensions(extensions);
+        }
+        var query = queryBuilder.build();
+        validationProvider.validate(query, queryValidator);
 
         return resourcesService.getResources(project, query, recursive, viewMode);
     }

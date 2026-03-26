@@ -756,6 +756,10 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "discriminator": {
+          "mapping": {
+            "file": "#/components/schemas/FileResource",
+            "folder": "#/components/schemas/FolderResource"
+          },
           "propertyName": "type"
         },
         "oneOf": [
@@ -813,9 +817,19 @@ Content-Type: application/json
       "AuthenticationSettings": {
         "type": "object",
         "discriminator": {
+          "mapping": {
+            "single": "#/components/schemas/NOPAuthenticationSettings",
+            "multi": "#/components/schemas/InheritedAuthenticationSettings",
+            "ad": "#/components/schemas/ADAuthenticationSettings",
+            "saml": "#/components/schemas/SAMLAuthenticationSettings",
+            "oauth2": "#/components/schemas/OAuth2AuthenticationSettings"
+          },
           "propertyName": "userMode"
         },
         "oneOf": [
+          {
+            "$ref": "#/components/schemas/NOPAuthenticationSettings"
+          },
           {
             "$ref": "#/components/schemas/InheritedAuthenticationSettings"
           },
@@ -827,9 +841,6 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/OAuth2AuthenticationSettings"
-          },
-          {
-            "$ref": "#/components/schemas/NOPAuthenticationSettings"
           }
         ],
         "properties": {

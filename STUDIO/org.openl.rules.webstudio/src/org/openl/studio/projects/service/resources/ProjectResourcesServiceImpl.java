@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -38,12 +38,10 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.resources.FileResource;
 import org.openl.studio.projects.model.resources.FolderResource;
 import org.openl.studio.projects.model.resources.Resource;
 import org.openl.studio.projects.validator.ProjectStateValidator;
-import org.openl.studio.projects.validator.resource.ResourceCriteriaQueryValidator;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -53,30 +51,18 @@ import org.openl.util.StringUtils;
  * Implementation of {@link ProjectResourcesService}.
  * Uses iterative queue-based traversal instead of recursion to avoid stack overflow.
  */
+@Slf4j
+@RequiredArgsConstructor
 @Service
 @Validated
 public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProjectResourcesServiceImpl.class);
-
     private static final Comparator<Resource> RESOURCE_COMPARATOR = Comparator
             .comparing((Resource r) -> r instanceof FileResource)
-            .thenComparing(r -> r.name, String.CASE_INSENSITIVE_ORDER);
+            .thenComparing(Resource::getName, String.CASE_INSENSITIVE_ORDER);
 
     private final AclProjectsHelper aclProjectsHelper;
-    private final BeanValidationProvider validationProvider;
-    private final ResourceCriteriaQueryValidator queryValidator;
     private final ProjectStateValidator projectStateValidator;
-
-    public ProjectResourcesServiceImpl(AclProjectsHelper aclProjectsHelper,
-                                       BeanValidationProvider validationProvider,
-                                       ResourceCriteriaQueryValidator queryValidator,
-                                       ProjectStateValidator projectStateValidator) {
-        this.aclProjectsHelper = aclProjectsHelper;
-        this.validationProvider = validationProvider;
-        this.queryValidator = queryValidator;
-        this.projectStateValidator = projectStateValidator;
-    }
 
     @Override
     public List<Resource> getResources(@NotNull RulesProject project,
@@ -87,7 +73,6 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
         if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
             throw new ForbiddenException("default.message");
         }
-        validationProvider.validate(query, queryValidator);
         AProjectFolder projectFolder = convertToFolder(project);
         AProjectFolder baseFolder = resolveBaseFolder(projectFolder, query);
 
@@ -102,41 +87,19 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
     @Override
     public AProjectResource getResource(@NotNull RulesProject project, @NotBlank String path) {
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
-        }
-        validateResourcePath(path);
-        AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactByPath(projectFolder, path);
-        if (found == null || found.isFolder()) {
-            throw new NotFoundException("resource.not.found.message");
-        }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
-        }
-        return (AProjectResource) found;
+        requirePermission(project, BasePermission.READ);
+        var resource = findFileArtefact(project, path);
+        requirePermission(resource, BasePermission.READ);
+        return resource;
     }
 
     @Override
     public void updateResource(@NotNull RulesProject project,
                                @NotBlank String path,
                                @NotNull InputStream content) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
-        validateResourcePath(path);
-        AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactByPath(projectFolder, path);
-        if (found == null || found.isFolder()) {
-            throw new NotFoundException("resource.not.found.message");
-        }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
-        var resource = (AProjectResource) found;
+        requireModifiable(project);
+        var resource = findFileArtefact(project, path);
+        requirePermission(resource, BasePermission.WRITE);
         InputStream validatedContent = validateContent(resource.getName(), content);
         try {
             resource.setContent(validatedContent);
@@ -147,21 +110,13 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
     @Override
     public void deleteResource(@NotNull RulesProject project, @NotBlank String path) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
+        requireModifiable(project);
         validateResourcePath(path);
-        AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactByPath(projectFolder, path);
+        AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
         if (found == null) {
             throw new NotFoundException("resource.not.found.message");
         }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.DELETE)) {
-            throw new ForbiddenException("default.message");
-        }
+        requirePermission(found, BasePermission.DELETE);
         try {
             found.delete();
         } catch (ProjectException e) {
@@ -173,51 +128,16 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     public void copyResource(@NotNull RulesProject project,
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
-        validateResourcePath(sourcePath);
+        requireModifiable(project);
         validateResourcePath(destinationPath);
-        AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
-        if (found == null || found.isFolder()) {
-            throw new NotFoundException("resource.not.found.message");
-        }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)) {
-            throw new ForbiddenException("default.message");
-        }
+        var source = findFileArtefact(project, sourcePath);
+        requirePermission(source, BasePermission.READ);
 
-        String[] segments = destinationPath.split("/");
-        AProjectFolder targetFolder = project;
-        int firstMissing = segments.length - 1;
         try {
-            // Resolve existing folders
-            for (int i = 0; i < segments.length - 1; i++) {
-                String segment = segments[i];
-                if (!targetFolder.hasArtefact(segment)) {
-                    firstMissing = i;
-                    break;
-                }
-                AProjectArtefact artefact = targetFolder.getArtefact(segment);
-                if (!artefact.isFolder()) {
-                    throw new ConflictException("resource.copy.path.conflict.message",
-                            artefact.getInternalPath());
-                }
-                targetFolder = (AProjectFolder) artefact;
-            }
-            // Check permission on the deepest existing folder before creating anything
-            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
-                throw new ForbiddenException("default.message");
-            }
-            // Create missing intermediate folders
-            for (int i = firstMissing; i < segments.length - 1; i++) {
-                targetFolder = targetFolder.addFolder(segments[i]);
-            }
-            String fileName = segments[segments.length - 1];
-            try (var content = ((AProjectResource) found).getContent()) {
+            var targetFolder = resolveOrCreateFolders(project, destinationPath,
+                    true, "resource.copy.path.conflict.message");
+            String fileName = getFileName(destinationPath);
+            try (var content = source.getContent()) {
                 targetFolder.addResource(fileName, content);
             }
         } catch (ProjectException | IOException e) {
@@ -229,62 +149,27 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
     public void moveResource(@NotNull RulesProject project,
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
-        validateResourcePath(sourcePath);
+        requireModifiable(project);
         validateResourcePath(destinationPath);
-        AProjectFolder projectFolder = convertToFolder(project);
-        AProjectArtefact found = findArtefactByPath(projectFolder, sourcePath);
-        if (found == null || found.isFolder()) {
-            throw new NotFoundException("resource.not.found.message");
-        }
-        if (!aclProjectsHelper.hasPermission(found, BasePermission.READ)
-                || !aclProjectsHelper.hasPermission(found, BasePermission.DELETE)) {
-            throw new ForbiddenException("default.message");
-        }
+        var source = findFileArtefact(project, sourcePath);
+        requirePermission(source, BasePermission.READ);
+        requirePermission(source, BasePermission.DELETE);
 
-        String[] segments = destinationPath.split("/");
-        AProjectFolder targetFolder = project;
-        int firstMissing = segments.length - 1;
         try {
-            // Resolve existing folders
-            for (int i = 0; i < segments.length - 1; i++) {
-                String segment = segments[i];
-                if (!targetFolder.hasArtefact(segment)) {
-                    firstMissing = i;
-                    break;
-                }
-                AProjectArtefact artefact = targetFolder.getArtefact(segment);
-                if (!artefact.isFolder()) {
-                    throw new ConflictException("resource.move.path.conflict.message",
-                            artefact.getInternalPath());
-                }
-                targetFolder = (AProjectFolder) artefact;
-            }
-            // Check permission on the deepest existing folder before creating anything
-            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
-                throw new ForbiddenException("default.message");
-            }
-            // Create missing intermediate folders
-            for (int i = firstMissing; i < segments.length - 1; i++) {
-                targetFolder = targetFolder.addFolder(segments[i]);
-            }
-            String fileName = segments[segments.length - 1];
-            try (var content = ((AProjectResource) found).getContent()) {
+            var targetFolder = resolveOrCreateFolders(project, destinationPath,
+                    true, "resource.move.path.conflict.message");
+            String fileName = getFileName(destinationPath);
+            try (var content = source.getContent()) {
                 targetFolder.addResource(fileName, content);
             }
             try {
-                found.delete();
+                source.delete();
             } catch (ProjectException deleteEx) {
                 // Rollback: remove the copied resource to avoid duplication
                 try {
                     targetFolder.getArtefact(fileName).delete();
                 } catch (ProjectException rollbackEx) {
-                    LOG.error("Failed to rollback copied resource '{}' after move failure", destinationPath, rollbackEx);
+                    log.error("Failed to rollback copied resource '{}' after move failure", destinationPath, rollbackEx);
                 }
                 throw deleteEx;
             }
@@ -298,50 +183,98 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
                                @NotBlank String path,
                                @NotNull InputStream content,
                                boolean createFolders) {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
-        }
-        if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
-            throw new ForbiddenException("default.message");
-        }
+        requireModifiable(project);
         validateResourcePath(path);
 
-        String[] segments = path.split("/");
-        AProjectFolder targetFolder = project;
-        int firstMissing = segments.length - 1; // index of first segment to create
         try {
-            // Resolve existing folders
-            for (int i = 0; i < segments.length - 1; i++) {
-                String segment = segments[i];
-                if (!targetFolder.hasArtefact(segment)) {
-                    if (!createFolders) {
-                        throw new NotFoundException("resource.parent.not.found.message",
-                                segment);
-                    }
-                    firstMissing = i;
-                    break;
-                }
-                AProjectArtefact artefact = targetFolder.getArtefact(segment);
-                if (!artefact.isFolder()) {
-                    throw new ConflictException("resource.path.not.folder.message",
-                            artefact.getInternalPath());
-                }
-                targetFolder = (AProjectFolder) artefact;
-            }
-            // Check permission on the deepest existing folder before creating anything
-            if (!aclProjectsHelper.hasPermission(targetFolder, BasePermission.CREATE)) {
-                throw new ForbiddenException("default.message");
-            }
-            // Create missing intermediate folders
-            for (int i = firstMissing; i < segments.length - 1; i++) {
-                targetFolder = targetFolder.addFolder(segments[i]);
-            }
-            String fileName = segments[segments.length - 1];
+            var targetFolder = resolveOrCreateFolders(project, path,
+                    createFolders, "resource.path.not.folder.message");
+            String fileName = getFileName(path);
             InputStream validatedContent = validateContent(fileName, content);
             targetFolder.addResource(fileName, validatedContent);
         } catch (ProjectException e) {
             throw new ConflictException("resource.create.failed.message");
         }
+    }
+
+    /**
+     * Checks that the project can be modified and user has WRITE permission.
+     */
+    private void requireModifiable(RulesProject project) {
+        if (!projectStateValidator.canModify(project)) {
+            throw new ConflictException("project.status.update.failed.message");
+        }
+        requirePermission(project, BasePermission.WRITE);
+    }
+
+    /**
+     * Checks that the user has the specified permission on the artefact.
+     */
+    private void requirePermission(AProjectArtefact artefact, org.springframework.security.acls.model.Permission permission) {
+        if (!aclProjectsHelper.hasPermission(artefact, permission)) {
+            throw new ForbiddenException("default.message");
+        }
+    }
+
+    /**
+     * Validates path, locates a file artefact, and verifies it exists and is not a folder.
+     */
+    private AProjectResource findFileArtefact(RulesProject project, String path) {
+        validateResourcePath(path);
+        AProjectArtefact found = findArtefactByPath(convertToFolder(project), path);
+        if (found == null || found.isFolder()) {
+            throw new NotFoundException("resource.not.found.message");
+        }
+        return (AProjectResource) found;
+    }
+
+    /**
+     * Resolves existing parent folders of the given path within the project, optionally creating
+     * missing intermediate folders. Checks CREATE permission on the deepest existing folder.
+     *
+     * @param project            the project root
+     * @param fullPath           full resource path including file name
+     * @param createMissing      if {@code true}, create missing intermediate folders;
+     *                           if {@code false}, throw {@link NotFoundException}
+     * @param conflictMessageKey error message key when a path segment is not a folder
+     * @return the parent folder where the resource should be placed
+     */
+    private AProjectFolder resolveOrCreateFolders(RulesProject project,
+                                                  String fullPath,
+                                                  boolean createMissing,
+                                                  String conflictMessageKey) throws ProjectException {
+        String[] segments = fullPath.split("/");
+        AProjectFolder targetFolder = project;
+        int firstMissing = segments.length - 1;
+
+        for (int i = 0; i < segments.length - 1; i++) {
+            String segment = segments[i];
+            if (!targetFolder.hasArtefact(segment)) {
+                if (!createMissing) {
+                    throw new NotFoundException("resource.parent.not.found.message", segment);
+                }
+                firstMissing = i;
+                break;
+            }
+            AProjectArtefact artefact = targetFolder.getArtefact(segment);
+            if (!artefact.isFolder()) {
+                throw new ConflictException(conflictMessageKey, artefact.getInternalPath());
+            }
+            targetFolder = (AProjectFolder) artefact;
+        }
+
+        requirePermission(targetFolder, BasePermission.CREATE);
+
+        for (int i = firstMissing; i < segments.length - 1; i++) {
+            targetFolder = targetFolder.addFolder(segments[i]);
+        }
+
+        return targetFolder;
+    }
+
+    private static String getFileName(String path) {
+        int lastSlash = path.lastIndexOf('/');
+        return lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
     }
 
     /**
@@ -497,7 +430,7 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
                 folder = (AProjectFolder) artefact;
             }
         } catch (ProjectException e) {
-            LOG.debug("Failed to resolve base folder path '{}'", query.basePath(), e);
+            log.debug("Failed to resolve base folder path '{}'", query.basePath(), e);
             artefact = null;
         }
         if (artefact == null || !artefact.isFolder()) {
@@ -592,11 +525,22 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
      * The basePath is calculated from the artefact's internal path.
      */
     private Resource mapArtefact(AProjectArtefact artefact) {
+        String path = artefact.getInternalPath();
+        String name = artefact.getName();
+        String basePath = getParentPath(path);
+
         if (artefact.isFolder()) {
-            return mapResource(artefact, FolderResource.builder()).build();
+            return FolderResource.builder()
+                    .path(path)
+                    .name(name)
+                    .basePath(basePath)
+                    .build();
         } else {
-            var builder = mapResource(artefact, FileResource.builder())
-                    .extension(FileUtils.getExtension(artefact.getName()));
+            var builder = FileResource.builder()
+                    .path(path)
+                    .name(name)
+                    .basePath(basePath)
+                    .extension(FileUtils.getExtension(name));
 
             FileData fileData = artefact.getFileData();
             if (fileData != null) {
@@ -606,15 +550,6 @@ public class ProjectResourcesServiceImpl implements ProjectResourcesService {
 
             return builder.build();
         }
-    }
-
-    private <T extends Resource.Builder<T>> T mapResource(AProjectArtefact artefact, T builder) {
-        String path = artefact.getInternalPath();
-        String name = artefact.getName();
-        builder.path(path)
-                .name(name)
-                .basePath(getParentPath(path));
-        return builder;
     }
 
     /**

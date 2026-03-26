@@ -106,7 +106,7 @@ public class ResourceCriteriaQueryValidator implements Validator {
     }
 
     private void validateConflictingFilters(ResourceCriteriaQuery query, Errors errors) {
-        if (query.foldersOnly() && !query.extensions().isEmpty()) {
+        if (query.foldersOnly() && query.extensions() != null && !query.extensions().isEmpty()) {
             errors.rejectValue("extensions", "resource.filters.conflict.message");
         }
     }
