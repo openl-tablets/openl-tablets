@@ -9,7 +9,7 @@ Content-Type: application/json
   "testedTableName": "CoverageRate",
   "messages": [
     {
-      "id": 21,
+      "id": "*",
       "summary": "Index Key '41' is not found in the foreign table 'CoverageFormData'.",
       "severity": "ERROR"
     }

@@ -8,12 +8,12 @@ Content-Type: application/json
   "name": "states",
   "messages": [
     {
-      "id": 30,
+      "id": "*",
       "summary": "Type 'USState' is not found.",
       "severity": "ERROR"
     },
     {
-      "id": 31,
+      "id": "*",
       "summary": "Type 'USState' is defined with errors.",
       "severity": "ERROR"
     }

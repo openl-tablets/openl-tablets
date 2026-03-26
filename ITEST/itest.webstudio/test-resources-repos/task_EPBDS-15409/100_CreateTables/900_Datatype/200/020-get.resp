@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "Address",
   "messages": [
     {
-      "id": 44,
+      "id": "*",
       "summary": "Type 'ZipCode' is not found.",
       "severity": "ERROR"
     }
