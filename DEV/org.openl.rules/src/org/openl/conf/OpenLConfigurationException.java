@@ -6,6 +6,8 @@
 
 package org.openl.conf;
 
+import java.io.Serial;
+
 /**
  * @author snshor
  */
@@ -13,6 +15,7 @@ package org.openl.conf;
 public class OpenLConfigurationException extends RuntimeException {
     // TODO add parameters, message etc.
 
+    @Serial
     private static final long serialVersionUID = 3292629986027365336L;
 
     public OpenLConfigurationException(String msg, Throwable t) {

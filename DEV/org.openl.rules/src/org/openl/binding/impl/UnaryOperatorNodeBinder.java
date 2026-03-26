@@ -19,7 +19,7 @@ import org.openl.types.IOpenClass;
 public class UnaryOperatorNodeBinder extends ANodeBinder {
 
     public static String errorMsg(String methodName, IOpenClass t1) {
-        return String.format("Operator '%s(%s)' is not found.", methodName, t1.getName());
+        return "Operator '%s(%s)' is not found.".formatted(methodName, t1.getName());
 
     }
 

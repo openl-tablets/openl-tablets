@@ -79,7 +79,7 @@ public class ProjectTagsMigrator {
             tagsFileData = new FileData();
             tagsFileData.setName(fullTagsFileName);
             tagsFileData.setAuthor(migrationUserInfo);
-            tagsFileData.setComment(String.format(MIGRATION_COMMENT, projectPath));
+            tagsFileData.setComment(MIGRATION_COMMENT.formatted(projectPath));
             repository.save(tagsFileData, inputStream);
         } else {
             log.info("Skipping saving tags for project {}/{} since file {} already exists", repository.getName(), projectPath, ProjectTags.TAGS_FILE_NAME);

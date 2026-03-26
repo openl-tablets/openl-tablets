@@ -73,12 +73,12 @@ public class IdentifierBinder extends ANodeBinder {
         if (nonStrictMatchBoundNode != null) {
             if (!node.getText().equals(nonStrictMatchBoundNode.getFieldName().replaceAll("\\s", ""))) {
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                        String.format("Case insensitive matching to '%s'.", nonStrictMatchBoundNode.getFieldName()),
+                        "Case insensitive matching to '%s'.".formatted(nonStrictMatchBoundNode.getFieldName()),
                         node));
             }
             return nonStrictMatchBoundNode;
         }
-        throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", node.getText()));
+        throw new OpenlNotCheckedException("Identifier '%s' is not found.".formatted(node.getText()));
     }
 
     @Override
@@ -104,16 +104,16 @@ public class IdentifierBinder extends ANodeBinder {
             if (field != null) {
                 if (!fieldName.equals(field.getName().replaceAll("\\s", ""))) {
                     bindingContext.addMessage(OpenLMessagesUtils
-                            .newWarnMessage(String.format("Case insensitive matching to '%s'.", field.getName()), node));
+                            .newWarnMessage("Case insensitive matching to '%s'.".formatted(field.getName()), node));
                 }
             }
         }
 
         if (field == null) {
-            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
+            throw new OpenlNotCheckedException("%s '%s' is not found in type '%s'.".formatted(
                     type.isStatic() ? "Static field" : "Field",
                     fieldName,
-                    type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
+                    type instanceof StaticOpenClass soc ? soc.getDelegate().getName() : type.getName()));
         }
 
         IOpenClass t = field.getType();
@@ -138,14 +138,14 @@ public class IdentifierBinder extends ANodeBinder {
             if (field.isStatic()) {
                 if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
                     BindHelper.processWarn(
-                            String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                            "Accessing to static field '%s' from non-static object of type '%s'.".formatted(
                                     field.getName(),
                                     target.getType().getName()),
                             node,
                             bindingContext);
                 }
             } else {
-                return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
+                return makeErrorNode("Accessing to non-static field '%s' of static type '%s'.".formatted(
                         field.getName(),
                         target.getType().getName()), node, bindingContext);
             }

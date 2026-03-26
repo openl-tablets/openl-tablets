@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serial;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.PhaseEvent;
@@ -20,6 +21,7 @@ import org.openl.rules.tableeditor.util.Constants;
 @Slf4j
 public class TableEditorDispatcher implements PhaseListener {
 
+    @Serial
     private static final long serialVersionUID = 8617343432886373802L;
 
 
@@ -81,9 +83,7 @@ public class TableEditorDispatcher implements PhaseListener {
             context.responseComplete();
             return;
         }
-        BufferedInputStream bis = new BufferedInputStream(is);
-
-        try {
+        try (BufferedInputStream bis = new BufferedInputStream(is)) {
             // IE 9 fix
             if (path.endsWith(".css")) {
                 response.setContentType("text/css");
@@ -99,12 +99,6 @@ public class TableEditorDispatcher implements PhaseListener {
             context.responseComplete();
         } catch (Exception e) {
             log.error("Could not handle Resource request for path '{}'. Error: {}", path, e.getMessage(), e);
-        } finally {
-            try {
-                bis.close();
-            } catch (IOException e) {
-                log.error("Could not close input stream", e);
-            }
         }
     }
 

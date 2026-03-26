@@ -94,8 +94,7 @@ public class ColumnDescriptor {
     }
 
     private static boolean isSupportMultirows(IOpenField field) {
-        if (field instanceof FieldChain) {
-            FieldChain fieldChain = (FieldChain) field;
+        if (field instanceof FieldChain fieldChain) {
             IOpenField[] fields = fieldChain.getFields();
             for (IOpenField f : fields) {
                 if (f instanceof CollectionElementWithMultiRowField) {
@@ -107,9 +106,9 @@ public class ColumnDescriptor {
     }
 
     public ColumnGroupKey buildGroupKey() {
-        if (field instanceof FieldChain) {
-            int fields = ((FieldChain) field).getFields().length;
-            if (isPrimaryKey() && ((FieldChain) field)
+        if (field instanceof FieldChain chain) {
+            int fields = chain.getFields().length;
+            if (isPrimaryKey() && chain
                     .getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
                 fields += 1;
             } else if (valuesAnArray) {

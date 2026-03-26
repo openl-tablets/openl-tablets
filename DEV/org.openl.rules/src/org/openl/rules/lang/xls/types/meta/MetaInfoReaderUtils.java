@@ -25,8 +25,8 @@ public class MetaInfoReaderUtils {
 
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
         int startIndex = 0;
-        if (source instanceof CompositeSourceCodeModule) {
-            return getMetaInfoForCompositeSource(method, (CompositeSourceCodeModule) source, startIndex);
+        if (source instanceof CompositeSourceCodeModule module) {
+            return getMetaInfoForCompositeSource(method, module, startIndex);
         } else {
             IOpenSourceCodeModule src = source;
             // extract original cell source
@@ -66,18 +66,16 @@ public class MetaInfoReaderUtils {
                 List<NodeUsage> currentCellMethodUsages = new ArrayList<>();
                 for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
-                        if (usage instanceof ConstructorUsage) {
-                            currentCellMethodUsages
-                                    .add(new ConstructorUsage(((ConstructorUsage) usage).getConstructorNode(),
+                        switch (usage) {
+                            case ConstructorUsage constructorUsage -> currentCellMethodUsages
+                                    .add(new ConstructorUsage(constructorUsage.getConstructorNode(),
                                             usage.getStart() - moduleStart,
                                             usage.getEnd() - moduleStart,
                                             ((MethodUsage) usage).getMethod()));
-                        } else if (usage instanceof MethodUsage) {
-                            currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
+                            case MethodUsage methodUsage -> currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
                                     usage.getEnd() - moduleStart,
-                                    ((MethodUsage) usage).getMethod()));
-                        } else {
-                            currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
+                                    methodUsage.getMethod()));
+                            case null, default -> currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
                                     usage.getEnd() - moduleStart,
                                     usage.getDescription(),
                                     usage.getUri(),

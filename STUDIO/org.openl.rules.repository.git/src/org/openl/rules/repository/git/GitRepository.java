@@ -916,13 +916,13 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             String error;
             final String message = cause.getMessage();
             if (message != null) {
-                error = String.format("Unknown host (%s) for URL %s.", message, uri);
+                error = "Unknown host (%s) for URL %s.".formatted(message, uri);
             } else {
-                error = String.format("Unknown host for URL %s.", uri);
+                error = "Unknown host for URL %s.".formatted(uri);
             }
             throw new IllegalArgumentException(error);
         } else if (cause instanceof NoRemoteRepositoryException) {
-            throw new IllegalArgumentException(String.format("Remote repository \"%s\" does not exist.", uri));
+            throw new IllegalArgumentException("Remote repository \"%s\" does not exist.".formatted(uri));
         }
 
         if (e instanceof TransportException) {
@@ -1042,7 +1042,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
 
         if (treeWalk == null) {
             throw new FileNotFoundException(
-                    String.format("Missed expected path '%s' in tree '%s'.", path, tree.getName()));
+                    "Missed expected path '%s' in tree '%s'.".formatted(path, tree.getName()));
         }
         return treeWalk;
     }
@@ -1635,7 +1635,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 git.branchCreate().setName(baseBranch).setForce(true).call();
                 push = git.push().setPushTags().add(baseBranch).setTimeout(connectionTimeout);
             } else {
-                throw new IOException(String.format("Cannot find branch '%s'", branch));
+                throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
 
             CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
@@ -1817,7 +1817,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
             return globalFilter;
         } catch (PatternSyntaxException e) {
             log.debug(e.getMessage(), e);
-            return String.format("\\Q%s\\E", globalFilter);
+            return "\\Q%s\\E".formatted(globalFilter);
         }
     }
 
@@ -2739,7 +2739,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                 }
 
                 if (!branchExist) {
-                    throw new IOException(String.format("Cannot find branch '%s'", branch));
+                    throw new IOException("Cannot find branch '%s'".formatted(branch));
                 }
             }
         } catch (GitAPIException e) {

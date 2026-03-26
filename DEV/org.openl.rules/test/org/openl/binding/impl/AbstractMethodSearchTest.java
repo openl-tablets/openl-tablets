@@ -121,9 +121,9 @@ public abstract class AbstractMethodSearchTest {
             assertNotFound(target, methodName, classes);
         } else if (AMB.equals(expected)) {
             assertAmbiguous(target, methodName, classes);
-        } else if (expected instanceof Not) {
+        } else if (expected instanceof Not not) {
             try {
-                Object notExpected = ((Not) expected).notExpected;
+                Object notExpected = not.notExpected;
                 assertInvoke(notExpected, target, methodName, classes);
                 IOpenClass[] openClasses = toOpenClasses(classes);
                 fail("Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,

@@ -3,7 +3,7 @@ package org.openl.rules.ui;
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -302,8 +302,8 @@ public class ProjectModel {
         for (IOpenMethod method : openClass.getMethods()) {
             IOpenMethod resolvedMethod;
 
-            if (method instanceof OpenMethodDispatcher) {
-                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
+            if (method instanceof OpenMethodDispatcher dispatcher) {
+                resolvedMethod = resolveMethodDispatcher(dispatcher, tableUri);
                 if (resolvedMethod != null) {
                     return method;
                 }
@@ -1329,7 +1329,7 @@ public class ProjectModel {
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
-            String message = String.format("Cannot load the module: %s", openLMessage.getSummary());
+            String message = "Cannot load the module: %s".formatted(openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
         compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
@@ -1508,8 +1508,8 @@ public class ProjectModel {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                     .getLocalWorkspace()
                     .getLocation();
-            this.historyStoragePath = Paths
-                    .get(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+            this.historyStoragePath = Path
+                    .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
                     .toString();
         }
     }

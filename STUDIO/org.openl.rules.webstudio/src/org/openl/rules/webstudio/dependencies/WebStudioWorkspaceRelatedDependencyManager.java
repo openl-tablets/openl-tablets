@@ -36,7 +36,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     private enum ThreadPriority {
         LOW,
-        HIGH;
+        HIGH
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -215,7 +215,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                        String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),
+                        "Failed to initialize dependency loaders for project '%s'.".formatted(project.getName()),
                         e);
             }
         }

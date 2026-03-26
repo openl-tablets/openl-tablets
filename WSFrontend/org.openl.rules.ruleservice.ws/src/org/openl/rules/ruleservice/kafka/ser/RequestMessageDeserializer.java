@@ -56,8 +56,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         if (encodingValue == null) {
             encodingValue = configs.get("deserializer.encoding");
         }
-        if (encodingValue instanceof String) {
-            encoding = Charset.forName((String) encodingValue);
+        if (encodingValue instanceof String string) {
+            encoding = Charset.forName(string);
         }
     }
 

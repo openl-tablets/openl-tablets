@@ -419,8 +419,8 @@ public class TypeResolver implements INameSpacedTypeFactory {
             if (e.getCause() instanceof ClassNotFoundException) {
                 // Type is found but cannot be loaded because of absent dependent class.
                 String noClassMessage = e.getCause().getMessage();
-                String message = String
-                        .format("Cannot load type '%s' because of absent type '%s'.", fullName, noClassMessage);
+                String message = "Cannot load type '%s' because of absent type '%s'."
+                        .formatted(fullName, noClassMessage);
                 throw RuntimeExceptionWrapper.wrap(message, e);
             }
             // NoClassDefFoundError can also be thrown in these cases:
@@ -437,8 +437,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
             // We just skip such classes and continue searching them in another packages.
         } catch (UnsupportedClassVersionError e) {
             // Type is found but it's compiled using newer version of JDK
-            String message = String.format(
-                    "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
+            String message = "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)".formatted(
                     fullName,
                     System.getProperty("java.version"));
             throw RuntimeExceptionWrapper.wrap(message, e);

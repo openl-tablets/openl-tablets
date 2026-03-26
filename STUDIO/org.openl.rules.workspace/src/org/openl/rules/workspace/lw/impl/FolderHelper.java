@@ -2,7 +2,6 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,11 +103,11 @@ public final class FolderHelper {
     }
 
     public static String resolveHistoryFolder(RulesProject project, Module module) {
-        return normalizePath(Paths.get(project.getFolderPath(), resolveHistoryFolder(module)));
+        return normalizePath(Path.of(project.getFolderPath(), resolveHistoryFolder(module)));
     }
 
     public static String resolveHistoryFolder(Module module) {
-        return normalizePath(Paths.get(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
+        return normalizePath(Path.of(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
     }
 
     private static String normalizePath(Path p) {

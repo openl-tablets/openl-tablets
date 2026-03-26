@@ -136,8 +136,8 @@ public final class XlsDataFormatterFactory {
      * @return Formatted string value
      */
     public static String getFormattedValue(ICell cell, CellMetaInfo meta, boolean smartNumbers) {
-        if (cell instanceof FormattedCell) {
-            return ((FormattedCell) cell).getFormattedValue();
+        if (cell instanceof FormattedCell formattedCell) {
+            return formattedCell.getFormattedValue();
         }
 
         Object value = cell.getObjectValue();

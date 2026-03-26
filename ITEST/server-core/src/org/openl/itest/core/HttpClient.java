@@ -12,7 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -115,7 +114,7 @@ public class HttpClient implements AutoCloseable {
     public void test(String path) {
         var cookieFolderHolder = new String[1];
         var envFolderHolder = new String[1];
-        Path rootPath = Paths.get(path);
+        Path rootPath = Path.of(path);
         var envLoader = new EnvironmentFileLoader(rootPath);
         var currentFolderEnv = new HashMap<String, String>();
 
@@ -135,7 +134,7 @@ public class HttpClient implements AutoCloseable {
                     var envFolder = p.substring(0, p.lastIndexOf(File.separatorChar) + 1);
                     if (!envFolder.equals(envFolderHolder[0])) {
                         envFolderHolder[0] = envFolder;
-                        Path folderPath = Paths.get(envFolder);
+                        Path folderPath = Path.of(envFolder);
                         currentFolderEnv.clear();
                         currentFolderEnv.putAll(envLoader.navigateTo(folderPath));
                     }
@@ -287,7 +286,7 @@ public class HttpClient implements AutoCloseable {
 
     public JsonNode readTree(String file) {
         try {
-            return HttpData.OBJECT_MAPPER.readTree(Paths.get(file).toFile());
+            return HttpData.OBJECT_MAPPER.readTree(Path.of(file).toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

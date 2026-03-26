@@ -2,7 +2,6 @@ package org.openl.util.formatters;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 public class FileNameFormatter {
@@ -23,6 +22,6 @@ public class FileNameFormatter {
     }
 
     public static Path fromNormalizedPath(String path) {
-        return Paths.get(path.replace(NORMALIZED_SEPARATOR, DEFAULT_SEPARATOR));
+        return Path.of(path.replace(NORMALIZED_SEPARATOR, DEFAULT_SEPARATOR));
     }
 }

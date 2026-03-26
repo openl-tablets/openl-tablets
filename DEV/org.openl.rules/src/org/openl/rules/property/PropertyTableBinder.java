@@ -54,7 +54,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         } else {
             tableName = identifierNode.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-                String message = String.format(NAME_ERROR_MESSAGE, "Property table", tableName);
+                String message = NAME_ERROR_MESSAGE.formatted("Property table", tableName);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, identifierNode));
             }
         }
@@ -125,7 +125,7 @@ public class PropertyTableBinder extends DataNodeBinder {
             } else if (isGlobalProperties(scope)) {
                 processGlobalProperties(tableSyntaxNode, bindingContext);
             } else {
-                String message = String.format("Value of the property '%s' is neither '%s', '%s' or '%s'.",
+                String message = "Value of the property '%s' is neither '%s', '%s' or '%s'.".formatted(
                         SCOPE_PROPERTY_NAME,
                         InheritanceLevel.GLOBAL.getDisplayName(),
                         InheritanceLevel.MODULE.getDisplayName(),
@@ -134,7 +134,7 @@ public class PropertyTableBinder extends DataNodeBinder {
                 throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
             }
         } else {
-            String message = String.format("There is no obligatory property '%s'.", SCOPE_PROPERTY_NAME);
+            String message = "There is no obligatory property '%s'.".formatted(SCOPE_PROPERTY_NAME);
 
             throw SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
         }
@@ -150,7 +150,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
-            String message = String.format("Properties for category '%s' already exists.", category);
+            String message = "Properties for category '%s' already exists.".formatted(category);
 
             throw new DuplicatedPropertiesTableException(message, null, tableSyntaxNode);
         }
@@ -177,7 +177,7 @@ public class PropertyTableBinder extends DataNodeBinder {
             XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) tableSyntaxNode.getModule())
                     .getWorkbookSource();
             String moduleName = module.getDisplayName();
-            String message = String.format("Properties for module '%s' already exists", moduleName);
+            String message = "Properties for module '%s' already exists".formatted(moduleName);
 
             throw new DuplicatedPropertiesTableException(message, null, tableSyntaxNode);
         }

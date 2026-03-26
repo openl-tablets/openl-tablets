@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -54,11 +53,11 @@ public class JettyServer {
 
     private ArrayList<Resource> getExtraClasspath(WebAppContext context) {
         var classPath = new ArrayList<Resource>();
-        var classes = Paths.get("target/classes");
+        var classes = Path.of("target/classes");
         if (Files.exists(classes)) {
             classPath.add(context.newResource(classes.toUri()));
         }
-        try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
+        try (Stream<Path> stream = Files.walk(Path.of("libs"))) {
 
             classPath.addAll(stream.map(Path::toUri).map(context::newResource).collect(Collectors.toList()));
         } catch (IOException ignored) {

@@ -257,12 +257,11 @@ public class InterfaceTransformer {
                                                          String attributeName,
                                                          Object attributeValue) {
         Class<? extends Object> attributeType = attributeValue.getClass();
-        if (attributeValue instanceof Class) {
-            av.visit(attributeName, Type.getType((Class<?>) attributeValue));
+        if (attributeValue instanceof Class<?> class1) {
+            av.visit(attributeName, Type.getType(class1));
         } else if (attributeType.isEnum()) {
             av.visitEnum(attributeName, Type.getDescriptor(attributeType), attributeValue.toString());
-        } else if (attributeValue instanceof Annotation) {
-            Annotation annotation = (Annotation) attributeValue;
+        } else if (attributeValue instanceof Annotation annotation) {
             AnnotationVisitor av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
             processAnnotation(annotation, av1);
         } else {

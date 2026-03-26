@@ -32,7 +32,7 @@ public class DispatcherTableReturnColumn {
     }
 
     public String getParameterDeclaration() {
-        return String.format("%s %s", getReturnType().getDisplayName(0), getCodeExpression());
+        return "%s %s".formatted(getReturnType().getDisplayName(0), getCodeExpression());
     }
 
     public String getCodeExpression() {

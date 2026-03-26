@@ -271,10 +271,10 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
     private void decorate(MethodInfo methodInfo, ApiResponses responses, Components components) {
         var returnType = methodInfo.getReturnType();
         boolean genericResponseCode = false;
-        if (returnType instanceof ParameterizedType) {
-            var rawType = ((ParameterizedType) returnType).getRawType();
+        if (returnType instanceof ParameterizedType type) {
+            var rawType = type.getRawType();
             if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {
-                returnType = ((ParameterizedType) returnType).getActualTypeArguments()[0];
+                returnType = type.getActualTypeArguments()[0];
                 genericResponseCode = true;
             }
         }

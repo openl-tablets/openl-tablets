@@ -102,8 +102,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             indexLock.writeLock().unlock();
         }
 
-        if (delegate instanceof Closeable) {
-            ((Closeable) delegate).close();
+        if (delegate instanceof Closeable closeable) {
+            closeable.close();
         } else if (delegate != null) {
             try {
                 delegate.close();

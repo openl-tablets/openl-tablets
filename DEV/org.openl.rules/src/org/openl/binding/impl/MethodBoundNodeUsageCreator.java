@@ -39,8 +39,8 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
             while (methodCaller instanceof AOpenMethodDelegator) {
                 methodCaller = ((AOpenMethodDelegator) methodCaller).getDelegate();
             }
-            if (methodCaller instanceof IOpenMethod) {
-                method = (IOpenMethod) methodCaller;
+            if (methodCaller instanceof IOpenMethod openMethod) {
+                method = openMethod;
             } else {
                 method = methodCaller.getMethod();
             }

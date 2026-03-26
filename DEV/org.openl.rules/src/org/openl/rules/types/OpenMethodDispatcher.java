@@ -179,8 +179,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         //
         IOpenMethod method;
 
-        if (context instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
-            IRulesRuntimeContextOptimizationForOpenMethodDispatcher rulesRuntimeContextOptimizationForOpenMethodDispatcher = (IRulesRuntimeContextOptimizationForOpenMethodDispatcher) context;
+        if (context instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher rulesRuntimeContextOptimizationForOpenMethodDispatcher) {
             method = rulesRuntimeContextOptimizationForOpenMethodDispatcher.getMethodForOpenMethodDispatcher(this);
             if (method == null) {
                 method = findMatchingMethod(candidates, context);
@@ -200,16 +199,16 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             sb.append("Context: ");
             sb.append(context.toString());
 
-            String message = String
-                    .format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s", getName(), sb);
+            String message = "Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s"
+                    .formatted(getName(), sb);
 
             throw new OpenLRuntimeException(message);
         }
 
         method = WrapperLogic.extractNonLazyMethod(method);
 
-        if (method instanceof IRulesMethodWrapper) {
-            method = ((IRulesMethodWrapper) method).getDelegate();
+        if (method instanceof IRulesMethodWrapper wrapper) {
+            method = wrapper.getDelegate();
         }
 
         return method;
@@ -292,19 +291,19 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 signatures.set(i, method.getSignature());
                 types.set(i, method.getType());
 
-                IOpenClass t = types.get(0);
+                IOpenClass t = types.getFirst();
                 for (int j = 1; j < types.size(); j++) {
                     t = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(t, types.get(j));
                 }
                 type = t;
-                IMethodSignature s = signatures.get(0);
+                IMethodSignature s = signatures.getFirst();
                 for (int j = 1; j < types.size(); j++) {
                     s = mergeMethodSignature(s, signatures.get(j));
                 }
                 signature = s;
             }
         } else {
-            throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
+            throw new IllegalStateException("Unexpected signature '%s' is found.".formatted(
                     MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
     }
@@ -330,7 +329,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context);
 
     public IOpenMethod getTargetMethod() {
-        return this.candidates.iterator().next();
+        return this.candidates.getFirst();
     }
 
     public abstract TableSyntaxNode getDispatcherTable();

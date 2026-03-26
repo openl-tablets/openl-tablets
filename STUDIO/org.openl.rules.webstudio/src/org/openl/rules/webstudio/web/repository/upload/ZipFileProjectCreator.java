@@ -144,7 +144,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 ZipEntry item = zipFile.getEntry(name);
 
                 if (item == null) {
-                    throw new ProjectException(String.format("Cannot read zip entry '%s'. Possible broken zip.", name));
+                    throw new ProjectException("Cannot read zip entry '%s'. Possible broken zip.".formatted(name));
                 }
 
                 if (item.isDirectory()) {
@@ -166,7 +166,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 log.warn("Bad zip entry name [{}].", name);
                 String message = e.getMessage();
                 if (message == null) {
-                    message = String.format("Bad zip entry '%s'", name);
+                    message = "Bad zip entry '%s'".formatted(name);
                 }
                 throw new ProjectException(message, e);
             }

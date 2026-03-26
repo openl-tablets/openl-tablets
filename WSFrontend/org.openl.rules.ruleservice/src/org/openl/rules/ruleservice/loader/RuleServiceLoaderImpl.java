@@ -95,11 +95,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         IProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                    String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
+                    "Project '%s' is not found in deployment '%s'.".formatted(projectName, deploymentName));
         }
         Path projectFolder;
-        if (project instanceof LocalProject) {
-            projectFolder = ((LocalProject) project).getData().getPath();
+        if (project instanceof LocalProject localProject) {
+            projectFolder = localProject.getData().getPath();
             if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(
                     projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
 
@@ -276,8 +276,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     @PreDestroy
     public void destroy() throws Exception {
         log.debug("Data source releasing");
-        if (repository instanceof Closeable) {
-            ((Closeable) repository).close();
+        if (repository instanceof Closeable closeable) {
+            closeable.close();
         }
         tempRepo.close();
         try {

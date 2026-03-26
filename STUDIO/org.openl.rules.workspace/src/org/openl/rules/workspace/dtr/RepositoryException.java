@@ -1,8 +1,11 @@
 package org.openl.rules.workspace.dtr;
 
+import java.io.Serial;
+
 import org.openl.rules.common.ProjectException;
 
 public class RepositoryException extends ProjectException {
+    @Serial
     private static final long serialVersionUID = -7556228015092226646L;
 
     public RepositoryException(String msg) {

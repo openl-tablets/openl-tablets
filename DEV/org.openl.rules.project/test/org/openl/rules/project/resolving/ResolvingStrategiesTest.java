@@ -9,7 +9,6 @@ import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ public class ResolvingStrategiesTest {
         assertEquals(1, descriptor.getModules().size());
         assertEquals(1, descriptor.getClasspath().size());
 
-        Module module = descriptor.getModules().get(0);
+        Module module = descriptor.getModules().getFirst();
         assertEquals("rules/Tutorial_1.xls", module.getRulesRootPath().getPath());
         assertTrue(module.getRulesPath().isAbsolute());
         assertTrue(module.getRulesPath().startsWith(projectFolder.toPath().toAbsolutePath()));
@@ -50,7 +49,7 @@ public class ResolvingStrategiesTest {
         assertEquals(projectFolder.getName(), descriptor.getName());
         assertEquals(projectFolder.getCanonicalPath(), descriptor.getProjectFolder().toRealPath().toString());
         assertEquals(2, descriptor.getModules().size());
-        Module moduleFirst = descriptor.getModules().get(0);
+        Module moduleFirst = descriptor.getModules().getFirst();
         assertEquals("Rules", moduleFirst.getName());
         assertEquals("Rules.xls", moduleFirst.getRulesRootPath().getPath());
         assertTrue(moduleFirst.getRulesPath().isAbsolute());
@@ -65,7 +64,7 @@ public class ResolvingStrategiesTest {
 
     @Test
     public void testSimpleZip() throws Exception {
-        Path projectZip = Paths.get("test-resources/Tutorial 1%20+.zip");
+        Path projectZip = Path.of("test-resources/Tutorial 1%20+.zip");
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Collections.emptyMap())) {
             Path zipRoot = fs.getPath("/");
             ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
@@ -76,7 +75,7 @@ public class ResolvingStrategiesTest {
             assertEquals(zipRoot, descriptor.getProjectFolder());
             assertEquals(1, descriptor.getModules().size());
 
-            Module module1 = descriptor.getModules().get(0);
+            Module module1 = descriptor.getModules().getFirst();
             assertEquals("Tutorial1 - Intro to Decision Tables", module1.getName());
             assertEquals("Tutorial1 - Intro to Decision Tables.xlsx", module1.getRulesRootPath().getPath());
             assertTrue(module1.getRulesPath().isAbsolute());

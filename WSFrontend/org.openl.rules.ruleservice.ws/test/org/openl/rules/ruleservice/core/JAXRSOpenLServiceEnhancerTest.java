@@ -69,21 +69,18 @@ public class JAXRSOpenLServiceEnhancerTest {
         boolean consumesAnnotationExists = false;
 
         for (Annotation annotation : enhancedClass.getAnnotations()) {
-            if (annotation instanceof Path) {
-                Path path = (Path) annotation;
+            if (annotation instanceof Path path) {
                 String value = path.value();
                 if (value.equals("/")) {
                     f = true;
                 }
             }
-            if (annotation instanceof Produces) {
+            if (annotation instanceof Produces produces) {
                 producesAnnotationExists = true;
-                Produces produces = (Produces) annotation;
                 assertTrue(produces.value().length > 0, "@Produces annotation requires values.");
             }
-            if (annotation instanceof Consumes) {
+            if (annotation instanceof Consumes consumes) {
                 consumesAnnotationExists = true;
-                Consumes consumes = (Consumes) annotation;
                 assertTrue(consumes.value().length > 0, "@Consumes annotation requires values.");
             }
         }
@@ -105,8 +102,7 @@ public class JAXRSOpenLServiceEnhancerTest {
 
         Method someMethod = enhancedClass.getMethod("someMethod", int.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
-            if (annotation instanceof Path) {
-                Path path = (Path) annotation;
+            if (annotation instanceof Path path) {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.startsWith("/someMethod")) {
@@ -234,8 +230,7 @@ public class JAXRSOpenLServiceEnhancerTest {
 
         Method someMethod = enhancedClass.getMethod("someMethod", String.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
-            if (annotation instanceof Path) {
-                Path path = (Path) annotation;
+            if (annotation instanceof Path path) {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.equals("/someMethod/{arg}")) {
@@ -245,14 +240,12 @@ public class JAXRSOpenLServiceEnhancerTest {
             if (annotation instanceof GET) {
                 getAnnotationExists = true;
             }
-            if (annotation instanceof Produces) {
+            if (annotation instanceof Produces produces) {
                 producesAnnotationExists = true;
-                Produces produces = (Produces) annotation;
                 assertEquals(1, produces.value().length, "@Produces annotation requires defined values.");
             }
-            if (annotation instanceof Consumes) {
+            if (annotation instanceof Consumes consumes) {
                 consumesAnnotationExists = true;
-                Consumes consumes = (Consumes) annotation;
                 assertEquals(1, consumes.value().length, "@Consumes annotation requires defined values.");
             }
         }

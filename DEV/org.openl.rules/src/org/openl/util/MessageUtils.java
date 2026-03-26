@@ -11,46 +11,46 @@ public class MessageUtils {
     }
 
     public static String getTypeNotFoundMessage(String typeName) {
-        return String.format("Type '%s' is not found.", typeName);
+        return "Type '%s' is not found.".formatted(typeName);
     }
 
     public static String getConstructorNotFoundMessage(String constructorSignature) {
-        return String.format("Constructor '%s' is not found.", constructorSignature);
+        return "Constructor '%s' is not found.".formatted(constructorSignature);
     }
 
     public static String getTypeDefinedErrorMessage(String typeName) {
-        return String.format("Type '%s' is defined with errors.", typeName);
+        return "Type '%s' is defined with errors.".formatted(typeName);
     }
 
     public static String getDuplicatedKeyIndexErrorMessage(String source) {
-        return String.format("Duplicated key in an unique index: %s", source);
+        return "Duplicated key in an unique index: %s".formatted(source);
     }
 
     public static String getColumnNotFoundErrorMessage(String columnName) {
-        return String.format("Column '%s' is not found.", columnName);
+        return "Column '%s' is not found.".formatted(columnName);
     }
 
     public static String getUnknownForeignKeyIndexErrorMessage(String source, String fkTableName) {
-        return String.format("Index Key '%s' is not found in the foreign table '%s'.", source, fkTableName);
+        return "Index Key '%s' is not found in the foreign table '%s'.".formatted(source, fkTableName);
     }
 
     public static String getIncompatibleTypesErrorMessage(IOpenField fieldName, IOpenClass type, IOpenClass resType) {
-        return String.format("Field '%s' type is '%s' that is incompatible with type '%s'.",
+        return "Field '%s' type is '%s' that is incompatible with type '%s'.".formatted(
                 fieldName,
                 type.getName(),
                 resType.getName());
     }
 
     public static String getTableNotFoundErrorMessage(String tableName) {
-        return String.format("Table '%s' is not found.", tableName);
+        return "Table '%s' is not found.".formatted(tableName);
     }
 
     public static String getForeignTableCompilationErrorsMessage(String foreignKeyTableName) {
-        return String.format("Foreign table '%s' has errors.", foreignKeyTableName);
+        return "Foreign table '%s' has errors.".formatted(foreignKeyTableName);
     }
 
     public static String getConditionMultipleExpressionErrorMessage(String conditionName) {
-        return String.format("Multiple expressions are defined for '%s' condition.", conditionName);
+        return "Multiple expressions are defined for '%s' condition.".formatted(conditionName);
     }
 
 }

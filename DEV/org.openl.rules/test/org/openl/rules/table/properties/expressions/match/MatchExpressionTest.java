@@ -61,7 +61,7 @@ public class MatchExpressionTest {
 
     private void testMatchExpression(String operationNameTest, String operationTest) {
         String contextAttributeTest = "contextAttributeTest";
-        String matchExpressionStr = String.format("%s(%s)", operationNameTest, contextAttributeTest);
+        String matchExpressionStr = "%s(%s)".formatted(operationNameTest, contextAttributeTest);
         MatchingExpression matchExpression = new MatchingExpression(matchExpressionStr);
 
         String param = "paramTest";
@@ -69,7 +69,7 @@ public class MatchExpressionTest {
         assertEquals(operationNameTest, matchExpression.getMatchExpression().getOperationName());
         assertEquals(contextAttributeTest, matchExpression.getMatchExpression().getContextAttribute());
 
-        String codeExpressionTest = String.format("%s %s %s", param, operationTest, contextAttributeTest);
+        String codeExpressionTest = "%s %s %s".formatted(param, operationTest, contextAttributeTest);
 
         assertEquals(codeExpressionTest, matchExpression.getMatchExpression().getCodeExpression(param));
     }

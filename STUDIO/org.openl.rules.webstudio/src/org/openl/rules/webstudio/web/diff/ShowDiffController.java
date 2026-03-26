@@ -51,8 +51,8 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
 
     private void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
-        if (treeComponent instanceof UITree) {
-            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        if (treeComponent instanceof UITree tree) {
+            tree.setSelection(Collections.emptyList());
         }
     }
 

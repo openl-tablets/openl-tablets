@@ -142,7 +142,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (openMethodBinder.isPreBindStarted()) {
                     if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
                         throw new RecursiveSpreadsheetMethodPreBindingException(
-                                String.format("Type '%s' compilation failed with circular reference issue.",
+                                "Type '%s' compilation failed with circular reference issue.".formatted(
                                         openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
@@ -155,7 +155,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                         return method;
                     }
                     throw new IllegalStateException(
-                            String.format("Type '%s' compilation failed with circular reference issue.",
+                            "Type '%s' compilation failed with circular reference issue.".formatted(
                                     openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
                 }
                 preBindMethod(openMethodBinder.getHeader());
@@ -176,12 +176,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     private RecursiveOpenMethodPreBinder extractOpenMethodPrebinder(IMethodCaller method) {
-        if (method instanceof RecursiveOpenMethodPreBinder) {
-            return (RecursiveOpenMethodPreBinder) method;
+        if (method instanceof RecursiveOpenMethodPreBinder binder) {
+            return binder;
         } else if (method instanceof CastingMethodCaller) {
             return extractOpenMethodPrebinder(method.getMethod());
-        } else if (method instanceof AOpenMethodDelegator) {
-            return extractOpenMethodPrebinder(((AOpenMethodDelegator) method).getDelegate());
+        } else if (method instanceof AOpenMethodDelegator delegator) {
+            return extractOpenMethodPrebinder(delegator.getDelegate());
         }
         throw new IllegalStateException("It should not happen.");
     }
@@ -194,8 +194,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
         final String typeName = type.getName();
-        if (type instanceof ModuleSpecificType) {
-            ModuleSpecificType moduleRelatedType = (ModuleSpecificType) type;
+        if (type instanceof ModuleSpecificType moduleRelatedType) {
             IOpenClass openClass = super.findType(typeName);
             if (openClass == moduleRelatedType) {
                 return openClass;
@@ -217,11 +216,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         IOpenClass openClass = super.findType(typeName);
         // We found some type which can be CSR
         // So there additional action is required for CSR
-        if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
+        if (openClass instanceof SpreadsheetResultOpenClass class1 && class1
                 .getModule() == null) {
             return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-        } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-            CustomSpreadsheetResultOpenClass csrOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+        } else if (openClass instanceof CustomSpreadsheetResultOpenClass csrOpenClass) {
             if (!csrOpenClass.isIgnoreCompilation()) {
                 // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
                 // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
@@ -259,8 +257,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (!isExecutionMode() && method.isSpreadsheetWithCustomSpreadsheetResult()) {
             final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
             IOpenClass openClass = findType(sprTypeName);
-            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+            if (openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                 customSpreadsheetResultOpenClass.setMetaInfo(
                         new TableMetaInfo("Spreadsheet", method.getName(), method.getTableSyntaxNode().getUri()));
             } else {
@@ -293,8 +290,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
                     .getName();
             IOpenClass openClass = super.findType(customSpreadsheetResultTypeName);
-            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
+            if (openClass instanceof CustomSpreadsheetResultOpenClass csroc) {
                 csroc.setIgnoreCompilation(true);
             } else {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
@@ -318,11 +314,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (prebindingOpenMethodPreBinder.isPresent()) {
             if (prebindingOpenMethodPreBinder.get().isSpreadsheetWithCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException(
-                        String.format("Type '%s' compilation failed with circular reference issue.",
+                        "Type '%s' compilation failed with circular reference issue.".formatted(
                                 prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
             } else {
                 throw new IllegalStateException(
-                        String.format("Type '%s' compilation failed with circular reference issue.",
+                        "Type '%s' compilation failed with circular reference issue.".formatted(
                                 prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
             }
         }
@@ -336,20 +332,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            if (env instanceof SimpleRuntimeEnv) {
-                SimpleRuntimeEnv simpleRuntimeEnv = (SimpleRuntimeEnv) env;
+            if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 IOpenMethod method = simpleRuntimeEnv.getMethodWrapper()
                         .getTopOpenClassMethod(simpleRuntimeEnv.getTopClass());
-                if (method instanceof ExecutableRulesMethod) {
-                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+                if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                     return new TableProperties[]{new TableProperties(executableRulesMethod.getMethodProperties())};
-                } else if (method instanceof OpenMethodDispatcher) {
-                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+                } else if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                     List<TableProperties> tableProperties = new ArrayList<>();
                     for (IOpenMethod method1 : openMethodDispatcher.getCandidates()) {
-                        if (method1 instanceof ExecutableRulesMethod) {
+                        if (method1 instanceof ExecutableRulesMethod rulesMethod) {
                             tableProperties
-                                    .add(new TableProperties(((ExecutableRulesMethod) method1).getMethodProperties()));
+                                    .add(new TableProperties(rulesMethod.getMethodProperties()));
                         }
                     }
                     return tableProperties.toArray(new TableProperties[]{});
@@ -427,8 +420,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            if (env instanceof SimpleRuntimeEnv) {
-                SimpleRuntimeEnv simpleRuntimeEnv = (SimpleRuntimeEnv) env;
+            if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
                     ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) simpleRuntimeEnv
                             .getMethodWrapper()
@@ -439,8 +431,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                             .getMethodWrapper()
                             .getDelegate();
                     IOpenMethod method = openMethodDispatcher.findMatchingMethod(env);
-                    if (method instanceof ExecutableRulesMethod) {
-                        ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+                    if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                         return new TableProperties(executableRulesMethod.getMethodProperties());
                     }
                 }
@@ -835,12 +826,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                                                        IOpenClass componentOpenClass,
                                                        XlsModuleOpenClass xlsModuleOpenClass,
                                                        IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
-        if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass) {
+        if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass class2) {
             return xlsModuleOpenClass
-                    .isDependencyModule(((CustomSpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
-        } else if (componentOpenClass instanceof SpreadsheetResultOpenClass) {
+                    .isDependencyModule(class2.getModule(), cache);
+        } else if (componentOpenClass instanceof SpreadsheetResultOpenClass class1) {
             return xlsModuleOpenClass
-                    .isDependencyModule(((SpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
+                    .isDependencyModule(class1.getModule(), cache);
         }
         return false;
     }

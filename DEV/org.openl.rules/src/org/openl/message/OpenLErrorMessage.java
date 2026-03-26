@@ -64,8 +64,8 @@ public class OpenLErrorMessage extends OpenLMessage {
 
         OpenLException cause = ex;
         while (t != null) {
-            if (t instanceof OpenLException) {
-                cause = (OpenLException) t;
+            if (t instanceof OpenLException exception) {
+                cause = exception;
             }
             t = t.getCause();
         }

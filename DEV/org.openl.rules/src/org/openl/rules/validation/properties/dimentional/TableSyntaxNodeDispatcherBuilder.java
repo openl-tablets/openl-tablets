@@ -269,7 +269,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     private IOpenMethod getMember() {
         // as we have a group of overloaded methods, we need to take one it`s
         // member to get all common settings for the whole group
-        return dispatcher.getCandidates().get(0);
+        return dispatcher.getCandidates().getFirst();
     }
 
     /**
@@ -281,7 +281,7 @@ public class TableSyntaxNodeDispatcherBuilder {
         String originalTableName = getMethodName();
 
         // table name for dispatcher table.
-        return String.format("%s_%s", DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME, originalTableName);
+        return "%s_%s".formatted(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME, originalTableName);
     }
 
     private Map<String, IOpenClass> updateIncomeParams() {

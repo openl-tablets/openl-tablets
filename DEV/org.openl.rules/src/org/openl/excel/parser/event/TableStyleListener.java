@@ -210,8 +210,8 @@ public class TableStyleListener implements HSSFListener {
             short column = currentFormula.getColumn();
             try {
                 StringRecord cachedText = null;
-                if (record instanceof StringRecord) {
-                    cachedText = (StringRecord) record;
+                if (record instanceof StringRecord stringRecord) {
+                    cachedText = stringRecord;
                 } else {
                     currentFormula.setCachedResultBoolean(false);
                 }
@@ -261,7 +261,7 @@ public class TableStyleListener implements HSSFListener {
                 return;
             }
 
-            EscherContainerRecord spgrContainer = dgContainer.getChildContainers().get(0);
+            EscherContainerRecord spgrContainer = dgContainer.getChildContainers().getFirst();
             List<EscherContainerRecord> spgrChildren = spgrContainer.getChildContainers();
 
             CommentsCollector commentCollector = new CommentsCollector();
@@ -277,7 +277,7 @@ public class TableStyleListener implements HSSFListener {
         int size = shapeRecords.size();
         for (int i = 0; i < size; i++) {
             RecordBase rb = shapeRecords.get(i);
-            if (rb instanceof Record && ((Record) rb).getSid() == DrawingRecord.sid) {
+            if (rb instanceof Record record && record.getSid() == DrawingRecord.sid) {
                 return i;
             }
         }

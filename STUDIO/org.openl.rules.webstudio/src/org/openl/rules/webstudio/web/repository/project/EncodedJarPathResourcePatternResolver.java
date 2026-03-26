@@ -38,9 +38,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
         String rootEntryPath;
         boolean newJarFile = false;
 
-        if (con instanceof JarURLConnection) {
-            // Should usually be the case for traditional JAR files.
-            JarURLConnection jarCon = (JarURLConnection) con;
+        if (con instanceof JarURLConnection jarCon) {
             ResourceUtils.useCachesIfNecessary(jarCon);
             jarFile = jarCon.getJarFile();
             jarFileUrl = jarCon.getJarFileURL().toExternalForm();

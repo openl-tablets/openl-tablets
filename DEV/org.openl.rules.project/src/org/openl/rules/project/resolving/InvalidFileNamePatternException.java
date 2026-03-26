@@ -1,7 +1,10 @@
 package org.openl.rules.project.resolving;
 
+import java.io.Serial;
+
 public class InvalidFileNamePatternException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 5311460808662376815L;
 
     /**

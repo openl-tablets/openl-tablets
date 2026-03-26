@@ -201,7 +201,7 @@ public class RulesProject extends UserWorkspaceProject {
                 if (!deleted) {
                     try {
                         if (localRepository.check(fileData.getName()) != null) {
-                            String message = String.format("Cannot close project because resource '%s' is used",
+                            String message = "Cannot close project because resource '%s' is used".formatted(
                                     fileData.getName());
                             if (deleteCause == null) {
                                 throw new ProjectException(message);

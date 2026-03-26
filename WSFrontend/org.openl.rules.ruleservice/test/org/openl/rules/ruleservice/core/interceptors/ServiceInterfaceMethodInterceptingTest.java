@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -316,7 +316,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         projectDescriptor.setName("service");
         projectDescriptor.setModules(modules);
         projectDescriptor
-                .setProjectFolder(Paths.get("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
+                .setProjectFolder(Path.of("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("Overload.xls"));
 

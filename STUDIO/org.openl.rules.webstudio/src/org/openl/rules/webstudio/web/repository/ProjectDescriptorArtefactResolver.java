@@ -41,7 +41,7 @@ public class ProjectDescriptorArtefactResolver {
         }
         String version = fileData.getVersion();
         String versionName = version == null ? "" : version;
-        String key = String.format("%s:%s:%b", project.getName(), versionName, project.isModified());
+        String key = "%s:%s:%b".formatted(project.getName(), versionName, project.isModified());
 
         ProjectDescriptor descriptor = cache.get(key);
         if (descriptor != null) {
@@ -56,10 +56,10 @@ public class ProjectDescriptorArtefactResolver {
 
         AProjectArtefact artefact = project
                 .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-        if (artefact instanceof AProjectResource) {
+        if (artefact instanceof AProjectResource resource) {
             InputStream content = null;
             try {
-                content = ((AProjectResource) artefact).getContent();
+                content = resource.getContent();
                 descriptor = serializer.deserialize(content);
             } finally {
                 IOUtils.closeQuietly(content);

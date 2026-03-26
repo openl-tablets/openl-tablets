@@ -30,13 +30,11 @@ public class OpenFieldDelegator implements IOpenField {
             return true;
         }
 
-        if (obj instanceof OpenFieldDelegator) {
-            OpenFieldDelegator d = (OpenFieldDelegator) obj;
+        if (obj instanceof OpenFieldDelegator d) {
             return delegate.equals(d.delegate);
         }
 
-        if (obj instanceof IOpenField) {
-            IOpenField f = (IOpenField) obj;
+        if (obj instanceof IOpenField f) {
             return delegate.equals(f);
         }
 

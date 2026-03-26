@@ -127,7 +127,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         @Override
         public String toString() {
-            return String.format("DependencyReference [dependOnThisDependency=%s, dependency=%s]",
+            return "DependencyReference [dependOnThisDependency=%s, dependency=%s]".formatted(
                     dependOnThisDependency.getDependency(),
                     dependency.getDependency());
         }
@@ -192,7 +192,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
             if (isCircularDependency) {
                 throw new OpenLCompilationException(
-                        String.format("Circular dependency is detected: %s.",
+                        "Circular dependency is detected: %s.".formatted(
                                 buildCircularDependencyDetails(dependencyLoader, compilationStack)),
                         null,
                         dependency.getNode().getSourceLocation(),
@@ -317,13 +317,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (!withWildcard && ret.size() != 1) {
             if (ret.isEmpty()) {
                 throw new DependencyNotFoundException(
-                        String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                        "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
                         null,
                         dependency.getNode().getSourceLocation(),
                         dependency.getNode().getModule());
             } else {
                 throw new AmbiguousDependencyException(
-                        String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
+                        "Multiple dependencies '%s' are found.".formatted(dependency.getNode().getIdentifier()),
                         null,
                         dependency.getNode().getSourceLocation(),
                         dependency.getNode().getModule());
@@ -337,7 +337,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
         if (dependencyLoader == null) {
             throw new OpenLCompilationException(
-                    String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                    "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
                     null,
                     dependency.getNode().getSourceLocation(),
                     dependency.getNode().getModule());
@@ -376,7 +376,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
-        throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", node.getIdentifier()),
+        throw new OpenLCompilationException("Dependency '%s' is not found.".formatted(node.getIdentifier()),
                 null,
                 node.getSourceLocation(),
                 node.getModule());
@@ -477,7 +477,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (depLoader.getRefToCompiledDependency() != null) {
                 CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
                 IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
-                if (openClass instanceof XlsModuleOpenClass && ((XlsModuleOpenClass) openClass)
+                if (openClass instanceof XlsModuleOpenClass class1 && class1
                         .isAppliedChangesToClasspath()) {
                     // Datatypes are generated into the project classloader. If module contains datatype then
                     // whole project needs to be recompiled.

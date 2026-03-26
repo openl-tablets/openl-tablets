@@ -142,8 +142,7 @@ public class OpenAPITypeUtils {
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
-        } else if (schema instanceof ArraySchema) {
-            ArraySchema arraySchema = (ArraySchema) schema;
+        } else if (schema instanceof ArraySchema arraySchema) {
             TypeInfo type = extractType(openAPIRefResolver, arraySchema.getItems(), false);
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
@@ -209,7 +208,7 @@ public class OpenAPITypeUtils {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            throw new IllegalStateException(String.format("Invalid ref %s", ref));
+            throw new IllegalStateException("Invalid ref %s".formatted(ref));
         }
         return ref;
     }
@@ -251,20 +250,14 @@ public class OpenAPITypeUtils {
     }
 
     public static String getJavaDefaultValue(TypeInfo type) {
-        switch (type.getJavaName()) {
-            case INTEGER_PRIMITIVE:
-                return "0";
-            case LONG_PRIMITIVE:
-                return "0L";
-            case DOUBLE_PRIMITIVE:
-                return "0.0";
-            case FLOAT_PRIMITIVE:
-                return "0.0f";
-            case BOOLEAN_PRIMITIVE:
-                return "false";
-            default:
-                return "null";
-        }
+        return switch (type.getJavaName()) {
+            case INTEGER_PRIMITIVE -> "0";
+            case LONG_PRIMITIVE -> "0L";
+            case DOUBLE_PRIMITIVE -> "0.0";
+            case FLOAT_PRIMITIVE -> "0.0f";
+            case BOOLEAN_PRIMITIVE -> "false";
+            default -> "null";
+        };
     }
 
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
@@ -294,7 +287,7 @@ public class OpenAPITypeUtils {
 
         // parent name only makes sense when there is a single obvious parent
         if (refedWithoutDiscriminator.size() == 1) {
-            return refedWithoutDiscriminator.get(0);
+            return refedWithoutDiscriminator.getFirst();
         }
 
         return null;
@@ -311,8 +304,7 @@ public class OpenAPITypeUtils {
             } else {
                 log.error("Failed to obtain schema from {}", parentName);
             }
-        } else if (schema instanceof ComposedSchema) {
-            final ComposedSchema composed = (ComposedSchema) schema;
+        } else if (schema instanceof ComposedSchema composed) {
             final List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(composed);
             for (Schema<?> i : interfaces) {
                 if (hasOrInheritsDiscriminator(i, allSchemas)) {
@@ -362,8 +354,8 @@ public class OpenAPITypeUtils {
             if (CollectionUtils.isNotEmpty(properties)) {
                 properties.forEach(allProperties::putIfAbsent);
             }
-            if (parentSchema instanceof ComposedSchema) {
-                getAllProperties((ComposedSchema) parentSchema, openAPI).forEach(allProperties::putIfAbsent);
+            if (parentSchema instanceof ComposedSchema schema) {
+                getAllProperties(schema, openAPI).forEach(allProperties::putIfAbsent);
             }
         }
         if (cs != null) {

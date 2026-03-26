@@ -65,8 +65,8 @@ class FieldDescriptor {
                 if (!coveredFields.contains(fieldName)) {
                     coveredFields.add(fieldName);
                     if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
-                        if (fieldValue instanceof Collection) {
-                            fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
+                        if (fieldValue instanceof Collection<?> collection) {
+                            fieldType = CastToWiderType.defineCollectionWiderType(collection);
                         }
                         List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
                                 childFieldValues,

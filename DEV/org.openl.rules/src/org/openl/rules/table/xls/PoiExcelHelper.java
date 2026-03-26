@@ -56,9 +56,9 @@ public final class PoiExcelHelper {
     }
 
     public static <T extends CellStyle> T createCellStyle(Workbook workbook) {
-        if (workbook instanceof HSSFWorkbook) {
+        if (workbook instanceof HSSFWorkbook fWorkbook) {
             if (workbook.getNumCellStyles() == MAX_STYLES) {
-                HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
+                HSSFOptimiser.optimiseCellStyles(fWorkbook);
             }
             @SuppressWarnings("unchecked")
             T style = (T) workbook.createCellStyle();
@@ -169,15 +169,15 @@ public final class PoiExcelHelper {
             return null;
         }
 
-        if (color instanceof HSSFColor) {
-            return ((HSSFColor) color).getTriplet();
+        if (color instanceof HSSFColor fColor1) {
+            return fColor1.getTriplet();
 
-        } else if (color instanceof XSSFColor) {
-            byte[] rgb = ((XSSFColor) color).getRGB();
+        } else if (color instanceof XSSFColor fColor) {
+            byte[] rgb = fColor.getRGB();
 
             // Byte to short
             if (rgb != null) {
-                return applyTint(rgb, ((XSSFColor) color).getTint());
+                return applyTint(rgb, fColor.getTint());
             }
         }
 
@@ -259,8 +259,8 @@ public final class PoiExcelHelper {
     }
 
     public static short[] getFontColor(Font font, Workbook workbook) {
-        if (font instanceof XSSFFont) {
-            XSSFColor color = ((XSSFFont) font).getXSSFColor();
+        if (font instanceof XSSFFont fFont) {
+            XSSFColor color = fFont.getXSSFColor();
             return toRgb(color);
         } else {
             short x = font.getColor();
@@ -278,8 +278,7 @@ public final class PoiExcelHelper {
             colors[2] = toRgb(style.getBottomBorderColor(), hssfWorkbook);
             colors[3] = toRgb(style.getLeftBorderColor(), hssfWorkbook);
 
-        } else if (style instanceof XSSFCellStyle) {
-            XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
+        } else if (style instanceof XSSFCellStyle xssfStyle) {
             colors[0] = toRgb(xssfStyle.getTopBorderXSSFColor());
             colors[1] = toRgb(xssfStyle.getRightBorderXSSFColor());
             colors[2] = toRgb(xssfStyle.getBottomBorderXSSFColor());
@@ -315,9 +314,8 @@ public final class PoiExcelHelper {
             if (colors[3] != null) {
                 style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
             }
-        } else if (style instanceof XSSFCellStyle) {
+        } else if (style instanceof XSSFCellStyle xssfStyle) {
             XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
-            XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
             if (colors[0] != null) {
                 xssfStyle.setTopBorderColor(getColor(colors[0], xssfWorkbook));
             }

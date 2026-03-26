@@ -246,8 +246,7 @@ public class TestBean {
         Object actualResultInternal = objTestUnit.getActualResult();
 
         try {
-            if (actualResultInternal instanceof SpreadsheetResult) {
-                SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
+            if (actualResultInternal instanceof SpreadsheetResult spreadsheetResult) {
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer
                         .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);

@@ -160,8 +160,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public IOpenClass getParentClass(ModuleSpecificType openClass) {
-        if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-            CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
+        if (openClass instanceof CustomSpreadsheetResultOpenClass csroc) {
             if (getModule().isDependencyModule(csroc.getModule(), new IdentityHashMap<>())) {
                 return getModule().buildOrGetCombinedSpreadsheetResult(this, csroc);
             } else {
@@ -174,7 +173,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Override
     public void addField(IOpenField field) throws DuplicatedFieldException {
         if (!(field instanceof CustomSpreadsheetResultField)) {
-            throw new IllegalStateException(String.format("Expected type '%s', but found type '%s'.",
+            throw new IllegalStateException("Expected type '%s', but found type '%s'.".formatted(
                     CustomSpreadsheetResultField.class.getTypeName(),
                     field.getClass().getTypeName()));
         }
@@ -183,8 +182,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
+        if (ioc instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
             return getModule().isDependencyModule(customSpreadsheetResultOpenClass.getModule(),
                     new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
         }
@@ -337,8 +335,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             throw new IllegalStateException(
                     "Java bean class for custom spreadsheet result is loaded to classloader. " + "Custom spreadsheet result cannot be extended.");
         }
-        if (openClass instanceof SpreadsheetResultOpenClass) {
-            this.updateWithType(((SpreadsheetResultOpenClass) openClass).toCustomSpreadsheetResultOpenClass());
+        if (openClass instanceof SpreadsheetResultOpenClass class1) {
+            this.updateWithType(class1.toCustomSpreadsheetResultOpenClass());
             return;
         }
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
@@ -466,8 +464,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     }
                     var fromClass = v.getClass();
                     if (toClass.equals(Object.class)) {
-                        if (v instanceof SpreadsheetResult) {
-                            var sr = (SpreadsheetResult) v;
+                        if (v instanceof SpreadsheetResult sr) {
                             var customClass = sr.getCustomSpreadsheetResultOpenClass();
                             if (customClass != null) {
                                 return customClass.createBean(sr, namingStrategy);
@@ -491,13 +488,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             }
                         }
                     }
-                    if (v instanceof SpreadsheetResult && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
-                        return createBean(toClass, (SpreadsheetResult) v, namingStrategy);
+                    if (v instanceof SpreadsheetResult result && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                        return createBean(toClass, result, namingStrategy);
                     }
-                    if (v instanceof Collection) {
+                    if (v instanceof Collection<?> collection) {
                         try {
                             var newCollection = (Collection<Object>) v.getClass().getDeclaredConstructor().newInstance();
-                            for (var o : (Collection<?>)v) {
+                            for (var o : collection) {
                                 newCollection.add(apply(o, Object.class));
                             }
                             return newCollection;
@@ -505,10 +502,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             return v;
                         }
                     }
-                    if (v instanceof Map) {
+                    if (v instanceof Map<?, ?> map) {
                         try {
                             var newCollection = (Map<Object, Object>) v.getClass().getDeclaredConstructor().newInstance();
-                            for (var o : ((Map<?, ?>)v).entrySet()) {
+                            for (var o : map.entrySet()) {
                                 newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
                             }
                             return newCollection;
@@ -571,7 +568,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         this.beanClass = getModule().getClassGenerationClassLoader().loadClass(getBeanClassName());
                     } catch (Exception | LinkageError e) {
                         throw new IllegalStateException(
-                                String.format("Failed to create bean class for '%s' spreadsheet result.", getName()),
+                                "Failed to create bean class for '%s' spreadsheet result.".formatted(getName()),
                                 e);
                     }
                 }
@@ -701,33 +698,33 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass || t instanceof AnySpreadsheetResultOpenClass) {
                         String fieldClsName;
                         XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
-                        if (t instanceof CustomSpreadsheetResultOpenClass) {
-                            CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) t;
-                            boolean externalCustomSpreadsheetResultOpenClass = isExternalCustomSpreadsheetResultOpenClass(
-                                    csroc,
-                                    cache);
-                            if (externalCustomSpreadsheetResultOpenClass) {
-                                additionalClassGenerationClassloaderModule = csroc.getModule();
+                        switch (t) {
+                            case CustomSpreadsheetResultOpenClass csroc -> {
+                                boolean externalCustomSpreadsheetResultOpenClass = isExternalCustomSpreadsheetResultOpenClass(
+                                        csroc,
+                                        cache);
+                                if (externalCustomSpreadsheetResultOpenClass) {
+                                    additionalClassGenerationClassloaderModule = csroc.getModule();
+                                }
+                                fieldClsName = csroc.getBeanClassName();
+                                csroc.generateBeanClass();
                             }
-                            fieldClsName = csroc.getBeanClassName();
-                            csroc.generateBeanClass();
-                        } else if (t instanceof SpreadsheetResultOpenClass) {
-                            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) t;
-                            final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
-                                    spreadsheetResultOpenClass,
-                                    cache);
-                            XlsModuleOpenClass m = externalSpreadsheetResultOpenClass ? spreadsheetResultOpenClass
-                                    .getModule() : getModule();
-                            if (externalSpreadsheetResultOpenClass) {
-                                additionalClassGenerationClassloaderModule = spreadsheetResultOpenClass.getModule();
+                            case SpreadsheetResultOpenClass spreadsheetResultOpenClass -> {
+                                final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
+                                        spreadsheetResultOpenClass,
+                                        cache);
+                                XlsModuleOpenClass m = externalSpreadsheetResultOpenClass ? spreadsheetResultOpenClass
+                                        .getModule() : getModule();
+                                if (externalSpreadsheetResultOpenClass) {
+                                    additionalClassGenerationClassloaderModule = spreadsheetResultOpenClass.getModule();
+                                }
+                                fieldClsName = m.getGlobalTableProperties()
+                                        .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                                m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                        .toCustomSpreadsheetResultOpenClass()
+                                        .generateBeanClass();
                             }
-                            fieldClsName = m.getGlobalTableProperties()
-                                    .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
-                            m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                    .toCustomSpreadsheetResultOpenClass()
-                                    .generateBeanClass();
-                        } else {
-                            fieldClsName = Map.class.getCanonicalName();
+                            case null, default -> fieldClsName = Map.class.getCanonicalName();
                         }
                         if (additionalClassGenerationClassloaderModule != null) {
                             getModule().getClassGenerationClassLoader()
@@ -844,7 +841,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 continue;
             }
             Object cv = SpreadsheetResult.convertBeansToSpreadsheetResults(v, mapClassToSpr);
-            var openField = cell.getValue().get(0);
+            var openField = cell.getValue().getFirst();
             openField.set(spreadsheetResult, cv, null);
         }
         return spreadsheetResult;

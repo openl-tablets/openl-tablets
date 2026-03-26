@@ -2,6 +2,7 @@ package org.openl.rules.context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import org.openl.types.IOpenMethod;
 
 public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesRuntimeContextOptimizationForOpenMethodDispatcher, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 670283457423670894L;
 
     public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
@@ -92,8 +94,8 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
             final Object childKey = entry.getKey();
             final Object childValue = entry.getValue();
-            if (childValue instanceof Map && !lineage.contains(childValue)) {
-                verbosePrint(out, childKey == null ? "null" : childKey, (Map<?, ?>) childValue, lineage);
+            if (childValue instanceof Map<?, ?> map1 && !lineage.contains(childValue)) {
+                verbosePrint(out, childKey == null ? "null" : childKey, map1, lineage);
             } else {
                 printIndent(out, lineage.size());
                 out.print(childKey);

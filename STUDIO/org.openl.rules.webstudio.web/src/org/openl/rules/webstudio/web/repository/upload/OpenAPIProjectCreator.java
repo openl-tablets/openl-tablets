@@ -196,7 +196,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             addFile(projectBuilder,
                     rulesFile,
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
-                    String.format("Error uploading %s file.",
+                    "Error uploading %s file.".formatted(
                             ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
                     openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
@@ -216,7 +216,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         addFile(projectBuilder,
                 IOUtils.toInputStream(groovyScriptFile.getScriptText()),
                 path,
-                String.format("Error uploading of '%s' file.", groovyScriptFile));
+                "Error uploading of '%s' file.".formatted(groovyScriptFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,

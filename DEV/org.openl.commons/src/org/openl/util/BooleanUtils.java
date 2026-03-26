@@ -49,12 +49,11 @@ public final class BooleanUtils {
      */
     public static Boolean toBooleanObject(Object value) {
         Boolean bValue = null;
-        if (value instanceof String) {
-            bValue = toBooleanObject((String) value);
-        } else if (value instanceof Integer) {
-            bValue = (Integer) value != 0;
-        } else if (value instanceof Boolean) {
-            bValue = (Boolean) value;
+        switch (value) {
+            case String string -> bValue = toBooleanObject(string);
+            case Integer integer -> bValue = integer != 0;
+            case Boolean boolean1 -> bValue = boolean1;
+            case null, default -> {}
         }
         return bValue;
     }

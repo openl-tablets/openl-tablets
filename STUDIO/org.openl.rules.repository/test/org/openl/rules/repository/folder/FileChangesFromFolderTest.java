@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -96,7 +95,7 @@ public class FileChangesFromFolderTest {
     }
 
     private static FileSystem openFileSystem(String archive) throws IOException {
-        return FileSystems.newFileSystem(Paths.get(archive), Thread.currentThread().getContextClassLoader());
+        return FileSystems.newFileSystem(Path.of(archive), Thread.currentThread().getContextClassLoader());
     }
 
 }

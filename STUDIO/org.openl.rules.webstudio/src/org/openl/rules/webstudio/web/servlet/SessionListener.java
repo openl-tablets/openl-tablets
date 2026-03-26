@@ -48,7 +48,14 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
             }
 
             log.debug(
-                    "\n" + "  id           : {}\n" + "  creation time: {}\n" + "  accessed time: {}\n" + "  max inactive : {}\n" + "  has rulesUserSession? {}",
+                    """
+
+                      id           : {}
+                      creation time: {}
+                      accessed time: {}
+                      max inactive : {}
+                      has rulesUserSession? {}\
+                    """,
                     session.getId(),
                     creationTime,
                     lastAccessedTime,

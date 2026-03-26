@@ -153,7 +153,7 @@ public class SequentialXlsLoader {
                 // ignore comment
                 log.debug("Comment: {}", value);
             } else {
-                String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
+                String message = "Error in Environment table: unrecognized keyword '%s'".formatted(value);
                 messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
@@ -209,8 +209,8 @@ public class SequentialXlsLoader {
                 continue;
             }
             if (pp1[i].equals("..")) {
-                if (!result.isEmpty() && !result.get(result.size() - 1).equals("..")) {
-                    result.remove(result.size() - 1);
+                if (!result.isEmpty() && !result.getLast().equals("..")) {
+                    result.removeLast();
                     continue;
                 }
             }
@@ -222,7 +222,7 @@ public class SequentialXlsLoader {
                 continue;
             }
             if (!result.isEmpty() && s.equals("..")) {
-                result.remove(result.size() - 1);
+                result.removeLast();
                 continue;
             }
             result.add(s);

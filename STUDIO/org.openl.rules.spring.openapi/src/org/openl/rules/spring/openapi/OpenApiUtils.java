@@ -40,8 +40,8 @@ public final class OpenApiUtils {
      */
     public static String getRequestBasePath() {
         var requestAttrs = RequestContextHolder.getRequestAttributes();
-        if (requestAttrs instanceof ServletRequestAttributes) {
-            final var request = ((ServletRequestAttributes) requestAttrs).getRequest();
+        if (requestAttrs instanceof ServletRequestAttributes attributes) {
+            final var request = attributes.getRequest();
             return RequestPathUtils.getFullRequestPath(request);
         }
         return null;

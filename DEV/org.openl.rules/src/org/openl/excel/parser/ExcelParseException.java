@@ -1,6 +1,9 @@
 package org.openl.excel.parser;
 
+import java.io.Serial;
+
 public class ExcelParseException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = -3043843512554237562L;
 
     public ExcelParseException() {

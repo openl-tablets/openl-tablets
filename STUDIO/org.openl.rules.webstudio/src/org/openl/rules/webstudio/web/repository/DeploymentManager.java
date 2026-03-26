@@ -64,7 +64,7 @@ public class DeploymentManager implements InitializingBean {
 
     public DeployID deploy(DeploymentRequest request) throws DeploymentException {
         if (!deployers.contains(request.productionRepositoryId())) {
-            throw new IllegalArgumentException(String.format("Repository '%s' is not found.", request.productionRepositoryId()));
+            throw new IllegalArgumentException("Repository '%s' is not found.".formatted(request.productionRepositoryId()));
         }
         try {
             StringBuilder sb = new StringBuilder(request.name());

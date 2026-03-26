@@ -98,7 +98,7 @@ public abstract class AOpenClass implements IOpenClass {
                 return new DomainOpenClass(domainOpenClassName.toString(),
                         arrayType,
                         openClass.getDomain(),
-                        openClass instanceof BelongsToModuleOpenClass ? ((BelongsToModuleOpenClass) openClass).getModule()
+                        openClass instanceof BelongsToModuleOpenClass btmoc ? btmoc.getModule()
                                 : null,
                         null);
             } else {
@@ -233,8 +233,8 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public boolean isAssignableFrom(IType type) {
-        if (type instanceof IOpenClass) {
-            return isAssignableFrom((IOpenClass) type);
+        if (type instanceof IOpenClass class1) {
+            return isAssignableFrom(class1);
         }
         return false;
     }
@@ -331,8 +331,8 @@ public abstract class AOpenClass implements IOpenClass {
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
-            throw new DuplicatedMethodException(String
-                    .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
+            throw new DuplicatedMethodException("Method '%s' is already defined in class '%s'"
+                    .formatted(method, getName()), existMethod, method);
         }
         invalidateInternalData();
     }

@@ -86,16 +86,15 @@ public class DynamicObject implements IDynamicObject {
 
         @Override
         protected String getTypeName(Object obj) {
-            if (obj instanceof DynamicObject) {
-                return ((DynamicObject) obj).getType().getName();
+            if (obj instanceof DynamicObject object) {
+                return object.getType().getName();
             }
             return super.getTypeName(obj);
         }
 
         @Override
         public void printObject(Object obj, int newID, NicePrinter printer) {
-            if (obj instanceof IDynamicObject) {
-                IDynamicObject dobj = (IDynamicObject) obj;
+            if (obj instanceof IDynamicObject dobj) {
                 printReference(dobj, newID, printer);
                 // printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
                 printMap(dobj.getFieldValues(), null, printer);

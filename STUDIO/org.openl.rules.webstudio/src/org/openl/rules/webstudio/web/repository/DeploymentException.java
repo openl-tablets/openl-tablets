@@ -1,11 +1,14 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.Serial;
+
 import org.openl.rules.common.ProjectException;
 
 /**
  * An exception related to deployment to production repository and working with deployed projects there.
  */
 public class DeploymentException extends ProjectException {
+    @Serial
     private static final long serialVersionUID = -3106574082492867820L;
 
     public DeploymentException(String msg, Throwable cause) {

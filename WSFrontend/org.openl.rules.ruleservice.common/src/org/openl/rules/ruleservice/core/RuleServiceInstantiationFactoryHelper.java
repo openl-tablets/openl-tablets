@@ -288,7 +288,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             return loadedType;
         } catch (ClassNotFoundException e) {
             throw new InstantiationException(
-                    String.format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+                    "Failed to load type '%s' that used in @RulesType annotation.".formatted(rulesType.value()));
         }
     }
 
@@ -401,14 +401,14 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
+                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
+                    Class<?> t = class2.getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
-                } else if (type instanceof SpreadsheetResultOpenClass) {
+                } else if (type instanceof SpreadsheetResultOpenClass class1) {
                     Class<?> t;
                     // Check: custom spreadsheet is enabled
-                    if (((SpreadsheetResultOpenClass) type).getModule() != null) {
-                        t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
+                    if (class1.getModule() != null) {
+                        t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
                     } else {
                         t = type.getInstanceClass();
                     }
@@ -477,11 +477,11 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
             if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
                 Class<?> t;
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
-                } else if (type instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) type)
+                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
+                    t = class2.getBeanClass();
+                } else if (type instanceof SpreadsheetResultOpenClass class1 && class1
                         .getModule() != null) {
-                    t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
+                    t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
                 } else {
                     t = Map.class;
                 }
@@ -532,8 +532,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                         methodParamType = loadedType;
                         f = true;
                     } catch (ClassNotFoundException e) {
-                        throw new InstantiationException(String
-                                .format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+                        throw new InstantiationException("Failed to load type '%s' that used in @RulesType annotation."
+                                .formatted(rulesType.value()));
                     }
                 } else {
                     Class<?> baseParameterType = parameter.getType();
@@ -542,9 +542,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                         baseParameterType = baseParameterType.getComponentType();
                         dim++;
                     }
-                    if (toServiceClass && openMember instanceof IOpenMethod && baseParameterType.isAssignableFrom(
+                    if (toServiceClass && openMember instanceof IOpenMethod openMethod && baseParameterType.isAssignableFrom(
                             SpreadsheetResult.class) && !parameter.isAnnotationPresent(NoTypeConversion.class)) {
-                        IOpenMethod openMethod = (IOpenMethod) openMember;
                         if ((!provideRuntimeContext || i > 0) && i - (provideRuntimeContext ? 1 : 0) < openMethod
                                 .getSignature()
                                 .getNumberOfParameters()) {
@@ -556,8 +555,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                 d++;
                             }
                             if (dim != d) {
-                                throw new InstantiationException(String.format(
-                                        "Unexpected array dimension size for '%s' method parameter '%s'. Expected dimension size is '%s', but found '%s'.",
+                                throw new InstantiationException("Unexpected array dimension size for '%s' method parameter '%s'. Expected dimension size is '%s', but found '%s'.".formatted(
                                         MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                                         i,
                                         d,
@@ -565,8 +563,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                             }
                             if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass || baseOpenParameterType instanceof SpreadsheetResultOpenClass) {
                                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
-                                if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass) {
-                                    customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) baseOpenParameterType;
+                                if (baseOpenParameterType instanceof CustomSpreadsheetResultOpenClass class1) {
+                                    customSpreadsheetResultOpenClass = class1;
                                 } else {
                                     customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) baseOpenParameterType)
                                             .toCustomSpreadsheetResultOpenClass();

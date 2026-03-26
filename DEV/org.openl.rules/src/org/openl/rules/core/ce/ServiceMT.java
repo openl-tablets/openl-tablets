@@ -50,8 +50,8 @@ public final class ServiceMT {
     }
 
     private SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
-        if (env instanceof TBasicContextHolderEnv) {
-            IRuntimeEnv env1 = ((TBasicContextHolderEnv) env).getEnv();
+        if (env instanceof TBasicContextHolderEnv holderEnv) {
+            IRuntimeEnv env1 = holderEnv.getEnv();
             if (env1 instanceof TBasicContextHolderEnv) {
                 return extractSimpleRulesRuntimeEnv(env1);
             } else {

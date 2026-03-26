@@ -19,8 +19,8 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private boolean hasValidationErrors;
 
     public static ValidatedCompiledOpenClass instanceOf(CompiledOpenClass compiledOpenClass) {
-        if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
-            return (ValidatedCompiledOpenClass) compiledOpenClass;
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass class1) {
+            return class1;
         } else {
             return new ValidatedCompiledOpenClass(compiledOpenClass);
         }

@@ -18,8 +18,8 @@ public final class DuplicateMemberThrowExceptionHelper {
     }
 
     private static IOpenMethod extractOriginalMethod(IOpenMethod method) {
-        if (method instanceof TestSuiteMethod) {
-            method = ((TestSuiteMethod) method).getOriginalTestSuiteMethod();
+        if (method instanceof TestSuiteMethod suiteMethod) {
+            method = suiteMethod.getOriginalTestSuiteMethod();
         }
         return WrapperLogic.unwrapOpenMethod(method);
     }
@@ -59,11 +59,10 @@ public final class DuplicateMemberThrowExceptionHelper {
         if (modules.isEmpty()) {
             // Case module names where not set to the methods
             if (canBeDispatched) {
-                message = String.format(
-                        "Method '%s' is already used with the same version, active status, properties set.",
+                message = "Method '%s' is already used with the same version, active status, properties set.".formatted(
                         MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
             } else {
-                message = String.format("Method '%s' is already used.",
+                message = "Method '%s' is already used.".formatted(
                         MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
             }
         } else {
@@ -71,25 +70,23 @@ public final class DuplicateMemberThrowExceptionHelper {
             if (modules.size() > 1) {
                 String[] moduleNames = modules.stream().sorted().toArray(String[]::new);
                 if (canBeDispatched) {
-                    message = String.format(
-                            "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
+                    message = "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.".formatted(
                             MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
                             moduleNames[0],
                             moduleNames[1]);
                 } else {
-                    message = String.format("Method '%s' is already used in modules '%s' and '%s'.",
+                    message = "Method '%s' is already used in modules '%s' and '%s'.".formatted(
                             existedOpenMethod.getName(),
                             moduleNames[0],
                             moduleNames[1]);
                 }
             } else {
                 if (canBeDispatched) {
-                    message = String.format(
-                            "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
+                    message = "Method '%s' is already used in module '%s' with the same version, active status, properties set.".formatted(
                             MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
                             modules.iterator().next());
                 } else {
-                    message = String.format("Method '%s' is already used in module '%s'.",
+                    message = "Method '%s' is already used in module '%s'.".formatted(
                             MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
                             modules.iterator().next());
                 }
@@ -99,9 +96,9 @@ public final class DuplicateMemberThrowExceptionHelper {
     }
 
     private static String extractModuleName(IOpenMethod openMethod) {
-        if (openMethod instanceof IModuleInfo) {
+        if (openMethod instanceof IModuleInfo info) {
             // Get the name of the module for the newOpenMethod
-            return ((IModuleInfo) openMethod).getModuleName();
+            return info.getModuleName();
         }
         return null;
     }

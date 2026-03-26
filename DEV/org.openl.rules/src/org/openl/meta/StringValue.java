@@ -79,12 +79,10 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
      */
     public boolean equals(Object obj) {
 
-        if (obj instanceof StringValue) {
-            StringValue v = (StringValue) obj;
+        if (obj instanceof StringValue v) {
             return value.equals(v.value);
         }
-        if (obj instanceof String) {
-            String s = (String) obj;
+        if (obj instanceof String s) {
             return value.equals(s);
         }
 
@@ -134,8 +132,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
      */
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
-        if (metaInfo instanceof ValueMetaInfo) {
-            this.metaInfo = (ValueMetaInfo) metaInfo;
+        if (metaInfo instanceof ValueMetaInfo info) {
+            this.metaInfo = info;
         } else {
             try {
                 this.metaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),

@@ -303,8 +303,7 @@ public class Table implements ITable {
             for (int j = 0; j < columns; j++) {
                 ColumnDescriptor descriptor = dataModel.getDescriptor(j);
 
-                if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+                if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
 
                     if (fkDescriptor.isReference()) {
                         try {
@@ -339,8 +338,7 @@ public class Table implements ITable {
         for (int j = 0; j < columns; j++) {
             SyntaxNodeException ex = null;
             ColumnDescriptor descriptor = dataModel.getDescriptor(j);
-            if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+            if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
                 if (fkDescriptor.isReference()) {
                     IdentifierNode foreignKeyTable = fkDescriptor.getForeignKeyTable();
                     IdentifierNode foreignKey = fkDescriptor.getForeignKey();
@@ -473,7 +471,7 @@ public class Table implements ITable {
                                                  int startRow,
                                                  int rows) throws OpenLCompilationException {
 
-        List<ColumnDescriptor> descriptors = allDescriptors.get(0);
+        List<ColumnDescriptor> descriptors = allDescriptors.getFirst();
 
         Object[][] rowValues = new Object[rows - startRow][descriptors.size()];
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
@@ -569,7 +567,7 @@ public class Table implements ITable {
             }
         }
 
-        ColumnDescriptor pkDescriptor = descriptors.get(0);
+        ColumnDescriptor pkDescriptor = descriptors.getFirst();
 
         Object[] prevRow = null;
         boolean shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey() && !pkDescriptor
@@ -634,7 +632,7 @@ public class Table implements ITable {
             Object literal = dataModel.newInstance();
             if (literal == null) {
                 throw new OpenLCompilationException(
-                        String.format("Cannot create an instance of '%s'.", dataModel.getName()));
+                        "Cannot create an instance of '%s'.".formatted(dataModel.getName()));
             }
             return literal;
         }
@@ -738,7 +736,7 @@ public class Table implements ITable {
         }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
-            throw new OpenLRuntimeException(String.format("Duplicated key: %s in rows %s and %s.", value, oldRow, row));
+            throw new OpenLRuntimeException("Duplicated key: %s in rows %s and %s.".formatted(value, oldRow, row));
         }
         primaryIndexMap.put(row, value);
     }

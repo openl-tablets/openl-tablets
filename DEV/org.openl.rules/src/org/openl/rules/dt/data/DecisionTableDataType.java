@@ -82,7 +82,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
         }
         if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
             if (conditionParameterFields.size() == 1) {
-                IOpenField f = conditionParameterFields.iterator().next();
+                IOpenField f = conditionParameterFields.getFirst();
                 if (traceUsedFields) {
                     usedFields.add(f);
                 }
@@ -94,7 +94,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
-                    IOpenField f = decisionRowFields.iterator().next();
+                    IOpenField f = decisionRowFields.getFirst();
                     if (traceUsedFields) {
                         usedFields.add(f);
                     }

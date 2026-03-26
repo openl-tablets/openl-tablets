@@ -48,7 +48,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             OpenLService registeredService = frontend.findServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                        String.format("Service '%s' is already deployed.", service.getName()));
+                        "Service '%s' is already deployed.".formatted(service.getName()));
             }
             frontend.registerService(service);
             runningServices.put(service.getDeployPath(), service);
@@ -65,7 +65,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(deployPath, "deployPath cannot be null");
         frontend.unregisterService(service.getName());
         if (runningServices.remove(deployPath) == null) {
-            throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", deployPath));
+            throw new RuleServiceUndeployException("Service '%s' has not been deployed.".formatted(deployPath));
         }
         log.info("Service '{}' has been undeployed successfully.", deployPath);
     }

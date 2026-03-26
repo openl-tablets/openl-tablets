@@ -145,7 +145,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         var deployments = getDeployments(query);
         if (deployments.size() > 1) {
             throw new ProjectException(
-                    String.format("Multiple deployments found for name '%s' in repository '%s'.", deploymentId.getProjectName(),
+                    "Multiple deployments found for name '%s' in repository '%s'.".formatted(deploymentId.getProjectName(),
                             deploymentId.getRepository()));
         }
 

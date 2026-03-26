@@ -12,7 +12,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
@@ -140,10 +139,10 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         final Map<Path, String> localPathAliases = new HashMap<>();
         storage.forEach((k, v) -> {
             if (localStorage.put(k.toLowerCase(), v) != null) {
-                throw new IllegalStateException(String.format("The resource with name '%s' already exits.", k));
+                throw new IllegalStateException("The resource with name '%s' already exits.".formatted(k));
             }
             if (localPathAliases.put(v, k) != null) {
-                throw new IllegalStateException(String.format("The resource with path '%s' already exits.", v));
+                throw new IllegalStateException("The resource with path '%s' already exits.".formatted(v));
             }
         });
         this.storage = Collections.unmodifiableMap(localStorage);
@@ -246,7 +245,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         Path resolvedPath = root;
         Path archivePath = null;
         Path localRoot = null;
-        Path path = Paths.get(p);
+        Path path = Path.of(p);
         int i = 0;
         for (Path f : path) {
             final String folderName = f.toString();
@@ -260,7 +259,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
                 resolvedPath = resolvedPath.resolve(folderName);
             }
             if (resolvedPath == null) {
-                throw new IOException(String.format("Unable to resolve the path [%s].", p));
+                throw new IOException("Unable to resolve the path [%s].".formatted(p));
             }
             // don't enter an archive if it's the last token in the path
             if (i < path.getNameCount() - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
@@ -269,13 +268,13 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
                     resolvedPath = enterZipArchive(resolvedPath);
                     archivePath = tmp;
                 } catch (IOException e) {
-                    throw new IOException(String.format("Unable to resolve the path [%s].", p), e);
+                    throw new IOException("Unable to resolve the path [%s].".formatted(p), e);
                 }
             }
             i++;
         }
         if ((archivePath != null && !Files.exists(archivePath)) || !Files.exists(resolvedPath)) {
-            throw new FileNotFoundException(String.format("File [%s] does not exist.", p));
+            throw new FileNotFoundException("File [%s] does not exist.".formatted(p));
         }
         return new CompoundPath(localRoot, resolvedPath, archivePath);
     }

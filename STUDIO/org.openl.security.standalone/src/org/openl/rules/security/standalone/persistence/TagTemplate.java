@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "OpenL_Tag_Templates")
 public class TagTemplate implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String template;
     private int priority;

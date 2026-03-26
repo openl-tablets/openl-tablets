@@ -3,7 +3,6 @@ package org.openl.studio.repositories.rest.controller;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class DesignTimeRepositoryController {
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
-        this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
+        this.lockManager = new LockManager(Path.of(homeDirectory).resolve("locks/api"));
         this.projectService = projectService;
         this.aclProjectsHelper = aclProjectsHelper;
         this.designTimeRepositoryService = designTimeRepositoryService;

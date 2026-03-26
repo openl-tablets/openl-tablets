@@ -328,7 +328,7 @@ class GitRepositoryTest {
         assertEquals(2, files.size());
 
         // Save second time without changes. Mustn't fail.
-        changes.get(0).getStream().reset();
+        changes.getFirst().getStream().reset();
         changes.get(1).getStream().reset();
         assertNotNull(repo.save(folderData, changes, ChangesetType.FULL));
 
@@ -478,12 +478,12 @@ class GitRepositoryTest {
     void listHistory() throws IOException {
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());
-        assertEquals("Rules_2", file2History.get(0).getVersion());
+        assertEquals("Rules_2", file2History.getFirst().getVersion());
         assertEquals("Rules_3", file2History.get(1).getVersion());
 
         List<FileData> project1History = repo.listHistory("rules/project1");
         assertEquals(2, project1History.size());
-        assertEquals("Rules_2", project1History.get(0).getVersion());
+        assertEquals("Rules_2", project1History.getFirst().getVersion());
         assertEquals("Rules_3", project1History.get(1).getVersion());
 
         assertEquals(1, repo.listHistory("rules/project1/folder").size());
@@ -1311,7 +1311,7 @@ class GitRepositoryTest {
             }
         }
 
-        throw new IllegalArgumentException(String.format("File '%s' is not found.", fileName));
+        throw new IllegalArgumentException("File '%s' is not found.".formatted(fileName));
     }
 
     private static class ChangesCounter implements Listener {
@@ -1331,13 +1331,13 @@ class GitRepositoryTest {
         List<String> rest = new ArrayList<>(actual);
         rest.removeAll(expected);
         if (!rest.isEmpty()) {
-            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
+            fail("Unexpected items: %s".formatted(String.join(", ", rest)));
         }
 
         rest = new ArrayList<>(expected);
         rest.removeAll(actual);
         if (!rest.isEmpty()) {
-            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
+            fail("Missed expected items: %s".formatted(String.join(", ", rest)));
         }
     }
 

@@ -26,7 +26,7 @@ public class OpenLTableLogicTest {
     public void getTargetTables() throws Exception {
         WebStudio webStudio = mock(WebStudio.class);
         ProjectModel pm = new ProjectModel(webStudio, null);
-        pm.setModuleInfo(getModules().get(0));
+        pm.setModuleInfo(getModules().getFirst());
         Collection<TableSyntaxNode> allTableSyntaxNodes = pm.getAllTableSyntaxNodes();
         for (TableSyntaxNode tsn : allTableSyntaxNodes) {
             TableSyntaxNodeAdapter tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
@@ -34,7 +34,7 @@ public class OpenLTableLogicTest {
                 List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
                         pm, false);
                 assertEquals(3, targetTables.size());
-                assertEquals("Hello [state = AL]", targetTables.get(0).getName());
+                assertEquals("Hello [state = AL]", targetTables.getFirst().getName());
                 assertEquals("Hello [state = AZ]", targetTables.get(1).getName());
                 assertEquals("Hello", targetTables.get(2).getName());
             }

@@ -121,7 +121,7 @@ public class AProject extends AProjectFolder implements IProject {
             // from the repository directly.
             List<FileData> fileDatas = historyFileDatas;
             if (fileDatas != null) {
-                lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
+                lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.getLast().getVersion();
             } else {
                 lastHistoryVersion = findLastHistoryVersion();
             }
@@ -502,8 +502,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     private void writeArtefact(List<FileItem> files, AProjectArtefact artefact) throws IOException,
             ProjectException {
-        if (artefact instanceof AProjectResource) {
-            AProjectResource resource = (AProjectResource) artefact;
+        if (artefact instanceof AProjectResource resource) {
             InputStream content = getResourceTransformer() != null ? getResourceTransformer().transform(resource) : resource.getContent();
             files.add(new FileItem(resource.getInternalPath(), content));
         } else {

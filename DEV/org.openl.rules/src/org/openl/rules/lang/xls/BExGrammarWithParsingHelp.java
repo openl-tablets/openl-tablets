@@ -119,13 +119,13 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                 String message;
                 switch (bso.getErrorCode()) {
                     case UNEXPECTED:
-                        message = String.format("Unexpected bracket '%s'", addEscapes(t.image));
+                        message = "Unexpected bracket '%s'".formatted(addEscapes(t.image));
 
                         return new SyntaxNodeException(message, null, pos(t), module);
                     case MISMATCHED:
                         Token t2 = (Token) bso.getId();
 
-                        message = String.format("Mismatched: opened with '%s' and closed with '%s'",
+                        message = "Mismatched: opened with '%s' and closed with '%s'".formatted(
                                 addEscapes(t2.image.substring(0, 1)),
                                 addEscapes(t.image));
                         return new SyntaxNodeException(message, null, pos(t2, t), module);
@@ -143,7 +143,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
         if (bso != null) {
             Token t = (Token) bso.getId();
 
-            String message = String.format("Need to close '%s'", addEscapes(t.image));
+            String message = "Need to close '%s'".formatted(addEscapes(t.image));
 
             return new SyntaxNodeException(message, null, pos(t), module);
 

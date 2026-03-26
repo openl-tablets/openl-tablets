@@ -32,8 +32,8 @@ public class CombinedFileChanges implements Iterable<FileItem> {
                 }
 
                 while (iterableIterator.hasNext()) {
-                    if (fileItemIterable instanceof AutoCloseable) {
-                        IOUtils.closeQuietly((AutoCloseable) fileItemIterable);
+                    if (fileItemIterable instanceof AutoCloseable closeable) {
+                        IOUtils.closeQuietly(closeable);
                     }
                     fileItemIterable = iterableIterator.next();
                     fileItemIterator = fileItemIterable.iterator();
@@ -41,8 +41,8 @@ public class CombinedFileChanges implements Iterable<FileItem> {
                         return true;
                     }
                 }
-                if (fileItemIterable instanceof AutoCloseable) {
-                    IOUtils.closeQuietly((AutoCloseable) fileItemIterable);
+                if (fileItemIterable instanceof AutoCloseable closeable) {
+                    IOUtils.closeQuietly(closeable);
                 }
 
                 return false;

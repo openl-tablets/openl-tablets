@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
+import java.io.Serial;
+
 /**
  * Main exception for rule service.
  *
@@ -7,6 +9,7 @@ package org.openl.rules.ruleservice.core;
  */
 public class RuleServiceException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**

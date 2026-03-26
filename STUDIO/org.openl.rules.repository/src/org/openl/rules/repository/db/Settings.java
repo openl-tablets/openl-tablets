@@ -80,7 +80,7 @@ final class Settings {
 
         String value = queries.get(prop);
         if (value == null) {
-            throw new IllegalArgumentException(String.format("Value for property '%s' is not found.", prop));
+            throw new IllegalArgumentException("Value for property '%s' is not found.".formatted(prop));
         }
         return value;
     }

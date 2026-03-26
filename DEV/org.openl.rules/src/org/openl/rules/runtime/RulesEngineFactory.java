@@ -266,7 +266,7 @@ public class RulesEngineFactory<T> {
                 // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //
-                String message = String.format("There is no implementation in rules for interface method '%s'",
+                String message = "There is no implementation in rules for interface method '%s'".formatted(
                         interfaceMethod);
 
                 throw new OpenlNotCheckedException(message);
@@ -290,7 +290,7 @@ public class RulesEngineFactory<T> {
         Class<?> interfaceReturnType = interfaceMethod.getReturnType();
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
-            String message = String.format(INCORRECT_RET_TYPE_MSG,
+            String message = INCORRECT_RET_TYPE_MSG.formatted(
                     openClassReturnType.getName(),
                     interfaceMethod.getName(),
                     interfaceReturnType.getName());

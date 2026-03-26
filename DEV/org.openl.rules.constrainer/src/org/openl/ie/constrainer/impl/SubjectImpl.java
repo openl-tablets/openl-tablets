@@ -189,8 +189,8 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
             dependendts.add(master);
 
-            if (master instanceof Subject) {
-                dependendts.addAll(((Subject) master).allDependents());
+            if (master instanceof Subject subject) {
+                dependendts.addAll(subject.allDependents());
             }
 
         }

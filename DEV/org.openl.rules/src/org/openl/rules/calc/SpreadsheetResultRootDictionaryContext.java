@@ -31,7 +31,7 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
             throw new AmbiguousFieldException(fieldName, ff);
         }
 
-        return ff.get(0);
+        return ff.getFirst();
     }
 
     private IOpenField getRootField() {

@@ -145,7 +145,7 @@ public class DecisionTableValidationResult implements IValidationResult {
 
         if (getUncovered().length > 0) {
             validationResultDetails
-                    .append(String.format("There is an uncovered case for values: %s\r\n", Arrays.asList(getUncovered())));
+                    .append("There is an uncovered case for values: %s\r\n".formatted(Arrays.asList(getUncovered())));
         }
 
         // if (getOverlappings().length > 0) {
@@ -174,7 +174,7 @@ public class DecisionTableValidationResult implements IValidationResult {
         }
 
         if (cnt > maxCounter) {
-            validationResultDetails.append(String.format("  %d more ...", cnt - maxCounter));
+            validationResultDetails.append("  %d more ...".formatted(cnt - maxCounter));
         }
 
         return validationResultDetails.toString();

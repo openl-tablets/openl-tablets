@@ -28,7 +28,7 @@ public class String2ZonedDateTimeConvertor implements IString2DataConvertor<Zone
                 // Loop on
             }
         }
-        throw new IllegalArgumentException(String.format("Cannot convert '%s' to ZonedDateTime type", data));
+        throw new IllegalArgumentException("Cannot convert '%s' to ZonedDateTime type".formatted(data));
     }
 
 }

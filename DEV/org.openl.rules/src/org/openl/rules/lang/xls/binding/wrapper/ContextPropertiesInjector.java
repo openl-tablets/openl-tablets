@@ -40,8 +40,8 @@ class ContextPropertiesInjector {
             } catch (Exception | LinkageError e) {
                 log.debug("Ignored error: ", e);
             }
-            if (methodSignature instanceof MethodSignature) {
-                String contextParameter = ((MethodSignature) methodSignature).getParameterDeclaration(i)
+            if (methodSignature instanceof MethodSignature signature) {
+                String contextParameter = signature.getParameterDeclaration(i)
                         .getContextProperty();
                 if (contextParameter != null) {
                     contextInjections.put(contextParameter,
@@ -65,14 +65,14 @@ class ContextPropertiesInjector {
                                                                                      ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextProperty);
         if (contextType == null) {
-            throw new IllegalStateException(String.format("Context property '%s' is not found.", contextProperty));
+            throw new IllegalStateException("Context property '%s' is not found.".formatted(contextProperty));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(type, contextTypeOpenClass);
         if (openCast == null || !openCast
                 .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
             throw new IllegalStateException(
-                    String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                    "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.".formatted(
                             contextProperty,
                             type.getName(),
                             contextTypeOpenClass.getName()));
@@ -87,7 +87,7 @@ class ContextPropertiesInjector {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
         if (contextType == null) {
             throw new IllegalStateException(
-                    String.format("Context property '%s' is not found.", field.getContextProperty()));
+                    "Context property '%s' is not found.".formatted(field.getContextProperty()));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);

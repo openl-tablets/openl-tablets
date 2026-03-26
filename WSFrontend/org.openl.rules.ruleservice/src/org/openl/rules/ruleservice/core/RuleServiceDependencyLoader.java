@@ -18,8 +18,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
     @Override
     protected CompiledDependency compileDependency() throws OpenLCompilationException {
         AbstractDependencyManager dependencyManager = getDependencyManager();
-        if (dependencyManager instanceof RuleServiceDependencyManager) {
-            RuleServiceDependencyManager ruleServiceDeploymentRelatedDependencyManager = (RuleServiceDependencyManager) dependencyManager;
+        if (dependencyManager instanceof RuleServiceDependencyManager ruleServiceDeploymentRelatedDependencyManager) {
             ruleServiceDeploymentRelatedDependencyManager.compilationBegin();
             CompiledDependency compiledDependency = null;
             try {

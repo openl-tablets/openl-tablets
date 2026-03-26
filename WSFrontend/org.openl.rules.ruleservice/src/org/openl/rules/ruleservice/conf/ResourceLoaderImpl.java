@@ -23,8 +23,7 @@ class ResourceLoaderImpl implements ResourceLoader {
     public Resource getResource(String name) {
         try {
             IProjectArtefact artefact = project.getArtefact(name);
-            if (artefact instanceof IProjectResource) {
-                final IProjectResource resource = (IProjectResource) artefact;
+            if (artefact instanceof IProjectResource resource) {
                 return new Resource() {
                     @Override
                     public InputStream getResourceAsStream() throws IOException {

@@ -73,10 +73,10 @@ public final class SourceCodeURLTool {
 
     private static String getUri(IOpenSourceCodeModule module, ILocation location) {
         String moduleUri;
-        if (module instanceof CompositeSourceCodeModule && location != null && location.isTextLocation()) {
+        if (module instanceof CompositeSourceCodeModule codeModule && location != null && location.isTextLocation()) {
             int line = location.getStart().getLine(new TextInfo(module.getCode()));
 
-            IOpenSourceCodeModule[] modules = ((CompositeSourceCodeModule) module).getModules();
+            IOpenSourceCodeModule[] modules = codeModule.getModules();
             if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
                 log.debug("Modules count in composite module are less than error line number. Return first found module uri.");

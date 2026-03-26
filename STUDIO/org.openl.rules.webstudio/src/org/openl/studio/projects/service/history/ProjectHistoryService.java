@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -43,8 +42,8 @@ public class ProjectHistoryService {
 
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
-        String projectHistoryPath = Paths
-                .get(webStudio.getWorkspacePath(),
+        String projectHistoryPath = Path
+                .of(webStudio.getWorkspacePath(),
                         FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
                 .toString();
         File dir = new File(projectHistoryPath);
@@ -56,7 +55,7 @@ public class ProjectHistoryService {
         List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
                 .map(this::createItem)
                 .collect(Collectors.toList());
-        ProjectHistoryItem revisionVersion = collect.remove(0);
+        ProjectHistoryItem revisionVersion = collect.removeFirst();
         collect.add(revisionVersion);
         return collect;
     }
@@ -114,7 +113,7 @@ public class ProjectHistoryService {
         File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
                 .getLocation();
-        String projectHistoryPath = Paths.get(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
+        String projectHistoryPath = Path.of(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
                 .toString();
         File dir = new File(projectHistoryPath);
         // Project can contain no history

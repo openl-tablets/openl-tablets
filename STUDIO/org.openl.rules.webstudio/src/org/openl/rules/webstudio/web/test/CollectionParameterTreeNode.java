@@ -118,8 +118,8 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         }
         ComplexParameterTreeNode complexNode = (ComplexParameterTreeNode) to;
         IOpenClass type = from.getType();
-        if (from instanceof ComplexParameterTreeNode) {
-            IOpenClass typeToCreate = ((ComplexParameterTreeNode) from).getTypeToCreate();
+        if (from instanceof ComplexParameterTreeNode node) {
+            IOpenClass typeToCreate = node.getTypeToCreate();
             if (typeToCreate != null) {
                 type = typeToCreate;
             }

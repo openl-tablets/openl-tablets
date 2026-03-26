@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "OpenL_Tags")
 public class Tag implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;

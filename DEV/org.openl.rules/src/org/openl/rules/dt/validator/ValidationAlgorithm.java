@@ -272,7 +272,7 @@ public class ValidationAlgorithm {
             if (var != null) {
                 vars.add(var);
             } else {
-                throw new OpenLRuntimeException(String.format("Could not create domain for %s", varName));
+                throw new OpenLRuntimeException("Could not create domain for %s".formatted(varName));
             }
         }
 

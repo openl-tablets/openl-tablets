@@ -192,8 +192,8 @@ public final class XlsSheetCopier {
         dest.cellStyle.cloneStyleFrom(src.cellStyle);
         dest.cellStyle.setDataFormat(src.cellStyle.getDataFormat());
 
-        if (dest.cellStyle instanceof XSSFCellStyle) {
-            CTXf coreCtxf = ((XSSFCellStyle) dest.cellStyle).getCoreXf();
+        if (dest.cellStyle instanceof XSSFCellStyle style) {
+            CTXf coreCtxf = style.getCoreXf();
             long styleId = coreCtxf.getXfId();
             StylesTable stylesSource = ((XSSFWorkbook) dest.originalWorkbook()).getStylesSource();
             if (stylesSource.getCellStyleXfAt((int) styleId) == null) {
@@ -274,8 +274,8 @@ public final class XlsSheetCopier {
         if (srcDrawing == null) {
             if (destDrawing != null) {
                 for (Shape shape : destDrawing.getShapes()) {
-                    if (shape instanceof XSSFPicture) {
-                        deletePicture((XSSFPicture) shape);
+                    if (shape instanceof XSSFPicture picture) {
+                        deletePicture(picture);
                     }
                 }
             }

@@ -29,9 +29,9 @@ public class LazyTracerNodeObject implements ITracerObject {
                                 Object source,
                                 ClassLoader classLoader) {
         this.env = env.copy();
-        if (env instanceof SimpleRuntimeEnv) {
-            ((SimpleRuntimeEnv) this.env).setMethodWrapper(((SimpleRuntimeEnv) env).getMethodWrapper());
-            ((SimpleRuntimeEnv) this.env).setTopClass(((SimpleRuntimeEnv) env).getTopClass());
+        if (env instanceof SimpleRuntimeEnv runtimeEnv) {
+            ((SimpleRuntimeEnv) this.env).setMethodWrapper(runtimeEnv.getMethodWrapper());
+            ((SimpleRuntimeEnv) this.env).setTopClass(runtimeEnv.getTopClass());
         }
         this.executor = executor;
         this.target = target;

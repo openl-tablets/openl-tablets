@@ -217,12 +217,10 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     }
 
     private IOpenMethod wrapDatatypeOpenMethod(IOpenMethod method) {
-        if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+        if (method instanceof JavaOpenMethod javaOpenMethod) {
             Method javaMethod = javaOpenMethod.getJavaMethod();
             for (IOpenField field : fieldMap().values()) {
-                if (field instanceof DatatypeOpenField) {
-                    DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
+                if (field instanceof DatatypeOpenField datatypeOpenField) {
                     if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
                         return new DatatypeOpenMethod(javaOpenMethod,
                                 this,
@@ -271,8 +269,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     }
 
     private IOpenMethod wrapDatatypeOpenConstructor(MethodKey mk, IOpenMethod method) {
-        if (method instanceof JavaOpenConstructor) {
-            JavaOpenConstructor javaOpenConstructor = (JavaOpenConstructor) method;
+        if (method instanceof JavaOpenConstructor javaOpenConstructor) {
             if (javaOpenConstructor.getNumberOfParameters() == 0) {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {

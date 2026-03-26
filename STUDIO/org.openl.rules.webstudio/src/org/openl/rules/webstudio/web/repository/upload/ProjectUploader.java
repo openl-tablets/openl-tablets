@@ -103,7 +103,7 @@ public class ProjectUploader {
         }
         try {
             // Get the last file
-            ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
+            ProjectFile file = uploadedFiles.getLast();
             String fileName = file.getName();
             if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
                 projectCreator = new OpenAPIProjectCreator(file,
@@ -144,7 +144,7 @@ public class ProjectUploader {
             if (!designRepositoryAclService.createAcl(rulesProject,
                     List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                     true)) {
-                throw new ProjectException(String.format("Granting permissions to a new project '%s' is failed.",
+                throw new ProjectException("Granting permissions to a new project '%s' is failed.".formatted(
                         ProjectArtifactUtils.extractResourceName(rulesProject)));
             }
             createdProjectName = projectCreator.getCreatedProjectName();

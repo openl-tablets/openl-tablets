@@ -3,7 +3,6 @@ package org.openl.rules.repository.zip;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 import java.util.Objects;
@@ -78,7 +77,7 @@ class CompoundPath {
             }
             name = Optional.of(pathToArchive)
                     .map(alias)
-                    .map(Paths::get)
+                    .map(Path::of)
                     .orElseGet(() -> root.relativize(pathToArchive))
                     .resolve(pathInArchive)
                     .toString();

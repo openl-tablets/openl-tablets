@@ -46,8 +46,8 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     private CompiledDependency createFailedCompiledDependency(ClassLoader classLoader, Exception ex) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
-            String message = String
-                    .format("Failed to load dependent module '%s': %s", getDependency(), openLMessage.getSummary());
+            String message = "Failed to load dependent module '%s': %s"
+                    .formatted(getDependency(), openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 

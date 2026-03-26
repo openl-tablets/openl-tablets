@@ -366,8 +366,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return null;
         }
         AProjectArtefact artefact = node.getData();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
+        if (artefact instanceof UserWorkspaceProject project) {
+            return project;
         } else if (artefact != null && artefact.getProject() instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact.getProject();
         }
@@ -395,8 +395,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         String branch = null;
         AProject project = artefact.getProject();
-        if (project instanceof UserWorkspaceProject) {
-            branch = ((UserWorkspaceProject) project).getBranch();
+        if (project instanceof UserWorkspaceProject workspaceProject) {
+            branch = workspaceProject.getBranch();
         }
 
         TreeNode currentNode;
@@ -410,8 +410,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             currentNode = findNodeById(currentNode, id);
 
             if (currentNode == null) {
-                if (artefact instanceof AProject) {
-                    String actualPath = ((AProject) artefact).getRealPath();
+                if (artefact instanceof AProject aProject) {
+                    String actualPath = aProject.getRealPath();
                     currentNode = getAllProjectNodes(parentNode).stream()
                             .filter(child -> actualPath.equals(((AProject) child.getData()).getRealPath()))
                             .findFirst()
@@ -624,7 +624,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 TreeNode selectedNode = selectionHolder.getSelectedNode();
                 AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
                 if (artefact != null) {
-                    AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
+                    AProject project = artefact instanceof UserWorkspaceProject uwp ? uwp
                             : artefact.getProject();
 
                     // project can be null if selected artefact is a Deployment.

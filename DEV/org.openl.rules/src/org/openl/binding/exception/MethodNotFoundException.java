@@ -1,5 +1,7 @@
 package org.openl.binding.exception;
 
+import java.io.Serial;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
@@ -10,6 +12,7 @@ import org.openl.types.StaticOpenClass;
  */
 public class MethodNotFoundException extends OpenlNotCheckedException {
 
+    @Serial
     private static final long serialVersionUID = -6505424809898412642L;
 
     private final String methodName;
@@ -43,7 +46,7 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
 
         if (target != null) {
             sb.append(" in type '")
-                    .append(target instanceof StaticOpenClass ? ((StaticOpenClass) target).getDelegate().getName()
+                    .append(target instanceof StaticOpenClass soc ? soc.getDelegate().getName()
                             : target.getName())
                     .append("'");
         }

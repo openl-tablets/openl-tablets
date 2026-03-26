@@ -62,8 +62,7 @@ public class RunTestHelper {
         IDataBase db = Utils.getDb(model, currentOpenedModule);
 
         TestSuite testSuite;
-        if (method instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+        if (method instanceof TestSuiteMethod testSuiteMethod) {
 
             String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
             if (testRanges == null) {

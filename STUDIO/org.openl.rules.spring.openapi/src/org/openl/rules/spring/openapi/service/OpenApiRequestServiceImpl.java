@@ -231,7 +231,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             }
         }
         String[] consumes = resolveConsumes(methodInfo,
-                (Class<?>) (parameterType instanceof ParameterizedType ? ((ParameterizedType) parameterType).getRawType()
+                (Class<?>) (parameterType instanceof ParameterizedType pt ? pt.getRawType()
                         : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
                 parameterType,
@@ -339,8 +339,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private boolean isRequestBodyType(Type type) {
-        if (type instanceof ParameterizedType) {
-            var rawType = ((ParameterizedType) type).getRawType();
+        if (type instanceof ParameterizedType parameterizedType) {
+            var rawType = parameterizedType.getRawType();
             return rawType == HttpEntity.class || rawType == RequestEntity.class;
         }
         return false;
@@ -369,9 +369,9 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                                             ObjectSchema objectSchema,
                                             Components components) {
         Type paramType = paramInfo.getType();
-        Class<?> modelClass = paramType instanceof Class ? (Class<?>) paramType :
-                paramType instanceof ParameterizedType ?
-                        (Class<?>) ((ParameterizedType) paramType).getRawType() : null;
+        Class<?> modelClass = paramType instanceof Class<?> c ? c :
+                paramType instanceof ParameterizedType pt ?
+                        (Class<?>) pt.getRawType() : null;
 
         if (modelClass == null) {
             return;

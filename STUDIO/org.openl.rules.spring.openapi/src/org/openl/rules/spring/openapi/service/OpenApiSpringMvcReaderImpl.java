@@ -141,26 +141,17 @@ public class OpenApiSpringMvcReaderImpl {
                              MethodInfo methodInfo,
                              List<ControllerAdviceInfo> controllerAdviceInfos) {
         final var operation = Optional.ofNullable(apiContext.getPaths().get(methodInfo.getPathPattern())).map(path -> {
-            switch (methodInfo.getRequestMethod()) {
-                case GET:
-                    return path.getGet();
-                case HEAD:
-                    return path.getHead();
-                case POST:
-                    return path.getPost();
-                case PUT:
-                    return path.getPut();
-                case PATCH:
-                    return path.getPatch();
-                case DELETE:
-                    return path.getDelete();
-                case OPTIONS:
-                    return path.getOptions();
-                case TRACE:
-                    return path.getTrace();
-                default:
-                    return null;
-            }
+            return switch (methodInfo.getRequestMethod()) {
+                case GET -> path.getGet();
+                case HEAD -> path.getHead();
+                case POST -> path.getPost();
+                case PUT -> path.getPut();
+                case PATCH -> path.getPatch();
+                case DELETE -> path.getDelete();
+                case OPTIONS -> path.getOptions();
+                case TRACE -> path.getTrace();
+                default -> null;
+            };
         }).orElseGet(Operation::new);
 
         if (isDeprecatedMethod(methodInfo.getMethod())) {
@@ -357,7 +348,7 @@ public class OpenApiSpringMvcReaderImpl {
         String operationIdToFind = null;
         int counter = 0;
         while (operationIdUsed) {
-            operationIdToFind = String.format("%s_%d", operationId, ++counter);
+            operationIdToFind = "%s_%d".formatted(operationId, ++counter);
             operationIdUsed = existOperationId(apiContext, operationIdToFind);
         }
         if (operationIdToFind != null) {

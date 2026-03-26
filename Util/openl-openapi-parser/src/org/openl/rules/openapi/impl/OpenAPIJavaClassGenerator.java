@@ -132,7 +132,7 @@ public class OpenAPIJavaClassGenerator {
                 }
             } else {
                 if (parameters.size() == 1) {
-                    if (parameters.get(0).getType().isReference() || parameters.get(0).getType().getDimension() > 0) {
+                    if (parameters.getFirst().getType().isReference() || parameters.getFirst().getType().getDimension() > 0) {
                         if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
                             // if one not simple param, application/json by default
                             return true;

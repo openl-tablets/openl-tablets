@@ -43,7 +43,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         Number number = df.parse(data, position);
         int index = position.getIndex();
         if (index < data.length()) {
-            throw new NumberFormatException(String.format("Cannot convert '%s' to a number.", data));
+            throw new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
         }
         return convert(number, data);
     }

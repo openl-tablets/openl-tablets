@@ -116,7 +116,7 @@ public class CollectionUtils {
             return null;
         }
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        int size = col instanceof Collection ? ((Collection) col).size() : 0;
+        int size = col instanceof Collection c ? c.size() : 0;
         ArrayList<O> result = new ArrayList<>(size);
         for (I input : col) {
             O output = mapper.map(input);
@@ -165,7 +165,7 @@ public class CollectionUtils {
         }
         Objects.requireNonNull(predicate, "predicate cannot be null");
 
-        int size = col instanceof Collection ? ((Collection) col).size() : 0;
+        int size = col instanceof Collection c ? c.size() : 0;
         ArrayList<T> result = new ArrayList<>(size);
         for (final T item : col) {
             if (predicate.evaluate(item)) {

@@ -73,8 +73,8 @@ public final class OpenLManager {
                                                      IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser().parseAsMethodHeader(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, true);
-        if (topNode instanceof IBoundMethodHeader) {
-            return ((IBoundMethodHeader) topNode).getMethodHeader();
+        if (topNode instanceof IBoundMethodHeader header) {
+            return header.getMethodHeader();
         }
         return null;
     }
@@ -84,8 +84,8 @@ public final class OpenLManager {
                                                                  IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser().parseAsParameterDeclaration(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
-        if (topNode instanceof ParameterDeclarationNode) {
-            return ((ParameterDeclarationNode) topNode).getParameterDeclaration();
+        if (topNode instanceof ParameterDeclarationNode node) {
+            return node.getParameterDeclaration();
         }
         return null;
     }
@@ -136,9 +136,9 @@ public final class OpenLManager {
             retType = topNode.getType();
         }
         header.setTypeClass(retType);
-        if (topNode instanceof IBoundMethodNode) {
+        if (topNode instanceof IBoundMethodNode node) {
             compositeMethod.setBodyType(topNode.getType());
-            IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
+            IBoundMethodNode boundMethodNode = bindMethod(node, header, bindingContext);
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         }
 
@@ -163,9 +163,9 @@ public final class OpenLManager {
         IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
         IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
 
-        if (topNode instanceof IBoundMethodNode) {
+        if (topNode instanceof IBoundMethodNode node) {
             compositeMethod.setBodyType(topNode.getType());
-            IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
+            IBoundMethodNode boundMethodNode = bindMethod(node, header, bindingContext);
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         }
     }

@@ -63,14 +63,13 @@ public class ExecutionModeTest {
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("modification", new IOpenClass[]{JavaOpenClass.INT});
-        if (openMethod instanceof Algorithm) {
-            assertNull(((Algorithm) openMethod).getBoundNode());
+        if (openMethod instanceof Algorithm algorithm1) {
+            assertNull(algorithm1.getBoundNode());
         } else {
-            if (openMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+            if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
                 for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
-                    if (m instanceof Algorithm) {
-                        assertNull(((Algorithm) m).getBoundNode());
+                    if (m instanceof Algorithm algorithm) {
+                        assertNull(algorithm.getBoundNode());
                     }
                 }
             }
@@ -94,14 +93,13 @@ public class ExecutionModeTest {
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("calc", IOpenClass.EMPTY);
-        if (openMethod instanceof Spreadsheet) {
-            assertNull(((Spreadsheet) openMethod).getBoundNode());
+        if (openMethod instanceof Spreadsheet spreadsheet1) {
+            assertNull(spreadsheet1.getBoundNode());
         } else {
-            if (openMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+            if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
                 for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
-                    if (m instanceof Spreadsheet) {
-                        assertNull(((Spreadsheet) m).getBoundNode());
+                    if (m instanceof Spreadsheet spreadsheet) {
+                        assertNull(spreadsheet.getBoundNode());
                     }
                 }
             }
@@ -125,14 +123,13 @@ public class ExecutionModeTest {
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("runColumnMatch",
                 new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT});
-        if (openMethod instanceof ColumnMatch) {
-            assertNull(((ColumnMatch) openMethod).getBoundNode());
+        if (openMethod instanceof ColumnMatch match1) {
+            assertNull(match1.getBoundNode());
         } else {
-            if (openMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+            if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
                 for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
-                    if (m instanceof ColumnMatch) {
-                        assertNull(((ColumnMatch) m).getBoundNode());
+                    if (m instanceof ColumnMatch match) {
+                        assertNull(match.getBoundNode());
                     }
                 }
             }

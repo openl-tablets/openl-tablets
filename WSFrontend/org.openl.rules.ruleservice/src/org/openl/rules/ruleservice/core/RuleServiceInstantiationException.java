@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
+import java.io.Serial;
+
 /**
  * Exception for instantiation issues.
  *
@@ -7,6 +9,7 @@ package org.openl.rules.ruleservice.core;
  */
 public class RuleServiceInstantiationException extends RuleServiceException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

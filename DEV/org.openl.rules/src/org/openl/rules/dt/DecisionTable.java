@@ -274,8 +274,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                     method.updateDependency(dependencies);
                 }
 
-                if (condition instanceof  ICondition) {
-                    var indexMethod = ((ICondition) condition).getIndexMethod();
+                if (condition instanceof  ICondition iCondition) {
+                    var indexMethod = iCondition.getIndexMethod();
                     if (indexMethod != null) {
                         indexMethod.updateDependency(dependencies);
                     }
@@ -310,10 +310,9 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             for (int paramIndex = 0; paramIndex < np; paramIndex++) {
                 Object value = frow.getParamValue(paramIndex, ruleN);
 
-                if (value instanceof CompositeMethod) {
-                    ((CompositeMethod) value).updateDependency(dependencies);
-                } else if (value instanceof ArrayHolder) {
-                    ArrayHolder ah = (ArrayHolder) value;
+                if (value instanceof CompositeMethod method) {
+                    method.updateDependency(dependencies);
+                } else if (value instanceof ArrayHolder ah) {
                     ah.updateDependency(dependencies);
                 }
             }

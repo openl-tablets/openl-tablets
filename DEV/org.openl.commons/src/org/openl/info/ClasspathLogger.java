@@ -23,8 +23,8 @@ final class ClasspathLogger extends OpenLLogger {
         var classLoader = ClassUtils.getCurrentClassLoader(getClass());
         while (classLoader != null) {
             log(getClassLoaderName(classLoader));
-            if (classLoader instanceof URLClassLoader) {
-                URL[] urls = ((URLClassLoader) classLoader).getURLs();
+            if (classLoader instanceof URLClassLoader loader) {
+                URL[] urls = loader.getURLs();
                 for (URL url : urls) {
                     log("  {}", url);
                 }

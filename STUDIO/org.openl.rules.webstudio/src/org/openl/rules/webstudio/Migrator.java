@@ -5,7 +5,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -133,7 +132,7 @@ public class Migrator {
             return;
         }
 
-        Path locksPath = Paths.get(locksRoot);
+        Path locksPath = Path.of(locksRoot);
         if (!Files.exists(locksPath)) {
             return;
         }
@@ -308,7 +307,7 @@ public class Migrator {
 
     private static Map<String, String> loadProjectsPathes(String designRepo) {
         Map<String, String> projectPathMap = new HashMap<>();
-        Path projectProperties = Paths.get(designRepo, "openl-projects.properties");
+        Path projectProperties = Path.of(designRepo, "openl-projects.properties");
         if (Files.isRegularFile(projectProperties)) {
             try {
                 var projectProps = new HashMap<String, String>();
@@ -385,7 +384,7 @@ public class Migrator {
 
     private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths) {
         String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
-        Path workspace = Paths.get(workspacePath);
+        Path workspace = Path.of(workspacePath);
 
         try {
             // depth 3 - WorkSpace/UserDir/ProjectName
@@ -409,7 +408,7 @@ public class Migrator {
     }
 
     private static void migrateBranchesProps(Map<String, String> projectPathMap) {
-        Path branchesProperties = Paths.get(Props.text("openl.home") + "/git-settings/branches.properties");
+        Path branchesProperties = Path.of(Props.text("openl.home") + "/git-settings/branches.properties");
         if (Files.isRegularFile(branchesProperties)) {
             try {
                 var branchProps = new HashMap<String, String>();
@@ -429,7 +428,7 @@ public class Migrator {
                             branches.addBranch(namePath, branch, null);
                         }
                     }
-                    Path config = Paths.get(Props.text("openl.home"), "repositories/settings/design/branches.yaml");
+                    Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/branches.yaml");
                     createYaml(branches, config);
                 }
             } catch (IOException e) {
@@ -449,7 +448,7 @@ public class Migrator {
         }
         ProjectIndex index = new ProjectIndex();
         index.setProjects(projects);
-        Path config = Paths.get(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
+        Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
         createYaml(index, config);
 
     }
@@ -464,7 +463,7 @@ public class Migrator {
     }
 
     private static void migrateLocks(Map<String, String> projectPathMap) {
-        Path projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks/rules");
+        Path projectLocks = Path.of(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks/rules");
         if (Files.exists(projectLocks)) {
             try {
                 Files.walkFileTree(projectLocks, new SimpleFileVisitor<Path>() {
@@ -480,7 +479,7 @@ public class Migrator {
                         }
                         String projectName = lockPath.getFileName().toString();
                         String projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
+                        Path newLock = Path.of(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
                                 ".locks/projects/design",
                                 projectPath,
                                 branchName,
@@ -520,7 +519,7 @@ public class Migrator {
                     runInSession(sessionFactory, session -> deleteProjectTagsInDB(session, openLProject.id));
                     log.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
                 } catch (IOException | ProjectException e) {
-                    log.error(String.format("Migration of project %s with repository id %s has failed", openLProject.projectPath, openLProject.repositoryId), e);
+                    log.error("Migration of project %s with repository id %s has failed".formatted(openLProject.projectPath, openLProject.repositoryId), e);
                 }
             });
         }

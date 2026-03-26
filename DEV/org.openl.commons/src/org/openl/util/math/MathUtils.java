@@ -242,7 +242,7 @@ public class MathUtils {
     private static void validateIndex(boolean throwException, int position) {
         if (throwException) {
             throw new IllegalArgumentException(
-                    String.format("There is no position '%d' in the given array.", position));
+                    "There is no position '%d' in the given array.".formatted(position));
         }
     }
 

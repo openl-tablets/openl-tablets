@@ -33,8 +33,7 @@ class ExpectedResultFilter extends AGridFilter {
                         .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo(), false));
             } else {
                 Object expectedValue = result.getExpectedValue();
-                if (expectedValue instanceof IParameterWithValueDeclaration) {
-                    IParameterWithValueDeclaration declaration = (IParameterWithValueDeclaration) expectedValue;
+                if (expectedValue instanceof IParameterWithValueDeclaration declaration) {
                     expectedValue = declaration.getValue();
                 }
                 String formattedExpectedValue = FormattersManager.format(expectedValue);

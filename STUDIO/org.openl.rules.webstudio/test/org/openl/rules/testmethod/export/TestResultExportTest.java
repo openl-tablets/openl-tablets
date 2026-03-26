@@ -100,7 +100,7 @@ public class TestResultExportTest {
             }
         }
 
-        throw new IllegalArgumentException(String.format("Test '%s' is not found.", testName));
+        throw new IllegalArgumentException("Test '%s' is not found.".formatted(testName));
     }
 
     @Test
@@ -598,7 +598,7 @@ public class TestResultExportTest {
         @Override
         public void close() throws Exception {
             if (!tempFile.delete()) {
-                throw new IOException(String.format("File %s is not deleted. Possibly it's locked.", tempFile));
+                throw new IOException("File %s is not deleted. Possibly it's locked.".formatted(tempFile));
             }
         }
     }

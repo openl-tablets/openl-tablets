@@ -33,8 +33,7 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         String[] vResult = new String[3]; // 0 - INCLUDE_TO_A, 1 - INCLUDE_TO_B, 2 - OVERLAP
         for (IOpenMethod method : openClass.getMethods()) {
-            if (method instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+            if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                 IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(IOpenMethod.EMPTY_ARRAY);
                 for (int i = 0; i < methods.length - 1; i++) {
                     ITableProperties propsA = PropertiesHelper.getTableProperties(methods[i]);

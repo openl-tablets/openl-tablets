@@ -89,7 +89,7 @@ public final class AclPathUtils {
                     return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
                 } else {
                     List<FileData> fileDatas = projectArtefact.getProject().getHistoryFileDatas();
-                    return getRepoPath(fileDatas.get(fileDatas.size() - 1));
+                    return getRepoPath(fileDatas.getLast());
                 }
             } else {
                 // For deployments fileData is null and project is null

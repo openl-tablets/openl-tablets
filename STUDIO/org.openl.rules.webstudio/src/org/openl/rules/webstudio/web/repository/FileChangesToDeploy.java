@@ -150,8 +150,8 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         // Project in design repository is stored as a zip file
                         FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
-                            throw new FileNotFoundException(String
-                                    .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
+                            throw new FileNotFoundException("File '%s' for version %s is not found."
+                                    .formatted(rulesPath + projectName, version));
                         }
                         IOUtils.closeQuietly(openedStream);
                         ZipInputStream stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));

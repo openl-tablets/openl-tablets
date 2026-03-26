@@ -37,8 +37,8 @@ public class AzureYamlMapperFactoryTest {
         assertEquals("Edit rules/project1", commit.getComment());
         assertEquals("john_smith", commit.getAuthor());
         assertEquals(2, commit.getFiles().size());
-        assertEquals("rules/project1/file11", commit.getFiles().get(0).getPath());
-        assertEquals("38d9f188-7dd9-46ca-bc8d-dd351ae1c42c", commit.getFiles().get(0).getRevision());
+        assertEquals("rules/project1/file11", commit.getFiles().getFirst().getPath());
+        assertEquals("38d9f188-7dd9-46ca-bc8d-dd351ae1c42c", commit.getFiles().getFirst().getRevision());
         assertEquals("rules/project1/file12", commit.getFiles().get(1).getPath());
         assertEquals("a4cb4b68-783b-4485-958d-7782322f1449", commit.getFiles().get(1).getRevision());
     }

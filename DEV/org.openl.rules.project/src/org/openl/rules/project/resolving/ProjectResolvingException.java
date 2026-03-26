@@ -1,11 +1,14 @@
 package org.openl.rules.project.resolving;
 
+import java.io.Serial;
+
 import org.openl.exception.OpenLCheckedException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
 public class ProjectResolvingException extends OpenLCheckedException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public ProjectResolvingException() {

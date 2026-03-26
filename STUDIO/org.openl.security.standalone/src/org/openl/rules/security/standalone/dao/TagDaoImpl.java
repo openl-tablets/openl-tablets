@@ -19,7 +19,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         Root<Tag> u = criteria.from(Tag.class);
         criteria.select(u).where(builder.equal(u.get("id"), id)).distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
                         builder.equal(builder.lower(u.get("name")), name.toLowerCase(Locale.ROOT))))
                 .distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
                 .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase(Locale.ROOT)),
                         builder.equal(builder.lower(root.get("name")), tagName.toLowerCase(Locale.ROOT))));
         final List<Tag> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Transactional

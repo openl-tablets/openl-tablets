@@ -109,7 +109,7 @@ public class GitRepositoryForcePullTest {
         // ─── Step 1: Capture original commit ────────────────────────────────
         var oldHistory = repo.listHistory("README.md");
         assertEquals(1, oldHistory.size(), "Expected initial commit history");
-        var originalCommit = oldHistory.get(0);
+        var originalCommit = oldHistory.getFirst();
         assertEquals("Initial commit", originalCommit.getComment());
         var originalCommitId = originalCommit.getVersion();
 
@@ -136,7 +136,7 @@ public class GitRepositoryForcePullTest {
         var updatedHistory = repo.listHistory("README.md");
         assertEquals(1, updatedHistory.size(), "Expected same single entry after amend");
 
-        var amendedCommit = updatedHistory.get(0);
+        var amendedCommit = updatedHistory.getFirst();
         assertNotEquals(originalCommitId, amendedCommit.getVersion(), "Commit ID should have changed after amend");
         assertEquals("New amended commit message", amendedCommit.getComment(), "Amended commit message mismatch");
         assertEquals(amendedCommitId.getName(), amendedCommit.getVersion(), "Expected HEAD to match amended commit");
@@ -167,7 +167,7 @@ public class GitRepositoryForcePullTest {
 
         var fullHistoryBeforeSquash = repo.listHistory("test.txt");
         assertEquals(2, fullHistoryBeforeSquash.size(), "Expected 2 commits before squash");
-        String originalSecondCommitId = fullHistoryBeforeSquash.get(0).getVersion();
+        String originalSecondCommitId = fullHistoryBeforeSquash.getFirst().getVersion();
 
         // ─── Step 5: Squash commits in local2 ───────────────────────────────
         ObjectId firstCommitId = local2.getRepository().resolve("HEAD~2");
@@ -207,9 +207,9 @@ public class GitRepositoryForcePullTest {
 
         // ─── Step 8: Assertions ─────────────────────────────────────────────
         assertEquals(1, historyAfterSquash.size(), "History should be squashed to 1 commit");
-        assertEquals("Squashed commit", historyAfterSquash.get(0).getComment(), "Message mismatch");
-        assertEquals(squashedCommitId.getName(), historyAfterSquash.get(0).getVersion(), "Commit ID mismatch");
-        assertNotEquals(originalSecondCommitId, historyAfterSquash.get(0).getVersion(), "Commit ID should have changed");
+        assertEquals("Squashed commit", historyAfterSquash.getFirst().getComment(), "Message mismatch");
+        assertEquals(squashedCommitId.getName(), historyAfterSquash.getFirst().getVersion(), "Commit ID mismatch");
+        assertNotEquals(originalSecondCommitId, historyAfterSquash.getFirst().getVersion(), "Commit ID should have changed");
 
         // ─── Step 9: Validate file content ──────────────────────────────────
         String firstContent = new String(repo.read("test.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -261,11 +261,11 @@ public class GitRepositoryForcePullTest {
 
         // ─── Step 7: Verify only Commit A remains ───────────────────────────
         assertEquals(1, historyAfter.size(), "Only one commit should remain after force push");
-        assertEquals("Commit A", historyAfter.get(0).getComment(), "Remaining commit should be A");
+        assertEquals("Commit A", historyAfter.getFirst().getComment(), "Remaining commit should be A");
 
         // ─── Step 8: Ensure B and C are gone ────────────────────────────────
-        assertNotEquals(commitB.getName(), historyAfter.get(0).getVersion(), "Commit B should be gone");
-        assertNotEquals(commitC.getName(), historyAfter.get(0).getVersion(), "Commit C should be gone");
+        assertNotEquals(commitB.getName(), historyAfter.getFirst().getVersion(), "Commit B should be gone");
+        assertNotEquals(commitC.getName(), historyAfter.getFirst().getVersion(), "Commit C should be gone");
 
         // ─── Step 9: Validate content of a.txt only ─────────────────────────
         String contentA = new String(repo.read("subdir/a.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);

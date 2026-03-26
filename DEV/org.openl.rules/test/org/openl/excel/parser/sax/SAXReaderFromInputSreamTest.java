@@ -26,7 +26,7 @@ public class SAXReaderFromInputSreamTest extends BaseReaderTest {
 
         assertEquals(4, sheets.size());
 
-        assertNotNull(sheets.get(0).getRelationId());
+        assertNotNull(sheets.getFirst().getRelationId());
         assertNotNull(sheets.get(1).getRelationId());
         assertNotNull(sheets.get(2).getRelationId());
     }

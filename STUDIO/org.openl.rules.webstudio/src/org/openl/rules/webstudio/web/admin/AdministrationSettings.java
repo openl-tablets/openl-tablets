@@ -89,8 +89,8 @@ public final class AdministrationSettings implements SettingsHolder {
             if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
                 try {
                     Object value = field.get(null);
-                    if (value instanceof String) {
-                        settingNames.add((String) value);
+                    if (value instanceof String string) {
+                        settingNames.add(string);
                     }
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);

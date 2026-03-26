@@ -47,15 +47,15 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             failedActions.addAll(currentActions);
         }
         if (currentActions.contains(GitActionType.INIT)) {
-            throw new InvalidCredentialsException(String.format(INCORRECT_CRED_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(INCORRECT_CRED_MESSAGE.formatted(repositoryName));
         }
         if (maxAuthorizationAttempts != null && failedAttempts.incrementAndGet() >= maxAuthorizationAttempts) {
             // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
             nextAttempt.set(-1);
-            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
         }
         nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000L);
-        throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
+        throw new InvalidCredentialsException(FAIL_MESSAGE.formatted(repositoryName, getNextAttemptTime()));
     }
 
     void validateAuthorizationState(GitActionType actionType) throws InvalidCredentialsException {
@@ -66,7 +66,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             return;
         } else if (attemptTime == -1) {
             // The maximum number of authorization attempts has been exceeded.
-            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
         } else {
             if (System.currentTimeMillis() > attemptTime) {
                 if (maxAuthorizationAttempts == null || failedAttempts.get() <= maxAuthorizationAttempts) {
@@ -75,11 +75,11 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
                 } else {
                     // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
                     nextAttempt.set(-1);
-                    throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+                    throw new InvalidCredentialsException(BLOCK_MESSAGE.formatted(repositoryName));
                 }
             } else {
                 // The time for the next try has not yet come
-                throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
+                throw new InvalidCredentialsException(FAIL_MESSAGE.formatted(repositoryName, getNextAttemptTime()));
             }
         }
     }

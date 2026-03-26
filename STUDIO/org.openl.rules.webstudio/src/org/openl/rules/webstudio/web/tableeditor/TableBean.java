@@ -125,9 +125,9 @@ public class TableBean {
     }
 
     private void initRunnableTestMethods() {
-        if (method instanceof TestSuiteMethod) {
+        if (method instanceof TestSuiteMethod suiteMethod) {
             try {
-                runnableTestMethods = ((TestSuiteMethod) method).getTests();
+                runnableTestMethods = suiteMethod.getTests();
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 runnableTestMethods = new TestDescription[0];
@@ -246,7 +246,7 @@ public class TableBean {
         IOpenMethod method = (IOpenMethod) testMethod;
         String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
-        return String.format("%s (%s)", name, info);
+        return "%s (%s)".formatted(name, info);
     }
 
     public String removeTable() throws Throwable {
@@ -300,8 +300,8 @@ public class TableBean {
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
         Workbook workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
-        if (workbook instanceof XSSFWorkbook) {
-            XSSFOptimizer.removeUnusedStyles((XSSFWorkbook) workbook);
+        if (workbook instanceof XSSFWorkbook fWorkbook) {
+            XSSFOptimizer.removeUnusedStyles(fWorkbook);
         }
 
         if (studio.isUpdateSystemProperties()) {
@@ -321,7 +321,7 @@ public class TableBean {
         RulesProject currentProject = studio.getCurrentProject();
         String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
-        return String.format(REQUEST_ID_FORMAT, requestId, projectName);
+        return REQUEST_ID_FORMAT.formatted(requestId, projectName);
     }
 
     public static void tryUnlock(String requestId) {
@@ -373,8 +373,8 @@ public class TableBean {
 
     public Integer getRowIndex() {
         if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
-            if (method instanceof TestSuiteMethod) {
-                TestMethodBoundNode boundNode = ((TestSuiteMethod) method).getBoundNode();
+            if (method instanceof TestSuiteMethod suiteMethod) {
+                TestMethodBoundNode boundNode = suiteMethod.getBoundNode();
                 if (boundNode != null && !boundNode.getTable().getHeaderTable().isNormalOrientation()) {
                     // Currently row indexes aren't supported for transposed test tables
                     return null;

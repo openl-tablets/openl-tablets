@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,7 +36,7 @@ public class XlsWorkbookSourceCodeModuleTest {
     @Test
     public void testUrlWithWhiteSpaces2() {
         XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
-                new PathSourceCodeModule(Paths.get("test/rules/test xls/Test with spaces.xls")));
+                new PathSourceCodeModule(Path.of("test/rules/test xls/Test with spaces.xls")));
         assertNotNull(module.getSourceFile());
     }
 

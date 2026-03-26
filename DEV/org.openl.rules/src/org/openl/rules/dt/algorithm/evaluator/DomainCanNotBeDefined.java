@@ -1,7 +1,10 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.io.Serial;
+
 public class DomainCanNotBeDefined extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -5183188461885882863L;
     private final String paramName;
 

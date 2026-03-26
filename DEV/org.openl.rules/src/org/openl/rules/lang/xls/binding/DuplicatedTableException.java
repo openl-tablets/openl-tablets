@@ -6,6 +6,8 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import java.io.Serial;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
@@ -14,10 +16,11 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public class DuplicatedTableException extends SyntaxNodeException {
 
+    @Serial
     private static final long serialVersionUID = -6269440215951548170L;
 
     public DuplicatedTableException(String tableName, TableSyntaxNode duplicatedTable) {
-        super(String.format("Found duplicated table '%s'.", tableName), null, duplicatedTable);
+        super("Found duplicated table '%s'.".formatted(tableName), null, duplicatedTable);
     }
 
 }

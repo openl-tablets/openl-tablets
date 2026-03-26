@@ -43,10 +43,10 @@ class ThreadInvocationCaptor {
             e.printStackTrace(); // For debug purposes
             Thread.currentThread().interrupt();
         }
-        assertEquals(nThread, counterMap.size(), String.format("'%s' must be created", nThread));
+        assertEquals(nThread, counterMap.size(), "'%s' must be created".formatted(nThread));
         for (AtomicInteger times : counterMap.values()) {
             assertTrue(times.get() >= atLeast,
-                    String.format("Each thread must be executed at least '%s' times", atLeast));
+                    "Each thread must be executed at least '%s' times".formatted(atLeast));
         }
     }
 }

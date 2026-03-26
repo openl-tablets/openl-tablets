@@ -56,8 +56,8 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                 if (!initialized) {
                     PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
                             .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
-                    if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
-                        spreadsheetResultBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
+                    if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy strategy) {
+                        spreadsheetResultBeanPropertyNamingStrategy = strategy;
                     }
                     initialized = true;
                 }
@@ -90,15 +90,14 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                     }
                     if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass || openClass instanceof CustomSpreadsheetResultOpenClass) {
                         Class<?> t = Map.class;
-                        if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
+                        if (openClass instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass && spreadsheetResultOpenClass
                                 .getModule() != null) {
-                            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openClass;
                             t = spreadsheetResultOpenClass.getModule()
                                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                     .toCustomSpreadsheetResultOpenClass()
                                     .getBeanClass();
-                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                            t = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
+                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass class1) {
+                            t = class1.getBeanClass();
                         }
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();

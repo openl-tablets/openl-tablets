@@ -47,8 +47,7 @@ public class MessagesBean {
 
     public String getStacktrace() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
-        if (message instanceof OpenLErrorMessage) {
-            OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
+        if (message instanceof OpenLErrorMessage errorMessage) {
             return ExceptionUtils.getStackTrace((Throwable) errorMessage.getError());
         }
         return StringUtils.EMPTY;
@@ -56,8 +55,7 @@ public class MessagesBean {
 
     public boolean isHasStacktrace() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
-        if (message instanceof OpenLErrorMessage) {
-            OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
+        if (message instanceof OpenLErrorMessage errorMessage) {
             return errorMessage.getError() != null;
         }
         return false;
@@ -68,13 +66,11 @@ public class MessagesBean {
 
         ILocation location = null;
         String sourceCode = null;
-        if (message instanceof OpenLErrorMessage) {
-            OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
+        if (message instanceof OpenLErrorMessage errorMessage) {
             OpenLException error = errorMessage.getError();
             location = error.getLocation();
             sourceCode = error.getSourceCode();
-        } else if (message instanceof OpenLWarnMessage) {
-            OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
+        } else if (message instanceof OpenLWarnMessage warnMessage) {
             ISyntaxNode source = warnMessage.getSource();
             location = source.getSourceLocation();
             sourceCode = source.getModule() == null ? null : source.getModule().getCode();
@@ -87,11 +83,11 @@ public class MessagesBean {
 
         IOpenSourceCodeModule module = null;
         String code = null;
-        if (message instanceof OpenLErrorMessage) {
-            OpenLException error = ((OpenLErrorMessage) message).getError();
+        if (message instanceof OpenLErrorMessage errorMessage) {
+            OpenLException error = errorMessage.getError();
             code = error.getSourceCode();
-        } else if (message instanceof OpenLWarnMessage) {
-            ISyntaxNode source = ((OpenLWarnMessage) message).getSource();
+        } else if (message instanceof OpenLWarnMessage warnMessage) {
+            ISyntaxNode source = warnMessage.getSource();
             module = source.getModule();
         }
         if (module != null) {
@@ -107,8 +103,8 @@ public class MessagesBean {
     public String getTableId() {
         Object rowData = messages.getRowData();
         OpenLMessage message = null;
-        if (rowData instanceof OpenLMessage) {
-            message = (OpenLMessage) rowData;
+        if (rowData instanceof OpenLMessage lMessage) {
+            message = lMessage;
         }
 
         ProjectModel model = WebStudioUtils.getProjectModel();
@@ -130,8 +126,7 @@ public class MessagesBean {
         String errorUri;
         Object rowData = messages.getRowData();
 
-        if (rowData instanceof OpenLMessage) {
-            OpenLMessage message = (OpenLMessage) rowData;
+        if (rowData instanceof OpenLMessage message) {
             errorUri = message.getSourceLocation();
         } else {
             errorUri = null;

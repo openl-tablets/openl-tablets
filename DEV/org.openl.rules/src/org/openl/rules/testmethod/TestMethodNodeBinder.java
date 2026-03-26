@@ -140,7 +140,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             // Check that table type loaded properly.
             //
             if (current.testMethodOpenClass.getInstanceClass() == null) {
-                String message = String.format("Table '%s' is defined with errors.", methodName);
+                String message = "Table '%s' is defined with errors.".formatted(methodName);
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
             bindingContext.pushErrors();
@@ -207,7 +207,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 throw new AmbiguousMethodException(methodName,
                         exactMatches.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
             } else {
-                best = exactMatches.iterator().next();
+                best = exactMatches.getFirst();
             }
         }
 
@@ -225,7 +225,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     private void validateTableName(String tableName, ISyntaxNode syntaxNode, IBindingContext context) {
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message = String.format(NAME_ERROR_MESSAGE, "Test table", tableName);
+            String message = NAME_ERROR_MESSAGE.formatted("Test table", tableName);
             context.addMessage(OpenLMessagesUtils.newWarnMessage(message, syntaxNode));
         }
     }

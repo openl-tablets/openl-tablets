@@ -122,7 +122,7 @@ public class DateRange extends Range<Date> {
 
     private static long convertToTime(String text) {
         TemporalAccessor res = dateTimeParser.parseBest(text, LocalDateTime::from, LocalDate::from);
-        LocalDateTime localDateTime = res instanceof LocalDate ? ((LocalDate) res).atStartOfDay() : (LocalDateTime) res;
+        LocalDateTime localDateTime = res instanceof LocalDate ld ? ld.atStartOfDay() : (LocalDateTime) res;
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

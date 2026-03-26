@@ -32,24 +32,12 @@ public class TreeNode extends TreeNodeImpl {
     }
 
     public String getIcon() {
-        String icon;
-
-        switch (diffTreeNode.getElement(1).getDiffStatus()) {
-            case ADDED:
-                icon = UiConst.ICON_DIFF_ADDED;
-                break;
-            case REMOVED:
-                icon = UiConst.ICON_DIFF_REMOVED;
-                break;
-            case DIFFERS:
-                icon = UiConst.ICON_DIFF_EQUALS;
-                break;
-            default:
-                icon = UiConst.ICON_DIFF_DIFFERS;
-                break;
-        }
-
-        return icon;
+        return switch (diffTreeNode.getElement(1).getDiffStatus()) {
+            case ADDED -> UiConst.ICON_DIFF_ADDED;
+            case REMOVED -> UiConst.ICON_DIFF_REMOVED;
+            case DIFFERS -> UiConst.ICON_DIFF_EQUALS;
+            default -> UiConst.ICON_DIFF_DIFFERS;
+        };
     }
 
     /**

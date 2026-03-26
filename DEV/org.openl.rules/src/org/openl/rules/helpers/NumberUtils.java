@@ -29,20 +29,20 @@ public final class NumberUtils {
     public static Double convertToDouble(Object object) {
         if (object instanceof Float) {
             return Double.parseDouble(object.toString());
-        } else if (object instanceof Double) {
-            return (Double) object;
-        } else if (object instanceof BigDecimal) {
-            return ((BigDecimal) object).doubleValue();
-        } else if (object instanceof Byte) {
-            return ((Byte) object).doubleValue();
-        } else if (object instanceof Short) {
-            return ((Short) object).doubleValue();
-        } else if (object instanceof Integer) {
-            return ((Integer) object).doubleValue();
-        } else if (object instanceof Long) {
-            return ((Long) object).doubleValue();
-        } else if (object instanceof BigInteger) {
-            return ((BigInteger) object).doubleValue();
+        } else if (object instanceof Double double1) {
+            return double1;
+        } else if (object instanceof BigDecimal decimal) {
+            return decimal.doubleValue();
+        } else if (object instanceof Byte byte1) {
+            return byte1.doubleValue();
+        } else if (object instanceof Short short1) {
+            return short1.doubleValue();
+        } else if (object instanceof Integer integer1) {
+            return integer1.doubleValue();
+        } else if (object instanceof Long long1) {
+            return long1.doubleValue();
+        } else if (object instanceof BigInteger integer) {
+            return integer.doubleValue();
         } else {
             return null;
         }
@@ -76,11 +76,11 @@ public final class NumberUtils {
             throw new NullPointerException("Null value is not supported");
         }
 
-        if (value instanceof BigDecimal) {
+        if (value instanceof BigDecimal decimal) {
             /**
              * If BigDecimal the scale can be taken directly
              */
-            return ((BigDecimal) value).scale();
+            return decimal.scale();
         }
 
         if (isObjectFloatPointNumber(value)) {

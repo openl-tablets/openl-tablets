@@ -68,15 +68,14 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
         String description;
         String uri = null;
-        if (boundField instanceof IOriginalDeclaredClassesOpenField) {
-            IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
+        if (boundField instanceof IOriginalDeclaredClassesOpenField combinedOpenField) {
             IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
             if (Arrays.stream(declaredClasses).allMatch(e -> e instanceof CustomSpreadsheetResultOpenClass)) {
                 Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = Arrays
                         .stream(declaredClasses)
                         .map(CustomSpreadsheetResultOpenClass.class::cast)
                         .flatMap(
-                                e -> e instanceof CombinedSpreadsheetResultOpenClass ? ((CombinedSpreadsheetResultOpenClass) e)
+                                e -> e instanceof CombinedSpreadsheetResultOpenClass csroc ? csroc
                                         .getCombinedTypes()
                                         .stream() : Stream.of(e))
                         .collect(Collectors.toList());
@@ -107,37 +106,31 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                     uri = mi.getSourceUrl();
                 }
             }
-        } else if (boundField instanceof NodeDescriptionHolder) {
-            NodeDescriptionHolder nodeDescriptionHolder = (NodeDescriptionHolder) boundField;
+        } else if (boundField instanceof NodeDescriptionHolder nodeDescriptionHolder) {
             description = nodeDescriptionHolder.getDescription();
             syntaxNode = getIdentifierSyntaxNode(syntaxNode);
-        } else if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField) {
-            final ITable foreignTable = ((DataOpenField) boundField).getTable();
+        } else if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField field) {
+            final ITable foreignTable = field.getTable();
             TableSyntaxNode tableSyntaxNode = foreignTable.getTableSyntaxNode();
             description = tableSyntaxNode.getHeaderLineValue().getValue();
             uri = tableSyntaxNode.getUri();
-        } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
-            ConstantOpenField constantOpenField = (ConstantOpenField) boundField;
+        } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField constantOpenField) {
             description = MethodUtil.printType(boundField.getType()) + " " + boundField
                     .getName() + " = " + constantOpenField.getValueAsString();
             uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
-        } else if (boundField instanceof DependencyVar) {
-            DependencyVar dependencyVar = (DependencyVar) boundField;
+        } else if (boundField instanceof DependencyVar dependencyVar) {
             description = (DependencyType.PROJECT
                     .equals(dependencyVar.getDependencyType()) ? "Project '" : "Module '") + dependencyVar.getName() + "'";
             if (DependencyType.MODULE.equals(dependencyVar.getDependencyType())) {
                 uri = dependencyVar.getType().getMetaInfo().getSourceUrl();
             }
-        } else if (boundField instanceof ConditionOrActionParameterField) {
-            ConditionOrActionParameterField conditionOrActionParameterField = (ConditionOrActionParameterField) boundField;
+        } else if (boundField instanceof ConditionOrActionParameterField conditionOrActionParameterField) {
             description = "Parameter of " + conditionOrActionParameterField.getConditionOrAction()
                     .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
-        } else if (boundField instanceof ConditionOrActionDirectParameterField) {
-            ConditionOrActionDirectParameterField conditionOrActionDirectParameterField = (ConditionOrActionDirectParameterField) boundField;
+        } else if (boundField instanceof ConditionOrActionDirectParameterField conditionOrActionDirectParameterField) {
             description = "Parameter of " + conditionOrActionDirectParameterField.getConditionOrAction()
                     .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
-        } else if (boundField instanceof DTColumnsDefinitionField) {
-            DTColumnsDefinitionField dtColumnsDefinitionField = (DTColumnsDefinitionField) boundField;
+        } else if (boundField instanceof DTColumnsDefinitionField dtColumnsDefinitionField) {
             DTColumnsDefinition dtColumnsDefinition = dtColumnsDefinitionField.getDtColumnsDefinition();
             String columnType;
             if (dtColumnsDefinition.isCondition()) {
@@ -184,8 +177,8 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         for (CustomSpreadsheetResultOpenClass c : types.size() > 3 ? new ArrayList<>(types).subList(0, 3) : types) {
             concatenated++;
             StringBuilder sb1 = new StringBuilder();
-            if (c instanceof CombinedSpreadsheetResultOpenClass) {
-                for (CustomSpreadsheetResultOpenClass t : ((CombinedSpreadsheetResultOpenClass) c).getCombinedTypes()) {
+            if (c instanceof CombinedSpreadsheetResultOpenClass class1) {
+                for (CustomSpreadsheetResultOpenClass t : class1.getCombinedTypes()) {
                     if (sb1.length() > 0) {
                         sb1.append(", ");
                     }

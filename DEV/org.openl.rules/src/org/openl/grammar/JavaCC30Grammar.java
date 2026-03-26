@@ -167,7 +167,7 @@ public abstract class JavaCC30Grammar implements IGrammar {
     }
 
     public void notImplemented(String type) {
-        throw new IllegalStateException(String.format("'%s' is not implemented yet.", type));
+        throw new IllegalStateException("'%s' is not implemented yet.".formatted(type));
     }
 
     public void uop(String type, TextInterval pos) {

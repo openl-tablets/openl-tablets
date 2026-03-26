@@ -15,12 +15,12 @@ import org.openl.validation.ValidationResult;
 public abstract class TablesValidator implements IOpenLValidator {
 
     private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
-        if (openClass instanceof XlsModuleOpenClass) {
-            for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
+        if (openClass instanceof XlsModuleOpenClass class1) {
+            for (CompiledDependency compiledDependency : class1.getDependencies()) {
                 IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
                 findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
             }
-            XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
+            XlsMetaInfo xlsMetaInfo = class1.getXlsMetaInfo();
             if (xlsMetaInfo != null) {
                 TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
                 for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {

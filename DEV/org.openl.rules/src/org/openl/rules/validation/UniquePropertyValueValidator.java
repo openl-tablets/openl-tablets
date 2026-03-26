@@ -88,7 +88,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 Object value = entry.getKey();
                 for (ExecutableRulesMethod method : entry.getValue()) {
                     OpenLMessage message = getMessage(
-                            String.format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
+                            "Found non-unique value '%s' for table property '%s'.".formatted(value, propertyName),
                             errorSeverity,
                             method.getSyntaxNode());
                     messages.add(message);

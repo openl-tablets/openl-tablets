@@ -43,7 +43,7 @@ public final class CellKey {
 
     @Override
     public String toString() {
-        return String.format("row: %d, col: %d", row, col);
+        return "row: %d, col: %d".formatted(row, col);
     }
 
     private static final CellKey ZERO_ZERO = new CellKey(0, 0);

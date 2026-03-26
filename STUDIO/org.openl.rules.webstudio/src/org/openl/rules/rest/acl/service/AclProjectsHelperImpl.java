@@ -28,7 +28,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
 
     @Override
     public boolean hasPermission(AProject project, Permission permission) {
-        if (project instanceof UserWorkspaceProject && ((UserWorkspaceProject) project).isLocalOnly()) {
+        if (project instanceof UserWorkspaceProject workspaceProject && workspaceProject.isLocalOnly()) {
             // its local project, no need to check permissions
             return true;
         }

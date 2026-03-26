@@ -81,7 +81,7 @@ public class ConflictController {
                     .getRepository(repoId)
                     .readHistory(name, version);
             if (file == null) {
-                throw new FileNotFoundException(String.format("File '%s' is not found.", name));
+                throw new FileNotFoundException("File '%s' is not found.".formatted(name));
             }
             try (var stream = file.getStream()) {
                 stream.transferTo(output);
@@ -122,7 +122,7 @@ public class ConflictController {
                         }
                     }
                 }
-                throw new FileNotFoundException(String.format("File %s is not found.", name));
+                throw new FileNotFoundException("File %s is not found.".formatted(name));
             } catch (ProjectException e) {
                 log.warn(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);

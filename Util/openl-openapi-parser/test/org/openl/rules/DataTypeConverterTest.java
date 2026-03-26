@@ -57,7 +57,7 @@ public class DataTypeConverterTest {
         SpreadsheetModel model = apiBla.get();
         List<StepModel> steps = model.getSteps();
         assertEquals(1, steps.size());
-        StepModel resultStep = steps.iterator().next();
+        StepModel resultStep = steps.getFirst();
         assertEquals("Result", resultStep.getName());
         assertEquals("= new DriverRisk()", resultStep.getValue());
     }
@@ -159,7 +159,7 @@ public class DataTypeConverterTest {
         SpreadsheetModel spreadsheetModel = helloKittyOptional.get();
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter ip = parameters.iterator().next();
+        InputParameter ip = parameters.getFirst();
         assertEquals(TypeInfo.Type.DATATYPE, ip.getType().getType());
 
         // project model with expandable request, but one more datatype has a link to this datatype

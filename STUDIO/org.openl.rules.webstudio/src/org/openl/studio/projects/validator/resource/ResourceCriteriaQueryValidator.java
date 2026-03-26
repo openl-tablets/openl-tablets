@@ -1,7 +1,6 @@
 package org.openl.studio.projects.validator.resource;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
@@ -61,7 +60,7 @@ public class ResourceCriteriaQueryValidator implements Validator {
 
         try {
             // Normalize and validate
-            Path normalized = Paths.get(basePath).normalize();
+            Path normalized = Path.of(basePath).normalize();
 
             // Check if normalization changed the path (traversal attempt detected)
             String normalizedStr = normalized.toString().replace('\\', '/');

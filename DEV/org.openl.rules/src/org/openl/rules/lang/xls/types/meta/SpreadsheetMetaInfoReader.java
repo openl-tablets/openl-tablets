@@ -73,9 +73,9 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
             if (from > -1) {
                 from += 1; // next symbol after '=' or '{'
 
-                if (method instanceof CompositeMethod) {
+                if (method instanceof CompositeMethod compositeMethod) {
                     List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
-                            .getNodeUsages((CompositeMethod) method, stringValue, from);
+                            .getNodeUsages(compositeMethod, stringValue, from);
                     nodeUsages.addAll(parsedNodeUsages);
                 }
             }

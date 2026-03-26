@@ -165,7 +165,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected CompiledDependency onCompilationFailure(Exception ex,
                                                       AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
-        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
+        throw new OpenLCompilationException("Failed to load dependency '%s'.".formatted(dependency), ex);
     }
 
     public ResolvedDependency getDependency() {

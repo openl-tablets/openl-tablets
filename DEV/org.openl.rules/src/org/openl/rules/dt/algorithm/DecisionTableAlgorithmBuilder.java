@@ -146,14 +146,13 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         } else if (Boolean.FALSE.equals(v)) {
             usedHeaderNames.put(decisionRow.getName(), Boolean.TRUE);
             String columnType = "Condition";
-            if (decisionRow instanceof IBaseAction) {
-                IBaseAction baseAction = (IBaseAction) decisionRow;
+            if (decisionRow instanceof IBaseAction baseAction) {
                 columnType = baseAction.isReturnAction() ? "Return" : "Action";
             }
             GridCellSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(
                     decisionRow.getInfoTable().getSource(),
                     bindingContext);
-            BindHelper.processError(String.format("%s '%s' is already defined.", columnType, decisionRow.getName()),
+            BindHelper.processError("%s '%s' is already defined.".formatted(columnType, decisionRow.getName()),
                     cellSourceCodeModule,
                     bindingContext);
         }
@@ -296,7 +295,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         IBoundNode[] children = methodNode.getChildren();
         if (children != null && children.length == 1 && children[0].getChildren() != null && children[0]
                 .getChildren().length > 0 && children[0].getChildren()[0] instanceof TypeBoundNode) {
-            String message = String.format("Cannot execute expression with only type definition '%s'.",
+            String message = "Cannot execute expression with only type definition '%s'.".formatted(
                     source.getCode());
             BindHelper.processError(message, source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;

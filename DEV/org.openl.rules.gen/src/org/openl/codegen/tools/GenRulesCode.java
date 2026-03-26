@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +195,7 @@ public final class GenRulesCode {
     }
 
     private static void processFile(String p, String templateName, Map<String, Object> variables) throws IOException {
-        Path file = Paths.get(p);
+        Path file = Path.of(p);
         System.out.println("Processing " + file);
 
         StringBuilder sb = new StringBuilder(10000);

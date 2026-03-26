@@ -283,7 +283,7 @@ public class InputArgsBean {
     }
 
     private String constructJsonExceptionMessage(JsonParseException e) {
-        return String.format("%s</br>[line: %s, column: %s]",
+        return "%s</br>[line: %s, column: %s]".formatted(
                 e.getOriginalMessage(),
                 e.getLocation().getLineNr(),
                 e.getLocation().getColumnNr());

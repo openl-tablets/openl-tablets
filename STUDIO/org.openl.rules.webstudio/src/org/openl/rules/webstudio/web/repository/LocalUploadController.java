@@ -221,7 +221,7 @@ public class LocalUploadController {
                                 .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService
                                 .createAcl(createdProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                            String message = String.format("Granting permissions to a new project '%s' is failed.",
+                            String message = "Granting permissions to a new project '%s' is failed.".formatted(
                                     ProjectArtifactUtils.extractResourceName(createdProject));
                             WebStudioUtils.addErrorMessage(message);
                         }
@@ -253,7 +253,7 @@ public class LocalUploadController {
     @EventListener
     public void projectDeletedEventListener(ProjectDeletedEvent event) {
         var deletedProject = event.getProject();
-        if (deletedProject instanceof UserWorkspaceProject && ((UserWorkspaceProject) deletedProject).isLocalOnly()) {
+        if (deletedProject instanceof UserWorkspaceProject project && project.isLocalOnly()) {
             // force reload
             uploadBeans = null;
         }

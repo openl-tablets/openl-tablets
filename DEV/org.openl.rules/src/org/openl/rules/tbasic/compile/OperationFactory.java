@@ -29,8 +29,8 @@ public class OperationFactory {
                                             ConversionRuleStep conversionStep,
                                             IBindingContext bindingContext) {
         try {
-            String operationClassName = String
-                    .format("%s.%s%s", OPERATIONS_PACKAGE, conversionStep.getOperationType(), OPERATION_SUFFIX);
+            String operationClassName = "%s.%s%s"
+                    .formatted(OPERATIONS_PACKAGE, conversionStep.getOperationType(), OPERATION_SUFFIX);
             Class<?> clazz = Class.forName(operationClassName);
             Constructor<?> constructor = clazz.getConstructors()[0];
 
@@ -66,7 +66,7 @@ public class OperationFactory {
 
             return emittedOperation;
         } catch (Exception e) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();

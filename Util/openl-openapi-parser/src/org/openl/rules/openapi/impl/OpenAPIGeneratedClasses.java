@@ -37,7 +37,7 @@ public class OpenAPIGeneratedClasses {
         public Builder addGroovyCommonScript(GroovyScriptFile groovyScriptFile) {
             if (!groovyCommonClasses.add(groovyScriptFile)) {
                 throw new IllegalArgumentException(
-                        String.format("Groovy File Script '%s' is duplicated.", groovyScriptFile));
+                        "Groovy File Script '%s' is duplicated.".formatted(groovyScriptFile));
             }
             return this;
         }

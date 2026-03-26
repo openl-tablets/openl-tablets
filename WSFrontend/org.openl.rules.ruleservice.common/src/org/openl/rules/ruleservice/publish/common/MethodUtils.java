@@ -49,10 +49,9 @@ public final class MethodUtils {
                                                  Method method,
                                                  boolean provideRuntimeContext) {
         IOpenClass[] parameterTypes = new IOpenClass[method.getParameterCount()];
-        if (openMember instanceof IOpenMethod) {
+        if (openMember instanceof IOpenMethod openMethod) {
             int i = 0;
             int j = 0;
-            IOpenMethod openMethod = (IOpenMethod) openMember;
             IMethodSignature methodSignature = openMethod.getSignature();
             for (Parameter parameter : method.getParameters()) {
                 if (i == 0 && provideRuntimeContext && method
@@ -64,8 +63,7 @@ public final class MethodUtils {
                 }
                 i++;
             }
-        } else if (openMember instanceof IOpenField) {
-            IOpenField openField = (IOpenField) openMember;
+        } else if (openMember instanceof IOpenField openField) {
             if (ClassUtils.getter(openField.getName()).equals(method.getName())) {
                 if (provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
                         .isAssignableFrom(method.getParameterTypes()[0])) {
@@ -80,10 +78,9 @@ public final class MethodUtils {
                                              Method method,
                                              boolean provideRuntimeContext) {
         String[] parameterNames = new String[method.getParameterCount()];
-        if (openMember instanceof IOpenMethod) {
+        if (openMember instanceof IOpenMethod openMethod) {
             int i = 0;
             int j = 0;
-            IOpenMethod openMethod = (IOpenMethod) openMember;
             IMethodSignature methodSignature = openMethod.getSignature();
             for (Parameter parameter : method.getParameters()) {
                 if (i == 0 && provideRuntimeContext && method
@@ -95,8 +92,7 @@ public final class MethodUtils {
                 }
                 i++;
             }
-        } else if (openMember instanceof IOpenField) {
-            IOpenField openField = (IOpenField) openMember;
+        } else if (openMember instanceof IOpenField openField) {
             if (ClassUtils.getter(openField.getName()).equals(method.getName())) {
                 if (provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
                         .isAssignableFrom(method.getParameterTypes()[0])) {

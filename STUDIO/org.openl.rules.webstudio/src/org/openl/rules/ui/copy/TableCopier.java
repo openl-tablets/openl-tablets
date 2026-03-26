@@ -412,7 +412,7 @@ public class TableCopier extends TableCreationWizard {
     public static boolean isEmpty(Object value) {
         if (value == null) {
             return true;
-        } else if (value instanceof String && StringUtils.isEmpty((String) value)) {
+        } else if (value instanceof String string && StringUtils.isEmpty(string)) {
             return true;
         } else if (value.getClass().isArray()) {
             return Array.getLength(value) <= 0;

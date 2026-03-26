@@ -155,8 +155,7 @@ public class StoreLogDataMapper {
                         }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof KafkaMessageHeader) {
-                KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
+            } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
                     if (storeLogData.getConsumerRecord() != null) {
                         Header header = storeLogData.getConsumerRecord()
@@ -187,8 +186,7 @@ public class StoreLogDataMapper {
         for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
-            if (annotation instanceof Value) {
-                Value valueAnnotation = (Value) annotation;
+            if (annotation instanceof Value valueAnnotation) {
                 if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
                     injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
                 } else {
@@ -238,7 +236,7 @@ public class StoreLogDataMapper {
             converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
-                    String.format("Invalid annotation is used! Property 'converter' is not found in '%s'.",
+                    "Invalid annotation is used! Property 'converter' is not found in '%s'.".formatted(
                             annotation.getClass().getTypeName()));
         }
 
@@ -285,11 +283,9 @@ public class StoreLogDataMapper {
     }
 
     private String getAnnotatedElementRef(AnnotatedElement annotatedElement) {
-        if (annotatedElement instanceof Method) {
-            Method method = (Method) annotatedElement;
+        if (annotatedElement instanceof Method method) {
             return MethodUtil.printQualifiedMethodName(method);
-        } else if (annotatedElement instanceof Field) {
-            Field field = (Field) annotatedElement;
+        } else if (annotatedElement instanceof Field field) {
             return field.getDeclaringClass().getTypeName() + "." + field.getName();
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
@@ -298,8 +294,7 @@ public class StoreLogDataMapper {
     private void setValueWithAnnotatedElement(Object target,
                                               AnnotatedElement annotatedElement,
                                               Object value) throws Exception {
-        if (annotatedElement instanceof Method) {
-            Method method = (Method) annotatedElement;
+        if (annotatedElement instanceof Method method) {
             if (method.getParameterCount() == 0 && method.getName().startsWith("get")) {
                 try {
                     Method m = method.getDeclaringClass()
@@ -313,8 +308,8 @@ public class StoreLogDataMapper {
             }
             method.invoke(target, value);
             return;
-        } else if (annotatedElement instanceof Field) {
-            ClassUtils.set(target, ((Field) annotatedElement).getName(), value);
+        } else if (annotatedElement instanceof Field field) {
+            ClassUtils.set(target, field.getName(), value);
             return;
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
@@ -322,18 +317,14 @@ public class StoreLogDataMapper {
 
     private boolean matchPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType[] value,
                                        PublisherType publisherType) {
-        switch (publisherType) {
-            case KAFKA:
-                return Arrays.asList(value)
+        return switch (publisherType) {
+            case KAFKA -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA);
-            case WEBSERVICE:
-                return Arrays.asList(value)
+            case WEBSERVICE -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE);
-            case RESTFUL:
-                return Arrays.asList(value)
+            case RESTFUL -> Arrays.asList(value)
                         .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL);
-            default:
-                return false;
-        }
+            default -> false;
+        };
     }
 }

@@ -541,7 +541,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             List<CellMetaInfo> metaInfoList = MetaInfoReaderUtils.getMetaInfo(funcRow.getSourceCodeModule(),
                     funcRow.getMethod());
             // Decision table always contains 1 meta info
-            setPreparedMetaInfo(row, col, metaInfoList.get(0));
+            setPreparedMetaInfo(row, col, metaInfoList.getFirst());
         }
 
         // Condition/Action type definition

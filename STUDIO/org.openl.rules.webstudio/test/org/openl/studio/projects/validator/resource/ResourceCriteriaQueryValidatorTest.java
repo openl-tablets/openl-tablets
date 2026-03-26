@@ -176,7 +176,7 @@ class ResourceCriteriaQueryValidatorTest extends AbstractConstraintValidatorTest
         BindingResult result = validateAndGetResult(query, validator);
         assertEquals(1, result.getFieldErrorCount());
         assertFieldError("basePath",
-                String.format("The base path '%s' is not valid.", basePath),
+                "The base path '%s' is not valid.".formatted(basePath),
                 basePath,
                 result.getFieldError("basePath"));
     }

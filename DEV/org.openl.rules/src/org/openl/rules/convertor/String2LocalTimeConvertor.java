@@ -29,7 +29,7 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
                 // Loop on
             }
         }
-        throw new IllegalArgumentException(String.format("Cannot convert '%s' to LocalTime type", data));
+        throw new IllegalArgumentException("Cannot convert '%s' to LocalTime type".formatted(data));
     }
 
 }

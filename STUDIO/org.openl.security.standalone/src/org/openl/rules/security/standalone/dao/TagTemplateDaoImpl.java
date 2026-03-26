@@ -19,7 +19,7 @@ public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements
         Root<TagTemplate> u = criteria.from(TagTemplate.class);
         criteria.select(u).where(builder.equal(u.get("template"), template)).distinct(true);
         List<TagTemplate> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override

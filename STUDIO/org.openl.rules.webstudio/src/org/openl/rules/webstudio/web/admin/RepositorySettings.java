@@ -277,7 +277,6 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
 
     public void setBasePath(String basePath) {
         this.basePath = basePath.isEmpty() || basePath.endsWith("/") ? basePath : (basePath + "/");
-        ;
     }
 
     private void load(PropertiesHolder properties) {

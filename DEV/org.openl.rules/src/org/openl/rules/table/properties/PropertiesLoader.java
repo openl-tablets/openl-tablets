@@ -231,7 +231,7 @@ public class PropertiesLoader {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().containsKey(key)) {
                         bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage(
-                                String.format("Property '%s' is already defined via external properties.", key)));
+                                "Property '%s' is already defined via external properties.".formatted(key)));
                     }
                 }
             }

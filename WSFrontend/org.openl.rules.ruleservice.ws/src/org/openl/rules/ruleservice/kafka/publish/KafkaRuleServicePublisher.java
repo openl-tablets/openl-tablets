@@ -119,12 +119,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                     .collect(Collectors.joining(",", "[", "]"));
             if (config instanceof KafkaMethodConfig kafkaMethodConfig) {
                 throw new KafkaServiceConfigurationException(
-                        String.format("Missed mandatory configs %s in method '%s' configuration.",
+                        "Missed mandatory configs %s in method '%s' configuration.".formatted(
                                 missedRequiredFieldsString,
                                 kafkaMethodConfig.getMethodName()));
             } else {
-                throw new KafkaServiceConfigurationException(String
-                        .format("Missed mandatory config %s in the service configuration.", missedRequiredFieldsString));
+                throw new KafkaServiceConfigurationException("Missed mandatory config %s in the service configuration."
+                        .formatted(missedRequiredFieldsString));
             }
         }
     }
@@ -391,13 +391,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
                 log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
-                throw new KafkaServiceConfigurationException(String.format(
-                        "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
+                throw new KafkaServiceConfigurationException("Failed to deploy service '%s'. Kafka method configs are not found in the configuration.".formatted(
                         service.getDeployPath()));
             }
         } catch (Exception t) {
             throw new RuleServiceDeployException(
-                    String.format("Failed to deploy service '%s'.", service.getDeployPath()),
+                    "Failed to deploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -466,7 +465,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'", service.getDeployPath()));
+                    "There is no running service with name '%s'".formatted(service.getDeployPath()));
         }
         try {
             if (stopAndClose(triple)) {
@@ -477,7 +476,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             runningServices.remove(service);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(
-                    String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+                    "Failed to undeploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         }
     }

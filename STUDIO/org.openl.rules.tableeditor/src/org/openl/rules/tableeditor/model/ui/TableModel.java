@@ -117,27 +117,27 @@ public class TableModel {
         CellModel cm;
         switch (border) {
             case ICellStyle.TOP:
-                if (icm instanceof CellModel) {
-                    return (CellModel) icm;
+                if (icm instanceof CellModel model) {
+                    return model;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
                 return cm.getRow() == row ? cm : null;
             case ICellStyle.LEFT:
-                if (icm instanceof CellModel) {
-                    return (CellModel) icm;
+                if (icm instanceof CellModel model) {
+                    return model;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
                 return cm.getColumn() == col ? cm : null;
             case ICellStyle.RIGHT:
-                if (icm instanceof CellModel) {
-                    cm = (CellModel) icm;
+                if (icm instanceof CellModel model) {
+                    cm = model;
                     return cm.getColspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
                 return cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
             case ICellStyle.BOTTOM:
-                if (icm instanceof CellModel) {
-                    cm = (CellModel) icm;
+                if (icm instanceof CellModel model) {
+                    cm = model;
                     return cm.getRowspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();

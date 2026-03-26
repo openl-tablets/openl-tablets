@@ -33,7 +33,7 @@ public class ExcelDiffController extends AbstractDiffController {
     @Override
     public String compare() {
         if (filesToCompare.size() >= MAX_FILES_COUNT) {
-            File file1 = filesToCompare.get(0);
+            File file1 = filesToCompare.getFirst();
             File file2 = filesToCompare.get(1);
             filesToCompare.clear();
 

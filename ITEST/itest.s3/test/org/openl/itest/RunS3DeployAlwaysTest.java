@@ -3,7 +3,7 @@ package org.openl.itest;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ public class RunS3DeployAlwaysTest extends AbstractS3Test {
     @Test
     public void testWhenDeployJarsAlways() throws Exception {
         try (var deployer = new RulesDeployerService(config::get)) {
-            deployer.deploy(Paths.get("test-resources/openl/multiple-deployment-datasource.zip").toFile(), false);
+            deployer.deploy(Path.of("test-resources/openl/multiple-deployment-datasource.zip").toFile(), false);
         }
         verifyS3Repository();
         final var beforeStartProject1 = s3Client.headObject(it -> it.bucket(bucketName).key("deploy/multiple-deployment-datasource/project1"));

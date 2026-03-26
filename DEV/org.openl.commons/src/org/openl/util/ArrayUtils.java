@@ -12,24 +12,24 @@ public final class ArrayUtils {
 
     public static boolean deepEquals(Object e1, Object e2) {
         boolean eq;
-        if (e1 instanceof Object[] && e2 instanceof Object[]) {
-            eq = Arrays.deepEquals((Object[]) e1, (Object[]) e2);
-        } else if (e1 instanceof byte[] && e2 instanceof byte[]) {
-            eq = Arrays.equals((byte[]) e1, (byte[]) e2);
-        } else if (e1 instanceof short[] && e2 instanceof short[]) {
-            eq = Arrays.equals((short[]) e1, (short[]) e2);
-        } else if (e1 instanceof int[] && e2 instanceof int[]) {
-            eq = Arrays.equals((int[]) e1, (int[]) e2);
-        } else if (e1 instanceof long[] && e2 instanceof long[]) {
-            eq = Arrays.equals((long[]) e1, (long[]) e2);
-        } else if (e1 instanceof char[] && e2 instanceof char[]) {
-            eq = Arrays.equals((char[]) e1, (char[]) e2);
-        } else if (e1 instanceof float[] && e2 instanceof float[]) {
-            eq = Arrays.equals((float[]) e1, (float[]) e2);
-        } else if (e1 instanceof double[] && e2 instanceof double[]) {
-            eq = Arrays.equals((double[]) e1, (double[]) e2);
-        } else if (e1 instanceof boolean[] && e2 instanceof boolean[]) {
-            eq = Arrays.equals((boolean[]) e1, (boolean[]) e2);
+        if (e1 instanceof Object[] objects && e2 instanceof Object[] objects1) {
+            eq = Arrays.deepEquals(objects, objects1);
+        } else if (e1 instanceof byte[] bytes && e2 instanceof byte[] bytes1) {
+            eq = Arrays.equals(bytes, bytes1);
+        } else if (e1 instanceof short[] shorts && e2 instanceof short[] shorts1) {
+            eq = Arrays.equals(shorts, shorts1);
+        } else if (e1 instanceof int[] ints && e2 instanceof int[] ints1) {
+            eq = Arrays.equals(ints, ints1);
+        } else if (e1 instanceof long[] longs && e2 instanceof long[] longs1) {
+            eq = Arrays.equals(longs, longs1);
+        } else if (e1 instanceof char[] chars && e2 instanceof char[] chars1) {
+            eq = Arrays.equals(chars, chars1);
+        } else if (e1 instanceof float[] floats && e2 instanceof float[] floats1) {
+            eq = Arrays.equals(floats, floats1);
+        } else if (e1 instanceof double[] doubles && e2 instanceof double[] doubles1) {
+            eq = Arrays.equals(doubles, doubles1);
+        } else if (e1 instanceof boolean[] booleans && e2 instanceof boolean[] booleans1) {
+            eq = Arrays.equals(booleans, booleans1);
         } else {
             eq = Objects.equals(e1, e2);
         }

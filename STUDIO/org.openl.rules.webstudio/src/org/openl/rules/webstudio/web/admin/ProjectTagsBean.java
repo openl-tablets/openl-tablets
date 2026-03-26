@@ -76,10 +76,10 @@ public class ProjectTagsBean {
         }
         tags = newTags;
     }
-    
+
     private void initFromOpenedProject() {
         TreeNode selectedNode = this.repositorySelectNodeStateHolder.getSelectedNode();
-        TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
+        TreeProject selectedProject = selectedNode instanceof TreeProject tp ? tp : null;
 
         if (selectedProject != null) {
             RulesProject project = (RulesProject) selectedProject.getData();
@@ -130,7 +130,7 @@ public class ProjectTagsBean {
     public List<Tag> getTagValues(String tagType) {
         return tagService.getByTagType(tagType);
     }
-    
+
     public List<TagInfo> getNotApplicableTagTypes() {
         return notApplicableTagTypes;
     }
@@ -160,7 +160,7 @@ public class ProjectTagsBean {
                             "Tag cannot contain forbidden characters (" + NameChecker
                                     .FORBIDDEN_CHARS_STRING + "), start with space, end with space or dot.");
                     WebStudioUtils.validate(type.isExtensible(),
-                            String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
+                            "'%s' is not allowed value for tag type '%s'.".formatted(tagName, type.getName()));
                 }
             }
         });
@@ -200,7 +200,7 @@ public class ProjectTagsBean {
         createExtensibleTags();
         return tags.stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
     }
-    
+
     public void clearTags() {
         this.tags = Collections.emptyList();
         this.notApplicableTagTypes = Collections.emptyList();
@@ -228,10 +228,10 @@ public class ProjectTagsBean {
                     }
                 }
             }
-            
+
             if (tag != null) {
                 tags.add(tag);
-            } 
+            }
         }
     }
 }

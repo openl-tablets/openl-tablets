@@ -175,10 +175,10 @@ public class DOMReader implements ExcelReader {
         try {
             initializeWorkbook();
 
-            if (workbook instanceof XSSFWorkbook) {
-                return ((XSSFWorkbook) workbook).isDate1904();
-            } else if (workbook instanceof HSSFWorkbook) {
-                return ((HSSFWorkbook) workbook).getInternalWorkbook().isUsing1904DateWindowing();
+            if (workbook instanceof XSSFWorkbook fWorkbook1) {
+                return fWorkbook1.isDate1904();
+            } else if (workbook instanceof HSSFWorkbook fWorkbook) {
+                return fWorkbook.getInternalWorkbook().isUsing1904DateWindowing();
             }
 
             throw new UnsupportedOperationException("Unsupported workbook type");

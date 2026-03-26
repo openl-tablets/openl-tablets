@@ -269,8 +269,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
-                        String message = String
-                                .format("Failed to load module '%s': %s", module.getName(), openLMessage.getSummary());
+                        String message = "Failed to load module '%s': %s"
+                                .formatted(module.getName(), openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -335,8 +335,8 @@ public final class TestMojo extends BaseOpenLMojo {
             for (TestSuiteMethod test : tests) {
                 String moduleName = test.getModuleName();
                 try {
-                    String moduleInfo = moduleName == null ? "" : String.format(" from module '%s'", moduleName);
-                    info("Running ", String.format("'%s'", test.getName()), moduleInfo, "...");
+                    String moduleInfo = moduleName == null ? "" : " from module '%s'".formatted(moduleName);
+                    info("Running ", "'%s'".formatted(test.getName()), moduleInfo, "...");
                     TestUnitsResults result;
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                     try {
@@ -508,8 +508,8 @@ public final class TestMojo extends BaseOpenLMojo {
 
     private String toString(Object value) {
         if (value != null && value.getClass().isArray()) {
-            if (value instanceof Object[]) {
-                return Arrays.deepToString((Object[]) value);
+            if (value instanceof Object[] objects) {
+                return Arrays.deepToString(objects);
             } else {
                 var string = Arrays.deepToString(new Object[]{value});
                 return string.substring(1, string.length() - 1); // Remove the first and the last brackets in [[1, 2, 3]]
@@ -535,7 +535,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     float multiplier = Float.parseFloat(threadCount.substring(0, threadCount.length() - 1));
                     threads = (int) (multiplier * Runtime.getRuntime().availableProcessors());
                 } else {
-                    throw new IllegalArgumentException(String.format("Incorrect thread count '%s'", threadCount));
+                    throw new IllegalArgumentException("Incorrect thread count '%s'".formatted(threadCount));
                 }
                 break;
         }

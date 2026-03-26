@@ -27,10 +27,10 @@ final class OpenAPIResolver {
         return openAPIRefResolver.resolve(obj, getRefFunc, () -> {
             if (context.isTypeValidationInProgress()) {
                 OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                        String.format("Invalid $ref '%s' is used in the OpenAPI file.", getRefFunc.apply(obj)));
+                        "Invalid $ref '%s' is used in the OpenAPI file.".formatted(getRefFunc.apply(obj)));
             } else {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                        String.format("Invalid $ref '%s' is used in the OpenAPI file.", getRefFunc.apply(obj)));
+                        "Invalid $ref '%s' is used in the OpenAPI file.".formatted(getRefFunc.apply(obj)));
             }
         });
     }

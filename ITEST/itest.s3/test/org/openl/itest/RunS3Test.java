@@ -2,7 +2,7 @@ package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,7 @@ public class RunS3Test extends AbstractS3Test {
             client.test("test-resources-smoke/stage1");
 
             try (var deployer = new RulesDeployerService(config::get)) {
-                deployer.deploy(Paths.get("test-resources-smoke/stage2/rules-to-deploy-datasource.zip").toFile(), true);
+                deployer.deploy(Path.of("test-resources-smoke/stage2/rules-to-deploy-datasource.zip").toFile(), true);
             }
 
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",

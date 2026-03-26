@@ -275,7 +275,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     protected FileData getFileData(Path file) throws IOException {
         if (!Files.exists(file)) {
-            throw new FileNotFoundException(String.format("File '%s' does not exist.", file));
+            throw new FileNotFoundException("File '%s' does not exist.".formatted(file));
         }
         var data = new FileData();
 

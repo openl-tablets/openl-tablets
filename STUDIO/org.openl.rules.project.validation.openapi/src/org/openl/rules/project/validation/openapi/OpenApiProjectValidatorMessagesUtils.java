@@ -51,12 +51,11 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     @SuppressWarnings("rawtypes")
     private static void addMethodError(Context context, IOpenMethod method, String summary) {
-        if (method instanceof OpenMethodDispatcher) {
-            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+        if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
-                if (context.getField() != null && m instanceof Spreadsheet && m
+                if (context.getField() != null && m instanceof Spreadsheet spreadsheet && m
                         .getType() instanceof CustomSpreadsheetResultOpenClass) {
-                    IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField((Spreadsheet) m,
+                    IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField(spreadsheet,
                             context.getField());
                     if (openFieldInSpr != null) {
                         if (context.getIsIncompatibleTypesPredicate() != null) {
@@ -115,8 +114,7 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     public static void addTypeError(Context context, String summary) {
         IOpenClass type = findOpenClass(context);
-        if (type instanceof DatatypeOpenClass) {
-            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) type;
+        if (type instanceof DatatypeOpenClass datatypeOpenClass) {
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
                         datatypeOpenClass.getTableSyntaxNode());
@@ -136,8 +134,7 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     private static TableSyntaxNode extractTableSyntaxNode(IOpenMethod method) {
-        if (method instanceof ExecutableRulesMethod) {
-            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+        if (method instanceof ExecutableRulesMethod executableRulesMethod) {
             return executableRulesMethod.getSyntaxNode();
         }
         return null;

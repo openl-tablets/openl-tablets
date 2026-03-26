@@ -101,7 +101,7 @@ public class AlgorithmCompiler {
                                                CompileContext methodContext,
                                                IBindingContext bindingContext) {
         // method name will be at every label
-        for (StringValue label : nodesToCompile.get(0).getLabels()) {
+        for (StringValue label : nodesToCompile.getFirst().getLabels()) {
             String methodName = label.getValue();
             IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName,
                     returnType,
@@ -142,7 +142,7 @@ public class AlgorithmCompiler {
                     bindingContext);
         } else {
             // TODO add support of specification instruction
-            returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), bindingContext);
+            returnType = discoverFunctionType(nodesToCompile.getFirst().getChildren(), bindingContext);
         }
         createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext(), bindingContext);
 
@@ -195,7 +195,7 @@ public class AlgorithmCompiler {
                 AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
                 bindingContext);
         if (!iterableArrayType.isArray()) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getAction()
                     .asSourceCodeModule();
@@ -365,11 +365,11 @@ public class AlgorithmCompiler {
         if (operationType.startsWith("!") && !operationType.equals(OperationType.CHECK_LABEL.toString())) {
             OperationPreprocessor preprocessor = operationPreprocessors.get(operationType);
             if (preprocessor == null) {
-                IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+                IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
-                BindHelper.processError(String.format("Unknown compilation instruction %s", operationType),
+                BindHelper.processError("Unknown compilation instruction %s".formatted(operationType),
                         errorSource,
                         bindingContext);
             } else {

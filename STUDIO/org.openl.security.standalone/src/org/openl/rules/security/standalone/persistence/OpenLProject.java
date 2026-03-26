@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import jakarta.persistence.Table;
 @Table(name = "OpenL_Projects")
 @Deprecated(since = "5.27.8")
 public class OpenLProject implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String repositoryId;

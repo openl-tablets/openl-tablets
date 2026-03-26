@@ -44,7 +44,7 @@ public class PageValueArgumentResolver extends AbstractPaginationValueArgumentRe
         if (page < 0) {
             Method annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
-                    String.format("Invalid default page number configured for method '%s'. Must not be less than zero.",
+                    "Invalid default page number configured for method '%s'. Must not be less than zero.".formatted(
                             annotatedMethod));
         }
         return Page.of(page, getDefaultPageSize(parameter, defaultAnno));

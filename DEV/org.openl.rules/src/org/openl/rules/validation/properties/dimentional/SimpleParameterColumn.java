@@ -29,7 +29,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
             result = getMatchByDefaultCodeExpression(matchExpression) + matchExpression.getMatchExpression()
                     .getCodeExpression(parameterName);
         } else {
-            String message = String.format("Cannot create expression for '%s' property validation.", propertyName);
+            String message = "Cannot create expression for '%s' property validation.".formatted(propertyName);
             throw new OpenlNotCheckedException(message);
         }
         return result;
@@ -43,8 +43,8 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
     @Override
     public String getParameterDeclaration() {
         String propertyTypeName = getProperty().getType().getInstanceClass().getSimpleName();
-        return String
-                .format("%s %s%s", propertyTypeName, getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
+        return "%s %s%s"
+                .formatted(propertyTypeName, getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
     }
 
     @Override

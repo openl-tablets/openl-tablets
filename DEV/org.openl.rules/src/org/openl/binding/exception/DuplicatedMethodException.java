@@ -6,6 +6,8 @@
 
 package org.openl.binding.exception;
 
+import java.io.Serial;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenMethod;
@@ -15,6 +17,7 @@ import org.openl.types.IOpenMethod;
  */
 public class DuplicatedMethodException extends OpenlNotCheckedException {
 
+    @Serial
     private static final long serialVersionUID = 4145939391957085009L;
 
     private final IOpenMethod existedMethod;

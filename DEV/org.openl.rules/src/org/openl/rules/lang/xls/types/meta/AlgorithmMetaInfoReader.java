@@ -90,15 +90,15 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
 
     private CellMetaInfo checkMetaInfo(int row, int col, RuntimeOperation step, StringValue algorithmCell) {
         IOpenSourceCodeModule sourceModule = algorithmCell.getMetaInfo().getSource();
-        if (sourceModule instanceof GridCellSourceCodeModule) {
-            ICell cell = ((GridCellSourceCodeModule) sourceModule).getCell();
+        if (sourceModule instanceof GridCellSourceCodeModule module) {
+            ICell cell = module.getCell();
             if (isNeededCell(cell, row, col)) {
                 // Found the cell. Return either meta info or null.
-                if (step instanceof OpenLEvaluationOperation) {
-                    IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
-                    if (methodCaller instanceof CompositeMethod) {
+                if (step instanceof OpenLEvaluationOperation operation) {
+                    IMethodCaller methodCaller = operation.getOpenLStatement();
+                    if (methodCaller instanceof CompositeMethod method) {
                         List<NodeUsage> nodeUsages = MetaInfoReaderUtils
-                                .getNodeUsages((CompositeMethod) methodCaller, sourceModule.getCode(), 0);
+                                .getNodeUsages(method, sourceModule.getCode(), 0);
 
                         return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                     }

@@ -57,7 +57,7 @@ public class BenchmarkBean {
                     testInfo,
                     bu, ParameterWithValueDeclaration.EMPTY_ARRAY,
                     testSuite.getNumberOfTests());
-            benchmarks.add(0, biv);
+            benchmarks.addFirst(biv);
         } else {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
@@ -67,7 +67,7 @@ public class BenchmarkBean {
 
                 ParameterWithValueDeclaration[] params = testSuite.getTest(i).getExecutionParams();
                 BenchmarkInfoView biv = runBenchmark(tableId, testName, testInfo, bu, params, 1);
-                benchmarks.add(0, biv);
+                benchmarks.addFirst(biv);
             }
         }
         comparedBenchmarks = Collections.emptyList();
@@ -133,7 +133,7 @@ public class BenchmarkBean {
 
     public String getComparedRatio(BenchmarkInfoView bi) {
         double rated = bi.drunsunitsec();
-        double base = benchmarkOrders.get(0).drunsunitsec();
+        double base = benchmarkOrders.getFirst().drunsunitsec();
         return BenchmarkInfoView.printDouble(base / rated, 2);
     }
 

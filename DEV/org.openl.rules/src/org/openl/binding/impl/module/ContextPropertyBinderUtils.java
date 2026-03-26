@@ -20,7 +20,7 @@ public final class ContextPropertyBinderUtils {
         String errorMessage = null;
         Class<?> contextPropertyClass = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextProperty);
         if (contextPropertyClass == null) {
-            errorMessage = String.format("Property '%s' is not found in the context. Available properties: [%s].",
+            errorMessage = "Property '%s' is not found in the context. Available properties: [%s].".formatted(
                     contextProperty,
                     String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet()));
         } else {
@@ -31,8 +31,7 @@ public final class ContextPropertyBinderUtils {
             } catch (NullPointerException ignored) {
             }
             if (isNonValidCastForContextProperty(openCast)) {
-                errorMessage = String.format(
-                        "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                errorMessage = "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.".formatted(
                         contextProperty,
                         expectedType.getName(),
                         contextPropertyType.getName());
@@ -47,8 +46,7 @@ public final class ContextPropertyBinderUtils {
     }
 
     private static IOpenCast extractIfNestedOpenCast(IOpenCast openCast) {
-        if (openCast instanceof INestedCastOpenCast) {
-            INestedCastOpenCast nestedCastOpenCast = (INestedCastOpenCast) openCast;
+        if (openCast instanceof INestedCastOpenCast nestedCastOpenCast) {
             if (nestedCastOpenCast.hasNestedOpenCast()) {
                 return nestedCastOpenCast.getNestedOpenCast();
             }

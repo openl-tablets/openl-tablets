@@ -125,8 +125,8 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private static void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
-        if (treeComponent instanceof UITree) {
-            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        if (treeComponent instanceof UITree tree) {
+            tree.setSelection(Collections.emptyList());
         }
     }
 
@@ -136,7 +136,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         }
         File ourFile = FileTool.toTempFile(item.getStream(), FileUtils.getName(fullName));
         if (ourFile == null) {
-            throw new FileNotFoundException(String.format("Cannot create temp file for '%s'", fullName));
+            throw new FileNotFoundException("Cannot create temp file for '%s'".formatted(fullName));
         }
         addTempFile(ourFile);
         return ourFile;

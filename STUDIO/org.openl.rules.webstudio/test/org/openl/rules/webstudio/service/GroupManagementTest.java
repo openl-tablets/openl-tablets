@@ -393,14 +393,14 @@ public class GroupManagementTest {
         List<R> rest = new ArrayList<>(transformedActual);
         rest.removeAll(expected);
         if (!rest.isEmpty()) {
-            fail(String.format("Unexpected items: %s",
+            fail("Unexpected items: %s".formatted(
                     rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
         }
 
         rest = new ArrayList<>(expected);
         rest.removeAll(transformedActual);
         if (!rest.isEmpty()) {
-            fail(String.format("Missed expected items: %s",
+            fail("Missed expected items: %s".formatted(
                     rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
         }
     }
@@ -409,7 +409,7 @@ public class GroupManagementTest {
         Set<GrantedAuthority> res = new HashSet<>();
         Stream.of(defaultGroups).map(SimpleGrantedAuthority::new).forEach(res::add);
         for (int i = 0; i < count; i++) {
-            String name = String.format(RND_GROUP, i);
+            String name = RND_GROUP.formatted(i);
             res.add(new SimpleGrantedAuthority(name));
         }
         return Collections.unmodifiableSet(res);

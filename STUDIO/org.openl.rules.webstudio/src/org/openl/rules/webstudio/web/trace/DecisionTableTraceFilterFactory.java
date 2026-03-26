@@ -61,8 +61,7 @@ public class DecisionTableTraceFilterFactory {
             // TODO: Remove class casting
             List<IGridRegion> regions = RegionsExtractor.getGridRegions(child);
 
-            if (child instanceof DTRuleTraceObject) {
-                DTRuleTraceObject conditionTrace = (DTRuleTraceObject) child;
+            if (child instanceof DTRuleTraceObject conditionTrace) {
                 indexedRegions.addAll(regions);
                 if (conditionTrace.isSuccessful()) {
                     successfulChecks.addAll(regions);

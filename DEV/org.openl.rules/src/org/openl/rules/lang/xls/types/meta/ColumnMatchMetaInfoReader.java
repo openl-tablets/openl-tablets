@@ -48,7 +48,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
     private CellMetaInfo checkSpecialRowMetaInfo(int rowNum, int colNum) {
         ColumnMatch columnMatch = getBoundNode().getColumnMatch();
 
-        TableRow row0 = columnMatch.getRows().get(0);
+        TableRow row0 = columnMatch.getRows().getFirst();
 
         CellMetaInfo metaInfo = searchMetaInfo(columnMatch,
                 rowNum,

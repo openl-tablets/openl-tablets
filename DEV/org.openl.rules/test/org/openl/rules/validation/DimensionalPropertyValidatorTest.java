@@ -34,10 +34,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         List<OpenLMessage> warningsForTable = new ArrayList<>();
         Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warnMessages) {
-            if (message instanceof OpenLWarnMessage) {// there can be simple
-                // OpenLMessages with
-                // severity WARN
-                OpenLWarnMessage warning = (OpenLWarnMessage) message;
+            if (message instanceof OpenLWarnMessage warning) {
                 ISyntaxNode syntaxNode = warning.getSource();
                 if (syntaxNode == tsn) {
                     warningsForTable.add(warning);
@@ -51,8 +48,8 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         Collection<IOpenMethod> methods = new ArrayList<>();
         for (IOpenMethod method : openClass.getMethods()) {
             if (methodName.equals(method.getName())) {
-                if (method instanceof OpenMethodDispatcher) {
-                    methods.addAll(((OpenMethodDispatcher) method).getCandidates());
+                if (method instanceof OpenMethodDispatcher dispatcher) {
+                    methods.addAll(dispatcher.getCandidates());
                 } else {
                     methods.add(method);
                 }
@@ -73,7 +70,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
             assertEquals(1, messages.size());
             assertEquals(
                     "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, BY, DZ})",
-                    messages.get(0).getSummary());
+                    messages.getFirst().getSummary());
         }
     }
 
@@ -89,7 +86,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
             assertEquals(1, messages.size());
             assertEquals(
                     "Ambiguous definition of properties values. Details: (country={AL, AR, DZ}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
-                    messages.get(0).getSummary());
+                    messages.getFirst().getSummary());
         }
     }
 

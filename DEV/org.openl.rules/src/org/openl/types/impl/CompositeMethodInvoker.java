@@ -32,8 +32,7 @@ public class CompositeMethodInvoker implements Invokable {
 
     private void optimizeMethodCall(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {
 
-        if (methodBodyBoundNode instanceof BlockNode) {
-            BlockNode mbb = (BlockNode) methodBodyBoundNode;
+        if (methodBodyBoundNode instanceof BlockNode mbb) {
             IBoundNode[] children = mbb.getChildren();
             if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature()
                     .getNumberOfParameters()) {
@@ -56,8 +55,8 @@ public class CompositeMethodInvoker implements Invokable {
     }
 
     private static void clearSyntaxNodes(IBoundNode boundNode) {
-        if (boundNode instanceof ABoundNode) {
-            ((ABoundNode) boundNode).setSyntaxNode(null);
+        if (boundNode instanceof ABoundNode node) {
+            node.setSyntaxNode(null);
         }
         IBoundNode[] children = boundNode.getChildren();
         if (children != null) {

@@ -113,8 +113,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                                 isCompatibleParameter = true;
                                             }
                                         } catch (ClassNotFoundException e) {
-                                            throw new InstantiationException(String.format(
-                                                    "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.",
+                                            throw new InstantiationException("Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.".formatted(
                                                     rulesType.value()));
                                         }
                                     }
@@ -128,8 +127,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                 if (templateMethod == null) {
                                     templateMethod = method;
                                 } else {
-                                    throw new InstantiationException(String.format(
-                                            "Failed to apply annotation template class to the service class. It is a non-obvious choice of '%s' method.",
+                                    throw new InstantiationException("Failed to apply annotation template class to the service class. It is a non-obvious choice of '%s' method.".formatted(
                                             MethodUtil.printMethod(method.getName(), method.getParameterTypes())));
                                 }
                             }

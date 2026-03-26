@@ -125,8 +125,7 @@ public class InterfaceClassGenerator {
      * <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member, Map<IOpenClass, Boolean> validationMap) {
-        if (member instanceof DataOpenField) {
-            DataOpenField dataOpenField = (DataOpenField) member;
+        if (member instanceof DataOpenField dataOpenField) {
             if (XlsNodeTypes.XLS_RUN_METHOD.equals(dataOpenField.getNodeType()) || XlsNodeTypes.XLS_TEST_METHOD
                     .equals(dataOpenField.getNodeType())) {
                 return true;
@@ -135,8 +134,7 @@ public class InterfaceClassGenerator {
         if (isInvalidType(member.getType(), validationMap)) {
             return true;
         }
-        if (member instanceof IOpenMethod) {
-            IOpenMethod openMethod = (IOpenMethod) member;
+        if (member instanceof IOpenMethod openMethod) {
             for (IOpenClass parameterType : openMethod.getSignature().getParameterTypes()) {
                 if (isInvalidType(parameterType, validationMap)) {
                     return true;

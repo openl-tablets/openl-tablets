@@ -262,8 +262,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
             AProjectArtefact artefact = project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-            if (artefact instanceof AProjectResource) {
-                try (InputStream content = ((AProjectResource) artefact).getContent()) {
+            if (artefact instanceof AProjectResource resource) {
+                try (InputStream content = resource.getContent()) {
                     return getActualName(content);
                 }
             }

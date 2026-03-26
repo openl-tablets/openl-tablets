@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -153,8 +152,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
-                        String message = String
-                                .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
+                        String message = "Failed to load module '%s': %s"
+                                .formatted(moduleName, openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -233,13 +232,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 // thru DomainOpenClass (skip java code generation for alias
                 // types, csr types).
                 //
-                if (openClass instanceof DatatypeOpenClass && ((DatatypeOpenClass) openClass).getBytecode() != null) {
+                if (openClass instanceof DatatypeOpenClass class1 && class1.getBytecode() != null) {
                     Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
                     info("Java Bean for Datatype: " + dataType);
-                    Path filePath = Paths.get(classesDirectory, dataType.replace('.', '/') + ".class");
+                    Path filePath = Path.of(classesDirectory, dataType.replace('.', '/') + ".class");
                     Files.createDirectories(filePath.getParent());
-                    Files.write(filePath, ((DatatypeOpenClass) openClass).getBytecode());
+                    Files.write(filePath, class1.getBytecode());
                 }
             }
         }
@@ -250,7 +249,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         if (!writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
             Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
             info("Java Bean for Spreadsheet Result: " + cls.getName());
-            Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
+            Path filePath = Path.of(classesDirectory, cls.getName().replace('.', '/') + ".class");
             Files.createDirectories(filePath.getParent());
             Files.write(filePath, customSpreadsheetResultOpenClass.getBeanClassByteCode());
             writtenSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
@@ -275,8 +274,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             Set<IOpenClass> writtenSpreadsheetResultOpenClasses = new HashSet<>();
             for (IOpenClass openClass : xlsModuleOpenClass.getTypes()) {
                 // Skip java code generation for other types
-                if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                if (openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass,
                             writtenSpreadsheetResultOpenClasses);
                 }

@@ -32,7 +32,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
                 return df.parse(data);
             } catch (ParseException e) {
                 throw new IllegalArgumentException(
-                        String.format("Cannot convert '%s' to date type using: '%s' format", data, format));
+                        "Cannot convert '%s' to date type using: '%s' format".formatted(data, format));
             }
         }
 
@@ -71,7 +71,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
         cal = parsePattern(data, patternBuilder);
         if (cal != null) return cal;
 
-        throw new IllegalArgumentException(String.format("Cannot convert '%s' to Date type", data));
+        throw new IllegalArgumentException("Cannot convert '%s' to Date type".formatted(data));
     }
 
     private static Date parsePattern(String data, DateTimeFormatterBuilder patternBuilder) {

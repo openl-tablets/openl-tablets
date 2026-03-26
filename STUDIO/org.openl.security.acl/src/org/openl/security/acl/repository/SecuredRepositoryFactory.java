@@ -13,10 +13,10 @@ public final class SecuredRepositoryFactory {
         if (repository == null) {
             return null;
         }
-        if (repository instanceof MappedRepository) {
-            return new SecureMappedRepository((MappedRepository) repository, simpleRepositoryAclService);
-        } else if (repository instanceof BranchRepository) {
-            return new SecureBranchRepository((BranchRepository) repository, simpleRepositoryAclService);
+        if (repository instanceof MappedRepository mappedRepository) {
+            return new SecureMappedRepository(mappedRepository, simpleRepositoryAclService);
+        } else if (repository instanceof BranchRepository branchRepository) {
+            return new SecureBranchRepository(branchRepository, simpleRepositoryAclService);
         } else {
             return new SecureRepository(repository, simpleRepositoryAclService);
         }

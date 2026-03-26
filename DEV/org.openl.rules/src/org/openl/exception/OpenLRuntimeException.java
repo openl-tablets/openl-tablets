@@ -2,6 +2,7 @@ package org.openl.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.io.StringWriter;
 import java.util.LinkedList;
 
@@ -18,6 +19,7 @@ import org.openl.util.text.ILocation;
  */
 public class OpenLRuntimeException extends RuntimeException implements OpenLException {
 
+    @Serial
     private static final long serialVersionUID = -8422089115244904493L;
 
     private final LinkedList<IBoundNode> openlCallStack = new LinkedList<>();

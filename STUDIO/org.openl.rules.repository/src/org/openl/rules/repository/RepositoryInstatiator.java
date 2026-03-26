@@ -33,8 +33,7 @@ public class RepositoryInstatiator {
         String factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
             throw new IllegalArgumentException(
-                    String.format(
-                            "Invalid configuration for repository %s",
+                    "Invalid configuration for repository %s".formatted(
                             prefix.substring(prefix.indexOf(".") + 1)
                     )
             );
@@ -58,8 +57,7 @@ public class RepositoryInstatiator {
                 }));
             }
         }
-        throw new IllegalArgumentException(String.format(
-                "Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
+        throw new IllegalArgumentException("Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s".formatted(
                 factoryId,
                 prefix, String.join(", ", repos)));
     }
@@ -94,7 +92,7 @@ public class RepositoryInstatiator {
                                 method.invoke(instance, value);
                             } catch (Exception e) {
                                 throw new IllegalStateException(
-                                        String.format("Failed to invoke method '%s.%s(%s)' with value '%s'.",
+                                        "Failed to invoke method '%s.%s(%s)' with value '%s'.".formatted(
                                                 clazz.getTypeName(),
                                                 method.getName(),
                                                 type.getSimpleName(),

@@ -47,8 +47,7 @@ public class ArrayHolder {
                     Object array = componentType.getAggregateInfo()
                             .makeIndexedAggregate(componentType.getComponentClass(), values2[i].length);
                     for (int j = 0; j < values2[i].length; j++) {
-                        if (values2[i][j] instanceof CompositeMethod) {
-                            CompositeMethod compositeMethod = (CompositeMethod) values2[i][j];
+                        if (values2[i][j] instanceof CompositeMethod compositeMethod) {
                             Object result = compositeMethod.invoke(target, dtParams, env);
                             Array.set(array, j, result);
                         } else {
@@ -64,8 +63,7 @@ public class ArrayHolder {
         } else {
             Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values1.length);
             for (int i = 0; i < values1.length; i++) {
-                if (values1[i] instanceof CompositeMethod) {
-                    CompositeMethod compositeMethod = (CompositeMethod) values1[i];
+                if (values1[i] instanceof CompositeMethod compositeMethod) {
                     Object result = compositeMethod.invoke(target, dtParams, env);
                     Array.set(res, i, result);
                 } else {
@@ -80,15 +78,15 @@ public class ArrayHolder {
         if (values2 != null) {
             for (Object[] array : values2) {
                 for (Object method : array) {
-                    if (method instanceof CompositeMethod) {
-                        ((CompositeMethod) method).updateDependency(dependencies);
+                    if (method instanceof CompositeMethod compositeMethod) {
+                        compositeMethod.updateDependency(dependencies);
                     }
                 }
             }
         } else {
             for (Object method : values1) {
-                if (method instanceof CompositeMethod) {
-                    ((CompositeMethod) method).updateDependency(dependencies);
+                if (method instanceof CompositeMethod compositeMethod) {
+                    compositeMethod.updateDependency(dependencies);
                 }
             }
         }

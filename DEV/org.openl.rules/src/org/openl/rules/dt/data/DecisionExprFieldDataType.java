@@ -24,19 +24,18 @@ public class DecisionExprFieldDataType extends ComponentOpenClass {
     @Override
     public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField openField = decisionTableDataType.getField(name, strictMatch);
-        if (openField instanceof DecisionRowField) {
+        if (openField instanceof DecisionRowField decisionRowField) {
             exprParameterFieldIsUsed = true;
-            DecisionRowField decisionRowField = (DecisionRowField) openField;
             return new ExprDecisionRowField(decisionRowField, getOpenl());
-        } else if (openField instanceof ConditionOrActionDirectParameterField) {
+        } else if (openField instanceof ConditionOrActionDirectParameterField field2) {
             exprParameterFieldIsUsed = true;
-            return new ExprParameterField((ConditionOrActionDirectParameterField) openField);
-        } else if (openField instanceof DTColumnsDefinitionField) {
-            return new ExprParameterDTColumnsDefinitionField((DTColumnsDefinitionField) openField);
+            return new ExprParameterField(field2);
+        } else if (openField instanceof DTColumnsDefinitionField field1) {
+            return new ExprParameterDTColumnsDefinitionField(field1);
         } else if (openField == null && !name.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
             openField = decisionTableDataType.getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + name, strictMatch);
-            if (openField instanceof DecisionRowField) {
-                return new ExprConditionOrActionField((DecisionRowField) openField);
+            if (openField instanceof DecisionRowField field) {
+                return new ExprConditionOrActionField(field);
             }
         }
         return null;

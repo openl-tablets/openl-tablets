@@ -65,7 +65,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
             if (StringUtils.isNotBlank(name)) {
                 String version = properties.getVersion();
                 if (StringUtils.isNotBlank(version)) {
-                    return String.format("%s: %s", name, version);
+                    return "%s: %s".formatted(name, version);
                 }
                 return name;
             }

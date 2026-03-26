@@ -75,8 +75,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof ArtefactPathImpl) {
-            ArtefactPathImpl other = (ArtefactPathImpl) obj;
+        if (obj instanceof ArtefactPathImpl other) {
             if (segmentCount() != other.segmentCount()) {
                 return false;
             }

@@ -202,7 +202,7 @@ public class WorkspaceCompileController {
     private String getTestName(IOpenMethod method) {
         String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
-        return String.format("%s (%s)", name, info);
+        return "%s (%s)".formatted(name, info);
     }
 
 }

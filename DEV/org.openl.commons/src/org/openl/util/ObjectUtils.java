@@ -55,15 +55,14 @@ public class ObjectUtils {
                             Constructor<?> constructor = type.getDeclaredConstructor(String.class);
                             return constructor.newInstance(value);
                         } catch (NoSuchMethodException e2) {
-                            throw new IllegalArgumentException(String.format(
-                                    "Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.",
+                            throw new IllegalArgumentException("Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.".formatted(
                                     type.getTypeName()), e2);
                         }
                     }
                 }
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new IllegalArgumentException(
-                        String.format("Cannot convert '%s' string to '%s' type", value, type.getTypeName()),
+                        "Cannot convert '%s' string to '%s' type".formatted(value, type.getTypeName()),
                         e);
             }
         }

@@ -9,13 +9,10 @@ public final class JavaGenericsUtils {
     }
 
     public static String getGenericTypeName(Type type) {
-        if (type instanceof TypeVariable) {
-            @SuppressWarnings("rawtypes")
-            TypeVariable typeVariable = (TypeVariable) type;
+        if (type instanceof TypeVariable typeVariable) {
             return typeVariable.getName();
         }
-        if (type instanceof GenericArrayType) {
-            GenericArrayType genericArrayType = (GenericArrayType) type;
+        if (type instanceof GenericArrayType genericArrayType) {
             return getGenericTypeName(genericArrayType.getGenericComponentType());
         }
         return null;
@@ -25,8 +22,7 @@ public final class JavaGenericsUtils {
         if (type instanceof TypeVariable) {
             return 0;
         }
-        if (type instanceof GenericArrayType) {
-            GenericArrayType genericArrayType = (GenericArrayType) type;
+        if (type instanceof GenericArrayType genericArrayType) {
             return 1 + getGenericTypeDim(genericArrayType.getGenericComponentType());
         }
         return -1;

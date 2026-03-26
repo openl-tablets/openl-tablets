@@ -25,8 +25,7 @@ public class ProjectResourceLoader {
         URL[] urls = projectDescriptor.getClassPathUrls();
         if (includeDependencies) {
             ClassLoader classloader = compiledOpenClass.getClassLoader();
-            if (classloader instanceof URLClassLoader) {
-                URLClassLoader urlClassLoader = (URLClassLoader) classloader;
+            if (classloader instanceof URLClassLoader urlClassLoader) {
                 urls = urlClassLoader.getURLs();
             }
         }

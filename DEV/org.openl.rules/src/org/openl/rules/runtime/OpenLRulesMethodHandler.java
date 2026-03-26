@@ -56,8 +56,8 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
         if (LoggingHandler.isEnabled()) {
             output = new StringBuilder();
             var sourceClass = member.getDeclaringClass();
-            if (sourceClass instanceof XlsModuleOpenClass) {
-                output.append("\tModule Name: ").append(((XlsModuleOpenClass) sourceClass).getModuleName())
+            if (sourceClass instanceof XlsModuleOpenClass class1) {
+                output.append("\tModule Name: ").append(class1.getModuleName())
                         .append('\n');
             }
             output.append("\tMethod: ").append(member.getDisplayName(0));

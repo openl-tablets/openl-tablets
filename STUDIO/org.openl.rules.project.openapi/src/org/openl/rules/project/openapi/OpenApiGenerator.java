@@ -121,12 +121,12 @@ public class OpenApiGenerator {
                 if (serviceClass.isInterface()) {
                     return serviceClass;
                 } else {
-                    throw new OpenApiGenerationException(String
-                            .format("Interface is expected for service class '%s', but class is found.", serviceClassName));
+                    throw new OpenApiGenerationException("Interface is expected for service class '%s', but class is found."
+                            .formatted(serviceClassName));
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                        String.format("An error is occurred during loading a service class '%s'.%s",
+                        "An error is occurred during loading a service class '%s'.%s".formatted(
                                 serviceClassName,
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
@@ -151,15 +151,14 @@ public class OpenApiGenerator {
                             instantiationStrategy.compile().getOpenClass(),
                             resolveServiceClassLoader);
                 } else {
-                    throw new OpenApiGenerationException(String.format(
-                            "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                    throw new OpenApiGenerationException("Interface or abstract class is expected for annotation template class '%s', but class is found.".formatted(
                             templateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                        String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                        "An error is occurred during loading or applying annotation template class '%s'.%s".formatted(
                                 templateClassName,
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }

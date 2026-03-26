@@ -34,18 +34,18 @@ public final class PropertiesHelper {
     }
 
     public static ITableProperties getTableProperties(IOpenMethod method) {
-        if (method instanceof OpenMethodDispatcher) {
-            List<IOpenMethod> methods = ((OpenMethodDispatcher) method).getCandidates();
+        if (method instanceof OpenMethodDispatcher dispatcher) {
+            List<IOpenMethod> methods = dispatcher.getCandidates();
             if (methods.size() == 1) {
-                return getTableProperties(methods.get(0));
+                return getTableProperties(methods.getFirst());
             } else {
                 throw new IllegalArgumentException(
                         "Dispatcher method with more than one candidate does not have properties.");
             }
         }
 
-        if (method instanceof ITablePropertiesMethod) {
-            return ((ITablePropertiesMethod) method).getMethodProperties();
+        if (method instanceof ITablePropertiesMethod propertiesMethod) {
+            return propertiesMethod.getMethodProperties();
         } else if (method.getInfo() != null) {
             TableProperties properties = new TableProperties();
             Map<String, Object> definedInTable = method.getInfo().getProperties();
@@ -65,8 +65,8 @@ public final class PropertiesHelper {
     }
 
     public static Map<String, Object> getMethodProperties(IOpenMethod method) {
-        if (method instanceof ITablePropertiesMethod) {
-            return ((ITablePropertiesMethod) method).getProperties();
+        if (method instanceof ITablePropertiesMethod propertiesMethod) {
+            return propertiesMethod.getProperties();
         } else if (method.getInfo() != null) {
             return method.getInfo().getProperties();
         } else if (method instanceof MethodDelegator) {

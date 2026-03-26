@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,9 +60,9 @@ public class OpenAPIProjectCreatorTest {
     private static final String REPO_ID = UUID.randomUUID().toString();
     private static final String DEFAULT_COMMENT = "";
     private static final String MOCK_MODEL_NAME = "Models";
-    private static final String MOCK_MODEL_PATH = String.format("rules/%s.xlsx", MOCK_MODEL_NAME);
+    private static final String MOCK_MODEL_PATH = "rules/%s.xlsx".formatted(MOCK_MODEL_NAME);
     private static final String MOCK_ALGORITHM_NAME = "Algorithms";
-    private static final String MOCK_ALGORITHM_PATH = String.format("rules/%s.xlsx", MOCK_ALGORITHM_NAME);
+    private static final String MOCK_ALGORITHM_PATH = "rules/%s.xlsx".formatted(MOCK_ALGORITHM_NAME);
     public static final String DIR = "test-resources/openapi/functionality";
     public static final String OPENAPI_OUT = System.getProperty("openapi.output.dir");
 
@@ -167,13 +166,13 @@ public class OpenAPIProjectCreatorTest {
                                 MOCK_MODEL_PATH,
                                 MOCK_ALGORITHM_PATH,
                                 MOCK_MODEL_NAME,
-                                MOCK_ALGORITHM_NAME, 
+                                MOCK_ALGORITHM_NAME,
                                 Collections.emptyMap());
                         projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
                     }
-                    Path projectFolderPath = Paths.get(OPENAPI_OUT, sourceFile);
+                    Path projectFolderPath = Path.of(OPENAPI_OUT, sourceFile);
                     SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                     engineFactoryBuilder.setExecutionMode(false);
                     engineFactoryBuilder.setProject(projectFolderPath.toAbsolutePath().toFile().getPath());

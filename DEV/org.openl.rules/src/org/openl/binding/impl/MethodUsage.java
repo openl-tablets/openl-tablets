@@ -46,12 +46,11 @@ public class MethodUsage implements NodeUsage {
 
     private static String getTableUri(IOpenMethod method) {
         try {
-            if (method instanceof ExecutableRulesMethod) {
-                return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
-            } else if (method instanceof MatchingOpenMethodDispatcher) {
-                MatchingOpenMethodDispatcher matchingOpenMethodDispatcher = (MatchingOpenMethodDispatcher) method;
+            if (method instanceof ExecutableRulesMethod rulesMethod) {
+                return rulesMethod.getSyntaxNode().getUri();
+            } else if (method instanceof MatchingOpenMethodDispatcher matchingOpenMethodDispatcher) {
                 if (matchingOpenMethodDispatcher.getCandidates().size() == 1) {
-                    return getTableUri(matchingOpenMethodDispatcher.getCandidates().get(0));
+                    return getTableUri(matchingOpenMethodDispatcher.getCandidates().getFirst());
                 } else {
                     return matchingOpenMethodDispatcher.getDispatcherTable().getUri();
                 }

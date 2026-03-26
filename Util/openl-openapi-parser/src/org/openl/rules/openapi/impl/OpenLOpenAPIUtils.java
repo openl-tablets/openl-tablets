@@ -407,8 +407,8 @@ public class OpenLOpenAPIUtils {
                 }
             }
         }
-        if (schema instanceof ComposedSchema && visitInterfaces) {
-            List<Schema> oneOf = ((ComposedSchema) schema).getOneOf();
+        if (schema instanceof ComposedSchema composedSchema && visitInterfaces) {
+            List<Schema> oneOf = composedSchema.getOneOf();
             if (oneOf != null) {
                 for (Schema<?> s : oneOf) {
                     visitSchema(openAPIRefResolver,
@@ -420,7 +420,7 @@ public class OpenLOpenAPIUtils {
                             visitProperties);
                 }
             }
-            List<Schema> allOf = ((ComposedSchema) schema).getAllOf();
+            List<Schema> allOf = composedSchema.getAllOf();
             if (allOf != null) {
                 for (Schema<?> s : allOf) {
                     visitSchema(openAPIRefResolver,
@@ -433,7 +433,7 @@ public class OpenLOpenAPIUtils {
                 }
             }
 
-            List<Schema> anyOf = ((ComposedSchema) schema).getAnyOf();
+            List<Schema> anyOf = composedSchema.getAnyOf();
             if (anyOf != null) {
                 for (Schema<?> s : anyOf) {
                     visitSchema(openAPIRefResolver,
@@ -445,8 +445,8 @@ public class OpenLOpenAPIUtils {
                             visitProperties);
                 }
             }
-        } else if (schema instanceof ArraySchema) {
-            Schema<?> itemsSchema = ((ArraySchema) schema).getItems();
+        } else if (schema instanceof ArraySchema arraySchema) {
+            Schema<?> itemsSchema = arraySchema.getItems();
             if (itemsSchema != null) {
                 visitSchema(openAPIRefResolver,
                         itemsSchema,
@@ -458,9 +458,9 @@ public class OpenLOpenAPIUtils {
             }
         } else if (isMapSchema(schema)) {
             Object additionalProperties = schema.getAdditionalProperties();
-            if (additionalProperties instanceof Schema) {
+            if (additionalProperties instanceof Schema schema1) {
                 visitSchema(openAPIRefResolver,
-                        (Schema) additionalProperties,
+                        schema1,
                         mimeType,
                         visitedSchemas,
                         visitor,
@@ -645,8 +645,8 @@ public class OpenLOpenAPIUtils {
                     if (ref != null && refsToExpand.contains(ref)) {
                         result.addAll(collectParameters(openAPIRefResolver, refsToExpand, resSchema, ref));
                     } else {
-                        if (paramSchema instanceof ArraySchema) {
-                            refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
+                        if (paramSchema instanceof ArraySchema schema) {
+                            refsToExpand.removeIf(x -> x.equals(schema.getItems().get$ref()));
                         }
                         ParameterModel parameterModel = new ParameterModel(
                                 OpenAPITypeUtils.extractType(openAPIRefResolver, paramSchema, allowPrimitiveTypes),
@@ -670,8 +670,7 @@ public class OpenLOpenAPIUtils {
                                                           String ref) {
         List<InputParameter> result = new ArrayList<>();
         Map<String, Schema> properties;
-        if (paramSchema instanceof ComposedSchema) {
-            ComposedSchema cs = (ComposedSchema) paramSchema;
+        if (paramSchema instanceof ComposedSchema cs) {
             properties = getAllFields(openAPIRefResolver, cs);
         } else {
             properties = paramSchema.getProperties();

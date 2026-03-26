@@ -40,10 +40,10 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IParameterDeclaration[] params = condition.getParams();
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
 
-        String code = params.length == 2 ? String.format("%1$s<=(%2$s) && (%2$s) < %3$s",
+        String code = params.length == 2 ? "%1$s<=(%2$s) && (%2$s) < %3$s".formatted(
                 params[0].getName(),
                 conditionSource.getCode(),
-                params[1].getName()) : String.format("%1$s.contains(%2$s)", params[0].getName(), conditionSource.getCode());
+                params[1].getName()) : "%1$s.contains(%2$s)".formatted(params[0].getName(), conditionSource.getCode());
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 

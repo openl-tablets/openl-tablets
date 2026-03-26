@@ -16,8 +16,8 @@ public class RuntimeExceptionWrapper {
     }
 
     public static RuntimeException wrap(Throwable cause) {
-        if (cause instanceof RuntimeException) {
-            return (RuntimeException) cause;
+        if (cause instanceof RuntimeException exception) {
+            return exception;
         }
         return new RuntimeException(getErrorMessage(cause), cause);
     }

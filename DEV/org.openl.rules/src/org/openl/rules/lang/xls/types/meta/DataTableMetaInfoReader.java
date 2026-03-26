@@ -119,8 +119,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     }
 
     private CellMetaInfo checkForeignKeyInHeader(ColumnDescriptor descriptor, int row, int col) {
-        if (descriptor instanceof ForeignKeyColumnDescriptor) {
-            ForeignKeyColumnDescriptor foreignDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+        if (descriptor instanceof ForeignKeyColumnDescriptor foreignDescriptor) {
             CellKey cellKey = foreignDescriptor.getForeignKeyCellCoordinate();
             if (isNeededCell(cellKey, row, col)) {
                 // Found needed cell
@@ -164,9 +163,9 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                     continue;
                 }
                 IOpenClass columnType;
-                if (descriptor instanceof ForeignKeyColumnDescriptor) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor columnDescriptor) {
                     IDataBase db = getBoundNode().getDataBase();
-                    columnType = ((ForeignKeyColumnDescriptor) descriptor).getDomainClassForForeignTable(db);
+                    columnType = columnDescriptor.getDomainClassForForeignTable(db);
                 } else {
                     columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
                 }

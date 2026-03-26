@@ -50,8 +50,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         injectObjectSerializer(storeLogData.getObjectSerializer(), storeLogDataAdvice);
                         processAwareInterfaces(interfaceMethod, storeLogDataAdvice, cache, destroyFunctions);
                     } catch (Exception e) {
-                        String msg = String.format(
-                                "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                        String msg = "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.".formatted(
                                 MethodUtil.printQualifiedMethodName(interfaceMethod),
                                 clazz.getTypeName());
                         log.error(msg, e);
@@ -93,8 +92,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     }
 
     private void injectObjectSerializer(ObjectSerializer objectSerializer, StoreLogDataAdvice storeLogDataAdvice) {
-        if (storeLogDataAdvice instanceof ObjectSerializerAware) {
-            ((ObjectSerializerAware) storeLogDataAdvice).setObjectSerializer(objectSerializer);
+        if (storeLogDataAdvice instanceof ObjectSerializerAware aware) {
+            aware.setObjectSerializer(objectSerializer);
         }
         try {
             inject(storeLogDataAdvice, InjectObjectSerializer.class, e -> objectSerializer);

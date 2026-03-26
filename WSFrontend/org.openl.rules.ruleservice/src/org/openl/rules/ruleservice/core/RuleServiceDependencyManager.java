@@ -124,7 +124,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                        String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                        "Failed to initialize dependency loaders for project '%s' in deployment '%s'.".formatted(
                                 projectName,
                                 deploymentName),
                         e);

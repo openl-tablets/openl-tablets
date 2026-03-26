@@ -313,7 +313,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     projectDescriptor.setName(project.getName());
                     if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
-                        throw new Message(String.format("There is no permission for modifying '%s' file.",
+                        throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 ProjectArtifactUtils.extractResourceName(artefact)));
                     }
                     artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
@@ -377,8 +377,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
                 try {
                     AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
-                    if (artefact instanceof AProjectResource) {
-                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                    if (artefact instanceof AProjectResource resource) {
+                        try (InputStream content = resource.getContent()) {
                             IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
                             return rulesDeploySerializer.deserialize(content);
                         }
@@ -770,7 +770,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (!filesInZip.contains(relative)) {
                     var artefact = rulesProject.getArtefact(relative);
                     if (!designRepositoryAclService.isGranted(artefact, true, BasePermission.DELETE)) {
-                        throw new Message(String.format("There is no permission for deleting '%s' file.",
+                        throw new Message("There is no permission for deleting '%s' file.".formatted(
                                 projectPath + "/" + relative));
                     }
                     FileData absentFileData = new FileData();
@@ -781,7 +781,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 } else {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
                             List.of(BasePermission.WRITE))) {
-                        throw new Message(String.format("There is no permission for modifying '%s' file.",
+                        throw new Message("There is no permission for modifying '%s' file.".formatted(
                                 projectPath + "/" + relative));
                     }
                 }
@@ -789,7 +789,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
                         List.of(BasePermission.CREATE))) {
-                    throw new Message(String.format("There is no permission for creating '%s' file.",
+                    throw new Message("There is no permission for creating '%s' file.".formatted(
                             ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
                 }
             }
@@ -1029,7 +1029,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private ProjectFile getLastUploadedFile() {
         if (!uploadedFiles.isEmpty()) {
-            return uploadedFiles.get(uploadedFiles.size() - 1);
+            return uploadedFiles.getLast();
         }
         return null;
     }

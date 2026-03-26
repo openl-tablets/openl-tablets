@@ -26,8 +26,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         Set<String> p = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
         while (!queue.isEmpty()) {
             GrantedAuthority ga = queue.poll();
-            if (ga instanceof Group) {
-                Group group = (Group) ga;
+            if (ga instanceof Group group) {
                 if (group.getPrivileges() != null) {
                     for (GrantedAuthority g : group.getPrivileges()) {
                         if (!p.contains(g.getAuthority())) {

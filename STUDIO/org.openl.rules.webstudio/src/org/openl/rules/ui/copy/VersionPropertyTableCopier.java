@@ -88,7 +88,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         }
         if (newVersion.equals(getOriginalVersion().toString()) || isVersionExists(newVersion)) {
             WebStudioUtils.throwValidationError(
-                    String.format("Table with '%s' version number already exists.", getVersion().getValue()));
+                    "Table with '%s' version number already exists.".formatted(getVersion().getValue()));
         }
         super.doCopy();
         updateOriginalTable();

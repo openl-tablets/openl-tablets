@@ -35,7 +35,7 @@ public abstract class AbstractSpringOpenApiTest {
     public void testApp() throws Exception {
         var mockMvcResult = mockMvc.perform(get("/openapi.json")).andExpect(status().isOk()).andReturn();
         var result = mockMvcResult.getResponse().getContentAsString();
-        var expected = getResource(String.format(TEST_RESOURCE, getTestNumber()));
+        var expected = getResource(TEST_RESOURCE.formatted(getTestNumber()));
         assertJsonEquals(expected, result);
     }
 

@@ -558,8 +558,8 @@ public final class Strings {
         if (obj == null) {
             return null;
         }
-        if (obj instanceof Number) {
-            return Numbers.toString((Number) obj);
+        if (obj instanceof Number number) {
+            return Numbers.toString(number);
         }
         return obj.toString();
     }

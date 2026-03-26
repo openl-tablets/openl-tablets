@@ -39,18 +39,18 @@ public class EqualsSelector implements IIntSelector {
         }
 
         // Work around for BigDecimal
-        if (value instanceof BigDecimal && realParams[0] instanceof BigDecimal) {
-            return ((BigDecimal) value).compareTo((BigDecimal) realParams[0]) == 0;
+        if (value instanceof BigDecimal decimal && realParams[0] instanceof BigDecimal decimal1) {
+            return decimal.compareTo(decimal1) == 0;
         }
 
-        if (value instanceof BigDecimal && NumberUtils.isObjectFloatPointNumber(realParams[0])) {
+        if (value instanceof BigDecimal decimal && NumberUtils.isObjectFloatPointNumber(realParams[0])) {
             Double d = NumberUtils.convertToDouble(realParams[0]);
-            return ((BigDecimal) value).compareTo(BigDecimal.valueOf(d)) == 0;
+            return decimal.compareTo(BigDecimal.valueOf(d)) == 0;
         }
 
-        if (NumberUtils.isObjectFloatPointNumber(value) && realParams[0] instanceof BigDecimal) {
+        if (NumberUtils.isObjectFloatPointNumber(value) && realParams[0] instanceof BigDecimal decimal) {
             Double d = NumberUtils.convertToDouble(value);
-            return ((BigDecimal) realParams[0]).compareTo(BigDecimal.valueOf(d)) == 0;
+            return decimal.compareTo(BigDecimal.valueOf(d)) == 0;
         }
 
         return realParams[0].equals(value);

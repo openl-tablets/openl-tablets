@@ -24,6 +24,6 @@ public enum RecalculateEnum {
             }
         }
 
-        throw new IllegalArgumentException(String.format("No constant with displayName '%s' is found.", displayName));
+        throw new IllegalArgumentException("No constant with displayName '%s' is found.".formatted(displayName));
     }
 }

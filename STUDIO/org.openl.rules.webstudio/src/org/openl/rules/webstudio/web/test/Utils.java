@@ -49,8 +49,7 @@ public final class Utils {
             String uri = table.getUri();
             IOpenMethod method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
-            if (method instanceof TestSuiteMethod) {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+            if (method instanceof TestSuiteMethod testSuiteMethod) {
 
                 TestSuite testSuite;
                 if (testRanges == null) {
@@ -88,7 +87,7 @@ public final class Utils {
                 IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
-                Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher) ? ((OpenMethodDispatcher) testedMethod)
+                Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher omd) ? omd
                         .getCandidates() : Collections.singleton(testedMethod);
                 boolean noErrors = true;
                 for (IOpenMethod method : methods) {
@@ -114,8 +113,8 @@ public final class Utils {
         CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
                 : model.getCompiledOpenClass();
         IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
-        if (moduleClass instanceof XlsModuleOpenClass) {
-            return ((XlsModuleOpenClass) moduleClass).getDataBase();
+        if (moduleClass instanceof XlsModuleOpenClass class1) {
+            return class1.getDataBase();
         }
 
         return null;

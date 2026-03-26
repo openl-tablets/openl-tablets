@@ -111,7 +111,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             fileData.setName(fullName);
             Repository repository = getRepository();
             if (repository.check(fullName) != null) {
-                throw new ProjectException(String.format("The file '%s' exists in the folder.", name),
+                throw new ProjectException("The file '%s' exists in the folder.".formatted(name),
                         new IOException());
             }
             fileData = repository.save(fileData, content);
@@ -306,8 +306,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         String path = getFolderPath();
 
         for (AProjectArtefact artefact : from.getArtefacts()) {
-            if (artefact instanceof AProjectResource) {
-                AProjectResource resource = (AProjectResource) artefact;
+            if (artefact instanceof AProjectResource resource) {
                 InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
                 files.add(new FileItem(path + "/" + artefact.getInternalPath(), content));
             } else {
@@ -373,10 +372,10 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
         if (artefacts != null) {
             for (AProjectArtefact artefact : artefacts.values()) {
-                if (artefact instanceof AProjectFolder) {
-                    ((AProjectFolder) artefact).setResourceTransformer(resourceTransformer);
-                } else if (artefact instanceof AProjectResource) {
-                    ((AProjectResource) artefact).setResourceTransformer(resourceTransformer);
+                if (artefact instanceof AProjectFolder folder) {
+                    folder.setResourceTransformer(resourceTransformer);
+                } else if (artefact instanceof AProjectResource resource) {
+                    resource.setResourceTransformer(resourceTransformer);
                 }
             }
         }

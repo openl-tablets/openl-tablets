@@ -1,11 +1,13 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 import org.openl.util.StringUtils;
 
 public class ProjectGrouping implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String loginName;
     private String group1;

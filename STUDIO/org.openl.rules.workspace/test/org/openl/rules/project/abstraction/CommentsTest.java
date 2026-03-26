@@ -127,22 +127,22 @@ public class CommentsTest {
         List<String> commentParts = comments
                 .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
         assertEquals(3, commentParts.size());
-        assertEquals("Project {username} {", commentParts.get(0));
+        assertEquals("Project {username} {", commentParts.getFirst());
         assertEquals("myProjectName", commentParts.get(1));
         assertEquals("} is copied-from. {foo}", commentParts.get(2));
 
         List<String> parts2 = comments.getCommentParts(null);
         assertEquals(1, parts2.size());
-        assertNull(parts2.get(0));
+        assertNull(parts2.getFirst());
 
         List<String> parts3 = comments.getCommentParts("");
         assertEquals(1, parts3.size());
-        assertEquals("", parts3.get(0));
+        assertEquals("", parts3.getFirst());
 
         // Not applied to pattern
         List<String> parts4 = comments.getCommentParts("My comment");
         assertEquals(1, parts4.size());
-        assertEquals("My comment", parts4.get(0));
+        assertEquals("My comment", parts4.getFirst());
     }
 
     @Test
@@ -183,7 +183,7 @@ public class CommentsTest {
         assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
         assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}",
-                comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
+                comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").getFirst());
     }
 
 }

@@ -17,8 +17,8 @@ class ExprDecisionRowFieldDataType extends ComponentOpenClass {
     @Override
     public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField openField = conditionOrActionDataType.getField(name, strictMatch);
-        if (openField instanceof ConditionOrActionParameterField) {
-            return new ExprParameterField((ConditionOrActionParameterField) openField);
+        if (openField instanceof ConditionOrActionParameterField field) {
+            return new ExprParameterField(field);
         }
         return null;
     }

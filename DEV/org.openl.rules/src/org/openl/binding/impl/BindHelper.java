@@ -114,24 +114,24 @@ public final class BindHelper {
     }
 
     public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IMethodCaller caller) {
-        if (caller instanceof JavaOpenMethod) {
-            Method javaMethod = ((JavaOpenMethod) caller).getJavaMethod();
+        if (caller instanceof JavaOpenMethod method) {
+            Method javaMethod = method.getJavaMethod();
             if (isDeprecated(javaMethod)) {
-                String msg = String.format("DEPRECATED '%s' function will be removed in the next version.",
+                String msg = "DEPRECATED '%s' function will be removed in the next version.".formatted(
                         javaMethod.getName());
                 processWarn(msg, node, context);
             }
-        } else if (caller instanceof JavaOpenConstructor) {
-            Constructor<?> constr = ((JavaOpenConstructor) caller).getJavaConstructor();
+        } else if (caller instanceof JavaOpenConstructor constructor) {
+            Constructor<?> constr = constructor.getJavaConstructor();
             if (isDeprecated(constr)) {
-                String msg = String.format("DEPRECATED '%s' constructor will be removed in the next version.",
+                String msg = "DEPRECATED '%s' constructor will be removed in the next version.".formatted(
                         constr.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof CastingMethodCaller) {
             checkOnDeprecation(node, context, caller.getMethod());
-        } else if (caller instanceof AOpenMethodDelegator) {
-            checkOnDeprecation(node, context, ((AOpenMethodDelegator) caller).getDelegate());
+        } else if (caller instanceof AOpenMethodDelegator delegator) {
+            checkOnDeprecation(node, context, delegator.getDelegate());
         }
     }
 
@@ -139,7 +139,7 @@ public final class BindHelper {
         if (aClass instanceof JavaOpenClass) {
             Class<?> javaClass = aClass.getInstanceClass();
             if (javaClass.isAnnotationPresent(Deprecated.class)) {
-                String msg = String.format("DEPRECATED '%s' class will be removed in the next version.",
+                String msg = "DEPRECATED '%s' class will be removed in the next version.".formatted(
                         javaClass.getTypeName());
                 processWarn(msg, node, context);
             }
@@ -149,10 +149,10 @@ public final class BindHelper {
     }
 
     public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenField field) {
-        if (field instanceof JavaOpenField) {
-            Field javaField = ((JavaOpenField) field).getJavaField();
+        if (field instanceof JavaOpenField openField) {
+            Field javaField = openField.getJavaField();
             if (isDeprecated(javaField)) {
-                String msg = String.format("DEPRECATED '%s' field will be removed in the next version.",
+                String msg = "DEPRECATED '%s' field will be removed in the next version.".formatted(
                         javaField.getName());
                 processWarn(msg, node, context);
             }
@@ -187,8 +187,8 @@ public final class BindHelper {
     }
 
     private static boolean isSame(IBoundNode left, IBoundNode right) {
-        if (left instanceof FieldBoundNode && right instanceof FieldBoundNode) {
-            if (((FieldBoundNode) left).getBoundField() == ((FieldBoundNode) right).getBoundField()) {
+        if (left instanceof FieldBoundNode node2 && right instanceof FieldBoundNode node3) {
+            if (node2.getBoundField() == node3.getBoundField()) {
                 if (left.getTargetNode() == right.getTargetNode()) {
                     return true;
                 }
@@ -196,9 +196,9 @@ public final class BindHelper {
                     return true;
                 }
             }
-        } else if (left instanceof LiteralBoundNode && right instanceof LiteralBoundNode) {
-            Object leftValue = ((LiteralBoundNode) left).getValue();
-            Object rightValue = ((LiteralBoundNode) right).getValue();
+        } else if (left instanceof LiteralBoundNode node && right instanceof LiteralBoundNode node1) {
+            Object leftValue = node.getValue();
+            Object rightValue = node1.getValue();
             if (leftValue == rightValue || (leftValue != null && leftValue.equals(rightValue))) {
                 return true;
             }

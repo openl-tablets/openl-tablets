@@ -203,8 +203,7 @@ public class DecisionTableLookupConvertor {
             int w = getWidthWithIgnoredEmptyCells(lookupValuesTable);
             isMultiplier = w % retTableWidth == 0;
             if (!isMultiplier) {
-                String message = String.format(
-                        "The width of the Lookup table(%d) is not a multiple of the RET width(%d).",
+                String message = "The width of the Lookup table(%d) is not a multiple of the RET width(%d).".formatted(
                         lookupTableWidth,
                         retTableWidth);
                 throw new OpenLCompilationException(message);
@@ -297,13 +296,13 @@ public class DecisionTableLookupConvertor {
 
     private void validateLookupSection() throws OpenLCompilationException {
         if (hcHeaders.isEmpty()) {
-            String message = String.format("Horizontal Condition (%s1) is mandatory for Lookup table.",
+            String message = "Horizontal Condition (%s1) is mandatory for Lookup table.".formatted(
                     DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
             throw new OpenLCompilationException(message);
         }
 
         if (retTable == null) {
-            String message = String.format("Lookup Table must have %s column",
+            String message = "Lookup Table must have %s column".formatted(
                     DecisionTableColumnHeaders.RETURN.getHeaderKey());
             throw new OpenLCompilationException(message);
         }

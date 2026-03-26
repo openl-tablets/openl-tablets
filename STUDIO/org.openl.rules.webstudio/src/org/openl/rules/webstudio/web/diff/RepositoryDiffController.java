@@ -343,8 +343,8 @@ public class RepositoryDiffController extends AbstractDiffController {
      */
     public void resetTreeSelection(String componentId) {
         UIComponent treeComponent = RichFunction.findComponent(componentId);
-        if (treeComponent instanceof UITree) {
-            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        if (treeComponent instanceof UITree tree) {
+            tree.setSelection(Collections.emptyList());
         }
     }
 

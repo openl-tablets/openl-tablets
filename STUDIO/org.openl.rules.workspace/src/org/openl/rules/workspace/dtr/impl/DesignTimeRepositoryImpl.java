@@ -118,8 +118,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
-            if (repo instanceof RepositorySettingsAware) {
-                ((RepositorySettingsAware) repo).setRepositorySettings(repositorySettings);
+            if (repo instanceof RepositorySettingsAware aware) {
+                aware.setRepositorySettings(repositorySettings);
             }
 
             if (repo.supports().folders()) {
@@ -200,7 +200,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public AProject getProject(String repositoryId, String name, CommonVersion version) {
         String repoVersion = version.getVersionName();
-        ProjectKey key = new ProjectKey(repositoryId, String.format("%s:%s", name, repoVersion));
+        ProjectKey key = new ProjectKey(repositoryId, "%s:%s".formatted(name, repoVersion));
         AProject project = projectsVersions.get(key);
 
         if (project == null) {
@@ -335,7 +335,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
+                exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(repository, fileData);

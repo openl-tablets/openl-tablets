@@ -179,7 +179,7 @@ public class OpenApiProjectValidator {
             context.setTargetService(targetService);
         } catch (Exception e) {
             validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
-                    OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to instantiate the project.%s",
+                    OPEN_API_VALIDATION_MSG_PREFIX + "Failed to instantiate the project.%s".formatted(
                             StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
             return validatedCompiledOpenClass;
         }
@@ -198,7 +198,7 @@ public class OpenApiProjectValidator {
                         provideRuntimeContext);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
-                        OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project.%s".formatted(
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
                 return validatedCompiledOpenClass;
             }
@@ -207,7 +207,7 @@ public class OpenApiProjectValidator {
                 enhancedServiceClass = enhanceWithJAXRS(context, serviceClass, serviceClassLoader);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
-                        OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project.%s".formatted(
                                 StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
                 return validatedCompiledOpenClass;
             }
@@ -328,7 +328,7 @@ public class OpenApiProjectValidator {
     private IOpenMethod getRulesMethod(Context context, Method method) {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper
                 .getOpenMember(context.getMethodMap().get(method), context.getTargetService());
-        IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
+        IOpenMethod openMethod = openMember instanceof IOpenMethod iom ? iom : null;
         if (openMethod != null) {
             return openMethod;
         } else {
@@ -882,7 +882,7 @@ public class OpenApiProjectValidator {
         }
         String prefix = StringUtils.EMPTY;
         if (dim > 0) {
-            prefix = String.format("array%s of ", arraySuffix);
+            prefix = "array%s of ".formatted(arraySuffix);
         }
         String type = resolveType(schema);
         String format = schema.getFormat();
@@ -893,7 +893,7 @@ public class OpenApiProjectValidator {
     private String getMethodForPathStringPart(String methodName, String path) {
         String pathPart = "";
         if (!path.equals("/" + methodName)) {
-            pathPart = String.format(" for path '%s'", path);
+            pathPart = " for path '%s'".formatted(path);
         }
         return pathPart;
     }
@@ -901,7 +901,7 @@ public class OpenApiProjectValidator {
     private String getMethodRelatedPathStringPart(String methodName, String path) {
         String pathPart = "";
         if (!path.equals("/" + methodName)) {
-            pathPart = String.format(" related to path '%s'", path);
+            pathPart = " related to path '%s'".formatted(path);
         }
         return pathPart;
     }
@@ -1079,7 +1079,7 @@ public class OpenApiProjectValidator {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
                             OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter for schema property%s is found in method '%s'%s.",
-                            parameterPropertyName != null ? String.format(" '%s'", parameterPropertyName) : "",
+                            parameterPropertyName != null ? " '%s'".formatted(parameterPropertyName) : "",
                             methodName,
                             getMethodRelatedPathStringPart(methodName, context.getActualPath())));
         } else {
@@ -1187,8 +1187,7 @@ public class OpenApiProjectValidator {
             }
         } else if ("boolean".equals(schema.getType())) {
             return "Boolean";
-        } else if (schema instanceof ArraySchema) {
-            ArraySchema arraySchema = (ArraySchema) schema;
+        } else if (schema instanceof ArraySchema arraySchema) {
             String type = resolveSimplifiedName(arraySchema.getItems());
             return type != null ? type + "[]" : null;
         }
@@ -1260,13 +1259,13 @@ public class OpenApiProjectValidator {
                         return serviceClass;
                     } else {
                         throw new RulesInstantiationException(
-                                String.format("Interface is expected for service class '%s', but class is found.",
+                                "Interface is expected for service class '%s', but class is found.".formatted(
                                         serviceClassName));
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     throw new RulesInstantiationException(
-                            String
-                                    .format("An error is occurred during loading a service class '%s'.%s",
+                            "An error is occurred during loading a service class '%s'.%s"
+                                    .formatted(
                                             serviceClassName,
                                             org.apache.commons.lang3.StringUtils
                                                     .isNotBlank(e.getMessage()) ? " " + e.getMessage()
@@ -1294,15 +1293,14 @@ public class OpenApiProjectValidator {
                             rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
                             resolveServiceClassLoader);
                 } else {
-                    throw new RulesInstantiationException(String.format(
-                            "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                    throw new RulesInstantiationException("Interface or abstract class is expected for annotation template class '%s', but class is found.".formatted(
                             annotationTemplateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new RulesInstantiationException(
-                        String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                        "An error is occurred during loading or applying annotation template class '%s'.%s".formatted(
                                 annotationTemplateClassName,
                                 org.apache.commons.lang3.StringUtils.isNotBlank(
                                         e.getMessage()) ? " " + e.getMessage() : org.apache.commons.lang3.StringUtils.EMPTY));
@@ -1409,10 +1407,10 @@ public class OpenApiProjectValidator {
                         .resolve(expectedSchema, Schema::get$ref);
                 if ((openClass.isArray() || ClassUtils.isAssignable(openClass.getInstanceClass(),
                         Collection.class)) && resolvedActualSchema instanceof ArraySchema) {
-                    if (resolvedExpectedSchema instanceof ArraySchema) {
+                    if (resolvedExpectedSchema instanceof ArraySchema schema) {
                         validateType(context,
                                 ((ArraySchema) resolvedActualSchema).getItems(),
-                                ((ArraySchema) resolvedExpectedSchema).getItems(),
+                                schema.getItems(),
                                 openClass.isArray() ? openClass.getComponentClass() : JavaOpenClass.OBJECT,
                                 validatedBySchemasRef,
                                 validatedByFieldType);
@@ -1445,9 +1443,7 @@ public class OpenApiProjectValidator {
                 Map<String, Schema> propertiesOfActualSchema = null;
                 boolean parentPresentedInBothSchemas = false;
 
-                if (resolvedExpectedSchema instanceof ComposedSchema && resolvedActualSchema instanceof ComposedSchema) {
-                    ComposedSchema actualComposedSchema = (ComposedSchema) resolvedActualSchema;
-                    ComposedSchema expectedComposedSchema = (ComposedSchema) resolvedExpectedSchema;
+                if (resolvedExpectedSchema instanceof ComposedSchema expectedComposedSchema && resolvedActualSchema instanceof ComposedSchema actualComposedSchema) {
                     if (isParentPresented(actualComposedSchema) && isParentPresented(expectedComposedSchema)) {
                         IOpenClass superClass = getSuperClass(openClass);
                         if (superClass != null) {
@@ -1554,8 +1550,7 @@ public class OpenApiProjectValidator {
                                         if (Objects.equals("schema", actualSchemaMessagePartString)) {
                                             actualSchemaMessagePartString = StringUtils.EMPTY;
                                         } else {
-                                            actualSchemaMessagePartString = String.format(
-                                                    " that incompatible with actual %s",
+                                            actualSchemaMessagePartString = " that incompatible with actual %s".formatted(
                                                     actualSchemaMessagePartString);
                                         }
                                         if (stepName == null) {

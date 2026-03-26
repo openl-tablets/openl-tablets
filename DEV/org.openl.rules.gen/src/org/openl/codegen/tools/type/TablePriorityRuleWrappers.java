@@ -46,8 +46,8 @@ public class TablePriorityRuleWrappers {
                                 MAX_OPERATION_NAME,
                                 propertyName));
                     } else {
-                        throw new IllegalArgumentException(String
-                                .format("Wrong priority rule: [%s]. Unknown operator: [%s]", priorityRule, operationName));
+                        throw new IllegalArgumentException("Wrong priority rule: [%s]. Unknown operator: [%s]"
+                                .formatted(priorityRule, operationName));
                     }
                 }
             } catch (Exception e) {

@@ -10,7 +10,7 @@ public class IndexOutOfBoundsExceptionFormatter implements ExceptionMessageForma
     @Override
     public String format(Throwable error) {
         if (error instanceof ArrayIndexOutOfBoundsException) {
-            return String.format("There is no index %s in the sequence", error.getMessage());
+            return "There is no index %s in the sequence".formatted(error.getMessage());
         }
         return error.getMessage();
     }

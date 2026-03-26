@@ -33,7 +33,7 @@ public class ExpectedErrorTest {
         TestUnitsResults res = (TestUnitsResults) helloTest.invoke(target, new Object[0], env);
         List<ITestUnit> testUnits = res.getTestUnits();
 
-        assertEquals(TestStatus.TR_OK, testUnits.get(0).getResultStatus(), "Expected Good Evening");
+        assertEquals(TestStatus.TR_OK, testUnits.getFirst().getResultStatus(), "Expected Good Evening");
         assertEquals(TestStatus.TR_OK, testUnits.get(1).getResultStatus(), "Expected user error 'Incorrect argument'");
         assertEquals(TestStatus.TR_NEQ, testUnits.get(2).getResultStatus(), "Expected user error comparison failure");
         assertEquals(TestStatus.TR_NEQ,

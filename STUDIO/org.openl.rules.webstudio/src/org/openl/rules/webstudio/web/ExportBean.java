@@ -85,7 +85,7 @@ public class ExportBean {
                 String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
                 String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
                 String suffix = name + "-" + modifiedOnStr;
-                fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
+                fileName = "%s-%s.zip".formatted(selectedProject.getName(), suffix);
                 WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
                         (username) -> Optional.ofNullable(userManagementService.getUser(username))
                                 .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
@@ -98,7 +98,7 @@ public class ExportBean {
                         .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 file = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
                 String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
-                fileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
+                fileName = "%s-%s.zip".formatted(selectedProject.getBusinessName(), suffix);
             }
             addCookie(cookieName, "success", -1);
             final FacesContext facesContext = FacesContext.getCurrentInstance();

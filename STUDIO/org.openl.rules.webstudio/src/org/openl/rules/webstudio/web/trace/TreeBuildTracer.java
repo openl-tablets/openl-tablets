@@ -102,16 +102,16 @@ public final class TreeBuildTracer extends Tracer {
         doBegin(trObj);
         try {
             R res = executor.invoke(target, params, env);
-            if (trObj instanceof SimpleTracerObject) {
-                ((SimpleTracerObject) trObj).setResult(res);
+            if (trObj instanceof SimpleTracerObject object) {
+                object.setResult(res);
             }
-            if (trObj instanceof SpreadsheetTracerLeaf) {
-                cacheNode(new TracerKeyNode<>(executor, target, params, env, source), (SpreadsheetTracerLeaf) trObj);
+            if (trObj instanceof SpreadsheetTracerLeaf leaf) {
+                cacheNode(new TracerKeyNode<>(executor, target, params, env, source), leaf);
             }
             return res;
         } catch (Throwable ex) {
-            if (trObj instanceof SimpleTracerObject) {
-                ((SimpleTracerObject) trObj).setError(ex);
+            if (trObj instanceof SimpleTracerObject object) {
+                object.setError(ex);
             }
             throw ex;
         } finally {
@@ -129,8 +129,8 @@ public final class TreeBuildTracer extends Tracer {
     protected <T> T doWrap(Object source, T target, Object[] args) {
         if (!isOn()) {
             return target;
-        } else if (target instanceof IIntSelector) {
-            return (T) new IntSelectorTracer((IIntSelector) target, (ICondition) args[0]);
+        } else if (target instanceof IIntSelector selector) {
+            return (T) new IntSelectorTracer(selector, (ICondition) args[0]);
         }
         return target;
     }

@@ -474,7 +474,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals("[Lorg.openl.rules.calc.SpreadsheetResult;", pathInfo.getReturnType().getJavaName());
         List<StepModel> steps = party.getSteps();
         assertEquals(1, steps.size());
-        StepModel resultStep = steps.iterator().next();
+        StepModel resultStep = steps.getFirst();
         assertEquals("= new SpreadsheetResultMyLovelySpreadsheet[]{MyLovelySpreadsheet(null)}", resultStep.getValue());
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
@@ -536,13 +536,13 @@ public class OpenAPIGroovyScriptGeneratorTest {
         Set<String> rest = new HashSet<>(actual);
         rest.removeAll(expected);
         if (!rest.isEmpty()) {
-            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
+            fail("Unexpected items: %s".formatted(String.join(", ", rest)));
         }
 
         rest = new HashSet<>(expected);
         rest.removeAll(actual);
         if (!rest.isEmpty()) {
-            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
+            fail("Missed expected items: %s".formatted(String.join(", ", rest)));
         }
     }
 

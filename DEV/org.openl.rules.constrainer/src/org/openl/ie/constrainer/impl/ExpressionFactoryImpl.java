@@ -1,5 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Enumeration;
@@ -20,6 +21,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public final class ExpressionFactoryImpl extends UndoableOnceImpl implements ExpressionFactory, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 7593413055525940597L;
 
     /**
@@ -58,8 +60,8 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             }
 
             // arrays
-            if (arg1 instanceof IntExpArray) {
-                return equalArrays((IntExpArray) arg1, (IntExpArray) arg2);
+            if (arg1 instanceof IntExpArray array) {
+                return equalArrays(array, (IntExpArray) arg2);
             }
 
             return false;

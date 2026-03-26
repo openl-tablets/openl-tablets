@@ -60,11 +60,11 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
                 if (!correctFormat.format(parsedDate).equals(dateForCheck)) {
                     throw new InvalidFileNamePatternException(
-                            String.format("Invalid date format for property '%s'.", entry.getKey()));
+                            "Invalid date format for property '%s'.".formatted(entry.getKey()));
                 }
             } catch (ParseException e) {
                 throw new InvalidFileNamePatternException(
-                        String.format("Invalid date format for property '%s'.", entry.getKey()));
+                        "Invalid date format for property '%s'.".formatted(entry.getKey()));
             }
         }
     }
@@ -75,7 +75,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         Matcher fileNameMatcher = fileNameRegexpPattern.matcher(modulePath);
         if (!fileNameMatcher.matches()) {
             throw new NoMatchFileNameException(
-                    String.format("File '%s' does not match file name pattern '%s'.", modulePath, pattern));
+                    "File '%s' does not match file name pattern '%s'.".formatted(modulePath, pattern));
         }
         TableProperties props = new TableProperties();
         for (String propertyName : propertyNames) {
@@ -84,8 +84,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 Object value = convert(propertyName, group);
                 props.setFieldValue(propertyName, value);
             } catch (Exception e) {
-                throw new NoMatchFileNameException(String.format(
-                        "File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
+                throw new NoMatchFileNameException("File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.".formatted(
                         modulePath,
                         pattern,
                         propertyName,
@@ -126,25 +125,25 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 for (String propertyName : propertyGroup) {
                     if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
                         throw new InvalidFileNamePatternException(
-                                String.format("Found unsupported property '%s' in file name pattern.", propertyName));
+                                "Found unsupported property '%s' in file name pattern.".formatted(propertyName));
                     }
                     if (!propertyNames.add(propertyName)) {
                         throw new InvalidFileNamePatternException(
-                                String.format("Property '%s' is declared in pattern '%s' several times.",
+                                "Property '%s' is declared in pattern '%s' several times.".formatted(
                                         propertyName,
                                         fileNamePattern));
                     }
                     Class<?> currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
                     if (returnType != null && (currentReturnType != returnType)) {
                         throw new InvalidFileNamePatternException(
-                                String.format("Incompatible properties in the group: %s.", Arrays.toString(propertyGroup)));
+                                "Incompatible properties in the group: %s.".formatted(Arrays.toString(propertyGroup)));
                     }
                     returnType = currentReturnType;
                     try {
                         pattern = getPattern(propertyName, format, returnType);
                     } catch (RuntimeException e) {
                         throw new InvalidFileNamePatternException(
-                                String.format("Invalid file name pattern at: %s.", propertyMatch));
+                                "Invalid file name pattern at: %s.".formatted(propertyMatch));
                     }
                     if (finalPattern == null) {
                         finalPattern = new StringBuilder(pattern);
@@ -199,7 +198,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             }
             pattern = getPattern(propertyName, format, componentClass);
             if (!DEFAULT_PATTERN.equals(pattern)) {
-                pattern = String.format("(?:%s)(?:%s(?:%s))*", pattern, ARRAY_SEPARATOR, pattern);
+                pattern = "(?:%s)(?:%s(?:%s))*".formatted(pattern, ARRAY_SEPARATOR, pattern);
             }
         }
         return pattern;
@@ -231,7 +230,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             try {
                 propValue = dateFormats.get(propertyName).parse(value);
             } catch (ParseException e) {
-                throw new OpenlNotCheckedException(String.format("Failed to parse a date '%s'.", value));
+                throw new OpenlNotCheckedException("Failed to parse a date '%s'.".formatted(value));
             }
         } else if (clazz.isEnum()) {
             propValue = Enum.valueOf((Class) clazz, value);
@@ -243,7 +242,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             propValue = ALL_KEYWORD.equals(value) && componentClass.isEnum() ? componentClass
                     .getEnumConstants() : toArray(propertyName, value, componentClass);
         } else {
-            throw new OpenlNotCheckedException(String.format("Unsupported data type '%s'.", clazz.getTypeName()));
+            throw new OpenlNotCheckedException("Unsupported data type '%s'.".formatted(clazz.getTypeName()));
         }
         return propValue;
     }

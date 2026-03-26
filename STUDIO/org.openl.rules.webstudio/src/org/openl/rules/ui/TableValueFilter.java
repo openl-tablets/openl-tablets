@@ -79,8 +79,7 @@ class TableValueFilter extends AGridFilter {
                     cell.setFormattedValue(formatter.format(v));
                 } catch (Exception | LinkageError | StackOverflowError e) {
                     log.debug(e.getMessage(), e);
-                    cell.setFormattedValue(String.format(
-                            "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                    cell.setFormattedValue("<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>".formatted(
                             e.getClass().getName(),
                             v.getClass().getName()));
                 }

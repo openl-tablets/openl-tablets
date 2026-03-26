@@ -18,7 +18,7 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
         Root<TagType> u = criteria.from(TagType.class);
         criteria.select(u).where(builder.equal(u.get("id"), id)).distinct(true);
         List<TagType> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
         // Case insensitive
         criteria.select(u).where(builder.equal(builder.lower(u.get("name")), name.toLowerCase(Locale.ROOT))).distinct(true);
         List<TagType> results = getSession().createQuery(criteria).getResultList();
-        return results.isEmpty() ? null : results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     @Override

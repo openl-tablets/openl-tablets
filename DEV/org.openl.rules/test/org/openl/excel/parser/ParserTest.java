@@ -110,7 +110,7 @@ public class ParserTest {
         String message = errors[0].getMessage();
 
         if (!message.startsWith(messageStart)) {
-            throw new RuntimeException(String.format("'%s' should start with '%s'", message, messageStart));
+            throw new RuntimeException("'%s' should start with '%s'".formatted(message, messageStart));
         }
 
     }

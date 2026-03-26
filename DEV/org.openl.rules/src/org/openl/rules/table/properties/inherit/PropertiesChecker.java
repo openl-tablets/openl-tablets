@@ -55,12 +55,12 @@ public final class PropertiesChecker {
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
-                String message = String
-                        .format("Property '%s' cannot be defined in '%s' table.", propertyNameToCheck, typeName);
+                String message = "Property '%s' cannot be defined in '%s' table."
+                        .formatted(propertyNameToCheck, typeName);
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
                 bindingContext.addError(error);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-                String message = String.format("Property '%s' cannot be defined on level '%s'.",
+                String message = "Property '%s' cannot be defined on level '%s'.".formatted(
                         propertyNameToCheck,
                         level.getDisplayName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
@@ -81,7 +81,7 @@ public final class PropertiesChecker {
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition
                     .getDeprecation()
                     .isEmpty()) {
-                String message = String.format("Property '%s' was deprecated. Please remove it.", propertyNameToCheck);
+                String message = "Property '%s' was deprecated. Please remove it.".formatted(propertyNameToCheck);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
@@ -137,39 +137,23 @@ public final class PropertiesChecker {
     }
 
     private static String getTypeName(TableSyntaxNode tableSyntaxNode) {
-        switch (tableSyntaxNode.getNodeType()) {
-            case XLS_DT:
-                return "Decision";
-            case XLS_SPREADSHEET:
-                return "Spreadsheet";
-            case XLS_TBASIC:
-                return "TBasic";
-            case XLS_COLUMN_MATCH:
-                return "Column Match";
-            case XLS_METHOD:
-                return "Method";
-            case XLS_TEST_METHOD:
-                return "Test";
-            case XLS_RUN_METHOD:
-                return "Run";
-            case XLS_DATA:
-                return "Data";
-            case XLS_DATATYPE:
-                return "Datatype";
-            case XLS_OPENL:
-                return "OpenL";
-            case XLS_ENVIRONMENT:
-                return "Environment";
-            case XLS_CONSTANTS:
-                return "Constants";
-            case XLS_TABLEPART:
-                return "TablePart";
-            case XLS_OTHER:
-                return "Other";
-            case XLS_PROPERTIES:
-                return "Properties";
-            default:
-                return tableSyntaxNode.getNodeType().name();
-        }
+        return switch (tableSyntaxNode.getNodeType()) {
+            case XLS_DT -> "Decision";
+            case XLS_SPREADSHEET -> "Spreadsheet";
+            case XLS_TBASIC -> "TBasic";
+            case XLS_COLUMN_MATCH -> "Column Match";
+            case XLS_METHOD -> "Method";
+            case XLS_TEST_METHOD -> "Test";
+            case XLS_RUN_METHOD -> "Run";
+            case XLS_DATA -> "Data";
+            case XLS_DATATYPE -> "Datatype";
+            case XLS_OPENL -> "OpenL";
+            case XLS_ENVIRONMENT -> "Environment";
+            case XLS_CONSTANTS -> "Constants";
+            case XLS_TABLEPART -> "TablePart";
+            case XLS_OTHER -> "Other";
+            case XLS_PROPERTIES -> "Properties";
+            default -> tableSyntaxNode.getNodeType().name();
+        };
     }
 }

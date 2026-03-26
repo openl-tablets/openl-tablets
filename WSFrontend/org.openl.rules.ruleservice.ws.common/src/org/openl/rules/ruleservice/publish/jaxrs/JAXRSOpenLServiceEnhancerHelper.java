@@ -664,7 +664,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (!originalMethod.isAnnotationPresent(Operation.class)) {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                         .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
-                IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
+                IOpenMethod openMethod = openMember instanceof IOpenMethod iom ? iom : null;
                 String detailedSummary = openMethod != null ? openMethod.getType()
                         .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
                         : originalMethod.getReturnType()
@@ -677,12 +677,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av.visit("operationId", nickname);
                 av.visit("summary", truncatedSummary);
                 MethodDescription methodDescription = extractDescription(openMethod, pathItem, operation);
-                String description = methodDescription.getDescription();
+                String description = methodDescription.description();
                 if (StringUtils.isBlank(description)) {
                     description = (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary;
                 }
                 av.visit("description", description);
-                Map<String, String> parameterDescriptions = methodDescription.getParameterDescriptions();
+                Map<String, String> parameterDescriptions = methodDescription.parameterDescriptions();
                 Set<Map.Entry<String, String>> paramList = parameterDescriptions.entrySet().stream()
                         .filter(entry -> usedParamNames != null && usedParamNames.contains(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())).collect(Collectors.toSet());
                 if (!paramList.isEmpty()) {
@@ -714,8 +714,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String extractDescription(IOpenMethod openMethod) {
-            if (openMethod instanceof OpenMethodDispatcher) {
-                for (IOpenMethod method : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+            if (openMethod instanceof OpenMethodDispatcher dispatcher) {
+                for (IOpenMethod method : dispatcher.getCandidates()) {
                     String description = extractDescription(method);
                     // Return first non-empty description from candidates
                     if (StringUtils.isNotBlank(description)) {
@@ -723,8 +723,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 }
             }
-            if (openMethod instanceof ITablePropertiesMethod) {
-                ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) openMethod;
+            if (openMethod instanceof ITablePropertiesMethod tablePropertiesMethod) {
                 return tablePropertiesMethod.getMethodProperties().getDescription();
             }
             return null;

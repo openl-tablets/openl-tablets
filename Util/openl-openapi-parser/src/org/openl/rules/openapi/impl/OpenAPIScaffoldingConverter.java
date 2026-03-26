@@ -489,7 +489,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 TypeInfo.Type resultType = isSimpleType ? TypeInfo.Type.OBJECT : TypeInfo.Type.DATATYPE;
                 dataModel.getPathInfo().getReturnType().setType(resultType);
                 if (parametersNotEmpty) {
-                    dataModel.getPathInfo().setRuntimeContextParameter(parameters.iterator().next());
+                    dataModel.getPathInfo().setRuntimeContextParameter(parameters.getFirst());
                 }
                 dataModels.add(dataModel);
             }
@@ -956,8 +956,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         DatatypeModel dm = new DatatypeModel(normalizeName(schemaName));
         Map<String, Schema> properties;
         List<FieldModel> fields = new ArrayList<>();
-        if (schema instanceof ComposedSchema) {
-            ComposedSchema composedSchema = (ComposedSchema) schema;
+        if (schema instanceof ComposedSchema composedSchema) {
             String parentName = OpenAPITypeUtils.getParentName(composedSchema, openAPI);
             properties = OpenAPITypeUtils.getFieldsOfChild(composedSchema);
             if (composedSchema.getProperties() != null) {
@@ -986,8 +985,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         DatatypeModel dm = new DatatypeModel(normalizeName(schemaName));
         Map<String, Schema> properties;
         List<FieldModel> fields = new ArrayList<>();
-        if (schema instanceof ComposedSchema) {
-            properties = OpenAPITypeUtils.getAllProperties((ComposedSchema) schema, openAPI);
+        if (schema instanceof ComposedSchema composedSchema) {
+            properties = OpenAPITypeUtils.getAllProperties(composedSchema, openAPI);
         } else {
             properties = schema.getProperties();
         }

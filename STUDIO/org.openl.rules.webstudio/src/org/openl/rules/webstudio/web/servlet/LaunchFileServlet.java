@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -29,6 +29,7 @@ import org.openl.util.FileTypeHelper;
 @Slf4j
 public class LaunchFileServlet extends HttpServlet {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
@@ -81,7 +82,7 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
-        Path pathToFile = Paths.get(parser.getWbPath(), parser.getWbName());
+        Path pathToFile = Path.of(parser.getWbPath(), parser.getWbName());
         if (Files.isRegularFile(pathToFile)) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition",

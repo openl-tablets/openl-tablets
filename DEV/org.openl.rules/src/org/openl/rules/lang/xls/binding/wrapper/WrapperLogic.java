@@ -50,10 +50,10 @@ public final class WrapperLogic {
         };
 
         DependencyBindingContext.externalTypesRegistration = (openClass) -> {
-            if (openClass instanceof XlsModuleOpenClass) {
+            if (openClass instanceof XlsModuleOpenClass class1) {
                 XlsModuleOpenClassHolder.getInstance()
                         .getXlsModuleOpenClass()
-                        .addExternalXlsModuleOpenClass((XlsModuleOpenClass) openClass);
+                        .addExternalXlsModuleOpenClass(class1);
             }
         };
     }
@@ -63,8 +63,7 @@ public final class WrapperLogic {
 
     public static SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
-        if (env instanceof TBasicContextHolderEnv) {
-            TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
+        if (env instanceof TBasicContextHolderEnv tBasicContextHolderEnv) {
             env1 = tBasicContextHolderEnv.getEnv();
             while (env1 instanceof TBasicContextHolderEnv) {
                 tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
@@ -82,8 +81,7 @@ public final class WrapperLogic {
     }
 
     public static IOpenMethod unwrapOpenMethod(IOpenMethod method) {
-        if (method instanceof IRulesMethodWrapper) {
-            IRulesMethodWrapper wrapper = (IRulesMethodWrapper) method;
+        if (method instanceof IRulesMethodWrapper wrapper) {
             return wrapper.getDelegate();
         }
         return method;
@@ -141,45 +139,45 @@ public final class WrapperLogic {
         var contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature(),
                 xlsModuleOpenClass.getRulesModuleBindingContext());
 
-        if (openMethod instanceof MatchingOpenMethodDispatcher) {
+        if (openMethod instanceof MatchingOpenMethodDispatcher dispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass,
-                    (MatchingOpenMethodDispatcher) openMethod,
+                    dispatcher,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof Algorithm) {
+        if (openMethod instanceof Algorithm algorithm) {
             return new AlgorithmWrapper(xlsModuleOpenClass,
-                    (Algorithm) openMethod,
+                    algorithm,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof AlgorithmSubroutineMethod) {
+        if (openMethod instanceof AlgorithmSubroutineMethod method) {
             return new AlgorithmSubroutineMethodWrapper(xlsModuleOpenClass,
-                    (AlgorithmSubroutineMethod) openMethod,
+                    method,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof DecisionTable) {
+        if (openMethod instanceof DecisionTable table) {
             return new DecisionTableWrapper(xlsModuleOpenClass,
-                    (DecisionTable) openMethod,
+                    table,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof ColumnMatch) {
+        if (openMethod instanceof ColumnMatch match) {
             return new ColumnMatchWrapper(xlsModuleOpenClass,
-                    (ColumnMatch) openMethod,
+                    match,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof Spreadsheet) {
+        if (openMethod instanceof Spreadsheet spreadsheet) {
             return new SpreadsheetWrapper(xlsModuleOpenClass,
-                    (Spreadsheet) openMethod,
+                    spreadsheet,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
-        if (openMethod instanceof TableMethod) {
+        if (openMethod instanceof TableMethod method) {
             return new TableMethodWrapper(xlsModuleOpenClass,
-                    (TableMethod) openMethod,
+                    method,
                     contextPropertiesInjector,
                     externalMethodCall);
         }
@@ -211,8 +209,7 @@ public final class WrapperLogic {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 IOpenClass typeClass;
-                if (target instanceof IDynamicObject) {
-                    IDynamicObject dynamicObject = (IDynamicObject) target;
+                if (target instanceof IDynamicObject dynamicObject) {
                     typeClass = dynamicObject.getType();
                 } else if (ASMProxyFactory.isProxy(target)) {
                     ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);

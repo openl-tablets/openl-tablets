@@ -28,6 +28,6 @@ public class String2InstantConverter implements IString2DataConvertor<Instant> {
                 // Loop on
             }
         }
-        throw new IllegalArgumentException(String.format("Cannot convert '%s' to Instant type", data));
+        throw new IllegalArgumentException("Cannot convert '%s' to Instant type".formatted(data));
     }
 }

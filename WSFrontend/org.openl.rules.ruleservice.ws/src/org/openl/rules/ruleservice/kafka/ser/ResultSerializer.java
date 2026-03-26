@@ -24,16 +24,16 @@ public class ResultSerializer implements Serializer<Object> {
         if (encodingValue == null) {
             encodingValue = configs.get("serializer.encoding");
         }
-        if (encodingValue instanceof String) {
-            encoding = Charset.forName((String) encodingValue);
+        if (encodingValue instanceof String string) {
+            encoding = Charset.forName(string);
         }
     }
 
     @Override
     public byte[] serialize(String topic, Object data) {
         try {
-            if (data instanceof String) {
-                return ((String) data).getBytes(encoding);
+            if (data instanceof String string) {
+                return string.getBytes(encoding);
             }
             return objectMapper.writeValueAsString(data).getBytes(encoding);
         } catch (Exception e) {

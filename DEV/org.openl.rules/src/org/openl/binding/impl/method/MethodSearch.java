@@ -58,8 +58,8 @@ public final class MethodSearch {
                                    boolean allowMultiCallParams) {
         final IOpenClass[] methodParam = method.getSignature().getParameterTypes();
         JavaOpenMethod javaOpenMethod = null;
-        if (method instanceof JavaOpenMethod) {
-            javaOpenMethod = (JavaOpenMethod) method;
+        if (method instanceof JavaOpenMethod openMethod) {
+            javaOpenMethod = openMethod;
         }
 
         int size = vararg ? originalCallParams.length + 1 : originalCallParams.length;
@@ -692,7 +692,7 @@ public final class MethodSearch {
             case 0:
                 break;
             case 1:
-                selectedMatch = matchingResult.get(0);
+                selectedMatch = matchingResult.getFirst();
                 IOpenMethod m = selectedMatch.getMethod();
                 if (!isNoCastDistances(selectedMatch.getSortedDistances())) {
                     IOpenCast[] paramCasts = getParamCastsAndTruncateIfNeed(selectedMatch);
@@ -759,8 +759,7 @@ public final class MethodSearch {
     }
 
     private static boolean isSuitableMethod(IOpenMethod method, IOpenClass[] callParams, ICastFactory castFactory) {
-        if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+        if (method instanceof JavaOpenMethod javaOpenMethod) {
             Method javaMethod = javaOpenMethod.getJavaMethod();
             MethodSearchTuner methodSearchTuner = javaMethod.getAnnotation(MethodSearchTuner.class);
             if (methodSearchTuner != null) {
@@ -779,10 +778,9 @@ public final class MethodSearch {
     }
 
     private static boolean isGenericVararg(IOpenMethod method) {
-        if (method instanceof JavaOpenMethod && method.getSignature().getNumberOfParameters() > 0 && method
+        if (method instanceof JavaOpenMethod javaOpenMethod && method.getSignature().getNumberOfParameters() > 0 && method
                 .getSignature()
                 .getParameterTypes()[method.getSignature().getNumberOfParameters() - 1].isArray()) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
             Type lastParameterType = javaOpenMethod.getJavaMethod()
                     .getGenericParameterTypes()[javaOpenMethod.getNumberOfParameters() - 1];
             return JavaGenericsUtils.getGenericTypeName(lastParameterType) != null;
@@ -823,8 +821,7 @@ public final class MethodSearch {
     private static boolean isVarargsSupported(IOpenMethod method) {
         if (method.getSignature().getNumberOfParameters() > 0 && method.getSignature()
                 .getParameterTypes()[method.getSignature().getNumberOfParameters() - 1].isArray()) {
-            if (method instanceof JavaOpenMethod) {
-                JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            if (method instanceof JavaOpenMethod javaOpenMethod) {
                 if (javaOpenMethod.getJavaMethod().isAnnotationPresent(IgnoreVarargsMatching.class)) {
                     return false;
                 }
@@ -838,8 +835,7 @@ public final class MethodSearch {
     }
 
     private static boolean isNonVarargSupported(IOpenMethod method) {
-        if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+        if (method instanceof JavaOpenMethod javaOpenMethod) {
             if (javaOpenMethod.getJavaMethod().isAnnotationPresent(IgnoreNonVarargsMatching.class)) {
                 return false;
             }
@@ -946,7 +942,7 @@ public final class MethodSearch {
         }
 
         if (moreSpecificIndexes.size() == 1) {
-            return moreSpecificIndexes.get(0);
+            return moreSpecificIndexes.getFirst();
         } else {
             List<Integer> mostSpecificIndexes = new ArrayList<>();
             int best1 = Integer.MAX_VALUE;
@@ -996,7 +992,7 @@ public final class MethodSearch {
 
             int countOfFoundMethods = mostSpecificIndexes.size();
             if (countOfFoundMethods == 1) {
-                return mostSpecificIndexes.get(0);
+                return mostSpecificIndexes.getFirst();
             } else if (countOfFoundMethods == 0) {
                 throw new AmbiguousMethodException(name,
                         params,
@@ -1027,8 +1023,8 @@ public final class MethodSearch {
                                                 ICastFactory casts,
                                                 IMethodFactory factory) throws AmbiguousMethodException {
         IMethodCaller caller;
-        if (factory instanceof ADynamicClass) {
-            caller = ((ADynamicClass) factory).getConstructor(params, true);
+        if (factory instanceof ADynamicClass class1) {
+            caller = class1.getConstructor(params, true);
         } else {
             caller = factory.getConstructor(params);
         }
@@ -1048,8 +1044,7 @@ public final class MethodSearch {
                                            boolean strictMatch,
                                            boolean allowMultiCalls) throws AmbiguousMethodException {
         IMethodCaller caller;
-        if (factory instanceof ADynamicClass) {
-            ADynamicClass aDynamicClass = (ADynamicClass) factory;
+        if (factory instanceof ADynamicClass aDynamicClass) {
             caller = aDynamicClass.getMethod(name, params, true);
         } else {
             caller = factory.getMethod(name, params);

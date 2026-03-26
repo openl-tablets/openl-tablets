@@ -124,7 +124,7 @@ public final class ASMProxyFactory {
             return ((ASMProxy) o)._handler;
         } else {
             throw new IllegalArgumentException(
-                    String.format("Expected to be proxied using '%s' class", ASMProxyFactory.class.getTypeName()));
+                    "Expected to be proxied using '%s' class".formatted(ASMProxyFactory.class.getTypeName()));
         }
     }
 }

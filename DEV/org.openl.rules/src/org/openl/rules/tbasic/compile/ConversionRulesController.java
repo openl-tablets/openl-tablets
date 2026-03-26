@@ -38,7 +38,7 @@ public final class ConversionRulesController {
 
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not
-        isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiline();
+        isMultilineOperation = nodesToCompile.getFirst().getSpecification().isMultiline();
 
         for (ConversionRuleBean conversionRule : conversionRules) {
             if (conversionRule.getOperation()
@@ -50,12 +50,11 @@ public final class ConversionRulesController {
         // No conversion rule found.
 
         List<String> predecessorOperations = Arrays
-                .asList(nodesToCompile.get(0).getSpecification().getPredecessorOperations());
-        String errorMessage = String.format(
-                "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s",
+                .asList(nodesToCompile.getFirst().getSpecification().getPredecessorOperations());
+        String errorMessage = "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s".formatted(
                 predecessorOperations,
                 groupedOperationNames);
-        IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
+        IOpenSourceCodeModule errorSource = nodesToCompile.getFirst().getAlgorithmRow().getOperation().asSourceCodeModule();
         BindHelper.processError(errorMessage, errorSource, bindingContext);
         return null;
     }

@@ -53,7 +53,7 @@ public abstract class ResultExport extends BaseExport {
                 }
 
                 rowNum = write(sheet, results[i], rowNum) + SPACE_BETWEEN_RESULTS;
-                listsWithResults.get(listsWithResults.size() - 1).add(results[i]);
+                listsWithResults.getLast().add(results[i]);
             }
             autoSizeColumns(sheet);
 

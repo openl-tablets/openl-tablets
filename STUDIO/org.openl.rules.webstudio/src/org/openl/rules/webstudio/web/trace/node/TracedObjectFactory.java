@@ -24,12 +24,11 @@ public class TracedObjectFactory {
                                                      Object target,
                                                      Object[] params,
                                                      IRuntimeEnv env) {
-        if (source instanceof OpenMethodDispatcher) {
-            return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
+        if (source instanceof OpenMethodDispatcher dispatcher) {
+            return OverloadedMethodChoiceTraceObject.create(dispatcher, params, env.getContext());
         } else if (source instanceof WeightAlgorithmExecutor) {
             return new WScoreTraceObject((ColumnMatch) target, params, env.getContext());
-        } else if (source instanceof ColumnMatch) {
-            ColumnMatch columnMatch = (ColumnMatch) source;
+        } else if (source instanceof ColumnMatch columnMatch) {
             if (columnMatch.getAlgorithmExecutor() instanceof WeightAlgorithmExecutor) {
                 return new ATableTracerNode("wcmatch",
                         "WCM",
@@ -39,30 +38,29 @@ public class TracedObjectFactory {
             } else {
                 return new ATableTracerNode("cmatch", "CM", columnMatch, params, env == null ? null : env.getContext());
             }
-        } else if (source instanceof Algorithm) {
+        } else if (source instanceof Algorithm algorithm) {
             return new ATableTracerNode("tbasic",
                     "Algorithm",
-                    (Algorithm) source,
+                    algorithm,
                     params,
                     env == null ? null : env.getContext());
-        } else if (source instanceof AlgorithmSubroutineMethod) {
-            return new ATableTracerNode("tbasicMethod", "Algorithm Method", (AlgorithmSubroutineMethod) source, null);
-        } else if (source instanceof DecisionTable) {
-            return new DecisionTableTraceObject((DecisionTable) source, params, env == null ? null : env.getContext());
-        } else if (source instanceof Spreadsheet) {
+        } else if (source instanceof AlgorithmSubroutineMethod subroutineMethod) {
+            return new ATableTracerNode("tbasicMethod", "Algorithm Method", subroutineMethod, null);
+        } else if (source instanceof DecisionTable table) {
+            return new DecisionTableTraceObject(table, params, env == null ? null : env.getContext());
+        } else if (source instanceof Spreadsheet spreadsheet) {
             return new ATableTracerNode("spreadsheet",
                     "SpreadSheet",
-                    (Spreadsheet) source,
+                    spreadsheet,
                     params,
                     env == null ? null : env.getContext());
-        } else if (source instanceof TableMethod) {
-            return new MethodTableTraceObject((TableMethod) source, params, env == null ? null : env.getContext());
-        } else if (method instanceof SpreadsheetCell) {
-            return new SpreadsheetTracerLeaf((SpreadsheetCell) method);
-        } else if (method instanceof ActionInvoker) {
-            return new DTRuleTracerLeaf(((ActionInvoker) method).getRules());
-        } else if (method instanceof RuntimeOperation) {
-            RuntimeOperation operation = (RuntimeOperation) method;
+        } else if (source instanceof TableMethod tableMethod) {
+            return new MethodTableTraceObject(tableMethod, params, env == null ? null : env.getContext());
+        } else if (method instanceof SpreadsheetCell cell) {
+            return new SpreadsheetTracerLeaf(cell);
+        } else if (method instanceof ActionInvoker invoker) {
+            return new DTRuleTracerLeaf(invoker.getRules());
+        } else if (method instanceof RuntimeOperation operation) {
             String nameForDebug = operation.getNameForDebug();
             if (nameForDebug == null) {
                 return null;
@@ -93,13 +91,13 @@ public class TracedObjectFactory {
             trObj = MatchTraceObject.create(args);
         } else if ("result".equals(id)) {
             trObj = ResultTraceObject.create(args);
-        } else if (source instanceof SpreadsheetCell) {
-            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
+        } else if (source instanceof SpreadsheetCell cell) {
+            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf(cell);
             tr.setResult(args[0]);
             trObj = tr;
-        } else if (source instanceof OpenMethodDispatcher) {
+        } else if (source instanceof OpenMethodDispatcher dispatcher) {
             trObj = new DTRuleTracerLeaf(
-                    new int[]{((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])});
+                    new int[]{dispatcher.getCandidates().indexOf(args[0])});
         } else {
             trObj = null;
         }

@@ -1,6 +1,9 @@
 package org.openl.rules.common;
 
+import java.io.Serial;
+
 public class ProjectException extends CommonException {
+    @Serial
     private static final long serialVersionUID = -2918146804954398129L;
 
     /**

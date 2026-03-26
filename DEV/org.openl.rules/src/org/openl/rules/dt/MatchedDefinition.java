@@ -96,18 +96,13 @@ class MatchedDefinition {
     }
 
     public MatchType getMatchType() {
-        switch (matchType) {
-            case STRICT:
-                return parametersRenamingIsUsed ? MatchType.STRICT_PARAMS_RENAMED : matchType;
-            case STRICT_CASTED:
-                return parametersRenamingIsUsed ? MatchType.STRICT_CASTED_PARAMS_RENAMED : matchType;
-            case METHOD_ARGS_RENAMED:
-                return parametersRenamingIsUsed ? MatchType.METHOD_ARGS_AND_PARAMS_RENAMED : matchType;
-            case METHOD_ARGS_RENAMED_CASTED:
-                return parametersRenamingIsUsed ? MatchType.METHOD_ARGS_AND_PARAMS_RENAMED_CASTED : matchType;
-            default:
-                return matchType;
-        }
+        return switch (matchType) {
+            case STRICT -> parametersRenamingIsUsed ? MatchType.STRICT_PARAMS_RENAMED : matchType;
+            case STRICT_CASTED -> parametersRenamingIsUsed ? MatchType.STRICT_CASTED_PARAMS_RENAMED : matchType;
+            case METHOD_ARGS_RENAMED -> parametersRenamingIsUsed ? MatchType.METHOD_ARGS_AND_PARAMS_RENAMED : matchType;
+            case METHOD_ARGS_RENAMED_CASTED -> parametersRenamingIsUsed ? MatchType.METHOD_ARGS_AND_PARAMS_RENAMED_CASTED : matchType;
+            default -> matchType;
+        };
     }
 
     public boolean isMayHaveCompilationErrors() {

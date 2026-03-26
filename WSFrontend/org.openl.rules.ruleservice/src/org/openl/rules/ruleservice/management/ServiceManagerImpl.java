@@ -233,7 +233,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         String servicePath = serviceDescription.getDeployPath();
         if (getServiceByDeploy(servicePath) != null) {
             throw new RuleServiceDeployException(
-                    String.format("The service with path '%s' is already deployed.", servicePath));
+                    "The service with path '%s' is already deployed.".formatted(servicePath));
         }
         try {
             this.serviceDescriptionInProcess = serviceDescription;
@@ -429,7 +429,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void undeploy(String deployPath) throws RuleServiceUndeployException {
         Objects.requireNonNull(deployPath, "deployPath cannot be null");
         OpenLService undeployService = services2.get(deployPath);
-        Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", deployPath));
+        Objects.requireNonNull(undeployService, "Service '%s' has not been found.".formatted(deployPath));
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers) {
             if (publisher.getServiceByDeploy(deployPath) != null) {

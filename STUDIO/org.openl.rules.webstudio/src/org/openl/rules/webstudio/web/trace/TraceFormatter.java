@@ -71,23 +71,23 @@ public class TraceFormatter {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {
             return "Result: " + obj.getResult();
-        } else if (obj instanceof MatchTraceObject) {
-            return getDisplayName((MatchTraceObject) obj, smartNumbers);
-        } else if (obj instanceof TBasicOperationTraceObject) {
-            return getDisplayName((TBasicOperationTraceObject) obj, smartNumbers);
-        } else if (obj instanceof DTRuleTraceObject) {
-            return getDisplayName((DTRuleTraceObject) obj);
-        } else if (obj instanceof SpreadsheetTracerLeaf) {
-            return getDisplayName((SpreadsheetTracerLeaf) obj, smartNumbers);
-        } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
+        } else if (obj instanceof MatchTraceObject object4) {
+            return getDisplayName(object4, smartNumbers);
+        } else if (obj instanceof TBasicOperationTraceObject object3) {
+            return getDisplayName(object3, smartNumbers);
+        } else if (obj instanceof DTRuleTraceObject object2) {
+            return getDisplayName(object2);
+        } else if (obj instanceof SpreadsheetTracerLeaf leaf1) {
+            return getDisplayName(leaf1, smartNumbers);
+        } else if (obj instanceof OverloadedMethodChoiceTraceObject object1) {
             return "Overloaded method choice for method " + MethodUtil
-                    .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
-        } else if (obj instanceof DTRuleTracerLeaf) {
-            return "Returned rule: " + Arrays.toString(((DTRuleTracerLeaf) obj).getRuleNames());
-        } else if (obj instanceof ATableTracerNode) {
-            return getDisplayName((ATableTracerNode) obj, smartNumbers);
-        } else if (obj instanceof RefToTracerNodeObject) {
-            return getDisplayName(((RefToTracerNodeObject) obj).getOriginalTracerNode(), smartNumbers);
+                    .printSignature(object1.getMethodCandidates().getFirst(), 0);
+        } else if (obj instanceof DTRuleTracerLeaf leaf) {
+            return "Returned rule: " + Arrays.toString(leaf.getRuleNames());
+        } else if (obj instanceof ATableTracerNode node) {
+            return getDisplayName(node, smartNumbers);
+        } else if (obj instanceof RefToTracerNodeObject object) {
+            return getDisplayName(object.getOriginalTracerNode(), smartNumbers);
         }
         return "NULL - " + obj.getClass();
     }
@@ -119,10 +119,10 @@ public class TraceFormatter {
 
         String displayFieldFormattedValues = "";
         if (!fieldFormattedValues.equals("")) {
-            displayFieldFormattedValues = String.format("[Local vars: %s]", fieldFormattedValues);
+            displayFieldFormattedValues = "[Local vars: %s]".formatted(fieldFormattedValues);
         }
 
-        return String.format("Step: row %d: %s %s %s %s",
+        return "Step: row %d: %s %s %s %s".formatted(
                 operationRow,
                 operationName,
                 nameForDebug != null ? nameForDebug : "",
@@ -156,10 +156,10 @@ public class TraceFormatter {
             ruleNames[i] = decisionTable.getRuleName(rules[i]);
         }
         if (dti.isIndexed()) {
-            return String
-                    .format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+            return "Indexed condition: %s, Rules: %s"
+                    .formatted(dti.getConditionName(), Arrays.toString(ruleNames));
         } else {
-            return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+            return "Condition: %s, Rules: %s".formatted(dti.getConditionName(), Arrays.toString(ruleNames));
         }
     }
 
@@ -256,8 +256,7 @@ public class TraceFormatter {
                 return FormattersManager.format(o);
             } catch (Throwable e) {
                 log.debug(e.getMessage(), e);
-                return String.format(
-                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                return "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>".formatted(
                         getClassName.apply(e),
                         getClassName.apply(o));
             }

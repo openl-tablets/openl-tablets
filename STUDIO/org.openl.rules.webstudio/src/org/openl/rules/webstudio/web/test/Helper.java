@@ -42,6 +42,6 @@ public final class Helper {
     }
 
     public boolean isSpreadsheetResult(Object value) {
-        return value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
+        return value instanceof SpreadsheetResult sr && sr.getLogicalTable() != null;
     }
 }

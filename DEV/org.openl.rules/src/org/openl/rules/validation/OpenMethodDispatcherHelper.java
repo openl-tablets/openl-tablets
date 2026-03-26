@@ -30,8 +30,8 @@ class OpenMethodDispatcherHelper {
 
     private static void extractMethods(Collection<IOpenMethod> methods, List<IOpenMethod> result) {
         for (IOpenMethod method : methods) {
-            if (method instanceof OpenMethodDispatcher) {
-                extractMethods(((OpenMethodDispatcher) method).getCandidates(), result);
+            if (method instanceof OpenMethodDispatcher dispatcher) {
+                extractMethods(dispatcher.getCandidates(), result);
             } else {
                 result.add(WrapperLogic.unwrapOpenMethod(method));
             }

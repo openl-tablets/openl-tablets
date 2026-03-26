@@ -278,11 +278,11 @@ class ClonerTest {
         list2.add(list1);
 
         List<Object> clonedList1 = Cloner.clone(list1);
-        List<Object> clonedList2 = (List<Object>) clonedList1.get(0);
+        List<Object> clonedList2 = (List<Object>) clonedList1.getFirst();
 
         assertNotSame(list1, clonedList1);
         assertNotSame(list2, clonedList2);
-        assertSame(clonedList1, clonedList2.get(0));
+        assertSame(clonedList1, clonedList2.getFirst());
     }
 
     @Test

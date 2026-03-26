@@ -3,7 +3,6 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,16 +74,16 @@ class PropertiesEngine {
         Path base;
         Path pathAbsolute;
         try {
-            base = Paths.get(root.getAbsolutePath()).toRealPath();
+            base = Path.of(root.getAbsolutePath()).toRealPath();
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            base = Paths.get(root.getAbsolutePath()).normalize();
+            base = Path.of(root.getAbsolutePath()).normalize();
         }
         try {
-            pathAbsolute = Paths.get(path).toRealPath();
+            pathAbsolute = Path.of(path).toRealPath();
         } catch (IOException e) {
             log.debug(e.getMessage(), e);
-            pathAbsolute = Paths.get(path).normalize();
+            pathAbsolute = Path.of(path).normalize();
         }
 
         String relativePath = base.relativize(pathAbsolute).toString();

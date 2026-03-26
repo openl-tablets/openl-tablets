@@ -125,8 +125,8 @@ public abstract class WebStudioUtils {
 
     public static HttpSession getSession() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
-            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        if (requestAttributes instanceof ServletRequestAttributes attributes) {
+            HttpServletRequest request = attributes.getRequest();
             return request.getSession(false);
         }
         return null;

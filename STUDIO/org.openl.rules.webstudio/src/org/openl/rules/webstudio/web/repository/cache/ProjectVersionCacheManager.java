@@ -63,8 +63,8 @@ public class ProjectVersionCacheManager implements InitializingBean {
                         //skip manifest from hash calculation
                         continue;
                     }
-                    if (artefact instanceof AProjectResource) {
-                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                    if (artefact instanceof AProjectResource resource) {
+                        try (InputStream content = resource.getContent()) {
                             md5Strings.add(DigestUtils.md5Hex(content));
                             String fileName = artefact.getFileData().getName();
                             String folderPath = wsProject.getFolderPath();

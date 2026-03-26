@@ -42,8 +42,7 @@ public class SecurityFilter implements Filter {
         } finally {
             readLock.unlock();
         }
-        if (servletRequest instanceof HttpServletRequest) {
-            HttpServletRequest request = (HttpServletRequest) servletRequest;
+        if (servletRequest instanceof HttpServletRequest request) {
             HttpSession session = request.getSession(false);
             if (session != null) {
                 // Log authentication errors if a backend authentication repository is unavailable, for example

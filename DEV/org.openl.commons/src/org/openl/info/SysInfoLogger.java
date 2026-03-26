@@ -3,7 +3,7 @@ package org.openl.info;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
@@ -51,7 +51,7 @@ final class SysInfoLogger extends OpenLLogger {
             log("##### Cannot access to the TimeZone or Locale");
         }
         try {
-            log("Work dir : {}", Paths.get("").toAbsolutePath());
+            log("Work dir : {}", Path.of("").toAbsolutePath());
         } catch (Exception ignored) {
             log("##### Cannot access to the FileSystem");
         }
@@ -88,14 +88,14 @@ final class SysInfoLogger extends OpenLLogger {
                 var peak = pool.getPeakUsage();
                 peak = peak == null ? new MemoryUsage(0, 0, 0, 0) : peak;
                 log("{} {}     {} {}     {} {}     {}   {}",
-                        String.format("%-32s", pool.getName()),
+                        "%-32s".formatted(pool.getName()),
                         toMiBAlign(usage.getInit()),
                         toMiBAlign(usage.getUsed()),
                         toMiBAlign(peak.getUsed()),
                         toMiBAlign(usage.getCommitted()),
                         toMiBAlign(peak.getCommitted()),
                         toMiBAlign(usage.getMax()),
-                        String.format("%15s", pool.getType()));
+                        "%15s".formatted(pool.getType()));
             }
         } catch (Exception ignored) {
             log("##### Cannot access to the Runtime environment");
@@ -103,7 +103,7 @@ final class SysInfoLogger extends OpenLLogger {
     }
 
     private String toMiB(long bytes) {
-        return String.format("%.1f MiB", bytes / 1024.0 / 1024.0);
+        return "%.1f MiB".formatted(bytes / 1024.0 / 1024.0);
     }
 
     private String toMiBAlign(long bytes) {
@@ -112,6 +112,6 @@ final class SysInfoLogger extends OpenLLogger {
         } else if (bytes == 0) {
             return "     0 ";
         }
-        return String.format("%7.1f", bytes / 1024.0 / 1024.0);
+        return "%7.1f".formatted(bytes / 1024.0 / 1024.0);
     }
 }

@@ -59,7 +59,7 @@ public class ValidationManager {
                 } catch (Exception e) {
                     result = new ValidationResult(ValidationStatus.FAIL,
                             Collections.singletonList(
-                                    OpenLMessagesUtils.newErrorMessage(String.format("Failed to execute validator: %s. %s",
+                                    OpenLMessagesUtils.newErrorMessage("Failed to execute validator: %s. %s".formatted(
                                             validator.getClass().getTypeName(),
                                             ExceptionUtils.getRootCauseMessage(e)))));
                 }

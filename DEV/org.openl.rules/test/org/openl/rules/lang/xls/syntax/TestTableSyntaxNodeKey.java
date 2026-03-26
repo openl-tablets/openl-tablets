@@ -42,9 +42,9 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
 
     @Test
     public void testEquals() {
-        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)),
+        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.getFirst()),
                 new TableSyntaxNodeKey(driverAgeTypeTables.get(1)));
-        assertFalse(new TableSyntaxNodeKey(driverEligibilityTables.get(0)).equals(new TableSyntaxNodeKey(
+        assertFalse(new TableSyntaxNodeKey(driverEligibilityTables.getFirst()).equals(new TableSyntaxNodeKey(
                 driverEligibilityTables.get(1))));
 
     }
@@ -52,7 +52,7 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     @Test
     public void testHashCode() {
         // same hash codes for equal objects
-        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)).hashCode(),
+        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.getFirst()).hashCode(),
                 new TableSyntaxNodeKey(driverAgeTypeTables.get(1)).hashCode());
     }
 }

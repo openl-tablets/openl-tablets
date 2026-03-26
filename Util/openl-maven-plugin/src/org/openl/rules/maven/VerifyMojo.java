@@ -119,10 +119,10 @@ public class VerifyMojo extends BaseOpenLMojo {
             var checkMethod = appClass.getDeclaredMethod("check", String.class, Collection.class, String.class);
             checkMethod.invoke(null, pathDeployment, openlJars.values(), outputDirectory.getPath());
 
-            info(String.format("Verification is passed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()));
+            info("Verification is passed for '%s:%s' artifact.".formatted(project.getGroupId(), project.getArtifactId()));
         } catch (Exception e) {
-            throw new MojoFailureException(String
-                    .format("Verification is failed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()), e);
+            throw new MojoFailureException("Verification is failed for '%s:%s' artifact."
+                    .formatted(project.getGroupId(), project.getArtifactId()), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassloader);
             world.disposeRealm("jetty");

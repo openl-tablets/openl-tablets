@@ -69,16 +69,13 @@ final class SpreadsheetMethodResolver {
         if (!(method.getType() instanceof CustomSpreadsheetResultOpenClass)) {
             throw new IllegalStateException("Expected custom spreadsheet result");
         }
-        if (method instanceof OpenMethodDispatcher) {
-            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+        if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
-                if (m instanceof Spreadsheet && m.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                    Spreadsheet spreadsheet = (Spreadsheet) m;
+                if (m instanceof Spreadsheet spreadsheet && m.getType() instanceof CustomSpreadsheetResultOpenClass) {
                     return resolveStepName(spreadsheet, beanField);
                 }
             }
-        } else if (method instanceof Spreadsheet) {
-            Spreadsheet spreadsheet = (Spreadsheet) method;
+        } else if (method instanceof Spreadsheet spreadsheet) {
             return resolveStepName(spreadsheet, beanField);
         }
         return null;

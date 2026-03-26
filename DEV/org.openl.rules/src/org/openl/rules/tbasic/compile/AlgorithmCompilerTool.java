@@ -57,12 +57,12 @@ public final class AlgorithmCompilerTool {
         }
 
         if (operationNode == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0)
+            IOpenSourceCodeModule errorSource = candidateNodes.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
-            BindHelper.processError(String
-                            .format("Compilation failure. Cannot find %s in operations sequence %s", operationName, candidateNodes),
+            BindHelper.processError("Compilation failure. Cannot find %s in operations sequence %s"
+                    .formatted(operationName, candidateNodes),
                     errorSource,
                     bindingContext);
         }
@@ -100,11 +100,11 @@ public final class AlgorithmCompilerTool {
         IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
         if (codeField == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0)
+            IOpenSourceCodeModule errorSource = candidateNodes.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
-            BindHelper.processError(String.format("Compilation failure. Cannot find '%s' field", fieldName),
+            BindHelper.processError("Compilation failure. Cannot find '%s' field".formatted(fieldName),
                     errorSource,
                     bindingContext);
             return new StringValue("");
@@ -122,7 +122,7 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static AlgorithmTreeNode getLastExecutableOperation(List<AlgorithmTreeNode> nodes) {
-        AlgorithmTreeNode lastOperation = nodes.get(nodes.size() - 1);
+        AlgorithmTreeNode lastOperation = nodes.getLast();
         if (lastOperation.getSpecificationKeyword().startsWith(TBasicSpecificationKey.END.toString())) {
             lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
         } else if (!lastOperation.getChildren().isEmpty()) {
@@ -189,7 +189,7 @@ public final class AlgorithmCompilerTool {
             sourceNode = extractOperationNode(nodesToCompile, instruction, bindingContext);
             operationValueName = extractFieldName(instruction);
         } else {
-            sourceNode = nodesToCompile.get(0);
+            sourceNode = nodesToCompile.getFirst();
         }
 
         return new AlgorithmOperationSource(sourceNode, operationValueName);

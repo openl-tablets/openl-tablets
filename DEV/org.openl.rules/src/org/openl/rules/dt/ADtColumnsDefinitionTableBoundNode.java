@@ -167,7 +167,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             int d = expressionTable.getCell(0, 0).getHeight();
             while (j < d) {
                 if (pGridCellSourceCodeModule != null && parametersForMergedTitle
-                        .size() == 1 && parametersForMergedTitle.get(0) == null) {
+                        .size() == 1 && parametersForMergedTitle.getFirst() == null) {
                     String errMsg = "Parameter cell format: <type> or <type> <name>";
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                     finished = true;
@@ -549,8 +549,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     private void addMetaInfoForExpression(CompositeMethod compositeMethod, ICell cell) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
-        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader
                     .addExpression(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), compositeMethod, cell.getStringValue());
         }
@@ -558,8 +557,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     private void addMetaInfoForInputs(IOpenMethodHeader header, ICell cell, String text, int from) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
-        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader
                     .addInput(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), header, text, from);
         }
@@ -567,8 +565,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     private void addMetaInfoForParameter(IParameterDeclaration parameterDeclaration, ICell cell) {
         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
-        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
-            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader) {
             dtColumnsDefinitionMetaInfoReader.addParameter(cell.getAbsoluteColumn(),
                     cell.getAbsoluteRow(),
                     parameterDeclaration,

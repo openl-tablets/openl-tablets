@@ -143,7 +143,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
+            throw new RuleServiceDeployException("Failed to deploy service '%s'.".formatted(service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -166,7 +166,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'.", service.getDeployPath()));
+                    "There is no running service with name '%s'.".formatted(service.getDeployPath()));
         }
         try {
             server.destroy();
@@ -174,7 +174,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+            throw new RuleServiceUndeployException("Failed to undeploy service '%s'.".formatted(service.getDeployPath()),
                     t);
         }
     }

@@ -40,7 +40,7 @@ public class JavaBeanClassBuilder {
         Objects.requireNonNull(type, "type type be null");
         Object put = parentFields.put(name, type);
         if (put != null) {
-            throw new IllegalArgumentException(String.format("The same parent field '%s has been added.", name));
+            throw new IllegalArgumentException("The same parent field '%s has been added.".formatted(name));
         }
         return this;
     }
@@ -57,7 +57,7 @@ public class JavaBeanClassBuilder {
         Objects.requireNonNull(type, "type type be null");
         Object put = fields.put(name, type);
         if (put != null) {
-            throw new IllegalArgumentException(String.format("The same field '%s has been added.", name));
+            throw new IllegalArgumentException("The same field '%s has been added.".formatted(name));
         }
         return this;
     }

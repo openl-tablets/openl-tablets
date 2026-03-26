@@ -17,7 +17,7 @@ public class RepositoryAclServiceProviderImpl implements RepositoryAclServicePro
             case REPO_TYPE_PROD -> productionRepositoryAclService;
             case REPO_TYPE_DESIGN -> designRepositoryAclService;
             default ->
-                    throw new IllegalArgumentException(String.format("Repository type '%s' is not found.", repositoryType));
+                    throw new IllegalArgumentException("Repository type '%s' is not found.".formatted(repositoryType));
         };
     }
 

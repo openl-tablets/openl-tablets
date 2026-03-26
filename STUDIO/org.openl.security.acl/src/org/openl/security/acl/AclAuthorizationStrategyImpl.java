@@ -38,8 +38,7 @@ public class AclAuthorizationStrategyImpl extends org.springframework.security.a
     public void securityCheck(Acl acl, int changeType) {
         List<Sid> sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
         for (Sid sid : sids) {
-            if (sid instanceof GrantedAuthoritySid) {
-                GrantedAuthoritySid grantedAuthoritySid = (GrantedAuthoritySid) sid;
+            if (sid instanceof GrantedAuthoritySid grantedAuthoritySid) {
                 if (getRequiredAuthority(changeType).getAuthority().equals(grantedAuthoritySid.getGrantedAuthority())) {
                     return;
                 }

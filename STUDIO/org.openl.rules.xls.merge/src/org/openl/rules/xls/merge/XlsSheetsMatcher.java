@@ -649,9 +649,9 @@ public class XlsSheetsMatcher {
             return false;
         }
 
-        if (baseFont instanceof XSSFFont && font instanceof XSSFFont) {
-            XSSFColor color1 = ((XSSFFont) baseFont).getXSSFColor();
-            XSSFColor color2 = ((XSSFFont) font).getXSSFColor();
+        if (baseFont instanceof XSSFFont fFont2 && font instanceof XSSFFont fFont3) {
+            XSSFColor color1 = fFont2.getXSSFColor();
+            XSSFColor color2 = fFont3.getXSSFColor();
             if (!equalColor(color1, color2)) {
                 log.debug("Base sheet={}&cell={} XSSFColor='{}', but second XSSFColor='{}'",
                         baseCursor.sheet.getSheetName(),
@@ -660,9 +660,9 @@ public class XlsSheetsMatcher {
                         toARGBHex(color2));
                 return false;
             }
-        } else if (baseFont instanceof HSSFFont && font instanceof HSSFFont) {
-            HSSFColor color1 = ((HSSFFont) baseFont).getHSSFColor((HSSFWorkbook) baseCursor.originalWorkbook());
-            HSSFColor color2 = ((HSSFFont) font).getHSSFColor((HSSFWorkbook) cursor.originalWorkbook());
+        } else if (baseFont instanceof HSSFFont fFont && font instanceof HSSFFont fFont1) {
+            HSSFColor color1 = fFont.getHSSFColor((HSSFWorkbook) baseCursor.originalWorkbook());
+            HSSFColor color2 = fFont1.getHSSFColor((HSSFWorkbook) cursor.originalWorkbook());
             if (!equalColor(color1, color2)) {
                 log.debug("Base sheet={}&cell={} HSSFColor='{}', but second HSSFColor='{}'",
                         baseCursor.sheet.getSheetName(),
@@ -771,8 +771,7 @@ public class XlsSheetsMatcher {
             return false;
         }
 
-        if (baseCursor.cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle baseCellStyle = (XSSFCellStyle) baseCursor.cellStyle;
+        if (baseCursor.cellStyle instanceof XSSFCellStyle baseCellStyle) {
             XSSFCellStyle cellStyle = (XSSFCellStyle) cursor.cellStyle;
 
             XSSFColor bottomBorderColor1 = baseCellStyle.getBottomBorderXSSFColor();
@@ -874,8 +873,7 @@ public class XlsSheetsMatcher {
      * @return {@code true} if no changes is detected, otherwise {@code false}
      */
     private static boolean equalFillInCell(Cursor baseCursor, Cursor cursor) {
-        if (baseCursor.cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle baseCellStyle = (XSSFCellStyle) baseCursor.cellStyle;
+        if (baseCursor.cellStyle instanceof XSSFCellStyle baseCellStyle) {
             XSSFCellStyle cellStyle = (XSSFCellStyle) cursor.cellStyle;
 
             XSSFColor fillBackgroundColor1 = baseCellStyle.getFillBackgroundXSSFColor();
@@ -1003,8 +1001,7 @@ public class XlsSheetsMatcher {
         if (cellStyle.getBorderRight() != BorderStyle.NONE) {
             return false;
         }
-        if (cellStyle instanceof XSSFCellStyle) {
-            XSSFCellStyle xssfCellStyle = (XSSFCellStyle) cellStyle;
+        if (cellStyle instanceof XSSFCellStyle xssfCellStyle) {
             if (!isNullOrEmpty(xssfCellStyle.getBottomBorderXSSFColor())) {
                 return false;
             }

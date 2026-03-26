@@ -671,8 +671,8 @@ abstract class DBRepository implements Repository, Closeable {
                 log.warn(e.getMessage(), e);
             }
             Object revision = checkRepository();
-            if (revision instanceof Throwable) {
-                log.warn("Cannot check revision of the repository.", (Throwable) revision);
+            if (revision instanceof Throwable throwable) {
+                log.warn("Cannot check revision of the repository.", throwable);
                 return null;
             }
             return revision;

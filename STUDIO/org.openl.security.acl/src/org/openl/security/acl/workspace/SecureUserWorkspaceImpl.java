@@ -115,7 +115,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
             if (designRepositoryAclService.isGranted(repositoryId, path, List.of(BasePermission.WRITE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
-                throw new ProjectException(String.format("There is no permission for modifying '%s'.", path));
+                throw new ProjectException("There is no permission for modifying '%s'.".formatted(path));
             }
         } else {
             if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.CREATE))) {

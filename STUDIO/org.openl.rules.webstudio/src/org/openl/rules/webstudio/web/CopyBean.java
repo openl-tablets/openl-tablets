@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -307,7 +306,7 @@ public class CopyBean {
                         userWorkspace.getProjectsLockEngine());
                 if (!designRepositoryAclService
                         .createAcl(copiedProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
-                    String message = String.format("Granting permissions to a new project '%s' is failed.",
+                    String message = "Granting permissions to a new project '%s' is failed.".formatted(
                             ProjectArtifactUtils.extractResourceName(copiedProject));
                     WebStudioUtils.addErrorMessage(message);
                 }
@@ -450,14 +449,14 @@ public class CopyBean {
         final String projName = StringUtils
                 .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
         FolderStructureValidators.validatePathInRepository(projPath);
-        final Path currentPath = Paths.get(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
+        final Path currentPath = Path.of(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
         UserWorkspace userWorkspace = getUserWorkspace();
         if (userWorkspace.getDesignTimeRepository()
                 .getProjects()
                 .stream()
                 .filter(proj -> proj.getRepository().getId().equals(repositoryId))
                 .map(AProjectFolder::getRealPath)
-                .map(Paths::get)
+                .map(Path::of)
                 .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
             WebStudioUtils.throwValidationError("Path conflicts with an existing project.");
         }
@@ -474,7 +473,7 @@ public class CopyBean {
         UserWorkspace userWorkspace = getUserWorkspace();
         DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
         if (designTimeRepository.getRepository(toRepositoryId) == null) {
-            toRepositoryId = designTimeRepository.getRepositories().get(0).getId();
+            toRepositoryId = designTimeRepository.getRepositories().getFirst().getId();
         }
 
         this.designRepoComments = new Comments(propertyResolver, toRepositoryId);
@@ -549,8 +548,7 @@ public class CopyBean {
 
     public boolean getCanCopyToNewBranch(AProject project) {
         boolean branchesSupported = project.getRepository().supports().branches();
-        if (project instanceof RulesProject) {
-            RulesProject rulesProject = (RulesProject) project;
+        if (project instanceof RulesProject rulesProject) {
             branchesSupported = rulesProject.isSupportsBranches();
         }
         if (branchesSupported) {

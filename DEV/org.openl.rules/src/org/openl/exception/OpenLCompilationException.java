@@ -1,6 +1,7 @@
 package org.openl.exception;
 
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.io.StringWriter;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -12,6 +13,7 @@ import org.openl.util.text.ILocation;
 
 public class OpenLCompilationException extends Exception implements OpenLException {
 
+    @Serial
     private static final long serialVersionUID = -8075090606797764194L;
 
     private final Throwable insideCause;
@@ -105,9 +107,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         String message;
 
-        if (cause instanceof CompositeOpenlException) {
-
-            CompositeOpenlException syntaxErrorException = (CompositeOpenlException) cause;
+        if (cause instanceof CompositeOpenlException syntaxErrorException) {
 
             for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
                 printError(syntaxErrorException.getErrors()[i], writer);

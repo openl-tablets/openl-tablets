@@ -88,12 +88,12 @@ public class OpenLClassLoader extends GroovyClassLoader {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
         }
 
-        if (classLoader instanceof OpenLClassLoader && ((OpenLClassLoader) classLoader).containsClassLoader(this)) {
+        if (classLoader instanceof OpenLClassLoader loader && loader.containsClassLoader(this)) {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
         ClassLoader classLoader1 = applyGroovySupport(classLoader, new URL[0]);
-        if (classLoader1 instanceof GroovyClassLoader && classLoader1 != classLoader) {
-            groovyClassLoaders.add((GroovyClassLoader) classLoader1);
+        if (classLoader1 instanceof GroovyClassLoader loader && classLoader1 != classLoader) {
+            groovyClassLoaders.add(loader);
         }
         bundleClassLoaders.add(classLoader1);
     }
@@ -101,7 +101,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
     public void addGeneratedClass(String name, byte[] byteCode) {
         if (generatedClasses.putIfAbsent(name, byteCode) != null) {
             throw new OpenLGeneratedClassAlreadyDefinedException(
-                    String.format("Byte code for class '%s' is already defined.", name));
+                    "Byte code for class '%s' is already defined.".formatted(name));
         }
 
     }
@@ -112,7 +112,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
         }
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            if (bundleClassLoader instanceof OpenLClassLoader && ((OpenLClassLoader) bundleClassLoader)
+            if (bundleClassLoader instanceof OpenLClassLoader loader && loader
                     .containsClassLoader(classLoader)) {
                 return true;
             }
@@ -164,15 +164,14 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 // be returned as a result
                 //
                 Class<?> clazz;
-                if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
-                    OpenLClassLoader sbc = (OpenLClassLoader) bundleClassLoader;
+                if (bundleClassLoader instanceof OpenLClassLoader sbc && bundleClassLoader.getParent() == this) {
                     clazz = sbc.findLoadedClass(name);
                     if (clazz == null) {
                         clazz = sbc.findClassInBundles(name, c);
                     }
                 } else {
-                    if (bundleClassLoader instanceof OpenLClassLoader) {
-                        clazz = ((OpenLClassLoader) bundleClassLoader).loadClass(name, c);
+                    if (bundleClassLoader instanceof OpenLClassLoader loader) {
+                        clazz = loader.loadClass(name, c);
                     } else {
                         clazz = bundleClassLoader.loadClass(name);
                     }
@@ -194,11 +193,9 @@ public class OpenLClassLoader extends GroovyClassLoader {
             }
             c.add(bundleClassLoader);
             URL url;
-            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader sbcl && bundleClassLoader.getParent() == this) {
                 url = sbcl.findResourceInBundles(name, c);
-            } else if (bundleClassLoader instanceof OpenLClassLoader) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            } else if (bundleClassLoader instanceof OpenLClassLoader sbcl) {
                 url = sbcl.getResource(name, c);
             } else {
                 url = bundleClassLoader.getResource(name);
@@ -217,11 +214,9 @@ public class OpenLClassLoader extends GroovyClassLoader {
             }
             c.add(bundleClassLoader);
             InputStream inputStream;
-            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader sbcl && bundleClassLoader.getParent() == this) {
                 inputStream = sbcl.findResourceAsStreamInBundles(name, c);
-            } else if (bundleClassLoader instanceof OpenLClassLoader) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            } else if (bundleClassLoader instanceof OpenLClassLoader sbcl) {
                 inputStream = sbcl.getResourceAsStream(name, c);
             } else {
                 inputStream = bundleClassLoader.getResourceAsStream(name);
@@ -242,11 +237,9 @@ public class OpenLClassLoader extends GroovyClassLoader {
             }
             c.add(bundleClassLoader);
             Enumeration<URL> resources = null;
-            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader sbcl && bundleClassLoader.getParent() == this) {
                 sbcl.findResourcesInBundles(name, c, queue);
-            } else if (bundleClassLoader instanceof OpenLClassLoader) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            } else if (bundleClassLoader instanceof OpenLClassLoader sbcl) {
                 resources = sbcl.getResources(name, c);
             } else {
                 resources = bundleClassLoader.getResources(name);
@@ -316,16 +309,14 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 continue;
             }
             c.add(bundleClassLoader);
-            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader sbcl && bundleClassLoader.getParent() == this) {
                 sbcl.addURLsFromBundles(c, urls);
-            } else if (bundleClassLoader instanceof OpenLClassLoader) {
-                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+            } else if (bundleClassLoader instanceof OpenLClassLoader sbcl) {
                 for (URL url : sbcl.getURLs(c)) {
                     addURLToList(urls, url);
                 }
-            } else if (bundleClassLoader instanceof URLClassLoader) {
-                for (URL url : ((URLClassLoader) bundleClassLoader).getURLs()) {
+            } else if (bundleClassLoader instanceof URLClassLoader loader) {
+                for (URL url : loader.getURLs()) {
                     addURLToList(urls, url);
                 }
             }

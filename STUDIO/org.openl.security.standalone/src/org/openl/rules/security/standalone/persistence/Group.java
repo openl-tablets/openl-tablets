@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 import jakarta.persistence.CollectionTable;
@@ -21,6 +22,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "OpenL_Groups")
 public class Group implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;

@@ -227,9 +227,7 @@ public class TestDescription {
                 IdentifierNode[] fieldChainTokens = columnDescriptor.getFieldChainTokens();
                 if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
                     // Found first column descriptor for needed parameter
-                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor) {
-                        // Foreign key to a data described in the Data Table
-                        ForeignKeyColumnDescriptor descriptor = (ForeignKeyColumnDescriptor) columnDescriptor;
+                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
                         foreignKeyField = descriptor.getForeignKeyField(type, db);
                     } else {
                         // Test data is described in the current Test Table
@@ -258,6 +256,6 @@ public class TestDescription {
      */
     public boolean isEmptyOrNewStyleErrorDescription() {
         return errorFields
-                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
+                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.getFirst().getName()));
     }
 }

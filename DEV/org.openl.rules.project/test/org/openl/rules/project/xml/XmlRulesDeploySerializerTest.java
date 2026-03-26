@@ -64,28 +64,29 @@ public class XmlRulesDeploySerializerTest {
         return rulesDeploy;
     }
 
-    private static final String EXPECTED_VALUE = "<rules-deploy>\n" +
-            "    <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" +
-            "    <serviceName>rulesDeployName</serviceName>\n" +
-            "    <publishers>\n" +
-            "        <publisher>WEBSERVICE</publisher>\n" +
-            "    </publishers>\n" +
-            "    <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>\n" +
-            "    <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>\n" +
-            "    <serviceClass>java.lang.String</serviceClass>\n" +
-            "    <url>someURL</url>\n" +
-            "    <rmiName>rmiName</rmiName>\n" +
-            "    <version>v1</version>\n" +
-            "    <groups>group1,group2</groups>\n" +
-            "    <configuration>\n" +
-            "        <entry>\n" +
-            "            <string>key2</string>\n" +
-            "            <string>value2</string>\n" +
-            "        </entry>\n" +
-            "        <entry>\n" +
-            "            <string>key</string>\n" +
-            "            <string>value</string>\n" +
-            "        </entry>\n" +
-            "    </configuration>\n" +
-            "</rules-deploy>";
+    private static final String EXPECTED_VALUE = """
+            <rules-deploy>
+                <isProvideRuntimeContext>false</isProvideRuntimeContext>
+                <serviceName>rulesDeployName</serviceName>
+                <publishers>
+                    <publisher>WEBSERVICE</publisher>
+                </publishers>
+                <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
+                <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
+                <serviceClass>java.lang.String</serviceClass>
+                <url>someURL</url>
+                <rmiName>rmiName</rmiName>
+                <version>v1</version>
+                <groups>group1,group2</groups>
+                <configuration>
+                    <entry>
+                        <string>key2</string>
+                        <string>value2</string>
+                    </entry>
+                    <entry>
+                        <string>key</string>
+                        <string>value</string>
+                    </entry>
+                </configuration>
+            </rules-deploy>""";
 }

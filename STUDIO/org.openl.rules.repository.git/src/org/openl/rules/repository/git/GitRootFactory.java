@@ -18,7 +18,7 @@ import org.jspecify.annotations.NonNull;
 import org.openl.util.HashingUtils;
 
 class GitRootFactory {
-    
+
     public GitRoot create(String repositoryId, String uri, String localRepositoriesFolder) throws IOException {
         URIish repositoryUri = getUri(uri);
         boolean remote = repositoryUri.isRemote();
@@ -32,12 +32,11 @@ class GitRootFactory {
             if (localGitRoot.exists()) {
                 File[] files = localGitRoot.listFiles();
                 if (files == null) {
-                    throw new IOException(String.format("'%s' is not a directory.", localGitRoot));
+                    throw new IOException("'%s' is not a directory.".formatted(localGitRoot));
                 }
                 if (files.length > 0 && RepositoryCache.FileKey.resolve(localGitRoot, FS.DETECTED) == null) {
                     // Cannot overwrite existing files that is definitely not git repository
-                    throw new IOException(String.format(
-                            "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
+                    throw new IOException("Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.".formatted(
                             localGitRoot));
                 }
                 empty = files.length == 0;
@@ -120,7 +119,7 @@ class GitRootFactory {
         try {
             return new URIish(uriOrPath);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(String.format("URI %s is misconfigured", uriOrPath), e);
+            throw new IllegalArgumentException("URI %s is misconfigured".formatted(uriOrPath), e);
         }
     }
 

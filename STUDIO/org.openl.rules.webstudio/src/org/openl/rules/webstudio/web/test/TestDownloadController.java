@@ -147,11 +147,11 @@ public class TestDownloadController {
             final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
             var propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean.extractPropertyNamingStrategy(studio.getCurrentProjectRulesDeploy(),
                     model.getCompiledOpenClass().getClassLoader());
-            var sprNamingStrategy = propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy ? (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy : null;
+            var sprNamingStrategy = propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy srbpns ? srbpns : null;
             var objectMapperFactory = studio.getCurrentProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setEnvironment(environment);
             var objectMapper = objectMapperFactory.createJacksonObjectMapper();
-            Object result = SpreadsheetResult.convertSpreadsheetResult(results.getTestUnits().get(0).getActualResult(), sprNamingStrategy);
+            Object result = SpreadsheetResult.convertSpreadsheetResult(results.getTestUnits().getFirst().getActualResult(), sprNamingStrategy);
             try {
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=response.json")

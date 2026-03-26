@@ -10,7 +10,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -81,7 +80,7 @@ public class PropertiesUtilsTest {
     @Test
     public void loadPath() throws IOException {
         ArrayList<String> result = new ArrayList<>();
-        PropertiesUtils.load(Paths.get("test-resources/test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
+        PropertiesUtils.load(Path.of("test-resources/test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
     }
 
@@ -95,7 +94,7 @@ public class PropertiesUtilsTest {
     @Test
     public void load() throws IOException {
         ArrayList<String> result = new ArrayList<>();
-        PropertiesUtils.load(Paths.get("test-resources/specs.properties"), (k, v) -> result.add(k + "  ->  " + v));
+        PropertiesUtils.load(Path.of("test-resources/specs.properties"), (k, v) -> result.add(k + "  ->  " + v));
         assertEquals(Arrays.asList(
                 "website  ->  https://openl-tablets.org/",
                 "language  ->  English",
@@ -137,10 +136,12 @@ public class PropertiesUtilsTest {
         props.put(null, " It is = a comment\\");
 
         PropertiesUtils.store(output, props.entrySet());
-        assertEquals("x=20 \n" +
-                "\\#Ж\\:\\=+-*/\\\\=привет!+-*/\\\\#\n" +
-                "Key with a space==Значение :\n" +
-                "# It is = a comment\\\n", output.toString());
+        assertEquals("""
+                x=20\s
+                \\#Ж\\:\\=+-*/\\\\=привет!+-*/\\\\#
+                Key with a space==Значение :
+                # It is = a comment\\
+                """, output.toString());
     }
 
     @Test

@@ -245,7 +245,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             RepositoryType newRepositoryType = RepositoryType.findByFactory(newRepoType);
 
             if (newRepositoryType == null) {
-                throw new IllegalArgumentException(String.format("Access type '%s' is not supported", newRepoType));
+                throw new IllegalArgumentException("Access type '%s' is not supported".formatted(newRepoType));
             }
             repoType = newRepoType;
             errorMessage = null;

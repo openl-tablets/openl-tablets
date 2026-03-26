@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import jakarta.persistence.Column;
@@ -13,6 +14,7 @@ import jakarta.persistence.Table;
 @IdClass(ExternalGroup.PK.class)
 public class ExternalGroup implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 5117085519399896506L;
 
     @Id

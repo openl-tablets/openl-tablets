@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.util;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,14 +114,14 @@ public final class NameChecker {
                     break;
             }
         }
-        for (var p : Paths.get(path)) {
+        for (var p : Path.of(path)) {
             var name = p.toString();
             if (!checkName(name)) {
                 throw new IOException(BAD_NAME_MSG);
             }
 
             if (isReservedName(name)) {
-                throw new IOException(String.format("'%s' is a reserved word.", name));
+                throw new IOException("'%s' is a reserved word.".formatted(name));
             }
         }
     }

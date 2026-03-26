@@ -245,9 +245,9 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
             if (fault != null) {
                 throw fault;
             } else {
-                if (cos instanceof CacheAndWriteOutputStream) {
+                if (cos instanceof CacheAndWriteOutputStream stream) {
                     try {
-                        ((CacheAndWriteOutputStream) cos).copyCacheToFlowThroughStream();
+                        stream.copyCacheToFlowThroughStream();
                     } catch (Exception e) {
                         log.debug("Ignored error: ", e);
                     }

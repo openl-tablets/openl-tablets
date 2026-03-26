@@ -73,9 +73,9 @@ public class CompositeMethod extends ExecutableMethod {
             methodBodyBoundNode = null;
         }
         IMethodSignature signature = getSignature();
-        if (signature instanceof MethodSignature) {
+        if (signature instanceof MethodSignature methodSignature) {
             for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                IParameterDeclaration paramDeclaration = ((MethodSignature) signature).getParameterDeclaration(i);
+                IParameterDeclaration paramDeclaration = methodSignature.getParameterDeclaration(i);
                 Optional.ofNullable(paramDeclaration).ifPresent(IParameterDeclaration::removeDebugInformation);
             }
         }

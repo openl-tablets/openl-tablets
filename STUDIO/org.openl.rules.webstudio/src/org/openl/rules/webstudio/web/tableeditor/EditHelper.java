@@ -50,7 +50,7 @@ public final class EditHelper {
                         result = true;
                     }
                 } catch (Exception e) {
-                    String message = String.format("Cannot update system property '%s' with value '%s'",
+                    String message = "Cannot update system property '%s' with value '%s'".formatted(
                             systemProperty.getName(),
                             systemValue);
                     log.error(message, e);

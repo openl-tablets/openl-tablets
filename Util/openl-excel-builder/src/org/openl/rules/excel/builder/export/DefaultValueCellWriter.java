@@ -79,8 +79,7 @@ public class DefaultValueCellWriter {
                 valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
                 break;
             case "Date":
-                if (defaultValue instanceof Date) {
-                    Date dateValue = (Date) defaultValue;
+                if (defaultValue instanceof Date dateValue) {
                     valueCell.setCellValue(dateValue);
                     valueCell.setCellStyle(dateStyle);
                 } else {

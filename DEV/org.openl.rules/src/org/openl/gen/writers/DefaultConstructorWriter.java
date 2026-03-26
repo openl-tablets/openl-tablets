@@ -283,10 +283,10 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         } catch (NoSuchMethodException e) {
             if (parameterTypes.length == 0) {
                 throw new ByteCodeGenerationException(
-                        String.format("There is no default constructor for type '%s'.", className));
+                        "There is no default constructor for type '%s'.".formatted(className));
             } else {
                 throw new ByteCodeGenerationException(
-                        String.format("'%s' does not have a constructor with parameters '%s'.",
+                        "'%s' does not have a constructor with parameters '%s'.".formatted(
                                 className,
                                 Arrays.toString(parameterTypes)));
             }

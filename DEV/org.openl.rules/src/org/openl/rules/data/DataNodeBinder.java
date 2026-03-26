@@ -98,7 +98,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getOriginalText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message = String.format(NAME_ERROR_MESSAGE, "Data table", tableName);
+            String message = NAME_ERROR_MESSAGE.formatted("Data table", tableName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = OpenLManager
@@ -216,8 +216,8 @@ public class DataNodeBinder extends AXlsTableBinder {
                     resColDefined = true;
                 }
                 IOpenField field = descriptor.getField();
-                if (field instanceof FieldChain) {
-                    IOpenField[] fields = ((FieldChain) field).getFields();
+                if (field instanceof FieldChain chain) {
+                    IOpenField[] fields = chain.getFields();
                     // for fields with a context property, the length must be 2
                     if (fields.length != 2) {
                         continue;
@@ -228,8 +228,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                             duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
                         }
                         if (testRuntimeContextProps.contains(contextProperty)) {
-                            throw SyntaxNodeExceptionUtils.createError(String.format(
-                                    "'%s' is redundant since this field is already defined in '%s' parameter.",
+                            throw SyntaxNodeExceptionUtils.createError("'%s' is redundant since this field is already defined in '%s' parameter.".formatted(
                                     TestMethodHelper.CONTEXT_NAME + "." + contextProperty,
                                     fields[0].getName()), tableToProcess.getTableSyntaxNode());
                         }
@@ -242,7 +241,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
         for (String prop : duplicatedRuntimeContextProps.keySet()) {
             bindingContext.addMessage(new OpenLWarnMessage(
-                    String.format("Multiple fields refer to the same context property '%s'. '%s.%s' will be applied.",
+                    "Multiple fields refer to the same context property '%s'. '%s.%s' will be applied.".formatted(
                             prop,
                             duplicatedRuntimeContextProps.get(prop),
                             prop),
@@ -250,7 +249,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
         if (!resColDefined && XlsNodeTypes.XLS_TEST_METHOD.equals(tableToProcess.getXlsNodeType())) {
             bindingContext.addMessage(
-                    new OpenLWarnMessage(String.format("'%s' column is missing.", TestMethodHelper.EXPECTED_RESULT_NAME),
+                    new OpenLWarnMessage("'%s' column is missing.".formatted(TestMethodHelper.EXPECTED_RESULT_NAME),
                             tableToProcess.getTableSyntaxNode()));
         }
     }

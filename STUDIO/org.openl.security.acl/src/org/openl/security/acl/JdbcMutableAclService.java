@@ -142,14 +142,16 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     public void updateSid(Sid sid, String newSidName) {
         String currentSidName;
         boolean isPrincipal;
-        if (sid instanceof GrantedAuthoritySid) {
-            currentSidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
-            isPrincipal = false;
-        } else if (sid instanceof PrincipalSid) {
-            currentSidName = ((PrincipalSid) sid).getPrincipal();
-            isPrincipal = true;
-        } else {
-            throw new IllegalStateException("Sid type is not supported");
+        switch (sid) {
+            case GrantedAuthoritySid authoritySid -> {
+                currentSidName = authoritySid.getGrantedAuthority();
+                isPrincipal = false;
+            }
+            case PrincipalSid principalSid -> {
+                currentSidName = principalSid.getPrincipal();
+                isPrincipal = true;
+            }
+            case null, default -> throw new IllegalStateException("Sid type is not supported");
         }
 
         jdbcOperations.update(UPDATE_SID_QUERY, newSidName, currentSidName, isPrincipal);

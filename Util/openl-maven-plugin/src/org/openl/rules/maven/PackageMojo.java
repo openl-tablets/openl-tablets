@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -290,14 +290,11 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private String[] getFormats() {
-        switch (packaging) {
-            case "openl":
-                return new String[]{"zip"};
-            case "openl-jar":
-                return new String[]{"jar"};
-            default:
-                return StringUtils.split(format, ',');
-        }
+        return switch (packaging) {
+            case "openl" -> new String[]{"zip"};
+            case "openl-jar" -> new String[]{"jar"};
+            default -> StringUtils.split(format, ',');
+        };
     }
 
     private Set<Artifact> getDependencies() {
@@ -406,7 +403,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             attributes.putValue("Built-By", userName);
             attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
-                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+                    "%s:%s".formatted(project.getGroupId(), project.getArtifactId()));
             attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
             if (project.getOrganization() != null) {
                 attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
@@ -429,7 +426,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
         Collections.addAll(strings, excludes);
 
-        final String targetDir = Paths.get(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        final String targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
         strings.add(targetDir);
         strings.add("pom.xml");
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);

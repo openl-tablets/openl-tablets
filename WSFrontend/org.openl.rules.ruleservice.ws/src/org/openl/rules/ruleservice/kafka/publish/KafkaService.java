@@ -129,8 +129,8 @@ public final class KafkaService implements Runnable {
         try {
             PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
                     .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
-            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
-                this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
+            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy strategy) {
+                this.sprBeanPropertyNamingStrategy = strategy;
             } else {
                 this.sprBeanPropertyNamingStrategy = null;
             }
@@ -311,7 +311,7 @@ public final class KafkaService implements Runnable {
                                 }
                             } catch (InvocationTargetException | UndeclaredThrowableException e) {
                                 Throwable ex = e.getCause();
-                                sendError(consumerRecord, storeLogData, ex instanceof Exception ? (Exception) ex : e, requestIdHeader);
+                                sendError(consumerRecord, storeLogData, ex instanceof Exception e1 ? e1 : e, requestIdHeader);
                             } catch (Exception e) {
                                 sendError(consumerRecord, storeLogData, e, requestIdHeader);
                             } finally {

@@ -313,7 +313,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(defPublisher)).findAny();
             if (publisher.isEmpty()) {
                 throw new BeanInitializationException(
-                        String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
+                        "Default publisher with id '%s' is not found in the map of supported publishers.".formatted(
                                 defPublisher));
             }
         }

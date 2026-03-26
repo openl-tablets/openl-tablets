@@ -19,7 +19,7 @@ public final class WrapperValidation {
                     }
                     return false;
                 })) {
-            throw new IllegalStateException(String.format("'%s' must override all public methods of '%s'",
+            throw new IllegalStateException("'%s' must override all public methods of '%s'".formatted(
                     methodWrapperClass.getTypeName(),
                     methodClass.getTypeName()));
         }

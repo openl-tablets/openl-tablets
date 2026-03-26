@@ -15,14 +15,14 @@ public final class Miscs {
             return true;
         } else if (obj.getClass().isArray()) {
             return Array.getLength(obj) == 0;
-        } else if (obj instanceof Collection) {
-            return ((Collection) obj).isEmpty();
-        } else if (obj instanceof Map) {
-            return ((Map) obj).isEmpty();
-        } else if (obj instanceof CharSequence) {
-            return ((CharSequence) obj).toString().trim().isEmpty();
-        } else if (obj instanceof Iterable) {
-            return !((Iterable) obj).iterator().hasNext();
+        } else if (obj instanceof Collection collection) {
+            return collection.isEmpty();
+        } else if (obj instanceof Map map) {
+            return map.isEmpty();
+        } else if (obj instanceof CharSequence sequence) {
+            return sequence.toString().trim().isEmpty();
+        } else if (obj instanceof Iterable iterable) {
+            return !iterable.iterator().hasNext();
         }
         return false;
     }

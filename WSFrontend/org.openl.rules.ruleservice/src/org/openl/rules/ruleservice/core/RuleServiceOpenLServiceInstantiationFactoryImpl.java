@@ -145,7 +145,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceClass = serviceClassLoader.loadClass(serviceClassName.trim());
                 if (!serviceClass.isInterface()) {
                     throw new RuleServiceRuntimeException(
-                            String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
+                            "Failed to apply service class '%s'. Interface is expected, but class is found.".formatted(
                                     serviceClass));
                 }
                 serviceTargetClass = RuleServiceInstantiationFactoryHelper
@@ -158,7 +158,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceTarget = instantiationStrategy.instantiate();
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new RuleServiceRuntimeException(
-                        String.format("Failed to load a service class '%s'.", serviceClassName),
+                        "Failed to load a service class '%s'.".formatted(serviceClassName),
                         e);
             }
         } else {
@@ -195,14 +195,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                             serviceDescription.getDeployPath());
                     return decoratedClass;
                 }
-                throw new RuleServiceRuntimeException(String.format(
-                        "Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.",
+                throw new RuleServiceRuntimeException("Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.".formatted(
                         annotationTemplateClassName));
             } catch (RuleServiceRuntimeException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new RuleServiceRuntimeException(
-                        String.format("Failed to load or apply annotation template class '%s'.",
+                        "Failed to load or apply annotation template class '%s'.".formatted(
                                 annotationTemplateClassName),
                         e);
             }
@@ -240,7 +239,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                            String.format("Failed to initialize service '%s'.", openLService.getDeployPath()),
+                            "Failed to initialize service '%s'.".formatted(openLService.getDeployPath()),
                             e);
                 }
             }

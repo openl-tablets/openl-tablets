@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.simple;
 
+import java.io.Serial;
+
 import org.openl.rules.ruleservice.core.RuleServiceException;
 
 /**
@@ -9,6 +11,7 @@ import org.openl.rules.ruleservice.core.RuleServiceException;
  */
 public class MethodInvocationException extends RuleServiceException {
 
+    @Serial
     private static final long serialVersionUID = 6506393788240623317L;
 
     /**

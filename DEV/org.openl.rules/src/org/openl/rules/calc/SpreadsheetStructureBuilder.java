@@ -349,7 +349,7 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setValue(method);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setType(NullOpenClass.the);
-                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
+                String message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
                         .createError(message, e, LocationUtils.createTextInterval(code), source));
             }
@@ -384,15 +384,15 @@ public class SpreadsheetStructureBuilder {
                     }
                 }
 
-                if (bindingContext.isExecutionMode() && result instanceof IMetaHolder) {
+                if (bindingContext.isExecutionMode() && result instanceof IMetaHolder holder) {
                     IMetaInfo meta = new ValueMetaInfo(name, null, source);
-                    ((IMetaHolder) result).setMetaInfo(meta);
+                    holder.setMetaInfo(meta);
                 }
 
                 IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Exception t) {
-                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
+                String message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
         }
@@ -550,7 +550,7 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetOpenClass makeColumnComponentOpenClass(int physicalColumnIndex) {
         // create name for the column open class
-        String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), physicalColumnIndex);
+        String columnOpenClassName = "%sColType%d".formatted(spreadsheetHeader.getName(), physicalColumnIndex);
 
         SpreadsheetOpenClass columnOpenClass = new SpreadsheetOpenClass(columnOpenClassName, bindingContext.getOpenL());
 
@@ -569,7 +569,7 @@ public class SpreadsheetStructureBuilder {
     private IBindingContext makeRowContext(int physicalRowIndex) {
 
         /* create name for the row open class */
-        String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), physicalRowIndex);
+        String rowOpenClassName = "%sRowType%d".formatted(spreadsheetHeader.getName(), physicalRowIndex);
 
         // create row open class for current row
         SpreadsheetOpenClass rowOpenClass = new SpreadsheetOpenClass(rowOpenClassName, bindingContext.getOpenL());
@@ -766,13 +766,13 @@ public class SpreadsheetStructureBuilder {
             Integer mappedRowIndex = names.get(value);
             if (mappedRowIndex != null) {
                 if (used.contains(value)) {
-                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format("The description column '%s' is already defined.", value), tableSyntaxNode));
+                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("The description column '%s' is already defined.".formatted(value), tableSyntaxNode));
                 } else {
                     used.add(value);
                     descriptions.put(index, mappedRowIndex);
                 }
             } else {
-                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format("The description column '%s' does not correspond to any existing %s in the table.", cell.getStringValue(), row ? "row" : "column"), tableSyntaxNode));
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("The description column '%s' does not correspond to any existing %s in the table.".formatted(cell.getStringValue(), row ? "row" : "column"), tableSyntaxNode));
             }
         }
     }
@@ -813,7 +813,7 @@ public class SpreadsheetStructureBuilder {
 
         if (!registered.add(headerName)) {
             // Register error if the Step name was already registered for the Spreadsheet.
-            bindingContext.addError(SyntaxNodeExceptionUtils.createError(String.format("The header '%s' is already defined.", headerName),
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError("The header '%s' is already defined.".formatted(headerName),
                     headerNameNode));
             return;
         }
@@ -1027,7 +1027,7 @@ public class SpreadsheetStructureBuilder {
                         cell.setReturnCell(true);
                     }
                 } else {
-                    SpreadsheetCell spreadsheetCell = returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1);
+                    SpreadsheetCell spreadsheetCell = returnSpreadsheetCells.getLast();
                     spreadsheetCell.setReturnCell(true);
                 }
             } else if (!nonEmptySpreadsheetCells.isEmpty()) {
@@ -1036,7 +1036,7 @@ public class SpreadsheetStructureBuilder {
                         cell.setReturnCell(true);
                     }
                 } else {
-                    SpreadsheetCell spreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1);
+                    SpreadsheetCell spreadsheetCell = nonEmptySpreadsheetCells.getLast();
                     spreadsheetCell.setReturnCell(true);
                 }
             }
@@ -1047,10 +1047,10 @@ public class SpreadsheetStructureBuilder {
                         .map(SymbolicTypeDefinition::getName)
                         .orElse(null);
                 if (!nonEmptySpreadsheetCells.isEmpty()) {
-                    SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1);
+                    SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.getLast();
                     if (nonEmptySpreadsheetCell.getType() != null) {
                         throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Cannot convert from '%s' to '%s'.",
+                                "Cannot convert from '%s' to '%s'.".formatted(
                                         nonEmptySpreadsheetCell.getType().getName(),
                                         spreadsheet.getHeader().getType().getName()),
                                 Optional.ofNullable(nonEmptySpreadsheetCell.getMethod())
@@ -1073,8 +1073,8 @@ public class SpreadsheetStructureBuilder {
                         isCalculateAllCellsInSpreadsheet(spreadsheet));
             } else {
                 resultBuilder = new ScalarResultBuilder(
-                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
-                        casts.get(casts.size() - 1),
+                        returnSpreadsheetCells.getLast(),
+                        casts.getLast(),
                         isCalculateAllCellsInSpreadsheet(spreadsheet));
 
             }

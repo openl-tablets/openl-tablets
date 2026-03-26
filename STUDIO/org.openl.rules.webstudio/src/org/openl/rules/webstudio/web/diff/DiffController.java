@@ -80,7 +80,7 @@ public class DiffController {
         }
         File tempFile = FileTool.toTempFile(inputStream, FileUtils.getName(fullName));
         if (tempFile == null) {
-            throw new FileNotFoundException(String.format("Cannot create temp file for '%s'", fullName));
+            throw new FileNotFoundException("Cannot create temp file for '%s'".formatted(fullName));
         }
         if (tempFile.length() == 0) {
             FileUtils.deleteQuietly(tempFile);

@@ -47,8 +47,8 @@ public class ATableTracerNode extends SimpleTracerObject {
             return method;
         }
         ITracerObject parent = getParent();
-        if (parent instanceof ATableTracerNode) {
-            return ((ATableTracerNode) parent).getTraceObject();
+        if (parent instanceof ATableTracerNode node) {
+            return node.getTraceObject();
         }
         throw new IllegalStateException("The executable method is not defined");
     }

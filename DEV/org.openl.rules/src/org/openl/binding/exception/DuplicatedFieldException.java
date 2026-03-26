@@ -1,9 +1,12 @@
 package org.openl.binding.exception;
 
+import java.io.Serial;
+
 import org.openl.exception.OpenlNotCheckedException;
 
 public class DuplicatedFieldException extends OpenlNotCheckedException {
 
+    @Serial
     private static final long serialVersionUID = 2754037692502108330L;
 
     private final String fieldName;
@@ -24,7 +27,7 @@ public class DuplicatedFieldException extends OpenlNotCheckedException {
             sb.append(super.getMessage());
         }
 
-        sb.append(String.format("Field '%s' has already been defined.", fieldName));
+        sb.append("Field '%s' has already been defined.".formatted(fieldName));
         return sb.toString();
     }
 

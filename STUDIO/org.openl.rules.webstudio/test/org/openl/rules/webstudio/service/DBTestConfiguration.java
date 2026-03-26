@@ -53,8 +53,8 @@ public class DBTestConfiguration {
         return new BeanPostProcessor() {
             @Override
             public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-                if (bean instanceof DataSource && "openlDataSource".equals(beanName)) {
-                    return wrapLoggedDataSource((DataSource) bean);
+                if (bean instanceof DataSource source && "openlDataSource".equals(beanName)) {
+                    return wrapLoggedDataSource(source);
                 }
                 return bean;
             }

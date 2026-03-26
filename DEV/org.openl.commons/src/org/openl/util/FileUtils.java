@@ -53,12 +53,12 @@ public class FileUtils {
      */
     public static void copy(File src, File dest) throws IOException {
         if (!src.exists()) {
-            throw new FileNotFoundException(String.format("Source '%s' does not exist", src));
+            throw new FileNotFoundException("Source '%s' does not exist".formatted(src));
         }
         final String srcPath = src.getCanonicalPath();
         final String destPath = dest.getCanonicalPath();
         if (srcPath.equals(destPath)) {
-            throw new IOException(String.format("Source '%s' and destination '%s' are the same", src, dest));
+            throw new IOException("Source '%s' and destination '%s' are the same".formatted(src, dest));
         }
 
         if (src.isDirectory()) {
@@ -67,7 +67,7 @@ public class FileUtils {
         } else {
             if (destPath.startsWith(srcPath)) {
                 throw new IOException(
-                        String.format("Destination '%s' has the same path of the source '%s'", dest, src));
+                        "Destination '%s' has the same path of the source '%s'".formatted(dest, src));
             }
             File destFile = dest;
             if (dest.isDirectory()) {
@@ -75,7 +75,7 @@ public class FileUtils {
             } else {
                 File parentFile = dest.getParentFile();
                 if (parentFile != null && !parentFile.mkdirs() && !parentFile.isDirectory()) {
-                    throw new IOException(String.format("Destination '%s' directory cannot be created", parentFile));
+                    throw new IOException("Destination '%s' directory cannot be created".formatted(parentFile));
                 }
             }
             doCopyFile(src, destFile);
@@ -126,11 +126,11 @@ public class FileUtils {
         }
         if (destDir.exists()) {
             if (!destDir.isDirectory()) {
-                throw new IOException(String.format("Destination '%s' exists but is not a directory", destDir));
+                throw new IOException("Destination '%s' exists but is not a directory".formatted(destDir));
             }
         } else {
             if (!destDir.mkdirs() && !destDir.isDirectory()) {
-                throw new IOException(String.format("Destination '%s' directory cannot be created", destDir));
+                throw new IOException("Destination '%s' directory cannot be created".formatted(destDir));
             }
         }
 
@@ -161,7 +161,7 @@ public class FileUtils {
      */
     private static void doCopyFile(File srcFile, File destFile) throws IOException {
         if (destFile.exists() && destFile.isDirectory()) {
-            throw new IOException(String.format("Destination '%s' exists but is a directory", destFile));
+            throw new IOException("Destination '%s' exists but is a directory".formatted(destFile));
         }
 
         FileInputStream fis = null;
@@ -186,7 +186,7 @@ public class FileUtils {
         }
 
         if (srcFile.length() != destFile.length()) {
-            throw new IOException(String.format("Failed to copy full contents from '%s' to '%s'", srcFile, destFile));
+            throw new IOException("Failed to copy full contents from '%s' to '%s'".formatted(srcFile, destFile));
         }
         // Try to preserve file date
         if (!destFile.setLastModified(srcFile.lastModified())) {
@@ -452,20 +452,20 @@ public class FileUtils {
         if (antPattern == null) {
             throw new NullPointerException("Ant pattern must not be null");
         }
-        
+
         StringBuilder regex = new StringBuilder();
         regex.append('^'); // Start of string
-        
+
         int length = antPattern.length();
         for (int i = 0; i < length; i++) {
             char c = antPattern.charAt(i);
-            
+
             switch (c) {
                 case '?':
                     // ? matches exactly one character except path separator
                     regex.append("[^/]");
                     break;
-                    
+
                 case '*':
                     // Check if this is a ** pattern
                     if (i + 1 < length && antPattern.charAt(i + 1) == '*') {
@@ -480,7 +480,7 @@ public class FileUtils {
                         regex.append("[^/]*");
                     }
                     break;
-                    
+
                 case '.':
                 case '^':
                 case '$':
@@ -502,7 +502,7 @@ public class FileUtils {
                     break;
             }
         }
-        
+
         regex.append('$'); // End of string
         return regex.toString();
     }
