@@ -100,6 +100,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
      * @param module
      * @return converted type
      */
+    @Override
     public CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
         if (getModule() != module) {
             if (register) {
@@ -118,6 +119,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         return this;
     }
 
+    @Override
     protected String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {

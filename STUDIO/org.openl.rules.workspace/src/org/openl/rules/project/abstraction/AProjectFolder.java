@@ -60,6 +60,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
 
+    @Override
     public AProjectArtefact getArtefact(String name) throws ProjectException {
         AProjectArtefact artefact = getArtefactsInternal().get(name);
         if (artefact == null) {
@@ -381,6 +382,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
+    @Override
     public String getFolderPath() {
         return folderPath;
     }

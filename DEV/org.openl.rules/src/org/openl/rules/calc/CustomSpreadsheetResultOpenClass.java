@@ -207,6 +207,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return null;
     }
 
+    @Override
     public XlsModuleOpenClass getModule() {
         return module;
     }

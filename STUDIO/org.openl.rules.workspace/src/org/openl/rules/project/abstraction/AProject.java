@@ -266,6 +266,7 @@ public class AProject extends AProjectFolder implements IProject {
         }
     }
 
+    @Override
     public boolean isDeleted() {
         try {
             FileData fileData = getFileData();

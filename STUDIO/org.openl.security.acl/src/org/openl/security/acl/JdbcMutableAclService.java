@@ -126,6 +126,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
         }
     }
 
+    @Override
     public void deleteSid(Sid sid) {
         Long sidId = createOrRetrieveSidPrimaryKey(sid, false);
         if (sidId == null) {

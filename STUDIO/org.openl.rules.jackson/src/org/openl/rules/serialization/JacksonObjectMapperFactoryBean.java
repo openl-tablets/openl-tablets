@@ -121,6 +121,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
     }
 
+    @Override
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTimeZone(TimeZone.getDefault());

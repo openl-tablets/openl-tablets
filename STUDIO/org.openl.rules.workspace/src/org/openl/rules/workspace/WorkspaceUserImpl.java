@@ -75,6 +75,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         return userName;
     }
 
+    @Override
     public UserInfo getUserInfo() {
         return Optional.ofNullable(userInfoCollector.apply(userName)).orElse(new UserInfo(userName));
     }

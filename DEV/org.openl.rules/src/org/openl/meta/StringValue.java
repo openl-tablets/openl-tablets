@@ -115,6 +115,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * @return true if value is empty, and false if not
      */
+    @Override
     public boolean isEmpty() {
         return value.trim().length() == 0;
     }

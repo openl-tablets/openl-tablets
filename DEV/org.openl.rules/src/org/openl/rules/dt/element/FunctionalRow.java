@@ -304,6 +304,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
+    @Override
     public void prepareParams(OpenL openl, IBindingContext bindingContext) {
         for (int i = 0; i < paramsTable.getHeight(); i++) {
             if (!paramInitialized.get(i)) {

@@ -19,6 +19,7 @@ class ArrayCloner implements ICloner<Object> {
         return Array.newInstance(componentType, length);
     }
 
+    @Override
     public void clone(Object o, Function<Object, Object> cloner, Object target) {
         var length = Array.getLength(target);
         for (int i = 0; i < length; i++) {

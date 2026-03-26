@@ -24,6 +24,7 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
                 .forEach(x -> log.info("Store log data service '{}' is used.", x));
     }
 
+    @Override
     public Collection<StoreLogDataService> getServices() {
         return storeLogDataServices;
     }

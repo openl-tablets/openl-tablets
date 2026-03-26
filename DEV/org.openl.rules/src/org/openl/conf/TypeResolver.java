@@ -361,6 +361,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
 
     private final ConcurrentHashMap<String, IOpenClass> found = new ConcurrentHashMap<>();
 
+    @Override
     public IOpenClass getType(String name) throws AmbiguousTypeException {
         Set<IOpenClass> foundTypes = new HashSet<>();
 

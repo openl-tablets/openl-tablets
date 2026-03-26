@@ -20,6 +20,7 @@ public class ParameterDeclarationNode extends ABoundNode implements IBoundParame
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public IParameterDeclaration getParameterDeclaration() {
         return parameterDeclaration;
     }

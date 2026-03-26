@@ -17,6 +17,7 @@ public class CellValueReader implements Function<ICell, Object> {
         this.metaInfoReader = metaInfoReader;
     }
 
+    @Override
     public Object apply(ICell cell) {
         var value = cell.getObjectValue();
         if (value instanceof String string) {

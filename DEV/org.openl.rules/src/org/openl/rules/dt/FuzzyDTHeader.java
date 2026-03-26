@@ -83,6 +83,7 @@ class FuzzyDTHeader extends DTHeader {
         return false;
     }
 
+    @Override
     boolean isMethodParameterUsed() {
         if (returnDTHeader) {
             return false;

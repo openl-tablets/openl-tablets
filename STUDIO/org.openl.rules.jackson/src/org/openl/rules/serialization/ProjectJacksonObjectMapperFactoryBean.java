@@ -297,6 +297,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         }
     }
 
+    @Override
     public final ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         applyBeforeProjectConfiguration();
         applyProjectConfiguration();

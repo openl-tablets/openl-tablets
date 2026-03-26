@@ -17,6 +17,7 @@ public class AProjectResource extends AProjectArtefact implements IProjectResour
         super(project, repository, fileData);
     }
 
+    @Override
     public InputStream getContent() throws ProjectException {
         try {
             if (isHistoric()) {

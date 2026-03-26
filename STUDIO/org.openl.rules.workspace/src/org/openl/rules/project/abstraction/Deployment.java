@@ -43,6 +43,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
         this.deploymentName = deploymentName;
     }
 
+    @Override
     public CommonVersion getCommonVersion() {
         if (commonVersion == null) {
             return this.getVersion();
@@ -50,6 +51,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
         return commonVersion;
     }
 
+    @Override
     public String getDeploymentName() {
         if (deploymentName == null) {
             return this.getName();
@@ -74,10 +76,12 @@ public class Deployment extends AProjectFolder implements IDeployment {
         }
     }
 
+    @Override
     public Collection<IProject> getProjects() {
         return projects.values();
     }
 
+    @Override
     public IProject getProject(String name) {
         return projects.get(name);
     }

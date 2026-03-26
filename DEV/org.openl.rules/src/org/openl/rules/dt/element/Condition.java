@@ -368,6 +368,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return dependentOnOtherColumnsParams;
     }
 
+    @Override
     public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
         this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
     }

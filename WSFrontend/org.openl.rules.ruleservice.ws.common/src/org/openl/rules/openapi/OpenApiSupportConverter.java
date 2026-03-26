@@ -16,6 +16,7 @@ class OpenApiSupportConverter implements ModelConverter {
 
     static final OpenApiSupportConverter INSTANCE = new OpenApiSupportConverter();
 
+    @Override
     public Schema<?> resolve(AnnotatedType annotatedType,
                              ModelConverterContext context,
                              Iterator<ModelConverter> chain) {

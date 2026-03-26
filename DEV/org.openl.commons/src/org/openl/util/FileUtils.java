@@ -208,6 +208,7 @@ public class FileUtils {
         }
         var theFirstException = new IOException[1];
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 try {
                     Files.deleteIfExists(file);
@@ -219,6 +220,7 @@ public class FileUtils {
                 return FileVisitResult.CONTINUE;
             }
 
+            @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 try {
                     Files.deleteIfExists(dir);

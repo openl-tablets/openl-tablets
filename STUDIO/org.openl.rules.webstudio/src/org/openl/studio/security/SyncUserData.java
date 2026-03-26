@@ -26,6 +26,7 @@ public class SyncUserData implements Consumer<SimpleUser> {
         this.externalGroupService = externalGroupService;
     }
 
+    @Override
     public void accept(SimpleUser user) {
 
         String username = user.getUsername();

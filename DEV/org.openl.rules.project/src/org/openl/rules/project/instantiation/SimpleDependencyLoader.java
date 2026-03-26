@@ -168,6 +168,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         throw new OpenLCompilationException("Failed to load dependency '%s'.".formatted(dependency), ex);
     }
 
+    @Override
     public ResolvedDependency getDependency() {
         return dependency;
     }

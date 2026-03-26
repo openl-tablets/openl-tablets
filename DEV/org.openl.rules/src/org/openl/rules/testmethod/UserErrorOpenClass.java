@@ -25,6 +25,7 @@ public class UserErrorOpenClass extends ADynamicClass {
         return new Entry();
     }
 
+    @Override
     public IOpenField getField(String name, boolean strictMatch) {
         IOpenField field = super.getField(name, strictMatch);
         if (field != null) {

@@ -47,6 +47,7 @@ public class Dependency implements IDependency {
         return result;
     }
 
+    @Override
     public DependencyType getType() {
         return type;
     }

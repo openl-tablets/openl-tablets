@@ -86,6 +86,7 @@ public class SimpleRulesView extends ExecutableView {
             return this;
         }
 
+        @Override
         public SimpleRulesView build() {
             return new SimpleRulesView(this);
         }

@@ -36,34 +36,42 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
         this.dateTimeFieldStyle = dateTimeFieldStyle;
     }
 
+    @Override
     public NameValueRowStyle getHeaderRowStyle() {
         return headerRowStyle;
     }
 
+    @Override
     public String getStepHeaderText() {
         return stepHeaderText;
     }
 
+    @Override
     public String getValueHeaderText() {
         return valueHeaderText;
     }
 
+    @Override
     public void setValueHeaderText(String valueHeaderText) {
         this.valueHeaderText = valueHeaderText;
     }
 
+    @Override
     public NameValueRowStyle getRowStyle() {
         return rowStyle;
     }
 
+    @Override
     public NameValueRowStyle getLastRowStyle() {
         return lastRowStyle;
     }
 
+    @Override
     public CellStyle getDateStyle() {
         return dateFieldStyle;
     }
 
+    @Override
     public CellStyle getDateTimeStyle() {
         return dateTimeFieldStyle;
     }

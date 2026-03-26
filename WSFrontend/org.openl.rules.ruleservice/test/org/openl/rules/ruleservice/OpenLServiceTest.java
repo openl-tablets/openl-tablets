@@ -328,6 +328,7 @@ class OpenLServiceTest {
     public interface Proxy {
         String worldHello(Integer i, String s);
 
+        @Override
         String toString();
 
         String absent(String value);

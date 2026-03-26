@@ -850,6 +850,7 @@ public class XlsBinder implements IOpenBinder {
             return customSpreadsheetResultOpenClass != null;
         }
 
+        @Override
         public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass() {
             return customSpreadsheetResultOpenClass;
         }

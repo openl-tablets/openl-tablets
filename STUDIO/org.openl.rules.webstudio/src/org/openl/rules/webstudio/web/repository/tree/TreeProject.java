@@ -171,6 +171,7 @@ public class TreeProject extends TreeFolder {
         }
     }
 
+    @Override
     public String getShortVersion() {
         String version = getVersion();
         if (UNVERSIONED.equals(version)) {

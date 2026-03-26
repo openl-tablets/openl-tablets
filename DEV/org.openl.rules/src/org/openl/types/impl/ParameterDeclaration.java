@@ -39,6 +39,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
         this.sourceCode = sourceCode;
     }
 
+    @Override
     public String getContextProperty() {
         return contextProperty;
     }

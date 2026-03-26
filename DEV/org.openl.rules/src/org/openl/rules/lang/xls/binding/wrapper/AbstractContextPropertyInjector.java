@@ -7,6 +7,7 @@ import org.openl.vm.SimpleRuntimeEnv;
 
 abstract class AbstractContextPropertyInjector implements IContextPropertyInjection {
 
+    @Override
     public IRulesRuntimeContext inject(Object[] params,
                                        IRuntimeEnv env,
                                        SimpleRuntimeEnv simpleRuntimeEnv,

@@ -79,6 +79,7 @@ public class SummaryTableView extends TableView {
             return this;
         }
 
+        @Override
         public SummaryTableView build() {
             return new SummaryTableView(this);
         }

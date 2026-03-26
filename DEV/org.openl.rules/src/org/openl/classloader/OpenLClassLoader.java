@@ -372,10 +372,12 @@ public class OpenLClassLoader extends GroovyClassLoader {
             return false;
         }
 
+        @Override
         public boolean hasMoreElements() {
             return next();
         }
 
+        @Override
         public URL nextElement() {
             if (!next()) {
                 throw new NoSuchElementException();
