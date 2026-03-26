@@ -10,13 +10,9 @@ public enum ReportFormat {
 
     void write(File dir, TestUnitsResults result) throws Exception {
         switch (this) {
-            case xlsx:
-                new XlsxReportWriter(dir).write(result);
-                return;
-            case junit4:
-                new JUnitReportWriter(dir).write(result);
-                return;
+            case xlsx -> new XlsxReportWriter(dir).write(result);
+            case junit4 -> new JUnitReportWriter(dir).write(result);
+            default -> throw new IllegalArgumentException(this + " writer is not found.");
         }
-        throw new IllegalArgumentException(this + " writer is not found.");
     }
 }

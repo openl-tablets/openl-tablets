@@ -392,9 +392,10 @@ public final class RuleServiceInstantiationFactoryHelper {
     private static Class<?> extractOpenMethodReturnType(IOpenMember openMember, TypeResolver typeResolver) {
         IOpenClass returnType = openMember.getType();
         switch (typeResolver) {
-            case ORIGINAL:
+            case ORIGINAL -> {
                 return returnType.getInstanceClass();
-            case IF_SPR_TO_PLAIN:
+            }
+            case IF_SPR_TO_PLAIN -> {
                 IOpenClass type = returnType;
                 int dim = 0;
                 while (type.isArray()) {
@@ -416,8 +417,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                 } else {
                     return returnType.getInstanceClass();
                 }
-            default:
-                throw new IllegalStateException();
+            }
+            default -> throw new IllegalStateException();
         }
     }
 

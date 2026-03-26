@@ -249,34 +249,22 @@ public final class Dates {
             throw new IllegalArgumentException("Unsupported unit '%s'".formatted(unitName));
         }
         DateInterval interval = DateInterval.between(startDate, endDate);
-        switch (unit) {
-            case DAYS:
-                return interval.toDays();
-            case WEEKS:
-                return interval.toWeeks(Scale.INT);
-            case MONTHS:
-                return interval.toMonths(Scale.INT);
-            case YEARS:
-                return interval.toYears(Scale.INT);
-            case DAYS_EXCLUDE_MONTHS_AND_YEARS:
-                return interval.toDaysExcludeYearsAndMonths();
-            case MONTHS_EXCLUDE_YEARS:
-                return interval.toMonthsExcludeYears(Scale.INT);
-            case DAYS_EXCLUDE_YEARS:
-                return interval.toDaysExcludeYears();
+        return switch (unit) {
+            case DAYS -> interval.toDays();
+            case WEEKS -> interval.toWeeks(Scale.INT);
+            case MONTHS -> interval.toMonths(Scale.INT);
+            case YEARS -> interval.toYears(Scale.INT);
+            case DAYS_EXCLUDE_MONTHS_AND_YEARS -> interval.toDaysExcludeYearsAndMonths();
+            case MONTHS_EXCLUDE_YEARS -> interval.toMonthsExcludeYears(Scale.INT);
+            case DAYS_EXCLUDE_YEARS -> interval.toDaysExcludeYears();
             // calculate fractional difference between dates
-            case WEEKS_FRACTIONAL:
-                return interval.toWeeks(Scale.FRAC);
-            case MONTHS_FRACTIONAL:
-                return interval.toMonths(Scale.FRAC);
-            case YEARS_FRACTIONAL:
-                return interval.toYears(Scale.FRAC);
-            case MONTHS_FRACTIONAL_EXCLUDE_YEARS:
-                return interval.toMonthsExcludeYears(Scale.FRAC);
-            default:
-                // should never be happened
-                throw new IllegalArgumentException("Unsupported unit '%s'".formatted(unitName));
-        }
+            case WEEKS_FRACTIONAL -> interval.toWeeks(Scale.FRAC);
+            case MONTHS_FRACTIONAL -> interval.toMonths(Scale.FRAC);
+            case YEARS_FRACTIONAL -> interval.toYears(Scale.FRAC);
+            case MONTHS_FRACTIONAL_EXCLUDE_YEARS -> interval.toMonthsExcludeYears(Scale.FRAC);
+            // should never be happened
+            default -> throw new IllegalArgumentException("Unsupported unit '%s'".formatted(unitName));
+        };
     }
 
     private static boolean isEmpty(String str) {

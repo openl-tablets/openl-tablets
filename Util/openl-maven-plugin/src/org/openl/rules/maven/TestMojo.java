@@ -522,13 +522,13 @@ public final class TestMojo extends BaseOpenLMojo {
         int threads;
 
         switch (threadCount) {
-            case "none":
+            case "none" -> {
                 return null;
-            case "auto":
+            }
+            case "auto" ->
                 // Can be changed in the future
                 threads = Runtime.getRuntime().availableProcessors() + 2;
-                break;
-            default:
+            default -> {
                 if (threadCount.matches("\\d+")) {
                     threads = Integer.parseInt(threadCount);
                 } else if (threadCount.matches("\\d[\\d.]*[cC]")) {
@@ -537,7 +537,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 } else {
                     throw new IllegalArgumentException("Incorrect thread count '%s'".formatted(threadCount));
                 }
-                break;
+            }
         }
         info("Run tests using ", threads, " threads.");
 

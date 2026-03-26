@@ -114,38 +114,41 @@ public class TableModel {
         if (icm == null) {
             return null;
         }
-        CellModel cm;
-        switch (border) {
-            case ICellStyle.TOP:
+        return switch (border) {
+            case ICellStyle.TOP -> {
                 if (icm instanceof CellModel model) {
-                    return model;
+                    yield model;
                 }
-                cm = ((CellModelDelegator) icm).getModel();
-                return cm.getRow() == row ? cm : null;
-            case ICellStyle.LEFT:
+                CellModel cm = ((CellModelDelegator) icm).getModel();
+                yield cm.getRow() == row ? cm : null;
+            }
+            case ICellStyle.LEFT -> {
                 if (icm instanceof CellModel model) {
-                    return model;
+                    yield model;
                 }
-                cm = ((CellModelDelegator) icm).getModel();
-                return cm.getColumn() == col ? cm : null;
-            case ICellStyle.RIGHT:
-                if (icm instanceof CellModel model) {
-                    cm = model;
-                    return cm.getColspan() == 1 ? cm : null;
-                }
-                cm = ((CellModelDelegator) icm).getModel();
-                return cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
-            case ICellStyle.BOTTOM:
+                CellModel cm = ((CellModelDelegator) icm).getModel();
+                yield cm.getColumn() == col ? cm : null;
+            }
+            case ICellStyle.RIGHT -> {
+                CellModel cm;
                 if (icm instanceof CellModel model) {
                     cm = model;
-                    return cm.getRowspan() == 1 ? cm : null;
+                    yield cm.getColspan() == 1 ? cm : null;
                 }
                 cm = ((CellModelDelegator) icm).getModel();
-                return cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
-            default:
-                throw new IllegalArgumentException("Incorrect border");
-
-        }
+                yield cm.getColumn() + cm.getColspan() - 1 == col ? cm : null;
+            }
+            case ICellStyle.BOTTOM -> {
+                CellModel cm;
+                if (icm instanceof CellModel model) {
+                    cm = model;
+                    yield cm.getRowspan() == 1 ? cm : null;
+                }
+                cm = ((CellModelDelegator) icm).getModel();
+                yield cm.getRow() + cm.getRowspan() - 1 == row ? cm : null;
+            }
+            default -> throw new IllegalArgumentException("Incorrect border");
+        };
 
     }
 

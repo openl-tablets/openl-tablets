@@ -162,24 +162,23 @@ class JUnitReportWriter {
 
         TestStatus testStatus = test.getResultStatus();
         switch (testStatus) {
-            case TR_OK:
-                break;
-            case TR_NEQ:
+            case TR_OK -> {
+            }
+            case TR_NEQ -> {
                 start("failure");
                 attr("type", "ComparisonFailure");
                 writeCData(failureMessage(test));
                 end();
-                break;
-            case TR_EXCEPTION:
+            }
+            case TR_EXCEPTION -> {
                 Throwable throwable = (Throwable) test.getActualResult();
                 start("error");
                 attr("type", throwable.getClass().getName());
                 attr("message", throwable.getMessage());
                 writeCData(ExceptionUtils.getStackTrace(throwable));
                 end();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected TestStatus." + testStatus.name());
+            }
+            default -> throw new IllegalArgumentException("Unexpected TestStatus." + testStatus.name());
         }
     }
 

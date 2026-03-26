@@ -148,7 +148,7 @@ public class OpenAPIJavaClassGenerator {
             }
         }
         switch (pathInfo.getOperation()) {
-            case GET:
+            case GET -> {
                 if (projectModel.isRuntimeContextProvided()) {
                     // if RuntimeContext is provided, POST by default.
                     return true;
@@ -160,8 +160,8 @@ public class OpenAPIJavaClassGenerator {
                     // if there is at least one non-primitive parameter, POST by default.
                     return true;
                 }
-                break;
-            case POST:
+            }
+            case POST -> {
                 if (!projectModel.isRuntimeContextProvided()) {
                     if (parameters.isEmpty()) {
                         // if no context and empty params, GET by default.
@@ -174,10 +174,11 @@ public class OpenAPIJavaClassGenerator {
                         return true;
                     }
                 }
-                break;
-            default:
+            }
+            default -> {
                 // if not POST and not GET
                 return true;
+            }
         }
         return false;
     }
@@ -303,38 +304,25 @@ public class OpenAPIJavaClassGenerator {
     }
 
     private Class<? extends Annotation> chooseOperationAnnotation(PathInfo.Operation operation) {
-        switch (operation) {
-            case GET:
-                return GET.class;
-            case POST:
-                return POST.class;
-            case PUT:
-                return PUT.class;
-            case DELETE:
-                return DELETE.class;
-            case PATCH:
-                return PATCH.class;
-            case HEAD:
-                return HEAD.class;
-            case OPTIONS:
-                return OPTIONS.class;
-            default:
-                throw new IllegalStateException("Unable to find operation annotation.");
-        }
+        return switch (operation) {
+            case GET -> GET.class;
+            case POST -> POST.class;
+            case PUT -> PUT.class;
+            case DELETE -> DELETE.class;
+            case PATCH -> PATCH.class;
+            case HEAD -> HEAD.class;
+            case OPTIONS -> OPTIONS.class;
+            default -> throw new IllegalStateException("Unable to find operation annotation.");
+        };
     }
 
     private Class<? extends Annotation> chooseParamAnnotation(InputParameter.In in) {
-        switch (in) {
-            case PATH:
-                return PathParam.class;
-            case QUERY:
-                return QueryParam.class;
-            case COOKIE:
-                return CookieParam.class;
-            case HEADER:
-                return HeaderParam.class;
-            default:
-                throw new IllegalStateException("Unable to find param annotation.");
-        }
+        return switch (in) {
+            case PATH -> PathParam.class;
+            case QUERY -> QueryParam.class;
+            case COOKIE -> CookieParam.class;
+            case HEADER -> HeaderParam.class;
+            default -> throw new IllegalStateException("Unable to find param annotation.");
+        };
     }
 }

@@ -224,29 +224,16 @@ public class OpenAPITypeUtils {
     }
 
     public static String getSimpleValue(String type) {
-        switch (type) {
-            case INTEGER:
-            case INTEGER_PRIMITIVE:
-                return "= 0";
-            case LONG:
-            case LONG_PRIMITIVE:
-                return "= 0L";
-            case DOUBLE:
-            case DOUBLE_PRIMITIVE:
-                return "= 0.0";
-            case FLOAT:
-            case FLOAT_PRIMITIVE:
-                return "= 0.0f";
-            case STRING:
-                return "= \"\"";
-            case DATE:
-                return "= new Date()";
-            case BOOLEAN:
-            case BOOLEAN_PRIMITIVE:
-                return "= false";
-            default:
-                return "= new Object()";
-        }
+        return switch (type) {
+            case INTEGER, INTEGER_PRIMITIVE -> "= 0";
+            case LONG, LONG_PRIMITIVE -> "= 0L";
+            case DOUBLE, DOUBLE_PRIMITIVE -> "= 0.0";
+            case FLOAT, FLOAT_PRIMITIVE -> "= 0.0f";
+            case STRING -> "= \"\"";
+            case DATE -> "= new Date()";
+            case BOOLEAN, BOOLEAN_PRIMITIVE -> "= false";
+            default -> "= new Object()";
+        };
     }
 
     public static String getJavaDefaultValue(TypeInfo type) {

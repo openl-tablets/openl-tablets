@@ -196,27 +196,22 @@ class HttpData {
                 contentType = contentType.substring(0, sep);
             }
             switch (contentType) {
-                case "text/css":
-                case "text/javascript":
-                case "text/html":
-                case "text/plain":
-                case "image/svg+xml":
-                    Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                case "application/xml":
-                case "text/xml":
-                    Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                case "application/json":
-                    JsonNode actualNode;
-                    actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
+                case "text/css",
+                     "text/javascript",
+                     "text/html",
+                     "text/plain",
+                     "image/svg+xml" ->
+                        Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                case "application/xml",
+                     "text/xml" ->
+                        Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
+                case "application/json" -> {
+                    JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
                     JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expected.body));
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");
-                    break;
-                case "application/zip":
-                    Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
-                    break;
-                default:
+                }
+                case "application/zip" -> Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
+                default -> {
                     var expectedBody = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
                     if (!expectedBody.trim().equals("***")) {
                         if (isFileRef(expectedBody)) {
@@ -232,6 +227,7 @@ class HttpData {
                             assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
                         }
                     }
+                }
             }
         } catch (Exception | AssertionError ex) {
             throw ex;

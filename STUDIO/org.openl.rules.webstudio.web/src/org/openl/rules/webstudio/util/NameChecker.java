@@ -103,15 +103,13 @@ public final class NameChecker {
         var end = path.length() - 1;
         for (int i=0; i <= end; i++) {
             switch (path.charAt(i)) {
-                case '/', '\\':
-                    if (i < end && (path.charAt(i + 1) == '/' || path.charAt(i + 1) == '\\' )) {
+                case '/', '\\' -> {
+                    if (i < end && (path.charAt(i + 1) == '/' || path.charAt(i + 1) == '\\')) {
                         throw new IOException(BAD_NAME_MSG);
                     }
-                    break;
-                case ';', '<', '>', '?', '*', '%', '\'', '"', '|', '[', ']':
-                    throw new IOException(BAD_NAME_MSG);
-                default:
-                    break;
+                }
+                case ';', '<', '>', '?', '*', '%', '\'', '"', '|', '[', ']' -> throw new IOException(BAD_NAME_MSG);
+                default -> { /* OK */ }
             }
         }
         for (var p : Path.of(path)) {

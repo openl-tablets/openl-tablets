@@ -120,21 +120,19 @@ public class StoreLogDataMapper {
             } else if (annotation instanceof Request) {
                 String request = null;
                 switch (storeLogData.getPublisherType()) {
-                    case KAFKA:
-                        request = storeLogData.getConsumerRecord().value().asText();
-                        break;
-                    case RESTFUL:
-                    case WEBSERVICE:
+                    case KAFKA -> request = storeLogData.getConsumerRecord().value().asText();
+                    case RESTFUL, WEBSERVICE -> {
                         if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
                                 .getPayload() != null) {
                             request = storeLogData.getRequestMessage().getPayload().toString();
                         }
+                    }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, request);
             } else if (annotation instanceof Response) {
                 String response = null;
                 switch (storeLogData.getPublisherType()) {
-                    case KAFKA:
+                    case KAFKA -> {
                         if (storeLogData.getDltRecord() != null) {
                             final byte[] bytes = storeLogData.getDltRecord().value();
                             response = new String(bytes, StandardCharsets.UTF_8);
@@ -146,13 +144,13 @@ public class StoreLogDataMapper {
                                 throw new RuleServiceRuntimeException(e);
                             }
                         }
-                        break;
-                    case RESTFUL:
-                    case WEBSERVICE:
+                    }
+                    case RESTFUL, WEBSERVICE -> {
                         if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
                                 .getPayload() != null) {
                             response = storeLogData.getResponseMessage().getPayload().toString();
                         }
+                    }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
             } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {

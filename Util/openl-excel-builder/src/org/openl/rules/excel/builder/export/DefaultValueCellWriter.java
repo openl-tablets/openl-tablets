@@ -47,38 +47,28 @@ public class DefaultValueCellWriter {
         Object defaultValue = model.getDefaultValue();
         String valueAsString = defaultValue.toString();
         switch (model.getType()) {
-            case "Integer":
-            case "BigInteger":
+            case "Integer",
+                 "BigInteger" -> {
                 Number casted = NumberFormat.getInstance().parse(valueAsString);
                 if (casted.longValue() <= Integer.MAX_VALUE) {
                     valueCell.setCellValue(Integer.parseInt(valueAsString));
                 } else {
                     valueCell.setCellValue(Long.parseLong(valueAsString));
                 }
-                break;
-            case "Long":
-                valueCell.setCellValue(Long.parseLong(valueAsString));
-                break;
-            case "Double":
-                valueCell.setCellValue(Double.parseDouble(valueAsString));
-                break;
-            case "Float":
-                valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
-                break;
-            case "BigDecimal":
-                valueCell.setCellValue(valueAsString);
-                break;
-            case "String":
+            }
+            case "Long" -> valueCell.setCellValue(Long.parseLong(valueAsString));
+            case "Double" -> valueCell.setCellValue(Double.parseDouble(valueAsString));
+            case "Float" -> valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
+            case "BigDecimal" -> valueCell.setCellValue(valueAsString);
+            case "String" -> {
                 if (StringUtils.isBlank(valueAsString)) {
                     valueCell.setCellValue(DEFAULT_STRING_VALUE);
                 } else {
                     valueCell.setCellValue(valueAsString);
                 }
-                break;
-            case "Boolean":
-                valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
-                break;
-            case "Date":
+            }
+            case "Boolean" -> valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
+            case "Date" -> {
                 if (defaultValue instanceof Date dateValue) {
                     valueCell.setCellValue(dateValue);
                     valueCell.setCellStyle(dateStyle);
@@ -87,10 +77,8 @@ public class DefaultValueCellWriter {
                     valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
                     valueCell.setCellStyle(dateTimeStyle);
                 }
-                break;
-            default:
-                valueCell.setCellValue("");
-                break;
+            }
+            default -> valueCell.setCellValue("");
         }
     }
 }
