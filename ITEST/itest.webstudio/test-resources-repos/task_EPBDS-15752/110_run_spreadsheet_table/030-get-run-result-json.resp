@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableName": "Virtual test suite",
-  "tableId": "8fcce0713a8f382c1ca4c377e460a9db",
+  "tableId": "fea5c3b491a9421f0ceb2d51a05dfd9a",
   "executionTimeMs": "##.##",
   "result": {
     "Description_CapitalAdequacy": "Calculate Capital Adequacy (%)",

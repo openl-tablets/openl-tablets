@@ -90,8 +90,6 @@ public class ProjectsRunController {
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "run.param.from-module.desc") String fromModule,
             @Parameter(description = "run.param.input-json.desc") @RequestBody(required = false) String inputJson) {
 
-        runResultRegistry.cancelIfAny();
-
         var projectId = projectService.resolveProjectId(project);
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.getProjectModel(project, fromModule);
@@ -111,10 +109,12 @@ public class ProjectsRunController {
             throw new BadRequestException("run.test-table.not.supported.message");
         }
 
+        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
+
+        runResultRegistry.cancelIfAny();
+
         var listener = listenerFactory.create(user, projectId, tableId);
         listener.onStatusChanged(ExecutionStatus.PENDING);
-
-        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
 
         var runTask = runExecutorService.runMethod(
                 listener, projectModel, table, parseResult.params(), parseResult.runtimeContext(),

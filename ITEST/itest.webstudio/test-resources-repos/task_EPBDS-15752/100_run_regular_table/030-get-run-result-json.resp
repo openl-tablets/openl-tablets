@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableName": "Virtual test suite",
-  "tableId": "ecbdd3752cd6916e883e10cd08eb57cf",
+  "tableId": "1544f84fe26a4d851a3aa43381ace131",
   "executionTimeMs": "##.##",
   "result": 0.94,
   "resultSchema": {
