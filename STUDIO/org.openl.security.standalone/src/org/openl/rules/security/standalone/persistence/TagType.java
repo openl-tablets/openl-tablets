@@ -63,9 +63,8 @@ public class TagType implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof TagType))
+        if (!(o instanceof TagType tagType))
             return false;
-        TagType tagType = (TagType) o;
         return Objects.equals(getId(), tagType.getId());
     }
 

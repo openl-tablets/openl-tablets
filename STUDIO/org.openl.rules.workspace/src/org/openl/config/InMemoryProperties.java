@@ -68,10 +68,10 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
         MutablePropertySources sources = new MutablePropertySources();
         sources.addLast(new MapPropertySource("inMemoryMap", Collections.unmodifiableMap(changes)));
 
-        if (!(delegate instanceof ConfigurableEnvironment)) {
+        if (!(delegate instanceof ConfigurableEnvironment configurableEnvironment)) {
             throw new IllegalArgumentException();
         }
-        MutablePropertySources delegateSources = ((ConfigurableEnvironment) delegate).getPropertySources();
+        MutablePropertySources delegateSources = configurableEnvironment.getPropertySources();
         delegateSources.forEach(propertySource -> {
             if (propertySource instanceof RefPropertySource) {
                 sources.addLast(new RefPropertySource(delegate, sources));

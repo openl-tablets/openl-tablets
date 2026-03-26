@@ -1406,10 +1406,10 @@ public class OpenApiProjectValidator {
                 Schema<?> resolvedExpectedSchema = context.getExpectedOpenAPIResolver()
                         .resolve(expectedSchema, Schema::get$ref);
                 if ((openClass.isArray() || ClassUtils.isAssignable(openClass.getInstanceClass(),
-                        Collection.class)) && resolvedActualSchema instanceof ArraySchema) {
+                        Collection.class)) && resolvedActualSchema instanceof ArraySchema actualArraySchema) {
                     if (resolvedExpectedSchema instanceof ArraySchema schema) {
                         validateType(context,
-                                ((ArraySchema) resolvedActualSchema).getItems(),
+                                actualArraySchema.getItems(),
                                 schema.getItems(),
                                 openClass.isArray() ? openClass.getComponentClass() : JavaOpenClass.OBJECT,
                                 validatedBySchemasRef,

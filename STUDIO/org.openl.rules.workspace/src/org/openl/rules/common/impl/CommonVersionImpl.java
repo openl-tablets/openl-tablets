@@ -91,11 +91,11 @@ public class CommonVersionImpl implements CommonVersion {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof CommonVersion)) {
+        if (!(o instanceof CommonVersion commonVersion)) {
             return false;
         }
 
-        return compareTo((CommonVersion) o) == 0;
+        return compareTo(commonVersion) == 0;
     }
 
     @Override

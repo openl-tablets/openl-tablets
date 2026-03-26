@@ -211,10 +211,9 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof ProjectionKey)) {
+            if (!(obj instanceof ProjectionKey other)) {
                 return false;
             }
-            ProjectionKey other = (ProjectionKey) obj;
 
             return type.equals(other.type) && name.equals(other.name);
         }

@@ -36,9 +36,8 @@ public class TagTemplate implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof TagTemplate))
+        if (!(o instanceof TagTemplate that))
             return false;
-        TagTemplate that = (TagTemplate) o;
         return getTemplate().equals(that.getTemplate());
     }
 

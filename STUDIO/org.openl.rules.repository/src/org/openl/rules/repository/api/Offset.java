@@ -41,13 +41,12 @@ public class Offset extends Pageable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Offset)) {
+        if (!(o instanceof Offset offset1)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-        Offset offset1 = (Offset) o;
         return offset == offset1.offset;
     }
 

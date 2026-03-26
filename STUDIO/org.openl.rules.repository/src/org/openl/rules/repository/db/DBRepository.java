@@ -622,12 +622,12 @@ abstract class DBRepository implements Repository, Closeable {
             }
 
             Object revision = checkRepository();
-            if (!(revision instanceof Throwable)) {
+            if (!(revision instanceof Throwable throwable)) {
                 log.info("SQL result: {}. The repository is already initialized.", revision);
                 initialized = true;
                 return;
             }
-            log.info("SQL error: {}", ((Throwable) revision).getMessage());
+            log.info("SQL error: {}", throwable.getMessage());
             log.info("Initializing the repository in the DB...");
             Connection connection = null;
             Statement statement = null;

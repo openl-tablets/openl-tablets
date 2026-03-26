@@ -33,12 +33,12 @@ class XlsNumberFormatter implements IFormatter {
 
     @Override
     public String format(Object value) {
-        if (!(value instanceof Number)) {
+        if (!(value instanceof Number number)) {
             log.debug("Should be Number: {}", value);
             return null;
         }
 
-        double doubleValue = ((Number) value).doubleValue();
+        double doubleValue = number.doubleValue();
         String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
 
         if (format.startsWith("# ?/") || format.startsWith("# ??/") || format.startsWith("# ???/")) {

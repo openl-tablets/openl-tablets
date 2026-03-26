@@ -77,9 +77,8 @@ public class OpenLProject implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof OpenLProject))
+        if (!(o instanceof OpenLProject that))
             return false;
-        OpenLProject that = (OpenLProject) o;
         return Objects.equals(getId(), that.getId());
     }
 

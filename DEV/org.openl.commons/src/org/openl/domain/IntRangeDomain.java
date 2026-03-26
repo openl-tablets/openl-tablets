@@ -71,11 +71,9 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof IntRangeDomain)) {
+        if (!(obj instanceof IntRangeDomain other)) {
             return false;
         }
-
-        IntRangeDomain other = (IntRangeDomain) obj;
 
         return min == other.min && max == other.max;
     }

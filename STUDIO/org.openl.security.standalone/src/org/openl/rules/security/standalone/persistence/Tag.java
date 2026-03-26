@@ -59,9 +59,8 @@ public class Tag implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Tag))
+        if (!(o instanceof Tag tag))
             return false;
-        Tag tag = (Tag) o;
         return Objects.equals(getId(), tag.getId());
     }
 

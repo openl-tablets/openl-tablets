@@ -371,11 +371,9 @@ public class AProject extends AProjectFolder implements IProject {
 
     @Override
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
-        if (!(newFolder instanceof AProject)) {
+        if (!(newFolder instanceof AProject projectFrom)) {
             throw new IllegalArgumentException("Cannot update not from AProject");
         }
-
-        AProject projectFrom = (AProject) newFolder;
 
         Repository repositoryTo = getRepository();
 
