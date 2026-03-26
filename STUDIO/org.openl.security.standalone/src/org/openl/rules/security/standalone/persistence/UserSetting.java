@@ -39,10 +39,9 @@ public class UserSetting implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof UserSetting that)) {
             return false;
         }
-        UserSetting that = (UserSetting) o;
         return Objects.equals(id, that.id) && Objects.equals(settingValue, that.settingValue);
     }
 

@@ -189,9 +189,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof SimpleDependencyLoader that))
             return false;
-        SimpleDependencyLoader that = (SimpleDependencyLoader) o;
         return dependency.equals(that.dependency);
     }
 

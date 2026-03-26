@@ -31,10 +31,9 @@ public class GroovyScriptFile {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof GroovyScriptFile that)) {
             return false;
         }
-        GroovyScriptFile that = (GroovyScriptFile) o;
         return Objects.equals(nameWithPackage, that.nameWithPackage);
     }
 

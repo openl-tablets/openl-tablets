@@ -104,13 +104,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (this == obj) {
                 return true;
             }
-            if (obj == null) {
+            if (!(obj instanceof DependencyRelation other)) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            DependencyRelation other = (DependencyRelation) obj;
             if (dependOnThisDependency == null) {
                 if (other.dependOnThisDependency != null) {
                     return false;

@@ -53,10 +53,8 @@ public class ProjectGrouping implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof ProjectGrouping user))
             return false;
-
-        ProjectGrouping user = (ProjectGrouping) o;
 
         return Objects.equals(loginName, user.loginName);
     }

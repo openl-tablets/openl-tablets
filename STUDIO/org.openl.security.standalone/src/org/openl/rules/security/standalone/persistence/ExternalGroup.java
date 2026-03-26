@@ -63,8 +63,7 @@ public class ExternalGroup implements Serializable {
 
         @Override
         public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            PK pk = (PK) o;
+            if (!(o instanceof PK pk)) return false;
             return Objects.equals(groupName, pk.groupName) && Objects.equals(loginName, pk.loginName);
         }
 

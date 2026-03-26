@@ -41,10 +41,9 @@ public class UserSettingId implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof UserSettingId that)) {
             return false;
         }
-        UserSettingId that = (UserSettingId) o;
         return loginName.equals(that.loginName) && settingKey.equals(that.settingKey);
     }
 

@@ -1329,9 +1329,8 @@ public class OpenApiProjectValidator {
         public boolean equals(Object o) {
             if (this == o)
                 return true;
-            if (o == null || getClass() != o.getClass())
+            if (!(o instanceof KeyBySchemasRef key))
                 return false;
-            KeyBySchemasRef key = (KeyBySchemasRef) o;
             return Objects.equals(openClass, key.openClass) && Objects.equals(actualSchemaRef,
                     key.actualSchemaRef) && Objects.equals(expectedSchemaRef, key.expectedSchemaRef);
         }
@@ -1357,10 +1356,8 @@ public class OpenApiProjectValidator {
         public boolean equals(Object o) {
             if (this == o)
                 return true;
-            if (o == null || getClass() != o.getClass())
+            if (!(o instanceof KeyByFieldType key))
                 return false;
-
-            KeyByFieldType key = (KeyByFieldType) o;
             if (!Objects.equals(openClass, key.openClass))
                 return false;
             if (!Objects.equals(openFieldType, key.openFieldType))

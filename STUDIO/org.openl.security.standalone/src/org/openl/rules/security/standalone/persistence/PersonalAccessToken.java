@@ -127,10 +127,9 @@ public class PersonalAccessToken implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof PersonalAccessToken that)) {
             return false;
         }
-        PersonalAccessToken that = (PersonalAccessToken) o;
         return Objects.equals(publicId, that.publicId);
     }
 

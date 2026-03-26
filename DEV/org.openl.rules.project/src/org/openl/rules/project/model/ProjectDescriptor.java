@@ -316,9 +316,8 @@ public class ProjectDescriptor {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof ProjectDescriptor that))
             return false;
-        ProjectDescriptor that = (ProjectDescriptor) o;
         return name.equals(that.name);
     }
 

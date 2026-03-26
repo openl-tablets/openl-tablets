@@ -45,10 +45,9 @@ public class Cursor {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof Cursor cursor)) {
             return false;
         }
-        Cursor cursor = (Cursor) o;
         return column == cursor.column && row == cursor.row;
     }
 

@@ -42,10 +42,9 @@ public class JavaClassFile {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof JavaClassFile that)) {
             return false;
         }
-        JavaClassFile that = (JavaClassFile) o;
         return Objects.equals(javaNameWithPackage, that.javaNameWithPackage);
     }
 

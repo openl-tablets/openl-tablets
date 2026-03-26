@@ -159,10 +159,8 @@ public class DateRangeDomain implements IDomain<Date> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof DateRangeDomain dates))
             return false;
-
-        DateRangeDomain dates = (DateRangeDomain) o;
 
         if (!min.equals(dates.min))
             return false;

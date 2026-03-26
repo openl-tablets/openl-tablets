@@ -84,10 +84,8 @@ public class Group implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof Group group))
             return false;
-
-        Group group = (Group) o;
 
         return id != null ? id.equals(group.id) : group.id == null;
     }
