@@ -265,7 +265,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
                 .collect(Collectors.partitioningBy(spreadsheetModel -> containsRuntimeContext(
                         pathsWithRequestsRefs.get(spreadsheetModel.getPathInfo().getOriginalPath()))));
-        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
+        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(true);
 
         // remove defaultRuntimeContext from dts - it will be generated automatically in the interface
         dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
@@ -276,7 +276,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 dts,
                 dataModels,
                 isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
-                isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
+                isRuntimeContextProvided ? sprModelsDivided.get(false) : Collections.emptyList());
     }
 
     private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {

@@ -1813,7 +1813,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
         }
         // in this case JGit uses Pattern filter, so let's validate if filter can be compiled, and escape it if not;
         try {
-            var ignore = Pattern.compile(globalFilter).matcher("");
+            Pattern.compile(globalFilter).matcher("");
             return globalFilter;
         } catch (PatternSyntaxException e) {
             log.debug(e.getMessage(), e);

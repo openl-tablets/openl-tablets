@@ -69,7 +69,6 @@ import org.openl.types.impl.ThisField;
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
-    private static final int MAX_MODULES_IN_QUEUE = 10;
 
     /**
      * Parameter to skip running OpenL Tablets tests if it set to 'true'.

@@ -55,7 +55,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -303,9 +302,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         Set<Artifact> dependencies = new HashSet<>();
         for (Artifact artifact : getDependentNonOpenLProjects()) {
             String groupId = artifact.getGroupId();
-            String type = artifact.getType();
             String scope = artifact.getScope();
-            if (skipToProcess(groupId, type, scope)) {
+            if (skipToProcess(groupId, scope)) {
                 debug("SKIP : ", artifact);
                 continue;
             }
@@ -334,9 +332,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         for (Dependency dep : project.getDependencies()) {
             String groupId = dep.getGroupId();
             String artifactId = dep.getArtifactId();
-            String type = dep.getType();
             String scope = dep.getScope();
-            if (skipToProcess(groupId, type, scope)) {
+            if (skipToProcess(groupId, scope)) {
                 debug("SKIP : ", dep);
             } else {
                 allowed.add(ArtifactUtils.versionlessKey(groupId, artifactId));
@@ -345,7 +342,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         return allowed;
     }
 
-    private boolean skipToProcess(String groupId, String type, String scope) {
+    private boolean skipToProcess(String groupId, String scope) {
         return !isRuntimeScope(scope) || isOpenLCoreDependency(groupId);
     }
 

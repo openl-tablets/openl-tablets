@@ -34,7 +34,7 @@ public class JAXBSerializer {
     private Marshaller getJaxbMarshaller() throws JAXBException {
         if (jaxbMarshaller == null) {
             jaxbMarshaller = getJaxbContext().createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // excludes header
         }
         return jaxbMarshaller;

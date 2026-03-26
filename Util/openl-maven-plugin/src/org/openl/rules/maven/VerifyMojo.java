@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
@@ -59,9 +58,6 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${plugin.artifacts}", readonly = true, required = true)
     private List<Artifact> pluginArtifacts;
-
-    @Parameter(defaultValue = "${session}", readonly = true)
-    private MavenSession mavenSession;
 
     @Component
     private RepositorySystem repositorySystem;

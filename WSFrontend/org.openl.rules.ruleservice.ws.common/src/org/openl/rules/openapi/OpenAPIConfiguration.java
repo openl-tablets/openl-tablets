@@ -121,7 +121,7 @@ public class OpenAPIConfiguration {
             return result;
         } finally {
             // Restore the previous converters
-            var ignore = clearConverters(singleton);
+            clearConverters(singleton);
             var itr = converters.listIterator(converters.size());
             while (itr.hasPrevious()) {
                 var converter = itr.previous();

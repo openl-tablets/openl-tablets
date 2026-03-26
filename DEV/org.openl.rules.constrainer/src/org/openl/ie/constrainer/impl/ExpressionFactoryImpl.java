@@ -213,11 +213,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     private final boolean _putInCache = false;
 
     /**
-     * Use cache to find and store the expression.
-     */
-    private final boolean _useCache = false;
-
-    /**
      * Returns a constructor with the given parameter types for a given parameter values.
      */
     static Class[] args2types(Object[] args) {

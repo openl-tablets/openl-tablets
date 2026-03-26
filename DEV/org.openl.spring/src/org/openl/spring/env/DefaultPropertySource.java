@@ -44,7 +44,7 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
         } catch (Exception e) {
             ConfigLog.LOG.error("!     Error:", e);
         }
-        source.put(OPENL_CONFIG_LOADED, Boolean.TRUE.toString());
+        source.put(OPENL_CONFIG_LOADED, "true");
     }
 
     @Override
