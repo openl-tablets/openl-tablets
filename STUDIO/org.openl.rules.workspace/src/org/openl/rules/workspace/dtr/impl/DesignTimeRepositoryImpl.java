@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -179,7 +180,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
 
-            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase());
+            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT));
 
             AProject cached = projects.get(projectKey);
             if (cached != null) {
@@ -340,7 +341,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(repository, fileData);
                 // FIXME: use project path, not name
-                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase()), project);
+                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase(Locale.ROOT)), project);
             }
         }
 
@@ -354,7 +355,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()))) {
+            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)))) {
                 return true;
             }
 

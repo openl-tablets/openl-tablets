@@ -3,6 +3,7 @@ package org.openl.rules.repository.git;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
@@ -105,7 +106,7 @@ class GitRootFactory {
         URIish uriObject = getUri(uri);
         uriObject = uriObject.setScheme(null); // Scheme shouldn't affect uniqueness of the URL
         String cleanedUri = uriObject.toASCIIString()
-                .toLowerCase()
+                .toLowerCase(Locale.ROOT)
                 .strip()
                 .replaceAll("/$", "")
                 .replace(":", "\\:");

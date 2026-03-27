@@ -3,6 +3,7 @@ package org.openl.rules.tableeditor.model.ui;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -172,7 +173,7 @@ public class TableViewer {
                     // add link to used table with signature in tooltip
                     buff.append("<span class=\"title")
                             .append(" title-")
-                            .append(nodeUsage.getNodeType().toString().toLowerCase())
+                            .append(nodeUsage.getNodeType().toString().toLowerCase(Locale.ROOT))
                             .append(" ")
                             .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                             .append("\">");
@@ -190,7 +191,7 @@ public class TableViewer {
 
             if (metaInfo.isReturnCell()) {
                 buff.append("<span class=\"title title-")
-                        .append(NodeType.OTHER.toString().toLowerCase())
+                        .append(NodeType.OTHER.toString().toLowerCase(Locale.ROOT))
                         .append(" ")
                         .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                         .append("\">");

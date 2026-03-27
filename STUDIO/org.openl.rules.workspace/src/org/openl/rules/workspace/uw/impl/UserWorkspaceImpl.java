@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -122,7 +123,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
-            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase()));
+            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
         }
 
         if (uwp == null) {
@@ -193,7 +194,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()));
+            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
         }
     }
 
@@ -343,7 +344,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         local.getName());
                             }
                         } else {
-                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
+                            branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)));
                         }
 
                         // If branch is null then keep default branch.
@@ -445,7 +446,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         log.warn("Cannot close the project {}", project.getName(), e);
                     }
                 }
-                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
+                userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -454,7 +455,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String repoId = lp.getRepository().getId();
                 String name = lp.getName();
 
-                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase()))) {
+                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)))) {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
 
@@ -481,7 +482,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             null,
                             null,
                             projectsLockEngine);
-                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
+                    userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase(Locale.ROOT)), project);
                 }
             }
 

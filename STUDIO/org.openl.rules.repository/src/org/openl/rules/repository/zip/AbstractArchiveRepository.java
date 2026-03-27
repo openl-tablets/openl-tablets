@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +139,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         final Map<String, Path> localStorage = new HashMap<>();
         final Map<Path, String> localPathAliases = new HashMap<>();
         storage.forEach((k, v) -> {
-            if (localStorage.put(k.toLowerCase(), v) != null) {
+            if (localStorage.put(k.toLowerCase(Locale.ROOT), v) != null) {
                 throw new IllegalStateException("The resource with name '%s' already exits.".formatted(k));
             }
             if (localPathAliases.put(v, k) != null) {
@@ -253,7 +254,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
                 continue;
             }
             if (i == 0) {
-                resolvedPath = storage.get(folderName.toLowerCase());
+                resolvedPath = storage.get(folderName.toLowerCase(Locale.ROOT));
                 localRoot = resolvedPath != null ? resolvedPath.getParent() : null;
             } else {
                 resolvedPath = resolvedPath.resolve(folderName);

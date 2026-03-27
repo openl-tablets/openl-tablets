@@ -449,7 +449,7 @@ public final class Strings {
         if (str == null) {
             return null;
         }
-        return str.toLowerCase();
+        return str.toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -471,7 +471,7 @@ public final class Strings {
         if (str == null) {
             return null;
         }
-        return str.toUpperCase();
+        return str.toUpperCase(Locale.ROOT);
     }
 
     /**
