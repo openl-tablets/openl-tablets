@@ -85,8 +85,8 @@ public class DateRangeDomain implements IDomain<Date> {
 
         // see http://issues.apache.org/jira/browse/LANG-59
         time -= cal.get(Calendar.MILLISECOND);
-        time -= cal.get(Calendar.SECOND) * 1000;
-        time -= cal.get(Calendar.MINUTE) * 1000 * 60;
+        time -= cal.get(Calendar.SECOND) * 1000L;
+        time -= cal.get(Calendar.MINUTE) * 1000L * 60;
         // reset time
         if (date.getTime() != time) {
             date.setTime(time);

@@ -73,8 +73,8 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("DataTypes    : ", openClass.getTypes().size());
             info("Methods      : ", openClass.getMethods().size());
             info("Warnings     : ", warnMessages.size());
-            info("Memory used  : ", (memEnd - memStart) / 262_144 / 4.0, " MiB");
-            info("Time elapsed : ", (end - start) / 10_000_000 / 100.0, " s");
+            info("Memory used  : ", (memEnd - memStart) / 262_144L / 4.0, " MiB");
+            info("Time elapsed : ", (end - start) / 10_000_000L / 100.0, " s");
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
