@@ -109,7 +109,7 @@ There are several other options for user management other than default multi-use
 docker compose -f compose.yaml -f compose.ad.yaml up
 ```
 
-There are two more possible **USER_MODE** value: **oauth2** and **saml**. 
+There are two more possible **USER_MODE** value: **oauth2** and **saml**.
 
 For all possible values please refer to [default properties file](/STUDIO/org.openl.rules.webstudio/resources/openl-default.properties). Corresponding properties could be found under **security.<user-mode>.*** names. Please use [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) configuration externalization practices.
 

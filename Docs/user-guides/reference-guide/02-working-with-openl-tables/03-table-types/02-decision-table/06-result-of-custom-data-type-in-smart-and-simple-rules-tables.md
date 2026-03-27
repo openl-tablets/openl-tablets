@@ -24,5 +24,3 @@ If the rule returns the result of a very complex object (with nested objects ins
 ![](../../../ref-guide-images/smartRulesTablesCompoundReturnValue.png)
 
 *Smart rules tables with compound return value*
-
-

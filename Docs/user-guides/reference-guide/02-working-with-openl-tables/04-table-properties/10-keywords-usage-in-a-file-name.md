@@ -10,7 +10,7 @@ To use the feature, define the **Properties** pattern for a file name as describ
 
 *Defining a property pattern for a state and line of business*
 
-For instance, consider the **Corporate Bank Calculation** project configured as displayed in the previous figure. The project module with the `CORPORATE-CW-TEST.xlsx `file name has the following property values: 
+For instance, consider the **Corporate Bank Calculation** project configured as displayed in the previous figure. The project module with the `CORPORATE-CW-TEST.xlsx `file name has the following property values:
 
 -   US State is any state
 -   lob = test
@@ -25,4 +25,3 @@ To configure a module with the logic specific for one state or a group of states
 -   lob = test
 
 CW includes all states, but as long as NY specific module is created in this example, OpenL Tablets selects this specific module.
-

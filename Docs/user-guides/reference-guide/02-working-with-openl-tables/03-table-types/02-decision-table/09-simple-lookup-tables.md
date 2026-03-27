@@ -11,4 +11,3 @@ The following is an example of a simple lookup table.
 ![](../../../ref-guide-images/simpleLookupTableExample.png)
 
 *Simple lookup table example*
-

@@ -17,13 +17,13 @@ To create a tutorial project, proceed as follows:
 2.  Click the **Create Project** button ![](../ref-guide-images/tutorials.png).
 3.  In the **Create Project from** window, click the required tutorial name.
 4.  Click **Create** to complete.
-    
+
     The project appears in the **Projects** list of Repository Editor.
-    
+
     ![](../ref-guide-images/tutorials_1.png)
-   
+
     *Creating tutorial projects*
-    
+
 1.  In the top line menu, click **Rules Editor**.
 
 The project is displayed in the **Projects** list and available for usage. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.

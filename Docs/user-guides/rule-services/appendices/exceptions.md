@@ -3,7 +3,7 @@
 The following table describes exception types in OpenL Rule Services:
 <br/>**Cause:** error("Some message") in rules
 <br/>**Status code:** 400
-<br/>**REST:** 
+<br/>**REST:**
 <br/>{
 <br/>  message : "Some message",
 <br/>  type : "USER_ERROR"
@@ -36,8 +36,7 @@ The following table describes exception types in OpenL Rule Services:
 <br/>**Cause**: Validation errors in input parameters, such as a value outside of a valid domain or wrong value in the context.
 <br/>**Status code:** 500
 <br/>**REST:**
-<br/>{ 
-<br/>  message : "'Mister' is outside of valid domain ['Male', 'Female']", 
-<br/>  type : "RULES_RUNTIME" 
+<br/>{
+<br/>  message : "'Mister' is outside of valid domain ['Male', 'Female']",
+<br/>  type : "RULES_RUNTIME"
 <br/>}
-

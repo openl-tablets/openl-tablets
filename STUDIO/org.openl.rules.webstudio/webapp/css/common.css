@@ -651,7 +651,7 @@ ul.enum li {
     text-align: left;
 }
 
-.title-datatype > a, 
+.title-datatype > a,
 .title-otherunderlined > a,
 .title-data > a {
     color: inherit;
@@ -1494,15 +1494,15 @@ table.properties-form.wide .error {
 }
 
 .stacktrace-showed {
-    height: 7px; 
+    height: 7px;
     background: url(webresource/images/a_up.png) no-repeat center;
-    opacity: 0.2;	
+    opacity: 0.2;
 }
 
 .stacktrace-hidden {
-    height: 7px; 
+    height: 7px;
     background: url(webresource/images/a_down.png) no-repeat center;
-    opacity: 0.2;    
+    opacity: 0.2;
 }
 
 .stacktrace-hidden:hover,

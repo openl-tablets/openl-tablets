@@ -15,4 +15,3 @@ Conditions, actions, and result parameters can be accessed from another conditio
 ![](../../../ref-guide-images/accessingConditionParameterFromReturnExpression.png)
 
 *Accessing a condition parameter from a return expression by simplified syntax*
-

@@ -10,7 +10,7 @@
         <artifactId>openl-example-proto-parent-pom</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>com.example.applications</groupId>
     <artifactId>openl-example-applications-parent</artifactId>
     <packaging>pom</packaging>

@@ -60,4 +60,3 @@ OpenL Tablets **5.27.13** is a maintenance release that includes a bug fix and c
 | Plugin                   | Version |
 |:-------------------------|:--------|
 | OpenRewrite Maven Plugin | 6.17.0  |
-

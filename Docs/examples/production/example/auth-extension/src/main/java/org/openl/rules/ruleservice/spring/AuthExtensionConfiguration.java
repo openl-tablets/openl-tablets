@@ -14,7 +14,7 @@ public class AuthExtensionConfiguration {
     public BasicAuthChecker basicAuthChecker(@Value("${example.auth.username}") String username, @Value("${example.auth.password}") String password) {
         return new BasicAuthChecker(username, password);
     }
-    
+
     @Bean
     @Order(0)
     public ClientAccessDeniedHandler clientAccessDeniedHandler() {

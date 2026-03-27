@@ -29,4 +29,3 @@ The following table explains the recommended parts of the structured algorithm:
 | Algorithm steps                         | Represents the main logic of the component.                     |
 | Postprocess                             | Identifies a part executed when the algorithm part is executed. |
 | User functions and subroutines          | Contains user functions definition and subroutines.             |
-

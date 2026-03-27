@@ -38,7 +38,7 @@ The first policy, **Policy1**, contains two vehicles: **Honda Odyssey** and **Fo
 
 **Note:** The approach is valid for simple cases with an array of simple data type values, and for complex cases with a nested array of an array, for example, `policy.vehicles[0].coverages[2].limit`.
 
-**The second option** is to leave the format as is, omitting the [] syntax in column definition  
+**The second option** is to leave the format as is, omitting the [] syntax in column definition
 `<attribute name of aggregated object>.<attribute name of object>, `and define elements of an array in several rows, or in several columns in case of a transposed table.
 
 ![](../../../ref-guide-images/specifyingValuesArrayAggregatedObjectsUsing_1.png)
@@ -56,12 +56,11 @@ The following rules and limitations apply:
     A primary key column can be defined, for example, `policy.vehicles._PK_,` if data columns cannot be used for this purpose. Thus, the primary key cannot be left empty.
 
 -   In non-keys columns where only one value is expected to be entered, the value is retrieved from the first line of the test case and all other lines are ignored.
-    
+
     Even if these following lines are filled with values, no equality verification is performed.
-    
+
 -   Primary key columns must be put right before the corresponding object data.
-    
+
     In particular, all primary keys cannot be defined in the very beginning of the table.
 
 **Note:** All mentioned formats of specifying data for aggregated objects are applicable to the input values or expected result values definition in the Test and Run tables.
-

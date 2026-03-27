@@ -51,4 +51,3 @@ The following examples illustrate vertical and horizontal splitting of the **Ris
 ![](../../../ref-guide-images/tablePartsExampleHorizontalSplittingPart.png)
 
 *Table Parts example. Horizontal splitting part 2*
-

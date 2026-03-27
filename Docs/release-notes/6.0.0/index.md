@@ -524,5 +524,3 @@ The following features, protocols, and APIs have been completely removed from Op
 | MariaDB Driver          | 2.7.13       |
 | MSSQL Driver            | 13.2.1.jre11 |
 | GreenMail               | 2.0.5        |
-
-

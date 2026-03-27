@@ -50,7 +50,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
 
                         context.unwrap(HibernateConstraintValidatorContext.class)
                                 .addMessageParameter("scheme", uri.getScheme())
-                                .addMessageParameter("allowedSchemes", listOfAllowedSchemes) 
+                                .addMessageParameter("allowedSchemes", listOfAllowedSchemes)
                                 .buildConstraintViolationWithTemplate("{openl.constraints.path.incorrect.scheme.message}")
                                 .addConstraintViolation();
 

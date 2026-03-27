@@ -3,17 +3,17 @@
 To address an attribute of an object in a rule, use the following syntaxes:
 
 -   \<object name\>.\<attribute name\>
-    
+
     ![](../../ref-guide-images/referencingAttributes.jpeg)
-    
+
     *Defining an object attribute*
-    
+
 -   \<attribute name\> (\<object name\>)
-    
+
     ![](../../ref-guide-images/referencingAttributes_1.jpeg)
-    
+
     *Defining an object attribute*
-    
+
 The following rules apply:
 
 -   When a complex object is used as an input parameter in a rule, it is recommended to use a simplified reference without the input parameter name to address the direct attributes of this object.
@@ -49,4 +49,3 @@ Part of the rule logic is to check rate basis across all plans and coverages to 
 policyNumber, situsState do not have the policy.situsState reference as they are direct attributes of Policy. This means omitting input parameter reference of the top level.
 
 The same syntax can be used in the array of objects, for example, cars.model or model(cars). The models of all cars in the received array are returned.
-

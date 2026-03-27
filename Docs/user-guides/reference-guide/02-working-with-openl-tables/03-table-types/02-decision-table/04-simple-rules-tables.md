@@ -20,4 +20,3 @@ Restrictions for a simplified decision table are as follows:
 
 -   Condition values must be of the same type or be an array or range of the same type as corresponding input parameters.
 -   Return values must have the type of the return type from the decision table header.
-

@@ -30,4 +30,3 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 - Set file encoding: `-Dfile.encoding=UTF-8`
 
 ---
-

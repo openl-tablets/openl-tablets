@@ -15,15 +15,15 @@ To sign in to OpenL Studio, proceed as follows:
 
 1.  In the web browser address bar, enter the OpenL Studio URL provided by the system administrator.
     The OpenL Studio URL has the following pattern:
-    
+
     `http://<server>:<port>/webstudio`
-    
+
     In the single user mode, users are automatically signed in using the DEFAULT account. In the multi-user mode, the following form appears.
-       
+
        <img src="images/login-page.png" width="400" alt="OpenL Studio login form with username and password fields and a Sign in button"/>
-       
+
        *Login window*
-       
+
 1.  Enter the user name and password provided by the system administrator and click **Sign in**.
 
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](#security-overview).
@@ -290,4 +290,3 @@ The following table describes repository editor organization:
 A user can switch to Rules Editor by clicking the **Rules Editor** control.
 
 For more information on tasks that can be performed in repository editor, see [Using Repository Editor](#using-repository-editor).
-

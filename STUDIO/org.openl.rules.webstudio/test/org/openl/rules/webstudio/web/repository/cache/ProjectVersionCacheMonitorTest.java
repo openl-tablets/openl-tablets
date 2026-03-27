@@ -24,7 +24,7 @@ public class ProjectVersionCacheMonitorTest {
     private File root;
     @TempDir
     private File localRepositoriesFolder;
-    
+
     @AutoClose
     private Repository repo;
     private ProjectVersionCacheMonitor projectVersionCacheMonitor;

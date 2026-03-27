@@ -32,7 +32,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      
+
   gitea-init:
     # Use the *same* Gitea image to get access to 'gitea' CLI
     image: gitea/gitea:1.21@sha256:0056032dc8c6ab70583e4a105b9ee0dc72dce4f4fbc8022c98bcec46b0273883
@@ -135,7 +135,7 @@ services:
               git push origin main
               git checkout -b develop
               git push origin develop
-      
+
               if [ $? -ne 0 ]; then
                   echo "Error: Failed to push initial commit to repository $${GITEA_REPO_NAME}";
               else
@@ -149,7 +149,7 @@ services:
         else
           echo "Skipping initial project commit because repository was not newly created by this script."
         fi
-      
+
         echo "Gitea initialization script finished.";
         exit 0;
       ' # End of sh -c script string
@@ -169,32 +169,32 @@ services:
       - jars:/opt/openl/lib
       - openl-home:/opt/openl/shared
     environment:
-      ## Security settings. 
+      ## Security settings.
       USER_MODE: multi
       SECURITY_ADMINISTRATORS: admin
-      
-      ## Avoid set up wizard. We don't need it since we configure studio though environment variables 
+
+      ## Avoid set up wizard. We don't need it since we configure studio though environment variables
       WEBSTUDIO_CONFIGURED: "true"
-      
+
       ## DB
       DB_URL: jdbc:postgresql://postgres-db:5432/openl_studio
       DB_USER: openl_user
       DB_PASSWORD: openl_password
-      
+
       ## Repository config
-      # This is a list of unique IDs for design repositories. Settings for this repository are going to look like 
-      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPL_<property-name> 
+      # This is a list of unique IDs for design repositories. Settings for this repository are going to look like
+      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPL_<property-name>
       DESIGN-REPOSITORY-CONFIGS: example
-      
-      ## First, let's set default values. We are going to use two predefined repositories: repo-default.design and repo-git. 
-      ## We are going to use them to avoid necessity to define each required settings. You can override any settings later, but keep in mind that all settings, 
+
+      ## First, let's set default values. We are going to use two predefined repositories: repo-default.design and repo-git.
+      ## We are going to use them to avoid necessity to define each required settings. You can override any settings later, but keep in mind that all settings,
       ## which come before this are going to be overwritten.
       REPOSITORY_EXAMPLE__REF_: repo-default.design
       # "Connection timeout" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT__REF_: repo-git.connection-timeout
       # "Changes check interval" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD__REF_: repo-git.listener-timer-period
-      
+
       ## Here we define variables that are specific for our project
       # "URL" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
@@ -214,7 +214,7 @@ services:
       REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
       # "Protected branches" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
-  
+
   postgres:
     image: postgres:17@sha256:0b6428e8c09651398137d2b3308a6ad87e73ac15fc38729891c16d942e947d3d
     container_name: postgres-db

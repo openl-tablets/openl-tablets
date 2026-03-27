@@ -693,4 +693,3 @@ As a result, a `GridTable` is received. It works as a decision table structure. 
 | `new IntRange(String rangeExpression)`         | Borders are parsed by formats of `rangeExpression`.                          |
 
 The same formats and restrictions are used in `DoubleRange`.
-

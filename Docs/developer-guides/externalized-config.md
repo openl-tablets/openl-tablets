@@ -63,4 +63,3 @@ If several profiles are specified in the `spring.profile.active` property, the e
 -   `application.properties`
 
 	**Note:** The list ordered is ordered by precedence, that is, properties defined in locations higher in the list override those defined in lower locations)
-

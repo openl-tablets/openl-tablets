@@ -33,5 +33,3 @@ OpenL Tablets supports titles for horizontal conditions. A horizontal condition 
 *Algorithm identifying the third column as horizontal condition titles because the third column values are empty*
 
 If the height of the horizontal condition is 1, and there is a vertical condition with an empty column, the horizontal titles must be started with a slash /.
-
-

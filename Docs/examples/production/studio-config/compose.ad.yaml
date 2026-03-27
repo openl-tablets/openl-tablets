@@ -10,6 +10,3 @@ services:
       SECURITY_AD_GROUP_FILTER: (&(objectClass=group)(member:1.2.840.113556.1.4.1941:={2}))
 volumes:
   samba_data:
-
-
-  

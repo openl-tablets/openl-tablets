@@ -27,4 +27,3 @@ Simple and smart rules and smart lookup tables support using arrays of ranges. I
 *Using arrays of ranges in a table*
 
 **Note:** String ranges are only supported in smart rules tables. For more information on range data types in OpenL Tablets, see [Range Data Types](../../../03-functions-and-data-types/02-working-with-data-types.md#range-data-types).
-

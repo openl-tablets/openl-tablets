@@ -59,4 +59,3 @@ The structure of the resulting **PolicyCalculation** spreadsheet is rather compl
 *Test for the advanced sample spreadsheet table*
 
 To test a spreadsheet that returns a single value, use the same logic as for decision tables.
-

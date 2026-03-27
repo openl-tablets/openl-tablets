@@ -50,5 +50,3 @@ Special conditions not matching any particular input fields can be used in smart
 If there is a horizontal condition of the Boolean type and the condition title is not a merged cell, it is preferable to use the title **is true?** instead of **true** because the title can be interpreted as a horizontal condition and cause wrong compilation.
 
 A smart rule table can contain multiple and compound returns as described in [Multiple Return Columns in Smart Rules Tables](07-multiple-return-columns-in-smart-rules-tables.md#multiple-return-columns-in-smart-rules-tables) and use external tables as described in [External Tables Usage in Smart Decision Tables](11-external-tables-usage-in-smart-decision-tables.md#external-tables-usage-in-smart-decision-tables).
-
-

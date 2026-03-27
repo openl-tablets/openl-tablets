@@ -14,19 +14,19 @@ import org.springframework.http.ResponseEntity;
 class OpenLExampleTest {
     @Autowired
     private TestRestTemplate restTemplate;
-    
-    @Value("${example.auth.username}") 
+
+    @Value("${example.auth.username}")
     private String username;
-    
-    @Value("${example.auth.password}") 
+
+    @Value("${example.auth.password}")
     private String password;
-    
+
     @Test
     void indexPage() {
         String response = restTemplate.getForObject("/", String.class);
         assertThat(response).contains("OpenL Tablets Rule Services");
     }
-    
+
     @Test
     void simpleProjectTest() {
         ResponseEntity<String> response = restTemplate
@@ -36,7 +36,7 @@ class OpenLExampleTest {
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo("Pong");
     }
-    
+
     @Test
     void projectWithDependenciesTest() {
         ResponseEntity<String> response = restTemplate

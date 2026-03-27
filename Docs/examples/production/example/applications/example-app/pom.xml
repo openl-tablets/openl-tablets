@@ -41,7 +41,7 @@
             <artifactId>auth-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

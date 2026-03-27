@@ -89,7 +89,7 @@ OpenL Tablets processes spreadsheet tables in two different ways depending on th
 
 In the first case, users get the value of SpreadsheetResult type that is an analog of result matrix. All calculated cells of the spreadsheet table are accessible through this result. The following example displays a spreadsheet table of this type.
 
-![](../../../ref-guide-images/parsingSpreadsheetTable.png)  
+![](../../../ref-guide-images/parsingSpreadsheetTable.png)
 ![](../../../ref-guide-images/spreadsheetTableReturnsSpreadsheetresultDatatype.png)
 
 *Spreadsheet table returns the SpreadsheetResult datatype*
@@ -99,4 +99,3 @@ In the second case, the returned result type is a data type as in all other rule
 ![](../../../ref-guide-images/spreadsheetTableReturningSingleValue.png)
 
 *Spreadsheet table returning a single value*
-

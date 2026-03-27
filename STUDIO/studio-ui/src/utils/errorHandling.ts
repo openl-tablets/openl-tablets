@@ -79,7 +79,7 @@ export const setupGlobalErrorHandling = (): void => {
                 url: source,
             })
         }
-    
+
         if (originalOnError) {
             return originalOnError(message, source, lineno, colno, error)
         }
@@ -90,7 +90,7 @@ export const setupGlobalErrorHandling = (): void => {
         errorHandler.logError(error, {
             message: `Unhandled Promise Rejection: ${event.reason}`,
         })
-    
+
         if (originalOnUnhandledRejection) {
             // @ts-ignore
             return originalOnUnhandledRejection(event)

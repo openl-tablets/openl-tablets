@@ -13,10 +13,9 @@ In this example, users can create names for some values and use those in rule ce
 The format of the constants table is as follows:
 
 1.  The first row is a table header, which has the following format:
-    
+
     Constants \<optional table name\>
-    
+
 1.  The second row contains cells with a type, name, and value of the constant.
 
 An expression can be used for a constant, for example, 1/3. To define an empty string, use the \_DEFAULT\_ value.
-

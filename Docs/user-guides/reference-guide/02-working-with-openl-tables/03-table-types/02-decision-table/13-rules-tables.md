@@ -37,5 +37,3 @@ Colors identify how values are related to conditions. The same table represented
 ![](../../../ref-guide-images/lookupTableRepresentationDecisionTable.jpeg)
 
 *Lookup table representation as a decision table*
-
-

@@ -36,4 +36,3 @@ production.repository.password=***
 ```
 
 ---
-

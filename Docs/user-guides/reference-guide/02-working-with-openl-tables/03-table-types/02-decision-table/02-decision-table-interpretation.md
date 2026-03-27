@@ -15,4 +15,3 @@ The following example contains empty case interpretation. For **Senior Driver**,
 ![](../../../ref-guide-images/emptyCaseInterpretationDecisionTable.jpeg)
 
 *Empty case interpretation in the Decision table*
-

@@ -209,4 +209,3 @@ See rules' execution results for predefined list of input values.
 **Test Data**
 
 Store test data directly in rules files.
-

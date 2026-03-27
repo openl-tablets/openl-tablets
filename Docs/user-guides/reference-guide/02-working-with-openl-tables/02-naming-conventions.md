@@ -10,5 +10,3 @@ A **Java digit** is a collection of numbers from 0 to 9.
 ![](../ref-guide-images/examplesCorrectIncorrectRuleTableNames.jpeg)
 
 *Examples of correct and incorrect rule table names*
-
-

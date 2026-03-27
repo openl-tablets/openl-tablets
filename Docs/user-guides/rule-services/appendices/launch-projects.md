@@ -17,4 +17,3 @@ Projects deployed with errors are marked with the red cross mark that is clickab
 ![](../../../assets/images/rule-services/ade13adaf033517e5a0f641f1cb54cde.png)
 
 *Viewing error message for a project*
-

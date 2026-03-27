@@ -15,4 +15,3 @@ where `<keyword>` is either **Method** or **Code**.
 The second row and the following rows are the actual code to be executed. They can reference parameters passed to the method and all Java objects and tables visible to the OpenL Tablets engine. Code rows may not contain the `<return>` keyword. In this case, the last row of the table is returned as the table result.
 
 This table type is intended for users experienced in programming in developing rules of any logic and complexity.
-

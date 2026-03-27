@@ -6,9 +6,9 @@ A **map** is a collection of key-value pairs. Each element of the map always has
 To define data table for lists and maps, use the following syntax:
 
 -   for lists, [i]:\<element datatype\>
-    
+
     [i] is order number
-    
+
 -   for maps, [“key”]:\<element datatype\>
 
 If a datatype table field is a list or a map, use the following syntax:
@@ -41,4 +41,3 @@ An example of the datatype table for this table is as follows:
 ![](../../../ref-guide-images/datatypeTableAddressCustomDataType.png)
 
 *A datatype table for the address custom data type*
-

@@ -12,4 +12,3 @@ References to expressions can be used in decision tables. They can be referenced
 - `textValue` - returns a string representing an expression
 
 Note: If a cell, which is expected to contain an expression or formula, is empty, it will return null.
-

@@ -40,4 +40,3 @@ production.repository.password=***
 4. **Execute** rules via REST APIs
 
 ---
-

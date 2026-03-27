@@ -158,7 +158,7 @@ public class OAuth2SecurityConfig {
         return filter;
     }
 
-    // ======================== Logout ========================== 
+    // ======================== Logout ==========================
 
     @Bean
     public LogoutHandler oauth2LogoutSuccessHandler(@Qualifier("registrationRepository") ClientRegistrationRepository registrationRepository) {

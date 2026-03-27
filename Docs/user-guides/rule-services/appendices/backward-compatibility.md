@@ -22,4 +22,3 @@ If you create a new repository, omit this property or set it to false.
 ### Custom Spreadsheet Type
 
 In OpenL Tablets, **custom spreadsheet type** is used by default. To enable support of the previously created rules based on other types, in the `application.properties` configuration file, set this property to `false`.
-

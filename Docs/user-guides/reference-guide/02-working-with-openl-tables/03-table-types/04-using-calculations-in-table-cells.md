@@ -13,4 +13,3 @@ The table transforms a twelve hour time format into a twenty four hour time form
 Calculations use regular Java syntax, similar to the one used in conditions and actions.
 
 **Note:** Excel formulas are not supported by OpenL Tablets. They are used as pre-calculated values.
-

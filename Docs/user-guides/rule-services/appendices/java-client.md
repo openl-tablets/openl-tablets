@@ -9,10 +9,10 @@ JacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
 jacksonObjectMapperFactoryBean.setEnableDefaultTyping(true);
 Set<String> overrideTypes = new HashSet<String>();
 overrideTypes.add(SomeClass.class.getName());
-        
+
 jacksonObjectMapperFactoryBean.setOverrideTypes(overrideTypes);
 ObjectMapper mapper = jacksonObjectMapperFactoryBean.createJacksonDatabinding();
-        
+
 final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
 
 WebClient webClient = WebClient.create(#REST service url#,
@@ -22,11 +22,10 @@ WebClient webClient = WebClient.create(#REST service url#,
                     add(jsonProvider);
                 }
             });
-        
+
 webClient.type(MediaType.APPLICATION_JSON);
-        
+
 Response response = webClient.get();
 ```
 
 **Note**: If you use POST request for more than one argument, create a DTO that contains field with method argument names and send this DTO object via `webClient.post()` method.
-

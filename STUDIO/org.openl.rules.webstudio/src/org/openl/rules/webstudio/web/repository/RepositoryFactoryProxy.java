@@ -11,14 +11,14 @@ public interface RepositoryFactoryProxy {
 
     /**
      * Retrieves the repository list configuration.
-     * 
+     *
      * @return the repository configuration as a string
      */
     String getRepoListConfig();
 
     /**
      * Creates or retrieves a repository instance for the specified configuration.
-     * 
+     *
      * @param configName the name of the repository configuration
      * @return the repository instance associated with the given configuration
      */
@@ -26,7 +26,7 @@ public interface RepositoryFactoryProxy {
 
     /**
      * Releases resources associated with a repository configuration.
-     * 
+     *
      * @param configName the name of the repository configuration to release
      */
     void releaseRepository(String configName);
@@ -39,7 +39,7 @@ public interface RepositoryFactoryProxy {
 
     /**
      * Retrieves the base path for a repository configuration.
-     * 
+     *
      * @param configName the name of the repository configuration
      * @return the base path associated with the configuration
      */

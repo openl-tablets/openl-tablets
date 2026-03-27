@@ -7,4 +7,3 @@ Sometimes decision tables look more convenient in the transposed format where co
 *Transposed decision table*
 
 OpenL Tablets automatically detects transposed tables and is able to process them correctly.
-

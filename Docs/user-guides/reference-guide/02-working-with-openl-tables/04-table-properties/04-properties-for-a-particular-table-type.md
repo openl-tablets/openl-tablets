@@ -14,4 +14,3 @@ Applications using OpenL Tablets rules can utilize properties for different purp
 | Dev                | [Dev Properties](../../04-table-properties/07-dev-properties.md#dev-properties)                               |
 
 Properties of the **Business Dimension** and **Rule Versioning** groups are used for rule versioning. They are described in detail further on in this guide.
-

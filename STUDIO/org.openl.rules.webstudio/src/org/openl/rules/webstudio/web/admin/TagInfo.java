@@ -27,15 +27,15 @@ public class TagInfo {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public boolean isNullable() {
         return tagType == null || tagType.isNullable();
     }
-    
+
     public boolean isExtensible() {
         return tagType != null && tagType.isExtensible();
     }

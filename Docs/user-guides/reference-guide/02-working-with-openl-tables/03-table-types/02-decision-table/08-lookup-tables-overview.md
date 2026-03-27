@@ -27,4 +27,3 @@ At first, the table goes through parsing and validation.
 -   On validation, OpenL checks if the table structure is proper.
 
 Then OpenL Tablets transforms a lookup table into a regular decision table internally and processes it as a regular decision table.
-

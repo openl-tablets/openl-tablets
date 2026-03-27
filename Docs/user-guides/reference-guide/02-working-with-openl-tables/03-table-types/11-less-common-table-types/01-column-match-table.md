@@ -91,4 +91,3 @@ The WEIGHTED algorithm requires the same columns as the SCORE algorithm. Yet it 
 *An example of the WEIGHTED algorithm table*
 
 The WEIGHTED algorithm requires the use of an extra method table that joins the SCORE and MATCH algorithm. Testing the SCORE part can become difficult in this case. Splitting the WEIGHTED table into separate SCORE and MATCH algorithm tables is recommended.
-

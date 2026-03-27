@@ -56,7 +56,7 @@ export const isFormValuesEqual = (
         const cur = current[key]
         const sav = saved[key]
         const currentFieldPath = fieldPath ? `${fieldPath}.${key}` : key
-        
+
         // Handle sensitive fields: treat empty/undefined as equal
         // This works for both top-level fields (password) and nested fields (settings.password)
         // InputPassword component automatically sets field to undefined when value.secret is true,
@@ -66,17 +66,17 @@ export const isFormValuesEqual = (
             // This prevents false positives when InputPassword automatically sets field to undefined
             const curIsEmpty = cur === '' || cur == null || cur === undefined
             const savIsEmpty = sav === '' || sav == null || sav === undefined
-            
+
             // If both are empty, they are equal
             if (curIsEmpty && savIsEmpty) {
                 continue
             }
-            
+
             // If form has a value (non-empty) and saved is empty, user entered a new password
             if (!curIsEmpty && savIsEmpty) {
                 return false
             }
-            
+
             // If form is empty and saved has a value, this means:
             // - InputPassword set field to undefined because value.secret is true (password exists but is encrypted)
             // - This is NOT a change - user didn't modify the password
@@ -84,14 +84,14 @@ export const isFormValuesEqual = (
             if (curIsEmpty && !savIsEmpty) {
                 continue
             }
-            
+
             // Both have values (non-empty) - this means user entered a new password
             // We can't compare encrypted values, but if user entered something, it's a change
             // Note: In practice, InputPassword sets field to undefined for secret values,
             // so this case should rarely occur. But if it does, treat as change.
             return false
         }
-        
+
         // Handle boolean values FIRST: treat false and undefined as equal (for fields like mainBranchOnly)
         // This prevents false positives when switching between repositories where one has mainBranchOnly: false
         // and another doesn't have this field (undefined)
@@ -105,7 +105,7 @@ export const isFormValuesEqual = (
             }
             continue // Skip other checks for boolean values
         }
-        
+
         // Handle arrays
         if (Array.isArray(cur) && Array.isArray(sav)) {
             if (!areArraysEqual(cur, sav)) {

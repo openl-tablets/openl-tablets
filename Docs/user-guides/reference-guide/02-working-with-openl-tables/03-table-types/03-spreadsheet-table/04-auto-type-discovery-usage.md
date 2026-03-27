@@ -22,22 +22,21 @@ This logic also works when a user explicitly defines the type of the value as co
 However, there are several limitations of auto type discovering when the system cannot possibly determine the cell data type:
 
 -   Type identification algorithm is not able to properly identify the cell type when a cell refers to another cell with the same name because of occurred circular dependencies.
-   
+
     ![](../../../ref-guide-images/autoTypeDiscoveryUsage.png)
-    
+
     *Limitation for referring to another cell with the same name*
-    
+
 -   A user explicitly defines the return type of other Rules tables, such as Decision tables, as common SpreadsheetResult as follows:
-    
+
     ![](../../../ref-guide-images/autoTypeDiscoveryUsage_1.png)
-    
+
     *Explicitly defining the return type of other rules tables*
-    
+
     The type of undefined cells must be explicitly defined as a custom spreadsheet result type or any other suitable type to avoid uncertain Object typing.
-    
+
 -   There is a circular dependency in a spreadsheet table calling the same spreadsheet rule itself in a cell. This cell type must be explicitly defined to allow correct auto type discovering of the whole spreadsheet table as follows:
-    
+
     ![](../../../ref-guide-images/autoTypeDiscoveryUsage_2.png)
-    
+
     *Defining a cell type explicitly*
-    

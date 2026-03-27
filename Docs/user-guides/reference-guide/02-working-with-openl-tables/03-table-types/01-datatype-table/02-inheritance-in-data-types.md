@@ -7,4 +7,3 @@ A new data type that inherits from another one contains all fields defined in th
 To specify inheritance, the following header format is used in the Datatype table:
 
 `Datatype <TypeName> extends <ParentTypeName>`
-

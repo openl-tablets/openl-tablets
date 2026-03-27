@@ -72,4 +72,3 @@ tables are discussed as well.
 
 *If you want further edits (add thumbnails, durations, or reformat the layout), tell me how you'd like it presented and
 I will update the file.*
-

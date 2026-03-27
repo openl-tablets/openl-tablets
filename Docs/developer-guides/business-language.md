@@ -13,19 +13,19 @@ The following topics are included in this chapter:
 OpenL Tablets minimizes the effort required to build a business vocabulary. Using BEX does not require any special mapping, and the existing Java BOM automatically becomes the basis for OpenL Tablets business vocabulary (OBV). For example, the following expressions are equivalent:
 
 ```
-driver.age 
+driver.age
 ```
 and
 ```
-Age of the Driver 
+Age of the Driver
 ```
 Another example:
 ```
-policy.effectiveDate 
+policy.effectiveDate
 ```
 and
 ```
-Effective Date of the Policy 
+Effective Date of the Policy
 ```
 
 ### New Keywords and Avoiding Possible Naming Conflicts
@@ -43,7 +43,7 @@ When adding new keywords to OpenL Tablets BEX language, there is a chance of a n
 ### Simplifying Expressions with Explanatory Variables
 Consider a rather simple expression in Java:
 ```
-(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser 
+(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser
 ```
 
 In BEX language, the same expression can be rewritten in a business-friendly way:
@@ -282,4 +282,3 @@ The `org.openl.j` operators in order of priority are as follows:
 |-----------------|-------------------------------------------------------------------------------------------------------------|
 | **Symmetrical** | eq(T1,T2) <=> eq(T2, T1) add(T1,T2) <=> add(T2, T1)                                                         |
 | **Inverse**     | `le(T1,T2) <=> gt(T2, T1)` `lt(T1,T2) <=> ge(T2, T1)` `ge(T1,T2) <=> lt(T2, T1)` `gt(T1,T2) <=> le(T2, T1)` |
-

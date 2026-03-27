@@ -30,4 +30,3 @@ For example, usually the detailed information about children is not included in 
 ![](../../ref-guide-images/declaringSpecificInputsWhenCallingNested.png)
 
 *Declaring specific inputs when calling a nested rule table*
-

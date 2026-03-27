@@ -60,4 +60,3 @@ openl.home.shared=/path/to/shared/openl/home
 ```
 
 ---
-

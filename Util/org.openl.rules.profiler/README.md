@@ -13,7 +13,7 @@ As a result, OpenL Rule Tables stacktrace calls can be easily found and analyzed
 
 ## Configuration
 
-1. Copy built `./target/org.openl.rules.profiler-<version>.jar` file to `lib` folder inside OpenL RuleServices application  
+1. Copy built `./target/org.openl.rules.profiler-<version>.jar` file to `lib` folder inside OpenL RuleServices application
 2. Add `javaagent` VM option to the command line of OpenL RuleService application:
 ```
 -javaagent:<openl project directory>/Util/org.openl.rules.profiler/target/lib/aspectjweaver.jar

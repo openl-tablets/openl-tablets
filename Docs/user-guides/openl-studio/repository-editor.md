@@ -100,34 +100,34 @@ Projects represented as Examples and Tutorials can be used not only to learn how
 To create a new project from template, proceed as follows:
 
 1.  In the top line menu, click **Create Project**.
-    
+
     The **Create Project from** window appears.
-    
+
 1.  Clicks the **Template** tab.
-    
+
     **Note:** This tab is normally selected by default.
-    
+
     All project templates are organized into three areas: Simple Templates, Examples and Tutorials described above in this topic.
-    
+
 1.  Navigate to the required template and click its name.
-    
+
     The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
-    
+
     ![](images/create-project-from-template-dialog.jpeg)
-    
+
     *Creating a simple project from a template*
-    
+
 1.  Select a repository.
-    
+
     If there is only one repository, it is selected by default. Otherwise, a list of repositories is displayed.
     If a Git repository with non-flat structure is selected, the **Path** field with the / default value is displayed and can be modified as required. The path is defined inside the repository and can start with or without /.
-    
+
 1.  Click **Create**.
 
     If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
-    
+
     A new project is created in Design repository. Initially, project structure corresponds to the selected project template but can be constructed manually.
-    
+
 1.  To construct the project structure, add folders and upload files as described in [Modifying Project Contents](#modifying-project-contents).
 
 ##### Creating a Project Using a Custom Template
@@ -135,21 +135,21 @@ To create a new project from template, proceed as follows:
 A custom project template can be created and then used during new projects definition. To create a new custom project template, proceed as follows:
 
 1.  If the OpenL Studio home directory `\<OPENL_HOME>,` create the following directory:
-    
+
     ```
     \<OPENL_HOME>\project-templates
     ```
-    
+
 1.  Create a subfolder with a template category name.
-    
+
     An example is `\<OPENL_HOME>\project-templates\My Custom Templates`.
-    
+
 1.  For project templates that store files with project rules, create subfolders.
-    
+
     For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
-    
+
     ![](images/create-custom-project-template.jpeg)
-    
+
     *Creating a custom project template*
 
 #### Creating a Project from Excel Files
@@ -162,20 +162,20 @@ Proceed as follows:
 2.  In the **Create Project from** dialog, click the **Excel Files** tab.
 3.  Click the **Add** button, locate the necessary Excel file in a file system and click **Open**.
 4.  If required, repeat the previous step to add more files for the project.
-    
+
     All files are listed in the **File** area.
-    
+
     ![](images/create-project-from-excel-files.jpeg)
-    
+
     *Creating a project from Excel files*
-    
+
     A file can be removed from the list by clicking the corresponding **Clear** link. To delete all files, click **Clear All**.
-    
+
 1.  In the **Project Name** field, enter the name by which the project must be represented in Design repository.
 2.  Select a repository.
-    
+
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
-    
+
 1.  Click **Create** to complete.
 
 If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -196,17 +196,17 @@ To create a project from the OpenAPI file, proceed as follows:
 2.  In the **Create Project from** window, click the **OpenAPI** tab.
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
-    
+
     ![](images/create-project-from-openapi-dialog.png)
-    
+
     *Creating a project from an OpenAPI file*
-    
+
 1.  In the **Project Name** field, enter the name by which the project must be presented in the Design repository.
 2.  If necessary, modify the file location and generated modules name.
 3.  Select a repository.
-    
+
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
-    
+
 1.  Click **Create**.
 
 If tag types are defined as described in the [Managing Tags](#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -220,21 +220,21 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
 1.  Click **Create Project** in the top line menu.
 2.  In the **Create Project from** dialog, click the **Zip Archive** tab.
 3.  Click the **Add** button, locate the necessary zip archive and click **Open**.
-    
+
     ![](images/create-project-from-zip-dialog.jpeg)
-    
+
     *Creating a project from ZIP file*
-    
+
     **Project Name** text box is automatically populated with the project name defined in `rules.xml,` if the uploaded ZIP file contains `rules.xml,` or with the file name.
-    
+
 1.  If necessary, modify the project name.
-    
+
     It will be updated in `rules.xml` accordingly.
-    
+
 1.  Select a repository.
-    
+
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
-    
+
 1.  Click **Create** to complete.
 
 If tag types are defined as described in the [Managing Tags](#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -245,13 +245,13 @@ A new project can be created in Design repository by loading a project with the 
 
 1.  Click **Create Project** in the top line menu.
 2.  In the **Create Project from** dialog, click the **Workspace** tab.
-    
+
     The system displays rule projects available in the workspace:
-    
+
     ![](images/create-project-from-workspace.jpeg)
-    
+
     *Creating a project from Workspace*
-    
+
 1.  Select check boxes for projects to be uploaded.
 2.  To complete creation, click **Create**.
 
@@ -292,7 +292,7 @@ Default tag values are determined in the following order:
 3. Otherwise, **None** is set as the default.
 
 ![](images/select-project-tags-dialog.jpeg)
-    
+
 *Selecting project tags*
 
 If a tag type is defined as optional, the project can remain with the tag value **None**. If the tag type is defined as extensible, new tags can be created in the pop-up window by clicking on the required tag field and entering a new value. Otherwise, only predefined tag values can be used.
@@ -319,11 +319,11 @@ To open a project revision using the **Open Revision** button, proceed as follow
 
 1.  Click the **Open Revision** button.
 2.  In the **Project Revisions** field, select the required revision.
-    
+
     ![](images/open-project-revision-dialog.png)
-    
+
     *Opening a project revision using the Open Revision button*
-    
+
 1.  Click **Open**.
 
 #### Opening a Project Revision Using the Revisions Tab
@@ -332,13 +332,13 @@ To open a project revision using the **Revisions** tab, proceed as follows:
 
 1.  In the **Projects** tree, select a project.
 2.  Click the **Revisions** tab.
-    
+
     A list of revisions appears.
-    
+
     ![](images/project-revisions-list.jpeg)
-    
+
     *List of project revisions*
-    
+
 1.  Navigate to the revision that needs to be opened and click the corresponding magnifier icon in the **Action** column.
 2.  In the information message, click **OK**.
 
@@ -365,15 +365,15 @@ A modified project is saved and copied from the user's workspace to Design repos
 To save a project, proceed as follows:
 
 1.  In the project tree, select the project, and, in the right pane, click **Save**.
-    
+
     The **Save changes** window appears:
-    
+
     ![](images/save-project-changes-dialog.jpeg)
-    
+
     *Save changes in a project*
-    
+
     The number of a revision is updated automatically and is specified in the **Next Revision** field.
-    
+
 1.  Enter comments if needed and click **Save**.
 
 An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](#editing-and-saving-a-project).
@@ -415,9 +415,9 @@ This section describes modifying the physical structure of the project and inclu
 To create a new folder in the project structure, proceed as follows:
 
 1.  In the project tree, select the parent folder in which the new folder must be created.
-    
+
     To create a root level folder, the project name must be selected in the project tree.
-    
+
 1.  In the right pane, click **Add Folder**.
 2.  In the **Add Folder** window, enter the folder name and click **Add**.
 
@@ -426,17 +426,17 @@ To create a new folder in the project structure, proceed as follows:
 To upload a file to a project folder, proceed as follows:
 
 1.  In the project tree, select the folder where the file should be uploaded.
-    
+
     To upload a file to the root level, the project name must be selected in the project tree.
-    
+
 1.  In the right pane, click **Upload File**.
-    
+
     The **Upload File** window appears:
-    
+
     ![](images/upload-file-dialog.png)
-    
+
     *Uploading a file*
-    
+
 1.  Click **Add** in the **File** area and select the file to be uploaded.
 2.  Click the upper **Upload** button (with a green arrow).
 3.  In the **File name** field, enter or modify the name of the file to be used in Design repository.
@@ -457,17 +457,17 @@ To delete a folder or a file in the project structure, proceed as follows:
 
 1.  Perform one of the following steps as required:
     -   Expand the project tree, select the folder or file to be deleted and, in the right pane, click **Delete**.
-    
+
     ![](images/delete-project-element-button.png)
-    
+
     *Deleting a project element*
-    
+
     -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](images/delete-element-icon.png)at the right of the item to be deleted.
-    
+
     ![](images/delete-project-element-from-elements-tab.png)
-    
+
     *Deleting project elements from the* **Elements** *tab*
-    
+
 1.  In the confirmation window, click **OK**.
 
 #### Copying a File
@@ -479,11 +479,11 @@ A user can create a copy of a file using the repository editor. The current revi
 3.  In the window that appears, select the **Current Revision** or clear it and in the **File Revision** field, select a value.
 4.  Optionally, enter the **New File Path** property value.
 5.  In the **New File Name** field, enter the file name.
-    
+
     ![](images/copy-file-in-repository-dialog.png)
-    
+
     *Copying a file in repository editor*
-    
+
 1.  Click **Copy**.
 
 The newly created file appears in the file tree.
@@ -499,14 +499,14 @@ To copy a project, proceed as follows:
     -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](images/copy-project-item-icon.png)** on the right.
 1.  In the **Copy Project** window, enter the new project name.
 2.  Select whether a new project must be linked to the origin project.
-    
+
     In case of linked projects, a new project branch is created. For more information on branches, see [Working with Project Branches](#working-with-project-branches). For unlinked projects, if there are mandatory tag types, tags must be defined for a new project.
-    
+
 1.  Specify whether old revisions must be copied to the newly created project.
 2.  If necessary, select a repository and specify the path to the destination project.
-    
+
     A project can be copied to another repository with the same or a new name.
-    
+
 1.  Optionally, provide comments.
 2.  Click **Copy**.
 
@@ -531,13 +531,13 @@ To delete a project, proceed as follows:
     -   In the **Projects** tree, select the project and, in the right pane, click **Delete**.
     -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](images/delete-element-icon.png)** on the right.
 1.  In the confirmation window, click **Delete** or **OK**.
-    
+
     Deleted projects, except for those in the **Local** status, can be restored by using the **Undelete** button.
-    
+
     To make deleted projects visible, uncheck the **Hide deleted projects** checkbox in the filter pop-up window, which appears after clicking the **Filter** button above the **Projects** tree, and click **Apply**.
-    
+
     To restore a deleted project, proceed as follows:
-    
+
 1.  Navigate to the deleted project in the **Projects** tree.
 2.  Click the **Undelete** button in the right pane.
 3.  Click **Undelete** in the confirmation window.
@@ -554,11 +554,11 @@ To erase a project, proceed as follows:
 2.  Ensure that the **Hide deleted projects** option is cleared.
 3.  In the **Projects** tree, select the project and, in the right pane, click **Erase**.
 4.  If the project is erased from the non-flat Git repository, to delete a project from the repository project tree but keep it in the Git repository, ensure that the **Also erase it from repository** check box is cleared.
-    
+
     In this case, it can later be imported into the repository as described in [Creating a Project from a Repository](#creating-a-project-from-a-repository).
-    
+
     If this check box is selected, the project is erased from both repository project tree and Git repository and becomes no longer available for import.
-    
+
 1.  In the confirmation window, click **Erase**.
 
 ### Deploying a Project
@@ -604,33 +604,33 @@ Proceed as follows:
     -   Define variations.
     -   Create services specifying the versions of web services to support, which is either the RESTful service, or RMI, or both of them.
     -   Enter the service name.
-    
+
         The service name is displayed for a deployed project only in the embedded mode.
-    
+
     -   Define the service class.
     -   Define an RMI service class.
     -   Define the service version.
-    
+
         For more information on service version definition, see [Defining Rule Service Version](#defining-rule-service-version).
-    
+
     -   Enter URL of the service.
     -   In the **Template class** field, define **Annotation template class**.
-    
+
         **Note:** In OpenL Tablets versions prior to 5.24.1, separate fields for **Intercepting template class** and **Annotation template class** are supported. Since **Annotation template class** completely covers **Intercepting template class** and have a higher priority, from 5.24.1, only **Annotation template class** is displayed in the **Template class** field. If the existing configuration have both **Annotation template class** and **Intercepting template class**, only **Annotation template class** is displayed on UI and saved in the file after editing.
-        
+
         **Exception:** For projects with **OpenL version compatibility** and version prior to 5.16, only the **Intercepting template class:** field is displayed instead of **Template class**.
-        
+
     -   Define comma separated service groups.
     -   Add configuration description to the XML file.
-        
+
         For more information on the **Rules Deploy Configuration** tab settings configuration, see [OpenL Tablets Rule Services Usage and Customization Guide > Service Configurer](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#service-configurer).
-    
+
 1.  Click **Save Configuration**.
-    
+
     The selected rules are displayed in the **Rules Deploy Configuration** tab.
-    
+
     ![](images/rules-deploy-configuration-settings.png)
-    
+
     *Defining rules deploy configuration settings*
 
 #### Defining Rule Service Version
@@ -648,18 +648,18 @@ To define the rule service version, proceed as follows:
 1.  In the **Projects** tree, select a project.
 2.  In the top line menu, click **Rules Deploy Configuration**.
 3.  In the window that appears, click the **Version** field.
-    
+
     By default, the **Major 0, Minor 0** scroll list appears.
-    
+
 1.  For more information on how to configure deployment configuration settings, see [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings).
 2.  In the scroll list, select the services version.
-    
+
     For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
-    
+
     ![](images/services-versioning-settings.png)
-    
+
     *Defining services versioning*
-    
+
 1.  Click **Save Configuration**.
 
 The selected services version is displayed in **Rules Deploy Configuration** for the selected project. For the example displayed in this section, the project version is 1.0.
@@ -671,13 +671,13 @@ To compare contents of the currently opened project revision with any other revi
 
 1.  In the project tree, select the project.
 2.  In the right pane, click **Compare**.
-    
+
         A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
 
     ![](images/compare-project-revisions.png)
-    
+
     *Comparing the current project revision from user workspace to the second project revision*
-    
+
 1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
 2.  To compare the current project revision with a different revision, select the branch and revision.
 
@@ -725,7 +725,7 @@ To browse a deployment repository, proceed as follows:
 
 1.  Switch from the **Design repository** view to the **Deployment repositories** view by clicking **Deployment** in the top of the left pane.
 2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](images/deployment-repository-icon.png) icon).
-    
+
     The list of project deployments in the selected deployment repository are displayed in the middle pane.
 
 1.  If needed, expand the repository tree and browse project deployments.
@@ -751,4 +751,3 @@ Upon user logon, the user’s display name and email are used for Git commits if
 -   synchronize a project
 
 If the display name and email data is missing, the **Configure commit info** popup window appears on commit attempt. Once all the required information is entered and saved, the action that triggered the commit is completed automatically.
-

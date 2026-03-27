@@ -54,4 +54,3 @@ The configuration table can be defined with a link to all these modules as follo
 *Configuration table in the Auto-Rating Algorithm.xlsx file*
 
 **Note:** The dash symbol `-` added to the dependency modules names in a common part helps to prevent inclusion of dependency on `Auto-Rating Algorithm` itself.
-

@@ -32,5 +32,3 @@ The following styles and conventions are used in this guide:
 | *Italic*                   | Represents any information to be entered in a field. Represents documentation titles.                                                                                                                                                                                                                                               |
 | < >                      | Represents placeholder values to be substituted with user specific values.                                                                                                                                                                                                                                                          |
 | Hyperlink                  | Represents a hyperlink. Clicking a hyperlink displays the information topic or external source.                                                                                                                                                                                                                                     |
-
-

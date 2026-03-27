@@ -480,6 +480,7 @@
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>3.4.0</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -490,6 +491,20 @@
                 </executions>
                 <configuration>
                     <java>
+                        <includes>
+                            <include>**/*.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
@@ -499,11 +514,65 @@
                         <includes>
                             <include>**/*.groovy</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
                         <removeSemicolons/>
                     </groovy>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>**/*.groovy</include>
+                                <include>**/*.java</include>
+                                <include>**/*.ts</include>
+                                <include>**/*.tsx</include>
+                                <include>**/*.scss</include>
+                                <include>**/*.css</include>
+                                <include>**/*.html</include>
+                                <include>**/*.xml</include>
+                                <include>**/*.json</include>
+                                <include>**/*.yaml</include>
+                                <include>**/*.yml</include>
+                                <include>**/*.properties</include>
+                                <include>**/*.txt</include>
+                                <include>**/*.md</include>
+                                <include>**/*.svg</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.csv</include>
+                                <include>**/*.aj</include>
+                                <include>**/*.apt</include>
+                                <include>**/*.eml</include>
+                                <include>**/META-INF/services/*</include>
+                                <include>**/*.webmanifest</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/dist/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/build/**</exclude>
+                                <exclude>**/out/**</exclude>
+                                <exclude>**/generated/**</exclude>
+                                <exclude>**/*-ui/coverage/**</exclude>
+                                <exclude>.*/**</exclude>
+                                <exclude>**/.*/**</exclude>
+                            </excludes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                        </format>
+                    </formats>
                 </configuration>
             </plugin>
             <plugin>

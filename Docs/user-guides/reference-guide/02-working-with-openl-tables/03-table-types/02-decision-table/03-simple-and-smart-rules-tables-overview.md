@@ -8,4 +8,3 @@ The following topics are included in this section:
 -   [Smart Rules Table](05-smart-rules-tables.md#smart-rules-table)
 -   [Multiple Return Columns in Smart Rules Tables](07-multiple-return-columns-in-smart-rules-tables.md#multiple-return-columns-in-smart-rules-tables)
 -   [Result of Custom Data Type in Smart and Simple Rules Tables](06-result-of-custom-data-type-in-smart-and-simple-rules-tables.md#result-of-custom-data-type-in-smart-and-simple-rules-tables)
-

@@ -145,8 +145,8 @@ It is also possible to filter spreadsheet columns identifying the ones to be dis
 
 **Note:** If there is only one spreadsheet column marked as mandatory, its name in API is just **RowName.** If there is only one spreadsheet column left after exclusion besides the step column, its name in API is also just **RowName**.
 
-An example is as follows. 
-  
+An example is as follows.
+
 ![](../../../ref-guide-images/spreadsheetTableThreeColumns.png)
 
 *A spreadsheet table with three columns*
@@ -170,13 +170,13 @@ An output result for this spreadsheet is as follows.
   "Value_LimitIndex": 1,
   "Description_Limit": "Max Limit which Bank is Allowed\nL = Kl x Lmax",
   "Value_Limit": 5000
-}	
+}
 ```
 
 Note that the step names are in the **ColumnName_RowName** format.
 
 An example of the same spreadsheet with one of the columns excluded using the tilda ~ sign is as follows.
-  
+
 ![](../../../ref-guide-images/spreadsheetTableExcludedColumn.png)
 
 *A spreadsheet table with excluded column*
@@ -196,10 +196,10 @@ An output result for this spreadsheet is as follows.
 }
 ```
 
-Note that the step names are in the **RowName** format because there is only one column left besides the **Step** column. 
-  
+Note that the step names are in the **RowName** format because there is only one column left besides the **Step** column.
+
 Now consider the following example that illustrates simultaneous usage of asterix in columns and steps.
-  
+
 ![](../../../ref-guide-images/spreadsheetTableFilteredColumnsSteps.png)
 
 *A spreadsheet table with filtered columns and steps*
@@ -212,7 +212,7 @@ An output result for this spreadsheet is as follows.
   "Limit": 5000
 }
 ```
-  
+
 If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsheet-table) is marked with `//` it is displayed as a field property in the JSON structure. However, the steps listed in this column are excluded from the schema tree representation.
 
 ![](../../../ref-guide-images/SpreadsheetWithCommentedValue.png)
@@ -230,4 +230,3 @@ If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsh
 *Rule description displayed in OpenL Rule Services*
 
 **Note:** If the Maven plugin is used for generating a spreadsheet result output model, system integration can be based on generated classes. A default Java package for generated Java beans for particular spreadsheet tables is set using the spreadsheetResultPackage table property. Nevertheless, it is recommended to avoid any integration based on generated classes.
-

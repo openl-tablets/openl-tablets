@@ -806,4 +806,3 @@ The verification email resembles the following:
 ![Verification email example](images/verification-email-example.png "Verification email example")
 
 *Verification email example*
-

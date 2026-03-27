@@ -21,4 +21,3 @@ In the following example, rule **PriceTable** collects car price information for
 *Collecting results in regular Decision table*
 
 **Note for experienced users:** Smart and Simple rule tables can return the collection of List, Set, or Collection type. To define a type of a collection element, use the following syntax: `Collect as <Element type> <Collection type> `for example, `SmartRules Collect as String List Greeting (Integer hour).`
-

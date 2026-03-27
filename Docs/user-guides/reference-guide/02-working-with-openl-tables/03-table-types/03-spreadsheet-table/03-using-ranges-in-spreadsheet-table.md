@@ -15,4 +15,3 @@ An example of using a range this way in the **TotalAmount** column is as follows
 **Note:** In expressions, such as `min/max($FirstValue:$LastValue)`, there must be no space before and after the colon ':'  operator.
 
 **Note:** It is impossible to make math operations under ranges which names are specified with spaces. Please use step names without spaces.
-

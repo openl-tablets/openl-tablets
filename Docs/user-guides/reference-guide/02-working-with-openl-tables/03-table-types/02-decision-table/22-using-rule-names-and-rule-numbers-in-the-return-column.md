@@ -7,4 +7,3 @@ In the following rule example, the second rule row is executed, and rule ID \#2 
 ![](../../../ref-guide-images/usingRuleidRuleRulesTable.png)
 
 *Using $RuleId and $Rule in the rules table*
-

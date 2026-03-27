@@ -36,14 +36,14 @@ The following table types support versioning by Business Dimension properties:
 When dealing with almost equal rules of the same structure but with slight differences, for example, with changes in any specific date or state, there is a very simple way to version rule tables by Business Dimension properties. Proceed as follows:
 
 1.  Take the original rule table and set Business Dimension properties that indicate by which property the rules must be versioned.
-    
+
     Multiple Business Dimension properties can be set.
-    
+
 1.  Copy the original rule table, set new dimension properties for this table, and make changes in the table data as appropriate.
 2.  Repeat steps 1 and 2 if more rule versions are required.
 
 Now the rule can be called by its name from any place in the project or application. If there are multiple rules with the same name but different Business Dimension properties, OpenL Tablets reviews all rules and selects the corresponding one according to the specified context variables or, in developers’ language, by runtime context values.
-  
+
 **Note: **When creating a versioned rule, keep the input parameter name exactly the same as in the original rule. This is required for backward compatibility.
 
 The following table contains a list of **Business Dimension** properties used in OpenL Tablets:
@@ -72,8 +72,8 @@ The table properties can be obtained using the following syntax:
 | **$dispatchingProperties** | Returns an array of property objects for all tables with the same signature, that is, all tables used in the dispatching logic.     |
 
 **Example:** Use setTime(date,0,0,0,0) for testing endRequestDate or expirationDate as follows:
-=setTime($properties.endRequestDate, 0, 0,0,0)  	
-  
+=setTime($properties.endRequestDate, 0, 0,0,0)
+
 **Note for experienced users:** A particular rule can be called directly regardless of its dimension properties and current runtime context in OpenL Tablets. This feature is supported by setting the ID property as described in [Dev Properties](../../04-table-properties/07-dev-properties.md#dev-properties), in a specific rule, and using this ID as the name of the function to call. During runtime, direct rule is executed avoiding the mechanism of dispatching between overloaded rules.
 
 For more information on using attributes for runtime context definition, see [Runtime Context Properties in Datatype Tables](../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
@@ -145,17 +145,17 @@ The date when the rule is applied must be within the **Start Request Date** and 
 Users can have multiple rules with different start and end request dates, where dates must intersect. In such cases, priority rules are applied as follows:
 
 1.  The system selects the rule with the latest **Start Request** date.
-    
+
     ![](../../ref-guide-images/usingRequestDate.png)
-    
+
     *Example of the priority rule applied to rules with intersected Start Request date*
-    
+
 1.  If there are rules with the same **Start Request** date, OpenL Tablets selects the rule with the earliest **End Request** date.
-    
+
     ![](../../ref-guide-images/usingRequestDate_1.png)
-    
+
     *Example of the priority rule applied to the rules with End Request date*
-    
+
 If the start and end request dates coincide completely, the system displays an error message saying that such table already exists.
 
 **Note:** A rule table version with exactly the same **Start Request Date** or **End Request Date** cannot be created because it causes an error message.
@@ -264,7 +264,7 @@ For the California state, there are two possible versions of the rule, and “go
 
 OpenL Tablets supports rules overloading by metadata, or business dimension properties.
 
-Sometimes a user needs business rules that work differently but have the same input.  
+Sometimes a user needs business rules that work differently but have the same input.
 Consider provided vehicle insurance and a premium calculation rule defined for it as follows:
 
 `PREMIUM = RISK_PREMIUM + VEHICLE_PREMIUM + DRIVER_PREMIUM - BONUS`
@@ -276,7 +276,7 @@ PREMIUM_1 = RISK_PREMIUM + VEHICLE_PREMIUM + DRIVER_PREMIUM - BONUS_1, for state
 PREMIUM_2 = RISK_PREMIUM + VEHICLE_PREMIUM + DRIVER_PREMIUM - BONUS_2, for state #2
 ...
 PREMIUM_N = RISK_PREMIUM + VEHICLE_PREMIUM + DRIVER_PREMIUM - BONUS_N, for state #N
-                                 
+
 ```
 
 OpenL Tablets provides a more elegant solution for this case:
@@ -312,9 +312,9 @@ To simplify runtime context definition, declare it in the Datatype table fields.
 Use one of the following formats for runtime context properties:
 
 -   `<attributeName> : context`
-    
+
     It is used when a model datatype name equals the context variable name.
-    
+
 -   `<attributeName> : context.<contextVariable>`
 
     It is used when a model datatype field name is not equal to the corresponding context variable name.
@@ -372,4 +372,3 @@ The following table provides a list of **Info** properties along with their brie
 | Created On  | createdOn                      | Table                                                 | Date     | Date of table creation in OpenL Studio.                                                                                                                                                                                                                                            |
 | Modified By | modifiedBy                     | Table                                                 | String   | Name of a user who last modified the table in OpenL Studio.                                                                                                                                                                                                                        |
 | Modified On | modifiedOn                     | Table                                                 | Date     | Date of the last table modification in OpenL Studio.                                                                                                                                                                                                                               |
-

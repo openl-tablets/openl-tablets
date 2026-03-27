@@ -19,11 +19,11 @@ For example, in the following diagram, the table on the left is a decision table
 A test table has the following structure:
 
 1.  The first row is the table header, which has the following format:
-    
+
     `Test <rule table name> <test table name>`
-    
+
     **Test** is a keyword that identifies a test table. The second parameter is the name of the rule table to be tested. The third parameter is the name of the test table and is optional.
-   
+
 1.  The second row provides a separate cell for each input parameter of the rule table followed by the **\_res\_** column, which typically contains the expected test result values.
 2.  The third row contains display values intended for business users.
 3.  Starting with the fourth row, each row is an individual test case.
@@ -57,4 +57,3 @@ The **\_error\_** column of the test table can be used for a test algorithm wher
 *An example of a test table with an expected error column*
 
 If OpenL Tablets projects are accessed and modified through OpenL Studio, UI provides convenient utilities for running tests and viewing test results. For more information on using OpenL Studio, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
-

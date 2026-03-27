@@ -31,4 +31,3 @@ my-project.zip:
 ```
 
 This type of archive is supported by OpenL Studio only.
-

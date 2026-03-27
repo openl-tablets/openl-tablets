@@ -7,15 +7,15 @@ OpenL Tablets utilizes Excel concepts of workbooks and worksheets, which can be 
 The general table recognition algorithm is as follows:
 
 1.  The engine looks into each spreadsheet and tries to identify logical tables.
-    
+
     Logical tables must be separated by at least one empty row or column or start at the very first row or column. Table parsing is performed from left to right and from top to bottom. The first populated cell that does not belong to a previously parsed table becomes the top-left corner of a new logical table.
-    
+
 1.  The engine reads text in the top left cell of a recognized logical table to determine its type.
-    
+
     If the top left cell of a table starts with a predefined keyword, such table is recognized as an OpenL Tablets table.
-    
+
     The following are the supported keywords:
-    
+
     | Keyword               | Table type                                  |
     |-----------------------|---------------------------------------------|
     | Constants           | [Constants Table](03-table-types/11-less-common-table-types/06-constants-table.md#constants-table)        |
@@ -35,12 +35,11 @@ The general table recognition algorithm is as follows:
     | TablePart           | [Table Part](03-table-types/11-less-common-table-types/07-table-part.md#table-part)                   |
     | TBasic or Algorithm | [TBasic Table](03-table-types/11-less-common-table-types/05-tbasic-table.md#tbasic-table)               |
     | Test                | [Test Table](03-table-types/08-test-table/01-understanding-test-tables.md#test-table)                  |
-    
+
     All tables that do not have any of the preceding keywords in the top left cell are ignored. They can be used as comments in Excel files.
-    
+
 1.  The engine determines the width and height of the table using populated cells as clues.
 
 It is a good practice to merge all cells in the first table row, so the first row explicitly specifies the table width. The first row is called the table **header**.
 
 **Note:** To put a table title before the header row, an empty row must be used between the title and the first row of the actual table.
-

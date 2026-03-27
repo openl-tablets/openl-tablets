@@ -19,4 +19,3 @@ The following runtime context variables are used in OpenL Tablets and their valu
 | locale           | locale                           | `java.lang.Locale` | n/a                        | n/a                             | Property commonly used for internationalization and localization purposes.     |
 
 For more information on how property values relate to runtime context values and what rule table is executed, see [Business Dimension Properties](../../04-table-properties/05-rule-versioning.md#business-dimension-properties) and [Rules Runtime Context](../../04-table-properties/05-rule-versioning.md#rules-runtime-context).
-

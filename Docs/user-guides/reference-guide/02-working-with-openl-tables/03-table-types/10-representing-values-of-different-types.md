@@ -99,4 +99,3 @@ For more information on these data types used for ranges, see [Range Data Types]
 *Decision table with IntRange*
 
 **Note:** Be careful with using `Integer.MAX_VALUE` in a decision table. If there is a range with the border `max_number `equals to `Integer.MAX_VALUE`, for example, `[100; 2147483647]`, it is not included to the range. This is a known limitation.
-

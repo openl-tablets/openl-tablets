@@ -23,4 +23,3 @@ The following syntax is used to define the bankRatings value from SpreadsheetRes
 ![](../../../ref-guide-images/testTableSpreadsheetTableSpreadsheetresultInput.png)
 
 *A test table for a spreadsheet table with SpreadsheetResult as input parameter*
-

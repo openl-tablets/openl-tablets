@@ -16,7 +16,7 @@ If a project has specific requirements, OpenL Rule Services customization algori
 1.  Create a Maven project that extends OpenL Rule Services.
 2.  Add or change the required points of configuration.
 3.  Add the following dependency to the `pom.xml` file with the version used in the project specified:
-        
+
     ```xml
     <dependency>
         <groupId>org.openl.rules</groupId>
@@ -26,9 +26,9 @@ If a project has specific requirements, OpenL Rule Services customization algori
         <scope>runtime</scope>
     </dependency>
     ```
-        
+
 1.  Use the following Maven plugin to control the OpenL Rule Services building with user’s custom configurations and classes:
-        
+
     ```xml
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -53,7 +53,7 @@ If a project has specific requirements, OpenL Rule Services customization algori
         </configuration>
     </plugin>
     ```
-        
+
 1.  If necessary, add customized spring beans into openl-ruleservice-override-beans.xml in src/main/resources.
 
 ### Data Source Listeners
@@ -107,7 +107,7 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
     </modules>
     <classpath>
         <entry path="lib/*"/>
-    </classpath>        
+    </classpath>
 </project>
 ```
 
@@ -146,7 +146,7 @@ An example is as follows:
 
 ```java
 public class RequestModelValidator implements ServiceMethodBeforeAdvice {
-    public void before(Method interfaceMethod, Object proxy, 
+    public void before(Method interfaceMethod, Object proxy,
                        Object... args) throws Throwable {
         if (args == null || args.length == 0) {
             throw new IllegalArgumentException("Service method should have at least one argument");
@@ -334,18 +334,18 @@ All other JAX-RS annotations, such as `@PUT`, `@DELETE`, `@QueryParam`, and `@Pa
 Annotation customization can be used for dynamically generated interfaces. This feature is only supported for projects that contain the `rules-deploy.xml `deployment configuration file. To enable customization through annotation, proceed as follows:
 
 1.  Add the `annotationTemplateClassName` tag to the `rules-deploy.xml` file*.*
-        
+
     An example is as follows:
-        
+
     ```xml
     <rules-deploy>
         <isProvideRuntimeContext>true</isProvideRuntimeContext>
         <serviceName>dynamic-interface-test3</serviceName>
         <annotationTemplateClassName>org.openl.ruleservice.dynamicinterface.test.MyTemplateClass</annotationTemplateClassName>
         <url></url>
-    </rules-deploy> 
+    </rules-deploy>
     ```
-        
+
 1.  Define a template interface with the annotated methods with the same signature as in a generated dynamic interface.
 
 This approach supports replacing argument types in the method signature with types assignable from generated types in the generated interface.
@@ -515,7 +515,7 @@ public class Person {
    @Request
    private String request;
    @Response
-   private String response;        
+   private String response;
 …
 }
 ```
@@ -618,12 +618,12 @@ A custom relational database entity example is as follows:
 ```java
 @Entity(name = "person")
 public class Person {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_generator")
     @SequenceGenerator(name = "person_generator", sequenceName = "openl_log_data_generator", allocationSize = 50)
     private Long id;
-    
+
     @IncomingTime
     private Date incomingTime;
 
@@ -656,7 +656,7 @@ Custom Hive entity example is as follows:
 ```java
 @Entity("person_data")
 public class Person {
-    
+
     @Value(converter = RandomUUID.class)
     private String id;
 
@@ -689,4 +689,3 @@ public class Person {
 Entity annotation identifies a domain object to be persisted in Hive.
 
 The system uses the ClassLoader SQL scripts which are located in the same package and have the same names as entity classes and the .sql file extension to create Hive table automatically on application launch. For more information on how to enable this feature, see [Storing Log Records in Hive](#storing-log-records-in-hive).
-

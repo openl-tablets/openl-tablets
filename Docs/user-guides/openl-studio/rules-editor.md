@@ -117,9 +117,9 @@ It is important that the structure of `rules.xml` and `rules-deploy.xml` is chan
 To update or export a project, proceed as follows:
 
 1.  To update a project directly in Rules Editor, in the top line menu, click **Update** and make the necessary changes.
-    
+
     The **Update** button is available for projects in the **In Editing** status.
-    
+
 1.  To export the project to the user’s local machine, for a project, in the top line menu, click **Export** and select a project revision.
 
 The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
@@ -152,19 +152,19 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 
 1.  To upload a changed module file, for a module, in the top line menu, click **Upload**.
 2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
-    
+
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
-    
+
 1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
-    
+
     ![](images/initiate-module-editing.png)
-    
+
     *Initiating module editing*
-    
+
     ![](images/edit-module-information-form.png)
-    
+
     *Editing module information*
-    
+
 1.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
 
 **Notes:** The 'Included Methods' and 'Excluded Methods' fields provide the ability to set method filters. For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
@@ -177,39 +177,39 @@ To compare module versions, proceed as follows:
 1.  In the **Projects** tree, select the module.
 2.  In the top line menu, select **More** **\>** **Local** **Changes**.
     The **Local** **Changes** page appears displaying all module versions, with the latest versions on the top.
-    
+
     ![](images/local-changes-window.jpeg)
-    
+
     *Displaying the Changes window*
-    
+
     When a project is modified, upon clicking the **Save** icon ![](images/save-icon-alt.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
-    
+
     ![](images/save-project-update-revision.jpeg)
-    
+
     *Clicking Save to complete project update and save changes as a revision version*
-    
+
 1. To compare the changes, select check boxes for two required versions and click **Compare**.
-    
+
     ![](images/compare-module-versions.jpeg)
-    
+
     *Comparing module versions*
-    
+
     The system displays the module in a separate browser window where changed tables are marked as displayed in the following example.
-     
+
     ![](images/tables-with-changes-comparison.jpeg)
-    
+
     *Tables with changes*
-    
+
 1. To view the changes, click the required table.
-    
+
     The result of the comparison is displayed in the bottom of the window.
-    
+
     ![](images/module-version-comparison-result.jpeg)
-    
+
     *The result of the module version comparison*
-    
+
 1.  To revert module changes, for the required module version, click the **Restore** link and confirm the changes.
-    
+
     When **Restore** is clicked, the corresponding changes are restored but this action is not added to the history as a change.
 
 #### Copying a Module
@@ -227,19 +227,19 @@ To create a copy of a module, proceed as follows:
     -   To create a copy of a module using the **Project** page, in the project tree, select a project which module must be copied, in the modules list, put the mouse cursor over the selected module name, and click **Copy Module** ![](images/copy-module-icon.png).
     -   To create a copy of a module using the **Module** page, in the project tree, select a module to be copied, put the mouse cursor over the module name, and click **Copy Module** ![](images/copy-module-icon.png).
 1.  In the window that appears, enter the new module name.
-    
+
     When the new module name is entered, the **Copy** button becomes enabled.
-    
+
 1.  Optionally, edit the **New File Name** field value.
-    
+
     The file name can differ from the module name.
-    
+
 1.  Optionally, to copy the module to the specific folder, in the **New File Name** field, enter the file name and its location.
-    
+
     The original path cannot be modified other than by entering the specific path in the **New File Name** field. For example, if the original module is located in `folder1`, the new module will be copied to `folder1`. `Folder1` cannot be changed, but a user can define a new file name, such as `folder2/Bank Rating ver2.xlsx,` and then the new module will be created in `folder1/folder2/Bank Rating ver2.xlsx`.
-    
+
 1.  Click **Copy**.
-    
+
 A new simple module is displayed in the modules list.
 
 ![](images/copy-module-result.png)
@@ -321,29 +321,29 @@ To view contents of a particular table, in the module tree, select the table. Th
 OpenL Studio provides embedded tools for modifying table data directly in a web browser. To modify a table, proceed as follows:
 
 1.  In the module tree, select the required table.
-    
+
     The selected table is displayed in the middle pane in read mode.
-    
+
     ![](images/table-read-mode.png)
-    
+
     *Table opened in OpenL Studio*
-    
+
 1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formula** options as required.
 2.  To switch the table to the edit mode, perform one of the following steps:
     -   Above the table, click **Edit**.
     -   Right-click anywhere in the table and click **Edit**.
     -   Double click the cell to edit.
-    
+
     Alternatively, the file can be edited in Excel. Clicking the **Open** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or via the repository.
-    
+
     The following table is switched to the edit mode:
-    
+
     ![](images/table-edit-mode.png)
-    
+
     *Table in the edit mode*
-    
+
     The edit mode provides the following functional buttons:
-    
+
     | Button                                                           | Description                                             |
     |------------------------------------------------------------------|---------------------------------------------------------|
     | ![](images/edit-save-icon.png) | Saves changes in table.                                 |
@@ -363,24 +363,24 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
-    
+
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
-    
+
     Now a user can enter formulas in the selected cell.
-    
+
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
-    
+
     If a table contains an error, the appropriate message is displayed.
-    
+
     ![](images/table-error-example.png)
-    
+
     *Example of an error in a table*
-    
+
     The arrow under the message allows viewing all stack trace for this error.
-    
+
     ![](images/error-stack-trace.png)
-    
+
     *Error stack trace example*
 
 ### Referring to Tables
@@ -448,42 +448,42 @@ The following controls are available in Range Editor:
 To create a range, proceed as follows:
 
 1.  Double click the cell to be edited.
-    
+
     For example, edit the cell containing 18-21. The table is extended by the pop-up window with a set of controls for editing the range.
-    
+
     ![](images/range-editor-create-range.png)
-    
+
     *Creating a range in Range Editor*
-    
+
 1.  In the **From** field, enter the left border of the range, which is 22 for the example described in this section.
 2.  In the **To** field, enter the right border of the range.
-    
+
     In this example, the **To** value must be 24, but an erroneous value 23 is entered for further editing of this border.
-    
+
 1.  Clear the **Include** check box.
 2.  Click **Done** to complete.
-    
+
     The last cell in the **Hour** column is filled as follows:
-    
+
     ![](images/range-editor-new-range-created.png)
-    
+
     *New range created in Range Editor*
-    
+
 1.  To modify the range in Range Editor, double click the cell with the [22-23) range.
-    
+
     The table resembles the following:
-    
+
     ![](images/range-editor-edit-range.png)
-    
+
     *Editing a range in Range Editor*
-    
+
 1.  Select the **To** field, set the right border to 24, and select **Include**.
 2.  Click **Done** to save the work.
-    
+
     The range resembles the following:
-    
+
     ![](images/range-editor-edited-range.png)
-    
+
     *The range edited in Range Editor*
 
 A range can also be modified using ‘\>’, ‘\<’ and ‘=’ controls as described in the beginning of this section.
@@ -503,11 +503,11 @@ To create a table as a copy of the existing table, proceed as follows:
 1.  In the module list, select a table to copy.
 2.  Click the **Copy Table** icon ![](images/copy-table-icon.png).
     The system displays the **Copy Table** form with **New Table** selected by default.
-    
+
     ![](images/copy-table-dialog.png)
-    
+
     *Copying the existing table*
-    
+
 1.  If necessary, modify the **Name** field value.
 2.  To change the workbook and worksheet where the copy must be saved, click the link in the **Save To** area and in the corresponding drop-down list, select the required module and category.
 3.  To save the copied table in a new category, use the **New** option.
@@ -531,7 +531,7 @@ To create a table as a new business dimension version, proceed as follows:
 
 ### Performing a Search
 
-OpenL Studio provides search functionality available both from the module level and the project-level. When opened from the project level screen, the search covers the entire project without requiring a specific module to be open. 
+OpenL Studio provides search functionality available both from the module level and the project-level. When opened from the project level screen, the search covers the entire project without requiring a specific module to be open.
 
 The following topics describe search modes in OpenL Studio:
 
@@ -560,31 +560,31 @@ To search for any cell contents, right click the cell and in the context menu, s
 Advanced search allows specifying criteria to narrow the search through tables. To limit the search, specify the table type, text from the table header, and table properties as described further in this section.
 
 1.  To launch an advanced search, click the arrow to the right of the search window.
-    
+
     ![](images/advanced-search-initiate.png)
-    
+
     *Initiating the advanced search*
-    
+
 1.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
-    
+
     ![](images/advanced-search-area-selection.png)
-    
+
     *Specifying search area*
-    
+
 1.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types.
 2.  In the **Header contains** field, enter the word or phrase to search for.
 3.  Expand the **Table Properties** list, select the required table property, and then click the **Add** button on the right.
-    
+
     The text field for entering the property name appears.
-    
+
 1.  Enter the property name.
 2.  In the similar way, add as many table properties as required.
 3.  To remove a property, click the cross icon to the right of the property.
-    
+
     ![](images/advanced-search-form.png)
-    
+
     *A filled form for advanced search*
-    
+
 1.  Click **Search** to run the search.
 
 As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **Edit Table** links leading to the table editing page.
@@ -618,34 +618,34 @@ To create a datatype table, proceed as follows:
 
 1.  In OpenL Studio, click **Create Table**.
 2.  In the list of table types, select **Datatype Table** and click **Next**.
-    
+
     ![](images/create-datatype-table-wizard.png)
-    
+
     *Creating a datatype table*
-    
-1.  Enter the data type name and if necessary, select the existing data type as a parent.  
+
+1.  Enter the data type name and if necessary, select the existing data type as a parent.
     If a parent data type value is specified, the newly created data type will have access to all fields defined in the parent data type as described in [OpenL Tablets Reference Guide > Inheritance in Data Types](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#inheritance-in-data-types).
-    
+
     This option is unavailable if no custom data types are created in the module.
-    
+
     ![](images/create-datatype-name-and-parent.png)
-    
+
     *Specifying the data type name and parent type*
-    
+
 1.  To define data type fields, click **Add parameter**, specify values as required, and then click **Next**.
-    
+
     ![](images/create-datatype-define-fields.png)
-    
+
     *Defining data type fields*
-    
+
 1.  To indicate the new datatype table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-    
+
     The **Module** value cannot be changed. All created tables go to the current module.
-    
+
     ![](images/create-table-select-destination.png)
-    
+
     *Specifying table location*
-    
+
 1.  Click **Save** to complete table creation.
 The datatype table is created and becomes available in OpenL Studio.
 
@@ -655,31 +655,31 @@ Creating a data table resembles creating a datatype table described in [Creating
 
 1.  In OpenL Studio, click **Create Table**.
 2.  Select the **Data Table** item and click **Next**.
-    
+
     ![](images/create-data-table-initiate.png)
-    
+
     *Initiating data table creation*
-    
+
 1.  Select the table type, enter the table name, and click **Next**.
-    
+
     ![](images/create-data-table-type-and-name.png)
-    
+
     *Defining table type and name*
-    
+
 1.  Define the table columns configuration.
     For the **Loss1** type selected in the previous window, column configuration resembles the following:
-    
+
     ![](images/create-data-table-column-config.png)
-    
+
     *Defining column configuration*
-    
+
 1.  To indicate new data table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
     The **Module** value cannot be changed. All created tables go to the current module.
-    
+
     ![](images/create-data-table-destination.png)
-    
+
     *Specifying table location*
-    
+
 1.  Click **Save** to complete table creation.
 The new data table is created and can be modified as needed.
 
@@ -698,32 +698,32 @@ To create a test table, proceed as follows:
 
 1.  In OpenL Studio, click **Create Table**.
 2.  Select **Test Table** and click **Next**.
-    
+
     ![](images/create-test-table-wizard.png)
-    
+
     *Creating a test table*
-    
+
 1.  In the **Select table** window, select the rule table and click **Next**.
-    
+
     ![](images/create-test-select-rule-table.png)
-    
+
     *Selecting a rule table to create a test table for*
-    
+
     **Note:** If there is no rule table available in this module, a test table cannot be created, and an error message is displayed.
-    
+
 1.  In the **Input name** window, if necessary, modify the generated test table name and click **Next**.
-    
+
     ![](images/create-test-table-name.png)
-    
+
     *Reviewing the test table name*
-    
+
 1.  To define the test table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
     The **Module** value cannot be changed. All created tables go to the current module.
-    
+
     ![](images/create-test-table-destination.png)
-    
+
     *Specifying table location*
-    
+
 1.  To complete table creation, click **Save**.
 The test table is created and becomes available in OpenL Studio.
 
@@ -756,46 +756,46 @@ This section describes how to create a new simple rules table in OpenL Studio.
 
 1.  In OpenL Studio, click **Create Table**.
 2.  Select **Simple Rules Table** and click **Next**.
-    
+
     ![](images/create-simple-rules-table-initiate.png)
-    
+
     *Initiating table creation*
-    
+
 1.  Enter table name and select the required data type to return.
 2.  Click **Add Input Parameters** and specify values as required.
-    
+
     ![](images/create-simple-rules-table-parameters.png)
-    
+
     *Specifying table parameters*
-    
+
 1.  When finished, click **Next**.
-    
+
     In the **Construct a table** window that appears, a blank simple rules table with the header constructed based on the previously entered values appears.
-    
+
     ![](images/create-simple-rules-table-add-data.png)
-    
+
     *Adding data to a table*
-    
+
     Now the table can be filled with data.
-    
+
     ![](images/create-simple-rules-table-context-menu.png)
-    
+
     *Selecting an action from the context menu*
-    
+
 1.  Right click any cell and select one of the following actions:
-    
+
     | Action                                                   | Description                                                                                                                                                                                                                      |
     |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
     | **Add Property**                                         | Appears after selecting a property in the drop-down list and indicating its value.                                                                                                                                               |
     | **Add Rule**                                             | Allows entering data. An example is as follows: <br/>![](images/create-simple-rules-table-enter-data.png) <br/>*Entering table data* <br/>This action can be repeated as many times as required.                                    |
     | **Insert Condition Before** <br/>/ **Insert Condition After** | Adds a condition column to the specified position. An example of the added **DriverOccupation** condition column is as follows: <br/>![](images/create-simple-rules-table-add-condition.png) <br/>*Adding a condition column* |
     | **Delete Condition** / **Delete Rule**                   | Removes a condition or rule.                                                                                                                                                                                                 |
-    
+
 1.  When finished, click **Next**.
 2.  To indicate new table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-    
+
     The **Module** value cannot be changed. All created tables go to the current module.
-    
+
 1.  Click **Save** to save the changes.
 The new simple rules table is created and appears in the project.
 
@@ -804,28 +804,28 @@ The new simple rules table is created and appears in the project.
 OpenL Studio supports comparing contents of Excel files displaying tables and Excel elements that are modified. To compare two Excel files, proceed as follows:
 
 1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
-    
+
     ![](images/excel-comparison-initiate.png)
-    
+
     *Initiating Excel comparison functionality*
-    
+
 1.  In the window that appears, click **Add** and select two Excel files to compare.
 2.  Click **Upload** and wait until file status is changed to **Done.**
-    
+
     ![](images/excel-files-ready-for-comparison.png)
-    
+
     *Excel files ready for comparison*
-    
+
 1.  To display tables and other Excel file elements that differ in the selected Excel files, click **Compare.**
-    
+
     The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
-    
+
     ![](images/excel-comparison-results.jpeg)
-    
+
     *Excel file comparison results*
-    
+
     Elements and tables that changed the location or contents are marked with the asterisk icon ![](images/excel-compare-changed-icon.png). Added elements are marked with the plus sign icon ![](images/excel-compare-added-icon.png). Removed elements or tables are marked with the deletion icon ![](images/excel-compare-removed-icon.png).
-    
+
 1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
 2.  To display all equal tables and Excel file elements in the selected Excel files, select **Show equal elements** check box and click **Compare.**
 
@@ -866,19 +866,19 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
 1.  In Rules Editor, open the project overview page.
 2.  Click the **OpenAPI** section.
-    
+
     ![](images/openapi-file-generation-initiate.png)
-    
+
     *Initiating OpenAPI file generation*
-    
+
 1.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
-    
+
     ![](images/openapi-generation-settings.jpeg)
-    
+
     *Reviewing settings for the OpenAPI file generation*
-    
+
     If the OpenAPI file already exists, the **Uploaded in the Repository** option is selected by default and the file name is displayed in the field. If the file must be regenerated according to the current project tables, the **Generate from Rules and Datatype tables** and **Reconciliation** options must be selected.
-    
+
 1.  Click **Import.**
 
 The file creation confirmation message is displayed. The OpenAPI file is added to the project and appears in the OpenAPI section.
@@ -895,31 +895,31 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
 2.  In Rules Editor, click **Click to Import OpenAPI File.**
-    
+
     ![](images/openapi-import-initiate.png)
-    
+
     *Initiating OpenAPI file import*
-    
+
 1.  Enter the name of the OpenAPI imported file, such as example.json.
 2.  Select the **Tables generation** mode.
-    
+
     ![](images/openapi-select-generation-mode.png)
-    
+
     *Selecting the generation mode*
-    
+
 1.  If necessary, modify the default values for the rules and data modules and click **Import**.
 2.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
-    
+
     ![](images/openapi-module-settings-new.png)
-    
+
     *Module settings window, both modules are new*
-    
+
     If a module already exists, it will be overwritten, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
-    
+
     ![](images/openapi-module-settings-existing.png)
-    
+
     *Module settings window, one of modules already exists*
-    
+
 1.  Click on the **Import and overwrite**.
 
 The rules and model modules are created or updated. The OpenAPI data is updated.
@@ -936,15 +936,15 @@ To reconcile a project using an OpenAPI file with a different name, proceed as f
 
 1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
 2.  In Rules Editor, click **OpenAPI Import icon ![](images/openapi-import-icon.png).**
-    
+
     ![](images/openapi-import-dialog.jpeg)
-    
+
     *Initiating OpenAPI import*
-    
+
 1.  In the Import OpenAPI File window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
-    
+
     ![](images/openapi-select-file-for-reconciliation.png)
-    
+
     *Selecting an OpenAPI file for reconciliation*
 
 The project is validated using the newly imported file.
@@ -981,4 +981,3 @@ Reconciliation does not expect exactly the same OpenAPI generated by the project
 | Number (double)                  | Number(float), Number (double)                       |
 | Number(no format)                | Number(float), Number (double), Number(no format)    |
 | Boolean                          | Boolean                                              |
-

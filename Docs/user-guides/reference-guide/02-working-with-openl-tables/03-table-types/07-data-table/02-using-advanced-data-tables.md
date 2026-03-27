@@ -3,13 +3,13 @@
 Advanced data tables are used for storing information of a complex structure, such as custom data types and arrays. For more information on data types, see [Datatype Table](../01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 
 1.  The first row of an advanced data table contains text in the following format:
-    
+
     `Data <data type> <data table name>`
-   
+
 1.  Each cell in the second row contains an attribute name of the data type.
-    
+
     For an array of objects, the [i] syntax can be used to define an array of simple datatypes, and [i]. \<attributeName\> to define an array of custom datatypes.
-    
+
 1.  The third row contains attribute display names.
 2.  Each row starting from the fourth one contains values for specific data rows.
 
@@ -39,4 +39,3 @@ A user can call any value from a data table using the following syntax:
 <datatable name>[<number of row>] Example: testcars[0]
 <datatable name>["<value of PK>"] Example: testcars["BMW 35"]
 ```
-

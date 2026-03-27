@@ -98,4 +98,3 @@ After a project is created, a zip or Excel file for importing the project to Ope
 OpenL Studio provides convenient UI to work with rules. However, its usage can be avoided by working with rules from IDE only using the OpenL Tablets Maven plugin. The plugin provides compilation and testing of rules and wrapper generation support.
 
 Also, OpenL Tablets has OpenL Tablet Demo Package available at <https://openl-tablets.org/>. A demo is a zip file that contains a Tomcat with configured OpenL Studio and OpenL Rule Services projects. It can be used to effectively start using OpenL Tablets products.
-

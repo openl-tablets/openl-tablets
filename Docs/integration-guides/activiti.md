@@ -92,7 +92,7 @@ An example of using the `openLRules` bean is as follows:
 ```
 <sequenceFlow id='flow3' sourceRef='theStart' targetRef='theTask2'>
 	       <conditionExpression xsi:type="tFormalExpression">
-		              <![CDATA[${openLEngine.execute('datasource_Tutorial1', 'DriverPremium1', 
+		              <![CDATA[${openLEngine.execute('datasource_Tutorial1', 'DriverPremium1',
               driverAge, driverMaritalStatus).toDouble() <= 400}]]>
 	       </conditionExpression>
 </sequenceFlow>
@@ -191,11 +191,11 @@ If a static interface exists for OpenL Tablets rules, this implementation can be
 
 ```
 public interface RulesInterface {
-    DoubleValue DriverPremium1(String driverAge, String driverMaritalStatus);  
+    DoubleValue DriverPremium1(String driverAge, String driverMaritalStatus);
 }
 
 public class SimpleOpenLServiceTask extends AbstractOpenLResourceServiceTask<RulesInterface> {
-    
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         String driverAge = (String) execution.getVariable("driverAge");
@@ -207,7 +207,7 @@ public class SimpleOpenLServiceTask extends AbstractOpenLResourceServiceTask<Rul
 
         execution.setVariable("resultVariable", result);
     }
-} 
+}
 ```
 
 ## Spring Integration
@@ -272,7 +272,7 @@ An example of using the `openLRules` bean is as follows:
 ```
 <sequenceFlow id='flow2' sourceRef='theStart' targetRef='theTask1'>
 		       <conditionExpression xsi:type="tFormalExpression">
-	              <![CDATA[${openLRules.execute(execution, 'openl-rules.xls', 'DriverPremium1', 
+	              <![CDATA[${openLRules.execute(execution, 'openl-rules.xls', 'DriverPremium1',
               driverAge, driverMaritalStatus).toDouble() > 400}]]>
 		       </conditionExpression>
 </sequenceFlow>
