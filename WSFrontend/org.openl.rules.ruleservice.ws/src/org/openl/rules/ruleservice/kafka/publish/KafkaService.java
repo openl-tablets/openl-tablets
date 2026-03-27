@@ -212,7 +212,7 @@ public final class KafkaService implements Runnable {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
                     ZonedDateTime incomingTime = ZonedDateTime.now();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
-                        executor.submit(() -> {
+                        var ignored = executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
                             String requestIdHeader = null;
                             try {
@@ -266,7 +266,7 @@ public final class KafkaService implements Runnable {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                     }
                                     String finalRequestIdHeader = requestIdHeader;
-                                    producer.send(producerRecord, (metadata, exception) -> {
+                                    var ignoredFuture = producer.send(producerRecord, (metadata, exception) -> {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
                                         }
@@ -415,7 +415,7 @@ public final class KafkaService implements Runnable {
             if (storeLogData != null) {
                 storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             }
-            dltProducer.send(dltRecord, (metadata, exception) -> {
+            var ignoredDltFuture = dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLogData != null) {
                     storeLogData.setDltRecord(dltRecord);
                     storeLogData.fault();

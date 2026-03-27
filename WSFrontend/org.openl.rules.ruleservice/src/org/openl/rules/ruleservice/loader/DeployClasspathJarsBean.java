@@ -108,7 +108,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         }
 
         scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
+        var ignored = scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     private static String createClasspathPattern(String fileName) {
