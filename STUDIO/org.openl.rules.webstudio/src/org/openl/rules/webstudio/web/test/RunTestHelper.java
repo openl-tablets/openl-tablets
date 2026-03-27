@@ -6,6 +6,7 @@ import org.springframework.web.context.annotation.SessionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -27,11 +28,13 @@ public class RunTestHelper {
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
     private IRulesRuntimeContext runtimeContext;
+    private String tableUri;
 
     public void catchParams() {
         InputArgsBean bean = (InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean");
         this.params = bean.getParams();
         this.runtimeContext = bean.getRuntimeContext();
+        this.tableUri = bean.getUri();
     }
 
     public void fillBean() {
@@ -48,6 +51,15 @@ public class RunTestHelper {
         boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         ProjectModel model = WebStudioUtils.getProjectModel();
+        if (id == null) {
+            // Fallback: resolve table ID by URI when 'id' is not in request params.
+            // The URI is captured from InputArgsBean during catchParams(),
+            // or from the current table page (WebStudio session).
+            String uri = tableUri != null ? tableUri : WebStudioUtils.getWebStudio().getTableUri();
+            if (uri != null) {
+                id = TableUtils.makeTableId(uri);
+            }
+        }
         IOpenLTable table = model.getTableById(id);
         if (table == null) {
             return null;
@@ -90,6 +102,7 @@ public class RunTestHelper {
 
         params = new Object[0]; // Reset caught params
         runtimeContext = null;
+        tableUri = null;
         return testSuite;
     }
 }
