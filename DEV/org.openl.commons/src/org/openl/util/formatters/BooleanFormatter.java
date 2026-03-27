@@ -11,12 +11,11 @@ public class BooleanFormatter implements IFormatter {
 
     @Override
     public String format(Object value) {
-        if (!(value instanceof Boolean)) {
+        if (!(value instanceof Boolean bool)) {
             log.debug("Should be Boolean: {}", value);
             return null;
         }
 
-        Boolean bool = (Boolean) value;
         return bool.toString();
     }
 
