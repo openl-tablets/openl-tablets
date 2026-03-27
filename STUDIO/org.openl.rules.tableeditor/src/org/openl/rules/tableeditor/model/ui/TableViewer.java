@@ -110,7 +110,7 @@ public class TableViewer {
                 // has Explanation link
                 content = formattedValue;
             } else if (isShowLinks() && (CellMetaInfo
-                    .isCellContainsNodeUsages(metaInfo) || metaInfo != null && metaInfo.isReturnCell())) {
+                    .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnCell()))) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {

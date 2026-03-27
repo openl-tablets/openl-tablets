@@ -78,7 +78,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     @Override
     public boolean equals(Object o) {
-        return this == o || o instanceof ProjectVersion pv && compareTo(pv) == 0;
+        return this == o || (o instanceof ProjectVersion pv && compareTo(pv) == 0);
     }
 
     @Override

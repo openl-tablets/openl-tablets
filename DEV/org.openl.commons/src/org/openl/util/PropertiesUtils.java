@@ -60,7 +60,7 @@ public final class PropertiesUtils {
             }
             ignoreLF = ch == '\r';
 
-            if (!backSlash && (ch == '\r' || ch == '\n') || ch == -1) {
+            if ((!backSlash && (ch == '\r' || ch == '\n')) || ch == -1) {
                 String value = str.substring(0, lastNonWhitespace);
                 if (key != null) {
                     result.accept(key, value);
