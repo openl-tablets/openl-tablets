@@ -63,7 +63,6 @@
         </h:form>
 
         <h:form id="diffTreeForm">
-            <input type="hidden" name="id" value=""  />
             <h:outputText value="#{msg['ws.compare.equal.rows']}:" />
             <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualRows}">
                 <a4j:ajax render="diffCompare"/>

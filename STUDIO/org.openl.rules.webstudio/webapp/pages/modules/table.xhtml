@@ -340,7 +340,6 @@
             </div>
             <input type="hidden" name="testRanges" value="" id="testRangesHiddenInput"/>
             <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyHiddenInput"/>
-            <input type="hidden" name="id" value="#{tableBean.id}" />
         </h:form>
     </div>
 
@@ -478,7 +477,6 @@
                             </tr>
                         </table>
                         <input type="hidden" name="currentOpenedModule" value="" id="testModuleHiddenInput"/>
-                        <input type="hidden" name="id" value="#{tableBean.id}"/>
                     </h:form>
                 </td>
                 </c:if>
@@ -589,7 +587,6 @@
                                     </a>
                                 </c:if>
                             </c:if>
-                            <input type="hidden" name="id" value="#{tableBean.id}" />
                             <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyInputArgs"/>
                         </h:form>
                     </td>
@@ -722,7 +719,7 @@
             </h:panelGroup>
 
             <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-                <input type="hidden" name="id" value="" />
+                <input type="hidden" name="tableId" value="" />
             </form>
 
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
@@ -1056,7 +1053,7 @@
             if (!onBeforeEdit()) {
                 return false;
             }
-            f.id.value = "#{tableBean.id}";
+            f.tableId.value = "#{tableBean.id}";
             f.submit();
         }
 

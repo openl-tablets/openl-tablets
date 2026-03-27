@@ -21,7 +21,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.util.FileTypeHelper;
 
@@ -58,7 +57,7 @@ public class LaunchFileServlet extends HttpServlet {
 
         ProjectModel model = ws.getModel();
 
-        String id = request.getParameter(Constants.REQUEST_PARAM_ID);
+        String id = request.getParameter("tableId");
         IOpenLTable table = model.getTableById(id);
         if (table == null) {
             return;
