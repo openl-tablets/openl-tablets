@@ -1,7 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -28,10 +27,6 @@ public final class ProjectResource {
     }
 
     public String getFile() {
-        try {
-            return new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8.name())).getPath();
-        } catch (UnsupportedEncodingException ignored) {
-            return new File(url.getFile()).getPath();
-        }
+        return new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8)).getPath();
     }
 }

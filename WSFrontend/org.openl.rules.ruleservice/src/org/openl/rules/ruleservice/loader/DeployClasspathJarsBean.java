@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,7 +35,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
     private final boolean enabled;
     private final RulesDeployerService rulesDeployerService;
     private final DeployStrategy deployStrategy;
-    private Queue<File> filesToDeploy = new LinkedList<>();
+    private Queue<File> filesToDeploy = new ArrayDeque<>();
     private ScheduledExecutorService scheduledPool;
     private long retryPeriod = 10;
 
@@ -61,7 +61,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
      * For tests only. Allows setting files that will be deployed.
      */
     void setFilesToDeploy(Collection<File> filesToDeploy) {
-        this.filesToDeploy = new LinkedList<>(filesToDeploy);
+        this.filesToDeploy = new ArrayDeque<>(filesToDeploy);
     }
 
     private void deployJarForJboss(URL resourceURL) throws Exception {

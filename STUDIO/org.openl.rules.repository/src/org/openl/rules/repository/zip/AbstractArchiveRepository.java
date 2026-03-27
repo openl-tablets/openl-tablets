@@ -14,13 +14,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -157,7 +157,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        LinkedList<FileData> files = new LinkedList<>();
+        List<FileData> files = new ArrayList<>();
         CompoundPath resolvedPath = resolvePath(path);
         if (zipArchiveFilter(resolvedPath.getPath())) {
             resolvedPath = new CompoundPath(resolvedPath.getRoot(),
@@ -209,7 +209,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        List<FileData> files = new LinkedList<>();
+        List<FileData> files = new ArrayList<>();
         CompoundPath resolvedPath = resolvePath(path);
         if (zipArchiveFilter(resolvedPath.getPath())) {
             resolvedPath = new CompoundPath(resolvedPath.getRoot(),

@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +21,12 @@ public final class URLHelper {
         StringBuilder sb = new StringBuilder();
         boolean f = false;
         for (String s : parts) {
-            try {
-                if (!f) {
-                    f = true;
-                } else {
-                    sb.append("/");
-                }
-                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
-            } catch (UnsupportedEncodingException e) {
-                sb.append(s);
+            if (!f) {
+                f = true;
+            } else {
+                sb.append("/");
             }
+            sb.append(URLEncoder.encode(s, StandardCharsets.UTF_8).replaceAll("\\+", "%20"));
         }
         try {
             URI uri = new URI(sb.toString());

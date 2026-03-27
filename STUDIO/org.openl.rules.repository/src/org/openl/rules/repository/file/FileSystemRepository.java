@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -317,7 +316,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> listFolders(String path) {
-        var files = new LinkedList<FileData>();
+        var files = new ArrayList<FileData>();
         var directory = root.resolve(path);
         if (Files.isDirectory(directory)) {
             try (var stream = Files.list(directory)) {

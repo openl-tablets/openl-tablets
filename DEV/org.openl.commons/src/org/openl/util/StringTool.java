@@ -1,8 +1,8 @@
 package org.openl.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class StringTool {
@@ -12,15 +12,10 @@ public class StringTool {
 
     // TODO Move to URLUtils class
     public static String encodeURL(String url) {
-        String encodedUrl;
         if (StringUtils.isBlank(url)) {
             return url;
         }
-        try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+        String encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8);
         encodedUrl = PLUS.matcher(encodedUrl).replaceAll("%20");
         return encodedUrl;
     }
@@ -30,11 +25,7 @@ public class StringTool {
         if (StringUtils.isBlank(url)) {
             return url;
         }
-        try {
-            return URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException ignored) {
-        }
-        return null;
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
 }

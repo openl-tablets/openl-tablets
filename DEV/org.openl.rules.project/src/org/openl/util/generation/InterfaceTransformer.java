@@ -7,10 +7,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
@@ -107,8 +107,8 @@ public class InterfaceTransformer {
         Set<String> usedFields = new HashSet<>();
         Set<Class<?>> usedClasses = new HashSet<>();
         Set<MethodKey> usedMethods = new HashSet<>();
-        Queue<Class<?>> queue = new LinkedList<>();
-        Queue<Class<?>> interfacesQueue = new LinkedList<>();
+        Queue<Class<?>> queue = new ArrayDeque<>();
+        Queue<Class<?>> interfacesQueue = new ArrayDeque<>();
         queue.add(classToTransform);
         while (!queue.isEmpty()) {
             Class<?> x = queue.poll();

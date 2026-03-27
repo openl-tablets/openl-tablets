@@ -3,10 +3,10 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -799,7 +799,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      */
     private ProjectIndex generateExternalToInternalMap(Repository delegate, String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
-        Queue<FileData> folderQueue = new LinkedList<>(delegate.listFolders(""));
+        Queue<FileData> folderQueue = new ArrayDeque<>(delegate.listFolders(""));
 
         while (!folderQueue.isEmpty()) {
             FileData folderData = folderQueue.poll();
