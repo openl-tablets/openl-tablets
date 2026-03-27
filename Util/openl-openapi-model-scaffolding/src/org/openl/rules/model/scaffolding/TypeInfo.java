@@ -80,9 +80,8 @@ public class TypeInfo {
         if (!(o instanceof TypeInfo typeInfo)) {
             return false;
         }
-        return type == typeInfo.type && Objects.equals(javaName, typeInfo.javaName) && Objects
-                .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
-                .equals(reference, typeInfo.reference);
+        return type == typeInfo.type && dimension == typeInfo.dimension && reference == typeInfo.reference
+                && Objects.equals(javaName, typeInfo.javaName) && Objects.equals(simpleName, typeInfo.simpleName);
     }
 
     @Override
