@@ -676,82 +676,41 @@ public final class Strings {
             i++;
             nextCh = i < size ? pattern.charAt(i) : 0;
             switch (ch) {
-                case '?':
-                    if (!inSet) {
-                        regex.append('.');
-                    } else {
-                        regex.append(ch);
-                    }
-                    break;
-                case '*':
-                    if (!inSet) {
-                        regex.append(".*");
-                    } else {
-                        regex.append(ch);
-                    }
-                    break;
-                case '#':
-                    if (!inSet) {
-                        regex.append("\\d");
-                    } else {
-                        regex.append(ch);
-                    }
-                    break;
-                case '@':
-                    if (!inSet) {
-                        regex.append("\\p{Alpha}");
-                    } else {
-                        regex.append(ch);
-                    }
-                    break;
-                case '!':
-                    if (inSet && prevCh == '[' && nextCh != ']') {
-                        regex.append('^');
-                    } else {
-                        regex.append(ch);
-                    }
-                    break;
-                case '[':
+                case '?' -> regex.append(inSet ? ch : '.');
+                case '*' -> regex.append(inSet ? String.valueOf(ch) : ".*");
+                case '#' -> regex.append(inSet ? String.valueOf(ch) : "\\d");
+                case '@' -> regex.append(inSet ? String.valueOf(ch) : "\\p{Alpha}");
+                case '!' -> regex.append(inSet && prevCh == '[' && nextCh != ']' ? '^' : ch);
+                case '[' -> {
                     if (inSet) {
                         regex.append('\\');
                     }
                     regex.append(ch);
                     inSet = true;
-                    break;
-                case ']':
+                }
+                case ']' -> {
                     regex.append(ch);
                     inSet = false;
-                    break;
-                case ' ':
+                }
+                case ' ' -> {
                     if (prevCh != ' ') {
                         regex.append("\\s+");
                     }
-                    break;
-                case '+':
+                }
+                case '+' -> {
                     if (prevCh != '?' && prevCh != '@' && prevCh != '#' && prevCh != ']') {
                         regex.append('\\');
                     }
                     regex.append(ch);
-                    break;
-                case '\\':
-                    regex.append('\\');
-                    regex.append(ch);
-                    break;
-                case '{':
-                case '}':
-                case '(':
-                case ')':
-                case '.':
-                case '$':
-                case '|':
+                }
+                case '\\' -> regex.append('\\').append(ch);
+                case '{', '}', '(', ')', '.', '$', '|' -> {
                     if (!inSet) {
                         regex.append('\\');
                     }
                     regex.append(ch);
-                    break;
-                default:
-                    regex.append(ch);
-                    break;
+                }
+                default -> regex.append(ch);
             }
             prevCh = ch;
         }
