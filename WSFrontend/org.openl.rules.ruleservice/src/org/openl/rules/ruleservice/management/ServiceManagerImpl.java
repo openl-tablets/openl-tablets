@@ -201,6 +201,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 ClassLoader classloader = service.getClassLoader();
                 OpenClassUtil.releaseClassLoader(classloader);
             } catch (RuleServiceInstantiationException ignored) {
+                // Best effort classloader cleanup
             }
             cleanDeploymentResources(serviceDescription);
         }

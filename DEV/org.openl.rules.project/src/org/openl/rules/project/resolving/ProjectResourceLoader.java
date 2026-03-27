@@ -39,6 +39,7 @@ public class ProjectResourceLoader {
                     }
                 }
             } catch (IOException ignored) {
+                // Failed to list resources, skip this project
             }
         }
         return projectResources.toArray(EMPTY_ARRAY);

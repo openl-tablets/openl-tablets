@@ -213,6 +213,7 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
                 try (var stream = Files.newInputStream(deployXmlPath)) {
                     return Boolean.TRUE.equals(new XmlRulesDeploySerializer().deserialize(stream).isProvideRuntimeContext());
                 } catch (Exception ignored) {
+                    // Failed to read rules-deploy.xml, fallback to default
                 }
             }
         }

@@ -247,6 +247,7 @@ public class InterfaceTransformer {
                         visitNonArrayAnnotationAttribute(av, m.getName(), attributeValue);
                     }
                 } catch (IllegalAccessException | InvocationTargetException ignored) {
+                    // Skip inaccessible annotation attributes
                 }
             }
             av.visitEnd();
