@@ -105,6 +105,9 @@ public class ProjectsRunController {
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);
 
+        if (method == null) {
+            throw new NotFoundException("table.message");
+        }
         if (method instanceof TestSuiteMethod) {
             throw new BadRequestException("run.test-table.not.supported.message");
         }

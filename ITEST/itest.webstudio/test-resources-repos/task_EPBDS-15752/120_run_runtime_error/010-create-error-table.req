@@ -1,0 +1,24 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Bank Rating",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "doRuntimeError",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "INT",
+        "type": "Integer",
+        "value": "= 10"
+      },
+      {
+        "name": "ERROR",
+        "value": "= error(\"sdsd\")"
+      }
+    ]
+  }
+}
