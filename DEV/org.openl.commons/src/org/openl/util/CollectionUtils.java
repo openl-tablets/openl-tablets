@@ -68,7 +68,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(T[])}.
+     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(Object[])}.
      *
      * @param array the checked array.
      * @return {@code true} if the array contains at least one element.
@@ -90,7 +90,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(T[])}.
+     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(Object[])}.
      *
      * @param array the checked array.
      * @return {@code true} if the array contains at least one element.
