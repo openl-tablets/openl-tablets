@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     }
 
     public RulesDeploy deserialize(String source) throws JAXBException {
-        return (RulesDeploy) jaxbSerializer.unmarshal(new ByteArrayInputStream(source.getBytes()));
+        return (RulesDeploy) jaxbSerializer.unmarshal(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, RulesDeploy.PublisherType> {

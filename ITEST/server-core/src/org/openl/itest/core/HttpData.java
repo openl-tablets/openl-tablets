@@ -306,7 +306,7 @@ class HttpData {
             String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
             String boundaryEnd = "--" + boundary + "--";
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try (PrintWriter writer = new PrintWriter(os)) {
+            try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
                 while (true) {
                     String line = readLine(input);
                     if (isFileRef(line)) {

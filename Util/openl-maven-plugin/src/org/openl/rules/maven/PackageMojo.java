@@ -3,7 +3,6 @@ package org.openl.rules.maven;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
@@ -11,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -274,7 +272,8 @@ public final class PackageMojo extends BaseOpenLMojo {
                 }
             }
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
-            generateDeploymentFile(outputDeploymentDir);
+
+            YamlMapperFactory.getYamlMapper().writeValue(new File(outputDeploymentDir, DEPLOYMENT_YAML), Map.of("name", deploymentName));
 
             final String artifactType = getFormats()[0];
             File outputFile = getOutputFile(outputDirectory,
@@ -381,14 +380,6 @@ public final class PackageMojo extends BaseOpenLMojo {
     private void unpackZip(File baseDir, String name, File zip) throws IOException {
         File outDir = new File(baseDir, name);
         ZipUtils.extractAll(zip, outDir);
-    }
-
-    private void generateDeploymentFile(File baseDir) throws IOException {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("name", deploymentName);
-        try (FileWriter writer = new FileWriter(new File(baseDir, DEPLOYMENT_YAML))) {
-            YamlMapperFactory.getYamlMapper().writeValue(writer, properties);
-        }
     }
 
     private Manifest createManifest() {

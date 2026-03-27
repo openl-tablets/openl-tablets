@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -184,8 +185,8 @@ public class RulesDeployerService implements Closeable {
             }
             try (ZipOutputStream target = new ZipOutputStream(output)) {
                 target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
-                target.write("name: ".getBytes());
-                target.write(deployPath.getBytes());
+                target.write("name: ".getBytes(StandardCharsets.UTF_8));
+                target.write(deployPath.getBytes(StandardCharsets.UTF_8));
                 for (String projectPath : projectsPath) {
                     final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
                     final String fullDeployPath = baseDeployPath + projectPath;
