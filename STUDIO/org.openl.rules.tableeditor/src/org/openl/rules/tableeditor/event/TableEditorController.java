@@ -526,7 +526,7 @@ public class TableEditorController extends BaseTableEditorController {
         short[] rgb = new short[3];
         String reg = "^rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)$";
         if (colorStr.matches(reg)) {
-            String[] rgbStr = colorStr.replaceAll("rgb\\(", "").replaceAll("\\)", "").split(",");
+            String[] rgbStr = colorStr.replaceAll("rgb\\(", "").replaceAll("\\)", "").split(",", -1);
             for (int i = 0; i < rgbStr.length; i++) {
                 rgb[i] = Short.parseShort(rgbStr[i].trim());
             }

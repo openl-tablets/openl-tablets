@@ -177,7 +177,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             String name = fd.getName();
             String deployFolder = getDeployPath();
             String deploymentPath = name.substring(deployFolder.length());
-            String[] pathEntries = deploymentPath.split("/");
+            String[] pathEntries = deploymentPath.split("/", -1);
             String deploymentFolderName = pathEntries[0];
 
             String version = fd.getVersion();
@@ -233,7 +233,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
-            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0],
+            deployment = new LocalDeployment(deploymentFolder.getName().split("/", -1)[0],
                     commonVersion,
                     Collections.singletonMap(project.getName(), project));
         } else {
@@ -244,7 +244,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 LocalProject project = new LocalProject(projectFolder, resourceMap);
                 projectMap.put(project.getName(), project);
             }
-            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0], commonVersion, projectMap);
+            deployment = new LocalDeployment(deploymentFolder.getName().split("/", -1)[0], commonVersion, projectMap);
         }
         return deployment;
     }

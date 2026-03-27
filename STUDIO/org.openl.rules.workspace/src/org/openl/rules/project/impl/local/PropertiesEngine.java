@@ -60,7 +60,7 @@ class PropertiesEngine {
     File getPropertiesFolder(String path) {
         if (!new File(path).isAbsolute()) {
             path = path.replace(File.separatorChar, '/');
-            File projectFolder = new File(root, path.split("/")[0]);
+            File projectFolder = new File(root, path.split("/", -1)[0]);
             return new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
         } else {
             return getPropertiesFolder(getRelativePath(path));

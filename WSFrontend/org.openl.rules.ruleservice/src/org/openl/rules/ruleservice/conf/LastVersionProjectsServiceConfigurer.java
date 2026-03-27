@@ -187,7 +187,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private Set<String> getSupportedGroupsSet() {
         if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
-            String[] groups = getSupportedGroups().split(",");
+            String[] groups = getSupportedGroups().split(",", -1);
             Set<String> supportedGroupSet = new HashSet<>();
             for (String group : groups) {
                 supportedGroupSet.add(group.trim());
@@ -203,7 +203,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             if (rulesDeploy == null || rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
                 return false;
             }
-            String[] groups = rulesDeploy.getGroups().split(",");
+            String[] groups = rulesDeploy.getGroups().split(",", -1);
             for (String group : groups) {
                 if (supportedGroupSet.contains(group)) {
                     return true;

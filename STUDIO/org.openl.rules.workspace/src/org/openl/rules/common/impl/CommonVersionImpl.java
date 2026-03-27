@@ -37,7 +37,7 @@ public class CommonVersionImpl implements CommonVersion {
             revision = s;
             return;
         }
-        String[] version = s.split("\\.");
+        String[] version = s.split("\\.", -1);
 
         if (version.length == 1) {
             revision = version[0];

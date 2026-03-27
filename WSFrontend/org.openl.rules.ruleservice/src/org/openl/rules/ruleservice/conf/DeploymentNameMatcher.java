@@ -51,7 +51,7 @@ final class DeploymentNameMatcher {
      * @return compiled RegEx pattern, {@code null} if source is empty or does not contain valid patterns
      */
     private Pattern compilePattern(String source) {
-        String[] patterns = source.split(",");
+        String[] patterns = source.split(",", -1);
         Character delimiter = null;
         StringBuilder regex = new StringBuilder();
         for (String pattern : patterns) {

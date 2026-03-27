@@ -81,7 +81,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             rulesLocation = getBasePath();
             String[] designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
-                    .split("\\s*,\\s*");
+                    .split("\\s*,\\s*", -1);
             for (String repoId : designRepositories) {
 
                 Repository repository = createRepo(repoId, rulesLocation);

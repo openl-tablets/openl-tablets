@@ -17,7 +17,7 @@ public final class URLHelper {
         while (ret.charAt(0) == '/') {
             ret = ret.substring(1);
         }
-        String[] parts = ret.split("/");
+        String[] parts = ret.split("/", -1);
         StringBuilder sb = new StringBuilder();
         boolean f = false;
         for (String s : parts) {

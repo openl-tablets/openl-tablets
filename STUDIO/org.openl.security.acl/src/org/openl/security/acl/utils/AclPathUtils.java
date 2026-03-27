@@ -47,7 +47,7 @@ public final class AclPathUtils {
             return repoId;
         }
 
-        var parts = path.split("/");
+        var parts = path.split("/", -1);
         var normalizedPath = new StringBuilder(repoId);
 
         int i = 0;

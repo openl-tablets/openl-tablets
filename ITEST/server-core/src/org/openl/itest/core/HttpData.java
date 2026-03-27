@@ -182,7 +182,7 @@ class HttpData {
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
                 // Binary encoding
-                for (String encoding : contentEncoding.split(",")) {
+                for (String encoding : contentEncoding.split(",", -1)) {
                     if ("gzip".equals(encoding) || "x-gzip".equals(encoding)) {
                         // decode gzip bytes
                         decoder = decoder.andThen(HttpData::decodeGzipBytes);

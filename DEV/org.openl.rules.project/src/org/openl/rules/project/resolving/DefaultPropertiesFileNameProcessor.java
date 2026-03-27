@@ -248,7 +248,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private Object[] toArray(String propertyName, String sourceValue, Class<?> componentClass) {
-        String[] values = sourceValue.split(ARRAY_SEPARATOR);
+        String[] values = sourceValue.split(ARRAY_SEPARATOR, -1);
         List<Object> arrObject = new ArrayList<>(values.length);
         for (String str : values) {
             Object arrayValue = getObject(propertyName, str, componentClass);
