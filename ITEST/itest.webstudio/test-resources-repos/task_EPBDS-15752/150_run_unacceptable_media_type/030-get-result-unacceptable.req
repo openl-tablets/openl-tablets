@@ -1,0 +1,4 @@
+GET /rest/projects/{PROJECT_ID}/run/result HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Accept: application/json, text/plain
+

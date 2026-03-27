@@ -52,6 +52,7 @@ import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
+@Deprecated(forRemoval = true)
 @Service
 @ViewScope
 @Slf4j

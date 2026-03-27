@@ -8,6 +8,7 @@ import lombok.Singular;
 
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestStatus;
+import org.openl.studio.projects.model.ParameterValue;
 
 @Builder
 public record TestUnitExecutionResult(
@@ -29,11 +30,11 @@ public record TestUnitExecutionResult(
 
         @Parameter(description = "List of test parameter values")
         @Singular("parameter")
-        List<TestParameterValue> parameters,
+        List<ParameterValue> parameters,
 
         @Parameter(description = "List of context parameter values")
         @Singular("contextParameter")
-        List<TestParameterValue> contextParameters,
+        List<ParameterValue> contextParameters,
 
         @Parameter(description = "List of error messages occurred during test unit execution")
         @Singular("error")

@@ -26,6 +26,7 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
@@ -114,7 +115,7 @@ public class TraceNodeViewMapper {
                 .build();
     }
 
-    public TraceParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy) {
+    public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy) {
         if (param == null) {
             return null;
         }
@@ -125,7 +126,7 @@ public class TraceNodeViewMapper {
         var shouldBeLazy = preferLazy && rawValue != null && !isSimple;
 
         if (shouldBeLazy && parameterRegistry != null) {
-            return TraceParameterValue.builder()
+            return ParameterValue.builder()
                     .name(param.getName())
                     .description(type != null ? type.getDisplayName(INamedThing.SHORT) : null)
                     .lazy(true)
@@ -134,7 +135,7 @@ public class TraceNodeViewMapper {
                     .build();
         }
 
-        return TraceParameterValue.builder()
+        return ParameterValue.builder()
                 .name(param.getName())
                 .description(type != null ? type.getDisplayName(INamedThing.SHORT) : null)
                 .lazy(false)
@@ -143,7 +144,7 @@ public class TraceNodeViewMapper {
                 .build();
     }
 
-    private List<TraceParameterValue> buildInputParameters(ITracerObject tto) {
+    private List<ParameterValue> buildInputParameters(ITracerObject tto) {
         var tracerNode = getTableTracerNode(tto);
         if (tracerNode == null || tracerNode.getTraceObject() == null) {
             return Collections.emptyList();
@@ -152,7 +153,7 @@ public class TraceNodeViewMapper {
         ExecutableRulesMethod method = tracerNode.getTraceObject();
         Object[] params = tracerNode.getParameters();
 
-        List<TraceParameterValue> result = new ArrayList<>();
+        List<ParameterValue> result = new ArrayList<>();
         for (int i = 0; i < params.length; i++) {
             var param = new ParameterWithValueDeclaration(
                     method.getSignature().getParameterName(i),
@@ -164,7 +165,7 @@ public class TraceNodeViewMapper {
         return result;
     }
 
-    private TraceParameterValue buildContext(ITracerObject tto) {
+    private ParameterValue buildContext(ITracerObject tto) {
         var tracerNode = getTableTracerNode(tto);
         if (tracerNode == null || tracerNode.getContext() == null) {
             return null;
@@ -172,7 +173,7 @@ public class TraceNodeViewMapper {
         return buildParameterValue(new ParameterWithValueDeclaration("context", tracerNode.getContext()), false);
     }
 
-    private TraceParameterValue buildResult(ITracerObject tto) {
+    private ParameterValue buildResult(ITracerObject tto) {
         var tracerNode = getTableTracerNode(tto);
         if (tracerNode == null || tracerNode.getTraceObject() == null) {
             return null;
