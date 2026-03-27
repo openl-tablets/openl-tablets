@@ -629,7 +629,7 @@ public final class Strings {
      * &#64; - matches any single alphabetic character
      * [charlist] - matches any single character in {@code charlist}
      * [!charlist]- matches any single character not in {@code charlist}
-     * X+ - matches @{code X} one or more times
+     * X+ - matches {@code X} one or more times
      * </pre>
      * <p>
      * <br/>
