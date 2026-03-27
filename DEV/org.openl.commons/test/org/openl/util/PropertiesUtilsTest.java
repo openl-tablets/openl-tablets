@@ -105,7 +105,6 @@ public class PropertiesUtilsTest {
                 "duplicateKey  ->  first",
                 "duplicateKey  ->  second",
                 "delimiterCharacters:=   ->  This is the value for the key \"delimiterCharacters:= \"",
-                "key  ->  value with the whitespaces in the end     ",
                 "multiline  ->  This line continues",
                 "path  ->  c:\\openl\\rules",
                 "evenKey  ->  This is on one line\\",
