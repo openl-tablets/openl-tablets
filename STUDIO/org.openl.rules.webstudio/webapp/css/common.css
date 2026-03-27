@@ -328,7 +328,7 @@ fieldset {
 }
 
 .problem-small {
-	background: transparent;
+    background: transparent;
     padding: 0 5px;
     border-left-width: 2px
 }
@@ -1444,7 +1444,7 @@ table.properties-form.wide .error {
 
 .pagination ul > li > a,
 .pagination ul > li > span {
-	border: 0;
+    border: 0;
 }
 
 .tooltip-inner {

@@ -41,7 +41,7 @@ OpenL Tablets loads properties from the `application.property` files to the foll
 -   `classpath:config/`
 -   `classpath:`
 
-	**Note:** The list is ordered by precedence, that is, properties defined in locations higher in the list override those defined in lower locations.
+    **Note:** The list is ordered by precedence, that is, properties defined in locations higher in the list override those defined in lower locations.
 
 OpenL Tablets supports the `{appName}.properties` alias of the `application.property` file, where `{appName}` is the application name of the running application context.
 
@@ -62,4 +62,4 @@ If several profiles are specified in the `spring.profile.active` property, the e
 -   `application-dev-openl.properties`
 -   `application.properties`
 
-	**Note:** The list ordered is ordered by precedence, that is, properties defined in locations higher in the list override those defined in lower locations)
+    **Note:** The list ordered is ordered by precedence, that is, properties defined in locations higher in the list override those defined in lower locations)

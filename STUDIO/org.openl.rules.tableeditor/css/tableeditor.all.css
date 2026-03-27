@@ -296,7 +296,7 @@ select.fd-hidden-input
         height:1px;
         overflow:hidden;
         outline: 0 none;
-	-moz-outline: 0 none;
+        -moz-outline: 0 none;
         }
 /* Disabled datePicker and activation button */
 a.dp-disabled,
@@ -317,8 +317,8 @@ div.datePicker table td:focus
         {
         overflow:hidden;
         outline:0 none;
-	-moz-outline: 0 none;
-	color:rgb(100,130,170) !important;
+        -moz-outline: 0 none;
+        color:rgb(100,130,170) !important;
         }
 /* The wrapper div */
 div.datePicker
@@ -684,11 +684,11 @@ div.datePicker table tfoot sup
         letter-spacing:normal;
         text-transform:none;
         height: 0;
-	line-height: 1;
-	position: relative;
-	top: -0.2em;
-	vertical-align: baseline !important;
-	vertical-align: top;
+        line-height: 1;
+        position: relative;
+        top: -0.2em;
+        vertical-align: baseline !important;
+        vertical-align: top;
         }
 div.datePicker table thead th.date-picker-day-header,
 div.datePicker table thead span.month-display,
@@ -707,8 +707,8 @@ div.datePicker table tbody td.date-picker-hover
         {
         overflow:hidden;
         outline:0px solid #ff0000;
-	-moz-outline: 0 none;
-	color:rgb(100,130,170) !important;
+        -moz-outline: 0 none;
+        color:rgb(100,130,170) !important;
         }
 div.static-datepicker table
         {
