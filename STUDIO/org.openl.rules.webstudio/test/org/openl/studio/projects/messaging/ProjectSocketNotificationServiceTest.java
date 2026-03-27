@@ -1,6 +1,5 @@
 package org.openl.studio.projects.messaging;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,9 +52,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyProjectTestsExecutionStatus(user, projectId, TestExecutionStatus.STARTED);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tests/status".formatted(encodedProjectId())),
-                eq("STARTED"));
+                USER_NAME,
+                "/topic/projects/%s/tests/status".formatted(encodedProjectId()),
+                "STARTED");
     }
 
     @Test
@@ -63,9 +62,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyProjectTestsExecutionStatus(user, projectId, TestExecutionStatus.COMPLETED);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tests/status".formatted(encodedProjectId())),
-                eq("COMPLETED"));
+                USER_NAME,
+                "/topic/projects/%s/tests/status".formatted(encodedProjectId()),
+                "COMPLETED");
     }
 
     @Test
@@ -73,9 +72,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyProjectTestsExecutionStatus(user, projectId, TABLE_ID, TestExecutionStatus.PENDING);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/tests/status".formatted(encodedProjectId(), encodedTableId())),
-                eq("PENDING"));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/tests/status".formatted(encodedProjectId(), encodedTableId()),
+                "PENDING");
     }
 
     @Test
@@ -91,9 +90,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyProjectTestsExecutionResults(user, projectId, result);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tests/units".formatted(encodedProjectId())),
-                eq(result));
+                USER_NAME,
+                "/topic/projects/%s/tests/units".formatted(encodedProjectId()),
+                result);
     }
 
     @Test
@@ -109,9 +108,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyProjectTestsExecutionResults(user, projectId, TABLE_ID, result);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/tests/units".formatted(encodedProjectId(), encodedTableId())),
-                eq(result));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/tests/units".formatted(encodedProjectId(), encodedTableId()),
+                result);
     }
 
     @Test
@@ -119,9 +118,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyTraceExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.STARTED);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId())),
-                eq("STARTED"));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
+                "STARTED");
     }
 
     @Test
@@ -129,9 +128,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyTraceExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.COMPLETED);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId())),
-                eq("COMPLETED"));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
+                "COMPLETED");
     }
 
     @Test
@@ -139,9 +138,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyTraceExecutionError(user, projectId, TABLE_ID, "Something went wrong");
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId())),
-                eq(Map.of("status", "ERROR", "message", "Something went wrong")));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/trace/status".formatted(encodedProjectId(), encodedTableId()),
+                Map.of("status", "ERROR", "message", "Something went wrong"));
     }
 
     @Test
@@ -149,9 +148,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyRunExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.PENDING);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId())),
-                eq("PENDING"));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                "PENDING");
     }
 
     @Test
@@ -159,9 +158,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyRunExecutionStatus(user, projectId, TABLE_ID, ExecutionStatus.COMPLETED);
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId())),
-                eq("COMPLETED"));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                "COMPLETED");
     }
 
     @Test
@@ -169,9 +168,9 @@ class ProjectSocketNotificationServiceTest {
         service.notifyRunExecutionError(user, projectId, TABLE_ID, "Execution failed");
 
         verify(messagingTemplate).convertAndSendToUser(
-                eq(USER_NAME),
-                eq("/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId())),
-                eq(Map.of("status", "ERROR", "message", "Execution failed")));
+                USER_NAME,
+                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                Map.of("status", "ERROR", "message", "Execution failed"));
     }
 
     private String encodedProjectId() {
