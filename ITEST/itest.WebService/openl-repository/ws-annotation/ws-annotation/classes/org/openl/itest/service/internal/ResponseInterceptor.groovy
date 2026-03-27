@@ -8,23 +8,23 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice
 class ResponseInterceptor implements ServiceMethodAfterAdvice<Response> {
 
     Response afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-        return Response.ok().entity(new ResponseDto(result)).build();
+        return Response.ok().entity(new ResponseDto(result)).build()
     }
 
     Response afterThrowing(Method interfaceMethod, Exception t, Object... args) throws Exception {
-        return Response.status(Response.Status.NOT_ACCEPTABLE).entity(new ResponseDto(t.getMessage())).build();
+        return Response.status(Response.Status.NOT_ACCEPTABLE).entity(new ResponseDto(t.getMessage())).build()
     }
 
     private static class ResponseDto {
 
-        private final Object body;
+        private final Object body
 
         ResponseDto(Object body) {
-            this.body = body;
+            this.body = body
         }
 
         Object getBody() {
-            return body;
+            return body
         }
     }
 

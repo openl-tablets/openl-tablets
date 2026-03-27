@@ -14,17 +14,17 @@ interface EPBDS10489Service {
     @GET
     @Path(value = "/getpetsSimpleType")
     @Produces(value = ["application/json"])
-    Object[] getpetsSimpleType();
+    Object[] getpetsSimpleType()
 
     @RulesType(value = "Pet")
     @GET
     @Path(value = "/getpetsA")
     @Produces(value = ["application/json"])
-    Object getpetsA(@PathParam(value = "id") long var1);
+    Object getpetsA(@PathParam(value = "id") long var1)
 
     @RulesType(value = "Pet")
     @POST
     @Path(value = "/getpets")
     @Produces(value = ["application/json"])
-    Object[] getpets();
+    Object[] getpets()
 }

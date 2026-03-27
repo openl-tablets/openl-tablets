@@ -11,15 +11,15 @@ import org.openl.rules.ruleservice.databinding.annotation.MixInClass
 public abstract class CustomerMixIn {
 
     @JsonProperty(required = true)
-    protected Integer customerID;
+    protected Integer customerID
 
     @JsonIgnore
-    protected Integer privateField;
+    protected Integer privateField
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    protected Date dob;
+    protected Date dob
 
     @JsonProperty("genderCd")
     @Schema(example = "male")
-    protected String gender;
+    protected String gender
 }

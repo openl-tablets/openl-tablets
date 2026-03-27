@@ -78,35 +78,35 @@ try {
 
     assert lines.any { it =~ /Run tests using \d+ threads/ }
 
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryFailedGreetingTest.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryGreetingTest.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful1.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful2.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectCorrectResult.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectError.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail2.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail3.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass2.xml").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass3.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryFailedGreetingTest.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryGreetingTest.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful1.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful2.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectCorrectResult.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectError.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail2.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail3.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass2.xml").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass3.xml").exists()
 
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryFailedGreetingTest.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryGreetingTest.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful1.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful2.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectCorrectResult.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectError.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail2.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail3.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass2.xlsx").exists();
-    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass3.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryFailedGreetingTest.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryGreetingTest.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful1.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful2.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectCorrectResult.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.EPBDS-8339.whenExpectError.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail2.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Fail3.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass2.xlsx").exists()
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass3.xlsx").exists()
 
     return true
 } catch (Throwable e) {

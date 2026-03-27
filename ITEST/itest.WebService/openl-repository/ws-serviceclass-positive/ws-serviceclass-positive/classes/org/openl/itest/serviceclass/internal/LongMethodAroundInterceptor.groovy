@@ -8,7 +8,7 @@ class LongMethodAroundInterceptor implements ServiceMethodAroundAdvice<Response>
 
     @Override
     Response around(Method interfaceMethod, Method proxyMethod, Object proxy, Object... args) throws Throwable {
-        Long res = (Long) proxyMethod.invoke(proxy, args);
-        return new Response("SUCCESS", res.intValue());
+        Long res = (Long) proxyMethod.invoke(proxy, args)
+        return new Response("SUCCESS", res.intValue())
     }
 }

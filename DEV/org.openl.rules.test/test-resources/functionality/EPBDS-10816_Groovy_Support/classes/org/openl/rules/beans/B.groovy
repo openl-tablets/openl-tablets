@@ -1,13 +1,13 @@
 package org.openl.rules.beans
 
 class B {
-    private A field;
+    private A field
 
     A getField() {
-        return this.field;
+        return this.field
     }
 
     void setField(A field) {
-        this.field = field;
+        this.field = field
     }
 }

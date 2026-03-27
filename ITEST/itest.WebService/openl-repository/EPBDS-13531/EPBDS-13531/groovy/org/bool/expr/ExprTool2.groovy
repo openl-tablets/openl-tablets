@@ -282,7 +282,7 @@ class ExprTool {
     }
 
     private static List<SE> pushLiteralsToStack(SE[] terms, Stack<Double> stack) {
-        List<SE> nonLiteralTerms = new ArrayList<>();
+        List<SE> nonLiteralTerms = new ArrayList<>()
         for (SE se : terms) {
             if (se != null) {
                 try {
@@ -292,7 +292,7 @@ class ExprTool {
                 }
             }
         }
-        return nonLiteralTerms;
+        return nonLiteralTerms
     }
 
     private static boolean isNegativeSE(SE se) {
@@ -428,7 +428,7 @@ class ExprTool {
             rightStack.push(mul(rightStack.pop(), rightStack.pop()))
         }
 
-        SE additionalLeftTerm = null;
+        SE additionalLeftTerm = null
         if (!leftStack.isEmpty()) {
             Double v = leftStack.pop()
             if (v == ZERO) {
@@ -446,7 +446,7 @@ class ExprTool {
             }
         }
 
-        SE additionalRightTerm = null;
+        SE additionalRightTerm = null
         if (!rightStack.isEmpty()) {
             Object v = rightStack.pop()
             if (v != ONE) {
@@ -1245,7 +1245,7 @@ class ExprTool {
             this.operation = operation
             this.leftPart = leftPart
             this.rightPart = rightPart
-            this.literal = false;
+            this.literal = false
         }
 
         SE(String value, boolean determined, String operation, boolean literal) {

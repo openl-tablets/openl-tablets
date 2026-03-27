@@ -5,5 +5,5 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 
 interface RunTestServiceAnnotationTemplate {
     @ServiceCallAfterInterceptor
-    SpreadsheetResult calculatePremium(String covName, Double amount);
+    SpreadsheetResult calculatePremium(String covName, Double amount)
 }

@@ -8,7 +8,7 @@ class VoidMethodAroundInterceptor implements ServiceMethodAroundAdvice<Response>
 
     @Override
     Response around(Method interfaceMethod, Method proxyMethod, Object proxy, Object... args) throws Throwable {
-        proxyMethod.invoke(proxy, args);
-        return new Response("SUCCESS", 0);
+        proxyMethod.invoke(proxy, args)
+        return new Response("SUCCESS", 0)
     }
 }

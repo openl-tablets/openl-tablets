@@ -10,5 +10,5 @@ interface EPBDS10971Service {
     @POST
     @Path("/ExtractRatingDetails")
     @ServiceExtraMethod(ServiceExtraMethodHandlerImpl.class)
-    SpreadsheetResult ExtractRatingDetails();
+    SpreadsheetResult ExtractRatingDetails()
 }

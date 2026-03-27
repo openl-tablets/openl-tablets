@@ -8,9 +8,9 @@ import org.openl.rules.ruleservice.databinding.annotation.MixInClass
 abstract class PolicyMixin {
 
     @JsonProperty(required = true)
-    abstract String getPolicyNumber();
+    abstract String getPolicyNumber()
 
     @JsonProperty(required = true)
-    abstract Integer getRevisionNo();
+    abstract Integer getRevisionNo()
 
 }

@@ -8,11 +8,11 @@ class LongOutputInterceptor implements ServiceMethodAfterAdvice<Response> {
 
     @Override
     Response afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-        return new Response("SUCCESS", ((Long) result).intValue());
+        return new Response("SUCCESS", ((Long) result).intValue())
     }
 
     @Override
     Response afterThrowing(Method interfaceMethod, Exception t, Object... args) throws Exception {
-        return new Response("ERROR", -1);
+        return new Response("ERROR", -1)
     }
 }

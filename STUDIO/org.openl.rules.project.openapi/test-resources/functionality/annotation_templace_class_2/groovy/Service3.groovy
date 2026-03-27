@@ -10,5 +10,5 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType
 interface Service3 {
     @POST
     @Path("/BankRatingCalculation")
-    Object BankRatingCalculation(IRulesRuntimeContext runtimeContext, @RulesType("Bank") Object object);
+    Object BankRatingCalculation(IRulesRuntimeContext runtimeContext, @RulesType("Bank") Object object)
 }

@@ -7,5 +7,5 @@ import org.openl.generated.beans.RuleType
 @JsonRootName("RootType")
 class ExtraType extends RuleType {
 
-    public String extra;
+    public String extra
 }

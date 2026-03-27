@@ -5,23 +5,23 @@ import jakarta.xml.bind.annotation.XmlType
 @XmlType(namespace = "xxx.yyy", name = "Bean")
 @XmlRootElement(namespace = "xxx.yyy")
 public class Bean {
-    private int I;
-    private BeanB BeanBName;
+    private int I
+    private BeanB BeanBName
 
     public int getI() {
-        return I;
+        return I
     }
 
     @XmlElement(name = "I", required = true, defaultValue = "17")
     public void setI(int I) {
-        this.I = I;
+        this.I = I
     }
 
     public BeanB getBeanBName() {
-        return BeanBName;
+        return BeanBName
     }
 
     public void setBeanBName(BeanB beanBName) {
-        BeanBName = beanBName;
+        BeanBName = beanBName
     }
 }

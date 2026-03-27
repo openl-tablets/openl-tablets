@@ -9,25 +9,25 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler
 
 class VirtualMethodHandler implements ServiceExtraMethodHandler<Double> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VirtualMethodHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VirtualMethodHandler.class)
 
     Double invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
-        LOG.debug("Invoking " + interfaceMethod.getName() + "( '" + args[0] + "' )");
+        LOG.debug("Invoking " + interfaceMethod.getName() + "( '" + args[0] + "' )")
 
-        Method method = serviceBean.getClass().getMethod("parse", String.class);
+        Method method = serviceBean.getClass().getMethod("parse", String.class)
 
-        LOG.debug("Redirecting to parse( '" + args[0] + "' )");
+        LOG.debug("Redirecting to parse( '" + args[0] + "' )")
 
-        Object result = method.invoke(serviceBean, args[0]);
+        Object result = method.invoke(serviceBean, args[0])
 
-        LOG.debug("Result is " + result);
+        LOG.debug("Result is " + result)
 
-        Integer num = (Integer) result;
-        Double value = num * 1.5;
+        Integer num = (Integer) result
+        Double value = num * 1.5
 
-        LOG.debug("Converted to " + value);
+        LOG.debug("Converted to " + value)
 
-        return value;
+        return value
     }
 
 }

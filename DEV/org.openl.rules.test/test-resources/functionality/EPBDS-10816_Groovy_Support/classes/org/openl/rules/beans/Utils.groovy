@@ -3,11 +3,11 @@ package org.openl.rules.beans
 class Utils {
     static def sumDoubles(Double a, Double b) {
         if (a == null) {
-            return b;
+            return b
         }
         if (b == null) {
-            return a;
+            return a
         }
-        return a + b;
+        return a + b
     }
 }

@@ -7,6 +7,6 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodRe
 class OpenLTypeServiceMethodAfterAdvice extends AbstractServiceMethodAfterReturningAdvice<Object> {
     @Override
     Object afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-        return result;
+        return result
     }
 }

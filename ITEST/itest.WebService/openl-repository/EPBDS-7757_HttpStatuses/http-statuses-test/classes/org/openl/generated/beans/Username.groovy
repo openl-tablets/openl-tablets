@@ -1,14 +1,14 @@
-package org.openl.generated.beans;
+package org.openl.generated.beans
 
 public class Username {
 
-    private String name;
+    private String name
 
     public String getName() {
-        return name;
+        return name
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name
     }
 }

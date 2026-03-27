@@ -9,11 +9,11 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBefo
 @org.openl.rules.ruleservice.publish.ClassLevelAnnotation
 public interface MyTemplateClass {
     @ServiceCallAfterInterceptor(MyAfterAdvice.class)
-    MyClass method2(IRulesRuntimeContext context, @RulesType("MyType") Object obj);
+    MyClass method2(IRulesRuntimeContext context, @RulesType("MyType") Object obj)
 
     @ServiceCallBeforeInterceptor(MyBeforeAdvice.class)
-    MyClass method3(IRulesRuntimeContext context, MyClass obj1);
+    MyClass method3(IRulesRuntimeContext context, MyClass obj1)
 
     @ServiceExtraMethod(ServiceExtraMethodHandler.class)
-    String helloWorld();
+    String helloWorld()
 }

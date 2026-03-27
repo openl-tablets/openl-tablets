@@ -502,6 +502,7 @@
                         <importOrder>
                             <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
                         </importOrder>
+                        <removeSemicolons/>
                     </groovy>
                 </configuration>
             </plugin>

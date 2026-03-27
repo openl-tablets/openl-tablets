@@ -8,5 +8,5 @@ abstract class Service {
     }
 
     @ServiceExtraMethod(VirtualMethodHandler.class)
-    abstract String exec();
+    abstract String exec()
 }
