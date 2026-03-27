@@ -12,4 +12,3 @@ interface Service3 {
     @Path("/BankRatingCalculation")
     Object BankRatingCalculation(IRulesRuntimeContext runtimeContext, @RulesType("Bank") Object object);
 }
-

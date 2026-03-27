@@ -1,6 +1,6 @@
 package org.openl.itest;
 
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult
 
 interface MainService {
 

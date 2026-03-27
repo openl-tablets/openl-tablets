@@ -1,7 +1,6 @@
 package org.openl.studio.projects.model.modules;
 
 import java.util.List;
-
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

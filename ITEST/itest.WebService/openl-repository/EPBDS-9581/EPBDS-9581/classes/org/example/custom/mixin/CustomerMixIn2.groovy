@@ -23,4 +23,3 @@ public abstract class CustomerMixIn2 {
     @Schema(example = "male")
     protected String gender;
 }
-

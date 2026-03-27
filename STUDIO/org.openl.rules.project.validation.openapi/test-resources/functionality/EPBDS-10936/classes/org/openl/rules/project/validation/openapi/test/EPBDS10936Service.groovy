@@ -12,4 +12,3 @@ interface EPBDS10935Service {
     @Produces(value = ["text/plain"])
     double getNewForUsedRate(String var1);
 }
-

@@ -8,4 +8,3 @@ interface EPBDS10605Service {
 
     Double GetRiskItemPremium(@NoTypeConversion SpreadsheetResult spreadsheetResult)
 }
-

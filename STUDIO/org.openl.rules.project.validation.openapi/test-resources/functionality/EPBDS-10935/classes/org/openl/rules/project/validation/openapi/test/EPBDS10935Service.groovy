@@ -13,4 +13,3 @@ interface EPBDS10936Service {
                     @PathParam("param2") double var3,
                     @PathParam("param3") double var5);
 }
-

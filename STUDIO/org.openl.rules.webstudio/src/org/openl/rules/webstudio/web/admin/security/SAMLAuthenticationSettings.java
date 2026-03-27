@@ -137,4 +137,3 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         this.attributes = attributes;
     }
 }
-

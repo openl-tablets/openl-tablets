@@ -14,4 +14,3 @@ class Address {
         this.code = code;
     }
 }
-

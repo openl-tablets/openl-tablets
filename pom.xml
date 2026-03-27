@@ -442,21 +442,6 @@
                     <version>12.2.0</version>
                 </plugin>
                 <plugin>
-                    <!-- See https://docs.openrewrite.org/recipes/java -->
-                    <!-- Usage:    mvn rewrite:run   -->
-                    <groupId>org.openrewrite.maven</groupId>
-                    <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.35.0</version>
-                    <configuration>
-                        <activeRecipes>
-                            <recipe>org.openl.rewrite.Recipe</recipe>
-                        </activeRecipes>
-                        <activeStyles>
-                            <style>org.openl.rewrite.Style</style>
-                        </activeStyles>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
@@ -491,6 +476,35 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <java>
+                        <importOrder>
+                            <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
+                        </importOrder>
+                        <removeUnusedImports/>
+                    </java>
+                    <groovy>
+                        <includes>
+                            <include>**/*.groovy</include>
+                        </includes>
+                        <importOrder>
+                            <order>\#,\#org.openl,java|javax|jakarta,,org.openl</order>
+                        </importOrder>
+                    </groovy>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>

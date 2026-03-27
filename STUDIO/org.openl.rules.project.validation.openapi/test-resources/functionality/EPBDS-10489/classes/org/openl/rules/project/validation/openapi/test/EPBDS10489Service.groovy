@@ -28,4 +28,3 @@ interface EPBDS10489Service {
     @Produces(value = ["application/json"])
     Object[] getpets();
 }
-

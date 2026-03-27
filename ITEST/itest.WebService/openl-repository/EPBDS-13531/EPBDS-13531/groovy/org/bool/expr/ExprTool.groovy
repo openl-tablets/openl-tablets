@@ -9,10 +9,10 @@ import org.apache.commons.lang3.tuple.Triple
 
 import org.openl.binding.IBoundNode
 import org.openl.binding.impl.*
-import org.openl.rules.operator.*
 import org.openl.rules.convertor.IString2DataConvertor
 import org.openl.rules.convertor.String2DataConvertorFactory
 import org.openl.rules.dt.AST
+import org.openl.rules.operator.*
 import org.openl.types.IOpenClass
 import org.openl.types.IOpenMethod
 import org.openl.types.java.JavaOpenClass

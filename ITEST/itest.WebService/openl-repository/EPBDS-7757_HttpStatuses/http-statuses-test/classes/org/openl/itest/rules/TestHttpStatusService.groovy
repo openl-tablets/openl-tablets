@@ -1,6 +1,6 @@
 package org.openl.itest.rules;
 
-import org.openl.generated.beans.Username;
+import org.openl.generated.beans.Username
 
 public interface TestHttpStatusService {
 

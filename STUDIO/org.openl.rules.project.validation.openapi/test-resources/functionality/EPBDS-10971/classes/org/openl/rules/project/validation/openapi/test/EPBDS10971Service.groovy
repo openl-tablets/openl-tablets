@@ -12,4 +12,3 @@ interface EPBDS10971Service {
     @ServiceExtraMethod(ServiceExtraMethodHandlerImpl.class)
     SpreadsheetResult ExtractRatingDetails();
 }
-
