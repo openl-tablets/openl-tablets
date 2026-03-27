@@ -25,7 +25,6 @@ Comprehensive guides for using OpenL Tablets:
 ### Integration Guides
 Integration patterns with popular frameworks:
 - **[REST API Guide](API_GUIDE.md)** - 📌 **NEW!** Comprehensive REST API documentation, examples, and integration patterns
-- **[Activiti Integration](integration-guides/activiti.md)** - Business process management integration
 - **[Spring Framework](integration-guides/spring.md)** - Spring Boot and Spring integration
 - **[OpenAPI/REST](integration-guides/openapi.md)** - REST API generation and OpenAPI support
 - **[Apache CXF](integration-guides/cxf.md)** - REST web services and CXF customization
