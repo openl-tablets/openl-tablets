@@ -44,7 +44,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         private final List<Overlapping> overlappingRules;
 
-        public GoalSaveSolutions(Constrainer c, List<Overlapping> ovlRules) {
+        private GoalSaveSolutions(Constrainer c, List<Overlapping> ovlRules) {
             super(c);
             this.overlappingRules = ovlRules;
         }

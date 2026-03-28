@@ -328,20 +328,20 @@ public class XlsDiff2 {
         private int rowIndex;
         private List<ICell> diff = new ArrayList<>();
 
-        public int getRowIndex() {
+        private int getRowIndex() {
             return rowIndex;
         }
 
-        public List<ICell> getDiff() {
+        private List<ICell> getDiff() {
             return diff;
         }
 
-        public RowDiff setRowIndex(int rowIndex) {
+        private RowDiff setRowIndex(int rowIndex) {
             this.rowIndex = rowIndex;
             return this;
         }
 
-        public RowDiff setDiff(List<ICell> diff) {
+        private RowDiff setDiff(List<ICell> diff) {
             this.diff = diff;
             return this;
         }

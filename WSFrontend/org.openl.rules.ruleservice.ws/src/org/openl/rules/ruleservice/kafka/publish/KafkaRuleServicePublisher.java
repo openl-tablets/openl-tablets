@@ -499,7 +499,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         @Getter
         private ObjectSerializer objectSerializer;
 
-        public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
+        private void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
                                                    ObjectSerializer objectSerializer) {
             this.producer = Objects.requireNonNull(producer);
             this.objectSerializer = Objects.requireNonNull(objectSerializer);

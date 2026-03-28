@@ -1319,7 +1319,7 @@ public class OpenApiProjectValidator {
         private final String actualSchemaRef;
         private final String expectedSchemaRef;
 
-        public KeyBySchemasRef(IOpenClass openClass, String actualSchemaRef, String expectedSchemaRef) {
+        private KeyBySchemasRef(IOpenClass openClass, String actualSchemaRef, String expectedSchemaRef) {
             this.openClass = openClass;
             this.actualSchemaRef = actualSchemaRef;
             this.expectedSchemaRef = expectedSchemaRef;
@@ -1346,7 +1346,7 @@ public class OpenApiProjectValidator {
         private final IOpenClass openFieldType;
         private final String expectedSchemaRef;
 
-        public KeyByFieldType(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
+        private KeyByFieldType(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
             this.openClass = openClass;
             this.openFieldType = openFieldType;
             this.expectedSchemaRef = expectedSchemaRef;

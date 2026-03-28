@@ -30,7 +30,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     private static class Key {
         final Set<Class<?>> entityClasses;
 
-        public Key(Class<?>[] entityClasses) {
+        private Key(Class<?>[] entityClasses) {
             this.entityClasses = Set.of(Objects.requireNonNull(entityClasses, "entityClasses cannot be null"));
         }
 

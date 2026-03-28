@@ -203,6 +203,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Override
     public void run() {
         while (flag) {
@@ -393,6 +394,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
         final String dltTopic = getDltTopic(record);
         if (StringUtils.isEmpty(dltTopic)) {

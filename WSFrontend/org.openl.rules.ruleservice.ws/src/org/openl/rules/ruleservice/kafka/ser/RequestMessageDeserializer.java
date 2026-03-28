@@ -163,7 +163,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         private final Method method;
         private final String[] paramNames;
 
-        public Entry(Method method, String[] paramNames) {
+        private Entry(Method method, String[] paramNames) {
             this.method = Objects.requireNonNull(method);
             this.paramNames = Objects.requireNonNull(paramNames);
         }

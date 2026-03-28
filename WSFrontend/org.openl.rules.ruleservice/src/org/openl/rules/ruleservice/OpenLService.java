@@ -135,12 +135,12 @@ public class OpenLService {
     }
 
     private static class Invoker {
-        public final Object instance;
-        public final Method caller;
-        public final Object[] args;
-        public final ObjectMapper mapper;
+        private final Object instance;
+        private final Method caller;
+        private final Object[] args;
+        private final ObjectMapper mapper;
 
-        public Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
+        private Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
             this.instance = instance;
             this.caller = caller;
             this.args = args;

@@ -600,7 +600,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         Pair<Class<?>, Boolean>[] newParamTypes;
         Class<?> returnType;
 
-        public MethodSignatureChanges(Pair<Class<?>, Boolean>[] newParamTypes,
+        private MethodSignatureChanges(Pair<Class<?>, Boolean>[] newParamTypes,
                                       Class<?> returnType,
                                       boolean generateReturnConverters) {
             this.newParamTypes = newParamTypes;
@@ -608,15 +608,15 @@ public final class RuleServiceInstantiationFactoryHelper {
             this.returnType = returnType;
         }
 
-        public Pair<Class<?>, Boolean>[] getNewParamTypes() {
+        private Pair<Class<?>, Boolean>[] getNewParamTypes() {
             return newParamTypes;
         }
 
-        public boolean isGenerateReturnConverters() {
+        private boolean isGenerateReturnConverters() {
             return generateReturnConverters;
         }
 
-        public Class<?> getReturnType() {
+        private Class<?> getReturnType() {
             return returnType;
         }
     }

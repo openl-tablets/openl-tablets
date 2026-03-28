@@ -44,7 +44,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         private final ClassLoader classLoader;
         private final Map<String, List<Method>> templateClassMethodsByName;
 
-        public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
+        private DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                                                               Class<?> templateClass,
                                                               IOpenClass openClass,
                                                               ClassLoader classLoader) {
@@ -55,7 +55,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             this.templateClassMethodsByName = ASMUtils.buildMap(templateClass);
         }
 
-        public Method[] getMissedMethods() {
+        private Method[] getMissedMethods() {
             Set<Method> tmp = new HashSet<>(Arrays.asList(templateClass.getMethods()));
             tmp.removeAll(foundMethods);
             return tmp.toArray(new Method[]{});

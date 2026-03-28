@@ -94,13 +94,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         private static class MapType {
 
             @XmlElement(name = "entry")
-            public List<MapStringEntryType> entry = new ArrayList<>();
+            private List<MapStringEntryType> entry = new ArrayList<>();
 
-            public List<MapStringEntryType> getEntry() {
+            private List<MapStringEntryType> getEntry() {
                 return entry;
             }
 
-            public void setEntry(List<MapStringEntryType> entry) {
+            private void setEntry(List<MapStringEntryType> entry) {
                 this.entry = entry;
             }
         }
@@ -108,13 +108,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         @XmlAccessorType(XmlAccessType.FIELD)
         private static class MapStringEntryType {
 
-            public String[] string;
+            private String[] string;
 
-            public String[] getString() {
+            private String[] getString() {
                 return string;
             }
 
-            public void setString(String[] string) {
+            private void setString(String[] string) {
                 this.string = string;
             }
         }

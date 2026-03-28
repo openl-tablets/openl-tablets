@@ -551,7 +551,7 @@ public final class TestMojo extends BaseOpenLMojo {
         private final List<String> summaryErrors;
         private final boolean hasCompilationErrors;
 
-        public Summary(int runTests,
+        private Summary(int runTests,
                        int failedTests,
                        int errors,
                        List<String> summaryFailures,
@@ -565,27 +565,27 @@ public final class TestMojo extends BaseOpenLMojo {
             this.hasCompilationErrors = hasCompilationErrors;
         }
 
-        public int getRunTests() {
+        private int getRunTests() {
             return runTests;
         }
 
-        public int getFailedTests() {
+        private int getFailedTests() {
             return failedTests;
         }
 
-        public int getErrors() {
+        private int getErrors() {
             return errors;
         }
 
-        public List<String> getSummaryFailures() {
+        private List<String> getSummaryFailures() {
             return summaryFailures;
         }
 
-        public List<String> getSummaryErrors() {
+        private List<String> getSummaryErrors() {
             return summaryErrors;
         }
 
-        public boolean isHasCompilationErrors() {
+        private boolean isHasCompilationErrors() {
             return hasCompilationErrors;
         }
     }

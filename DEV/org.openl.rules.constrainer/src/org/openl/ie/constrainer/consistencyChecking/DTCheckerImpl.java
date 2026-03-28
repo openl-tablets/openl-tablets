@@ -80,7 +80,7 @@ public class DTCheckerImpl implements DTChecker {
         private class GoalSaveSolutions extends GoalImpl {
             private static final long serialVersionUID = -4747909482843265994L;
 
-            public GoalSaveSolutions(Constrainer c) {
+            private GoalSaveSolutions(Constrainer c) {
                 super(c);
             }
 

@@ -3405,7 +3405,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static class PatternIdRevFilter extends PatternMatchRevFilter {
-        public PatternIdRevFilter(String pattern) {
+        private PatternIdRevFilter(String pattern) {
             super(pattern, true, true, Pattern.CASE_INSENSITIVE);
         }
 
@@ -3421,7 +3421,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
     }
 
     private static class SubStringIdRevFilter extends SubStringRevFilter {
-        public SubStringIdRevFilter(String patternText) {
+        private SubStringIdRevFilter(String patternText) {
             super(patternText);
         }
 
