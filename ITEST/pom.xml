@@ -13,12 +13,6 @@
     <packaging>pom</packaging>
     <name>ITEST - POM</name>
 
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <http.timeout.connect>60000</http.timeout.connect>
-        <http.timeout.read>7200000</http.timeout.read>
-    </properties>
-
     <modules>
         <module>server-core</module>
         <module>itest.smoke</module>
@@ -39,6 +33,12 @@
         <module>itest.storelogdata</module>
         <module>itest.s3</module>
     </modules>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <http.timeout.connect>60000</http.timeout.connect>
+        <http.timeout.read>7200000</http.timeout.read>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -72,9 +72,7 @@
                         <forkCount>1</forkCount>
                         <reuseForks>false</reuseForks>
                         <systemPropertyVariables>
-                            <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp
-                            </webservice-webapp>
+                            <webservice-webapp>../../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp</webservice-webapp>
                             <openl.config.location>file:./openl-repository/</openl.config.location>
                             <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
                             <server.responses>${project.build.directory}/responses/</server.responses>

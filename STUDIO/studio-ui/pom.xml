@@ -50,34 +50,34 @@
                 <executions>
                     <execution>
                         <id>install Node</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <phase>initialize</phase>
                     </execution>
                     <execution>
                         <id>npm install</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <phase>initialize</phase>
                     </execution>
                     <execution>
                         <id>npm run build</id>
-                        <phase>compile</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <phase>compile</phase>
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm run test</id>
-                        <phase>test</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <phase>test</phase>
                         <configuration>
                             <arguments>run test</arguments>
                             <skip>${npm.test.skip}</skip>

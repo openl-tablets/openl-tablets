@@ -15,6 +15,12 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -30,10 +36,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-    </dependencies>
 </project>

@@ -16,10 +16,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
 
-    <build>
-        <finalName>openl-rules-opentelemetry</finalName>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
@@ -36,4 +32,8 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <finalName>openl-rules-opentelemetry</finalName>
+    </build>
 </project>

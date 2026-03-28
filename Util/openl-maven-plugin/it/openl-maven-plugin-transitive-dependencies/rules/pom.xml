@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -12,20 +12,6 @@
     <packaging>openl</packaging>
     <name>Transitive dependencies: Rules</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <version>${org.openl.version}</version>
-                <configuration>
-                    <dependenciesThreshold>1</dependenciesThreshold>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.openl.internal</groupId>
@@ -33,5 +19,19 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${org.openl.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <dependenciesThreshold>1</dependenciesThreshold>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

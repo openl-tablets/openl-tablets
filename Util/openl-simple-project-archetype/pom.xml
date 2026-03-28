@@ -18,31 +18,31 @@
     <properties>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-maven-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <resources>
             <resource>
-                <directory>resources</directory>
                 <filtering>true</filtering>
+                <directory>resources</directory>
                 <includes>
                     <include>archetype-resources/pom.xml</include>
                 </includes>
             </resource>
             <resource>
-                <directory>resources</directory>
                 <filtering>false</filtering>
+                <directory>resources</directory>
                 <excludes>
                     <exclude>archetype-resources/pom.xml</exclude>
                 </excludes>
             </resource>
         </resources>
-
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.archetype</groupId>
-                <artifactId>archetype-packaging</artifactId>
-                <version>3.4.1</version>
-            </extension>
-        </extensions>
 
         <pluginManagement>
             <plugins>
@@ -54,14 +54,14 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-    </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>openl-maven-plugin</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>3.4.1</version>
+            </extension>
+        </extensions>
+    </build>
 
 </project>

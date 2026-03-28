@@ -79,33 +79,6 @@
             <artifactId>openl-yaml</artifactId>
         </dependency>
     </dependencies>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <!-- generate MOJOs documents -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <configuration>
-                    <requirements>
-                        <maven>3.6</maven>
-                        <jdk>21</jdk>
-                        <memory>64m</memory>
-                    </requirements>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- Do not generate project reports -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <reports/>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
     <build>
         <plugins>
             <plugin>
@@ -122,14 +95,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install</goal>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <projectsDirectory>it</projectsDirectory>
                     <pomIncludes>
@@ -158,9 +123,44 @@
                         <noPerf>${invoker.noPerf}</noPerf>
                     </scriptVariables>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <!-- generate MOJOs documents -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <requirements>
+                        <maven>3.6</maven>
+                        <jdk>21</jdk>
+                        <memory>64m</memory>
+                    </requirements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Do not generate project reports -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports/>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
     <profiles>
         <profile>
             <id>perf</id>

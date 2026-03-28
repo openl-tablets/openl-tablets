@@ -11,6 +11,17 @@
     <name>OpenL - RuleService - Rules Deployer</name>
     <description>OpenL Rules Deployer</description>
     <url>https://openl-tablets.org</url>
+    <dependencies>
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -39,15 +50,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <!-- OpenL dependencies -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>openl-yaml</artifactId>
-        </dependency>
-    </dependencies>
 </project>

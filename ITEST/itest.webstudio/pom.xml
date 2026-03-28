@@ -118,9 +118,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <webservice-webapp>
-                            ../../STUDIO/org.openl.rules.webstudio/target/webapp
-                        </webservice-webapp>
+                        <webservice-webapp>../../STUDIO/org.openl.rules.webstudio/target/webapp</webservice-webapp>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <surefire.argLine.noPerf>-Xms128m -Xmx2048m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.noPerf>
-        <surefire.argLine.perf>-Xms128m -Xmx1024m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
-        <skipTestsForQuick>true</skipTestsForQuick>
-    </properties>
-
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
@@ -18,6 +12,12 @@
     <packaging>jar</packaging>
     <name>ITEST - Big Service Deploy</name>
     <url>https://openl-tablets.org</url>
+
+    <properties>
+        <surefire.argLine.noPerf>-Xms128m -Xmx2048m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms128m -Xmx1024m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
+        <skipTestsForQuick>true</skipTestsForQuick>
+    </properties>
 
     <dependencies>
         <dependency>

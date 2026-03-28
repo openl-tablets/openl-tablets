@@ -16,17 +16,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-    <build>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>org/openl/info/openl.version.properties</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -54,4 +43,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src</directory>
+                <includes>
+                    <include>org/openl/info/openl.version.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
