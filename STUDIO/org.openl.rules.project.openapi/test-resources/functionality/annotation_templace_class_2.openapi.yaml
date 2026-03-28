@@ -2,7 +2,8 @@ openapi: 3.0.1
 paths:
   /prefix/BalanceDynamicIndexCalculation:
     post:
-      description: "The analysis of dynamic performance of such factors as capital\
+      description:
+        "The analysis of dynamic performance of such factors as capital\
         \ (D1), quick liquidity (D2), liquidity (D3), profit (D4) and liabilities\
         \ to customers (D5) is used for calculating the first correction index B1\
         \ (Balance Dynamic Index). Final value of B1 is the arithmetic mean of the\
@@ -18,7 +19,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BalanceDynamicIndexCalculationRequest'
+              $ref: "#/components/schemas/BalanceDynamicIndexCalculationRequest"
       responses:
         "200":
           content:
@@ -36,8 +37,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -56,8 +58,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -66,14 +68,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData,\
+      summary:
+        "Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData,\
         \ FinancialData)"
   /prefix/BalanceQualityIndexCalculation:
     post:
-      description: "To calculate the Balance Quality Index B, which is used for determining\
+      description:
+        "To calculate the Balance Quality Index B, which is used for determining\
         \ the Bank Rating Group, there identifies the following 10 indicators and\
         \ its scores: Capital Adequacy (Q1), Claims on  Customer Ratio in Assets (Q2),\
         \ Quality of Credit Portfolio (Q3), Secured by Property Charges Claims Ratio\
@@ -97,13 +102,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BalanceQualityIndexCalculationRequest'
+              $ref: "#/components/schemas/BalanceQualityIndexCalculationRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BalanceQualityIndexCalculation'
+                $ref: "#/components/schemas/BalanceQualityIndexCalculation"
           description: Successful operation
         "204":
           description: Successful operation
@@ -114,8 +119,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -134,8 +140,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -144,14 +150,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "BalanceQualityIndexCalculation BalanceQualityIndexCalculation(IRulesRuntimeContext,\
+      summary:
+        "BalanceQualityIndexCalculation BalanceQualityIndexCalculation(IRulesRuntimeContext,\
         \ FinancialData)"
   /prefix/BankLimitIndex:
     post:
-      description: "Rules method: java.lang.Double BankLimitIndex(org.openl.generated.beans.Bank\
+      description:
+        "Rules method: java.lang.Double BankLimitIndex(org.openl.generated.beans.Bank\
         \ bank, RatingGroup bankRatingGroup)"
       operationId: BankLimitIndex
       parameters:
@@ -164,7 +173,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankLimitIndexRequest'
+              $ref: "#/components/schemas/BankLimitIndexRequest"
       responses:
         "200":
           content:
@@ -182,8 +191,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -202,8 +212,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -212,13 +222,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double BankLimitIndex(IRulesRuntimeContext, Bank, String)"
   /prefix/BankQualitativeIndexCalculation:
     post:
-      description: "The second correction index B2 (Bank Qualitative Index) is assigned\
+      description:
+        "The second correction index B2 (Bank Qualitative Index) is assigned\
         \ according to the information about the bank profitability and its reputation:\
         \ losses in the current year (I1), negative history relations (I2), negative\
         \ mass media information (I3), negative information about shareholders or\
@@ -236,7 +248,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankQualitativeIndexCalculationRequest'
+              $ref: "#/components/schemas/BankQualitativeIndexCalculationRequest"
       responses:
         "200":
           content:
@@ -254,8 +266,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -274,8 +287,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -284,13 +297,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double BankQualitativeIndexCalculation(IRulesRuntimeContext, Bank)"
   /prefix/BankRatingCalculation:
     post:
-      description: "At first, Balance Quality Index B is calculated on basis of balance\
+      description:
+        "At first, Balance Quality Index B is calculated on basis of balance\
         \ sheet data for assessing the quality of the bank-counterparty's balance\
         \ sheet.\n          Then, the correction indices B1 (Balance Dynamic Index),\
         \ B2 (Bank Qualitative Index), B3 (IsAdequate Normative Index) for the index\
@@ -319,13 +334,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankRatingCalculationRequest'
+              $ref: "#/components/schemas/BankRatingCalculationRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BankRatingCalculation'
+                $ref: "#/components/schemas/BankRatingCalculation"
           description: Successful operation
         "204":
           description: Successful operation
@@ -336,8 +351,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -356,8 +372,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -366,10 +382,12 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext,\
+      summary:
+        "BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext,\
         \ Bank)"
   /prefix/BankRatingGroup:
     post:
@@ -385,7 +403,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankRatingGroupRequest'
+              $ref: "#/components/schemas/BankRatingGroupRequest"
       responses:
         "200":
           content:
@@ -402,8 +420,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -422,8 +441,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -432,13 +451,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "String BankRatingGroup(IRulesRuntimeContext, Double)"
   /prefix/CapitalAdequacyScore:
     post:
-      description: "Rules method: java.lang.Double CapitalAdequacyScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double CapitalAdequacyScore(java.lang.Double\
         \ capitalAdequacy)"
       operationId: CapitalAdequacyScore
       parameters:
@@ -451,7 +472,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CapitalAdequacyScoreRequest'
+              $ref: "#/components/schemas/CapitalAdequacyScoreRequest"
       responses:
         "200":
           content:
@@ -469,8 +490,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -489,8 +511,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -499,13 +521,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double CapitalAdequacyScore(IRulesRuntimeContext, Double)"
   /prefix/CapitalDynamicScore:
     post:
-      description: "Rules method: java.lang.Double CapitalDynamicScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double CapitalDynamicScore(java.lang.Double\
         \ capitalDynamic)"
       operationId: CapitalDynamicScore
       parameters:
@@ -518,7 +542,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CapitalDynamicScoreRequest'
+              $ref: "#/components/schemas/CapitalDynamicScoreRequest"
       responses:
         "200":
           content:
@@ -536,8 +560,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -556,8 +581,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -566,13 +591,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double CapitalDynamicScore(IRulesRuntimeContext, Double)"
   /prefix/ClaimsOnCustomerRatioScore:
     post:
-      description: "Rules method: java.lang.Double ClaimsOnCustomerRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double ClaimsOnCustomerRatioScore(java.lang.Double\
         \ claimsOnCustomerRatio)"
       operationId: ClaimsOnCustomerRatioScore
       parameters:
@@ -585,7 +612,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClaimsOnCustomerRatioScoreRequest'
+              $ref: "#/components/schemas/ClaimsOnCustomerRatioScoreRequest"
       responses:
         "200":
           content:
@@ -603,8 +630,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -623,8 +651,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -633,13 +661,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double ClaimsOnCustomerRatioScore(IRulesRuntimeContext, Double)"
   /prefix/CreditPortfolioQualityScore:
     post:
-      description: "Rules method: java.lang.Double CreditPortfolioQualityScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double CreditPortfolioQualityScore(java.lang.Double\
         \ creditPortfolioQuality)"
       operationId: CreditPortfolioQualityScore
       parameters:
@@ -652,7 +682,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreditPortfolioQualityScoreRequest'
+              $ref: "#/components/schemas/CreditPortfolioQualityScoreRequest"
       responses:
         "200":
           content:
@@ -670,8 +700,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -690,8 +721,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -700,13 +731,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double CreditPortfolioQualityScore(IRulesRuntimeContext, Double)"
   /prefix/DowngradesOfBankRatingScore:
     post:
-      description: "Rules method: java.lang.Double DowngradesOfBankRatingScore(boolean\
+      description:
+        "Rules method: java.lang.Double DowngradesOfBankRatingScore(boolean\
         \ downgradesOfBankRating)"
       operationId: DowngradesOfBankRatingScore
       parameters:
@@ -719,7 +752,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DowngradesOfBankRatingScoreRequest'
+              $ref: "#/components/schemas/DowngradesOfBankRatingScoreRequest"
       responses:
         "200":
           content:
@@ -737,8 +770,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -757,8 +791,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -767,13 +801,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double DowngradesOfBankRatingScore(IRulesRuntimeContext, boolean)"
   /prefix/EquityScore:
     post:
-      description: "Rules method: java.lang.Double EquityScore(CountryCode countryCode,\
+      description:
+        "Rules method: java.lang.Double EquityScore(CountryCode countryCode,\
         \ java.lang.Double equity)"
       operationId: EquityScore
       parameters:
@@ -786,7 +822,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EquityScoreRequest'
+              $ref: "#/components/schemas/EquityScoreRequest"
       responses:
         "200":
           content:
@@ -804,8 +840,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -824,8 +861,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -834,13 +871,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double EquityScore(IRulesRuntimeContext, String, Double)"
   /prefix/HighLiquidityRatioScore:
     post:
-      description: "Rules method: java.lang.Double HighLiquidityRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double HighLiquidityRatioScore(java.lang.Double\
         \ highLiquidityRatio)"
       operationId: HighLiquidityRatioScore
       parameters:
@@ -853,7 +892,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HighLiquidityRatioScoreRequest'
+              $ref: "#/components/schemas/HighLiquidityRatioScoreRequest"
       responses:
         "200":
           content:
@@ -871,8 +910,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -891,8 +931,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -901,13 +941,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double HighLiquidityRatioScore(IRulesRuntimeContext, Double)"
   /prefix/IsAdequateCoreCapitalRatioScore:
     post:
-      description: "Rules method: java.lang.Double IsAdequateCoreCapitalRatioScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double IsAdequateCoreCapitalRatioScore(java.lang.Boolean\
         \ isAdequateCoreCapitalRatio)"
       operationId: IsAdequateCoreCapitalRatioScore
       parameters:
@@ -920,7 +962,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IsAdequateCoreCapitalRatioScoreRequest'
+              $ref: "#/components/schemas/IsAdequateCoreCapitalRatioScoreRequest"
       responses:
         "200":
           content:
@@ -938,8 +980,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -958,8 +1001,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -968,13 +1011,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double IsAdequateCoreCapitalRatioScore(IRulesRuntimeContext, Boolean)"
   /prefix/IsAdequateLiquidityRatioScore:
     post:
-      description: "Rules method: java.lang.Double IsAdequateLiquidityRatioScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double IsAdequateLiquidityRatioScore(java.lang.Boolean\
         \ isAdequateLiquidityRatio)"
       operationId: IsAdequateLiquidityRatioScore
       parameters:
@@ -987,7 +1032,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IsAdequateLiquidityRatioScoreRequest'
+              $ref: "#/components/schemas/IsAdequateLiquidityRatioScoreRequest"
       responses:
         "200":
           content:
@@ -1005,8 +1050,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1025,8 +1071,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1035,13 +1081,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double IsAdequateLiquidityRatioScore(IRulesRuntimeContext, Boolean)"
   /prefix/IsAdequateMaxCreditRiskScore:
     post:
-      description: "Rules method: java.lang.Double IsAdequateMaxCreditRiskScore(CountryCode\
+      description:
+        "Rules method: java.lang.Double IsAdequateMaxCreditRiskScore(CountryCode\
         \ countryCode, java.lang.Boolean isAdequateMaxCreditRisk)"
       operationId: IsAdequateMaxCreditRiskScore
       parameters:
@@ -1054,7 +1102,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IsAdequateMaxCreditRiskScoreRequest'
+              $ref: "#/components/schemas/IsAdequateMaxCreditRiskScoreRequest"
       responses:
         "200":
           content:
@@ -1072,8 +1120,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1092,8 +1141,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1102,14 +1151,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "Double IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String,\
+      summary:
+        "Double IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String,\
         \ Boolean)"
   /prefix/IsAdequateNormativeIndexCalculation:
     post:
-      description: "The third correction index B3 (IsAdequate Normative Index) is\
+      description:
+        "The third correction index B3 (IsAdequate Normative Index) is\
         \ determined on basis of the abidance of requirements established by the central\
         \ bank of the bank-counterparty: adequate core capital ratio (N1), adequate\
         \ liquidity ratio (N2), adequate max credit risk (N3). For banks – residents\
@@ -1126,7 +1178,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IsAdequateNormativeIndexCalculationRequest'
+              $ref: "#/components/schemas/IsAdequateNormativeIndexCalculationRequest"
       responses:
         "200":
           content:
@@ -1144,8 +1196,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1164,8 +1217,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1174,13 +1227,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double IsAdequateNormativeIndexCalculation(IRulesRuntimeContext, Bank)"
   /prefix/LiabilitiesToCustomersDynamicScore:
     post:
-      description: "Rules method: java.lang.Double LiabilitiesToCustomersDynamicScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double LiabilitiesToCustomersDynamicScore(java.lang.Double\
         \ LiabToCustDynamic)"
       operationId: LiabilitiesToCustomersDynamicScore
       parameters:
@@ -1193,7 +1248,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest'
+              $ref: "#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest"
       responses:
         "200":
           content:
@@ -1211,8 +1266,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1231,8 +1287,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1241,13 +1297,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double LiabilitiesToCustomersDynamicScore(IRulesRuntimeContext, Double)"
   /prefix/LiabilitiesToCustomersOnDemandRatioScore:
     post:
-      description: "Rules method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(java.lang.Double\
         \ liabilitiesToCustOnDemand)"
       operationId: LiabilitiesToCustomersOnDemandRatioScore
       parameters:
@@ -1260,7 +1318,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest'
+              $ref: "#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest"
       responses:
         "200":
           content:
@@ -1278,8 +1336,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1298,8 +1357,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1308,14 +1367,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "Double LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext,\
+      summary:
+        "Double LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext,\
         \ Double)"
   /prefix/LiquidityDynamicScore:
     post:
-      description: "Rules method: java.lang.Double LiquidityDynamicScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double LiquidityDynamicScore(java.lang.Double\
         \ liquidityDynamic)"
       operationId: LiquidityDynamicScore
       parameters:
@@ -1328,7 +1390,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LiquidityDynamicScoreRequest'
+              $ref: "#/components/schemas/LiquidityDynamicScoreRequest"
       responses:
         "200":
           content:
@@ -1346,8 +1408,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1366,8 +1429,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1376,13 +1439,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double LiquidityDynamicScore(IRulesRuntimeContext, Double)"
   /prefix/LiquidityRatioScore:
     post:
-      description: "Rules method: java.lang.Double LiquidityRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double LiquidityRatioScore(java.lang.Double\
         \ liquidityRatio)"
       operationId: LiquidityRatioScore
       parameters:
@@ -1395,7 +1460,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LiquidityRatioScoreRequest'
+              $ref: "#/components/schemas/LiquidityRatioScoreRequest"
       responses:
         "200":
           content:
@@ -1413,8 +1478,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1433,8 +1499,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1443,13 +1509,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double LiquidityRatioScore(IRulesRuntimeContext, Double)"
   /prefix/LossesInThisYearScore:
     post:
-      description: "Rules method: java.lang.Double LossesInThisYearScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double LossesInThisYearScore(java.lang.Boolean\
         \ lossesInThisYear)"
       operationId: LossesInThisYearScore
       parameters:
@@ -1462,7 +1530,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LossesInThisYearScoreRequest'
+              $ref: "#/components/schemas/LossesInThisYearScoreRequest"
       responses:
         "200":
           content:
@@ -1480,8 +1548,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1500,8 +1569,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1510,8 +1579,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double LossesInThisYearScore(IRulesRuntimeContext, Boolean)"
   /prefix/MaxLimit:
@@ -1528,7 +1598,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "200":
           content:
@@ -1546,8 +1616,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1566,8 +1637,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1576,13 +1647,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: Double MaxLimit(IRulesRuntimeContext)
   /prefix/NegativeHistoryRelationsScore:
     post:
-      description: "Rules method: java.lang.Double NegativeHistoryRelationsScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double NegativeHistoryRelationsScore(java.lang.Boolean\
         \ negativeHistoryRelations)"
       operationId: NegativeHistoryRelationsScore
       parameters:
@@ -1595,7 +1668,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NegativeHistoryRelationsScoreRequest'
+              $ref: "#/components/schemas/NegativeHistoryRelationsScoreRequest"
       responses:
         "200":
           content:
@@ -1613,8 +1686,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1633,8 +1707,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1643,13 +1717,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double NegativeHistoryRelationsScore(IRulesRuntimeContext, Boolean)"
   /prefix/NegativeInfoShareHoldersOrManagementScore:
     post:
-      description: "Rules method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(java.lang.Boolean\
         \ negativeManagInfo)"
       operationId: NegativeInfoShareHoldersOrManagementScore
       parameters:
@@ -1662,7 +1738,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest'
+              $ref: "#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest"
       responses:
         "200":
           content:
@@ -1680,8 +1756,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1700,8 +1777,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1710,14 +1787,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "Double NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext,\
+      summary:
+        "Double NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext,\
         \ Boolean)"
   /prefix/NegativeMassMediaScore:
     post:
-      description: "Rules method: java.lang.Double NegativeMassMediaScore(java.lang.Boolean\
+      description:
+        "Rules method: java.lang.Double NegativeMassMediaScore(java.lang.Boolean\
         \ negativeMassMedia)"
       operationId: NegativeMassMediaScore
       parameters:
@@ -1730,7 +1810,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NegativeMassMediaScoreRequest'
+              $ref: "#/components/schemas/NegativeMassMediaScoreRequest"
       responses:
         "200":
           content:
@@ -1748,8 +1828,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1768,8 +1849,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1778,13 +1859,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double NegativeMassMediaScore(IRulesRuntimeContext, Boolean)"
   /prefix/NetMoneyMarketLiabilitiesScore:
     post:
-      description: "Rules method: java.lang.Double NetMoneyMarketLiabilitiesScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double NetMoneyMarketLiabilitiesScore(java.lang.Double\
         \ netMoneyMarketLiabilities)"
       operationId: NetMoneyMarketLiabilitiesScore
       parameters:
@@ -1797,7 +1880,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest'
+              $ref: "#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest"
       responses:
         "200":
           content:
@@ -1815,8 +1898,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1835,8 +1919,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1845,13 +1929,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double NetMoneyMarketLiabilitiesScore(IRulesRuntimeContext, Double)"
   /prefix/OtherAssetsRatioScore:
     post:
-      description: "Rules method: java.lang.Double OtherAssetsRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double OtherAssetsRatioScore(java.lang.Double\
         \ otherAssetsRatio)"
       operationId: OtherAssetsRatioScore
       parameters:
@@ -1864,7 +1950,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OtherAssetsRatioScoreRequest'
+              $ref: "#/components/schemas/OtherAssetsRatioScoreRequest"
       responses:
         "200":
           content:
@@ -1882,8 +1968,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1902,8 +1989,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1912,13 +1999,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double OtherAssetsRatioScore(IRulesRuntimeContext, Double)"
   /prefix/ProfitDynamicScore:
     post:
-      description: "Rules method: java.lang.Double ProfitDynamicScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double ProfitDynamicScore(java.lang.Double\
         \ profitDynamic, java.lang.Double profit)"
       operationId: ProfitDynamicScore
       parameters:
@@ -1931,7 +2020,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProfitDynamicScoreRequest'
+              $ref: "#/components/schemas/ProfitDynamicScoreRequest"
       responses:
         "200":
           content:
@@ -1949,8 +2038,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -1969,8 +2059,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -1979,13 +2069,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double ProfitDynamicScore(IRulesRuntimeContext, Double, Double)"
   /prefix/QuickRatioScore:
     post:
-      description: "Rules method: java.lang.Double QuickRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double QuickRatioScore(java.lang.Double\
         \ quickRatio)"
       operationId: QuickRatioScore
       parameters:
@@ -1998,7 +2090,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuickRatioScoreRequest'
+              $ref: "#/components/schemas/QuickRatioScoreRequest"
       responses:
         "200":
           content:
@@ -2016,8 +2108,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2036,8 +2129,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2046,13 +2139,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double QuickRatioScore(IRulesRuntimeContext, Double)"
   /prefix/SecuredByPropertyChargesClaimsRatioScore:
     post:
-      description: "Rules method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(java.lang.Double\
         \ securedClaimsRatio)"
       operationId: SecuredByPropertyChargesClaimsRatioScore
       parameters:
@@ -2065,7 +2160,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest'
+              $ref: "#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest"
       responses:
         "200":
           content:
@@ -2083,8 +2178,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2103,8 +2199,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2113,14 +2209,17 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
-      summary: "Double SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext,\
+      summary:
+        "Double SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext,\
         \ Double)"
   /prefix/SetNonZeroValues:
     post:
-      description: "Rules method: void SetNonZeroValues(org.openl.generated.beans.FinancialData\
+      description:
+        "Rules method: void SetNonZeroValues(org.openl.generated.beans.FinancialData\
         \ financialData)"
       operationId: SetNonZeroValues
       parameters:
@@ -2133,7 +2232,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SetNonZeroValuesRequest'
+              $ref: "#/components/schemas/SetNonZeroValuesRequest"
       responses:
         "204":
           description: Successful operation
@@ -2144,8 +2243,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2164,8 +2264,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2174,13 +2274,15 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "void SetNonZeroValues(IRulesRuntimeContext, FinancialData)"
   /prefix/TotalBalanceScore:
     post:
-      description: "Rules method: java.lang.Double TotalBalanceScore(java.lang.Double\
+      description:
+        "Rules method: java.lang.Double TotalBalanceScore(java.lang.Double\
         \ totalBalance, CountryCode countryCode)"
       operationId: TotalBalanceScore
       parameters:
@@ -2193,7 +2295,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TotalBalanceScoreRequest'
+              $ref: "#/components/schemas/TotalBalanceScoreRequest"
       responses:
         "200":
           content:
@@ -2211,8 +2313,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2231,8 +2334,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2241,8 +2344,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Double TotalBalanceScore(IRulesRuntimeContext, Double, String)"
   /prefix/getBankData:
@@ -2259,7 +2363,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "200":
           content:
@@ -2267,7 +2371,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Bank'
+                  $ref: "#/components/schemas/Bank"
           description: Successful operation
         "204":
           description: Successful operation
@@ -2278,8 +2382,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2298,8 +2403,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2308,8 +2413,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Bank[] getBankData(IRulesRuntimeContext)"
   /prefix/getBankFinancialData:
@@ -2326,7 +2432,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "200":
           content:
@@ -2334,7 +2440,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FinancialData'
+                  $ref: "#/components/schemas/FinancialData"
           description: Successful operation
         "204":
           description: Successful operation
@@ -2345,8 +2451,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2365,8 +2472,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2375,8 +2482,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "FinancialData[] getBankFinancialData(IRulesRuntimeContext)"
   /prefix/getBankRatingList:
@@ -2393,7 +2501,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "200":
           content:
@@ -2401,7 +2509,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Rating'
+                  $ref: "#/components/schemas/Rating"
           description: Successful operation
         "204":
           description: Successful operation
@@ -2412,8 +2520,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2432,8 +2541,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2442,8 +2551,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "Rating[] getBankRatingList(IRulesRuntimeContext)"
   /prefix/getQualityIndicatorsData:
@@ -2460,7 +2570,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+              $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
         "200":
           content:
@@ -2468,7 +2578,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/QualityIndicators'
+                  $ref: "#/components/schemas/QualityIndicators"
           description: Successful operation
         "204":
           description: Successful operation
@@ -2479,8 +2589,9 @@ paths:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Invalid request format e.g. missing required field, unparseable\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
         "422":
           content:
@@ -2499,8 +2610,8 @@ paths:
                     type: USER_ERROR
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
-                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+                  - $ref: "#/components/schemas/JAXRSUserErrorResponse"
+                  - $ref: "#/components/schemas/JAXRSErrorResponse"
           description: Custom user errors in rules or validation errors in input parameters
         "500":
           content:
@@ -2509,8 +2620,9 @@ paths:
                 message: Failed to load lazy method.
                 type: COMPILATION
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
-          description: "Internal server errors e.g. compilation or parsing errors,\
+                $ref: "#/components/schemas/JAXRSErrorResponse"
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
       summary: "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)"
 components:
@@ -2519,11 +2631,11 @@ components:
       type: object
       properties:
         currentFinancialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         previousFinancialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     BalanceQualityIndexCalculation:
       type: object
       properties:
@@ -2636,9 +2748,9 @@ components:
       type: object
       properties:
         currentFinancialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     Bank:
       type: object
       properties:
@@ -2649,7 +2761,7 @@ components:
         bankRatings:
           type: array
           items:
-            $ref: '#/components/schemas/Rating'
+            $ref: "#/components/schemas/Rating"
         countryCode:
           type: string
           default: DE
@@ -2673,16 +2785,16 @@ components:
             - RU
             - IE
         currentFinancialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         previousFinancialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         qualityIndicators:
-          $ref: '#/components/schemas/QualityIndicators'
+          $ref: "#/components/schemas/QualityIndicators"
     BankLimitIndexRequest:
       type: object
       properties:
         bank:
-          $ref: '#/components/schemas/Bank'
+          $ref: "#/components/schemas/Bank"
         bankRatingGroup:
           type: string
           enum:
@@ -2692,14 +2804,14 @@ components:
             - R2
             - R1
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     BankQualitativeIndexCalculationRequest:
       type: object
       properties:
         bank:
-          $ref: '#/components/schemas/Bank'
+          $ref: "#/components/schemas/Bank"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     BankRatingCalculation:
       type: object
       properties:
@@ -2721,7 +2833,7 @@ components:
           type: number
           format: double
         Value_BalanceQualityIndexCalculation:
-          $ref: '#/components/schemas/BalanceQualityIndexCalculation'
+          $ref: "#/components/schemas/BalanceQualityIndexCalculation"
         Value_BankQualitativeIndexCalculation:
           type: number
           format: double
@@ -2743,9 +2855,9 @@ components:
       type: object
       properties:
         bank:
-          $ref: '#/components/schemas/Bank'
+          $ref: "#/components/schemas/Bank"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     BankRatingGroupRequest:
       type: object
       properties:
@@ -2753,7 +2865,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     CapitalAdequacyScoreRequest:
       type: object
       properties:
@@ -2761,7 +2873,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     CapitalDynamicScoreRequest:
       type: object
       properties:
@@ -2769,7 +2881,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     ClaimsOnCustomerRatioScoreRequest:
       type: object
       properties:
@@ -2777,7 +2889,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     CreditPortfolioQualityScoreRequest:
       type: object
       properties:
@@ -2785,7 +2897,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     DefaultRulesRuntimeContext:
       type: object
       properties:
@@ -3122,7 +3234,7 @@ components:
         downgradesOfBankRating:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     EquityScoreRequest:
       type: object
       properties:
@@ -3151,7 +3263,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     FinancialData:
       type: object
       properties:
@@ -3229,21 +3341,21 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     IsAdequateCoreCapitalRatioScoreRequest:
       type: object
       properties:
         isAdequateCoreCapitalRatio:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     IsAdequateLiquidityRatioScoreRequest:
       type: object
       properties:
         isAdequateLiquidityRatio:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     IsAdequateMaxCreditRiskScoreRequest:
       type: object
       properties:
@@ -3271,14 +3383,14 @@ components:
         isAdequateMaxCreditRisk:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     IsAdequateNormativeIndexCalculationRequest:
       type: object
       properties:
         bank:
-          $ref: '#/components/schemas/Bank'
+          $ref: "#/components/schemas/Bank"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     JAXRSErrorResponse:
       type: object
       properties:
@@ -3307,7 +3419,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     LiabilitiesToCustomersOnDemandRatioScoreRequest:
       type: object
       properties:
@@ -3315,7 +3427,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     LiquidityDynamicScoreRequest:
       type: object
       properties:
@@ -3323,7 +3435,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     LiquidityRatioScoreRequest:
       type: object
       properties:
@@ -3331,35 +3443,35 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     LossesInThisYearScoreRequest:
       type: object
       properties:
         lossesInThisYear:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     NegativeHistoryRelationsScoreRequest:
       type: object
       properties:
         negativeHistoryRelations:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     NegativeInfoShareHoldersOrManagementScoreRequest:
       type: object
       properties:
         negativeManagInfo:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     NegativeMassMediaScoreRequest:
       type: object
       properties:
         negativeMassMedia:
           type: boolean
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     NetMoneyMarketLiabilitiesScoreRequest:
       type: object
       properties:
@@ -3367,7 +3479,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     OtherAssetsRatioScoreRequest:
       type: object
       properties:
@@ -3375,7 +3487,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     ProfitDynamicScoreRequest:
       type: object
       properties:
@@ -3386,7 +3498,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     QualityIndicators:
       type: object
       properties:
@@ -3424,7 +3536,7 @@ components:
           type: number
           format: double
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     Rating:
       type: object
       properties:
@@ -3440,7 +3552,7 @@ components:
       type: object
       properties:
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         securedClaimsRatio:
           type: number
           format: double
@@ -3448,9 +3560,9 @@ components:
       type: object
       properties:
         financialData:
-          $ref: '#/components/schemas/FinancialData'
+          $ref: "#/components/schemas/FinancialData"
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
     TotalBalanceScoreRequest:
       type: object
       properties:
@@ -3476,7 +3588,7 @@ components:
             - RU
             - IE
         runtimeContext:
-          $ref: '#/components/schemas/DefaultRulesRuntimeContext'
+          $ref: "#/components/schemas/DefaultRulesRuntimeContext"
         totalBalance:
           type: number
           format: double

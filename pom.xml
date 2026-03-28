@@ -1600,6 +1600,24 @@
                         </importOrder>
                         <removeSemicolons/>
                     </groovy>
+                    <yaml>
+                        <includes>
+                            <include>**/*.yaml</include>
+                            <include>**/*.yml</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/dist/**</exclude>
+                            <exclude>**/node_modules/**</exclude>
+                            <exclude>**/build/**</exclude>
+                            <exclude>**/out/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/*-ui/coverage/**</exclude>
+                            <exclude>.*/**</exclude>
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
+                        <prettier/>
+                    </yaml>
                     <pom>
                         <includes>
                             <include>**/pom.xml</include>
@@ -1632,8 +1650,6 @@
                                 <include>**/*.html</include>
                                 <include>**/*.xml</include>
                                 <include>**/*.json</include>
-                                <include>**/*.yaml</include>
-                                <include>**/*.yml</include>
                                 <include>**/*.properties</include>
                                 <include>**/*.txt</include>
                                 <include>**/*.md</include>

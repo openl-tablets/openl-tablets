@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/combined-AnyOf
-    variables: { }
+    variables: {}
 paths:
   /pets:
     patch:
@@ -13,10 +13,10 @@ paths:
           application/json:
             schema:
               anyOf:
-                - $ref: '#/components/schemas/PetByAge'
-                - $ref: '#/components/schemas/PetByType'
+                - $ref: "#/components/schemas/PetByAge"
+                - $ref: "#/components/schemas/PetByType"
       responses:
-        '200':
+        "200":
           description: Updated
 components:
   schemas:
@@ -35,7 +35,7 @@ components:
       properties:
         pet_type:
           type: string
-          enum: [ Cat, Dog ]
+          enum: [Cat, Dog]
         hunts:
           type: boolean
       required:

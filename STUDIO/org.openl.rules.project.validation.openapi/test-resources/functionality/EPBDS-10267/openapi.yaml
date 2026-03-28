@@ -4,13 +4,15 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/std-plan-configuration
-    variables: { }
+    variables: {}
 paths:
   /Behavior:
     post:
-      summary: "BehaviorResponse Behavior(Boolean, String[], String[], DataItem[],\
+      summary:
+        "BehaviorResponse Behavior(Boolean, String[], String[], DataItem[],\
         \ DataItem[])"
-      description: "Rules method: org.openl.generated.beans.BehaviorResponse Behavior(java.lang.Boolean\
+      description:
+        "Rules method: org.openl.generated.beans.BehaviorResponse Behavior(java.lang.Boolean\
         \ scoped, BehaviorType[] behaviorTypes, ValidationType[] validationTypes,\
         \ org.openl.generated.beans.DataItem[] attributes, org.openl.generated.beans.DataItem[]\
         \ dimensions)"
@@ -19,34 +21,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BehaviorRequest'
+              $ref: "#/components/schemas/BehaviorRequest"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -54,7 +58,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BehaviorResponse'
+                $ref: "#/components/schemas/BehaviorResponse"
   /getBehaviorRequestDataMinMax:
     get:
       summary: "BehaviorRequest[] getBehaviorRequestDataMinMax()"
@@ -66,27 +70,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -96,7 +102,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BehaviorRequest'
+                  $ref: "#/components/schemas/BehaviorRequest"
   /getBehaviorRequestDataDefault:
     get:
       summary: "BehaviorRequest[] getBehaviorRequestDataDefault()"
@@ -108,27 +114,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -138,7 +146,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BehaviorRequest'
+                  $ref: "#/components/schemas/BehaviorRequest"
   /getBehaviorRequestDataValueList:
     get:
       summary: "BehaviorRequest[] getBehaviorRequestDataValueList()"
@@ -150,27 +158,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -180,7 +190,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BehaviorRequest'
+                  $ref: "#/components/schemas/BehaviorRequest"
   /getBehaviorRequestDataRelationship:
     get:
       summary: "BehaviorRequest[] getBehaviorRequestDataRelationship()"
@@ -192,27 +202,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -222,7 +234,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BehaviorRequest'
+                  $ref: "#/components/schemas/BehaviorRequest"
   /getBehaviorRequestDataApplicability:
     get:
       summary: "BehaviorRequest[] getBehaviorRequestDataApplicability()"
@@ -234,27 +246,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -264,7 +278,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BehaviorRequest'
+                  $ref: "#/components/schemas/BehaviorRequest"
 components:
   schemas:
     JAXRSErrorResponse:
@@ -291,7 +305,7 @@ components:
         name: ApplicabilityBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Behavior'
+        - $ref: "#/components/schemas/Behavior"
         - type: object
           properties:
             applicabilityType:
@@ -302,14 +316,14 @@ components:
         name: AttributeBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Behavior'
+        - $ref: "#/components/schemas/Behavior"
     AttributeValidationBehavior:
       type: object
       xml:
         name: AttributeValidationBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             level:
@@ -325,13 +339,13 @@ components:
         name: AvailabilityBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - $ref: "#/components/schemas/AttributeValidationBehavior"
         - type: object
           properties:
             availabilityType:
               type: string
             availableValue:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     Behavior:
       type: object
       properties:
@@ -348,7 +362,7 @@ components:
         scope:
           type: array
           items:
-            $ref: '#/components/schemas/DataItem'
+            $ref: "#/components/schemas/DataItem"
       xml:
         name: Behavior
         namespace: http://beans.generated.openl.org
@@ -361,11 +375,11 @@ components:
         behaviors:
           type: array
           items:
-            $ref: '#/components/schemas/Behavior'
+            $ref: "#/components/schemas/Behavior"
         validationResults:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationResult'
+            $ref: "#/components/schemas/ValidationResult"
       xml:
         name: BehaviorResponse
         namespace: http://beans.generated.openl.org
@@ -375,7 +389,7 @@ components:
         name: CategoryBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Behavior'
+        - $ref: "#/components/schemas/Behavior"
         - type: object
           properties:
             category:
@@ -394,7 +408,7 @@ components:
         attributeName:
           type: string
         attributeValue:
-          $ref: '#/components/schemas/Value'
+          $ref: "#/components/schemas/Value"
       xml:
         name: DataItem
         namespace: http://beans.generated.openl.org
@@ -404,22 +418,22 @@ components:
         name: DefaultValueBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             defaultValue:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     EnabledBehavior:
       type: object
       xml:
         name: EnabledBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             enabled:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     Expr:
       type: object
       properties:
@@ -431,7 +445,7 @@ components:
         source:
           type: string
         result:
-          $ref: '#/components/schemas/Value'
+          $ref: "#/components/schemas/Value"
       xml:
         name: Expr
         namespace: http://beans.generated.openl.org
@@ -441,26 +455,26 @@ components:
         name: MandatoryBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - $ref: "#/components/schemas/AttributeValidationBehavior"
         - type: object
           properties:
             mandatory:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     MinMaxBehavior:
       type: object
       xml:
         name: MinMaxBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - $ref: "#/components/schemas/AttributeValidationBehavior"
         - type: object
           properties:
             min:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
             max:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
             increment:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     Money:
       type: object
       properties:
@@ -481,18 +495,18 @@ components:
         name: RefreshBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             refresh:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     RelationshipBehavior:
       type: object
       xml:
         name: RelationshipBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Behavior'
+        - $ref: "#/components/schemas/Behavior"
         - type: object
           properties:
             relationshipType:
@@ -505,11 +519,11 @@ components:
         name: ResetValueBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             resetValue:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     ValidationResult:
       type: object
       properties:
@@ -550,7 +564,7 @@ components:
           type: number
           format: double
         moneyValue:
-          $ref: '#/components/schemas/Money'
+          $ref: "#/components/schemas/Money"
         decimalValue:
           type: number
         dateValue:
@@ -580,7 +594,7 @@ components:
         moneyMultiValues:
           type: array
           items:
-            $ref: '#/components/schemas/Money'
+            $ref: "#/components/schemas/Money"
         decimalMultiValues:
           type: array
           items:
@@ -604,13 +618,13 @@ components:
         name: ValueListBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - $ref: "#/components/schemas/AttributeValidationBehavior"
         - type: object
           properties:
             valueListItems:
               type: array
               items:
-                $ref: '#/components/schemas/ValueListItem'
+                $ref: "#/components/schemas/ValueListItem"
     ValueListItem:
       type: object
       properties:
@@ -618,15 +632,15 @@ components:
           type: string
           default: ValueListItem
         itemValue:
-          $ref: '#/components/schemas/Value'
+          $ref: "#/components/schemas/Value"
         label:
           type: string
         order:
-          $ref: '#/components/schemas/Expr'
+          $ref: "#/components/schemas/Expr"
         visible:
-          $ref: '#/components/schemas/Expr'
+          $ref: "#/components/schemas/Expr"
         enabled:
-          $ref: '#/components/schemas/Expr'
+          $ref: "#/components/schemas/Expr"
       xml:
         name: ValueListItem
         namespace: http://beans.generated.openl.org
@@ -636,11 +650,11 @@ components:
         name: VisibleBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/AttributeBehavior'
+        - $ref: "#/components/schemas/AttributeBehavior"
         - type: object
           properties:
             visible:
-              $ref: '#/components/schemas/Expr'
+              $ref: "#/components/schemas/Expr"
     BehaviorRequest:
       type: object
       properties:
@@ -661,11 +675,11 @@ components:
         attributes:
           type: array
           items:
-            $ref: '#/components/schemas/DataItem'
+            $ref: "#/components/schemas/DataItem"
         dimensions:
           type: array
           items:
-            $ref: '#/components/schemas/DataItem'
+            $ref: "#/components/schemas/DataItem"
       xml:
         name: BehaviorRequest
         namespace: http://beans.generated.openl.org

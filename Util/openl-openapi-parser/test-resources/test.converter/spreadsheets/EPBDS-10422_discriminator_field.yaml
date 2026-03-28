@@ -4,46 +4,49 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/InheritanceTree/InheritanceTree
-    variables: { }
+    variables: {}
 paths:
   /method1:
     post:
       summary: Vehicle method1(Vehicle)
-      description: "Rules method: org.openl.generated.beans.Vehicle method1(org.openl.generated.beans.Vehicle\
+      description:
+        "Rules method: org.openl.generated.beans.Vehicle method1(org.openl.generated.beans.Vehicle\
         \ veh)"
       operationId: method1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Vehicle'
+              $ref: "#/components/schemas/Vehicle"
       responses:
         "422":
           description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Some message
                 type: USER_ERROR
         "400":
-          description: "Invalid request format e.g. missing required field, unparseable\
+          description:
+            "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Cannot parse 'bar' to JSON
                 type: BAD_REQUEST
         "500":
-          description: "Internal server errors e.g. compilation or parsing errors,\
+          description:
+            "Internal server errors e.g. compilation or parsing errors,\
             \ runtime exceptions, etc."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JAXRSErrorResponse'
+                $ref: "#/components/schemas/JAXRSErrorResponse"
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
@@ -51,7 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vehicle'
+                $ref: "#/components/schemas/Vehicle"
   /method2:
     get:
       requestBody:
@@ -68,7 +71,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Tesla'
+                $ref: "#/components/schemas/Tesla"
 components:
   schemas:
     JAXRSErrorResponse:
@@ -95,21 +98,21 @@ components:
         name: Bus
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Car'
+        - $ref: "#/components/schemas/Car"
         - type: object
           properties:
             passangerCapacity:
               type: number
               format: double
             vehInfo:
-              $ref: '#/components/schemas/VehicleInfo'
+              $ref: "#/components/schemas/VehicleInfo"
     Car:
       type: object
       xml:
         name: Car
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Vehicle'
+        - $ref: "#/components/schemas/Vehicle"
         - type: object
           properties:
             wheelDrive:
@@ -122,7 +125,7 @@ components:
         name: ConceptCar
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/SportCar'
+        - $ref: "#/components/schemas/SportCar"
         - type: object
           properties:
             description:
@@ -133,7 +136,7 @@ components:
         name: ElectronicCar
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/PassangerCar'
+        - $ref: "#/components/schemas/PassangerCar"
         - type: object
           properties:
             Voltage:
@@ -145,7 +148,7 @@ components:
         name: LoryTrain
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Train'
+        - $ref: "#/components/schemas/Train"
         - type: object
           properties:
             carryingCapacity:
@@ -157,7 +160,7 @@ components:
         name: LuxaryCar
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/SportCar'
+        - $ref: "#/components/schemas/SportCar"
         - type: object
           properties:
             nuberInWorld:
@@ -169,7 +172,7 @@ components:
         name: PassangerCar
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Car'
+        - $ref: "#/components/schemas/Car"
         - type: object
           properties:
             bodyType:
@@ -177,14 +180,14 @@ components:
             engine:
               type: string
             vehInfo:
-              $ref: '#/components/schemas/VehicleInfo'
+              $ref: "#/components/schemas/VehicleInfo"
     PassangerTrain:
       type: object
       xml:
         name: PassangerTrain
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Train'
+        - $ref: "#/components/schemas/Train"
         - type: object
           properties:
             passangerCapacity:
@@ -196,7 +199,7 @@ components:
         name: SportCar
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/PassangerCar'
+        - $ref: "#/components/schemas/PassangerCar"
         - type: object
           properties:
             Stage:
@@ -207,7 +210,7 @@ components:
         name: Train
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Vehicle'
+        - $ref: "#/components/schemas/Vehicle"
         - type: object
           properties:
             trainLength:
@@ -219,7 +222,7 @@ components:
         name: Truck
         namespace: http://beans.generated.openl.org
       allOf:
-        - $ref: '#/components/schemas/Car'
+        - $ref: "#/components/schemas/Car"
         - type: object
           properties:
             carryingCapacity:
@@ -230,7 +233,7 @@ components:
               format: int32
     Vehicle:
       required:
-        - '@class'
+        - "@class"
       type: object
       properties:
         color:
@@ -238,13 +241,13 @@ components:
         maxSpeed:
           type: number
           format: double
-        '@class':
+        "@class":
           type: string
       xml:
         name: Vehicle
         namespace: http://beans.generated.openl.org
       discriminator:
-        propertyName: '@class'
+        propertyName: "@class"
     VehicleInfo:
       type: object
       properties:
@@ -263,7 +266,7 @@ components:
     Tesla:
       type: object
       properties:
-        '@class':
+        "@class":
           type: string
         color:
           type: string

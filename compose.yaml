@@ -1,5 +1,4 @@
 services:
-
   studio:
     build:
       context: .
@@ -13,15 +12,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: '1G'
+          cpus: "2.0"
+          memory: "1G"
         reservations:
           memory: 512M
     volumes:
       - jars:/opt/openl/lib
       - openl-home:/opt/openl/shared
     environment:
-      JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
+      JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,7 +38,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 1G
         reservations:
           memory: 512M
@@ -53,7 +52,7 @@ services:
       RULESERVICE_DATASOURCE_DEPLOY_CLASSPATH_JARS: ALWAYS
       RULESERVICE_DEPLOYER_ENABLED: "true"
       cors.allowed.origins: "*"
-      JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
+      JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,7 +66,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 8M
         reservations:
           memory: 6M
@@ -99,7 +98,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 256M
         reservations:
           memory: 192M

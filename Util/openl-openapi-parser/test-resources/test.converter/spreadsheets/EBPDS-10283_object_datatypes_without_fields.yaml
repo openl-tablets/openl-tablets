@@ -4,19 +4,20 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/mapSpr/mapSpr
-    variables: { }
+    variables: {}
 paths:
   /mySpr:
     post:
       summary: Double mySpr(AlenaDatatype)
-      description: "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
+      description:
+        "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
         \ bla)"
       operationId: mySpr
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AlenaDatatype'
+              $ref: "#/components/schemas/AlenaDatatype"
       responses:
         "200":
           description:
@@ -28,7 +29,8 @@ paths:
   /mySpr2:
     post:
       summary: Double mySpr(AlenaDatatype)
-      description: "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
+      description:
+        "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
         \ bla)"
       operationId: mySpr
       requestBody:
