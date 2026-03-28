@@ -76,7 +76,8 @@ public final class IntExpAddExp extends IntExpImpl {
         // int trace = IntVarImplTrace.TRACE_ALL;
         _sum = constrainer().addIntVarTraceInternal(calc_min(), calc_max(), _name, IntVar.DOMAIN_PLAIN);
 
-        _exp1.attachObserver(_observer = new ExpAddExpObserver());
+        _observer = new ExpAddExpObserver();
+        _exp1.attachObserver(_observer);
         _exp2.attachObserver(_observer);
     }
 

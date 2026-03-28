@@ -216,8 +216,10 @@ public final class IntDomainHistory implements Serializable {
 
     public void restore(int index) {
         _var.forceSize(_history.elementAt(index + SIZE_IDX));
-        _var.forceMin(_min = _history.elementAt(index + MIN_IDX));
-        _var.forceMax(_max = _history.elementAt(index + MAX_IDX));
+        _min = _history.elementAt(index + MIN_IDX);
+        _var.forceMin(_min);
+        _max = _history.elementAt(index + MAX_IDX);
+        _var.forceMax(_max);
         int firstRemoveIndex = _history.elementAt(index + REMOVE_IDX);
 
         for (int i = _remove_history.size() - 1; i >= firstRemoveIndex; --i) {
@@ -234,8 +236,10 @@ public final class IntDomainHistory implements Serializable {
     int save() {
         int old = _currentIndex;
         _currentIndex = _history.size();
-        _history.add(_min = _var.min());
-        _history.add(_max = _var.max());
+        _min = _var.min();
+        _history.add(_min);
+        _max = _var.max();
+        _history.add(_max);
         _history.add(_var.size());
         _history.add(_remove_history.size());
         _mask = 0;
