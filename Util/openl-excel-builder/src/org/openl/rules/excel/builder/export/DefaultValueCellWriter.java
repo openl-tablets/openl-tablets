@@ -74,7 +74,7 @@ public class DefaultValueCellWriter {
                     valueCell.setCellStyle(dateStyle);
                 } else {
                     OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
-                    valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
+                    valueCell.setCellValue(new Date(dateValue.toInstant().toEpochMilli()));
                     valueCell.setCellStyle(dateTimeStyle);
                 }
             }

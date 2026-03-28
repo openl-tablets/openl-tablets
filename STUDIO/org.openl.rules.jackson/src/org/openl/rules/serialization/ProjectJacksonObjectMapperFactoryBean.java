@@ -355,7 +355,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         }
         forEachType(xlsModuleOpenClass,
                 e -> addMixInAnnotationsToDatatype(objectMapper, e, conflictedRootNames.get(e.getInstanceClass())),
-                e -> addMixInAnnotationsToSprBeanClass(objectMapper, e, conflictedRootNames.get((e.getBeanClass()))));
+                e -> addMixInAnnotationsToSprBeanClass(objectMapper, e, conflictedRootNames.get(e.getBeanClass())));
     }
 
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {

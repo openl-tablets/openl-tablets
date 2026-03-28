@@ -429,7 +429,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         String path = "/" + originalMethod.getName() + sb;
                         int c = 1;
                         while (getUsedPaths().contains(normalizePath(path))) {
-                            path = "/" + originalMethod.getName() + (c++) + sb;
+                            path = "/" + originalMethod.getName() + c++ + sb;
                         }
                         getUsedPaths().add(normalizePath(path));
                         path = addPathAnnotation(mv, originalMethod, path);

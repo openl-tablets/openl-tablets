@@ -740,7 +740,7 @@ public class OpenLOpenAPIUtils {
                         parameter += "Param";
                     }
                     result = new ArrayList<>(Collections
-                            .singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter))));
+                            .singletonList(new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter)));
                 }
             }
         }

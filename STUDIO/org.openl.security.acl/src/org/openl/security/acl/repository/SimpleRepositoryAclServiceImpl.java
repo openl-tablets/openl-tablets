@@ -243,7 +243,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void removePermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
         if (!(Objects.equals(objectIdentity.getType(), oidProvider.getOidType())
-                || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
+                || Objects.equals(objectIdentity.getType(), Root.class.getName()))) {
             throw new IllegalArgumentException("Invalid object identity");
         }
         if (sids == null) {
@@ -273,7 +273,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void removePermissions(ObjectIdentity objectIdentity, Map<Sid, List<Permission>> permissions) {
         if (!(Objects.equals(objectIdentity.getType(), oidProvider.getOidType())
-                || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
+                || Objects.equals(objectIdentity.getType(), Root.class.getName()))) {
             throw new IllegalArgumentException("Invalid object identity");
         }
         if (permissions == null) {
