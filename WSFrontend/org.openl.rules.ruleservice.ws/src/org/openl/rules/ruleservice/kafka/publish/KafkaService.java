@@ -266,7 +266,7 @@ public final class KafkaService implements Runnable {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                     }
                                     String finalRequestIdHeader = requestIdHeader;
-                                    var ignoredFuture = producer.send(producerRecord, (metadata, exception) -> {
+                                    producer.send(producerRecord, (metadata, exception) -> {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
                                         }
@@ -415,7 +415,7 @@ public final class KafkaService implements Runnable {
             if (storeLogData != null) {
                 storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             }
-            var ignoredDltFuture = dltProducer.send(dltRecord, (metadata, exception) -> {
+            dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLogData != null) {
                     storeLogData.setDltRecord(dltRecord);
                     storeLogData.fault();
