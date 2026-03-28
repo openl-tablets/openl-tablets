@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.ReflectionUtils;
@@ -100,10 +99,6 @@ public class MethodInfo {
 
     public static class Builder {
 
-        private static final Function<Set<MediaType>, String[]> MEDIA_TYPES_TO_ARRAY = set -> set.stream()
-                .map(Object::toString)
-                .toArray(String[]::new);
-
         private final HandlerMethod handler;
         private final String[] produces;
         private final String[] consumes;
@@ -131,10 +126,14 @@ public class MethodInfo {
                     .orElse(null);
         }
 
+        private static String[] mediaTypesToArray(Set<MediaType> mediaTypes) {
+            return mediaTypes.stream().map(Object::toString).toArray(String[]::new);
+        }
+
         public static Builder from(HandlerMethod handler, RequestMappingInfo mappingInfo) {
             return new Builder(handler,
-                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
-                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
+                    mediaTypesToArray(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
+                    mediaTypesToArray(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
         }
 
         public Builder requestMethod(RequestMethod requestMethod) {

@@ -50,7 +50,7 @@ public final class NameChecker {
     private NameChecker() {
     }
 
-    protected static boolean checkForbiddenChars(String artefactName) {
+    static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars
         for (char c : FORBIDDEN_CHARS) {
             if (artefactName.indexOf(c) >= 0) {
@@ -128,7 +128,7 @@ public final class NameChecker {
         return RESERVED_WORDS.contains(name);
     }
 
-    protected static boolean checkSpecialChars(String artefactName) {
+    static boolean checkSpecialChars(String artefactName) {
         // check for special chars
         for (int i = 0; i < artefactName.length(); i++) {
             if (artefactName.charAt(i) < 32) {

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -154,7 +153,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         mapper.setAnnotationIntrospector(introspector);
 
-        Builder basicPolymorphicTypeValidatorBuilder = null;
+        BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder = null;
         final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
         if (polymorphicTypeValidation) {
             basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
@@ -230,7 +229,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         return mapper;
     }
 
-    private Set<Class<?>> extractOverrideClasses(Builder basicPolymorphicTypeValidatorBuilder,
+    private Set<Class<?>> extractOverrideClasses(BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder,
                                                  boolean polymorphicTypeValidation) throws ClassNotFoundException {
         Set<Class<?>> classes = new HashSet<>();
         if (getOverrideTypes() != null) {
@@ -267,7 +266,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         return configurationClasses;
     }
 
-    private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
+    private void registerOverrideClass(BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder,
                                        boolean polymorphicTypeValidation,
                                        Set<Class<?>> classes,
                                        Class<?> clazz) {

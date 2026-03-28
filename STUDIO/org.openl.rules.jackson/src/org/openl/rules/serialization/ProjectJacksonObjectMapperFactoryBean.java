@@ -392,8 +392,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                         PropertyNamingStrategy.class.getTypeName()));
                             }
                             try {
-                                return (PropertyNamingStrategy) propertyNamingStrategyClass.newInstance();
-                            } catch (InstantiationException | IllegalAccessException e) {
+                                return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
+                            } catch (ReflectiveOperationException e) {
                                 throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
                                         rulesDeploy.getServiceName()), e);
