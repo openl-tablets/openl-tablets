@@ -25,7 +25,6 @@ package org.openl.ie.constrainer;
  * @see Goal#execute()
  */
 public class Failure extends Exception {
-    private final String _msg;
     private final ChoicePointLabel _label = null;
 
     /**
@@ -33,8 +32,6 @@ public class Failure extends Exception {
      */
     public Failure(String s) {
         super(s);
-        _msg = s;
-        // System.out.println("FAIL: "+this);
     }
 
     @Override
@@ -47,14 +44,6 @@ public class Failure extends Exception {
      */
     public ChoicePointLabel label() {
         return _label;
-    }
-
-    /**
-     * Returns the failure description.
-     */
-    @Override
-    public String toString() {
-        return "Failure: " + _msg;
     }
 
 } // ~Failure

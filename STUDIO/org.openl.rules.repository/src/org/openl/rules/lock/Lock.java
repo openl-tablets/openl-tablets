@@ -100,7 +100,12 @@ public class Lock {
         boolean result = tryLock(lockedBy, timeToLive, unit);
         if (!result && !Thread.currentThread().isInterrupted()) {
             LockInfo info = getInfo();
-            String message = "Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.\n" + "Lock path: {}\n" + "Locked at: {}\n" + "Locked by: {}\n" + "Time to live: {} {}";
+            String message = """
+                    Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.
+                    Lock path: {}
+                    Locked at: {}
+                    Locked by: {}
+                    Time to live: {} {}""";
             log.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
             forceUnlock();
             result = tryLock(lockedBy);

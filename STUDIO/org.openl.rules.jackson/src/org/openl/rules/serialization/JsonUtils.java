@@ -60,16 +60,16 @@ public final class JsonUtils {
      */
     public static ObjectMapper getCachedObjectMapper(Object key, Class<?>[] classes) {
         ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
+        readLock.lock();
         try {
-            readLock.lock();
             ObjectMapper objectMapper = cache.get(key);
             if (objectMapper != null) return objectMapper;
         } finally {
             readLock.unlock();
         }
         ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
-            writeLock.lock();
             ObjectMapper objectMapper = cache.get(key);
             if (objectMapper == null) {
                 objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);

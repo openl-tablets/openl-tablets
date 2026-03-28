@@ -10,7 +10,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 
-/*
+/**
  * Checks whether specified string can be used to name project artefact.
  *
  * @author Aleh Bykhavets
