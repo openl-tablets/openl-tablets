@@ -15,9 +15,9 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      * can be changed to another object or change returning with throwing exception. Return object should be assignable
      * to service method return type.
      *
-     * @param method service method
-     * @param result method return value
-     * @param args   method arguments
+     * @param interfaceMethod service method
+     * @param result          method return value
+     * @param args            method arguments
      * @return method return value
      * @throws Exception
      */
@@ -28,9 +28,9 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      * exception. Thrown exception can be changed to another or return object instead exception. Return object should be
      * assignable to service method return type.
      *
-     * @param method service method
-     * @param result method return value
-     * @param args   method arguments
+     * @param interfaceMethod service method
+     * @param t               thrown exception
+     * @param args            method arguments
      * @return method return value
      * @throws Exception
      */

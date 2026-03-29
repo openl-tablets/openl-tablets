@@ -11,9 +11,10 @@ public interface ServiceMethodAroundAdvice<T> extends ServiceMethodAdvice {
     /**
      * If around advice defined for a service method, invokes this method.
      *
-     * @param method service method
-     * @param proxy  service bean
-     * @param args   method arguments
+     * @param interfaceMethod   service interface method
+     * @param serviceTargetMethod service target method
+     * @param serviceTarget     service bean
+     * @param args              method arguments
      * @throws Throwable
      */
     T around(Method interfaceMethod, Method serviceTargetMethod, Object serviceTarget, Object... args) throws Throwable;
