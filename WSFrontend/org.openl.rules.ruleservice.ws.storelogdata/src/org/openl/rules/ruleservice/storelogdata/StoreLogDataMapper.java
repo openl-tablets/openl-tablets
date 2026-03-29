@@ -127,6 +127,7 @@ public class StoreLogDataMapper {
                             request = storeLogData.getRequestMessage().getPayload().toString();
                         }
                     }
+                    default -> { /* unsupported publisher type */ }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, request);
             } else if (annotation instanceof Response) {
@@ -151,6 +152,7 @@ public class StoreLogDataMapper {
                             response = storeLogData.getResponseMessage().getPayload().toString();
                         }
                     }
+                    default -> { /* unsupported publisher type */ }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
             } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
