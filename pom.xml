@@ -123,7 +123,7 @@
         <mcp.version>0.18.1</mcp.version>
 
         <!-- Logging -->
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
