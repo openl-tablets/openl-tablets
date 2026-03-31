@@ -46,7 +46,6 @@ org.openl.studio
 ├── tags/            # Tag management
 ├── rest/            # REST controllers
 ├── socket/          # WebSocket endpoints
-├── mcp/             # MCP integration
 └── common/          # Shared utilities
 ```
 

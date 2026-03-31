@@ -15,12 +15,12 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import org.openl.rules.security.SimpleUser;
-import org.openl.studio.security.ResourceMetadataBearerEntryPoint;
 
 /**
  * Configuration for OAuth2 access token authentication.
@@ -38,7 +38,7 @@ public class OAuth2AccessTokenConfiguration {
 
     @Bean
     public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(AuthenticationManager authenticationManager,
-                                                                           ResourceMetadataBearerEntryPoint authenticationEntryPoint) {
+                                                                           BearerTokenAuthenticationEntryPoint authenticationEntryPoint) {
 
         var authFilter = new BearerTokenAuthenticationFilter(authenticationManager);
         authFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
@@ -58,14 +58,14 @@ public class OAuth2AccessTokenConfiguration {
     }
 
     @Bean
-    public ResourceMetadataBearerEntryPoint resourceMetadataBearerEntryPoint() {
-        var entrypoint = new ResourceMetadataBearerEntryPoint();
+    public BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
+        var entrypoint = new BearerTokenAuthenticationEntryPoint();
         entrypoint.setRealmName("OpenL Studio Realm");
         return entrypoint;
     }
 
     @Bean
-    public ExceptionTranslationFilter bearerExceptionTranslationFilter(ResourceMetadataBearerEntryPoint authenticationEntryPoint) {
+    public ExceptionTranslationFilter bearerExceptionTranslationFilter(BearerTokenAuthenticationEntryPoint authenticationEntryPoint) {
         return new ExceptionTranslationFilter(authenticationEntryPoint, new NullRequestCache());
     }
 
