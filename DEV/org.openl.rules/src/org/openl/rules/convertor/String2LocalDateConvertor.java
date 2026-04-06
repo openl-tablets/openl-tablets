@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 class String2LocalDateConvertor implements IString2DataConvertor<LocalDate> {
 
@@ -12,7 +13,7 @@ class String2LocalDateConvertor implements IString2DataConvertor<LocalDate> {
 
     {
         supportedFormats.add(DateTimeFormatter.ISO_LOCAL_DATE);
-        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy"));
+        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy", Locale.US));
     }
 
     @Override

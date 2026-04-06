@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class String2InstantConverter implements IString2DataConvertor<Instant> {
 
@@ -12,7 +13,7 @@ public class String2InstantConverter implements IString2DataConvertor<Instant> {
 
     {
         supportedFormats.add(DateTimeFormatter.ISO_INSTANT);
-        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV"));
+        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV", Locale.US));
     }
 
     @Override
