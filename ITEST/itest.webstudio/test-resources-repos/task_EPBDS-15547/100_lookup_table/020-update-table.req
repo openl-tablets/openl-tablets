@@ -1,0 +1,160 @@
+PUT /rest/projects/{PROJECT_ID}/tables/f7e9e48351f56988a3847fd05446f305 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "SmartLookup",
+  "kind": "Rules",
+  "name": "BaseRate",
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "territoryCd",
+      "type": "TerritoryCd"
+    },
+    {
+      "name": "policyForm",
+      "type": "PolicyForm"
+    },
+    {
+      "name": "policyPlan",
+      "type": "Plan"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Territory Code"
+    },
+    {
+      "title": "HO2",
+      "children": [
+        {
+          "title": ""
+        }
+      ]
+    },
+    {
+      "title": "HO3",
+      "children": [
+        {
+          "title": "Platinum"
+        },
+        {
+          "title": "Gold"
+        },
+        {
+          "title": "Silver"
+        },
+        {
+          "title": ""
+        }
+      ]
+    },
+    {
+      "title": "HO5",
+      "children": [
+        {
+          "title": ""
+        }
+      ]
+    },
+    {
+      "title": "HO4",
+      "children": [
+        {
+          "title": ""
+        }
+      ]
+    },
+    {
+      "title": "HO6",
+      "children": [
+        {
+          "title": ""
+        }
+      ]
+    },
+    {
+      "title": "DP3",
+      "children": [
+        {
+          "title": ""
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "Territory Code": "001",
+      "HO2": {
+        "": 200
+      },
+      "HO3": {
+        "Platinum": 260,
+        "Gold": 270,
+        "Silver": 280,
+        "": 250
+      },
+      "HO5": {
+        "": 300
+      },
+      "HO4": {
+        "": 100
+      },
+      "HO6": {
+        "": 125
+      },
+      "DP3": {
+        "": 250
+      }
+    },
+    {
+      "Territory Code": "002",
+      "HO2": {
+        "": 225
+      },
+      "HO3": {
+        "Platinum": 285,
+        "Gold": 295,
+        "Silver": 305,
+        "": 275
+      },
+      "HO5": {
+        "": 325
+      },
+      "HO4": {
+        "": 125
+      },
+      "HO6": {
+        "": 150
+      },
+      "DP3": {
+        "": 275
+      }
+    },
+    {
+      "Territory Code": 999,
+      "HO2": {
+        "": 250
+      },
+      "HO3": {
+        "Platinum": 310,
+        "Gold": 320,
+        "Silver": 330,
+        "": 300
+      },
+      "HO5": {
+        "": 350
+      },
+      "HO4": {
+        "": 150
+      },
+      "HO6": {
+        "": 200
+      },
+      "DP3": {
+        "": 300
+      }
+    }
+  ]
+}

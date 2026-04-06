@@ -1,0 +1,194 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f7e9e48351f56988a3847fd05446f305",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "BaseRate",
+  "source": [
+    [
+      {
+        "value": "SmartLookup Double BaseRate(TerritoryCd territoryCd, PolicyForm policyForm, Plan policyPlan)",
+        "colspan": 10
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "value": "Territory Code",
+        "rowspan": 2
+      },
+      {
+        "value": "HO2"
+      },
+      {
+        "value": "HO3",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "value": "HO5"
+      },
+      {
+        "value": "HO4"
+      },
+      {
+        "value": "HO6"
+      },
+      {
+        "value": "DP3"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {},
+      {
+        "value": "Platinum"
+      },
+      {
+        "value": "Gold"
+      },
+      {
+        "value": "Silver"
+      },
+      {},
+      {},
+      {},
+      {},
+      {}
+    ],
+    [
+      {
+        "value": "001"
+      },
+      {
+        "value": 200
+      },
+      {
+        "value": 260
+      },
+      {
+        "value": 270
+      },
+      {
+        "value": 280
+      },
+      {
+        "value": 250
+      },
+      {
+        "value": 300
+      },
+      {
+        "value": 100
+      },
+      {
+        "value": 125
+      },
+      {
+        "value": 250
+      }
+    ],
+    [
+      {
+        "value": "002"
+      },
+      {
+        "value": 225
+      },
+      {
+        "value": 285
+      },
+      {
+        "value": 295
+      },
+      {
+        "value": 305
+      },
+      {
+        "value": 275
+      },
+      {
+        "value": 325
+      },
+      {
+        "value": 125
+      },
+      {
+        "value": 150
+      },
+      {
+        "value": 275
+      }
+    ],
+    [
+      {
+        "value": 999
+      },
+      {
+        "value": 250
+      },
+      {
+        "value": 310
+      },
+      {
+        "value": 320
+      },
+      {
+        "value": 330
+      },
+      {
+        "value": 300
+      },
+      {
+        "value": 350
+      },
+      {
+        "value": 150
+      },
+      {
+        "value": 200
+      },
+      {
+        "value": 300
+      }
+    ]
+  ]
+}
