@@ -1633,6 +1633,7 @@
                     </pom>
                     <formats>
                         <format>
+                            <lineEndings>GIT_ATTRIBUTES</lineEndings>
                             <includes>
                                 <include>**/*.ts</include>
                                 <include>**/*.tsx</include>
