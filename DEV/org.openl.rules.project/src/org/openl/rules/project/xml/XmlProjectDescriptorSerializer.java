@@ -25,6 +25,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     public static final String PROJECT_DESCRIPTOR_TAG = "project";
     public static final String WEBSTUDIO_CONFIGURATION = "webstudioConfiguration";
     public static final String METHOD_FILTER_TAG = "method-filter";
+    public static final String INTERFACE_METHODS_TAG = "interface-methods";
     public static final String DEPENDENCY_TAG = "dependency";
     public static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
     public static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";

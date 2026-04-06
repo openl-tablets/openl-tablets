@@ -4,15 +4,6 @@
         <module>
             <name>Algorithms</name>
             <rules-root path="rules/Algorithms.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+ getpetsSimpleType\(\)</value>
-                    <value>.+ getPetsArray\(\)</value>
-                    <value>.+ getpetsB\(\)</value>
-                    <value>.+ getpets\(\)</value>
-                    <value>.+ getpetsA\(.+\)</value>
-                </includes>
-            </method-filter>
         </module>
         <module>
             <name>Models</name>
@@ -22,6 +13,15 @@
     <classpath>
         <entry path="classes"/>
     </classpath>
+    <interface-methods>
+        <includes>
+            <value>getpetsSimpleType</value>
+            <value>getPetsArray</value>
+            <value>getpetsB</value>
+            <value>getpets</value>
+            <value>getpetsA</value>
+        </includes>
+    </interface-methods>
     <openapi>
         <path>EPBDS-10489.json</path>
         <model-module-name>Models</model-module-name>

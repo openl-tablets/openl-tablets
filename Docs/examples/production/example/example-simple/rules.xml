@@ -5,11 +5,11 @@
     <modules>
         <module>
             <rules-root path="rules/*.xlsx"/>
-            <method-filter>
-                <includes>
-                    <value>.+Ping.+</value>
-                </includes>
-            </method-filter>
         </module>
     </modules>
+    <interface-methods>
+        <includes>
+            <value>Ping</value>
+        </includes>
+    </interface-methods>
 </project>
