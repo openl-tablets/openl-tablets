@@ -28,6 +28,7 @@ description: Supported platforms, application servers, databases, browsers, Java
 * PostgreSQL 16.1
 * MariaDB 10.6
 * SQL Server 2019
+* Azure SQL Database
 * MySQL 8.0
 * Oracle 19c
 
