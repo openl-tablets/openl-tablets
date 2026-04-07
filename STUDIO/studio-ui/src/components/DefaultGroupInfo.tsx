@@ -15,11 +15,11 @@ import { useGroups } from '../containers/groups/useGroups'
  */
 export const DefaultGroupInfo: React.FC = () => {
     const { t } = useTranslation()
-    const { systemSettings } = useContext(SystemContext)
+    const { systemSettings, isGroupsManagementEnabled } = useContext(SystemContext)
     const { defaultGroupName, loading } = useDefaultGroup(systemSettings)
     const { groups, loading: groupsLoading } = useGroups()
 
-    if (!systemSettings?.userMode) {
+    if (!isGroupsManagementEnabled) {
         return null
     }
 

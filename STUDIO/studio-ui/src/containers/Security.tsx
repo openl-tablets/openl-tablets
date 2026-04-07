@@ -126,7 +126,7 @@ export const Security = () => {
     }, [userMode])
 
     useEffect(() => {
-        if (!loadingUserGroups && (userMode && userMode !== SecurityUserMode.SINGLE && userGroups.length === 0)) {
+        if (!loadingUserGroups && (userMode && userMode !== SecurityUserMode.SINGLE && userMode !== SecurityUserMode.MULTI && userGroups.length === 0)) {
             fetchUserGroups()
         }
     }, [userMode])
@@ -167,7 +167,7 @@ export const Security = () => {
             />
             {Component}
             {userMode && userMode !== SecurityUserMode.SINGLE && (
-                <InitialUsers userGroups={userGroups} />
+                <InitialUsers userGroups={userGroups} showDefaultGroup={userMode !== SecurityUserMode.MULTI} />
             )}
             <Checkbox label={t('security:allowProjectCreateDelete')} name="allowProjectCreateDelete" />
             <Row justify="end">
