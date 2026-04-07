@@ -189,7 +189,7 @@ public abstract class OpenLTableUtils {
      */
     public static int getHeightWithoutEmptyRows(ITable<?> table) {
         var height = table.getHeight();
-        while (isRowEmpty(table, height - 1)) {
+        while (height > 0 && isRowEmpty(table, height - 1)) {
             height--;
         }
         return height;
@@ -212,7 +212,7 @@ public abstract class OpenLTableUtils {
      */
     public static int getWidthWithoutEmptyColumns(ITable<?> table) {
         var width = table.getWidth();
-        while (isColumnEmpty(table, width - 1)) {
+        while (width > 0 && isColumnEmpty(table, width - 1)) {
             width--;
         }
         return width;
