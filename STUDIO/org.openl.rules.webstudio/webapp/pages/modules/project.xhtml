@@ -413,6 +413,18 @@
                                 </a4j:repeat>
                             </div>
                         </h:panelGroup>
+                        <h:panelGroup rendered="#{editable and projectBean.hasMethodFiltersToMigrate}">
+                            <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee">
+                                <h:form prependId="false" id="migrateMethodFiltersForm" style="display:inline">
+                                    <a4j:commandButton id="migrateMethodFiltersBtn"
+                                                       value="Migrate Method Filters"
+                                                       action="#{projectBean.migrateMethodFilters}"
+                                                       styleClass="button-primary"
+                                                       onclick="if(!confirm('This will convert module-level method-filter patterns to project-level interface-methods and remove the original method-filter entries. Continue?')) return false;"
+                                                       oncomplete="ws.nav.reload()"/>
+                                </h:form>
+                            </div>
+                        </h:panelGroup>
                     </div>
                 </div>
             </h:panelGroup>
