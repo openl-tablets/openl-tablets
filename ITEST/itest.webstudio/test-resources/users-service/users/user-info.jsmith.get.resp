@@ -11,26 +11,11 @@ Content-Type: application/json
   "superUser": false,
   "unsafePassword": false,
   "externalFlags": {
-    "lastNameExternal": false,
     "emailExternal": false,
+    "emailVerified": false,
     "displayNameExternal": false,
     "firstNameExternal": false,
-    "emailVerified": false
+    "lastNameExternal": false
   },
-  "notMatchedExternalGroupsCount": 3,
-  "online": false,
-  "userGroups": [
-    {
-      "name": "Administrators",
-      "type": "ADMIN"
-    },
-    {
-      "name": "Admiral Nelson",
-      "type": "ADMIN"
-    },
-    {
-      "name": "Analysts",
-      "type": "EXTERNAL"
-    }
-  ]
+  "online": false
 }

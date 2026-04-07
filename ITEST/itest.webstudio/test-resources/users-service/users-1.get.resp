@@ -3,24 +3,17 @@ Content-Type: application/json
 
 [
   {
-    "userGroups":[
-      {
-        "name":"Administrators",
-        "type":"ADMIN"
-      }
-    ],
     "username": "admin",
     "currentUser": true,
     "superUser": true,
     "unsafePassword": true,
     "externalFlags": {
-      "emailVerified": false,
-      "lastNameExternal": false,
       "emailExternal": false,
+      "emailVerified": false,
+      "displayNameExternal": false,
       "firstNameExternal": false,
-      "displayNameExternal": false
+      "lastNameExternal": false
     },
-    "notMatchedExternalGroupsCount": 0,
     "online": false
   }
 ]

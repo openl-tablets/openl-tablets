@@ -2,15 +2,9 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Set;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -28,7 +22,6 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private String loginName;
     private String passwordHash;
-    private Set<Group> groups;
     private String firstName;
     private String surname;
     private String email;
@@ -41,16 +34,6 @@ public class User implements Serializable {
     @Column(name = "firstName", length = 50)
     public String getFirstName() {
         return firstName;
-    }
-
-    /**
-     * User's groups.
-     */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "OpenL_User2Group", joinColumns = {@JoinColumn(name = "loginName")}, inverseJoinColumns = {
-            @JoinColumn(name = "groupID")})
-    public Set<Group> getGroups() {
-        return groups;
     }
 
     /**
@@ -113,10 +96,6 @@ public class User implements Serializable {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public void setGroups(Set<Group> groups) {
-        this.groups = groups;
     }
 
     public void setLoginName(String loginName) {

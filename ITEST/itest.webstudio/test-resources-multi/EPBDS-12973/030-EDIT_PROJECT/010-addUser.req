@@ -4,7 +4,6 @@ Content-Type: application/json
 
 {
   "displayName": "EPBDS 12973",
-  "groups": ["Analysts"],
   "username": "EPBDS_12973_2",
   "internalPassword": {
     "password": "pass"

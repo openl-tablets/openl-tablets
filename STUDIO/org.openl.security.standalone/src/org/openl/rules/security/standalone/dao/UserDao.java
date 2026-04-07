@@ -3,6 +3,7 @@ package org.openl.rules.security.standalone.dao;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 
 /**
@@ -26,4 +27,8 @@ public interface UserDao extends Dao<User> {
     List<User> getAllUsers();
 
     Set<String> getUserNames();
+
+    Set<Group> getGroupsForUser(String loginName);
+
+    void updateGroupsForUser(String loginName, Set<Group> groups);
 }

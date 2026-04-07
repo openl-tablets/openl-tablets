@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,6 +62,7 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -87,6 +89,7 @@ public class UsersController {
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
     private final JdbcMutableAclService aclService;
+    private final boolean groupsDisabled;
 
     @Autowired
     public UsersController(UserManagementService userManagementService,
@@ -99,7 +102,8 @@ public class UsersController {
                            UserSettingManagementService userSettingsManager,
                            ExternalGroupService extGroupService,
                            MailSender mailSender,
-                           @Autowired(required = false) JdbcMutableAclService aclService) {
+                           @Autowired(required = false) JdbcMutableAclService aclService,
+                           @Value("${user.mode}") String userMode) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.adminUsersInitializer = adminUsersInitializer;
@@ -111,6 +115,13 @@ public class UsersController {
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
         this.aclService = aclService;
+        this.groupsDisabled = "multi".equals(userMode) || "single".equals(userMode);
+    }
+
+    private void validateGroupsNotProvided(Set<String> groups) {
+        if (groupsDisabled && groups != null && !groups.isEmpty()) {
+            throw new BadRequestException("groups.not.supported.message");
+        }
     }
 
     @Operation(description = "users.get-users.desc", summary = "users.get-users.summary")
@@ -135,13 +146,16 @@ public class UsersController {
     @AdminPrivilege
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
         validationProvider.validate(userModel);
+        validateGroupsNotProvided(userModel.getGroups());
         userManagementService.addUser(userModel.getUsername(),
                 userModel.getFirstName(),
                 userModel.getLastName(),
                 canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
                 userModel.getEmail(),
                 userModel.getDisplayName());
-        userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
+        if (!groupsDisabled) {
+            userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
+        }
         if (StringUtils.isNotBlank(userModel.getEmail())) {
             mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), request);
         }
@@ -156,6 +170,7 @@ public class UsersController {
                          @Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
         validationProvider.validate(userModel);
+        validateGroupsNotProvided(userModel.getGroups());
         User dbUser = userManagementService.getUser(username);
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
                 .isEmailExternal();
@@ -166,9 +181,11 @@ public class UsersController {
                 userModel.getEmail(),
                 userModel.getDisplayName(),
                 !emailChanged && dbUser.getExternalFlags().isEmailVerified());
-        boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
-                .equals(currentUserInfo.getUserName(), username);
-        userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
+        if (!groupsDisabled) {
+            boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
+                    .equals(currentUserInfo.getUserName(), username);
+            userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
+        }
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(username), request);
@@ -340,34 +357,39 @@ public class UsersController {
     }
 
     private UserModel mapUser(User user) {
-        List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
-        Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
-                .map(simpleGroup -> new GroupModel().setName(simpleGroup.getAuthority())
-                        .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.EXTERNAL));
-        Stream<GroupModel> internalGroupStream = user.getAuthorities()
-                .stream()
-                .map(SimpleGroup.class::cast)
-                // resolve collisions when the same group external and internal
-                .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getAuthority(), g.getAuthority())))
-                .map(simpleGroup -> new GroupModel().setName(simpleGroup.getAuthority())
-                        .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.DEFAULT));
-
-        long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getUsername());
-        return new UserModel().setFirstName(user.getFirstName())
+        var userModel = new UserModel().setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
-                .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
-                        .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
-                                .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
                 .setUsername(user.getUsername())
                 .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
                 .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
                 .setUnsafePassword(
                         user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
-                .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
                 .setDisplayName(user.getDisplayName())
                 .setOnline(userManagementService.isUserOnline(user.getUsername()))
                 .setExternalFlags(user.getExternalFlags());
+
+        if (!groupsDisabled) {
+            List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
+            Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
+                    .map(simpleGroup -> new GroupModel().setName(simpleGroup.getAuthority())
+                            .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN
+                                    : GroupType.EXTERNAL));
+            Stream<GroupModel> internalGroupStream = user.getAuthorities()
+                    .stream()
+                    .map(SimpleGroup.class::cast)
+                    .filter(g -> extGroups.stream()
+                            .noneMatch(ext -> Objects.equals(ext.getAuthority(), g.getAuthority())))
+                    .map(simpleGroup -> new GroupModel().setName(simpleGroup.getAuthority())
+                            .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN
+                                    : GroupType.DEFAULT));
+            userModel.setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
+                    .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
+                            .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))));
+            userModel.setNotMatchedExternalGroupsCount(extGroupService.countNotMatchedForUser(user.getUsername()));
+        }
+
+        return userModel;
     }
 
     private void checkUserExists(String username) {
