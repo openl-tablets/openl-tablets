@@ -83,7 +83,7 @@ public class SequentialXlsLoader {
             path = workbookSourceModule.getSourceFile().getAbsolutePath();
         } catch (Exception ex) {
             // No path found to the resource (file) on the native file system.
-            // The resource can be inside jar, zip, wsjar, vfs or other virtual file system.
+            // The resource can be inside jar, zip or other virtual file system.
             // Example of such case is AlgorithmTableSpecification.xls.
             path = null;
         }

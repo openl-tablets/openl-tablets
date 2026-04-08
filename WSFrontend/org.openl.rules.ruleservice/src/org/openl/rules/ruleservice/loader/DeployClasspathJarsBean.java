@@ -96,7 +96,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             File file;
             try {
                 final URL resourceURL = rulesXmlResource.getURL();
-                if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
+                if ("jar".equals(resourceURL.getProtocol())) {
                     URL jarUrl = ResourceUtils.extractJarFileURL(resourceURL);
                     file = ResourceUtils.getFile(jarUrl);
                 } else if ("file".equals(resourceURL.getProtocol())) {
