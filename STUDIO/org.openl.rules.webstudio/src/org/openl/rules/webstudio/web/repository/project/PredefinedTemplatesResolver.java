@@ -35,8 +35,6 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
             for (Resource resource : getFolderResources(TEMPLATES_PATH + category + "/*")) {
                 if (!ResourceUtils.isFileURL(resource.getURL())) {
                     // JAR file
-                    // In most of cases protocol is "jar", but in case of IBM
-                    // WebSphere protocol is "wsjar"
                     String templateUrl = URLDecoder.decode(resource.getURL().getPath(), "UTF8");
                     String[] templateParsed = templateUrl.split("/");
                     templateNames.add(templateParsed[templateParsed.length - 1]);
@@ -62,10 +60,6 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
 
         try {
             Resource[] templates = resourceResolver.getResources(url + "/*");
-            if (templates.length == 0) {
-                resourceResolver = new EncodedJarPathResourcePatternResolver();
-                templates = resourceResolver.getResources(url + "/*");
-            }
             for (Resource resource : templates) {
                 templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
             }
