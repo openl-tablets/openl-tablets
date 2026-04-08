@@ -131,6 +131,21 @@ public class KeycloakTest {
         tokens.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
         tokens.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
         tokens.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
+        tokens.put("EPBDS12973_DEPLOYER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds12973_deployer", "epbds12973_deployer"));
+        tokens.put("EPBDS12973_EDITOR_TOKEN", getAccessTokenForUser(authServerUrl, "epbds12973_editor", "epbds12973_editor"));
+        tokens.put("EPBDS12973_VIEWER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds12973_viewer", "epbds12973_viewer"));
+        tokens.put("EPBDS14584_MANAGER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14584_manager", "epbds14584_manager"));
+        tokens.put("EPBDS14584_CONTRIBUTOR_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14584_contributor", "epbds14584_contributor"));
+        tokens.put("EPBDS14584_VIEWER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14584_viewer", "epbds14584_viewer"));
+        tokens.put("EPBDS14670_MANAGER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670_manager", "epbds14670_manager"));
+        tokens.put("EPBDS14670_CONTRIBUTOR_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670_contributor", "epbds14670_contributor"));
+        tokens.put("EPBDS14670_VIEWER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670_viewer", "epbds14670_viewer"));
+        tokens.put("EPBDS14670R_MANAGER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670r_manager", "epbds14670r_manager"));
+        tokens.put("EPBDS14670R_CONTRIBUTOR_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670r_contributor", "epbds14670r_contributor"));
+        tokens.put("EPBDS14670R_VIEWER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds14670r_viewer", "epbds14670r_viewer"));
+        tokens.put("EPBDS15131_ADMIN_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15131_admin", "epbds15131_admin"));
+        tokens.put("EPBDS15134_USER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15134_user", "epbds15134_user"));
+        tokens.put("EPBDS15621_USER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15621_user", "epbds15621_user"));
         tokens.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
         return tokens;
     }

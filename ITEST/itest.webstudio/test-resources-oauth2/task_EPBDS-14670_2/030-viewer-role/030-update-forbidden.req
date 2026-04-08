@@ -1,0 +1,13 @@
+PUT /rest/projects/{PROJECT_ID}/tables/{TABLE_ID} HTTP/1.1
+Authorization: Bearer ${EPBDS14670R_VIEWER_TOKEN}
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "Hello",
+  "returnType": "String",
+  "args": [{ "name": "hour", "type": "Integer" }],
+  "headers": [{ "title": "Rule" }, { "title": "Hour" }, { "title": "Greeting" }],
+  "rules": [{ "Rule": "R10", "Hour": "[0..12)", "Greeting": "Good Morning!" }]
+}

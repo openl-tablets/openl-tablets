@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/roots/{DESIGN_ROOT_ID}?sid={MANAGER_GROUP} HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}

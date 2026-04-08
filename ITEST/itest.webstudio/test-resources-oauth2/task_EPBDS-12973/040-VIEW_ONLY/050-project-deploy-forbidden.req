@@ -1,0 +1,10 @@
+POST /rest/deployments HTTP/1.1
+Authorization: Bearer ${EPBDS12973_VIEWER_TOKEN}
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production-s3",
+  "deploymentName": "EPBDS-12973-viewer",
+  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "comment": "Viewer tries to deploy"
+}

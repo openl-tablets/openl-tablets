@@ -1,0 +1,3 @@
+DELETE /rest/acls/repositories/{DESIGN_REPO_ID}?principal=false&sid={DEFAULT_GROUP} HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+

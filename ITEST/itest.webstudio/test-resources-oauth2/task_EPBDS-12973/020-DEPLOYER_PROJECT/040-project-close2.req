@@ -1,0 +1,3 @@
+POST /rest/user-workspace/design/projects/{PROJECT_NAME}/close HTTP/1.1
+Authorization: Bearer ${EPBDS12973_DEPLOYER_TOKEN}
+

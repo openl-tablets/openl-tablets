@@ -1,0 +1,3 @@
+GET /rest/acls/repositories/{DESIGN_REPO_ID} HTTP/1.1
+Authorization: Bearer ${EPBDS14670R_MANAGER_TOKEN}
+

@@ -1,0 +1,7 @@
+HTTP/1.1 403
+Content-Type: application/json
+
+{
+  "code": "openl.error.403.users.cannot-delete-superuser.message",
+  "message": "Cannot delete a super administrator. Super administrators are defined in the system configuration."
+}

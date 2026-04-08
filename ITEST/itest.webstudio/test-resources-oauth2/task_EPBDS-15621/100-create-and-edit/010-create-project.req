@@ -1,0 +1,11 @@
+PUT /rest/repos/design-flat/projects/{PROJECT_NAME} HTTP/1.1
+Authorization: Bearer ${EPBDS15621_USER_TOKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&../project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

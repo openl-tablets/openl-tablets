@@ -1,0 +1,4 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[{"sid":{"sid":"group-epbds14670-contributor"},"role":"CONTRIBUTOR"},{"sid":{"sid":"admin","principal":true},"role":"CONTRIBUTOR"},{"sid":{"sid":"group-epbds14670-manager"},"role":"MANAGER"}]
