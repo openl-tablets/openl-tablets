@@ -2,93 +2,49 @@
 
 [v6.1.0](https://github.com/openl-tablets/openl-tablets/releases/tag/6.1.0) on the GitHub
 
-OpenL Tablets 6.1.0 introduces a redesigned Trace UI and a new REST-based trace and rule execution API, making rule debugging accessible both interactively in the browser and programmatically from external tools. This release also adds AI-assisted formula editing for business analysts, resolves a series of critical stability and performance issues, and extends the REST API surface for project and module management.
+OpenL Tablets 6.1.0 introduces a redesigned rule Trace UI and a new REST-based tracing and rule execution API, making rule debugging available both interactively in the browser and programmatically from external tools. This release also extends the REST API for project module management, improves reliability of concurrent permission assignments, adds Java 26 support, and resolves five bugs including two critical issues.
 
 ## **New Features**
 
-### **Rule Trace UI**
+### **Rule Trace UI and Trace REST API**
 
-Business analysts and developers can now trace rule execution directly in OpenL Studio using a modern, browser-native trace window. The new interface shows the full execution tree — every rule invoked, the inputs and outputs at each step, and how long each step took — making it straightforward to understand why a rule returned a particular result.
+OpenL Tablets 6.1.0 replaces the legacy RichFaces-based trace with a modern React UI and a fully REST-based trace engine. Users can now start a trace on any rule table, navigate the execution tree, and inspect input and output values at every node — all without a page reload. Traces run asynchronously so the Studio UI stays responsive even for large decision tables or spreadsheets.
 
-  * Execution time shown at every node, with slow steps highlighted so bottlenecks are easy to spot
-  * Inputs and outputs displayed as an interactive tree or raw JSON
-  * Nodes that did not contribute to the final result appear in a lighter style for quick filtering
-  * Table view and execution tree stay in sync as you navigate
+The new UI shows execution time at each node, highlights slow steps, and keeps the table view and execution tree in sync as you navigate. Parameters can be explored as an interactive tree or raw JSON, and complex values are loaded on demand to avoid loading large objects upfront. Traces can also be exported as a plain-text file for offline analysis.
+
+The REST API (`POST /projects/{projectId}/trace`) supports the same capabilities programmatically, enabling integration with MCP tools, external debuggers, and automated analysis pipelines.
 
 ![Trace UI](images/trace-ui.png)
-
-#### **For Developers**
-
-A new Trace REST API allows traces to be triggered, queried, and exported programmatically. This enables integration with CI/CD pipelines, external debugging tools, and automated test workflows without requiring an interactive browser session.
-
----
-
-### **Rule Execution Logging**
-
-Rule inputs and outputs are now optionally logged in structured JSON, so production requests can be replayed in OpenL Studio for tracing, testing, and debugging. This is especially useful when reproducing issues from Kafka-based deployments or embedded engine setups, where capturing the original request is otherwise difficult.
-
-  * Works with all Rule Services transports: REST, Kafka, and embedded engine
-  * Logged payloads load directly into OpenL Studio Run, Trace, and Test workflows
 
 ---
 
 ### **REST API: Execute a Rule with Test Data**
 
-A new endpoint allows a specific rule in a project module to be executed with a JSON input payload, returning the result and any errors. This is intended for MCP integrations, external testing tools, and automation pipelines that need to call individual rules without deploying a full Rule Services instance.
-
-#### **For Developers**
-
-Execute rules by project ID and rule table ID. The endpoint accepts standard JSON input and returns structured output including execution metadata and error details.
-
----
-
-### **Table Formula Smart Edit**
-
-Business analysts can now describe a formula change in plain language — for example, "increase the base rate by 15% for platinum tier" — and OpenL Studio will propose a valid OpenL expression to review and apply. This removes the need to know the exact syntax when modifying spreadsheet or decision table formulas.
-
-  * Works with decision tables, spreadsheets, and lookup tables
-  * Proposed change is shown as a preview before applying
-  * Original formula is preserved until the user confirms
-
-![Table Formula Smart Edit](images/formula-smart-edit.png)
+A new endpoint (`POST /projects/{projectId}/tables/{tableId}/execute`) executes a specified rule using a JSON input payload and returns the result along with execution metadata and any errors. This is intended for MCP integrations, external testing tools, and automation pipelines that need to invoke individual rules without deploying a full Rule Services instance.
 
 ## **Improvements**
 
 ### **OpenL Studio**
 
   * Assigning access rights to the same user or group across multiple projects at the same time no longer fails intermittently
-  * Simplified method filter syntax for included and excluded rules — rule names can now be entered directly without special notation; `*` wildcard is supported
 
 ---
 
 ### **OpenL Core**
 
   * Added support for Java 25 and Java 26; minimum supported runtime remains Java 21
-  * Significantly reduced memory usage for large decision table rule sets — projects that previously required over 2 GB now use a fraction of that
 
 ---
 
 ### **OpenL API**
 
-  * Added module management operations to the Projects REST API: list, add, edit, rename, copy, and remove modules from a project descriptor, with support for both regular and wildcard module types
-  * Added rate factor update operations for lookup tables to the REST API, supporting the new lookup versioning model introduced in 6.0.0
-  * Integrated OpenTelemetry metrics into the Studio UI, enabling frontend observability alongside existing backend metrics
+  * Added a module management REST API at `/rest/projects/{projectId}/modules` supporting list, add, edit, copy, and remove operations on project modules, with support for both regular and wildcard module types
+  * Added rate factor update operations for lookup tables, supporting the new lookup versioning model introduced in 6.0.0
 
 ## **Bug Fixes**
 
   * Fixed users being able to sync changes into protected branches — this action is now correctly blocked in OpenL Studio
+  * Fixed rule tracing failing when a generated data type used a fully qualified class name as its type identifier
   * Fixed the "Save Templates" and "Fill Tags for Project" buttons on the Tags administration page having no visible effect
-  * Fixed rule tracing failing for projects that use generated data types after the type resolution changes introduced in 6.0.0
   * Fixed AI-assisted edits producing a broken table structure when modifying smart rules that use the `collect` option
   * Fixed AI-assisted edits producing a broken table structure when modifying smart lookup tables
-  * Fixed severe performance degradation in Rule Services for projects with decision tables containing many `contains` conditions
-  * Fixed REST API requests taking up to 14 seconds to respond under normal load
-  * Fixed inherited data type fields not appearing in the OpenAPI schema generated by Rule Services
-  * Fixed the selected branch disappearing from the branch selector after restarting or reconfiguring OpenL Studio
-  * Fixed Spring Boot applications with a JAR-based repository failing to start
-  * Fixed deployment failing when a ZIP deployment package contained YAML configuration files
-  * Fixed an error appearing in logs when deleting a project while an Azure-type repository was also configured
-  * Fixed memory leaks that occurred when using Git or Azure repository types
-  * Fixed project open and close operations on the Repository tab taking up to 20 seconds with multiple concurrent users
-  * Fixed settings from one design repository incorrectly appearing in the Admin panel for a different repository
-  * Fixed no error being shown when invalid credentials were entered for a public Git repository
