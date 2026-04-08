@@ -10,26 +10,30 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 public class DeployClasspathJarsBeanTest {
     @Test
-    public void afterPropertiesSet() throws Exception {
+    public void test() throws Exception {
         var unstableDeployerService = mock(RulesDeployerService.class);
         var propertyResolver = mock(PropertyResolver.class);
         when(propertyResolver.getProperty("production-repository.factory")).thenReturn("repo-jdbc");
         var classpathDeployer = new DeployClasspathJarsBean(unstableDeployerService,
-                DeployStrategy.ALWAYS,
-                propertyResolver);
-        classpathDeployer.setRetryPeriod(1);
-        classpathDeployer.setFilesToDeploy(Arrays.asList(new File("1"), new File("2")));
+                "ALWAYS",
+                0);
+        classpathDeployer.resourceResolver = mock(PathMatchingResourcePatternResolver.class);
+        var resource = mock(Resource.class);
+        when(resource.getURL()).thenReturn(new File(".").toURI().toURL());
+        when(classpathDeployer.resourceResolver.getResources(any(String.class))).thenReturn(new Resource[0], new Resource[0], new Resource[0], new Resource[]{resource, resource});
 
         // Iterations:
         // 1. Deployer service is unavailable
@@ -39,6 +43,7 @@ public class DeployClasspathJarsBeanTest {
         // 3. Deployer service is unavailable.
         // 4. Deployer service is available.
         // 4.1 Deploy of last file is successful.
+        var done = new CountDownLatch(3);
         AtomicBoolean available = new AtomicBoolean(false);
         when(unstableDeployerService.isReady()).thenAnswer(invocation -> {
             final boolean result = available.get();
@@ -48,6 +53,7 @@ public class DeployClasspathJarsBeanTest {
             return result;
         });
         doAnswer(invocation -> {
+            done.countDown();
             if (available.get()) {
                 available.set(false);
                 return null;
@@ -56,10 +62,10 @@ public class DeployClasspathJarsBeanTest {
         }).when(unstableDeployerService).deploy(any(File.class), anyBoolean());
 
         // Finalize deployer initialization.
-        classpathDeployer.afterPropertiesSet();
+        classpathDeployer.start();
 
-        // Waiting until the deployer will finish its work.
-        TimeUnit.SECONDS.sleep(4);
+        // Wait until the deployer finishes all deploy attempts.
+        done.await(10, TimeUnit.SECONDS);
 
         verify(unstableDeployerService, times(4)).isReady();
         verify(unstableDeployerService, times(3)).deploy(any(File.class), anyBoolean());
