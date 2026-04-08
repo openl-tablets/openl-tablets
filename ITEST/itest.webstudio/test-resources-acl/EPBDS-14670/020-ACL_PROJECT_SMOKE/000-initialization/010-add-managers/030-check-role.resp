@@ -1,4 +1,19 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[{"sid":{"sid":"jsmith","principal":true},"role":"MANAGER"},{"sid":{"sid":"admin","principal":true},"role":"CONTRIBUTOR"}]
+[
+  {
+    "sid": {
+      "sid": "jsmith",
+      "principal": true
+    },
+    "role": "MANAGER"
+  },
+  {
+    "sid": {
+      "sid": "admin",
+      "principal": true
+    },
+    "role": "CONTRIBUTOR"
+  }
+]

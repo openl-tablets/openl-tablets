@@ -1,4 +1,34 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[{"resourceRef":{"repositoryType":"DESIGN","repositoryId":"design"},"aces":[{"role":"CONTRIBUTOR","sub":{"sid":"EPBDS_14584","principal":true}},{"role":"VIEWER","sub":{"sid":"EPBDS_14584_2","principal":true}},{"role":"MANAGER","sub":{"sid":"EPBDS_14584_3","principal":true}}]}]
+[
+  {
+    "resourceRef": {
+      "repositoryType": "DESIGN",
+      "repositoryId": "design"
+    },
+    "aces": [
+      {
+        "role": "CONTRIBUTOR",
+        "sub": {
+          "sid": "EPBDS_14584",
+          "principal": true
+        }
+      },
+      {
+        "role": "VIEWER",
+        "sub": {
+          "sid": "EPBDS_14584_2",
+          "principal": true
+        }
+      },
+      {
+        "role": "MANAGER",
+        "sub": {
+          "sid": "EPBDS_14584_3",
+          "principal": true
+        }
+      }
+    ]
+  }
+]
