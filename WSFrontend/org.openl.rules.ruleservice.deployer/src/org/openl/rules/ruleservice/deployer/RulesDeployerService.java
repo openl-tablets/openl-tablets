@@ -1,11 +1,11 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.Closeable;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -28,8 +28,13 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.xml.sax.InputSource;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -55,6 +60,7 @@ import org.openl.util.ZipUtils;
 public class RulesDeployerService implements Closeable {
 
 
+    private static final String API_VERSION_SEPARATOR = "_V";
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
@@ -96,6 +102,17 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
+    private static String evaluateXPath(Path path, String expression) {
+        try (var in = Files.newInputStream(path)) {
+            InputSource inputSource = new InputSource(in);
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            XPathExpression xPathExpression = xPath.compile(expression);
+            return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
+        } catch (XPathExpressionException | IOException ignored) {
+            return null;
+        }
+    }
+
     /**
      * Deploys or redeploys target zip input stream
      *
@@ -108,24 +125,18 @@ public class RulesDeployerService implements Closeable {
         Path archiveTmp = Files.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
         try {
             IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
-            deployInternal(archiveTmp, name, ignoreIfExists);
+            deployInternal(name, archiveTmp, ignoreIfExists);
         } finally {
             deleteQuietly(archiveTmp);
         }
     }
 
     public void deploy(InputStream in, boolean ignoreIfExists) throws IOException {
-        Path archiveTmp = Files.createTempFile(DEFAULT_DEPLOYMENT_NAME, ".zip");
-        try {
-            IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
-            deployInternal(archiveTmp, null, ignoreIfExists);
-        } finally {
-            deleteQuietly(archiveTmp);
-        }
+        deploy(null, in, ignoreIfExists);
     }
 
     public void deploy(File file, boolean ignoreIfExists) throws IOException {
-        deployInternal(file.toPath(), FileUtils.getBaseName(file.getName()), ignoreIfExists);
+        deployInternal(null, file.toPath(), ignoreIfExists);
     }
 
     public boolean isReady() {
@@ -235,18 +246,16 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    private void deployInternal(Path pathToArchive,
-                                String originalName,
-                                boolean ignoreIfExists) throws IOException {
+    private void deployInternal(String name, Path pathToArchive, boolean ignoreIfExists) throws IOException {
         validateSignature(pathToArchive);
-        if (originalName != null) {
-            // For some reason Java doesn't allow trailing whitespace in folder names
-            originalName = originalName.trim();
-        }
+        var originalName = name != null ? name : FileUtils.getBaseName(pathToArchive.getFileName().toString());
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(pathToArchive), Collections.emptyMap())) {
             final Path root = fs.getPath("/");
             if (isRulesProject(root)) {
-                deployRegularProject(pathToArchive, originalName, ignoreIfExists, root);
+                String projectName = getProjectDescriptor(root)
+                        .map(path -> evaluateXPath(path, "/project/name"))
+                        .orElse(originalName);
+                deployRegularProject(pathToArchive, projectName, ignoreIfExists, root);
             } else {
                 String deploymentName = Stream
                         .of(DeploymentDescriptor.XML.getFileName(), DeploymentDescriptor.YAML.getFileName())
@@ -256,12 +265,10 @@ public class RulesDeployerService implements Closeable {
                         .map(RulesDeployerService::getDeploymentName)
                         .filter(Objects::nonNull)
                         .findFirst()
-                        .orElse(null);
-                if (StringUtils.isBlank(deploymentName)) {
-                    deploymentName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
-                }
+                        .orElse(originalName);
                 deployMultiProject(pathToArchive, ignoreIfExists, root, deploymentName);
             }
+            log.info("Project '{}' has been uploaded.", pathToArchive.getFileName());
         }
     }
 
@@ -293,7 +300,7 @@ public class RulesDeployerService implements Closeable {
                         return root.resolve(s.substring(0, s.length() - 1));
                     }
                     return folder;
-                }).filter(RulesDeployerService::isRulesProject).collect(Collectors.toList());
+                }).filter(RulesDeployerService::isRulesProject).toList();
             }
             List<Path> tmpArchives = new ArrayList<>();
             List<FileItem> fileItems = new ArrayList<>();
@@ -338,21 +345,9 @@ public class RulesDeployerService implements Closeable {
     }
 
     private void deployRegularProject(Path pathToArchive,
-                                      String originalName,
+                                      String projectName,
                                       boolean ignoreIfExists,
                                       Path root) throws IOException {
-
-        String projectName = getProjectDescriptor(root).map(f -> {
-            try (InputStream in = Files.newInputStream(f)) {
-                return DeploymentUtils.getProjectName(in);
-            } catch (IOException e) {
-                log.debug(e.getMessage(), e);
-                return null;
-            }
-        }).orElse(null);
-        if (projectName == null) {
-            projectName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
-        }
         Optional<FileData> fileData = createFileData(root, projectName, projectName, ignoreIfExists);
         if (fileData.isPresent()) {
             FileData dest = fileData.get();
@@ -368,10 +363,6 @@ public class RulesDeployerService implements Closeable {
                 }
             }
         }
-    }
-
-    private static String randomDeploymentName() {
-        return DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
     }
 
     private static String getDeploymentName(Path deploymentDescriptor) {
@@ -398,18 +389,11 @@ public class RulesDeployerService implements Closeable {
         Optional<String> apiVersion = Optional.of(RULES_DEPLOY_XML)
                 .map(root::resolve)
                 .filter(Files::isRegularFile)
-                .map(f -> {
-                    try (InputStream in = Files.newInputStream(f)) {
-                        return DeploymentUtils.getApiVersion(in);
-                    } catch (IOException e) {
-                        log.debug(e.getMessage(), e);
-                        return null;
-                    }
-                })
+                .map(path -> evaluateXPath(path, "/rules-deploy/version"))
                 .filter(StringUtils::isNotBlank);
 
         if (apiVersion.isPresent()) {
-            deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion.get();
+            deploymentName += API_VERSION_SEPARATOR + apiVersion.get();
         }
 
         if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
@@ -442,8 +426,8 @@ public class RulesDeployerService implements Closeable {
     }
 
     private static int readSignature(Path path) {
-        try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
-            return raf.readInt();
+        try (var in = new DataInputStream(Files.newInputStream(path))) {
+            return in.readInt();
         } catch (IOException ignored) {
             return -1;
         }
