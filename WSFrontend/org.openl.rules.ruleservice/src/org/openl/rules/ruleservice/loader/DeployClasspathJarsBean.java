@@ -1,194 +1,131 @@
 package org.openl.rules.ruleservice.loader;
 
+import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+
 import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Queue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Slf4j
-public class DeployClasspathJarsBean implements InitializingBean, DisposableBean {
+@ConditionalOnEnable({
+        "production-repository.factory != repo-jar",
+        "ruleservice.datasource.deploy.classpath.jars != false",
+        "ruleservice.datasource.deploy.classpath.jars != NEVER"})
+@Component
+public class DeployClasspathJarsBean {
 
-
-    private final boolean enabled;
     private final RulesDeployerService rulesDeployerService;
     private final DeployStrategy deployStrategy;
-    private Queue<File> filesToDeploy = new ArrayDeque<>();
-    private ScheduledExecutorService scheduledPool;
-    private long retryPeriod = 10;
+    private final Thread deployThread;
+    private final long retryPeriod;
+    PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+
 
     public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
-                                   DeployStrategy deployStrategy,
-                                   PropertyResolver propertyResolver) {
-        var repositoryFactory = propertyResolver.getProperty("production-repository.factory");
-        this.enabled = !"repo-jar"
-                .equals(repositoryFactory) && deployStrategy != null && deployStrategy != DeployStrategy.NEVER;
+                                   @Value("${ruleservice.datasource.deploy.classpath.jars}") String deployStrategy,
+                                   @Value("${ruleservice.datasource.deploy.classpath.retry-period}") long retryPeriod) {
         this.rulesDeployerService = rulesDeployerService;
-        this.deployStrategy = deployStrategy;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setRetryPeriod(long retryPeriod) {
+        this.deployStrategy = DeployStrategy.fromString(deployStrategy);
         this.retryPeriod = retryPeriod;
+        this.deployThread = Thread.ofVirtual().name("deploy-classpath-jars").unstarted(this::deployLoop);
     }
 
-    /**
-     * For tests only. Allows setting files that will be deployed.
-     */
-    void setFilesToDeploy(Collection<File> filesToDeploy) {
-        this.filesToDeploy = new ArrayDeque<>(filesToDeploy);
+    @PostConstruct
+    public void start() throws Exception {
+        deployThread.start();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (!isEnabled()) {
-            return;
-        }
-
-        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        processResources(prpr.getResources(createClasspathPattern(PROJECT_DESCRIPTOR_FILE_NAME)));
-        processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.XML.getFileName())));
-        processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.YAML.getFileName())));
-
-        Resource[] archives;
+    private void processResources(ArrayDeque<File> filesToDeploy, String location) {
         try {
-            archives = prpr.getResources("/openl/*.zip");
-        } catch (FileNotFoundException ignored) {
-            archives = null;
-        }
-        if (archives != null) {
-            processResources(archives);
-        }
-
-        scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        var ignored = scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
-    }
-
-    private static String createClasspathPattern(String fileName) {
-        return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
-    }
-
-    private void processResources(Resource[] resources) throws Exception {
-        for (Resource rulesXmlResource : resources) {
-            File file;
-            try {
-                final URL resourceURL = rulesXmlResource.getURL();
-                if ("jar".equals(resourceURL.getProtocol())) {
-                    URL jarUrl = ResourceUtils.extractJarFileURL(resourceURL);
-                    file = ResourceUtils.getFile(jarUrl);
-                } else if ("file".equals(resourceURL.getProtocol())) {
-                    file = ResourceUtils.getFile(resourceURL);
-                } else {
-                    throw new RuleServiceRuntimeException("Protocol for URL is not supported! URL: " + resourceURL);
+            for (var rulesXmlResource : resourceResolver.getResources(location)) {
+                try {
+                    var resourceURL = rulesXmlResource.getURL();
+                    if ("jar".equals(resourceURL.getProtocol())) {
+                        resourceURL = ResourceUtils.extractJarFileURL(resourceURL);
+                    }
+                    filesToDeploy.add(ResourceUtils.getFile(resourceURL));
+                } catch (Exception e) {
+                    log.warn("Failed to load a resource.", e);
                 }
-            } catch (Exception e) {
-                log.error("Failed to load a resource.", e);
-                throw new IOException("Failed to load a resource.", e);
             }
-            if (!file.exists()) {
-                throw new IOException("File is not found. File: " + file.getAbsolutePath());
-            }
-
-            filesToDeploy.add(file);
+        } catch (Exception e) {
+            log.warn("Failed to search resources.", e);
         }
     }
 
-    private void deployFiles() {
-        if (filesToDeploy.isEmpty()) {
-            scheduledPool.shutdown();
-            return;
-        }
-        if (!rulesDeployerService.isReady()) {
-            // Wait until it will be ready.
-            log.info("Rules deployer service is not ready. Wait {} seconds...", retryPeriod);
-            return;
-        }
+    private void deployLoop() {
+        var filesToDeploy = new ArrayDeque<File>(); // Package level for tests only
         try {
+            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + PROJECT_DESCRIPTOR_FILE_NAME);
+            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.XML.getFileName());
+            processResources(filesToDeploy, CLASSPATH_ALL_URL_PREFIX + DeploymentDescriptor.YAML.getFileName());
+            processResources(filesToDeploy, "/openl/*.zip");
+
+            var ready = false; // The deployment repository ready status
+
             log.info("Deploying {} jars...", filesToDeploy.size());
-            File file = filesToDeploy.peek();
-            while (file != null) {
-                if (Thread.currentThread().isInterrupted()) {
+            while (!filesToDeploy.isEmpty()) {
+                if (Thread.interrupted()) {
                     log.info("Deploy jars task is interrupted.");
                     return;
                 }
+                if (!ready && !rulesDeployerService.isReady()) {
+                    log.info("Rules deployer service is not ready. Wait {} seconds...", retryPeriod);
+                    TimeUnit.SECONDS.sleep(retryPeriod);
+                    continue;
+                } else {
+                    ready = true;
+                }
 
-                rulesDeployerService.deploy(file, getIgnoreIfExists());
-                // File was deployed successfully. Remove it from the queue.
-                filesToDeploy.remove();
-
-                // Get next file to deploy.
-                file = filesToDeploy.peek();
+                try {
+                    // Deploy a file from the queue
+                    var file = filesToDeploy.peek();
+                    rulesDeployerService.deploy(file, isOverwrite());
+                    // File was deployed successfully. Remove it from the queue.
+                    filesToDeploy.remove();
+                    log.info("File '{}' was deployed successfully.", file);
+                } catch (Exception e) {
+                    ready = false;
+                    log.warn(e.getMessage(), e);
+                    TimeUnit.SECONDS.sleep(retryPeriod);
+                }
             }
-
             log.info("All jars were deployed successfully.");
-            // We deployed all files. Can shut down the pool.
-            scheduledPool.shutdown();
-        } catch (IOException e) {
-            // Probably connection is lost after rulesDeployerService.isReady() was true.
-            // Log error and try to continue on the next invocation.
-            log.warn(e.getMessage(), e);
-        } catch (Throwable e) {
-            log.warn("Cannot to complete deploy of jars", e);
-            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.info("Deploy jars task is interrupted.");
         }
     }
 
-    private boolean getIgnoreIfExists() {
-        if (deployStrategy == DeployStrategy.IF_ABSENT) {
-            return false;
-        } else if (deployStrategy == DeployStrategy.ALWAYS) {
-            return true;
-        } else {
-            throw new IllegalStateException("Unknown deploy strategy: " + deployStrategy);
-        }
+    private boolean isOverwrite() {
+        return switch (deployStrategy) {
+            case IF_ABSENT -> false;
+            case ALWAYS -> true;
+            case NEVER -> throw new IllegalStateException("'NEVER' deploy strategy should not be here");
+        };
     }
 
     public boolean isDone() {
-        return !isEnabled() || (scheduledPool != null && scheduledPool.isTerminated());
+        return deployThread != null && !deployThread.isAlive();
     }
 
-    @Override
+    @PreDestroy
     public void destroy() throws Exception {
-        if (scheduledPool != null) {
-            scheduledPool.shutdown(); // Disable new tasks from being submitted
-            try {
-                // Wait a while for existing tasks to terminate
-                if (!scheduledPool.awaitTermination(retryPeriod * 3, TimeUnit.SECONDS)) {
-                    scheduledPool.shutdownNow(); // Cancel currently executing tasks
-                    // Wait a while for tasks to respond to being cancelled
-                    if (!scheduledPool.awaitTermination(retryPeriod * 3, TimeUnit.SECONDS)) {
-                        log.warn("Unable to terminate deploy jars task.");
-                    }
-                }
-            } catch (InterruptedException e) {
-                // (Re-)Cancel if current thread also interrupted
-                scheduledPool.shutdownNow();
-                // Preserve interrupt status
-                Thread.currentThread().interrupt();
-            }
-        }
+        deployThread.interrupt();
+        deployThread.join(TimeUnit.SECONDS.toMillis(retryPeriod * 3));
     }
 }
