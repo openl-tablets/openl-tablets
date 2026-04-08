@@ -5,8 +5,6 @@ import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingS
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -64,28 +62,6 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         this.filesToDeploy = new ArrayDeque<>(filesToDeploy);
     }
 
-    private void deployJarForJboss(URL resourceURL) throws Exception {
-        // This reflection implementation for JBoss vfs
-        String urlString = resourceURL.toString();
-        urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
-        Object jarFile = new URI(urlString).toURL().openConnection().getContent();
-        Class<?> clazz = jarFile.getClass();
-        if ("org.jboss.vfs.VirtualFile".equals(clazz.getName())) {
-            Method getNameMethod = clazz.getMethod("getName");
-            String jarName = (String) getNameMethod.invoke(jarFile);
-
-            Method getPhysicalFileMethod = clazz.getMethod("getPhysicalFile");
-            File contentsFile = (File) getPhysicalFileMethod.invoke(jarFile);
-            File dir = contentsFile.getParentFile();
-            File physicalFile = new File(dir, jarName);
-
-            filesToDeploy.add(physicalFile);
-        } else {
-            throw new RuleServiceRuntimeException(
-                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
-        }
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
         if (!isEnabled()) {
@@ -123,10 +99,6 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
                 if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
                     URL jarUrl = ResourceUtils.extractJarFileURL(resourceURL);
                     file = ResourceUtils.getFile(jarUrl);
-                } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
-                    // This reflection implementation for JBoss vfs
-                    deployJarForJboss(resourceURL);
-                    continue;
                 } else if ("file".equals(resourceURL.getProtocol())) {
                     file = ResourceUtils.getFile(resourceURL);
                 } else {
