@@ -59,7 +59,7 @@ These are used to fill the `[{{version_tag}}]({{github_tag_url}}) on the GitHub`
 
 ```
 Tool: jira:jira_search
-JQL: project = EPBDS AND fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true
+JQL: project = EPBDS AND fixVersion = "[VERSION]" AND "Exclude from Release Notes" != true AND status in (Closed, Resolved)
 Fields: summary, description, issuetype, priority, labels
 MaxResults: 100
 StartAt: 0
