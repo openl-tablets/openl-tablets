@@ -20,6 +20,10 @@ public enum DeployStrategy {
      */
     IF_ABSENT;
 
+    /**
+     * @deprecated Use DeployStrategy.valueOf(String) instead. The method will be removed in 7.0.0.
+     */
+    @Deprecated(since = "6.1.0")
     public static DeployStrategy fromString(String source) {
         source = StringUtils.trimToNull(source);
         if (source == null) {

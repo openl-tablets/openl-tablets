@@ -269,9 +269,9 @@ If rule projects with the `rules.xml` project descriptor are packed into a JAR f
 Proceed as follows:
 
 1.  Put the JAR file with the project to `\<TOMCAT_HOME>\webapps\<rule services file name>\WEB-INF\lib`.
-2.  In the `application.properties` file, set up the `ruleservice.datasource.deploy.classpath.jars = true`.
+2.  In the `application.properties` file, set up the `ruleservice.datasource.deploy.classpath.jars = IF_ABSENT`.
 
-By default, this property is set to `true`.
+By default, this property is set to `NEVER`.
 
 **Note:** Project deployment is skipped if the data source already contains the project with the same name.
 

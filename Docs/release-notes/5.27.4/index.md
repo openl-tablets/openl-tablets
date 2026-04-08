@@ -11,7 +11,7 @@ OpenL Tablets **5.27.4** delivers significant Rule Services improvements includi
 
 * Implemented Docker support for MinIO as an S3-compatible storage repository in Rule Services.
 * Migrated the S3 repository to AWS SDK v2.
-* Added support for force-deploying JARs from Rule Services via `ruleservice.datasource.deploy.classpath.jars=always`.
+* Added support for force-deploying JARs from Rule Services via `ruleservice.datasource.deploy.classpath.jars=ALWAYS`.
 * Added support for non-versioned S3 repositories.
 * Added support for `http://minio:9000/` style URLs.
 * Improved overall performance of deployment repositories.
